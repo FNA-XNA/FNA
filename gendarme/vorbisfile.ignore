@@ -1,0 +1,94 @@
+R: Gendarme.Rules.Design.Generic.AvoidDeclaringCustomDelegatesRule
+T: Vorbisfile/read_func
+T: Vorbisfile/seek_func
+T: Vorbisfile/close_func
+T: Vorbisfile/tell_func
+
+R: Gendarme.Rules.Performance.AvoidLargeStructureRule
+T: Vorbisfile/vorbis_info
+
+R: Gendarme.Rules.Naming.AvoidNonAlphanumericIdentifierRule
+M: System.Int32 Vorbisfile::ov_fopen(System.String,System.IntPtr&)
+M: System.Int32 Vorbisfile::ov_open_callbacks(System.IntPtr,System.IntPtr&,System.IntPtr,System.IntPtr,Vorbisfile/ov_callbacks)
+M: Vorbisfile/vorbis_info Vorbisfile::ov_info(System.IntPtr,System.Int32)
+M: Vorbisfile/vorbis_comment Vorbisfile::ov_comment(System.IntPtr,System.Int32)
+M: System.Double Vorbisfile::ov_time_total(System.IntPtr,System.Int32)
+M: System.Int64 Vorbisfile::ov_read(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.Int32,System.Int32,System.Int32&)
+M: System.Int64 Vorbisfile::ov_read(System.IntPtr,System.IntPtr,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32&)
+M: System.Int32 Vorbisfile::ov_time_seek(System.IntPtr,System.Double)
+M: System.Int32 Vorbisfile::ov_clear(System.IntPtr&)
+T: Vorbisfile/SeekWhence
+T: Vorbisfile/read_func
+T: Vorbisfile/seek_func
+T: Vorbisfile/close_func
+T: Vorbisfile/tell_func
+T: Vorbisfile/vorbis_info
+T: Vorbisfile/vorbis_comment
+T: Vorbisfile/ov_callbacks
+
+R: Gendarme.Rules.Design.AvoidRefAndOutParametersRule
+M: System.Int32 Vorbisfile::ov_fopen(System.String,System.IntPtr&)
+M: System.Int32 Vorbisfile::ov_open_callbacks(System.IntPtr,System.IntPtr&,System.IntPtr,System.IntPtr,Vorbisfile/ov_callbacks)
+M: System.Int32 Vorbisfile::ov_clear(System.IntPtr&)
+
+R: Gendarme.Rules.Design.AvoidVisibleFieldsRule
+T: Vorbisfile/vorbis_info
+T: Vorbisfile/vorbis_comment
+T: Vorbisfile/ov_callbacks
+
+R: Gendarme.Rules.Design.AvoidVisibleNestedTypesRule
+T: Vorbisfile/SeekWhence
+T: Vorbisfile/read_func
+T: Vorbisfile/seek_func
+T: Vorbisfile/close_func
+T: Vorbisfile/tell_func
+T: Vorbisfile/vorbis_info
+T: Vorbisfile/vorbis_comment
+T: Vorbisfile/ov_callbacks
+
+R: Gendarme.Rules.Interoperability.CentralizePInvokesIntoNativeMethodsTypeRule
+M: System.IntPtr Vorbisfile::malloc(System.IntPtr)
+M: System.Void Vorbisfile::free(System.IntPtr)
+M: System.Int32 Vorbisfile::INTERNAL_ov_fopen(System.String,System.IntPtr)
+M: System.Int32 Vorbisfile::INTERNAL_ov_open_callbacks(System.IntPtr,System.IntPtr,System.IntPtr,System.IntPtr,Vorbisfile/ov_callbacks)
+M: System.IntPtr Vorbisfile::INTERNAL_ov_info(System.IntPtr,System.Int32)
+M: System.IntPtr Vorbisfile::INTERNAL_ov_comment(System.IntPtr,System.Int32)
+M: System.Double Vorbisfile::ov_time_total(System.IntPtr,System.Int32)
+M: System.Int64 Vorbisfile::ov_read(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.Int32,System.Int32,System.Int32&)
+M: System.Int64 Vorbisfile::ov_read(System.IntPtr,System.IntPtr,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32&)
+M: System.Int32 Vorbisfile::ov_time_seek(System.IntPtr,System.Double)
+M: System.Int32 Vorbisfile::INTERNAL_ov_clear(System.IntPtr)
+
+R: Gendarme.Rules.Design.MarkAssemblyWithAssemblyVersionRule
+A: Vorbisfile-CS, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+
+R: Gendarme.Rules.Design.MarkAssemblyWithCLSCompliantRule
+A: Vorbisfile-CS, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+
+R: Gendarme.Rules.Design.MarkAssemblyWithComVisibleRule
+A: Vorbisfile-CS, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+
+R: Gendarme.Rules.Security.NativeFieldsShouldNotBeVisibleRule
+T: Vorbisfile/vorbis_info
+T: Vorbisfile/vorbis_comment
+
+R: Gendarme.Rules.Naming.UseCorrectCasingRule
+M: System.IntPtr Vorbisfile::malloc(System.IntPtr)
+M: System.Void Vorbisfile::free(System.IntPtr)
+M: System.Int32 Vorbisfile::ov_fopen(System.String,System.IntPtr&)
+M: System.Int32 Vorbisfile::ov_open_callbacks(System.IntPtr,System.IntPtr&,System.IntPtr,System.IntPtr,Vorbisfile/ov_callbacks)
+M: Vorbisfile/vorbis_info Vorbisfile::ov_info(System.IntPtr,System.Int32)
+M: Vorbisfile/vorbis_comment Vorbisfile::ov_comment(System.IntPtr,System.Int32)
+M: System.Double Vorbisfile::ov_time_total(System.IntPtr,System.Int32)
+M: System.Int64 Vorbisfile::ov_read(System.IntPtr,System.Byte[],System.Int32,System.Int32,System.Int32,System.Int32,System.Int32&)
+M: System.Int64 Vorbisfile::ov_read(System.IntPtr,System.IntPtr,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32&)
+M: System.Int32 Vorbisfile::ov_time_seek(System.IntPtr,System.Double)
+M: System.Int32 Vorbisfile::ov_clear(System.IntPtr&)
+T: Vorbisfile/read_func
+T: Vorbisfile/seek_func
+T: Vorbisfile/close_func
+T: Vorbisfile/tell_func
+T: Vorbisfile/vorbis_info
+T: Vorbisfile/vorbis_comment
+T: Vorbisfile/ov_callbacks
+

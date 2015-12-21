@@ -1,0 +1,61 @@
+R: Gendarme.Rules.Naming.AvoidNonAlphanumericIdentifierRule
+M: System.IntPtr TheoraPlay::THEORAPLAY_startDecodeFile(System.String,System.UInt32,TheoraPlay/THEORAPLAY_VideoFormat)
+M: System.Void TheoraPlay::THEORAPLAY_stopDecode(System.IntPtr)
+M: System.Int32 TheoraPlay::THEORAPLAY_isDecoding(System.IntPtr)
+M: System.Int32 TheoraPlay::THEORAPLAY_decodingError(System.IntPtr)
+M: System.Int32 TheoraPlay::THEORAPLAY_isInitialized(System.IntPtr)
+M: System.Int32 TheoraPlay::THEORAPLAY_hasVideoStream(System.IntPtr)
+M: System.Int32 TheoraPlay::THEORAPLAY_hasAudioStream(System.IntPtr)
+M: System.UInt32 TheoraPlay::THEORAPLAY_availableVideo(System.IntPtr)
+M: System.UInt32 TheoraPlay::THEORAPLAY_availableAudio(System.IntPtr)
+M: System.IntPtr TheoraPlay::THEORAPLAY_getAudio(System.IntPtr)
+M: System.Void TheoraPlay::THEORAPLAY_freeAudio(System.IntPtr)
+M: System.IntPtr TheoraPlay::THEORAPLAY_getVideo(System.IntPtr)
+M: System.Void TheoraPlay::THEORAPLAY_freeVideo(System.IntPtr)
+T: TheoraPlay/THEORAPLAY_VideoFormat
+T: TheoraPlay/THEORAPLAY_VideoFrame
+T: TheoraPlay/THEORAPLAY_AudioPacket
+
+R: Gendarme.Rules.Design.AvoidVisibleFieldsRule
+T: TheoraPlay/THEORAPLAY_VideoFrame
+T: TheoraPlay/THEORAPLAY_AudioPacket
+
+R: Gendarme.Rules.Design.AvoidVisibleNestedTypesRule
+T: TheoraPlay/THEORAPLAY_VideoFormat
+T: TheoraPlay/THEORAPLAY_VideoFrame
+T: TheoraPlay/THEORAPLAY_AudioPacket
+
+R: Gendarme.Rules.Interoperability.CentralizePInvokesIntoNativeMethodsTypeRule
+M: System.IntPtr TheoraPlay::THEORAPLAY_startDecodeFile(System.String,System.UInt32,TheoraPlay/THEORAPLAY_VideoFormat)
+M: System.Void TheoraPlay::THEORAPLAY_stopDecode(System.IntPtr)
+M: System.Int32 TheoraPlay::THEORAPLAY_isDecoding(System.IntPtr)
+M: System.Int32 TheoraPlay::THEORAPLAY_decodingError(System.IntPtr)
+M: System.Int32 TheoraPlay::THEORAPLAY_isInitialized(System.IntPtr)
+M: System.Int32 TheoraPlay::THEORAPLAY_hasVideoStream(System.IntPtr)
+M: System.Int32 TheoraPlay::THEORAPLAY_hasAudioStream(System.IntPtr)
+M: System.UInt32 TheoraPlay::THEORAPLAY_availableVideo(System.IntPtr)
+M: System.UInt32 TheoraPlay::THEORAPLAY_availableAudio(System.IntPtr)
+M: System.IntPtr TheoraPlay::THEORAPLAY_getAudio(System.IntPtr)
+M: System.Void TheoraPlay::THEORAPLAY_freeAudio(System.IntPtr)
+M: System.IntPtr TheoraPlay::THEORAPLAY_getVideo(System.IntPtr)
+M: System.Void TheoraPlay::THEORAPLAY_freeVideo(System.IntPtr)
+
+R: Gendarme.Rules.Design.MarkAssemblyWithAssemblyVersionRule
+A: TheoraPlay-CS, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+
+R: Gendarme.Rules.Design.MarkAssemblyWithCLSCompliantRule
+A: TheoraPlay-CS, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+
+R: Gendarme.Rules.Design.MarkAssemblyWithComVisibleRule
+A: TheoraPlay-CS, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+
+R: Gendarme.Rules.Security.NativeFieldsShouldNotBeVisibleRule
+T: TheoraPlay/THEORAPLAY_VideoFrame
+T: TheoraPlay/THEORAPLAY_AudioPacket
+
+R: Gendarme.Rules.Naming.UseCorrectCasingRule
+M: TheoraPlay/THEORAPLAY_VideoFrame TheoraPlay::getVideoFrame(System.IntPtr)
+M: TheoraPlay/THEORAPLAY_AudioPacket TheoraPlay::getAudioPacket(System.IntPtr)
+M: System.Single[] TheoraPlay::getSamples(System.IntPtr,System.Int32)
+M: System.Byte[] TheoraPlay::getPixels(System.IntPtr,System.Int32)
+

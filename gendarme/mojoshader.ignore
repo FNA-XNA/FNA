@@ -1,0 +1,339 @@
+R: Gendarme.Rules.Design.Generic.AvoidDeclaringCustomDelegatesRule
+T: MojoShader/MOJOSHADER_malloc
+T: MojoShader/MOJOSHADER_free
+T: MojoShader/MOJOSHADER_glGetProcAddress
+
+R: Gendarme.Rules.Performance.AvoidLargeStructureRule
+T: MojoShader/MOJOSHADER_symbol
+T: MojoShader/MOJOSHADER_preshaderInstruction
+T: MojoShader/MOJOSHADER_parseData
+T: MojoShader/MOJOSHADER_effectValue
+T: MojoShader/MOJOSHADER_effectState
+T: MojoShader/MOJOSHADER_effectSamplerState
+T: MojoShader/MOJOSHADER_effectAnnotation
+T: MojoShader/MOJOSHADER_effectParam
+T: MojoShader/MOJOSHADER_effectShader
+T: MojoShader/MOJOSHADER_effectObject
+T: MojoShader/MOJOSHADER_effect
+
+R: Gendarme.Rules.Naming.AvoidNonAlphanumericIdentifierRule
+T: MojoShader
+M: System.Int32 MojoShader::MOJOSHADER_version()
+M: System.IntPtr MojoShader::MOJOSHADER_changeset()
+M: System.Int32 MojoShader::MOJOSHADER_maxShaderModel(System.String)
+M: System.IntPtr MojoShader::MOJOSHADER_parse(System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_freeParseData(System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_parsePreshader(System.Byte[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_freePreshader(System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_parseEffect(System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_freeEffect(System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_cloneEffect(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_effectSetRawValueHandle(System.IntPtr,System.IntPtr,System.UInt32,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_effectSetRawValueName(System.IntPtr,System.String,System.IntPtr,System.UInt32,System.UInt32)
+M: System.IntPtr MojoShader::MOJOSHADER_effectGetCurrentTechnique(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_effectSetTechnique(System.IntPtr,System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_effectFindNextValidTechnique(System.IntPtr,System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_glCompileEffect(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glDeleteEffect(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glEffectBegin(System.IntPtr,System.UInt32&,System.Int32,MojoShader/MOJOSHADER_effectStateChanges&)
+M: System.Void MojoShader::MOJOSHADER_glEffectBeginPass(System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glEffectCommitChanges(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glEffectEndPass(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glEffectEnd(System.IntPtr)
+M: System.Int32 MojoShader::MOJOSHADER_glAvailableProfiles(MojoShader/MOJOSHADER_glGetProcAddress,System.IntPtr,System.IntPtr,System.Int32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.String MojoShader::MOJOSHADER_glBestProfile(MojoShader/MOJOSHADER_glGetProcAddress,System.IntPtr,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_glCreateContext(System.String,MojoShader/MOJOSHADER_glGetProcAddress,System.IntPtr,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glMakeContextCurrent(System.IntPtr)
+M: System.String MojoShader::MOJOSHADER_glGetError()
+M: System.Int32 MojoShader::MOJOSHADER_glMaxUniforms(MojoShader/MOJOSHADER_shaderType)
+M: System.IntPtr MojoShader::MOJOSHADER_glCompileShader(System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32)
+M: System.IntPtr MojoShader::MOJOSHADER_glGetShaderParseData(System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_glLinkProgram(System.IntPtr,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glBindProgram(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glBindShaders(System.IntPtr,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glSetVertexShaderUniformF(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetVertexShaderUniformF(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetVertexShaderUniformI(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetVertexShaderUniformI(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetVertexShaderUniformB(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetVertexShaderUniformB(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetPixelShaderUniformF(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetPixelShaderUniformF(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetPixelShaderUniformI(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetPixelShaderUniformI(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetPixelShaderUniformB(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetPixelShaderUniformB(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetLegacyBumpMapEnv(System.UInt32,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)
+M: System.Int32 MojoShader::MOJOSHADER_glGetVertexAttribLocation(MojoShader/MOJOSHADER_usage,System.Int32)
+M: System.Void MojoShader::MOJOSHADER_glSetVertexAttribute(MojoShader/MOJOSHADER_usage,System.Int32,System.UInt32,MojoShader/MOJOSHADER_attributeType,System.Int32,System.UInt32,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glSetVertexAttribDivisor(MojoShader/MOJOSHADER_usage,System.Int32,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glProgramReady()
+M: System.Void MojoShader::MOJOSHADER_glProgramViewportFlip(System.Int32)
+M: System.Void MojoShader::MOJOSHADER_glDeleteProgram(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glDeleteShader(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glDestroyContext(System.IntPtr)
+T: MojoShader/MOJOSHADER_malloc
+T: MojoShader/MOJOSHADER_free
+T: MojoShader/MOJOSHADER_shaderType
+T: MojoShader/MOJOSHADER_attributeType
+T: MojoShader/MOJOSHADER_uniformType
+T: MojoShader/MOJOSHADER_uniform
+T: MojoShader/MOJOSHADER_constant
+T: MojoShader/MOJOSHADER_samplerType
+T: MojoShader/MOJOSHADER_sampler
+T: MojoShader/MOJOSHADER_samplerMap
+T: MojoShader/MOJOSHADER_usage
+T: MojoShader/MOJOSHADER_attribute
+T: MojoShader/MOJOSHADER_swizzle
+T: MojoShader/MOJOSHADER_symbolRegisterSet
+T: MojoShader/MOJOSHADER_symbolClass
+T: MojoShader/MOJOSHADER_symbolType
+T: MojoShader/MOJOSHADER_symbolTypeInfo
+T: MojoShader/MOJOSHADER_symbolStructMember
+T: MojoShader/MOJOSHADER_symbol
+T: MojoShader/MOJOSHADER_error
+T: MojoShader/MOJOSHADER_preshaderOpcode
+T: MojoShader/MOJOSHADER_preshaderOperandType
+T: MojoShader/MOJOSHADER_preshaderOperand
+T: MojoShader/MOJOSHADER_preshaderInstruction
+T: MojoShader/MOJOSHADER_preshader
+T: MojoShader/MOJOSHADER_parseData
+T: MojoShader/MOJOSHADER_renderStateType
+T: MojoShader/MOJOSHADER_zBufferType
+T: MojoShader/MOJOSHADER_fillMode
+T: MojoShader/MOJOSHADER_shadeMode
+T: MojoShader/MOJOSHADER_blendMode
+T: MojoShader/MOJOSHADER_cullMode
+T: MojoShader/MOJOSHADER_compareFunc
+T: MojoShader/MOJOSHADER_fogMode
+T: MojoShader/MOJOSHADER_stencilOp
+T: MojoShader/MOJOSHADER_materialColorSource
+T: MojoShader/MOJOSHADER_vertexBlendFlags
+T: MojoShader/MOJOSHADER_patchedEdgeStyle
+T: MojoShader/MOJOSHADER_debugMonitorTokens
+T: MojoShader/MOJOSHADER_blendOp
+T: MojoShader/MOJOSHADER_degreeType
+T: MojoShader/MOJOSHADER_samplerStateType
+T: MojoShader/MOJOSHADER_textureAddress
+T: MojoShader/MOJOSHADER_textureFilterType
+T: MojoShader/MOJOSHADER_effectValue
+T: MojoShader/MOJOSHADER_effectState
+T: MojoShader/MOJOSHADER_effectSamplerState
+T: MojoShader/MOJOSHADER_effectAnnotation
+T: MojoShader/MOJOSHADER_effectParam
+T: MojoShader/MOJOSHADER_effectPass
+T: MojoShader/MOJOSHADER_effectTechnique
+T: MojoShader/MOJOSHADER_effectShader
+T: MojoShader/MOJOSHADER_effectSamplerMap
+T: MojoShader/MOJOSHADER_effectString
+T: MojoShader/MOJOSHADER_effectTexture
+T: MojoShader/MOJOSHADER_effectObject
+T: MojoShader/MOJOSHADER_samplerStateRegister
+T: MojoShader/MOJOSHADER_effectStateChanges
+T: MojoShader/MOJOSHADER_effect
+T: MojoShader/MOJOSHADER_glGetProcAddress
+
+R: Gendarme.Rules.BadPractice.AvoidVisibleConstantFieldRule
+T: MojoShader
+
+R: Gendarme.Rules.Design.AvoidVisibleFieldsRule
+T: MojoShader/MOJOSHADER_uniform
+T: MojoShader/MOJOSHADER_constant
+T: MojoShader/MOJOSHADER_sampler
+T: MojoShader/MOJOSHADER_samplerMap
+T: MojoShader/MOJOSHADER_attribute
+T: MojoShader/MOJOSHADER_swizzle
+T: MojoShader/MOJOSHADER_symbolTypeInfo
+T: MojoShader/MOJOSHADER_symbolStructMember
+T: MojoShader/MOJOSHADER_symbol
+T: MojoShader/MOJOSHADER_error
+T: MojoShader/MOJOSHADER_preshaderOperand
+T: MojoShader/MOJOSHADER_preshaderInstruction
+T: MojoShader/MOJOSHADER_preshader
+T: MojoShader/MOJOSHADER_parseData
+T: MojoShader/MOJOSHADER_effectValue
+T: MojoShader/MOJOSHADER_effectState
+T: MojoShader/MOJOSHADER_effectSamplerState
+T: MojoShader/MOJOSHADER_effectAnnotation
+T: MojoShader/MOJOSHADER_effectParam
+T: MojoShader/MOJOSHADER_effectPass
+T: MojoShader/MOJOSHADER_effectTechnique
+T: MojoShader/MOJOSHADER_effectShader
+T: MojoShader/MOJOSHADER_effectSamplerMap
+T: MojoShader/MOJOSHADER_effectString
+T: MojoShader/MOJOSHADER_effectTexture
+T: MojoShader/MOJOSHADER_effectObject
+T: MojoShader/MOJOSHADER_samplerStateRegister
+T: MojoShader/MOJOSHADER_effectStateChanges
+T: MojoShader/MOJOSHADER_effect
+
+R: Gendarme.Rules.Design.AvoidVisibleNestedTypesRule
+T: MojoShader/MOJOSHADER_malloc
+T: MojoShader/MOJOSHADER_free
+T: MojoShader/MOJOSHADER_shaderType
+T: MojoShader/MOJOSHADER_attributeType
+T: MojoShader/MOJOSHADER_uniformType
+T: MojoShader/MOJOSHADER_uniform
+T: MojoShader/MOJOSHADER_constant
+T: MojoShader/MOJOSHADER_constant/<f>__FixedBuffer0
+T: MojoShader/MOJOSHADER_constant/<i>__FixedBuffer1
+T: MojoShader/MOJOSHADER_samplerType
+T: MojoShader/MOJOSHADER_sampler
+T: MojoShader/MOJOSHADER_samplerMap
+T: MojoShader/MOJOSHADER_usage
+T: MojoShader/MOJOSHADER_attribute
+T: MojoShader/MOJOSHADER_swizzle
+T: MojoShader/MOJOSHADER_swizzle/<swizzles>__FixedBuffer2
+T: MojoShader/MOJOSHADER_symbolRegisterSet
+T: MojoShader/MOJOSHADER_symbolClass
+T: MojoShader/MOJOSHADER_symbolType
+T: MojoShader/MOJOSHADER_symbolTypeInfo
+T: MojoShader/MOJOSHADER_symbolStructMember
+T: MojoShader/MOJOSHADER_symbol
+T: MojoShader/MOJOSHADER_error
+T: MojoShader/MOJOSHADER_preshaderOpcode
+T: MojoShader/MOJOSHADER_preshaderOperandType
+T: MojoShader/MOJOSHADER_preshaderOperand
+T: MojoShader/MOJOSHADER_preshaderInstruction
+T: MojoShader/MOJOSHADER_preshader
+T: MojoShader/MOJOSHADER_parseData
+T: MojoShader/MOJOSHADER_renderStateType
+T: MojoShader/MOJOSHADER_zBufferType
+T: MojoShader/MOJOSHADER_fillMode
+T: MojoShader/MOJOSHADER_shadeMode
+T: MojoShader/MOJOSHADER_blendMode
+T: MojoShader/MOJOSHADER_cullMode
+T: MojoShader/MOJOSHADER_compareFunc
+T: MojoShader/MOJOSHADER_fogMode
+T: MojoShader/MOJOSHADER_stencilOp
+T: MojoShader/MOJOSHADER_materialColorSource
+T: MojoShader/MOJOSHADER_vertexBlendFlags
+T: MojoShader/MOJOSHADER_patchedEdgeStyle
+T: MojoShader/MOJOSHADER_debugMonitorTokens
+T: MojoShader/MOJOSHADER_blendOp
+T: MojoShader/MOJOSHADER_degreeType
+T: MojoShader/MOJOSHADER_samplerStateType
+T: MojoShader/MOJOSHADER_textureAddress
+T: MojoShader/MOJOSHADER_textureFilterType
+T: MojoShader/MOJOSHADER_effectValue
+T: MojoShader/MOJOSHADER_effectState
+T: MojoShader/MOJOSHADER_effectSamplerState
+T: MojoShader/MOJOSHADER_effectAnnotation
+T: MojoShader/MOJOSHADER_effectParam
+T: MojoShader/MOJOSHADER_effectPass
+T: MojoShader/MOJOSHADER_effectTechnique
+T: MojoShader/MOJOSHADER_effectShader
+T: MojoShader/MOJOSHADER_effectSamplerMap
+T: MojoShader/MOJOSHADER_effectString
+T: MojoShader/MOJOSHADER_effectTexture
+T: MojoShader/MOJOSHADER_effectObject
+T: MojoShader/MOJOSHADER_samplerStateRegister
+T: MojoShader/MOJOSHADER_effectStateChanges
+T: MojoShader/MOJOSHADER_effect
+T: MojoShader/MOJOSHADER_glGetProcAddress
+
+R: Gendarme.Rules.Interoperability.CentralizePInvokesIntoNativeMethodsTypeRule
+M: System.Int32 MojoShader::MOJOSHADER_version()
+M: System.IntPtr MojoShader::MOJOSHADER_changeset()
+M: System.Int32 MojoShader::MOJOSHADER_maxShaderModel(System.String)
+M: System.IntPtr MojoShader::MOJOSHADER_parse(System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_freeParseData(System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_parsePreshader(System.Byte[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_freePreshader(System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_parseEffect(System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_freeEffect(System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_cloneEffect(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_effectSetRawValueHandle(System.IntPtr,System.IntPtr,System.UInt32,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_effectSetRawValueName(System.IntPtr,System.String,System.IntPtr,System.UInt32,System.UInt32)
+M: System.IntPtr MojoShader::MOJOSHADER_effectGetCurrentTechnique(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_effectSetTechnique(System.IntPtr,System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_effectFindNextValidTechnique(System.IntPtr,System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_glCompileEffect(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glDeleteEffect(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glEffectBegin(System.IntPtr,System.UInt32&,System.Int32,MojoShader/MOJOSHADER_effectStateChanges&)
+M: System.Void MojoShader::MOJOSHADER_glEffectBeginPass(System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glEffectCommitChanges(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glEffectEndPass(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glEffectEnd(System.IntPtr)
+M: System.Int32 MojoShader::MOJOSHADER_glAvailableProfiles(MojoShader/MOJOSHADER_glGetProcAddress,System.IntPtr,System.IntPtr,System.Int32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.IntPtr MojoShader::INTERNAL_glBestProfile(MojoShader/MOJOSHADER_glGetProcAddress,System.IntPtr,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_glCreateContext(System.String,MojoShader/MOJOSHADER_glGetProcAddress,System.IntPtr,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glMakeContextCurrent(System.IntPtr)
+M: System.IntPtr MojoShader::INTERNAL_glGetError()
+M: System.Int32 MojoShader::MOJOSHADER_glMaxUniforms(MojoShader/MOJOSHADER_shaderType)
+M: System.IntPtr MojoShader::MOJOSHADER_glCompileShader(System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32)
+M: System.IntPtr MojoShader::MOJOSHADER_glGetShaderParseData(System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_glLinkProgram(System.IntPtr,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glBindProgram(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glBindShaders(System.IntPtr,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glSetVertexShaderUniformF(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetVertexShaderUniformF(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetVertexShaderUniformI(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetVertexShaderUniformI(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetVertexShaderUniformB(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetVertexShaderUniformB(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetPixelShaderUniformF(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetPixelShaderUniformF(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetPixelShaderUniformI(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetPixelShaderUniformI(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetPixelShaderUniformB(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glGetPixelShaderUniformB(System.UInt32,System.IntPtr,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glSetLegacyBumpMapEnv(System.UInt32,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)
+M: System.Int32 MojoShader::MOJOSHADER_glGetVertexAttribLocation(MojoShader/MOJOSHADER_usage,System.Int32)
+M: System.Void MojoShader::MOJOSHADER_glSetVertexAttribute(MojoShader/MOJOSHADER_usage,System.Int32,System.UInt32,MojoShader/MOJOSHADER_attributeType,System.Int32,System.UInt32,System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glSetVertexAttribDivisor(MojoShader/MOJOSHADER_usage,System.Int32,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_glProgramReady()
+M: System.Void MojoShader::MOJOSHADER_glProgramViewportFlip(System.Int32)
+M: System.Void MojoShader::MOJOSHADER_glDeleteProgram(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glDeleteShader(System.IntPtr)
+M: System.Void MojoShader::MOJOSHADER_glDestroyContext(System.IntPtr)
+
+R: Gendarme.Rules.Naming.DoNotPrefixValuesWithEnumNameRule
+T: MojoShader/MOJOSHADER_usage
+T: MojoShader/MOJOSHADER_stencilOp
+T: MojoShader/MOJOSHADER_blendOp
+
+R: Gendarme.Rules.Design.MarkAssemblyWithAssemblyVersionRule
+A: MojoShader-CS, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+
+R: Gendarme.Rules.Design.MarkAssemblyWithCLSCompliantRule
+A: MojoShader-CS, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+
+R: Gendarme.Rules.Design.MarkAssemblyWithComVisibleRule
+A: MojoShader-CS, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+
+R: Gendarme.Rules.Security.NativeFieldsShouldNotBeVisibleRule
+T: MojoShader/MOJOSHADER_uniform
+T: MojoShader/MOJOSHADER_sampler
+T: MojoShader/MOJOSHADER_attribute
+T: MojoShader/MOJOSHADER_symbolTypeInfo
+T: MojoShader/MOJOSHADER_symbolStructMember
+T: MojoShader/MOJOSHADER_symbol
+T: MojoShader/MOJOSHADER_error
+T: MojoShader/MOJOSHADER_preshader
+T: MojoShader/MOJOSHADER_parseData
+T: MojoShader/MOJOSHADER_effectValue
+T: MojoShader/MOJOSHADER_effectAnnotation
+T: MojoShader/MOJOSHADER_effectParam
+T: MojoShader/MOJOSHADER_effectPass
+T: MojoShader/MOJOSHADER_effectTechnique
+T: MojoShader/MOJOSHADER_effectShader
+T: MojoShader/MOJOSHADER_effectSamplerMap
+T: MojoShader/MOJOSHADER_effectString
+T: MojoShader/MOJOSHADER_samplerStateRegister
+T: MojoShader/MOJOSHADER_effectStateChanges
+T: MojoShader/MOJOSHADER_effect
+
+R: Gendarme.Rules.Naming.UseCorrectCasingRule
+M: System.IntPtr MojoShader::MOJOSHADER_parseEffect(System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+
+R: Gendarme.Rules.Naming.UseCorrectSuffixRule
+T: MojoShader/MOJOSHADER_attribute
+T: MojoShader/MOJOSHADER_vertexBlendFlags
+
+R: Gendarme.Rules.Naming.UseSingularNameInEnumsUnlessAreFlagsRule
+T: MojoShader/MOJOSHADER_symbolClass
+T: MojoShader/MOJOSHADER_vertexBlendFlags
+T: MojoShader/MOJOSHADER_debugMonitorTokens
+T: MojoShader/MOJOSHADER_textureAddress
+

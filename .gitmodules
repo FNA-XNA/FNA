@@ -1,0 +1,15 @@
+[submodule "lib/SDL2-CS"]
+	path = lib/SDL2-CS
+	url = git://github.com/flibitijibibo/SDL2-CS.git
+[submodule "lib/OpenAL-CS"]
+	path = lib/OpenAL-CS
+	url = git://github.com/flibitijibibo/OpenAL-CS.git
+[submodule "lib/MojoShader-CS"]
+	path = lib/MojoShader-CS
+	url = git://github.com/flibitijibibo/MojoShader-CS.git
+[submodule "lib/Vorbisfile-CS"]
+	path = lib/Vorbisfile-CS
+	url = git://github.com/flibitijibibo/Vorbisfile-CS.git
+[submodule "lib/TheoraPlay-CS"]
+	path = lib/TheoraPlay-CS
+	url = git://github.com/flibitijibibo/TheoraPlay-CS.git

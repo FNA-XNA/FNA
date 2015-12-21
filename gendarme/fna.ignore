@@ -1,0 +1,12 @@
+R: Gendarme.Rules.Design.AvoidRefAndOutParametersRule
+A: FNA
+
+R: Gendarme.Rules.Naming.AvoidDeepNamespaceHierarchyRule
+A: FNA
+
+# Ignore everything from the lib folder
+@ sdl2.ignore
+@ openal.ignore
+@ mojoshader.ignore
+@ vorbisfile.ignore
+@ theoraplay.ignore

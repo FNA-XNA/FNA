@@ -1,0 +1,15 @@
+The code found in this folder comes directly from the Stock Effects sample
+project, almost exactly as it was published by Microsoft:
+
+http://xbox.create.msdn.com/en-US/education/catalog/sample/stock_effects
+
+The following changes have been made to accommodate the FNA project:
+
+- The 'StockEffects' namespace is now 'Microsoft.Xna.Framework.Graphics'.
+	- The unnecessary using statements have consequently been removed.
+- SpriteEffect is an internal class, rather than public, for XNA4 accuracy.
+- OnApply() uses the 'internal' keyword, to match the internal XNA4 API.
+
+What we do NOT use in FNA is the embedded resource classes found in the example.
+
+Instead, we created our own 'Resources' class, found in src/Graphics/Effects/.
