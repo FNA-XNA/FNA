@@ -10,7 +10,7 @@
 namespace Microsoft.Xna.Framework
 {
 	/// <summary>
-	/// Defines the index of player for various MonoGame components.
+	/// Defines the index of player for various input components.
 	/// </summary>
 	public enum PlayerIndex
 	{

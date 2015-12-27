@@ -34,26 +34,27 @@ namespace Microsoft.Xna.Framework.Input
 
 		#region Internal SDL2_GamePad Variables
 
+		/* Determines how many controllers we should be tracking.
+		 * Per XNA4 we track 4 by default, but if you want to track more you can
+		 * do this by changing PlayerIndex.cs to include more index names.
+		 * -flibit
+		 */
+		private static readonly int GAMEPAD_COUNT = DetermineNumGamepads();
+
 		// Controller device information
-		private static IntPtr[] INTERNAL_devices = new IntPtr[4];
+		private static IntPtr[] INTERNAL_devices = new IntPtr[GAMEPAD_COUNT];
 		private static Dictionary<int, int> INTERNAL_instanceList = new Dictionary<int, int>();
-		private static string[] INTERNAL_guids = new string[]
-		{
-			String.Empty, String.Empty, String.Empty, String.Empty
-		};
+		private static string[] INTERNAL_guids = GenStringArray();
 
 		// Haptic device information
-		private static IntPtr[] INTERNAL_haptics = new IntPtr[4];
-		private static HapticType[] INTERNAL_hapticTypes = new HapticType[4];
+		private static IntPtr[] INTERNAL_haptics = new IntPtr[GAMEPAD_COUNT];
+		private static HapticType[] INTERNAL_hapticTypes = new HapticType[GAMEPAD_COUNT];
 
 		// Light bar information
-		private static string[] INTERNAL_lightBars = new string[]
-		{
-			String.Empty, String.Empty, String.Empty, String.Empty
-		};
+		private static string[] INTERNAL_lightBars = GenStringArray();
 
 		// Cached GamePadStates
-		private static GamePadState[] INTERNAL_states = new GamePadState[4];
+		private static GamePadState[] INTERNAL_states = new GamePadState[GAMEPAD_COUNT];
 
 		// We use this to apply XInput-like rumble effects.
 		private static SDL.SDL_HapticEffect INTERNAL_leftRightEffect = new SDL.SDL_HapticEffect
@@ -93,6 +94,39 @@ namespace Microsoft.Xna.Framework.Input
 		private static float invertAxis = Environment.GetEnvironmentVariable(
 			"FNA_WORKAROUND_INVERT_YAXIS"
 		) == "1" ? -1.0f : 1.0f;
+
+		#endregion
+
+		#region String Array Init Method
+
+		private static int DetermineNumGamepads()
+		{
+			string numGamepadString = Environment.GetEnvironmentVariable(
+				"FNA_GAMEPAD_NUM_GAMEPADS"
+			);
+			if (!String.IsNullOrEmpty(numGamepadString))
+			{
+				int numGamepads;
+				if (int.TryParse(numGamepadString, out numGamepads))
+				{
+					if (numGamepads >= 0)
+					{
+						return numGamepads;
+					}
+				}
+			}
+			return Enum.GetNames(typeof(PlayerIndex)).Length;
+		}
+
+		private static string[] GenStringArray()
+		{
+			string[] result = new string[GAMEPAD_COUNT];
+			for (int i = 0; i < result.Length; i += 1)
+			{
+				result[i] = String.Empty;
+			}
+			return result;
+		}
 
 		#endregion
 
