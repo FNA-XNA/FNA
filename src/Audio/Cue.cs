@@ -92,7 +92,8 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return INTERNAL_framesSinceStart < 4;
+				// Arbitrarily 1 frame in a 15Hz game -flibit
+				return INTERNAL_timer.ElapsedMilliseconds < 67;
 			}
 		}
 
@@ -143,9 +144,6 @@ namespace Microsoft.Xna.Framework.Audio
 		// Category managing this Cue, and whether or not it's user-managed
 		private AudioCategory INTERNAL_category;
 		private bool INTERNAL_isManaged;
-
-		// Arbitrary nonsense to prevent duplicate Cues
-		private ulong INTERNAL_framesSinceStart = 0;
 
 		// Fading
 		private enum FadeMode
@@ -463,8 +461,6 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				return true;
 			}
-
-			INTERNAL_framesSinceStart += 1;
 
 			// Play events when the timestamp has been hit.
 			for (int i = 0; i < INTERNAL_eventList.Count; i += 1)
