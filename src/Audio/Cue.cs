@@ -86,6 +86,18 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
+		#region Internal Properties
+
+		internal bool JustStarted
+		{
+			get
+			{
+				return INTERNAL_framesSinceStart < 4;
+			}
+		}
+
+		#endregion
+
 		#region Private Variables
 
 		private AudioEngine INTERNAL_baseEngine;
@@ -131,6 +143,9 @@ namespace Microsoft.Xna.Framework.Audio
 		// Category managing this Cue, and whether or not it's user-managed
 		private AudioCategory INTERNAL_category;
 		private bool INTERNAL_isManaged;
+
+		// Arbitrary nonsense to prevent duplicate Cues
+		private ulong INTERNAL_framesSinceStart = 0;
 
 		// Fading
 		private enum FadeMode
@@ -329,16 +344,25 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 				else if (INTERNAL_data.MaxCueBehavior == MaxInstanceBehavior.ReplaceOldest)
 				{
-					INTERNAL_category.INTERNAL_removeOldestCue(Name);
+					if (!INTERNAL_category.INTERNAL_removeOldestCue(Name))
+					{
+						return; // Just ignore us...
+					}
 				}
 				else if (INTERNAL_data.MaxCueBehavior == MaxInstanceBehavior.ReplaceQuietest)
 				{
-					INTERNAL_category.INTERNAL_removeQuietestCue(Name);
+					if (!INTERNAL_category.INTERNAL_removeQuietestCue(Name))
+					{
+						return; // Just ignore us...
+					}
 				}
 				else if (INTERNAL_data.MaxCueBehavior == MaxInstanceBehavior.ReplaceLowestPriority)
 				{
 					// FIXME: Priority?
-					INTERNAL_category.INTERNAL_removeOldestCue(Name);
+					if (!INTERNAL_category.INTERNAL_removeOldestCue(Name))
+					{
+						return; // Just ignore us...
+					}
 				}
 			}
 
@@ -439,6 +463,8 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				return true;
 			}
+
+			INTERNAL_framesSinceStart += 1;
 
 			// Play events when the timestamp has been hit.
 			for (int i = 0; i < INTERNAL_eventList.Count; i += 1)

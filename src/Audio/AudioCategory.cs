@@ -229,7 +229,10 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					else if (maxCueBehavior == MaxInstanceBehavior.ReplaceOldest)
 					{
-						INTERNAL_removeOldestCue(activeCues[0].Name);
+						if (!INTERNAL_removeOldestCue(activeCues[0].Name))
+						{
+							return false; // Just ignore us...
+						}
 					}
 					else if (maxCueBehavior == MaxInstanceBehavior.ReplaceQuietest)
 					{
@@ -237,11 +240,14 @@ namespace Microsoft.Xna.Framework.Audio
 						int lowestIndex = -1;
 						for (int i = 0; i < activeCues.Count; i += 1)
 						{
-							float vol = activeCues[i].INTERNAL_calculateVolume();
-							if (vol < lowestVolume)
+							if (!activeCues[i].JustStarted)
 							{
-								lowestVolume = vol;
-								lowestIndex = i;
+								float vol = activeCues[i].INTERNAL_calculateVolume();
+								if (vol < lowestVolume)
+								{
+									lowestVolume = vol;
+									lowestIndex = i;
+								}
 							}
 						}
 						if (lowestIndex > -1)
@@ -249,11 +255,18 @@ namespace Microsoft.Xna.Framework.Audio
 							cueInstanceCounts[activeCues[lowestIndex].Name] -= 1;
 							activeCues[lowestIndex].Stop(AudioStopOptions.AsAuthored);
 						}
+						else
+						{
+							return false; // Just ignore us...
+						}
 					}
 					else if (maxCueBehavior == MaxInstanceBehavior.ReplaceLowestPriority)
 					{
 						// FIXME: Priority?
-						INTERNAL_removeOldestCue(activeCues[0].Name);
+						if (!INTERNAL_removeOldestCue(activeCues[0].Name));
+						{
+							return false; // Just ignore us...
+						}
 					}
 				}
 				cueInstanceCounts[newCue.Name] += 1;
@@ -263,32 +276,23 @@ namespace Microsoft.Xna.Framework.Audio
 			return true;
 		}
 
-		internal void INTERNAL_removeLatestCue()
-		{
-			lock (activeCues)
-			{
-				Cue toDie = activeCues[activeCues.Count - 1];
-				cueInstanceCounts[toDie.Name] -= 1;
-				activeCues.RemoveAt(activeCues.Count - 1);
-			}
-		}
-
-		internal void INTERNAL_removeOldestCue(string name)
+		internal bool INTERNAL_removeOldestCue(string name)
 		{
 			lock (activeCues)
 			{
 				for (int i = 0; i < activeCues.Count; i += 1)
 				{
-					if (activeCues[i].Name.Equals(name))
+					if (activeCues[i].Name.Equals(name) && !activeCues[i].JustStarted)
 					{
 						activeCues[i].Stop(AudioStopOptions.AsAuthored);
-						return;
+						return true;
 					}
 				}
+				return false;
 			}
 		}
 
-		internal void INTERNAL_removeQuietestCue(string name)
+		internal bool INTERNAL_removeQuietestCue(string name)
 		{
 			float lowestVolume = float.MaxValue;
 			int lowestIndex = -1;
@@ -297,7 +301,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				for (int i = 0; i < activeCues.Count; i += 1)
 				{
-					if (activeCues[i].Name.Equals(name))
+					if (activeCues[i].Name.Equals(name) && !activeCues[i].JustStarted)
 					{
 						float vol = activeCues[i].INTERNAL_calculateVolume();
 						if (vol < lowestVolume)
@@ -312,7 +316,9 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					cueInstanceCounts[name] -= 1;
 					activeCues[lowestIndex].Stop(AudioStopOptions.AsAuthored);
+					return true;
 				}
+				return false;
 			}
 		}
 
