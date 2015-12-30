@@ -92,8 +92,8 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				// Arbitrarily 1 frame in a 15Hz game -flibit
-				return INTERNAL_timer.ElapsedMilliseconds < 67;
+				// Arbitrarily 1/12 of a second, with some wiggle room -flibit
+				return INTERNAL_timer.ElapsedMilliseconds < 80;
 			}
 		}
 
