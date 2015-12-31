@@ -263,7 +263,7 @@ namespace Microsoft.Xna.Framework.Audio
 					else if (maxCueBehavior == MaxInstanceBehavior.ReplaceLowestPriority)
 					{
 						// FIXME: Priority?
-						if (!INTERNAL_removeOldestCue(activeCues[0].Name));
+						if (!INTERNAL_removeOldestCue(activeCues[0].Name))
 						{
 							return false; // Just ignore us...
 						}
