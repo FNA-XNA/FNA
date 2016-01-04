@@ -1,5 +1,6 @@
 R: Gendarme.Rules.Design.Generic.AvoidDeclaringCustomDelegatesRule
 T: SDL2.SDL/SDL_LogOutputFunction
+T: SDL2.SDL/SDL_HitTest
 T: SDL2.SDL/SDL_EventFilter
 T: SDL2.SDL/SDL_AudioCallback
 T: SDL2.SDL/SDL_TimerCallback
@@ -23,6 +24,7 @@ T: SDL2.SDL/SDL_HapticCondition
 T: SDL2.SDL/SDL_HapticRamp
 T: SDL2.SDL/SDL_HapticCustom
 T: SDL2.SDL/SDL_HapticEffect
+T: SDL2.SDL/INTERNAL_SysWMDriverUnion
 T: SDL2.SDL/SDL_SysWMinfo
 
 R: Gendarme.Rules.Naming.AvoidNonAlphanumericIdentifierRule
@@ -81,6 +83,7 @@ M: System.Int32 SDL2.SDL::SDL_GetCurrentDisplayMode(System.Int32,SDL2.SDL/SDL_Di
 M: System.String SDL2.SDL::SDL_GetCurrentVideoDriver()
 M: System.Int32 SDL2.SDL::SDL_GetDesktopDisplayMode(System.Int32,SDL2.SDL/SDL_DisplayMode&)
 M: System.Int32 SDL2.SDL::SDL_GetDisplayBounds(System.Int32,SDL2.SDL/SDL_Rect&)
+M: System.Int32 SDL2.SDL::SDL_GetDisplayDPI(System.Int32,System.Single&,System.Single&,System.Single&)
 M: System.Int32 SDL2.SDL::SDL_GetDisplayMode(System.Int32,System.Int32,SDL2.SDL/SDL_DisplayMode&)
 M: System.Int32 SDL2.SDL::SDL_GetNumDisplayModes(System.Int32)
 M: System.Int32 SDL2.SDL::SDL_GetNumVideoDisplays()
@@ -142,6 +145,8 @@ M: System.Int32 SDL2.SDL::SDL_UpdateWindowSurface(System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_UpdateWindowSurfaceRects(System.IntPtr,SDL2.SDL/SDL_Rect[],System.Int32)
 M: System.Int32 SDL2.SDL::SDL_VideoInit(System.String)
 M: System.Void SDL2.SDL::SDL_VideoQuit()
+M: System.Int32 SDL2.SDL::SDL_SetWindowHitTest(System.IntPtr,SDL2.SDL/SDL_HitTest,System.IntPtr)
+M: System.IntPtr SDL2.SDL::SDL_GetGrabbedWindow()
 M: System.IntPtr SDL2.SDL::SDL_CreateRenderer(System.IntPtr,System.Int32,SDL2.SDL/SDL_RendererFlags)
 M: System.IntPtr SDL2.SDL::SDL_CreateSoftwareRenderer(System.IntPtr)
 M: System.IntPtr SDL2.SDL::SDL_CreateTexture(System.IntPtr,System.UInt32,System.Int32,System.Int32,System.Int32)
@@ -206,6 +211,7 @@ M: System.Void SDL2.SDL::SDL_UnlockTexture(System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_UpdateTexture(System.IntPtr,SDL2.SDL/SDL_Rect&,System.IntPtr,System.Int32)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_RenderTargetSupported(System.IntPtr)
 M: System.IntPtr SDL2.SDL::SDL_GetRenderTarget(System.IntPtr)
+M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_RenderIsClipEnabled(System.IntPtr)
 M: System.UInt32 SDL2.SDL::SDL_DEFINE_PIXELFOURCC(System.Byte,System.Byte,System.Byte,System.Byte)
 M: System.UInt32 SDL2.SDL::SDL_DEFINE_PIXELFORMAT(SDL2.SDL/SDL_PIXELTYPE_ENUM,SDL2.SDL/SDL_PIXELORDER_ENUM,SDL2.SDL/SDL_PACKEDLAYOUT_ENUM,System.Byte,System.Byte)
 M: System.Byte SDL2.SDL::SDL_PIXELFLAG(System.UInt32)
@@ -231,6 +237,7 @@ M: System.UInt32 SDL2.SDL::SDL_MasksToPixelFormatEnum(System.Int32,System.UInt32
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_PixelFormatEnumToMasks(System.UInt32,System.Int32&,System.UInt32&,System.UInt32&,System.UInt32&,System.UInt32&)
 M: System.Int32 SDL2.SDL::SDL_SetPaletteColors(System.IntPtr,SDL2.SDL/SDL_Color[],System.Int32,System.Int32)
 M: System.Int32 SDL2.SDL::SDL_SetPixelFormatPalette(System.IntPtr,System.IntPtr)
+M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_PointInRect(SDL2.SDL/SDL_Point&,SDL2.SDL/SDL_Rect&)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_EnclosePoints(SDL2.SDL/SDL_Point[],System.Int32,SDL2.SDL/SDL_Rect&,SDL2.SDL/SDL_Rect&)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_HasIntersection(SDL2.SDL/SDL_Rect&,SDL2.SDL/SDL_Rect&)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_IntersectRect(SDL2.SDL/SDL_Rect&,SDL2.SDL/SDL_Rect&,SDL2.SDL/SDL_Rect&)
@@ -320,9 +327,15 @@ M: System.UInt32 SDL2.SDL::SDL_GetMouseState(System.Int32&,System.Int32&)
 M: System.UInt32 SDL2.SDL::SDL_GetMouseState(System.IntPtr,System.Int32&)
 M: System.UInt32 SDL2.SDL::SDL_GetMouseState(System.Int32&,System.IntPtr)
 M: System.UInt32 SDL2.SDL::SDL_GetMouseState(System.IntPtr,System.IntPtr)
+M: System.UInt32 SDL2.SDL::SDL_GetGlobalMouseState(System.Int32&,System.Int32&)
+M: System.UInt32 SDL2.SDL::SDL_GetGlobalMouseState(System.IntPtr,System.Int32&)
+M: System.UInt32 SDL2.SDL::SDL_GetGlobalMouseState(System.Int32&,System.IntPtr)
+M: System.UInt32 SDL2.SDL::SDL_GetGlobalMouseState(System.IntPtr,System.IntPtr)
 M: System.UInt32 SDL2.SDL::SDL_GetRelativeMouseState(System.Int32&,System.Int32&)
 M: System.Void SDL2.SDL::SDL_WarpMouseInWindow(System.IntPtr,System.Int32,System.Int32)
+M: System.Int32 SDL2.SDL::SDL_WarpMouseGlobal(System.Int32,System.Int32)
 M: System.Int32 SDL2.SDL::SDL_SetRelativeMouseMode(SDL2.SDL/SDL_bool)
+M: System.Int32 SDL2.SDL::SDL_CaptureMouse(SDL2.SDL/SDL_bool)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_GetRelativeMouseMode()
 M: System.IntPtr SDL2.SDL::SDL_CreateCursor(System.IntPtr,System.IntPtr,System.Int32,System.Int32,System.Int32,System.Int32)
 M: System.IntPtr SDL2.SDL::SDL_CreateColorCursor(System.IntPtr,System.Int32,System.Int32)
@@ -358,6 +371,8 @@ M: System.Void SDL2.SDL::SDL_JoystickGetGUIDString(System.Guid,System.Byte[],Sys
 M: System.Guid SDL2.SDL::SDL_JoystickGetGUIDFromString(System.String)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_JoystickGetAttached(System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_JoystickInstanceID(System.IntPtr)
+M: SDL2.SDL/SDL_JoystickPowerLevel SDL2.SDL::SDL_JoystickCurrentPowerLevel(System.IntPtr)
+M: System.IntPtr SDL2.SDL::SDL_JoystickFromInstanceID(System.Int32)
 M: System.Int32 SDL2.SDL::SDL_GameControllerAddMapping(System.String)
 M: System.Int32 SDL2.SDL::SDL_GameControllerAddMappingsFromFile(System.String)
 M: System.String SDL2.SDL::SDL_GameControllerMappingForGUID(System.Guid)
@@ -379,6 +394,7 @@ M: System.String SDL2.SDL::SDL_GameControllerGetStringForButton(SDL2.SDL/SDL_Gam
 M: SDL2.SDL/SDL_GameControllerButtonBind SDL2.SDL::SDL_GameControllerGetBindForButton(System.IntPtr,SDL2.SDL/SDL_GameControllerButton)
 M: System.Byte SDL2.SDL::SDL_GameControllerGetButton(System.IntPtr,SDL2.SDL/SDL_GameControllerButton)
 M: System.Void SDL2.SDL::SDL_GameControllerClose(System.IntPtr)
+M: System.IntPtr SDL2.SDL::SDL_GameControllerFromInstanceID(System.Int32)
 M: System.Void SDL2.SDL::SDL_HapticClose(System.IntPtr)
 M: System.Void SDL2.SDL::SDL_HapticDestroyEffect(System.IntPtr,System.Int32)
 M: System.Int32 SDL2.SDL::SDL_HapticEffectSupported(System.IntPtr,SDL2.SDL/SDL_HapticEffect&)
@@ -440,6 +456,9 @@ M: System.Void SDL2.SDL::SDL_PauseAudio(System.Int32)
 M: System.Void SDL2.SDL::SDL_PauseAudioDevice(System.UInt32,System.Int32)
 M: System.Void SDL2.SDL::SDL_UnlockAudio()
 M: System.Void SDL2.SDL::SDL_UnlockAudioDevice(System.UInt32)
+M: System.Int32 SDL2.SDL::SDL_QueueAudio(System.UInt32,System.IntPtr,System.UInt32)
+M: System.UInt32 SDL2.SDL::SDL_GetQueuedAudioSize(System.UInt32)
+M: System.Void SDL2.SDL::SDL_ClearQueuedAudio(System.UInt32)
 M: System.Boolean SDL2.SDL::SDL_TICKS_PASSED(System.UInt32,System.UInt32)
 M: System.Void SDL2.SDL::SDL_Delay(System.UInt32)
 M: System.UInt32 SDL2.SDL::SDL_GetTicks()
@@ -470,7 +489,9 @@ T: SDL2.SDL/SDL_GLprofile
 T: SDL2.SDL/SDL_GLcontext
 T: SDL2.SDL/SDL_WindowEventID
 T: SDL2.SDL/SDL_WindowFlags
+T: SDL2.SDL/SDL_HitTestResult
 T: SDL2.SDL/SDL_DisplayMode
+T: SDL2.SDL/SDL_HitTest
 T: SDL2.SDL/SDL_RendererFlags
 T: SDL2.SDL/SDL_RendererFlip
 T: SDL2.SDL/SDL_TextureAccess
@@ -486,6 +507,7 @@ T: SDL2.SDL/SDL_Point
 T: SDL2.SDL/SDL_Rect
 T: SDL2.SDL/SDL_Surface
 T: SDL2.SDL/SDL_EventType
+T: SDL2.SDL/SDL_MouseWheelDirection
 T: SDL2.SDL/SDL_GenericEvent
 T: SDL2.SDL/SDL_WindowEvent
 T: SDL2.SDL/SDL_KeyboardEvent
@@ -518,6 +540,7 @@ T: SDL2.SDL/SDL_Keymod
 T: SDL2.SDL/SDL_Keysym
 T: SDL2.SDL/SDL_SystemCursor
 T: SDL2.SDL/SDL_Finger
+T: SDL2.SDL/SDL_JoystickPowerLevel
 T: SDL2.SDL/SDL_GameControllerBindType
 T: SDL2.SDL/SDL_GameControllerAxis
 T: SDL2.SDL/SDL_GameControllerButton
@@ -537,10 +560,14 @@ T: SDL2.SDL/SDL_AudioCallback
 T: SDL2.SDL/SDL_TimerCallback
 T: SDL2.SDL/SDL_SYSWM_TYPE
 T: SDL2.SDL/INTERNAL_windows_wminfo
+T: SDL2.SDL/INTERNAL_winrt_wminfo
 T: SDL2.SDL/INTERNAL_x11_wminfo
 T: SDL2.SDL/INTERNAL_directfb_wminfo
 T: SDL2.SDL/INTERNAL_cocoa_wminfo
 T: SDL2.SDL/INTERNAL_uikit_wminfo
+T: SDL2.SDL/INTERNAL_wayland_wminfo
+T: SDL2.SDL/INTERNAL_mir_wminfo
+T: SDL2.SDL/INTERNAL_android_wminfo
 T: SDL2.SDL/INTERNAL_SysWMDriverUnion
 T: SDL2.SDL/SDL_SysWMinfo
 T: SDL2.SDL_image
@@ -774,10 +801,14 @@ T: SDL2.SDL/SDL_HapticCustom
 T: SDL2.SDL/SDL_HapticEffect
 T: SDL2.SDL/SDL_AudioSpec
 T: SDL2.SDL/INTERNAL_windows_wminfo
+T: SDL2.SDL/INTERNAL_winrt_wminfo
 T: SDL2.SDL/INTERNAL_x11_wminfo
 T: SDL2.SDL/INTERNAL_directfb_wminfo
 T: SDL2.SDL/INTERNAL_cocoa_wminfo
 T: SDL2.SDL/INTERNAL_uikit_wminfo
+T: SDL2.SDL/INTERNAL_wayland_wminfo
+T: SDL2.SDL/INTERNAL_mir_wminfo
+T: SDL2.SDL/INTERNAL_android_wminfo
 T: SDL2.SDL/INTERNAL_SysWMDriverUnion
 T: SDL2.SDL/SDL_SysWMinfo
 
@@ -800,7 +831,9 @@ T: SDL2.SDL/SDL_GLprofile
 T: SDL2.SDL/SDL_GLcontext
 T: SDL2.SDL/SDL_WindowEventID
 T: SDL2.SDL/SDL_WindowFlags
+T: SDL2.SDL/SDL_HitTestResult
 T: SDL2.SDL/SDL_DisplayMode
+T: SDL2.SDL/SDL_HitTest
 T: SDL2.SDL/SDL_RendererFlags
 T: SDL2.SDL/SDL_RendererFlip
 T: SDL2.SDL/SDL_TextureAccess
@@ -817,6 +850,7 @@ T: SDL2.SDL/SDL_Point
 T: SDL2.SDL/SDL_Rect
 T: SDL2.SDL/SDL_Surface
 T: SDL2.SDL/SDL_EventType
+T: SDL2.SDL/SDL_MouseWheelDirection
 T: SDL2.SDL/SDL_GenericEvent
 T: SDL2.SDL/SDL_WindowEvent
 T: SDL2.SDL/SDL_KeyboardEvent
@@ -851,6 +885,7 @@ T: SDL2.SDL/SDL_Keymod
 T: SDL2.SDL/SDL_Keysym
 T: SDL2.SDL/SDL_SystemCursor
 T: SDL2.SDL/SDL_Finger
+T: SDL2.SDL/SDL_JoystickPowerLevel
 T: SDL2.SDL/SDL_GameControllerBindType
 T: SDL2.SDL/SDL_GameControllerAxis
 T: SDL2.SDL/SDL_GameControllerButton
@@ -877,10 +912,14 @@ T: SDL2.SDL/SDL_AudioCallback
 T: SDL2.SDL/SDL_TimerCallback
 T: SDL2.SDL/SDL_SYSWM_TYPE
 T: SDL2.SDL/INTERNAL_windows_wminfo
+T: SDL2.SDL/INTERNAL_winrt_wminfo
 T: SDL2.SDL/INTERNAL_x11_wminfo
 T: SDL2.SDL/INTERNAL_directfb_wminfo
 T: SDL2.SDL/INTERNAL_cocoa_wminfo
 T: SDL2.SDL/INTERNAL_uikit_wminfo
+T: SDL2.SDL/INTERNAL_wayland_wminfo
+T: SDL2.SDL/INTERNAL_mir_wminfo
+T: SDL2.SDL/INTERNAL_android_wminfo
 T: SDL2.SDL/INTERNAL_SysWMDriverUnion
 T: SDL2.SDL/SDL_SysWMinfo
 T: SDL2.SDL_image/IMG_InitFlags
@@ -944,6 +983,7 @@ M: System.Int32 SDL2.SDL::SDL_GetCurrentDisplayMode(System.Int32,SDL2.SDL/SDL_Di
 M: System.String SDL2.SDL::SDL_GetCurrentVideoDriver()
 M: System.Int32 SDL2.SDL::SDL_GetDesktopDisplayMode(System.Int32,SDL2.SDL/SDL_DisplayMode&)
 M: System.Int32 SDL2.SDL::SDL_GetDisplayBounds(System.Int32,SDL2.SDL/SDL_Rect&)
+M: System.Int32 SDL2.SDL::SDL_GetDisplayDPI(System.Int32,System.Single&,System.Single&,System.Single&)
 M: System.Int32 SDL2.SDL::SDL_GetDisplayMode(System.Int32,System.Int32,SDL2.SDL/SDL_DisplayMode&)
 M: System.Int32 SDL2.SDL::SDL_GetNumDisplayModes(System.Int32)
 M: System.Int32 SDL2.SDL::SDL_GetNumVideoDisplays()
@@ -1005,6 +1045,8 @@ M: System.Int32 SDL2.SDL::SDL_UpdateWindowSurface(System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_UpdateWindowSurfaceRects(System.IntPtr,SDL2.SDL/SDL_Rect[],System.Int32)
 M: System.Int32 SDL2.SDL::SDL_VideoInit(System.String)
 M: System.Void SDL2.SDL::SDL_VideoQuit()
+M: System.Int32 SDL2.SDL::SDL_SetWindowHitTest(System.IntPtr,SDL2.SDL/SDL_HitTest,System.IntPtr)
+M: System.IntPtr SDL2.SDL::SDL_GetGrabbedWindow()
 M: System.IntPtr SDL2.SDL::SDL_CreateRenderer(System.IntPtr,System.Int32,SDL2.SDL/SDL_RendererFlags)
 M: System.IntPtr SDL2.SDL::SDL_CreateSoftwareRenderer(System.IntPtr)
 M: System.IntPtr SDL2.SDL::SDL_CreateTexture(System.IntPtr,System.UInt32,System.Int32,System.Int32,System.Int32)
@@ -1069,6 +1111,7 @@ M: System.Void SDL2.SDL::SDL_UnlockTexture(System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_UpdateTexture(System.IntPtr,SDL2.SDL/SDL_Rect&,System.IntPtr,System.Int32)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_RenderTargetSupported(System.IntPtr)
 M: System.IntPtr SDL2.SDL::SDL_GetRenderTarget(System.IntPtr)
+M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_RenderIsClipEnabled(System.IntPtr)
 M: System.IntPtr SDL2.SDL::SDL_AllocFormat(System.UInt32)
 M: System.IntPtr SDL2.SDL::SDL_AllocPalette(System.Int32)
 M: System.Void SDL2.SDL::SDL_CalculateGammaRamp(System.Single,System.UInt16[])
@@ -1083,6 +1126,7 @@ M: System.UInt32 SDL2.SDL::SDL_MasksToPixelFormatEnum(System.Int32,System.UInt32
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_PixelFormatEnumToMasks(System.UInt32,System.Int32&,System.UInt32&,System.UInt32&,System.UInt32&,System.UInt32&)
 M: System.Int32 SDL2.SDL::SDL_SetPaletteColors(System.IntPtr,SDL2.SDL/SDL_Color[],System.Int32,System.Int32)
 M: System.Int32 SDL2.SDL::SDL_SetPixelFormatPalette(System.IntPtr,System.IntPtr)
+M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_PointInRect(SDL2.SDL/SDL_Point&,SDL2.SDL/SDL_Rect&)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_EnclosePoints(SDL2.SDL/SDL_Point[],System.Int32,SDL2.SDL/SDL_Rect&,SDL2.SDL/SDL_Rect&)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_HasIntersection(SDL2.SDL/SDL_Rect&,SDL2.SDL/SDL_Rect&)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_IntersectRect(SDL2.SDL/SDL_Rect&,SDL2.SDL/SDL_Rect&,SDL2.SDL/SDL_Rect&)
@@ -1169,9 +1213,15 @@ M: System.UInt32 SDL2.SDL::SDL_GetMouseState(System.Int32&,System.Int32&)
 M: System.UInt32 SDL2.SDL::SDL_GetMouseState(System.IntPtr,System.Int32&)
 M: System.UInt32 SDL2.SDL::SDL_GetMouseState(System.Int32&,System.IntPtr)
 M: System.UInt32 SDL2.SDL::SDL_GetMouseState(System.IntPtr,System.IntPtr)
+M: System.UInt32 SDL2.SDL::SDL_GetGlobalMouseState(System.Int32&,System.Int32&)
+M: System.UInt32 SDL2.SDL::SDL_GetGlobalMouseState(System.IntPtr,System.Int32&)
+M: System.UInt32 SDL2.SDL::SDL_GetGlobalMouseState(System.Int32&,System.IntPtr)
+M: System.UInt32 SDL2.SDL::SDL_GetGlobalMouseState(System.IntPtr,System.IntPtr)
 M: System.UInt32 SDL2.SDL::SDL_GetRelativeMouseState(System.Int32&,System.Int32&)
 M: System.Void SDL2.SDL::SDL_WarpMouseInWindow(System.IntPtr,System.Int32,System.Int32)
+M: System.Int32 SDL2.SDL::SDL_WarpMouseGlobal(System.Int32,System.Int32)
 M: System.Int32 SDL2.SDL::SDL_SetRelativeMouseMode(SDL2.SDL/SDL_bool)
+M: System.Int32 SDL2.SDL::SDL_CaptureMouse(SDL2.SDL/SDL_bool)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_GetRelativeMouseMode()
 M: System.IntPtr SDL2.SDL::SDL_CreateCursor(System.IntPtr,System.IntPtr,System.Int32,System.Int32,System.Int32,System.Int32)
 M: System.IntPtr SDL2.SDL::SDL_CreateColorCursor(System.IntPtr,System.Int32,System.Int32)
@@ -1206,6 +1256,8 @@ M: System.Void SDL2.SDL::SDL_JoystickGetGUIDString(System.Guid,System.Byte[],Sys
 M: System.Guid SDL2.SDL::SDL_JoystickGetGUIDFromString(System.String)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_JoystickGetAttached(System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_JoystickInstanceID(System.IntPtr)
+M: SDL2.SDL/SDL_JoystickPowerLevel SDL2.SDL::SDL_JoystickCurrentPowerLevel(System.IntPtr)
+M: System.IntPtr SDL2.SDL::SDL_JoystickFromInstanceID(System.Int32)
 M: System.Int32 SDL2.SDL::SDL_GameControllerAddMapping(System.String)
 M: System.Int32 SDL2.SDL::INTERNAL_SDL_GameControllerAddMappingsFromRW(System.IntPtr,System.Int32)
 M: System.String SDL2.SDL::SDL_GameControllerMappingForGUID(System.Guid)
@@ -1227,6 +1279,7 @@ M: System.String SDL2.SDL::SDL_GameControllerGetStringForButton(SDL2.SDL/SDL_Gam
 M: SDL2.SDL/SDL_GameControllerButtonBind SDL2.SDL::SDL_GameControllerGetBindForButton(System.IntPtr,SDL2.SDL/SDL_GameControllerButton)
 M: System.Byte SDL2.SDL::SDL_GameControllerGetButton(System.IntPtr,SDL2.SDL/SDL_GameControllerButton)
 M: System.Void SDL2.SDL::SDL_GameControllerClose(System.IntPtr)
+M: System.IntPtr SDL2.SDL::SDL_GameControllerFromInstanceID(System.Int32)
 M: System.Void SDL2.SDL::SDL_HapticClose(System.IntPtr)
 M: System.Void SDL2.SDL::SDL_HapticDestroyEffect(System.IntPtr,System.Int32)
 M: System.Int32 SDL2.SDL::SDL_HapticEffectSupported(System.IntPtr,SDL2.SDL/SDL_HapticEffect&)
@@ -1281,6 +1334,9 @@ M: System.Void SDL2.SDL::SDL_PauseAudio(System.Int32)
 M: System.Void SDL2.SDL::SDL_PauseAudioDevice(System.UInt32,System.Int32)
 M: System.Void SDL2.SDL::SDL_UnlockAudio()
 M: System.Void SDL2.SDL::SDL_UnlockAudioDevice(System.UInt32)
+M: System.Int32 SDL2.SDL::SDL_QueueAudio(System.UInt32,System.IntPtr,System.UInt32)
+M: System.UInt32 SDL2.SDL::SDL_GetQueuedAudioSize(System.UInt32)
+M: System.Void SDL2.SDL::SDL_ClearQueuedAudio(System.UInt32)
 M: System.Void SDL2.SDL::SDL_Delay(System.UInt32)
 M: System.UInt32 SDL2.SDL::SDL_GetTicks()
 M: System.UInt64 SDL2.SDL::SDL_GetPerformanceCounter()
@@ -1441,6 +1497,7 @@ T: SDL2.SDL/SDL_WindowEventID
 T: SDL2.SDL/SDL_WindowFlags
 T: SDL2.SDL/SDL_RendererFlags
 T: SDL2.SDL/SDL_EventType
+T: SDL2.SDL/SDL_MouseWheelDirection
 T: SDL2.SDL/SDL_Keymod
 
 R: Gendarme.Rules.Design.FlagsShouldNotDefineAZeroValueRule
@@ -1470,10 +1527,14 @@ T: SDL2.SDL/SDL_SysWMEvent
 T: SDL2.SDL/SDL_HapticCustom
 T: SDL2.SDL/SDL_AudioSpec
 T: SDL2.SDL/INTERNAL_windows_wminfo
+T: SDL2.SDL/INTERNAL_winrt_wminfo
 T: SDL2.SDL/INTERNAL_x11_wminfo
 T: SDL2.SDL/INTERNAL_directfb_wminfo
 T: SDL2.SDL/INTERNAL_cocoa_wminfo
 T: SDL2.SDL/INTERNAL_uikit_wminfo
+T: SDL2.SDL/INTERNAL_wayland_wminfo
+T: SDL2.SDL/INTERNAL_mir_wminfo
+T: SDL2.SDL/INTERNAL_android_wminfo
 
 R: Gendarme.Rules.Performance.PreferLiteralOverInitOnlyFieldsRule
 T: SDL2.SDL
