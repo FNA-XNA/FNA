@@ -275,17 +275,6 @@ namespace Microsoft.Xna.Framework
 		public override void RunLoop()
 		{
 			SDL.SDL_ShowWindow(Window.Handle);
-			if (Window.IsBorderlessEXT)
-			{
-				/* FIXME: SDL2/X11 bug!
-				 * See SDL2_GameWindow.IsBorderlessEXT.
-				 * -flibit
-				 */
-				SDL.SDL_SetWindowBordered(
-					Window.Handle,
-					SDL.SDL_bool.SDL_FALSE
-				);
-			}
 
 			SDL.SDL_Event evt;
 

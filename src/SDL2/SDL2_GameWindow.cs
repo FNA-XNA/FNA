@@ -103,27 +103,14 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		private bool INTERNAL_isBorderless = false;
 		public override bool IsBorderlessEXT
 		{
 			get
 			{
-				return (	INTERNAL_isBorderless ||
-						(SDL.SDL_GetWindowFlags(INTERNAL_sdlWindow) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_BORDERLESS) != 0	);
+				return ((SDL.SDL_GetWindowFlags(INTERNAL_sdlWindow) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_BORDERLESS) != 0);
 			}
 			set
 			{
-				INTERNAL_isBorderless = value;
-				if ((SDL.SDL_GetWindowFlags(INTERNAL_sdlWindow) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN) == 0)
-				{
-					/* FIXME: SDL2/X11 bug!
-					 * If you set the window border before the window's actually
-					 * shown, this next call will hang. So schedule it for
-					 * later.
-					 * -flibit
-					 */
-					return;
-				}
 				SDL.SDL_SetWindowBordered(
 					INTERNAL_sdlWindow,
 					value ? SDL.SDL_bool.SDL_FALSE : SDL.SDL_bool.SDL_TRUE
