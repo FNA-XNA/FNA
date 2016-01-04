@@ -244,6 +244,18 @@ namespace Microsoft.Xna.Framework
 			INTERNAL_deviceName = screenDeviceName;
 
 			// Fullscreen
+			if (	INTERNAL_wantsFullscreen &&
+				(SDL.SDL_GetWindowFlags(INTERNAL_sdlWindow) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN) == 0	)
+			{
+				/* FIXME: SDL2/OSX bug!
+				 * For whatever reason, Spaces windows on OSX
+				 * like to be high-DPI if you set fullscreen
+				 * while the window is hidden. But, if you just
+				 * show the window first, everything is fine.
+				 * -flibit
+				 */
+				SDL.SDL_ShowWindow(INTERNAL_sdlWindow);
+			}
 			SDL.SDL_SetWindowFullscreen(
 				INTERNAL_sdlWindow,
 				INTERNAL_wantsFullscreen ?
