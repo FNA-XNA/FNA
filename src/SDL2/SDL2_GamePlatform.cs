@@ -461,11 +461,6 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		public override bool HasTouch()
-		{
-			return SDL.SDL_GetNumTouchDevices() > 0;
-		}
-
 		public override void TextureDataFromStream(
 			Stream stream,
 			out int width,

@@ -114,8 +114,6 @@ namespace Microsoft.Xna.Framework
 
 		public abstract void SetPresentationInterval(PresentInterval interval);
 
-		public abstract bool HasTouch();
-
 		public abstract void TextureDataFromStream(
 			Stream stream,
 			out int width,
