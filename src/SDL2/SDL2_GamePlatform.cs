@@ -40,12 +40,6 @@ namespace Microsoft.Xna.Framework
 {
 	class SDL2_GamePlatform : GamePlatform
 	{
-		#region Private OSX-specific Variables
-
-		private bool INTERNAL_useFullscreenSpaces;
-
-		#endregion
-
 		#region Private DisplayMode Variables
 
 		private int displayIndex = 0;
@@ -121,17 +115,6 @@ namespace Microsoft.Xna.Framework
 
 			// We hide the mouse cursor by default.
 			SDL.SDL_ShowCursor(0);
-
-			// OSX has some fancy fullscreen features, let's use them!
-			if (OSVersion.Equals("Mac OS X"))
-			{
-				hint = SDL.SDL_GetHint(SDL.SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES);
-				INTERNAL_useFullscreenSpaces = (String.IsNullOrEmpty(hint) || hint.Equals("1"));
-			}
-			else
-			{
-				INTERNAL_useFullscreenSpaces = false;
-			}
 		}
 
 		#endregion
@@ -141,6 +124,18 @@ namespace Microsoft.Xna.Framework
 		public override void RunLoop()
 		{
 			SDL.SDL_ShowWindow(Game.Window.Handle);
+
+			// OSX has some fancy fullscreen features, let's use them!
+			bool osxUseSpaces;
+			if (OSVersion.Equals("Mac OS X"))
+			{
+				string hint = SDL.SDL_GetHint(SDL.SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES);
+				osxUseSpaces = (String.IsNullOrEmpty(hint) || hint.Equals("1"));
+			}
+			else
+			{
+				osxUseSpaces = false;
+			}
 
 			// Active Key List
 			List<Keys> keys = new List<Keys>();
@@ -244,7 +239,7 @@ namespace Microsoft.Xna.Framework
 						{
 							Game.IsActive = true;
 
-							if (!INTERNAL_useFullscreenSpaces)
+							if (!osxUseSpaces)
 							{
 								// If we alt-tab away, we lose the 'fullscreen desktop' flag on some WMs
 								SDL.SDL_SetWindowFullscreen(
@@ -262,7 +257,7 @@ namespace Microsoft.Xna.Framework
 						{
 							Game.IsActive = false;
 
-							if (!INTERNAL_useFullscreenSpaces)
+							if (!osxUseSpaces)
 							{
 								SDL.SDL_SetWindowFullscreen(Game.Window.Handle, 0);
 							}
