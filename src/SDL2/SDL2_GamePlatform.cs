@@ -156,12 +156,11 @@ namespace Microsoft.Xna.Framework
 			// Initialize Active Key List
 			keys = new List<Keys>();
 
-			// Setup Text Input Control Character Arrays (Only 4 control keys supported at this time)
+			/* Setup Text Input Control Character Arrays
+			 * (Only 4 control keys supported at this time)
+			 */
 			INTERNAL_TextInputControlDown = new bool[4];
 			INTERNAL_TextInputControlRepeat = new int[4];
-
-			// Assume we will have focus.
-			game.IsActive = true;
 
 			// Ready to run the loop!
 			INTERNAL_runApplication = true;

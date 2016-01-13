@@ -821,7 +821,6 @@ namespace Microsoft.Xna.Framework
 		{
 			AssertNotDisposed();
 
-			IsActive = true;
 			if (GraphicsDevice == null)
 			{
 				IGraphicsDeviceManager graphicsDeviceManager = Services.GetService(
