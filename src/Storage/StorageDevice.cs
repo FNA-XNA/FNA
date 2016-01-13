@@ -55,27 +55,7 @@ namespace Microsoft.Xna.Framework.Storage
 		{
 			get
 			{
-				if (	Game.Instance.Platform.OSVersion.Equals("Linux") ||
-					Game.Instance.Platform.OSVersion.Equals("Mac OS X")	)
-				{
-					/* Linux and Mac use locally connected storage in the user's
-					 * home location, which should always be "connected".
-					 */
-					return true;
-				}
-				else if (Game.Instance.Platform.OSVersion.Equals("Windows"))
-				{
-					try
-					{
-						return new DriveInfo(storageRoot).IsReady;
-					}
-					catch
-					{
-						// The storageRoot path is invalid / has been removed.
-						return false;
-					}
-				}
-				throw new Exception("StorageDevice: Platform.OSVersion not handled!");
+				return Game.Instance.Platform.IsStoragePathConnected(storageRoot);
 			}
 		}
 
@@ -113,7 +93,7 @@ namespace Microsoft.Xna.Framework.Storage
 
 		#region Private Static Variables
 
-		private static readonly string storageRoot = GetStorageRoot();
+		private static readonly string storageRoot = Game.Instance.Platform.GetStorageRoot();
 
 		#endregion
 
@@ -368,47 +348,6 @@ namespace Microsoft.Xna.Framework.Storage
 		private static StorageDevice Show(PlayerIndex? player, int sizeInBytes, int directoryCount)
 		{
 			return new StorageDevice(player, sizeInBytes, directoryCount);
-		}
-
-		#endregion
-
-		#region Private Static OS User Directory Path Method
-
-		private static string GetStorageRoot()
-		{
-			if (Game.Instance.Platform.OSVersion.Equals("Windows"))
-			{
-				return Path.Combine(
-					Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-					"SavedGames"
-				);
-			}
-			if (Game.Instance.Platform.OSVersion.Equals("Mac OS X"))
-			{
-				string osConfigDir = Environment.GetEnvironmentVariable("HOME");
-				if (String.IsNullOrEmpty(osConfigDir))
-				{
-					return "."; // Oh well.
-				}
-				osConfigDir += "/Library/Application Support";
-				return osConfigDir;
-			}
-			if (Game.Instance.Platform.OSVersion.Equals("Linux"))
-			{
-				// Assuming a non-OSX Unix platform will follow the XDG. Which it should.
-				string osConfigDir = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
-				if (String.IsNullOrEmpty(osConfigDir))
-				{
-					osConfigDir = Environment.GetEnvironmentVariable("HOME");
-					if (String.IsNullOrEmpty(osConfigDir))
-					{
-						return ".";	// Oh well.
-					}
-					osConfigDir += "/.local/share";
-				}
-				return osConfigDir;
-			}
-			throw new Exception("StorageDevice: Platform.OSVersion not handled!");
 		}
 
 		#endregion

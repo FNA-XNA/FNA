@@ -861,6 +861,68 @@ namespace Microsoft.Xna.Framework
 			return SDL2_KeyboardUtil.KeyFromScancode(scancode);
 		}
 
+		internal override string GetStorageRoot()
+		{
+			if (OSVersion.Equals("Windows"))
+			{
+				return Path.Combine(
+					Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+					"SavedGames"
+				);
+			}
+			if (OSVersion.Equals("Mac OS X"))
+			{
+				string osConfigDir = Environment.GetEnvironmentVariable("HOME");
+				if (String.IsNullOrEmpty(osConfigDir))
+				{
+					return "."; // Oh well.
+				}
+				osConfigDir += "/Library/Application Support";
+				return osConfigDir;
+			}
+			if (OSVersion.Equals("Linux"))
+			{
+				// Assuming a non-OSX Unix platform will follow the XDG. Which it should.
+				string osConfigDir = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
+				if (String.IsNullOrEmpty(osConfigDir))
+				{
+					osConfigDir = Environment.GetEnvironmentVariable("HOME");
+					if (String.IsNullOrEmpty(osConfigDir))
+					{
+						return ".";	// Oh well.
+					}
+					osConfigDir += "/.local/share";
+				}
+				return osConfigDir;
+			}
+			throw new Exception("StorageDevice: Platform.OSVersion not handled!");
+		}
+
+		internal override bool IsStoragePathConnected(string path)
+		{
+			if (	OSVersion.Equals("Linux") ||
+				OSVersion.Equals("Mac OS X")	)
+			{
+				/* Linux and Mac use locally connected storage in the user's
+				 * home location, which should always be "connected".
+				 */
+				return true;
+			}
+			if (OSVersion.Equals("Windows"))
+			{
+				try
+				{
+					return new DriveInfo(path).IsReady;
+				}
+				catch
+				{
+					// The storageRoot path is invalid / has been removed.
+					return false;
+				}
+			}
+			throw new Exception("StorageDevice: Platform.OSVersion not handled!");
+		}
+
 		#endregion
 
 		#region Protected GamePlatform Methods

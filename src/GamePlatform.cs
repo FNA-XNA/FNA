@@ -307,6 +307,10 @@ namespace Microsoft.Xna.Framework
 
 		internal abstract Keys GetKeyFromScancode(Keys scancode);
 
+		internal abstract string GetStorageRoot();
+
+		internal abstract bool IsStoragePathConnected(string path);
+
 		#endregion
 
 		#region Private Methods
