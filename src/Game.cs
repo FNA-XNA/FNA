@@ -82,7 +82,6 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-
 		public bool IsActive
 		{
 			get
