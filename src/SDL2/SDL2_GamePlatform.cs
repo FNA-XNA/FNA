@@ -193,7 +193,7 @@ namespace Microsoft.Xna.Framework
 			bool forceCoreProfile = Environment.GetEnvironmentVariable(
 				"FNA_OPENGL_FORCE_CORE_PROFILE"
 			) == "1";
-			Window = new SDL2_GameWindow(
+			game.Window = new SDL2_GameWindow(
 				forceES2 ||
 				OSVersion.Equals("Emscripten") ||
 				OSVersion.Equals("Android") ||
@@ -203,7 +203,7 @@ namespace Microsoft.Xna.Framework
 
 			// Create the DisplayMode list
 			displayIndex = SDL.SDL_GetWindowDisplayIndex(
-				Window.Handle
+				game.Window.Handle
 			);
 			INTERNAL_GenerateDisplayModes();
 
@@ -211,18 +211,7 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_DisableScreenSaver();
 
 			// We hide the mouse cursor by default.
-			if (IsMouseVisible)
-			{
-				IsMouseVisible = false;
-			}
-			else
-			{
-				/* Since IsMouseVisible is already false, OnMouseVisibleChanged
-				 * will NOT be called! So we get to do it ourselves.
-				 * -flibit
-				 */
-				SDL.SDL_ShowCursor(0);
-			}
+			SDL.SDL_ShowCursor(0);
 
 			// OSX has some fancy fullscreen features, let's use them!
 			if (OSVersion.Equals("Mac OS X"))
@@ -243,7 +232,7 @@ namespace Microsoft.Xna.Framework
 			INTERNAL_TextInputControlRepeat = new int[4];
 
 			// Assume we will have focus.
-			IsActive = true;
+			game.IsActive = true;
 
 			// Ready to run the loop!
 			INTERNAL_runApplication = true;
@@ -263,7 +252,7 @@ namespace Microsoft.Xna.Framework
 				return;
 			}
 			DRC.drc_enable_system_input_feeder(wiiuStream);
-			Rectangle bounds = Window.ClientBounds;
+			Rectangle bounds = game.Window.ClientBounds;
 			wiiuPixelData = new byte[bounds.Width * bounds.Height * 4];
 #endif
 		}
@@ -274,7 +263,7 @@ namespace Microsoft.Xna.Framework
 
 		public override void RunLoop()
 		{
-			SDL.SDL_ShowWindow(Window.Handle);
+			SDL.SDL_ShowWindow(Game.Window.Handle);
 
 			SDL.SDL_Event evt;
 
@@ -326,13 +315,13 @@ namespace Microsoft.Xna.Framework
 						// Window Focus
 						if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_FOCUS_GAINED)
 						{
-							IsActive = true;
+							Game.IsActive = true;
 
 							if (!INTERNAL_useFullscreenSpaces)
 							{
 								// If we alt-tab away, we lose the 'fullscreen desktop' flag on some WMs
 								SDL.SDL_SetWindowFullscreen(
-									Window.Handle,
+									Game.Window.Handle,
 									Game.GraphicsDevice.PresentationParameters.IsFullScreen ?
 										(uint) SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP :
 										0
@@ -344,11 +333,11 @@ namespace Microsoft.Xna.Framework
 						}
 						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_FOCUS_LOST)
 						{
-							IsActive = false;
+							Game.IsActive = false;
 
 							if (!INTERNAL_useFullscreenSpaces)
 							{
-								SDL.SDL_SetWindowFullscreen(Window.Handle, 0);
+								SDL.SDL_SetWindowFullscreen(Game.Window.Handle, 0);
 							}
 
 							// Give the screensaver back, we're not that important now.
@@ -362,7 +351,7 @@ namespace Microsoft.Xna.Framework
 							Mouse.INTERNAL_WindowHeight = evt.window.data2;
 
 							// Should be called on user resize only, NOT ApplyChanges!
-							((SDL2_GameWindow) Window).INTERNAL_ClientSizeChanged();
+							((SDL2_GameWindow) Game.Window).INTERNAL_ClientSizeChanged();
 						}
 						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_SIZE_CHANGED)
 						{
@@ -399,7 +388,7 @@ namespace Microsoft.Xna.Framework
 							 * -flibit
 							 */
 							int newIndex = SDL.SDL_GetWindowDisplayIndex(
-								Window.Handle
+								Game.Window.Handle
 							);
 							if (newIndex != displayIndex)
 							{
@@ -480,8 +469,6 @@ namespace Microsoft.Xna.Framework
 
 		public override void BeforeInitialize()
 		{
-			base.BeforeInitialize();
-
 			// We want to initialize the controllers ASAP!
 			SDL.SDL_Event[] evt = new SDL.SDL_Event[1];
 			SDL.SDL_PumpEvents(); // Required to get OSX device events this early.
@@ -496,24 +483,14 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		public override bool BeforeUpdate(GameTime gameTime)
-		{
-			return true;
-		}
-
-		public override bool BeforeDraw(GameTime gameTime)
-		{
-			return true;
-		}
-
 		public override void BeginScreenDeviceChange(bool willBeFullScreen)
 		{
-			Window.BeginScreenDeviceChange(willBeFullScreen);
+			Game.Window.BeginScreenDeviceChange(willBeFullScreen);
 		}
 
 		public override void EndScreenDeviceChange(string screenDeviceName, int clientWidth, int clientHeight)
 		{
-			Window.EndScreenDeviceChange(screenDeviceName, clientWidth, clientHeight);
+			Game.Window.EndScreenDeviceChange(screenDeviceName, clientWidth, clientHeight);
 
 #if WIIU_GAMEPAD
 			wiiuPixelData = new byte[clientWidth * clientHeight * 4];
@@ -525,30 +502,23 @@ namespace Microsoft.Xna.Framework
 			Console.WriteLine(Message);
 		}
 
-		public override void Present()
+		public override void Present(GraphicsDevice device)
 		{
-			base.Present();
-
-			GraphicsDevice device = Game.GraphicsDevice;
-			if (device != null)
-			{
-				device.Present();
 #if WIIU_GAMEPAD
-				if (wiiuStream != IntPtr.Zero)
-				{
-					device.GetBackBufferData(wiiuPixelData);
-					DRC.drc_push_vid_frame(
-						wiiuStream,
-						wiiuPixelData,
-						(uint) wiiuPixelData.Length,
-						(ushort) device.GLDevice.Backbuffer.Width,
-						(ushort) device.GLDevice.Backbuffer.Height,
-						DRC.drc_pixel_format.DRC_RGBA,
-						DRC.drc_flipping_mode.DRC_NO_FLIP
-					);
-				}
-#endif
+			if (wiiuStream != IntPtr.Zero)
+			{
+				device.GetBackBufferData(wiiuPixelData);
+				DRC.drc_push_vid_frame(
+					wiiuStream,
+					wiiuPixelData,
+					(uint) wiiuPixelData.Length,
+					(ushort) device.GLDevice.Backbuffer.Width,
+					(ushort) device.GLDevice.Backbuffer.Height,
+					DRC.drc_pixel_format.DRC_RGBA,
+					DRC.drc_flipping_mode.DRC_NO_FLIP
+				);
 			}
+#endif
 		}
 
 		public override void ShowRuntimeError(string title, string message)
@@ -557,15 +527,11 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_MessageBoxFlags.SDL_MESSAGEBOX_ERROR,
 				title,
 				message,
-				Window.Handle
+				Game.Window.Handle
 			);
 		}
 
-		#endregion
-
-		#region Internal GamePlatform Methods
-
-		internal override DisplayMode GetCurrentDisplayMode()
+		public override DisplayMode GetCurrentDisplayMode()
 		{
 			SDL.SDL_DisplayMode mode;
 			SDL.SDL_GetCurrentDisplayMode(displayIndex, out mode);
@@ -576,12 +542,12 @@ namespace Microsoft.Xna.Framework
 			);
 		}
 
-		internal override DisplayModeCollection GetDisplayModes()
+		public override DisplayModeCollection GetDisplayModes()
 		{
 			return supportedDisplayModes;
 		}
 
-		internal override void SetPresentationInterval(PresentInterval interval)
+		public override void SetPresentationInterval(PresentInterval interval)
 		{
 			if (interval == PresentInterval.Default || interval == PresentInterval.One)
 			{
@@ -618,12 +584,12 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		internal override bool HasTouch()
+		public override bool HasTouch()
 		{
 			return SDL.SDL_GetNumTouchDevices() > 0;
 		}
 
-		internal override void TextureDataFromStream(
+		public override void TextureDataFromStream(
 			Stream stream,
 			out int width,
 			out int height,
@@ -777,7 +743,7 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		internal override void SavePNG(
+		public override void SavePNG(
 			Stream stream,
 			int width,
 			int height,
@@ -856,12 +822,12 @@ namespace Microsoft.Xna.Framework
 			stream.Write(pngOut, 0, size);
 		}
 
-		internal override Keys GetKeyFromScancode(Keys scancode)
+		public override Keys GetKeyFromScancode(Keys scancode)
 		{
 			return SDL2_KeyboardUtil.KeyFromScancode(scancode);
 		}
 
-		internal override string GetStorageRoot()
+		public override string GetStorageRoot()
 		{
 			if (OSVersion.Equals("Windows"))
 			{
@@ -898,7 +864,7 @@ namespace Microsoft.Xna.Framework
 			throw new Exception("StorageDevice: Platform.OSVersion not handled!");
 		}
 
-		internal override bool IsStoragePathConnected(string path)
+		public override bool IsStoragePathConnected(string path)
 		{
 			if (	OSVersion.Equals("Linux") ||
 				OSVersion.Equals("Mac OS X")	)
@@ -923,20 +889,20 @@ namespace Microsoft.Xna.Framework
 			throw new Exception("StorageDevice: Platform.OSVersion not handled!");
 		}
 
+		public override void OnIsMouseVisibleChanged(bool visible)
+		{
+			SDL.SDL_ShowCursor(visible ? 1 : 0);
+		}
+
 		#endregion
 
 		#region Protected GamePlatform Methods
-
-		protected override void OnIsMouseVisibleChanged()
-		{
-			SDL.SDL_ShowCursor(IsMouseVisible ? 1 : 0);
-		}
 
 		protected override void Dispose(bool disposing)
 		{
 			if (!IsDisposed)
 			{
-				if (Window != null)
+				if (Game.Window != null)
 				{
 					/* Some window managers might try to minimize the window as we're
 					 * destroying it. This looks pretty stupid and could cause problems,
@@ -949,9 +915,9 @@ namespace Microsoft.Xna.Framework
 						SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 					);
 
-					SDL.SDL_DestroyWindow(Window.Handle);
+					SDL.SDL_DestroyWindow(Game.Window.Handle);
 
-					Window = null;
+					Game.Window = null;
 				}
 
 #if WIIU_GAMEPAD

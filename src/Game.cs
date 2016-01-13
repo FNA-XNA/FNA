@@ -35,6 +35,7 @@ using System.Diagnostics;
 using System.Reflection;
 
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 #endregion
@@ -81,11 +82,20 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
+
 		public bool IsActive
 		{
 			get
 			{
-				return Platform.IsActive;
+				return _isActive;
+			}
+			internal set
+			{
+				if (_isActive != value)
+				{
+					_isActive = value;
+					Raise(_isActive ? Activated : Deactivated, EventArgs.Empty);
+				}
 			}
 		}
 
@@ -93,11 +103,15 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				return Platform.IsMouseVisible;
+				return _isMouseVisible;
 			}
 			set
 			{
-				Platform.IsMouseVisible = value;
+				if (_isMouseVisible != value)
+				{
+					_isMouseVisible = value;
+					Platform.OnIsMouseVisibleChanged(value);
+				}
 			}
 		}
 
@@ -109,11 +123,6 @@ namespace Microsoft.Xna.Framework
 			}
 			set
 			{
-				/* Give GamePlatform implementations an opportunity to override
-				 * the new value.
-				 */
-				value = Platform.TargetElapsedTimeChanging(value);
-
 				if (value <= TimeSpan.Zero)
 				{
 					throw new ArgumentOutOfRangeException(
@@ -122,11 +131,7 @@ namespace Microsoft.Xna.Framework
 					);
 				}
 
-				if (value != _targetElapsedTime)
-				{
-					_targetElapsedTime = value;
-					Platform.TargetElapsedTimeChanged();
-				}
+				_targetElapsedTime = value;
 			}
 		}
 
@@ -190,7 +195,16 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				return Platform.Window;
+				return _window;
+			}
+			internal set
+			{
+				if (_window == null)
+				{
+					Mouse.WindowHandle = value.Handle;
+				}
+
+				_window = value;
 			}
 		}
 
@@ -232,6 +246,11 @@ namespace Microsoft.Xna.Framework
 
 		private IGraphicsDeviceService _graphicsDeviceService;
 
+		private GameWindow _window;
+
+		private bool _isActive = true;
+		private bool _isMouseVisible = false;
+
 		private bool _initialized = false;
 		private bool _isFixedTimeStep = true;
 
@@ -269,8 +288,6 @@ namespace Microsoft.Xna.Framework
 			_content = new ContentManager(_services);
 
 			Platform = GamePlatform.Create(this);
-			Platform.Activated += OnActivated;
-			Platform.Deactivated += OnDeactivated;
 			_services.AddService(typeof(GamePlatform), Platform);
 
 			AudioDevice.Initialize();
@@ -332,11 +349,10 @@ namespace Microsoft.Xna.Framework
 
 					if (Platform != null)
 					{
-						Platform.Activated -= OnActivated;
-						Platform.Deactivated -= OnDeactivated;
 						_services.RemoveService(typeof(GamePlatform));
 						Platform.Dispose();
 						Platform = null;
+						Mouse.WindowHandle = IntPtr.Zero;
 					}
 
 					ContentTypeReaderManager.ClearTypeCreators();
@@ -388,7 +404,6 @@ namespace Microsoft.Xna.Framework
 		{
 			if (_initialized)
 			{
-				Platform.ResetElapsedTime();
 				_gameTimer.Reset();
 				_gameTimer.Start();
 				_accumulatedElapsedTime = TimeSpan.Zero;
@@ -404,7 +419,7 @@ namespace Microsoft.Xna.Framework
 
 		public void RunOneFrame()
 		{
-			if (Platform == null || !Platform.BeforeRun())
+			if (Platform == null)
 			{
 				return;
 			}
@@ -427,12 +442,6 @@ namespace Microsoft.Xna.Framework
 		public void Run()
 		{
 			AssertNotDisposed();
-			if (!Platform.BeforeRun())
-			{
-				BeginRun();
-				_gameTimer = Stopwatch.StartNew();
-				return;
-			}
 
 			if (!_initialized)
 			{
@@ -567,7 +576,7 @@ namespace Microsoft.Xna.Framework
 				 * http://stackoverflow.com/questions/4054936/manual-control-over-when-to-redraw-the-screen/4057180#4057180
 				 * http://stackoverflow.com/questions/4235439/xna-3-1-to-4-0-requires-constant-redraw-or-will-display-a-purple-screen
 				 */
-				if (Platform.BeforeDraw(_gameTime) && BeginDraw())
+				if (BeginDraw())
 				{
 					Draw(_gameTime);
 					EndDraw();
@@ -632,7 +641,11 @@ namespace Microsoft.Xna.Framework
 				12
 			);
 #endif
-			Platform.Present();
+			if (GraphicsDevice != null)
+			{
+				GraphicsDevice.Present();
+				Platform.Present(GraphicsDevice);
+			}
 		}
 
 		protected virtual void BeginRun()
@@ -784,19 +797,6 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Internal Methods
-
-		[Conditional("DEBUG")]
-		internal void Log(string Message)
-		{
-			if (Platform != null)
-			{
-				Platform.Log(Message);
-			}
-		}
-
-		#endregion
-
 		#region Private Methods
 
 		/* FIXME: We should work toward eliminating internal methods. They
@@ -810,12 +810,9 @@ namespace Microsoft.Xna.Framework
 #if BASIC_PROFILER
 			updateStart = _gameTimer.ElapsedTicks;
 #endif
-			if (Platform.BeforeUpdate(gameTime))
-			{
-				AudioDevice.Update();
+			AudioDevice.Update();
 
-				Update(gameTime);
-			}
+			Update(gameTime);
 #if BASIC_PROFILER
 			updateTime = _gameTimer.ElapsedTicks - updateStart;
 #endif
@@ -824,6 +821,17 @@ namespace Microsoft.Xna.Framework
 		private void DoInitialize()
 		{
 			AssertNotDisposed();
+
+			IsActive = true;
+			if (GraphicsDevice == null)
+			{
+				IGraphicsDeviceManager graphicsDeviceManager = Services.GetService(
+					typeof(IGraphicsDeviceManager)
+				) as IGraphicsDeviceManager;
+
+				graphicsDeviceManager.CreateDevice();
+			}
+
 			Platform.BeforeInitialize();
 			Initialize();
 
