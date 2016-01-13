@@ -216,6 +216,8 @@ namespace Microsoft.Xna.Framework
 
 		internal GamePlatform Platform;
 
+		internal bool RunApplication;
+
 		#endregion
 
 		#region Private Fields
@@ -291,6 +293,9 @@ namespace Microsoft.Xna.Framework
 			_services.AddService(typeof(GamePlatform), Platform);
 
 			AudioDevice.Initialize();
+
+			// Ready to run the loop!
+			RunApplication = true;
 		}
 
 		#endregion
@@ -396,7 +401,7 @@ namespace Microsoft.Xna.Framework
 
 		public void Exit()
 		{
-			Platform.Exit();
+			RunApplication = false;
 			_suppressDraw = true;
 		}
 

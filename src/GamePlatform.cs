@@ -91,11 +91,6 @@ namespace Microsoft.Xna.Framework
 		public abstract void BeforeInitialize();
 
 		/// <summary>
-		/// When implemented in a derived class, ends the active run loop.
-		/// </summary>
-		public abstract void Exit();
-
-		/// <summary>
 		/// When implemented in a derived class, starts the run loop and blocks
 		/// until it has ended.
 		/// </summary>

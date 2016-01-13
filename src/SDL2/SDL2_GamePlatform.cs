@@ -46,26 +46,6 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Private Game Loop Sentinel
-
-		private bool INTERNAL_runApplication;
-
-		#endregion
-
-		#region Private Active XNA Key List
-
-		private List<Keys> keys;
-
-		#endregion
-
-		#region Private Text Input Variables
-
-		private int[] INTERNAL_TextInputControlRepeat;
-		private bool[] INTERNAL_TextInputControlDown;
-		private bool INTERNAL_TextInputSuppress;
-
-		#endregion
-
 		#region Private DisplayMode Variables
 
 		private int displayIndex = 0;
@@ -152,18 +132,6 @@ namespace Microsoft.Xna.Framework
 			{
 				INTERNAL_useFullscreenSpaces = false;
 			}
-
-			// Initialize Active Key List
-			keys = new List<Keys>();
-
-			/* Setup Text Input Control Character Arrays
-			 * (Only 4 control keys supported at this time)
-			 */
-			INTERNAL_TextInputControlDown = new bool[4];
-			INTERNAL_TextInputControlRepeat = new int[4];
-
-			// Ready to run the loop!
-			INTERNAL_runApplication = true;
 		}
 
 		#endregion
@@ -174,9 +142,19 @@ namespace Microsoft.Xna.Framework
 		{
 			SDL.SDL_ShowWindow(Game.Window.Handle);
 
+			// Active Key List
+			List<Keys> keys = new List<Keys>();
+
+			/* Setup Text Input Control Character Arrays
+			 * (Only 4 control keys supported at this time)
+			 */
+			bool[] INTERNAL_TextInputControlDown = new bool[4];
+			int[] INTERNAL_TextInputControlRepeat = new int[4];
+			bool INTERNAL_TextInputSuppress = false;
+
 			SDL.SDL_Event evt;
 
-			while (INTERNAL_runApplication)
+			while (Game.RunApplication)
 			{
 				while (SDL.SDL_PollEvent(out evt) == 1)
 				{
@@ -191,7 +169,31 @@ namespace Microsoft.Xna.Framework
 						if (!keys.Contains(key))
 						{
 							keys.Add(key);
-							INTERNAL_TextInputIn(key);
+							if (key == Keys.Back)
+							{
+								INTERNAL_TextInputControlDown[0] = true;
+								INTERNAL_TextInputControlRepeat[0] = Environment.TickCount + 400;
+								TextInputEXT.OnTextInput((char) 8); // Backspace
+							}
+							else if (key == Keys.Tab)
+							{
+								INTERNAL_TextInputControlDown[1] = true;
+								INTERNAL_TextInputControlRepeat[1] = Environment.TickCount + 400;
+								TextInputEXT.OnTextInput((char) 9); // Tab
+							}
+							else if (key == Keys.Enter)
+							{
+								INTERNAL_TextInputControlDown[2] = true;
+								INTERNAL_TextInputControlRepeat[2] = Environment.TickCount + 400;
+								TextInputEXT.OnTextInput((char) 13); // Enter
+							}
+							else if (keys.Contains(Keys.LeftControl) && key == Keys.V)
+							{
+								INTERNAL_TextInputControlDown[3] = true;
+								INTERNAL_TextInputControlRepeat[3] = Environment.TickCount + 400;
+								TextInputEXT.OnTextInput((char) 22); // Control-V (Paste)
+								INTERNAL_TextInputSuppress = true;
+							}
 						}
 					}
 					else if (evt.type == SDL.SDL_EventType.SDL_KEYUP)
@@ -203,7 +205,23 @@ namespace Microsoft.Xna.Framework
 #endif
 						if (keys.Remove(key))
 						{
-							INTERNAL_TextInputOut(key);
+							if (key == Keys.Back)
+							{
+								INTERNAL_TextInputControlDown[0] = false;
+							}
+							else if (key == Keys.Tab)
+							{
+								INTERNAL_TextInputControlDown[1] = false;
+							}
+							else if (key == Keys.Enter)
+							{
+								INTERNAL_TextInputControlDown[2] = false;
+							}
+							else if ((!keys.Contains(Keys.LeftControl) && INTERNAL_TextInputControlDown[3]) || key == Keys.V)
+							{
+								INTERNAL_TextInputControlDown[3] = false;
+								INTERNAL_TextInputSuppress = false;
+							}
 						}
 					}
 
@@ -355,12 +373,27 @@ namespace Microsoft.Xna.Framework
 					// Quit
 					else if (evt.type == SDL.SDL_EventType.SDL_QUIT)
 					{
-						INTERNAL_runApplication = false;
+						Game.RunApplication = false;
 						break;
 					}
 				}
 				// Text Input Controls Key Handling
-				INTERNAL_TextInputUpdate();
+				if (INTERNAL_TextInputControlDown[0] && INTERNAL_TextInputControlRepeat[0] <= Environment.TickCount)
+				{
+					TextInputEXT.OnTextInput((char) 8);
+				}
+				if (INTERNAL_TextInputControlDown[1] && INTERNAL_TextInputControlRepeat[1] <= Environment.TickCount)
+				{
+					TextInputEXT.OnTextInput((char) 9);
+				}
+				if (INTERNAL_TextInputControlDown[2] && INTERNAL_TextInputControlRepeat[2] <= Environment.TickCount)
+				{
+					TextInputEXT.OnTextInput((char) 13);
+				}
+				if (INTERNAL_TextInputControlDown[3] && INTERNAL_TextInputControlRepeat[3] <= Environment.TickCount)
+				{
+					TextInputEXT.OnTextInput((char) 22);
+				}
 
 				Keyboard.SetKeys(keys);
 				Game.Tick();
@@ -368,12 +401,6 @@ namespace Microsoft.Xna.Framework
 
 			// We out.
 			Game.Exit();
-		}
-
-		public override void Exit()
-		{
-			// Stop the game loop
-			INTERNAL_runApplication = false;
 		}
 
 		public override void BeforeInitialize()
@@ -832,80 +859,6 @@ namespace Microsoft.Xna.Framework
 				}
 			}
 			supportedDisplayModes = new DisplayModeCollection(modes);
-		}
-
-		#endregion
-
-		#region Private TextInput Methods
-
-		private void INTERNAL_TextInputIn(Keys key)
-		{
-			if (key == Keys.Back)
-			{
-				INTERNAL_TextInputControlDown[0] = true;
-				INTERNAL_TextInputControlRepeat[0] = Environment.TickCount + 400;
-				TextInputEXT.OnTextInput((char) 8); // Backspace
-			}
-			else if (key == Keys.Tab)
-			{
-				INTERNAL_TextInputControlDown[1] = true;
-				INTERNAL_TextInputControlRepeat[1] = Environment.TickCount + 400;
-				TextInputEXT.OnTextInput((char) 9); // Tab
-			}
-			else if (key == Keys.Enter)
-			{
-				INTERNAL_TextInputControlDown[2] = true;
-				INTERNAL_TextInputControlRepeat[2] = Environment.TickCount + 400;
-				TextInputEXT.OnTextInput((char) 13); // Enter
-			}
-			else if (keys.Contains(Keys.LeftControl) && key == Keys.V)
-			{
-				INTERNAL_TextInputControlDown[3] = true;
-				INTERNAL_TextInputControlRepeat[3] = Environment.TickCount + 400;
-				TextInputEXT.OnTextInput((char) 22); // Control-V (Paste)
-				INTERNAL_TextInputSuppress = true;
-			}
-		}
-
-		private void INTERNAL_TextInputOut(Keys key)
-		{
-			if (key == Keys.Back)
-			{
-				INTERNAL_TextInputControlDown[0] = false;
-			}
-			else if (key == Keys.Tab)
-			{
-				INTERNAL_TextInputControlDown[1] = false;
-			}
-			else if (key == Keys.Enter)
-			{
-				INTERNAL_TextInputControlDown[2] = false;
-			}
-			else if ((!keys.Contains(Keys.LeftControl) && INTERNAL_TextInputControlDown[3]) || key == Keys.V)
-			{
-				INTERNAL_TextInputControlDown[3] = false;
-				INTERNAL_TextInputSuppress = false;
-			}
-		}
-
-		private void INTERNAL_TextInputUpdate()
-		{
-			if (INTERNAL_TextInputControlDown[0] && INTERNAL_TextInputControlRepeat[0] <= Environment.TickCount)
-			{
-				TextInputEXT.OnTextInput((char) 8);
-			}
-			if (INTERNAL_TextInputControlDown[1] && INTERNAL_TextInputControlRepeat[1] <= Environment.TickCount)
-			{
-				TextInputEXT.OnTextInput((char) 9);
-			}
-			if (INTERNAL_TextInputControlDown[2] && INTERNAL_TextInputControlRepeat[2] <= Environment.TickCount)
-			{
-				TextInputEXT.OnTextInput((char) 13);
-			}
-			if (INTERNAL_TextInputControlDown[3] && INTERNAL_TextInputControlRepeat[3] <= Environment.TickCount)
-			{
-				TextInputEXT.OnTextInput((char) 22);
-			}
 		}
 
 		#endregion
