@@ -251,10 +251,10 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// Make the Platform device changes.
-			game.Platform.BeginScreenDeviceChange(
+			game.Window.BeginScreenDeviceChange(
 				GraphicsDevice.PresentationParameters.IsFullScreen
 			);
-			game.Platform.EndScreenDeviceChange(
+			game.Window.EndScreenDeviceChange(
 				"FNA",
 				GraphicsDevice.PresentationParameters.BackBufferWidth,
 				GraphicsDevice.PresentationParameters.BackBufferHeight
@@ -290,8 +290,8 @@ namespace Microsoft.Xna.Framework
 				PreferredBackBufferHeight;
 
 			// Apply settings.
-			game.Platform.BeginScreenDeviceChange(IsFullScreen);
-			game.Platform.EndScreenDeviceChange(
+			game.Window.BeginScreenDeviceChange(IsFullScreen);
+			game.Window.EndScreenDeviceChange(
 				"FNA",
 				GraphicsDevice.PresentationParameters.BackBufferWidth,
 				GraphicsDevice.PresentationParameters.BackBufferHeight

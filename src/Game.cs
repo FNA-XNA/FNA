@@ -644,7 +644,6 @@ namespace Microsoft.Xna.Framework
 			if (GraphicsDevice != null)
 			{
 				GraphicsDevice.Present();
-				Platform.Present(GraphicsDevice);
 			}
 		}
 

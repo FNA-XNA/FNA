@@ -101,38 +101,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public abstract void RunLoop();
 
-		/// <summary>
-		/// Starts a device transition (windowed to full screen or vice versa).
-		/// </summary>
-		/// <param name='willBeFullScreen'>
-		/// Specifies whether the device will be in full-screen mode upon completion of
-		/// the change.
-		/// </param>
-		public abstract void BeginScreenDeviceChange(
-			bool willBeFullScreen
-		);
-
-		/// <summary>
-		/// Completes a device transition.
-		/// </summary>
-		/// <param name='screenDeviceName'>
-		/// Screen device name.
-		/// </param>
-		/// <param name='clientWidth'>
-		/// The new width of the game's client window.
-		/// </param>
-		/// <param name='clientHeight'>
-		/// The new height of the game's client window.
-		/// </param>
-		public abstract void EndScreenDeviceChange(
-			string screenDeviceName,
-			int clientWidth,
-			int clientHeight
-		);
-
 		public abstract void OnIsMouseVisibleChanged(bool visible);
-
-		public abstract void Present(GraphicsDevice device);
 
 		public abstract void ShowRuntimeError(
 			String title,

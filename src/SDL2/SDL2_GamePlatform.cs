@@ -24,15 +24,6 @@
  */
 #endregion
 
-#region WIIU_GAMEPAD Option
-// #define WIIU_GAMEPAD
-/* This is something I added for myself, because I am a complete goof.
- * You should NEVER enable this in your shipping build.
- * Let your hacker customers self-build FNA, they'll know what to do.
- * -flibit
- */
-#endregion
-
 #region Using Statements
 using System;
 using System.IO;
@@ -49,68 +40,6 @@ namespace Microsoft.Xna.Framework
 {
 	class SDL2_GamePlatform : GamePlatform
 	{
-		#region Wii U GamePad Support, libdrc Interop
-
-#if WIIU_GAMEPAD
-		private static class DRC
-		{
-			// FIXME: Deal with Mac/Windows LibName later.
-			private const string nativeLibName = "libdrc.so";
-
-			public enum drc_pixel_format
-			{
-				DRC_RGB,
-				DRC_RGBA,
-				DRC_BGR,
-				DRC_BGRA,
-				DRC_RGB565
-			}
-
-			public enum drc_flipping_mode
-			{
-				DRC_NO_FLIP,
-				DRC_FLIP_VERTICALLY
-			}
-
-			/* IntPtr refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern IntPtr drc_new_streamer();
-
-			/* self refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void drc_delete_streamer(IntPtr self);
-
-			/* self refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int drc_start_streamer(IntPtr self);
-
-			/* self refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void drc_stop_streamer(IntPtr self);
-
-			/* self refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int drc_push_vid_frame(
-				IntPtr self,
-				byte[] buffer,
-				uint size,
-				ushort width,
-				ushort height,
-				drc_pixel_format pixfmt,
-				drc_flipping_mode flipmode
-			);
-
-			/* self refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void drc_enable_system_input_feeder(IntPtr self);
-		}
-
-		private IntPtr wiiuStream;
-		private byte[] wiiuPixelData;
-#endif
-
-		#endregion
-
 		#region Private OSX-specific Variables
 
 		private bool INTERNAL_useFullscreenSpaces;
@@ -236,25 +165,6 @@ namespace Microsoft.Xna.Framework
 
 			// Ready to run the loop!
 			INTERNAL_runApplication = true;
-
-#if WIIU_GAMEPAD
-			wiiuStream = DRC.drc_new_streamer();
-			if (wiiuStream == IntPtr.Zero)
-			{
-				System.Console.WriteLine("Failed to alloc GamePad stream!");
-				return;
-			}
-			if (DRC.drc_start_streamer(wiiuStream) < 1) // ???
-			{
-				System.Console.WriteLine("Failed to start GamePad stream!");
-				DRC.drc_delete_streamer(wiiuStream);
-				wiiuStream = IntPtr.Zero;
-				return;
-			}
-			DRC.drc_enable_system_input_feeder(wiiuStream);
-			Rectangle bounds = game.Window.ClientBounds;
-			wiiuPixelData = new byte[bounds.Width * bounds.Height * 4];
-#endif
 		}
 
 		#endregion
@@ -483,42 +393,9 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		public override void BeginScreenDeviceChange(bool willBeFullScreen)
-		{
-			Game.Window.BeginScreenDeviceChange(willBeFullScreen);
-		}
-
-		public override void EndScreenDeviceChange(string screenDeviceName, int clientWidth, int clientHeight)
-		{
-			Game.Window.EndScreenDeviceChange(screenDeviceName, clientWidth, clientHeight);
-
-#if WIIU_GAMEPAD
-			wiiuPixelData = new byte[clientWidth * clientHeight * 4];
-#endif
-		}
-
 		public override void Log(string Message)
 		{
 			Console.WriteLine(Message);
-		}
-
-		public override void Present(GraphicsDevice device)
-		{
-#if WIIU_GAMEPAD
-			if (wiiuStream != IntPtr.Zero)
-			{
-				device.GetBackBufferData(wiiuPixelData);
-				DRC.drc_push_vid_frame(
-					wiiuStream,
-					wiiuPixelData,
-					(uint) wiiuPixelData.Length,
-					(ushort) device.GLDevice.Backbuffer.Width,
-					(ushort) device.GLDevice.Backbuffer.Height,
-					DRC.drc_pixel_format.DRC_RGBA,
-					DRC.drc_flipping_mode.DRC_NO_FLIP
-				);
-			}
-#endif
 		}
 
 		public override void ShowRuntimeError(string title, string message)
@@ -919,15 +796,6 @@ namespace Microsoft.Xna.Framework
 
 					Game.Window = null;
 				}
-
-#if WIIU_GAMEPAD
-				if (wiiuStream != IntPtr.Zero)
-				{
-					DRC.drc_stop_streamer(wiiuStream);
-					DRC.drc_delete_streamer(wiiuStream);
-					wiiuStream = IntPtr.Zero;
-				}
-#endif
 
 				// This _should_ be the last SDL call we make...
 				SDL.SDL_Quit();
