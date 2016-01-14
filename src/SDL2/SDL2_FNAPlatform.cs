@@ -33,6 +33,7 @@ using System.Runtime.InteropServices;
 using SDL2;
 
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 #endregion
 
@@ -431,6 +432,33 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED
 			) == 1) {
 				GamePad.INTERNAL_AddInstance(evt[0].cdevice.which);
+			}
+		}
+
+		public static IGLDevice CreateGLDevice(
+			PresentationParameters presentationParameters
+		) {
+			// This loads the OpenGL entry points.
+			return new OpenGLDevice(presentationParameters);
+		}
+
+		public static IALDevice CreateALDevice()
+		{
+			try
+			{
+				return new OpenALDevice();
+			}
+			catch(DllNotFoundException e)
+			{
+				System.Console.WriteLine("OpenAL not found! Need FNA.dll.config?");
+				throw e;
+			}
+			catch(Exception)
+			{
+				/* We ignore device creation exceptions,
+				 * as they are handled down the line with Instance != null
+				 */
+				return null;
 			}
 		}
 

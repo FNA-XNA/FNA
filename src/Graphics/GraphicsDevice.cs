@@ -383,8 +383,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				PresentationParameters.MultiSampleCount
 			);
 
-			// Set up the OpenGL Device. Loads entry points.
-			GLDevice = new OpenGLDevice(PresentationParameters);
+			// Set up the IDLDevice
+			GLDevice = FNAPlatform.CreateGLDevice(PresentationParameters);
 
 			// The mouse needs to know this for faux-backbuffer mouse scaling.
 			Input.Mouse.INTERNAL_BackBufferWidth = PresentationParameters.BackBufferWidth;

@@ -12,6 +12,7 @@ using System;
 using System.IO;
 
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 #endregion
 
@@ -39,6 +40,8 @@ namespace Microsoft.Xna.Framework
 			Dispose =			SDL2_FNAPlatform.Dispose;
 			BeforeInitialize =		SDL2_FNAPlatform.BeforeInitialize;
 			RunLoop =			SDL2_FNAPlatform.RunLoop;
+			CreateGLDevice =		SDL2_FNAPlatform.CreateGLDevice;
+			CreateALDevice =		SDL2_FNAPlatform.CreateALDevice;
 			SetPresentationInterval =	SDL2_FNAPlatform.SetPresentationInterval;
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
@@ -68,6 +71,14 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void RunLoopFunc(Game game);
 		public static RunLoopFunc RunLoop;
+
+		public delegate IGLDevice CreateGLDeviceFunc(
+			PresentationParameters presentationParameters
+		);
+		public static CreateGLDeviceFunc CreateGLDevice;
+
+		public delegate IALDevice CreateALDeviceFunc();
+		public static CreateALDeviceFunc CreateALDevice;
 
 		public delegate void SetPresentationIntervalFunc(PresentInterval interval);
 		public static SetPresentationIntervalFunc SetPresentationInterval;

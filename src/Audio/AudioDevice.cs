@@ -71,21 +71,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			else
 			{
-				try
-				{
-					ALDevice = new OpenALDevice();
-				}
-				catch(DllNotFoundException e)
-				{
-					System.Console.WriteLine("OpenAL not found! Need FNA.dll.config?");
-					throw e;
-				}
-				catch(Exception)
-				{
-					/* We ignore and device creation exceptions,
-					 * as they are handled down the line with Instance != null
-					 */
-				}
+				ALDevice = FNAPlatform.CreateALDevice();
 			}
 
 			// Populate device list
