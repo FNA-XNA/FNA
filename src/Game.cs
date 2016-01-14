@@ -211,6 +211,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Internal Fields
 
+		/* This variable solely exists for the VideoPlayer -flibit */
 		internal static Game Instance = null;
 
 		internal bool RunApplication;
