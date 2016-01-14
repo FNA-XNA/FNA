@@ -386,6 +386,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Set up the OpenGL Device. Loads entry points.
 			GLDevice = new OpenGLDevice(PresentationParameters);
 
+			// The mouse needs to know this for faux-backbuffer mouse scaling.
+			Input.Mouse.INTERNAL_BackBufferWidth = PresentationParameters.BackBufferWidth;
+			Input.Mouse.INTERNAL_BackBufferHeight = PresentationParameters.BackBufferHeight;
+
 			// Force set the default render states.
 			BlendState = BlendState.Opaque;
 			DepthStencilState = DepthStencilState.Default;
@@ -633,6 +637,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				PresentationParameters,
 				RenderTargetCount > 0
 			);
+
+			// The mouse needs to know this for faux-backbuffer mouse scaling.
+			Input.Mouse.INTERNAL_BackBufferWidth = PresentationParameters.BackBufferWidth;
+			Input.Mouse.INTERNAL_BackBufferHeight = PresentationParameters.BackBufferHeight;
 
 #if WIIU_GAMEPAD
 			wiiuPixelData = new byte[

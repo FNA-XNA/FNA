@@ -30,8 +30,10 @@ namespace Microsoft.Xna.Framework.Input
 
 		#region Internal Variables
 
-		internal static int INTERNAL_WindowWidth = 800;
-		internal static int INTERNAL_WindowHeight = 600;
+		internal static int INTERNAL_WindowWidth = GraphicsDeviceManager.DefaultBackBufferWidth;
+		internal static int INTERNAL_WindowHeight = GraphicsDeviceManager.DefaultBackBufferHeight;
+		internal static int INTERNAL_BackBufferWidth = GraphicsDeviceManager.DefaultBackBufferWidth;
+		internal static int INTERNAL_BackBufferHeight = GraphicsDeviceManager.DefaultBackBufferHeight;
 
 		internal static int INTERNAL_MouseWheel = 0;
 
@@ -73,8 +75,8 @@ namespace Microsoft.Xna.Framework.Input
 			else
 			{
 				// Scale the mouse coordinates for the faux-backbuffer
-				x = (int) ((double) x * Game.Instance.GraphicsDevice.GLDevice.Backbuffer.Width / INTERNAL_WindowWidth);
-				y = (int) ((double) y * Game.Instance.GraphicsDevice.GLDevice.Backbuffer.Height / INTERNAL_WindowHeight);
+				x = (int) ((double) x * INTERNAL_BackBufferWidth / INTERNAL_WindowWidth);
+				y = (int) ((double) y * INTERNAL_BackBufferHeight / INTERNAL_WindowHeight);
 			}
 
 			return new MouseState(
@@ -101,8 +103,8 @@ namespace Microsoft.Xna.Framework.Input
 			INTERNAL_warpY = y;
 
 			// Scale the mouse coordinates for the faux-backbuffer
-			x = (int) ((double) x * INTERNAL_WindowWidth / Game.Instance.GraphicsDevice.GLDevice.Backbuffer.Width);
-			y = (int) ((double) y * INTERNAL_WindowHeight / Game.Instance.GraphicsDevice.GLDevice.Backbuffer.Height);
+			x = (int) ((double) x * INTERNAL_WindowWidth / INTERNAL_BackBufferWidth);
+			y = (int) ((double) y * INTERNAL_WindowHeight / INTERNAL_BackBufferHeight);
 
 			FNAPlatform.SetMousePosition(WindowHandle, x, y);
 			INTERNAL_IsWarped = true;
