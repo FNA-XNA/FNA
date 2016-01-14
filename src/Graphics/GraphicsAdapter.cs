@@ -20,26 +20,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public DisplayMode CurrentDisplayMode
 		{
-			get
-			{
-				return Game.Instance.Platform.GetCurrentDisplayMode();
-			}
+			get;
+			private set;
 		}
 
 		public DisplayModeCollection SupportedDisplayModes
 		{
-			get
-			{
-				return Game.Instance.Platform.GetDisplayModes();
-			}
+			get;
+			private set;
 		}
 
 		public string Description
 		{
-			get
-			{
-				throw new NotImplementedException();
-			}
+			get;
+			private set;
 		}
 
 		public int DeviceId
@@ -149,10 +143,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (adapters == null)
 				{
 					adapters = new ReadOnlyCollection<GraphicsAdapter>(
-						new GraphicsAdapter[]
-						{
-							new GraphicsAdapter()
-						}
+						Game.Instance.Platform.GetGraphicsAdapters()
 					);
 				}
 				return adapters;
@@ -169,8 +160,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Constructor
 
-		internal GraphicsAdapter()
-		{
+		internal GraphicsAdapter(
+			DisplayMode currentMode,
+			DisplayModeCollection modes,
+			string description
+		) {
+			CurrentDisplayMode = currentMode;
+			SupportedDisplayModes = modes;
+			Description = description;
 			UseNullDevice = false;
 			UseReferenceDevice = false;
 		}

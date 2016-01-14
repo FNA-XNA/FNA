@@ -103,9 +103,7 @@ namespace Microsoft.Xna.Framework
 			String message
 		);
 
-		public abstract DisplayMode GetCurrentDisplayMode();
-
-		public abstract DisplayModeCollection GetDisplayModes();
+		public abstract GraphicsAdapter[] GetGraphicsAdapters();
 
 		public abstract void SetPresentationInterval(PresentInterval interval);
 

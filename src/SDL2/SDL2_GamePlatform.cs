@@ -40,13 +40,6 @@ namespace Microsoft.Xna.Framework
 {
 	class SDL2_GamePlatform : GamePlatform
 	{
-		#region Private DisplayMode Variables
-
-		private int displayIndex = 0;
-		private DisplayModeCollection supportedDisplayModes = null;
-
-		#endregion
-
 		#region Public Constructor
 
 		public SDL2_GamePlatform(Game game) : base(game, SDL.SDL_GetPlatform())
@@ -104,12 +97,6 @@ namespace Microsoft.Xna.Framework
 				forceCoreProfile
 			);
 
-			// Create the DisplayMode list
-			displayIndex = SDL.SDL_GetWindowDisplayIndex(
-				game.Window.Handle
-			);
-			INTERNAL_GenerateDisplayModes();
-
 			// Disable the screensaver.
 			SDL.SDL_DisableScreenSaver();
 
@@ -124,6 +111,11 @@ namespace Microsoft.Xna.Framework
 		public override void RunLoop()
 		{
 			SDL.SDL_ShowWindow(Game.Window.Handle);
+
+			// Which display did we end up on?
+			int displayIndex = SDL.SDL_GetWindowDisplayIndex(
+				Game.Window.Handle
+			);
 
 			// OSX has some fancy fullscreen features, let's use them!
 			bool osxUseSpaces;
@@ -315,8 +307,10 @@ namespace Microsoft.Xna.Framework
 							if (newIndex != displayIndex)
 							{
 								displayIndex = newIndex;
-								INTERNAL_GenerateDisplayModes();
-								Game.GraphicsDevice.Reset();
+								Game.GraphicsDevice.Reset(
+									Game.GraphicsDevice.PresentationParameters,
+									GraphicsAdapter.Adapters[displayIndex]
+								);
 							}
 						}
 
@@ -429,20 +423,50 @@ namespace Microsoft.Xna.Framework
 			);
 		}
 
-		public override DisplayMode GetCurrentDisplayMode()
+		public override GraphicsAdapter[] GetGraphicsAdapters()
 		{
-			SDL.SDL_DisplayMode mode;
-			SDL.SDL_GetCurrentDisplayMode(displayIndex, out mode);
-			return new DisplayMode(
-				mode.w,
-				mode.h,
-				SurfaceFormat.Color
-			);
-		}
+			SDL.SDL_DisplayMode filler = new SDL.SDL_DisplayMode();
+			GraphicsAdapter[] adapters = new GraphicsAdapter[SDL.SDL_GetNumVideoDisplays()];
+			for (int i = 0; i < adapters.Length; i += 1)
+			{
+				List<DisplayMode> modes = new List<DisplayMode>();
+				int numModes = SDL.SDL_GetNumDisplayModes(i);
+				for (int j = 0; j < numModes; j += 1)
+				{
+					SDL.SDL_GetDisplayMode(i, j, out filler);
 
-		public override DisplayModeCollection GetDisplayModes()
-		{
-			return supportedDisplayModes;
+					// Check for dupes caused by varying refresh rates.
+					bool dupe = false;
+					foreach (DisplayMode mode in modes)
+					{
+						if (filler.w == mode.Width && filler.h == mode.Height)
+						{
+							dupe = true;
+						}
+					}
+					if (!dupe)
+					{
+						modes.Add(
+							new DisplayMode(
+								filler.w,
+								filler.h,
+								SurfaceFormat.Color // FIXME: Assumption!
+							)
+						);
+					}
+				}
+				SDL.SDL_GetCurrentDisplayMode(i, out filler);
+				adapters[i] = new GraphicsAdapter(
+					new DisplayMode(
+						filler.w,
+						filler.h,
+						SurfaceFormat.Color // FIXME: Assumption!
+					),
+					new DisplayModeCollection(modes),
+					SDL.SDL_GetDisplayName(i)
+				);
+			}
+			return adapters;
 		}
 
 		public override void SetPresentationInterval(PresentInterval interval)
@@ -818,42 +842,6 @@ namespace Microsoft.Xna.Framework
 			}
 
 			base.Dispose(disposing);
-		}
-
-		#endregion
-
-		#region Private DisplayMode Methods
-
-		private void INTERNAL_GenerateDisplayModes()
-		{
-			List<DisplayMode> modes = new List<DisplayMode>();
-			SDL.SDL_DisplayMode filler = new SDL.SDL_DisplayMode();
-			int numModes = SDL.SDL_GetNumDisplayModes(displayIndex);
-			for (int i = 0; i < numModes; i += 1)
-			{
-				SDL.SDL_GetDisplayMode(displayIndex, i, out filler);
-
-				// Check for dupes caused by varying refresh rates.
-				bool dupe = false;
-				foreach (DisplayMode mode in modes)
-				{
-					if (filler.w == mode.Width && filler.h == mode.Height)
-					{
-						dupe = true;
-					}
-				}
-				if (!dupe)
-				{
-					modes.Add(
-						new DisplayMode(
-							filler.w,
-							filler.h,
-							SurfaceFormat.Color // FIXME: Assumption!
-						)
-					);
-				}
-			}
-			supportedDisplayModes = new DisplayModeCollection(modes);
 		}
 
 		#endregion
