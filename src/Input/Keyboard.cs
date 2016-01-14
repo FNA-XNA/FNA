@@ -53,7 +53,7 @@ namespace Microsoft.Xna.Framework.Input
 
 		public static Keys GetKeyFromScancodeEXT(Keys scancode)
 		{
-			return Game.Instance.Platform.GetKeyFromScancode(scancode);
+			return FNAPlatform.GetKeyFromScancode(scancode);
 		}
 
 		#endregion

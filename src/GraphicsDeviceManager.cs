@@ -261,7 +261,7 @@ namespace Microsoft.Xna.Framework
 			);
 
 			// Apply the PresentInterval.
-			game.Platform.SetPresentationInterval(
+			FNAPlatform.SetPresentationInterval(
 				SynchronizeWithVerticalRetrace ?
 					GraphicsDevice.PresentationParameters.PresentationInterval :
 					PresentInterval.Immediate

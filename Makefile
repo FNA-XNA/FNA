@@ -123,12 +123,12 @@ SRC = \
 	src/Design/Vector4Converter.cs \
 	src/DisplayOrientation.cs \
 	src/DrawableGameComponent.cs \
+	src/FNAPlatform.cs \
 	src/FrameworkDispatcher.cs \
 	src/Game.cs \
 	src/GameComponent.cs \
 	src/GameComponentCollection.cs \
 	src/GameComponentCollectionEventArgs.cs \
-	src/GamePlatform.cs \
 	src/GameServiceContainer.cs \
 	src/GameTime.cs \
 	src/GameWindow.cs \
@@ -302,7 +302,7 @@ SRC = \
 	src/SDL2/Input/SDL2_GamePad.cs \
 	src/SDL2/Input/SDL2_KeyboardUtil.cs \
 	src/SDL2/Input/SDL2_Mouse.cs \
-	src/SDL2/SDL2_GamePlatform.cs \
+	src/SDL2/SDL2_FNAPlatform.cs \
 	src/SDL2/SDL2_GameWindow.cs \
 	src/Storage/StorageContainer.cs \
 	src/Storage/StorageDevice.cs \

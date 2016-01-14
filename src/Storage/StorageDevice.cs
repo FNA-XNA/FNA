@@ -55,7 +55,7 @@ namespace Microsoft.Xna.Framework.Storage
 		{
 			get
 			{
-				return Game.Instance.Platform.IsStoragePathConnected(storageRoot);
+				return FNAPlatform.IsStoragePathConnected(storageRoot);
 			}
 		}
 
@@ -93,7 +93,7 @@ namespace Microsoft.Xna.Framework.Storage
 
 		#region Private Static Variables
 
-		private static readonly string storageRoot = Game.Instance.Platform.GetStorageRoot();
+		private static readonly string storageRoot = FNAPlatform.GetStorageRoot();
 
 		#endregion
 

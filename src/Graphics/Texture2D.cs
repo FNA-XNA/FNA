@@ -228,7 +228,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Get the Texture2D pixels
 			byte[] data = new byte[Width * Height * GetFormatSize(Format)];
 			GetData(data);
-			Game.Instance.Platform.SavePNG(
+			FNAPlatform.SavePNG(
 				stream,
 				width,
 				height,
@@ -317,7 +317,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int requestedHeight = -1,
 			bool zoom = false
 		) {
-			Game.Instance.Platform.TextureDataFromStream(
+			FNAPlatform.TextureDataFromStream(
 				stream,
 				out width,
 				out height,

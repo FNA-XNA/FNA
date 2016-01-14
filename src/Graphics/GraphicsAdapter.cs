@@ -143,7 +143,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (adapters == null)
 				{
 					adapters = new ReadOnlyCollection<GraphicsAdapter>(
-						Game.Instance.Platform.GetGraphicsAdapters()
+						FNAPlatform.GetGraphicsAdapters()
 					);
 				}
 				return adapters;

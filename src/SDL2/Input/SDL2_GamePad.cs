@@ -183,13 +183,13 @@ namespace Microsoft.Xna.Framework.Input
 			}
 			if (INTERNAL_haptics[which] != IntPtr.Zero)
 			{
-				if (	Game.Instance.Platform.OSVersion.Equals("Mac OS X") &&
+				if (	SDL2_FNAPlatform.OSVersion.Equals("Mac OS X") &&
 					SDL.SDL_HapticEffectSupported(INTERNAL_haptics[which], ref INTERNAL_leftRightMacHackEffect) == 1	)
 				{
 					INTERNAL_hapticTypes[which] = HapticType.LeftRightMacHack;
 					SDL.SDL_HapticNewEffect(INTERNAL_haptics[which], ref INTERNAL_leftRightMacHackEffect);
 				}
-				else if (	!Game.Instance.Platform.OSVersion.Equals("Mac OS X") &&
+				else if (	!SDL2_FNAPlatform.OSVersion.Equals("Mac OS X") &&
 						SDL.SDL_HapticEffectSupported(INTERNAL_haptics[which], ref INTERNAL_leftRightEffect) == 1	)
 				{
 					INTERNAL_hapticTypes[which] = HapticType.LeftRight;
@@ -216,7 +216,7 @@ namespace Microsoft.Xna.Framework.Input
 				resChar,
 				resChar.Length
 			);
-			if (Game.Instance.Platform.OSVersion.Equals("Linux"))
+			if (SDL2_FNAPlatform.OSVersion.Equals("Linux"))
 			{
 				result.Append((char) resChar[8]);
 				result.Append((char) resChar[9]);
@@ -227,7 +227,7 @@ namespace Microsoft.Xna.Framework.Input
 				result.Append((char) resChar[18]);
 				result.Append((char) resChar[19]);
 			}
-			else if (Game.Instance.Platform.OSVersion.Equals("Mac OS X"))
+			else if (SDL2_FNAPlatform.OSVersion.Equals("Mac OS X"))
 			{
 				result.Append((char) resChar[0]);
 				result.Append((char) resChar[1]);
@@ -238,7 +238,7 @@ namespace Microsoft.Xna.Framework.Input
 				result.Append((char) resChar[18]);
 				result.Append((char) resChar[19]);
 			}
-			else if (Game.Instance.Platform.OSVersion.Equals("Windows"))
+			else if (SDL2_FNAPlatform.OSVersion.Equals("Windows"))
 			{
 				bool isXInput = true;
 				foreach (byte b in resChar)
@@ -272,7 +272,7 @@ namespace Microsoft.Xna.Framework.Input
 			INTERNAL_guids[which] = result.ToString();
 
 			// Initialize light bar
-			if (	Game.Instance.Platform.OSVersion.Equals("Linux") &&
+			if (	SDL2_FNAPlatform.OSVersion.Equals("Linux") &&
 				INTERNAL_guids[which].Equals("4c05c405")	)
 			{
 				// Get all of the individual PS4 LED instances

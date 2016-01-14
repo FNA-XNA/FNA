@@ -109,7 +109,7 @@ namespace Microsoft.Xna.Framework
 				if (_isMouseVisible != value)
 				{
 					_isMouseVisible = value;
-					Platform.OnIsMouseVisibleChanged(value);
+					FNAPlatform.OnIsMouseVisibleChanged(value);
 				}
 			}
 		}
@@ -213,8 +213,6 @@ namespace Microsoft.Xna.Framework
 
 		internal static Game Instance = null;
 
-		internal GamePlatform Platform;
-
 		internal bool RunApplication;
 
 		#endregion
@@ -288,8 +286,7 @@ namespace Microsoft.Xna.Framework
 			_components = new GameComponentCollection();
 			_content = new ContentManager(_services);
 
-			Platform = GamePlatform.Create(this);
-			_services.AddService(typeof(GamePlatform), Platform);
+			FNAPlatform.Init(this);
 
 			AudioDevice.Initialize();
 
@@ -351,13 +348,8 @@ namespace Microsoft.Xna.Framework
 
 					AudioDevice.Dispose();
 
-					if (Platform != null)
-					{
-						_services.RemoveService(typeof(GamePlatform));
-						Platform.Dispose();
-						Platform = null;
-						Mouse.WindowHandle = IntPtr.Zero;
-					}
+					FNAPlatform.Dispose(this);
+					Mouse.WindowHandle = IntPtr.Zero;
 
 					ContentTypeReaderManager.ClearTypeCreators();
 				}
@@ -423,11 +415,6 @@ namespace Microsoft.Xna.Framework
 
 		public void RunOneFrame()
 		{
-			if (Platform == null)
-			{
-				return;
-			}
-
 			if (!_initialized)
 			{
 				DoInitialize();
@@ -456,7 +443,7 @@ namespace Microsoft.Xna.Framework
 			BeginRun();
 			_gameTimer = Stopwatch.StartNew();
 
-			Platform.RunLoop();
+			FNAPlatform.RunLoop(this);
 
 			EndRun();
 
@@ -777,7 +764,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (exception is NoAudioHardwareException)
 			{
-				Platform.ShowRuntimeError(
+				FNAPlatform.ShowRuntimeError(
 					Window.Title,
 					"Could not find a suitable audio device. " +
 					" Verify that a sound card is\ninstalled," +
@@ -788,7 +775,7 @@ namespace Microsoft.Xna.Framework
 			}
 			if (exception is NoSuitableGraphicsDeviceException)
 			{
-				Platform.ShowRuntimeError(
+				FNAPlatform.ShowRuntimeError(
 					Window.Title,
 					"Could not find a suitable graphics device." +
 					" More information:\n\n" + exception.Message
@@ -834,7 +821,7 @@ namespace Microsoft.Xna.Framework
 				graphicsDeviceManager.CreateDevice();
 			}
 
-			Platform.BeforeInitialize();
+			FNAPlatform.BeforeInitialize();
 			Initialize();
 
 			/* We need to do this after virtual Initialize(...) is called.
