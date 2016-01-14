@@ -274,6 +274,7 @@ SRC = \
 	src/Input/KeyboardState.cs \
 	src/Input/Keys.cs \
 	src/Input/KeyState.cs \
+	src/Input/Mouse.cs \
 	src/Input/MouseState.cs \
 	src/Input/TextInputEXT.cs \
 	src/IUpdateable.cs \
@@ -301,7 +302,6 @@ SRC = \
 	src/Rectangle.cs \
 	src/SDL2/Input/SDL2_GamePad.cs \
 	src/SDL2/Input/SDL2_KeyboardUtil.cs \
-	src/SDL2/Input/SDL2_Mouse.cs \
 	src/SDL2/SDL2_FNAPlatform.cs \
 	src/SDL2/SDL2_GameWindow.cs \
 	src/Storage/StorageContainer.cs \

@@ -42,6 +42,8 @@ namespace Microsoft.Xna.Framework
 			SetPresentationInterval =	SDL2_FNAPlatform.SetPresentationInterval;
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
+			GetMouseState =			SDL2_FNAPlatform.GetMouseState;
+			SetMousePosition =		SDL2_FNAPlatform.SetMousePosition;
 			OnIsMouseVisibleChanged =	SDL2_FNAPlatform.OnIsMouseVisibleChanged;
 			GetStorageRoot =		SDL2_FNAPlatform.GetStorageRoot;
 			IsStoragePathConnected =	SDL2_FNAPlatform.IsStoragePathConnected;
@@ -75,6 +77,24 @@ namespace Microsoft.Xna.Framework
 
 		public delegate Keys GetKeyFromScancodeFunc(Keys scancode);
 		public static GetKeyFromScancodeFunc GetKeyFromScancode;
+
+		public delegate void GetMouseStateFunc(
+			out int x,
+			out int y,
+			out ButtonState left,
+			out ButtonState middle,
+			out ButtonState right,
+			out ButtonState x1,
+			out ButtonState x2
+		);
+		public static GetMouseStateFunc GetMouseState;
+
+		public delegate void SetMousePositionFunc(
+			IntPtr window,
+			int x,
+			int y
+		);
+		public static SetMousePositionFunc SetMousePosition;
 
 		public delegate void OnIsMouseVisibleChangedFunc(bool visible);
 		public static OnIsMouseVisibleChangedFunc OnIsMouseVisibleChanged;

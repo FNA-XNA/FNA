@@ -308,6 +308,7 @@
     <Compile Include="src\Input\KeyboardState.cs" />
     <Compile Include="src\Input\Keys.cs" />
     <Compile Include="src\Input\KeyState.cs" />
+    <Compile Include="src\Input\Mouse.cs" />
     <Compile Include="src\Input\MouseState.cs" />
     <Compile Include="src\Input\TextInputEXT.cs" />
     <Compile Include="src\IUpdateable.cs" />
@@ -335,7 +336,6 @@
     <Compile Include="src\Rectangle.cs" />
     <Compile Include="src\SDL2\Input\SDL2_GamePad.cs" />
     <Compile Include="src\SDL2\Input\SDL2_KeyboardUtil.cs" />
-    <Compile Include="src\SDL2\Input\SDL2_Mouse.cs" />
     <Compile Include="src\SDL2\SDL2_FNAPlatform.cs" />
     <Compile Include="src\SDL2\SDL2_GameWindow.cs" />
     <Compile Include="src\Storage\StorageContainer.cs" />

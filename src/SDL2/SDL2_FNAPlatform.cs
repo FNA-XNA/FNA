@@ -522,6 +522,28 @@ namespace Microsoft.Xna.Framework
 			return SDL2_KeyboardUtil.KeyFromScancode(scancode);
 		}
 
+		public static void GetMouseState(
+			out int x,
+			out int y,
+			out ButtonState left,
+			out ButtonState middle,
+			out ButtonState right,
+			out ButtonState x1,
+			out ButtonState x2
+		) {
+			uint flags = SDL.SDL_GetMouseState(out x, out y);
+			left =		(ButtonState) (flags & SDL.SDL_BUTTON_LMASK);
+			middle =	(ButtonState) ((flags & SDL.SDL_BUTTON_MMASK) >> 1);
+			right =		(ButtonState) ((flags & SDL.SDL_BUTTON_RMASK) >> 2);
+			x1 =		(ButtonState) ((flags & SDL.SDL_BUTTON_X1MASK) >> 3);
+			x2 =		(ButtonState) ((flags & SDL.SDL_BUTTON_X2MASK) >> 4);
+		}
+
+		public static void SetMousePosition(IntPtr window, int x, int y)
+		{
+			SDL.SDL_WarpMouseInWindow(window, x, y);
+		}
+
 		public static void OnIsMouseVisibleChanged(bool visible)
 		{
 			SDL.SDL_ShowCursor(visible ? 1 : 0);
