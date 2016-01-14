@@ -383,7 +383,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				PresentationParameters.MultiSampleCount
 			);
 
-			// Set up the IDLDevice
+			// Set up the IGLDevice
 			GLDevice = FNAPlatform.CreateGLDevice(PresentationParameters);
 
 			// The mouse needs to know this for faux-backbuffer mouse scaling.
