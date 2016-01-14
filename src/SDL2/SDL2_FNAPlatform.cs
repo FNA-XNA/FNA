@@ -662,7 +662,7 @@ namespace Microsoft.Xna.Framework
 				int rh;
 				unsafe
 				{
-					SDL_Surface* surPtr = (SDL_Surface*) surface;
+					SDL.SDL_Surface* surPtr = (SDL.SDL_Surface*) surface;
 					rw = surPtr->w;
 					rh = surPtr->h;
 				}
@@ -756,7 +756,7 @@ namespace Microsoft.Xna.Framework
 			// Copy surface data to output managed byte array
 			unsafe
 			{
-				SDL_Surface* surPtr = (SDL_Surface*) surface;
+				SDL.SDL_Surface* surPtr = (SDL.SDL_Surface*) surface;
 				width = surPtr->w;
 				height = surPtr->h;
 				pixels = new byte[width * height * 4]; // MUST be SurfaceFormat.Color!
@@ -802,7 +802,7 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_LockSurface(surface);
 			unsafe
 			{
-				SDL_Surface* surPtr = (SDL_Surface*) surface;
+				SDL.SDL_Surface* surPtr = (SDL.SDL_Surface*) surface;
 				Marshal.Copy(
 					data,
 					0,
@@ -863,31 +863,12 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Static SDL_Surface Interop
 
-		[StructLayout(LayoutKind.Sequential)]
-		private struct SDL_Surface
-		{
-#pragma warning disable 0169
-			UInt32 flags;
-			public IntPtr format;
-			public Int32 w;
-			public Int32 h;
-			Int32 pitch;
-			public IntPtr pixels;
-			IntPtr userdata;
-			Int32 locked;
-			IntPtr lock_data;
-			SDL.SDL_Rect clip_rect;
-			IntPtr map;
-			Int32 refcount;
-#pragma warning restore 0169
-		}
-
 		private static unsafe IntPtr INTERNAL_convertSurfaceFormat(IntPtr surface)
 		{
 			IntPtr result = surface;
 			unsafe
 			{
-				SDL_Surface* surPtr = (SDL_Surface*) surface;
+				SDL.SDL_Surface* surPtr = (SDL.SDL_Surface*) surface;
 				SDL.SDL_PixelFormat* pixelFormatPtr = (SDL.SDL_PixelFormat*) surPtr->format;
 
 				// SurfaceFormat.Color is SDL_PIXELFORMAT_ABGR8888
