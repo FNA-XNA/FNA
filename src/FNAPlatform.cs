@@ -48,6 +48,11 @@ namespace Microsoft.Xna.Framework
 			GetMouseState =			SDL2_FNAPlatform.GetMouseState;
 			SetMousePosition =		SDL2_FNAPlatform.SetMousePosition;
 			OnIsMouseVisibleChanged =	SDL2_FNAPlatform.OnIsMouseVisibleChanged;
+			GetGamePadCapabilities =	SDL2_FNAPlatform.GetGamePadCapabilities;
+			GetGamePadState =		SDL2_FNAPlatform.GetGamePadState;
+			SetGamePadVibration =		SDL2_FNAPlatform.SetGamePadVibration;
+			GetGamePadGUID =		SDL2_FNAPlatform.GetGamePadGUID;
+			SetGamePadLightBar =		SDL2_FNAPlatform.SetGamePadLightBar;
 			GetStorageRoot =		SDL2_FNAPlatform.GetStorageRoot;
 			IsStoragePathConnected =	SDL2_FNAPlatform.IsStoragePathConnected;
 			Log =				SDL2_FNAPlatform.Log;
@@ -109,6 +114,28 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void OnIsMouseVisibleChangedFunc(bool visible);
 		public static OnIsMouseVisibleChangedFunc OnIsMouseVisibleChanged;
+
+		public delegate GamePadCapabilities GetGamePadCapabilitiesFunc(int index);
+		public static GetGamePadCapabilitiesFunc GetGamePadCapabilities;
+
+		public delegate GamePadState GetGamePadStateFunc(
+			int index,
+			GamePadDeadZone deadZoneMode
+		);
+		public static GetGamePadStateFunc GetGamePadState;
+
+		public delegate bool SetGamePadVibrationFunc(
+			int index,
+			float leftMotor,
+			float rightMotor
+		);
+		public static SetGamePadVibrationFunc SetGamePadVibration;
+
+		public delegate string GetGamePadGUIDFunc(int index);
+		public static GetGamePadGUIDFunc GetGamePadGUID;
+
+		public delegate void SetGamePadLightBarFunc(int index, Color color);
+		public static SetGamePadLightBarFunc SetGamePadLightBar;
 
 		public delegate string GetStorageRootFunc();
 		public static GetStorageRootFunc GetStorageRoot;

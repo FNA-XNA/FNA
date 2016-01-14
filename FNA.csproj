@@ -296,6 +296,7 @@
     <Compile Include="src\IGraphicsDeviceManager.cs" />
     <Compile Include="src\Input\Buttons.cs" />
     <Compile Include="src\Input\ButtonState.cs" />
+    <Compile Include="src\Input\GamePad.cs" />
     <Compile Include="src\Input\GamePadButtons.cs" />
     <Compile Include="src\Input\GamePadCapabilities.cs" />
     <Compile Include="src\Input\GamePadDeadZone.cs" />
@@ -334,10 +335,9 @@
     <Compile Include="src\Quaternion.cs" />
     <Compile Include="src\Ray.cs" />
     <Compile Include="src\Rectangle.cs" />
-    <Compile Include="src\SDL2\Input\SDL2_GamePad.cs" />
-    <Compile Include="src\SDL2\Input\SDL2_KeyboardUtil.cs" />
     <Compile Include="src\SDL2\SDL2_FNAPlatform.cs" />
     <Compile Include="src\SDL2\SDL2_GameWindow.cs" />
+    <Compile Include="src\SDL2\SDL2_KeyboardUtil.cs" />
     <Compile Include="src\Storage\StorageContainer.cs" />
     <Compile Include="src\Storage\StorageDevice.cs" />
     <Compile Include="src\Storage\StorageDeviceNotConnectedException.cs" />

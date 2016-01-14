@@ -262,6 +262,7 @@ SRC = \
 	src/IGraphicsDeviceManager.cs \
 	src/Input/Buttons.cs \
 	src/Input/ButtonState.cs \
+	src/Input/GamePad.cs \
 	src/Input/GamePadButtons.cs \
 	src/Input/GamePadCapabilities.cs \
 	src/Input/GamePadDeadZone.cs \
@@ -300,10 +301,9 @@ SRC = \
 	src/Quaternion.cs \
 	src/Ray.cs \
 	src/Rectangle.cs \
-	src/SDL2/Input/SDL2_GamePad.cs \
-	src/SDL2/Input/SDL2_KeyboardUtil.cs \
 	src/SDL2/SDL2_FNAPlatform.cs \
 	src/SDL2/SDL2_GameWindow.cs \
+	src/SDL2/SDL2_KeyboardUtil.cs \
 	src/Storage/StorageContainer.cs \
 	src/Storage/StorageDevice.cs \
 	src/Storage/StorageDeviceNotConnectedException.cs \

@@ -27,6 +27,7 @@
 #region Using Statements
 using System;
 using System.IO;
+using System.Text;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -355,11 +356,11 @@ namespace Microsoft.Xna.Framework
 					// Controller device management
 					else if (evt.type == SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED)
 					{
-						GamePad.INTERNAL_AddInstance(evt.cdevice.which);
+						INTERNAL_AddInstance(evt.cdevice.which);
 					}
 					else if (evt.type == SDL.SDL_EventType.SDL_CONTROLLERDEVICEREMOVED)
 					{
-						GamePad.INTERNAL_RemoveInstance(evt.cdevice.which);
+						INTERNAL_RemoveInstance(evt.cdevice.which);
 					}
 
 					// Text Input
@@ -431,7 +432,7 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED,
 				SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED
 			) == 1) {
-				GamePad.INTERNAL_AddInstance(evt[0].cdevice.which);
+				INTERNAL_AddInstance(evt[0].cdevice.which);
 			}
 		}
 
@@ -611,7 +612,7 @@ namespace Microsoft.Xna.Framework
 				}
 				return osConfigDir;
 			}
-			throw new Exception("StorageDevice: Platform.OSVersion not handled!");
+			throw new NotSupportedException("Unhandled SDL2 platform!");
 		}
 
 		public static bool IsStoragePathConnected(string path)
@@ -636,7 +637,7 @@ namespace Microsoft.Xna.Framework
 					return false;
 				}
 			}
-			throw new Exception("StorageDevice: Platform.OSVersion not handled!");
+			throw new NotSupportedException("Unhandled SDL2 platform");
 		}
 
 		public static void Log(string Message)
@@ -885,6 +886,603 @@ namespace Microsoft.Xna.Framework
 				(pngOut[36])
 			) + pngHeaderSize + pngFooterSize;
 			stream.Write(pngOut, 0, size);
+		}
+
+		#endregion
+
+		#region GamePad Backend
+
+		private enum HapticType
+		{
+			Simple = 0,
+			LeftRight = 1,
+			LeftRightMacHack = 2
+		}
+
+		// Controller device information
+		private static IntPtr[] INTERNAL_devices = new IntPtr[GamePad.GAMEPAD_COUNT];
+		private static Dictionary<int, int> INTERNAL_instanceList = new Dictionary<int, int>();
+		private static string[] INTERNAL_guids = GenStringArray();
+
+		// Haptic device information
+		private static IntPtr[] INTERNAL_haptics = new IntPtr[GamePad.GAMEPAD_COUNT];
+		private static HapticType[] INTERNAL_hapticTypes = new HapticType[GamePad.GAMEPAD_COUNT];
+
+		// Light bar information
+		private static string[] INTERNAL_lightBars = GenStringArray();
+
+		// Cached GamePadStates/Capabilities
+		private static GamePadState[] INTERNAL_states = new GamePadState[GamePad.GAMEPAD_COUNT];
+		private static GamePadCapabilities[] INTERNAL_capabilities = new GamePadCapabilities[GamePad.GAMEPAD_COUNT];
+
+		// We use this to apply XInput-like rumble effects.
+		private static SDL.SDL_HapticEffect INTERNAL_leftRightEffect = new SDL.SDL_HapticEffect
+		{
+			type = SDL.SDL_HAPTIC_LEFTRIGHT,
+			leftright = new SDL.SDL_HapticLeftRight
+			{
+				type = SDL.SDL_HAPTIC_LEFTRIGHT,
+				length = SDL.SDL_HAPTIC_INFINITY,
+				large_magnitude = ushort.MaxValue,
+				small_magnitude = ushort.MaxValue
+			}
+		};
+
+		// We use this to get left/right support on OSX via a nice driver workaround!
+		private static ushort[] leftRightMacHackData = {0, 0};
+		private static GCHandle leftRightMacHackPArry = GCHandle.Alloc(leftRightMacHackData, GCHandleType.Pinned);
+		private static IntPtr leftRightMacHackPtr = leftRightMacHackPArry.AddrOfPinnedObject();
+		private static SDL.SDL_HapticEffect INTERNAL_leftRightMacHackEffect = new SDL.SDL_HapticEffect
+		{
+			type = SDL.SDL_HAPTIC_CUSTOM,
+			custom = new SDL.SDL_HapticCustom
+			{
+				type = SDL.SDL_HAPTIC_CUSTOM,
+				length = SDL.SDL_HAPTIC_INFINITY,
+				channels = 2,
+				period = 1,
+				samples = 2,
+				data = leftRightMacHackPtr
+			}
+		};
+
+		// FIXME: SDL_GameController config input inversion!
+		private static float invertAxis = Environment.GetEnvironmentVariable(
+			"FNA_WORKAROUND_INVERT_YAXIS"
+		) == "1" ? -1.0f : 1.0f;
+
+		public static GamePadCapabilities GetGamePadCapabilities(int index)
+		{
+			if (INTERNAL_devices[index] == IntPtr.Zero)
+			{
+				return new GamePadCapabilities();
+			}
+			return INTERNAL_capabilities[index];
+		}
+
+		public static GamePadState GetGamePadState(int index, GamePadDeadZone deadZoneMode)
+		{
+			IntPtr device = INTERNAL_devices[index];
+			if (device == IntPtr.Zero)
+			{
+				return new GamePadState();
+			}
+
+			// Do not attempt to understand this number at all costs!
+			const float DeadZoneSize = 0.27f;
+
+			// The "master" button state is built from this.
+			Buttons gc_buttonState = (Buttons) 0;
+
+			// Sticks
+			GamePadThumbSticks gc_sticks = new GamePadThumbSticks(
+				new Vector2(
+					(float) SDL.SDL_GameControllerGetAxis(
+						device,
+						SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX
+					) / 32768.0f,
+					(float) SDL.SDL_GameControllerGetAxis(
+						device,
+						SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY
+					) / -32768.0f * invertAxis
+				),
+				new Vector2(
+					(float) SDL.SDL_GameControllerGetAxis(
+						device,
+						SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX
+					) / 32768.0f,
+					(float) SDL.SDL_GameControllerGetAxis(
+						device,
+						SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTY
+					) / -32768.0f * invertAxis
+				),
+				deadZoneMode
+			);
+			gc_buttonState |= READ_StickToButtons(
+				gc_sticks.Left,
+				Buttons.LeftThumbstickLeft,
+				Buttons.LeftThumbstickRight,
+				Buttons.LeftThumbstickUp,
+				Buttons.LeftThumbstickDown,
+				DeadZoneSize
+			);
+			gc_buttonState |= READ_StickToButtons(
+				gc_sticks.Right,
+				Buttons.RightThumbstickLeft,
+				Buttons.RightThumbstickRight,
+				Buttons.RightThumbstickUp,
+				Buttons.RightThumbstickDown,
+				DeadZoneSize
+			);
+
+			// Triggers
+			GamePadTriggers gc_triggers = new GamePadTriggers(
+				(float) SDL.SDL_GameControllerGetAxis(
+					device,
+					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERLEFT
+				) / 32768.0f,
+				(float) SDL.SDL_GameControllerGetAxis(
+					device,
+					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERRIGHT
+				) / 32768.0f
+			);
+			gc_buttonState |= READ_TriggerToButton(
+				gc_triggers.Left,
+				Buttons.LeftTrigger,
+				DeadZoneSize
+			);
+			gc_buttonState |= READ_TriggerToButton(
+				gc_triggers.Right,
+				Buttons.RightTrigger,
+				DeadZoneSize
+			);
+
+			// Buttons
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A) != 0)
+			{
+				gc_buttonState |= Buttons.A;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B) != 0)
+			{
+				gc_buttonState |= Buttons.B;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_X) != 0)
+			{
+				gc_buttonState |= Buttons.X;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_Y) != 0)
+			{
+				gc_buttonState |= Buttons.Y;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_BACK) != 0)
+			{
+				gc_buttonState |= Buttons.Back;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE) != 0)
+			{
+				gc_buttonState |= Buttons.BigButton;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_START) != 0)
+			{
+				gc_buttonState |= Buttons.Start;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSTICK) != 0)
+			{
+				gc_buttonState |= Buttons.LeftStick;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSTICK) != 0)
+			{
+				gc_buttonState |= Buttons.RightStick;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSHOULDER) != 0)
+			{
+				gc_buttonState |= Buttons.LeftShoulder;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) != 0)
+			{
+				gc_buttonState |= Buttons.RightShoulder;
+			}
+
+			// DPad
+			GamePadDPad gc_dpad;
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP) != 0)
+			{
+				gc_buttonState |= Buttons.DPadUp;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_DOWN) != 0)
+			{
+				gc_buttonState |= Buttons.DPadDown;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_LEFT) != 0)
+			{
+				gc_buttonState |= Buttons.DPadLeft;
+			}
+			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_RIGHT) != 0)
+			{
+				gc_buttonState |= Buttons.DPadRight;
+			}
+			gc_dpad = new GamePadDPad(gc_buttonState);
+
+			// Compile the master buttonstate
+			GamePadButtons gc_buttons = new GamePadButtons(gc_buttonState);
+
+			// Build the GamePadState, increment PacketNumber if state changed.
+			GamePadState gc_builtState = new GamePadState(
+				gc_sticks,
+				gc_triggers,
+				gc_buttons,
+				gc_dpad
+			);
+			gc_builtState.IsConnected = true;
+			gc_builtState.PacketNumber = INTERNAL_states[index].PacketNumber;
+			if (gc_builtState != INTERNAL_states[index])
+			{
+				gc_builtState.PacketNumber += 1;
+				INTERNAL_states[index] = gc_builtState;
+			}
+
+			return gc_builtState;
+		}
+
+		public static bool SetGamePadVibration(int index, float leftMotor, float rightMotor)
+		{
+			IntPtr haptic = INTERNAL_haptics[index];
+			HapticType type = INTERNAL_hapticTypes[index];
+
+			if (haptic == IntPtr.Zero)
+			{
+				return false;
+			}
+
+			if (leftMotor <= 0.0f && rightMotor <= 0.0f)
+			{
+				SDL.SDL_HapticStopAll(haptic);
+			}
+			else if (type == HapticType.LeftRight)
+			{
+				INTERNAL_leftRightEffect.leftright.large_magnitude = (ushort) (65535.0f * leftMotor);
+				INTERNAL_leftRightEffect.leftright.small_magnitude = (ushort) (65535.0f * rightMotor);
+				SDL.SDL_HapticUpdateEffect(
+					haptic,
+					0,
+					ref INTERNAL_leftRightEffect
+				);
+				SDL.SDL_HapticRunEffect(
+					haptic,
+					0,
+					1
+				);
+			}
+			else if (type == HapticType.LeftRightMacHack)
+			{
+				leftRightMacHackData[0] = (ushort) (65535.0f * leftMotor);
+				leftRightMacHackData[1] = (ushort) (65535.0f * rightMotor);
+				SDL.SDL_HapticUpdateEffect(
+					haptic,
+					0,
+					ref INTERNAL_leftRightMacHackEffect
+				);
+				SDL.SDL_HapticRunEffect(
+					haptic,
+					0,
+					1
+				);
+			}
+			else
+			{
+				SDL.SDL_HapticRumblePlay(
+					haptic,
+					Math.Max(leftMotor, rightMotor),
+					SDL.SDL_HAPTIC_INFINITY // Oh dear...
+				);
+			}
+			return true;
+		}
+
+		public static string GetGamePadGUID(int index)
+		{
+			return INTERNAL_guids[index];
+		}
+
+		public static void SetGamePadLightBar(int index, Color color)
+		{
+			if (String.IsNullOrEmpty(INTERNAL_lightBars[index]))
+			{
+				return;
+			}
+
+			string baseDir = INTERNAL_lightBars[index];
+			try
+			{
+				File.WriteAllText(baseDir + "red/brightness", color.R.ToString());
+				File.WriteAllText(baseDir + "green/brightness", color.G.ToString());
+				File.WriteAllText(baseDir + "blue/brightness", color.B.ToString());
+			}
+			catch
+			{
+				// If something went wrong, assume the worst and just remove it.
+				INTERNAL_lightBars[index] = String.Empty;
+			}
+		}
+
+		private static void INTERNAL_AddInstance(int dev)
+		{
+			int which = -1;
+			for (int i = 0; i < INTERNAL_devices.Length; i += 1)
+			{
+				if (INTERNAL_devices[i] == IntPtr.Zero)
+				{
+					which = i;
+					break;
+				}
+			}
+			if (which == -1)
+			{
+				return; // Ignoring more than 4 controllers.
+			}
+
+			// Clear the error buffer. We're about to do a LOT of dangerous stuff.
+			SDL.SDL_ClearError();
+
+			// Open the device!
+			INTERNAL_devices[which] = SDL.SDL_GameControllerOpen(dev);
+
+			// We use this when dealing with Haptic/GUID initialization.
+			IntPtr thisJoystick = SDL.SDL_GameControllerGetJoystick(INTERNAL_devices[which]);
+
+			// Pair up the instance ID to the player index.
+			// FIXME: Remove check after 2.0.4? -flibit
+			int thisInstance = SDL.SDL_JoystickInstanceID(thisJoystick);
+			if (INTERNAL_instanceList.ContainsKey(thisInstance))
+			{
+				// Duplicate? Usually this is OSX being dumb, but...?
+				INTERNAL_devices[which] = IntPtr.Zero;
+				return;
+			}
+			INTERNAL_instanceList.Add(thisInstance, which);
+
+			// Start with a fresh state.
+			INTERNAL_states[which] = new GamePadState();
+			INTERNAL_states[which].IsConnected = true;
+
+			// Initialize the haptics for the joystick, if applicable.
+			if (SDL.SDL_JoystickIsHaptic(thisJoystick) == 1)
+			{
+				INTERNAL_haptics[which] = SDL.SDL_HapticOpenFromJoystick(thisJoystick);
+				if (INTERNAL_haptics[which] == IntPtr.Zero)
+				{
+					System.Console.WriteLine("HAPTIC OPEN ERROR: " + SDL.SDL_GetError());
+				}
+			}
+			if (INTERNAL_haptics[which] != IntPtr.Zero)
+			{
+				if (	OSVersion.Equals("Mac OS X") &&
+					SDL.SDL_HapticEffectSupported(INTERNAL_haptics[which], ref INTERNAL_leftRightMacHackEffect) == 1	)
+				{
+					INTERNAL_hapticTypes[which] = HapticType.LeftRightMacHack;
+					SDL.SDL_HapticNewEffect(INTERNAL_haptics[which], ref INTERNAL_leftRightMacHackEffect);
+				}
+				else if (	!OSVersion.Equals("Mac OS X") &&
+						SDL.SDL_HapticEffectSupported(INTERNAL_haptics[which], ref INTERNAL_leftRightEffect) == 1	)
+				{
+					INTERNAL_hapticTypes[which] = HapticType.LeftRight;
+					SDL.SDL_HapticNewEffect(INTERNAL_haptics[which], ref INTERNAL_leftRightEffect);
+				}
+				else if (SDL.SDL_HapticRumbleSupported(INTERNAL_haptics[which]) == 1)
+				{
+					INTERNAL_hapticTypes[which] = HapticType.Simple;
+					SDL.SDL_HapticRumbleInit(INTERNAL_haptics[which]);
+				}
+				else
+				{
+					// We can't even play simple rumble, this haptic device is useless to us.
+					SDL.SDL_HapticClose(INTERNAL_haptics[which]);
+					INTERNAL_haptics[which] = IntPtr.Zero;
+				}
+			}
+
+			// An SDL_GameController _should_ always be complete...
+			INTERNAL_capabilities[which] = new GamePadCapabilities()
+			{
+				IsConnected = true,
+				HasAButton = true,
+				HasBButton = true,
+				HasXButton = true,
+				HasYButton = true,
+				HasBackButton = true,
+				HasStartButton = true,
+				HasDPadDownButton = true,
+				HasDPadLeftButton = true,
+				HasDPadRightButton = true,
+				HasDPadUpButton = true,
+				HasLeftShoulderButton = true,
+				HasRightShoulderButton = true,
+				HasLeftStickButton = true,
+				HasRightStickButton = true,
+				HasLeftTrigger = true,
+				HasRightTrigger = true,
+				HasLeftXThumbStick = true,
+				HasLeftYThumbStick = true,
+				HasRightXThumbStick = true,
+				HasRightYThumbStick = true,
+				HasBigButton = true,
+				HasLeftVibrationMotor = INTERNAL_haptics[which] != IntPtr.Zero,
+				HasRightVibrationMotor = INTERNAL_haptics[which] != IntPtr.Zero,
+				HasVoiceSupport = false
+			};
+
+			// Store the GUID string for this device
+			StringBuilder result = new StringBuilder();
+			byte[] resChar = new byte[33]; // FIXME: Sort of arbitrary.
+			SDL.SDL_JoystickGetGUIDString(
+				SDL.SDL_JoystickGetGUID(thisJoystick),
+				resChar,
+				resChar.Length
+			);
+			if (OSVersion.Equals("Linux"))
+			{
+				result.Append((char) resChar[8]);
+				result.Append((char) resChar[9]);
+				result.Append((char) resChar[10]);
+				result.Append((char) resChar[11]);
+				result.Append((char) resChar[16]);
+				result.Append((char) resChar[17]);
+				result.Append((char) resChar[18]);
+				result.Append((char) resChar[19]);
+			}
+			else if (OSVersion.Equals("Mac OS X"))
+			{
+				result.Append((char) resChar[0]);
+				result.Append((char) resChar[1]);
+				result.Append((char) resChar[2]);
+				result.Append((char) resChar[3]);
+				result.Append((char) resChar[16]);
+				result.Append((char) resChar[17]);
+				result.Append((char) resChar[18]);
+				result.Append((char) resChar[19]);
+			}
+			else if (OSVersion.Equals("Windows"))
+			{
+				bool isXInput = true;
+				foreach (byte b in resChar)
+				{
+					if (((char) b) != '0' && b != 0)
+					{
+						isXInput = false;
+						break;
+					}
+				}
+				if (isXInput)
+				{
+					result.Append("xinput");
+				}
+				else
+				{
+					result.Append((char) resChar[0]);
+					result.Append((char) resChar[1]);
+					result.Append((char) resChar[2]);
+					result.Append((char) resChar[3]);
+					result.Append((char) resChar[4]);
+					result.Append((char) resChar[5]);
+					result.Append((char) resChar[6]);
+					result.Append((char) resChar[7]);
+				}
+			}
+			else
+			{
+				throw new NotSupportedException("Unhandled SDL2 platform!");
+			}
+			INTERNAL_guids[which] = result.ToString();
+
+			// Initialize light bar
+			if (	OSVersion.Equals("Linux") &&
+				INTERNAL_guids[which].Equals("4c05c405")	)
+			{
+				// Get all of the individual PS4 LED instances
+				List<string> ledList = new List<string>();
+				string[] dirs = Directory.GetDirectories("/sys/class/leds/");
+				foreach (string dir in dirs)
+				{
+					if (	dir.Contains("054C:05C4") &&
+						dir.EndsWith("blue")	)
+					{
+						ledList.Add(dir.Substring(0, dir.LastIndexOf(':') + 1));
+					}
+				}
+				// Find how many of these are already in use
+				int numLights = 0;
+				for (int i = 0; i < INTERNAL_lightBars.Length; i += 1)
+				{
+					if (!String.IsNullOrEmpty(INTERNAL_lightBars[i]))
+					{
+						numLights += 1;
+					}
+				}
+				// If all are not already in use, use the first unused light
+				if (numLights < ledList.Count)
+				{
+					INTERNAL_lightBars[which] = ledList[numLights];
+				}
+			}
+
+			// Print controller information to stdout.
+			System.Console.WriteLine(
+				"Controller " + which.ToString() + ": " +
+				SDL.SDL_GameControllerName(INTERNAL_devices[which])
+			);
+		}
+
+		private static void INTERNAL_RemoveInstance(int dev)
+		{
+			int output;
+			if (!INTERNAL_instanceList.TryGetValue(dev, out output))
+			{
+				// Odds are, this is controller 5+ getting removed.
+				return;
+			}
+			INTERNAL_instanceList.Remove(dev);
+			if (INTERNAL_haptics[output] != IntPtr.Zero)
+			{
+				SDL.SDL_HapticClose(INTERNAL_haptics[output]);
+				INTERNAL_haptics[output] = IntPtr.Zero;
+			}
+			SDL.SDL_GameControllerClose(INTERNAL_devices[output]);
+			INTERNAL_devices[output] = IntPtr.Zero;
+			INTERNAL_states[output] = new GamePadState();
+			INTERNAL_guids[output] = String.Empty;
+
+			// A lot of errors can happen here, but honestly, they can be ignored...
+			SDL.SDL_ClearError();
+
+			System.Console.WriteLine("Removed device, player: " + output.ToString());
+		}
+
+		// GetState can convert stick values to button values
+		private static Buttons READ_StickToButtons(Vector2 stick, Buttons left, Buttons right, Buttons up , Buttons down, float DeadZoneSize)
+		{
+			Buttons b = (Buttons) 0;
+
+			if (stick.X > DeadZoneSize)
+			{
+				b |= right;
+			}
+			if (stick.X < -DeadZoneSize)
+			{
+				b |= left;
+			}
+			if (stick.Y > DeadZoneSize)
+			{
+				b |= up;
+			}
+			if (stick.Y < -DeadZoneSize)
+			{
+				b |= down;
+			}
+
+			return b;
+		}
+
+		// GetState can convert trigger values to button values
+		private static Buttons READ_TriggerToButton(float trigger, Buttons button, float DeadZoneSize)
+		{
+			Buttons b = (Buttons) 0;
+
+			if (trigger > DeadZoneSize)
+			{
+				b |= button;
+			}
+
+			return b;
+		}
+
+		private static string[] GenStringArray()
+		{
+			string[] result = new string[GamePad.GAMEPAD_COUNT];
+			for (int i = 0; i < result.Length; i += 1)
+			{
+				result[i] = String.Empty;
+			}
+			return result;
 		}
 
 		#endregion
