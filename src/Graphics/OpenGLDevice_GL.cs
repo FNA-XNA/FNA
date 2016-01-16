@@ -824,9 +824,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			FNAPlatform.Log(
 				Marshal.PtrToStringAnsi(message) +
-				"\n\tSource: " +"
+				"\n\tSource: " +
 				source.ToString() +
-				\n\tType: " +
+				"\n\tType: " +
 				type.ToString() +
 				"\n\tSeverity: " +
 				severity.ToString()
