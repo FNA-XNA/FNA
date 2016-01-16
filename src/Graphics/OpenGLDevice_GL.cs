@@ -823,10 +823,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr userParam // const GLvoid*
 		) {
 			FNAPlatform.Log(
-				"{0}\n\tSource: {1}\n\tType: {2}\n\tSeverity: {3}",
-				Marshal.PtrToStringAnsi(message),
-				source.ToString(),
-				type.ToString(),
+				Marshal.PtrToStringAnsi(message) +
+				"\n\tSource: " +"
+				source.ToString() +
+				\n\tType: " +
+				type.ToString() +
+				"\n\tSeverity: " +
 				severity.ToString()
 			);
 			if (type == GLenum.GL_DEBUG_TYPE_ERROR_ARB)
