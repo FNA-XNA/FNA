@@ -331,7 +331,7 @@ SRC = \
 debug: clean-debug
 	mkdir -p bin/Debug
 	cp FNA.dll.config bin/Debug
-	dmcs /unsafe -debug -out:bin/Debug/FNA.dll -target:library $(SRC)
+	dmcs /unsafe -debug -define:DEBUG -out:bin/Debug/FNA.dll -target:library $(SRC)
 
 clean-debug:
 	rm -rf bin/Debug
