@@ -671,7 +671,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 					else
 					{
-						throw new Exception("Unhandled render state!");
+						throw new NotImplementedException("Unhandled render state!");
 					}
 				}
 				if (blendStateChanged)
@@ -886,7 +886,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 					else
 					{
-						throw new Exception("Unhandled sampler state!");
+						throw new NotImplementedException("Unhandled sampler state!");
 					}
 				}
 				if (filterChanged)

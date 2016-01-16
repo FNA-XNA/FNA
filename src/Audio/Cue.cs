@@ -306,7 +306,7 @@ namespace Microsoft.Xna.Framework.Audio
 					return curVar.GetValue();
 				}
 			}
-			throw new Exception("Instance variable not found!");
+			throw new ArgumentException("Instance variable not found!");
 		}
 
 		public void Pause()
@@ -338,7 +338,7 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 				else if (INTERNAL_data.MaxCueBehavior == MaxInstanceBehavior.Queue)
 				{
-					throw new Exception("Cue Queueing not handled!");
+					throw new NotImplementedException("Cue Queueing not handled!");
 				}
 				else if (INTERNAL_data.MaxCueBehavior == MaxInstanceBehavior.ReplaceOldest)
 				{
@@ -414,7 +414,7 @@ namespace Microsoft.Xna.Framework.Audio
 					return;
 				}
 			}
-			throw new Exception("Instance variable not found!");
+			throw new ArgumentException("Instance variable not found!");
 		}
 
 		public void Stop(AudioStopOptions options)
@@ -483,7 +483,7 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					else
 					{
-						throw new Exception("Unhandled XACTEvent type!");
+						throw new NotImplementedException("Unhandled XACTEvent type!");
 					}
 					INTERNAL_eventPlayed[i] = true;
 				}
@@ -699,7 +699,7 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					else
 					{
-						throw new Exception("RPC Parameter Type: " + curRPC.Parameter.ToString());
+						throw new NotImplementedException("RPC Parameter Type: " + curRPC.Parameter.ToString());
 					}
 				}
 			}

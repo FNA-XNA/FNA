@@ -95,7 +95,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			VertexDeclaration vertexDeclaration = type.VertexDeclaration;
 			if (vertexDeclaration == null)
 			{
-				throw new Exception("VertexDeclaration cannot be null");
+				throw new ArgumentException("vertexType's VertexDeclaration cannot be null");
 			}
 
 			return vertexDeclaration;

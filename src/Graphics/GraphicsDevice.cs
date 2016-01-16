@@ -424,12 +424,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			wiiuStream = DRC.drc_new_streamer();
 			if (wiiuStream == IntPtr.Zero)
 			{
-				System.Console.WriteLine("Failed to alloc GamePad stream!");
+				FNAPlatform.Log("Failed to alloc GamePad stream!");
 				return;
 			}
 			if (DRC.drc_start_streamer(wiiuStream) < 1) // ???
 			{
-				System.Console.WriteLine("Failed to start GamePad stream!");
+				FNAPlatform.Log("Failed to start GamePad stream!");
 				DRC.drc_delete_streamer(wiiuStream);
 				wiiuStream = IntPtr.Zero;
 				return;

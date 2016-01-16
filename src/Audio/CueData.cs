@@ -718,7 +718,7 @@ namespace Microsoft.Xna.Framework.Audio
 					 * Type 9 - Marker Event
 					 * -flibit
 					 */
-					throw new Exception(
+					throw new NotImplementedException(
 						"EVENT TYPE " + eventType.ToString() + " NOT IMPLEMENTED!"
 					);
 				}
@@ -931,7 +931,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			else
 			{
-				throw new Exception(
+				throw new NotImplementedException(
 					"Variation Playlist Type unhandled: " +
 					INTERNAL_variationType.ToString()
 				);

@@ -264,7 +264,7 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 			if (INTERNAL_alSource == null)
 			{
-				System.Console.WriteLine("WARNING: AL SOURCE WAS NOT AVAILABLE. SKIPPING.");
+				FNAPlatform.Log("WARNING: AL SOURCE WAS NOT AVAILABLE. SKIPPING.");
 				return;
 			}
 

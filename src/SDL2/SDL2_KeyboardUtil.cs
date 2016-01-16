@@ -418,7 +418,7 @@ namespace Microsoft.Xna.Framework.Input
 			}
 			else
 			{
-				System.Console.WriteLine("KEY MISSING FROM SDL2->XNA DICTIONARY: " + key.ToString());
+				SDL2_FNAPlatform.Log("KEY MISSING FROM SDL2->XNA DICTIONARY: " + key.ToString());
 				return Keys.None;
 			}
 		}
@@ -432,7 +432,7 @@ namespace Microsoft.Xna.Framework.Input
 			}
 			else
 			{
-				System.Console.WriteLine("SCANCODE MISSING FROM SDL2->XNA DICTIONARY: " + key.ToString());
+				SDL2_FNAPlatform.Log("SCANCODE MISSING FROM SDL2->XNA DICTIONARY: " + key.ToString());
 				return Keys.None;
 			}
 		}
@@ -446,7 +446,7 @@ namespace Microsoft.Xna.Framework.Input
 			}
 			else
 			{
-				System.Console.WriteLine("SCANCODE MISSING FROM XNA->SDL2 DICTIONARY: " + scancode.ToString());
+				SDL2_FNAPlatform.Log("SCANCODE MISSING FROM XNA->SDL2 DICTIONARY: " + scancode.ToString());
 				return Keys.None;
 			}
 		}

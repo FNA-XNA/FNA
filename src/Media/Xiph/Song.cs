@@ -207,7 +207,7 @@ namespace Microsoft.Xna.Framework.Media
 			 */
 			if (Math.Abs(Duration.Milliseconds - durationMS) > 1000)
 			{
-				throw new Exception("XNB/OGG duration mismatch!");
+				throw new InvalidOperationException("XNB/OGG duration mismatch!");
 			}
 		}
 

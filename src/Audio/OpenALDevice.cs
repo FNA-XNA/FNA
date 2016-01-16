@@ -132,7 +132,7 @@ namespace Microsoft.Xna.Framework.Audio
 			alDevice = ALC10.alcOpenDevice(envDevice);
 			if (CheckALCError() || alDevice == IntPtr.Zero)
 			{
-				throw new Exception("Could not open audio device!");
+				throw new InvalidOperationException("Could not open audio device!");
 			}
 
 			int[] attribute = new int[0];
@@ -140,14 +140,14 @@ namespace Microsoft.Xna.Framework.Audio
 			if (CheckALCError() || alContext == IntPtr.Zero)
 			{
 				Dispose();
-				throw new Exception("Could not create OpenAL context");
+				throw new InvalidOperationException("Could not create OpenAL context");
 			}
 
 			ALC10.alcMakeContextCurrent(alContext);
 			if (CheckALCError())
 			{
 				Dispose();
-				throw new Exception("Could not make OpenAL context current");
+				throw new InvalidOperationException("Could not make OpenAL context current");
 			}
 
 			float[] ori = new float[]
@@ -526,7 +526,7 @@ namespace Microsoft.Xna.Framework.Audio
 			 */
 			if (clamp && (pitch < -1.0f || pitch > 1.0f))
 			{
-				throw new Exception("XNA PITCH MUST BE WITHIN [-1.0f, 1.0f]!");
+				throw new IndexOutOfRangeException("XNA PITCH MUST BE WITHIN [-1.0f, 1.0f]!");
 			}
 			AL10.alSourcef(
 				(source as OpenALSource).Handle,
@@ -629,7 +629,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (bufs[i] != (sync[i] as OpenALBuffer).Handle)
 				{
-					throw new Exception("Buffer desync!");
+					throw new InvalidOperationException("Buffer desync!");
 				}
 			}
 #endif
@@ -1108,7 +1108,7 @@ namespace Microsoft.Xna.Framework.Audio
 				return;
 			}
 
-			System.Console.WriteLine("OpenAL Error: {0:X}", err);
+			FNAPlatform.Log("OpenAL Error: " + err.ToString("X4"));
 #if VERBOSE_AL_DEBUGGING
 			throw new InvalidOperationException("OpenAL Error!");
 #endif
@@ -1123,7 +1123,7 @@ namespace Microsoft.Xna.Framework.Audio
 				return false;
 			}
 
-			System.Console.WriteLine("OpenAL Device Error: {0:X}", err);
+			FNAPlatform.Log("OpenAL Device Error: " + err.ToString("X4"));
 			return true;
 		}
 

@@ -459,7 +459,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			else
 			{
-				throw new Exception("DSP parameter unhandled: " + index.ToString());
+				throw new NotImplementedException("DSP parameter unhandled: " + index.ToString());
 			}
 		}
 	}

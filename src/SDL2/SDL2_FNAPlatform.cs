@@ -451,7 +451,7 @@ namespace Microsoft.Xna.Framework
 			}
 			catch(DllNotFoundException e)
 			{
-				System.Console.WriteLine("OpenAL not found! Need FNA.dll.config?");
+				Log("OpenAL not found! Need FNA.dll.config?");
 				throw e;
 			}
 			catch(Exception)
@@ -476,11 +476,11 @@ namespace Microsoft.Xna.Framework
 				{
 					if (SDL.SDL_GL_SetSwapInterval(-1) != -1)
 					{
-						System.Console.WriteLine("Using EXT_swap_control_tear VSync!");
+						Log("Using EXT_swap_control_tear VSync!");
 					}
 					else
 					{
-						System.Console.WriteLine("EXT_swap_control_tear unsupported. Fall back to standard VSync.");
+						Log("EXT_swap_control_tear unsupported. Fall back to standard VSync.");
 						SDL.SDL_ClearError();
 						SDL.SDL_GL_SetSwapInterval(1);
 					}
@@ -496,7 +496,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else
 			{
-				throw new Exception("Unrecognized PresentInterval!");
+				throw new NotSupportedException("Unrecognized PresentInterval!");
 			}
 		}
 
@@ -1251,7 +1251,7 @@ namespace Microsoft.Xna.Framework
 				INTERNAL_haptics[which] = SDL.SDL_HapticOpenFromJoystick(thisJoystick);
 				if (INTERNAL_haptics[which] == IntPtr.Zero)
 				{
-					System.Console.WriteLine("HAPTIC OPEN ERROR: " + SDL.SDL_GetError());
+					Log("HAPTIC OPEN ERROR: " + SDL.SDL_GetError());
 				}
 			}
 			if (INTERNAL_haptics[which] != IntPtr.Zero)
@@ -1406,7 +1406,7 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// Print controller information to stdout.
-			System.Console.WriteLine(
+			Log(
 				"Controller " + which.ToString() + ": " +
 				SDL.SDL_GameControllerName(INTERNAL_devices[which])
 			);
@@ -1434,7 +1434,7 @@ namespace Microsoft.Xna.Framework
 			// A lot of errors can happen here, but honestly, they can be ignored...
 			SDL.SDL_ClearError();
 
-			System.Console.WriteLine("Removed device, player: " + output.ToString());
+			Log("Removed device, player: " + output.ToString());
 		}
 
 		// GetState can convert stick values to button values

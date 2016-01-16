@@ -635,10 +635,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			MojoShader.MOJOSHADER_glMakeContextCurrent(shaderContext);
 
 			// Print GL information
-			System.Console.WriteLine("OpenGL Device: " + glGetString(GLenum.GL_RENDERER));
-			System.Console.WriteLine("OpenGL Driver: " + glGetString(GLenum.GL_VERSION));
-			System.Console.WriteLine("OpenGL Vendor: " + glGetString(GLenum.GL_VENDOR));
-			System.Console.WriteLine("MojoShader Profile: " + shaderProfile);
+			FNAPlatform.Log("OpenGL Device: " + glGetString(GLenum.GL_RENDERER));
+			FNAPlatform.Log("OpenGL Driver: " + glGetString(GLenum.GL_VERSION));
+			FNAPlatform.Log("OpenGL Vendor: " + glGetString(GLenum.GL_VENDOR));
+			FNAPlatform.Log("MojoShader Profile: " + shaderProfile);
 
 			// Load the extension list, initialize extension-dependent components
 			string extensions;
@@ -1788,7 +1788,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			glEffect = MojoShader.MOJOSHADER_glCompileEffect(effect);
 			if (glEffect == IntPtr.Zero)
 			{
-				throw new Exception(MojoShader.MOJOSHADER_glGetError());
+				throw new InvalidOperationException(
+					MojoShader.MOJOSHADER_glGetError()
+				);
 			}
 
 #if !DISABLE_THREADING
@@ -1826,7 +1828,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			glEffect = MojoShader.MOJOSHADER_glCompileEffect(effect);
 			if (glEffect == IntPtr.Zero)
 			{
-				throw new Exception(MojoShader.MOJOSHADER_glGetError());
+				throw new InvalidOperationException(
+					MojoShader.MOJOSHADER_glGetError()
+				);
 			}
 
 #if !DISABLE_THREADING

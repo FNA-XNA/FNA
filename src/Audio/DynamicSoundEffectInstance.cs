@@ -226,7 +226,7 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_alSource = AudioDevice.ALDevice.GenSource();
 			if (INTERNAL_alSource == null)
 			{
-				System.Console.WriteLine("WARNING: AL SOURCE WAS NOT AVAILABLE. SKIPPING.");
+				FNAPlatform.Log("WARNING: AL SOURCE WAS NOT AVAILABLE. SKIPPING.");
 				return;
 			}
 
