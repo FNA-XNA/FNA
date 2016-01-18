@@ -7,23 +7,6 @@
  */
 #endregion
 
-#region USE_SCANCODES Option
-// #define USE_SCANCODES
-/* XNA Keys are based on keycodes, rather than scancodes.
- *
- * With SDL2 you can actually pick between SDL_Keycode and SDL_Scancode, but
- * scancodes will not be accurate to XNA4. The benefit is that scancodes will
- * essentially ignore "foreign" keyboard layouts, making default keyboard
- * layouts work out of the box everywhere (unless the actual symbol for the keys
- * matters in your game).
- *
- * At the same time, the TextInputEXT extension will still read the actual chars
- * correctly, so you can (mostly) have your cake and eat it too if you don't
- * care about your bindings menu not making a lot of sense on foreign layouts.
- * -flibit
- */
-#endregion
-
 #region Using Statements
 using System;
 using System.IO;
@@ -157,6 +140,15 @@ namespace Microsoft.Xna.Framework
 				osxUseSpaces = false;
 			}
 
+			// Do we want to read keycodes or scancodes?
+			SDL2_KeyboardUtil.UseScancodes = Environment.GetEnvironmentVariable(
+				"FNA_KEYBOARD_USE_SCANCODES"
+			) == "1";
+			if (SDL2_KeyboardUtil.UseScancodes)
+			{
+				Log("Using scancodes instead of keycodes!");
+			}
+
 			// Active Key List
 			List<Keys> keys = new List<Keys>();
 
@@ -176,11 +168,7 @@ namespace Microsoft.Xna.Framework
 					// Keyboard
 					if (evt.type == SDL.SDL_EventType.SDL_KEYDOWN)
 					{
-#if USE_SCANCODES
-						Keys key = SDL2_KeyboardUtil.ToXNA(evt.key.keysym.scancode);
-#else
-						Keys key = SDL2_KeyboardUtil.ToXNA(evt.key.keysym.sym);
-#endif
+						Keys key = SDL2_KeyboardUtil.ToXNA(ref evt.key.keysym);
 						if (!keys.Contains(key))
 						{
 							keys.Add(key);
@@ -213,11 +201,7 @@ namespace Microsoft.Xna.Framework
 					}
 					else if (evt.type == SDL.SDL_EventType.SDL_KEYUP)
 					{
-#if USE_SCANCODES
-						Keys key = SDL2_KeyboardUtil.ToXNA(evt.key.keysym.scancode);
-#else
-						Keys key = SDL2_KeyboardUtil.ToXNA(evt.key.keysym.sym);
-#endif
+						Keys key = SDL2_KeyboardUtil.ToXNA(ref evt.key.keysym);
 						if (keys.Remove(key))
 						{
 							if (key == Keys.Back)

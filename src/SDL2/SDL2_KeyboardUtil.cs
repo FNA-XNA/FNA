@@ -17,6 +17,12 @@ namespace Microsoft.Xna.Framework.Input
 {
 	internal static class SDL2_KeyboardUtil
 	{
+		#region Public Static Key Map Override
+
+		public static bool UseScancodes = false;
+
+		#endregion
+
 		#region Private SDL2->XNA Key Hashmaps
 
 		/* From: http://blogs.msdn.com/b/shawnhar/archive/2007/07/02/twin-paths-to-garbage-collector-nirvana.aspx
@@ -409,32 +415,29 @@ namespace Microsoft.Xna.Framework.Input
 
 		#region Public SDL2<->XNA Key Conversion Methods
 
-		public static Keys ToXNA(SDL.SDL_Keycode key)
+		public static Keys ToXNA(ref SDL.SDL_Keysym key)
 		{
 			Keys retVal;
-			if (INTERNAL_keyMap.TryGetValue((int) key, out retVal))
+			if (UseScancodes)
 			{
-				return retVal;
+				if (INTERNAL_scanMap.TryGetValue((int) key.scancode, out retVal))
+				{
+					return retVal;
+				}
 			}
 			else
 			{
-				SDL2_FNAPlatform.Log("KEY MISSING FROM SDL2->XNA DICTIONARY: " + key.ToString());
-				return Keys.None;
+				if (INTERNAL_keyMap.TryGetValue((int) key.sym, out retVal))
+				{
+					return retVal;
+				}
 			}
-		}
-
-		public static Keys ToXNA(SDL.SDL_Scancode key)
-		{
-			Keys retVal;
-			if (INTERNAL_scanMap.TryGetValue((int) key, out retVal))
-			{
-				return retVal;
-			}
-			else
-			{
-				SDL2_FNAPlatform.Log("SCANCODE MISSING FROM SDL2->XNA DICTIONARY: " + key.ToString());
-				return Keys.None;
-			}
+			SDL2_FNAPlatform.Log(
+				"KEY/SCANCODE MISSING FROM SDL2->XNA DICTIONARY: " +
+				key.sym.ToString() + " " +
+				key.scancode.ToString()
+			);
+			return Keys.None;
 		}
 
 		public static Keys KeyFromScancode(Keys scancode)
