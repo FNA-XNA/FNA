@@ -7,15 +7,6 @@
  */
 #endregion
 
-#region DISABLE_FAUXBACKBUFFER Option
-// #define DISABLE_FAUXBACKBUFFER
-/* If you want to debug GL without the extra FBO in your way, you can use this.
- * Note that we only enable a faux-backbuffer when the window size is not equal
- * to the backbuffer size!
- * -flibit
- */
-#endregion
-
 #region THREADED_GL Option
 // #define THREADED_GL
 /* Ah, so I see you've run into some issues with threaded GL...
@@ -680,7 +671,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Initialize the faux-backbuffer
-#if !DISABLE_FAUXBACKBUFFER
 			int winWidth, winHeight;
 			GetWindowDimensions(
 				presentationParameters,
@@ -707,7 +697,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 			else
-#endif
 			{
 				Backbuffer = new NullBackbuffer(
 					presentationParameters.BackBufferWidth,
@@ -808,7 +797,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			PresentationParameters presentationParameters,
 			bool renderTargetBound
 		) {
-#if !DISABLE_FAUXBACKBUFFER
 			int winWidth, winHeight;
 			GetWindowDimensions(
 				presentationParameters,
@@ -846,7 +834,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 			else
-#endif
 			{
 				if (Backbuffer is OpenGLBackbuffer)
 				{
