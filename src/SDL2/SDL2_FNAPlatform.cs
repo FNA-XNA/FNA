@@ -33,7 +33,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Public Static Methods
 
-		public static void Init(Game game)
+		public static void ProgramInit()
 		{
 			/* SDL2 might complain if an OS that uses SDL_main has not actually
 			 * used SDL_main by the time you initialize SDL2.
@@ -72,15 +72,26 @@ namespace Microsoft.Xna.Framework
 					mappingsDB
 				);
 			}
+		}
 
-			// Set and initialize the SDL2 window
+		public static void ProgramExit(object sender, EventArgs e)
+		{
+			// This _should_ be the last SDL call we make...
+			SDL.SDL_Quit();
+		}
+
+		public static GameWindow CreateWindow()
+		{
+			// GLContext environment variables
 			bool forceES2 = Environment.GetEnvironmentVariable(
 				"FNA_OPENGL_FORCE_ES2"
 			) == "1";
 			bool forceCoreProfile = Environment.GetEnvironmentVariable(
 				"FNA_OPENGL_FORCE_CORE_PROFILE"
 			) == "1";
-			game.Window = new SDL2_GameWindow(
+
+			// Set and initialize the SDL2 window
+			GameWindow result = new SDL2_GameWindow(
 				forceES2 ||
 				OSVersion.Equals("Emscripten") ||
 				OSVersion.Equals("Android") ||
@@ -93,30 +104,24 @@ namespace Microsoft.Xna.Framework
 
 			// We hide the mouse cursor by default.
 			SDL.SDL_ShowCursor(0);
+
+			return result;
 		}
 
-		public static void Dispose(Game game)
+		public static void DisposeWindow(GameWindow window)
 		{
-			if (game.Window != null)
-			{
-				/* Some window managers might try to minimize the window as we're
-				 * destroying it. This looks pretty stupid and could cause problems,
-				 * so set this hint right before we destroy everything.
-				 * -flibit
-				 */
-				SDL.SDL_SetHintWithPriority(
-					SDL.SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS,
-					"0",
-					SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
-				);
+			/* Some window managers might try to minimize the window as we're
+			 * destroying it. This looks pretty stupid and could cause problems,
+			 * so set this hint right before we destroy everything.
+			 * -flibit
+			 */
+			SDL.SDL_SetHintWithPriority(
+				SDL.SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS,
+				"0",
+				SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
+			);
 
-				SDL.SDL_DestroyWindow(game.Window.Handle);
-
-				game.Window = null;
-			}
-
-			// This _should_ be the last SDL call we make...
-			SDL.SDL_Quit();
+			SDL.SDL_DestroyWindow(window.Handle);
 		}
 
 		public static void RunLoop(Game game)

@@ -36,8 +36,8 @@ namespace Microsoft.Xna.Framework
 
 			// Environment.GetEnvironmentVariable("FNA_PLATFORM_BACKEND");
 
-			Init =				SDL2_FNAPlatform.Init;
-			Dispose =			SDL2_FNAPlatform.Dispose;
+			CreateWindow =			SDL2_FNAPlatform.CreateWindow;
+			DisposeWindow =			SDL2_FNAPlatform.DisposeWindow;
 			BeforeInitialize =		SDL2_FNAPlatform.BeforeInitialize;
 			RunLoop =			SDL2_FNAPlatform.RunLoop;
 			CreateGLDevice =		SDL2_FNAPlatform.CreateGLDevice;
@@ -59,17 +59,20 @@ namespace Microsoft.Xna.Framework
 			ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
 			TextureDataFromStream =		SDL2_FNAPlatform.TextureDataFromStream;
 			SavePNG =			SDL2_FNAPlatform.SavePNG;
+
+			AppDomain.CurrentDomain.ProcessExit += SDL2_FNAPlatform.ProgramExit;
+			SDL2_FNAPlatform.ProgramInit();
 		}
 
 		#endregion
 
 		#region Public Static Methods
 
-		public delegate void InitFunc(Game game);
-		public static InitFunc Init;
+		public delegate GameWindow CreateWindowFunc();
+		public static CreateWindowFunc CreateWindow;
 
-		public delegate void DisposeFunc(Game game);
-		public static DisposeFunc Dispose;
+		public delegate void DisposeWindowFunc(GameWindow window);
+		public static DisposeWindowFunc DisposeWindow;
 
 		public delegate void BeforeInitializeFunc();
 		public static BeforeInitializeFunc BeforeInitialize;

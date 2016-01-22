@@ -287,7 +287,7 @@ namespace Microsoft.Xna.Framework
 			_components = new GameComponentCollection();
 			_content = new ContentManager(_services);
 
-			FNAPlatform.Init(this);
+			Window = FNAPlatform.CreateWindow();
 
 			AudioDevice.Initialize();
 
@@ -349,7 +349,11 @@ namespace Microsoft.Xna.Framework
 
 					AudioDevice.Dispose();
 
-					FNAPlatform.Dispose(this);
+					if (Window != null)
+					{
+						FNAPlatform.DisposeWindow(Window);
+						Window = null;
+					}
 					Mouse.WindowHandle = IntPtr.Zero;
 
 					ContentTypeReaderManager.ClearTypeCreators();
