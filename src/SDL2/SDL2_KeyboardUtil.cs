@@ -440,7 +440,7 @@ namespace Microsoft.Xna.Framework.Input
 			return Keys.None;
 		}
 
-		public static Keys KeyFromScancode(Keys scancode)
+		public static Keys GetKeyFromScancode(Keys scancode)
 		{
 			SDL.SDL_Scancode retVal;
 			if (INTERNAL_xnaMap.TryGetValue((int) scancode, out retVal))

@@ -28,6 +28,20 @@ namespace Microsoft.Xna.Framework.Input
 
 		#endregion
 
+		#region Public Static Methods
+
+		public static void StartTextInput()
+		{
+			FNAPlatform.StartTextInput();
+		}
+
+		public static void StopTextInput()
+		{
+			FNAPlatform.StopTextInput();
+		}
+
+		#endregion
+
 		#region Internal Event Access Method
 
 		internal static void OnTextInput(char c)

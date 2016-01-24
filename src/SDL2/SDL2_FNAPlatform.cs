@@ -535,11 +535,6 @@ namespace Microsoft.Xna.Framework
 			return adapters;
 		}
 
-		public static Keys GetKeyFromScancode(Keys scancode)
-		{
-			return SDL2_KeyboardUtil.KeyFromScancode(scancode);
-		}
-
 		public static void GetMouseState(
 			out int x,
 			out int y,

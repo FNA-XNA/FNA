@@ -44,9 +44,11 @@ namespace Microsoft.Xna.Framework
 			CreateALDevice =		SDL2_FNAPlatform.CreateALDevice;
 			SetPresentationInterval =	SDL2_FNAPlatform.SetPresentationInterval;
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
-			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
+			GetKeyFromScancode =		SDL2_KeyboardUtil.GetKeyFromScancode;
+			StartTextInput =		SDL2.SDL.SDL_StartTextInput;
+			StopTextInput =			SDL2.SDL.SDL_StopTextInput;
 			GetMouseState =			SDL2_FNAPlatform.GetMouseState;
-			SetMousePosition =		SDL2_FNAPlatform.SetMousePosition;
+			SetMousePosition =		SDL2.SDL.SDL_WarpMouseInWindow;
 			OnIsMouseVisibleChanged =	SDL2_FNAPlatform.OnIsMouseVisibleChanged;
 			GetGamePadCapabilities =	SDL2_FNAPlatform.GetGamePadCapabilities;
 			GetGamePadState =		SDL2_FNAPlatform.GetGamePadState;
@@ -96,6 +98,12 @@ namespace Microsoft.Xna.Framework
 
 		public delegate Keys GetKeyFromScancodeFunc(Keys scancode);
 		public static GetKeyFromScancodeFunc GetKeyFromScancode;
+
+		public delegate void StartTextInputFunc();
+		public static StartTextInputFunc StartTextInput;
+
+		public delegate void StopTextInputFunc();
+		public static StopTextInputFunc StopTextInput;
 
 		public delegate void GetMouseStateFunc(
 			out int x,
