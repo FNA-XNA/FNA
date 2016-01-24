@@ -552,11 +552,6 @@ namespace Microsoft.Xna.Framework
 			x2 =		(ButtonState) ((flags & SDL.SDL_BUTTON_X2MASK) >> 4);
 		}
 
-		public static void SetMousePosition(IntPtr window, int x, int y)
-		{
-			SDL.SDL_WarpMouseInWindow(window, x, y);
-		}
-
 		public static void OnIsMouseVisibleChanged(bool visible)
 		{
 			SDL.SDL_ShowCursor(visible ? 1 : 0);
