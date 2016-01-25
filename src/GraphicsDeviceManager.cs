@@ -278,30 +278,11 @@ namespace Microsoft.Xna.Framework
 		{
 			// Change settings.
 			IsFullScreen = !IsFullScreen;
-			graphicsDevice.PresentationParameters.IsFullScreen = IsFullScreen;
 
-			/* FIXME: It almost looks like this method calls ApplyChanges...
-			 * Does it just do that instead of all this?
+			/* FIXME: Does it really just do this or is it more specific...?
 			 * -flibit
 			 */
-			GraphicsDevice.PresentationParameters.BackBufferWidth =
-				PreferredBackBufferWidth;
-			GraphicsDevice.PresentationParameters.BackBufferHeight =
-				PreferredBackBufferHeight;
-
-			// Apply settings.
-			game.Window.BeginScreenDeviceChange(IsFullScreen);
-			game.Window.EndScreenDeviceChange(
-				"FNA",
-				GraphicsDevice.PresentationParameters.BackBufferWidth,
-				GraphicsDevice.PresentationParameters.BackBufferHeight
-			);
-
-			// Toggling fullscreen may have effects on the backbuffer!
-			GraphicsDevice.GLDevice.ResetBackbuffer(
-				GraphicsDevice.PresentationParameters,
-				GraphicsDevice.RenderTargetCount > 0
-			);
+			ApplyChanges();
 		}
 
 		#endregion
