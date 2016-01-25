@@ -4117,7 +4117,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					4,	// VertexElementFormat.Color
 					4,	// VertexElementFormat.Byte4
 					2,	// VertexElementFormat.Short2
-					2,	// VertexElementFormat.Short4
+					4,	// VertexElementFormat.Short4
 					2,	// VertexElementFormat.NormalizedShort2
 					4,	// VertexElementFormat.NormalizedShort4
 					2,	// VertexElementFormat.HalfVector2
