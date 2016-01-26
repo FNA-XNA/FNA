@@ -158,11 +158,31 @@ namespace Microsoft.Xna.Framework
 			List<Keys> keys = new List<Keys>();
 
 			/* Setup Text Input Control Character Arrays
-			 * (Only 4 control keys supported at this time)
+			 * (Only 7 control keys supported at this time)
 			 */
-			bool[] INTERNAL_TextInputControlDown = new bool[4];
-			int[] INTERNAL_TextInputControlRepeat = new int[4];
-			bool INTERNAL_TextInputSuppress = false;
+			char[] textInputCharacters = new char[]
+			{
+				(char) 2,	// Home
+				(char) 3,	// End
+				(char) 8,	// Backspace
+				(char) 9,	// Tab
+				(char) 13,	// Enter
+				(char) 127,	// Delete
+				(char) 22	// Ctrl+V (Paste)
+			};
+			Dictionary<Keys, int> textInputBindings = new Dictionary<Keys, int>()
+			{
+				{ Keys.Home,	0 },
+				{ Keys.End,	1 },
+				{ Keys.Back,	2 },
+				{ Keys.Tab,	3 },
+				{ Keys.Enter,	4 },
+				{ Keys.Delete,	5 }
+				// Ctrl+V is special!
+			};
+			bool[] textInputControlDown = new bool[textInputCharacters.Length];
+			int[] textInputControlRepeat = new int[textInputCharacters.Length];
+			bool textInputSuppress = false;
 
 			SDL.SDL_Event evt;
 
@@ -177,30 +197,19 @@ namespace Microsoft.Xna.Framework
 						if (!keys.Contains(key))
 						{
 							keys.Add(key);
-							if (key == Keys.Back)
+							if (textInputBindings.ContainsKey(key))
 							{
-								INTERNAL_TextInputControlDown[0] = true;
-								INTERNAL_TextInputControlRepeat[0] = Environment.TickCount + 400;
-								TextInputEXT.OnTextInput((char) 8); // Backspace
-							}
-							else if (key == Keys.Tab)
-							{
-								INTERNAL_TextInputControlDown[1] = true;
-								INTERNAL_TextInputControlRepeat[1] = Environment.TickCount + 400;
-								TextInputEXT.OnTextInput((char) 9); // Tab
-							}
-							else if (key == Keys.Enter)
-							{
-								INTERNAL_TextInputControlDown[2] = true;
-								INTERNAL_TextInputControlRepeat[2] = Environment.TickCount + 400;
-								TextInputEXT.OnTextInput((char) 13); // Enter
+								int textIndex = textInputBindings[key];
+								textInputControlDown[textIndex] = true;
+								textInputControlRepeat[textIndex] = Environment.TickCount + 400;
+								TextInputEXT.OnTextInput(textInputCharacters[textIndex]);
 							}
 							else if (keys.Contains(Keys.LeftControl) && key == Keys.V)
 							{
-								INTERNAL_TextInputControlDown[3] = true;
-								INTERNAL_TextInputControlRepeat[3] = Environment.TickCount + 400;
-								TextInputEXT.OnTextInput((char) 22); // Control-V (Paste)
-								INTERNAL_TextInputSuppress = true;
+								textInputControlDown[6] = true;
+								textInputControlRepeat[6] = Environment.TickCount + 400;
+								TextInputEXT.OnTextInput(textInputCharacters[6]);
+								textInputSuppress = true;
 							}
 						}
 					}
@@ -209,22 +218,14 @@ namespace Microsoft.Xna.Framework
 						Keys key = SDL2_KeyboardUtil.ToXNA(ref evt.key.keysym);
 						if (keys.Remove(key))
 						{
-							if (key == Keys.Back)
+							if (textInputBindings.ContainsKey(key))
 							{
-								INTERNAL_TextInputControlDown[0] = false;
+								textInputControlDown[textInputBindings[key]] = false;
 							}
-							else if (key == Keys.Tab)
+							else if ((!keys.Contains(Keys.LeftControl) && textInputControlDown[3]) || key == Keys.V)
 							{
-								INTERNAL_TextInputControlDown[1] = false;
-							}
-							else if (key == Keys.Enter)
-							{
-								INTERNAL_TextInputControlDown[2] = false;
-							}
-							else if ((!keys.Contains(Keys.LeftControl) && INTERNAL_TextInputControlDown[3]) || key == Keys.V)
-							{
-								INTERNAL_TextInputControlDown[3] = false;
-								INTERNAL_TextInputSuppress = false;
+								textInputControlDown[6] = false;
+								textInputSuppress = false;
 							}
 						}
 					}
@@ -353,7 +354,7 @@ namespace Microsoft.Xna.Framework
 					}
 
 					// Text Input
-					else if (evt.type == SDL.SDL_EventType.SDL_TEXTINPUT && !INTERNAL_TextInputSuppress)
+					else if (evt.type == SDL.SDL_EventType.SDL_TEXTINPUT && !textInputSuppress)
 					{
 						string text;
 
@@ -384,21 +385,12 @@ namespace Microsoft.Xna.Framework
 					}
 				}
 				// Text Input Controls Key Handling
-				if (INTERNAL_TextInputControlDown[0] && INTERNAL_TextInputControlRepeat[0] <= Environment.TickCount)
+				for (int i = 0; i < textInputCharacters.Length; i += 1)
 				{
-					TextInputEXT.OnTextInput((char) 8);
-				}
-				if (INTERNAL_TextInputControlDown[1] && INTERNAL_TextInputControlRepeat[1] <= Environment.TickCount)
-				{
-					TextInputEXT.OnTextInput((char) 9);
-				}
-				if (INTERNAL_TextInputControlDown[2] && INTERNAL_TextInputControlRepeat[2] <= Environment.TickCount)
-				{
-					TextInputEXT.OnTextInput((char) 13);
-				}
-				if (INTERNAL_TextInputControlDown[3] && INTERNAL_TextInputControlRepeat[3] <= Environment.TickCount)
-				{
-					TextInputEXT.OnTextInput((char) 22);
+					if (textInputControlDown[i] && textInputControlRepeat[i] <= Environment.TickCount)
+					{
+						TextInputEXT.OnTextInput(textInputCharacters[i]);
+					}
 				}
 
 				Keyboard.SetKeys(keys);
