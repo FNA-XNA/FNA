@@ -357,7 +357,7 @@ namespace Microsoft.Xna.Framework.Audio
 			AL10.alBufferData(
 				(buffer as OpenALBuffer).Handle,
 				XNAToFloat[(int) channels],
-				handle.AddrOfPinnedObject() + offset,
+				handle.AddrOfPinnedObject() + (offset * 4),
 				(IntPtr) (count * 4),
 				(IntPtr) sampleRate
 			);
