@@ -327,16 +327,19 @@ namespace Microsoft.Xna.Framework.Audio
 			IALBuffer buffer,
 			AudioChannels channels,
 			byte[] data,
+			int offset,
 			int count,
 			int sampleRate
 		) {
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			AL10.alBufferData(
 				(buffer as OpenALBuffer).Handle,
 				XNAToShort[(int) channels],
-				data, // TODO: offset -flibit
+				handle.AddrOfPinnedObject() + offset,
 				(IntPtr) count,
 				(IntPtr) sampleRate
 			);
+			handle.Free();
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
@@ -346,15 +349,19 @@ namespace Microsoft.Xna.Framework.Audio
 			IALBuffer buffer,
 			AudioChannels channels,
 			float[] data,
+			int offset,
+			int count,
 			int sampleRate
 		) {
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			AL10.alBufferData(
 				(buffer as OpenALBuffer).Handle,
 				XNAToFloat[(int) channels],
-				data,
-				(IntPtr) (data.Length * 4),
+				handle.AddrOfPinnedObject() + offset,
+				(IntPtr) (count * 4),
 				(IntPtr) sampleRate
 			);
+			handle.Free();
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif

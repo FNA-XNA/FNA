@@ -163,7 +163,8 @@ namespace Microsoft.Xna.Framework.Audio
 			AudioDevice.ALDevice.SetBufferData(
 				newBuf,
 				channels,
-				buffer, // TODO: offset -flibit
+				buffer,
+				offset,
 				count,
 				sampleRate
 			);
@@ -344,8 +345,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Public FNA Extension Methods
 
-		/* THIS IS AN EXTENSION OF THE XNA4 API! */
 		public void SubmitFloatBufferEXT(float[] buffer)
+		{
+			SubmitFloatBufferEXT(buffer, 0, buffer.Length);
+		}
+
+		public void SubmitFloatBufferEXT(float[] buffer, int offset, int count)
 		{
 			/* Float samples are the typical format received from decoders.
 			 * We currently use this for the VideoPlayer.
@@ -364,6 +369,8 @@ namespace Microsoft.Xna.Framework.Audio
 				newBuf,
 				channels,
 				buffer,
+				offset,
+				count,
 				sampleRate
 			);
 

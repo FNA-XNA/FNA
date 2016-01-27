@@ -92,6 +92,7 @@ namespace Microsoft.Xna.Framework.Audio
 			IALBuffer buffer,
 			AudioChannels channels,
 			byte[] data,
+			int offset,
 			int count,
 			int sampleRate
 		) {
@@ -102,6 +103,8 @@ namespace Microsoft.Xna.Framework.Audio
 			IALBuffer buffer,
 			AudioChannels channels,
 			float[] data,
+			int offset,
+			int count,
 			int sampleRate
 		) {
 			// No-op, duh.

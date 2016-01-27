@@ -167,7 +167,6 @@ M: System.Int32 SDL2.SDL::SDL_GetTextureColorMod(System.IntPtr,System.Byte&,Syst
 M: System.Int32 SDL2.SDL::SDL_LockTexture(System.IntPtr,SDL2.SDL/SDL_Rect&,System.IntPtr&,System.Int32&)
 M: System.Int32 SDL2.SDL::SDL_LockTexture(System.IntPtr,System.IntPtr,System.IntPtr&,System.Int32&)
 M: System.Int32 SDL2.SDL::SDL_QueryTexture(System.IntPtr,System.UInt32&,System.Int32&,System.Int32&,System.Int32&)
-M: System.Int32 SDL2.SDL::SDL_QueryTexturePixels(System.IntPtr,System.IntPtr&,System.Int32&)
 M: System.Int32 SDL2.SDL::SDL_RenderClear(System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_RenderCopy(System.IntPtr,System.IntPtr,SDL2.SDL/SDL_Rect&,SDL2.SDL/SDL_Rect&)
 M: System.Int32 SDL2.SDL::SDL_RenderCopy(System.IntPtr,System.IntPtr,System.IntPtr,SDL2.SDL/SDL_Rect&)
@@ -470,6 +469,7 @@ M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_RemoveTimer(System.Int32)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_GetWindowWMInfo(System.IntPtr,SDL2.SDL/SDL_SysWMinfo&)
 M: System.String SDL2.SDL::SDL_GetBasePath()
 M: System.String SDL2.SDL::SDL_GetPrefPath(System.String,System.String)
+M: SDL2.SDL/SDL_PowerState SDL2.SDL::SDL_GetPowerInfo(System.Int32&,System.Int32&)
 M: System.Int32 SDL2.SDL::SDL_GetCPUCount()
 M: System.Int32 SDL2.SDL::SDL_GetSystemRAM()
 T: SDL2.SDL/SDL_bool
@@ -571,6 +571,7 @@ T: SDL2.SDL/INTERNAL_mir_wminfo
 T: SDL2.SDL/INTERNAL_android_wminfo
 T: SDL2.SDL/INTERNAL_SysWMDriverUnion
 T: SDL2.SDL/SDL_SysWMinfo
+T: SDL2.SDL/SDL_PowerState
 T: SDL2.SDL_image
 M: System.Void SDL2.SDL_image::SDL_IMAGE_VERSION(SDL2.SDL/SDL_version&)
 M: SDL2.SDL/SDL_version SDL2.SDL_image::IMG_LinkedVersion()
@@ -923,6 +924,7 @@ T: SDL2.SDL/INTERNAL_mir_wminfo
 T: SDL2.SDL/INTERNAL_android_wminfo
 T: SDL2.SDL/INTERNAL_SysWMDriverUnion
 T: SDL2.SDL/SDL_SysWMinfo
+T: SDL2.SDL/SDL_PowerState
 T: SDL2.SDL_image/IMG_InitFlags
 T: SDL2.SDL_mixer/MIX_InitFlags
 T: SDL2.SDL_mixer/Mix_Fading
@@ -1068,7 +1070,6 @@ M: System.Int32 SDL2.SDL::SDL_GetTextureColorMod(System.IntPtr,System.Byte&,Syst
 M: System.Int32 SDL2.SDL::SDL_LockTexture(System.IntPtr,SDL2.SDL/SDL_Rect&,System.IntPtr&,System.Int32&)
 M: System.Int32 SDL2.SDL::SDL_LockTexture(System.IntPtr,System.IntPtr,System.IntPtr&,System.Int32&)
 M: System.Int32 SDL2.SDL::SDL_QueryTexture(System.IntPtr,System.UInt32&,System.Int32&,System.Int32&,System.Int32&)
-M: System.Int32 SDL2.SDL::SDL_QueryTexturePixels(System.IntPtr,System.IntPtr&,System.Int32&)
 M: System.Int32 SDL2.SDL::SDL_RenderClear(System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_RenderCopy(System.IntPtr,System.IntPtr,SDL2.SDL/SDL_Rect&,SDL2.SDL/SDL_Rect&)
 M: System.Int32 SDL2.SDL::SDL_RenderCopy(System.IntPtr,System.IntPtr,System.IntPtr,SDL2.SDL/SDL_Rect&)
@@ -1348,6 +1349,7 @@ M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_RemoveTimer(System.Int32)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_GetWindowWMInfo(System.IntPtr,SDL2.SDL/SDL_SysWMinfo&)
 M: System.String SDL2.SDL::SDL_GetBasePath()
 M: System.String SDL2.SDL::SDL_GetPrefPath(System.String,System.String)
+M: SDL2.SDL/SDL_PowerState SDL2.SDL::SDL_GetPowerInfo(System.Int32&,System.Int32&)
 M: System.Int32 SDL2.SDL::SDL_GetCPUCount()
 M: System.Int32 SDL2.SDL::SDL_GetSystemRAM()
 M: System.IntPtr SDL2.SDL_image::INTERNAL_IMG_LinkedVersion()
@@ -1487,6 +1489,7 @@ T: SDL2.SDL/SDL_BlendMode
 T: SDL2.SDL/SDL_TextureAccess
 T: SDL2.SDL/SDL_TextureModulate
 T: SDL2.SDL/SDL_Scancode
+T: SDL2.SDL/SDL_PowerState
 T: SDL2.SDL_mixer/Mix_Fading
 
 R: Gendarme.Rules.Naming.DoNotUseReservedInEnumValueNamesRule
