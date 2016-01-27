@@ -70,6 +70,11 @@ namespace Microsoft.Xna.Framework
 
 		#region Public Static Methods
 
+		public static void UnhookLogger()
+		{
+			Log = SDL2_FNAPlatform.Log;
+		}
+
 		public delegate GameWindow CreateWindowFunc();
 		public static CreateWindowFunc CreateWindow;
 
@@ -154,8 +159,7 @@ namespace Microsoft.Xna.Framework
 		public delegate bool IsStoragePathConnectedFunc(string path);
 		public static IsStoragePathConnectedFunc IsStoragePathConnected;
 
-		public delegate void LogFunc(string message);
-		public static LogFunc Log;
+		public static Action<string> Log;
 
 		public delegate void ShowRuntimeErrorFunc(string title, string message);
 		public static ShowRuntimeErrorFunc ShowRuntimeError;

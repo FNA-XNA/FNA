@@ -1248,5 +1248,21 @@ namespace Microsoft.Xna.Framework
 		}
 
 		#endregion
+
+		#region FNA Extensions
+
+		public static void LogHookEXT(Action<string> logFunc)
+		{
+			if (logFunc == null)
+			{
+				FNAPlatform.UnhookLogger();
+			}
+			else
+			{
+				FNAPlatform.Log = logFunc;
+			}
+		}
+
+		#endregion
 	}
 }

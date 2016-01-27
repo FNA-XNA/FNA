@@ -151,7 +151,7 @@ namespace Microsoft.Xna.Framework
 			) == "1";
 			if (SDL2_KeyboardUtil.UseScancodes)
 			{
-				Log("Using scancodes instead of keycodes!");
+				FNAPlatform.Log("Using scancodes instead of keycodes!");
 			}
 
 			// Active Key List
@@ -432,7 +432,7 @@ namespace Microsoft.Xna.Framework
 			}
 			catch(DllNotFoundException e)
 			{
-				Log("OpenAL not found! Need FNA.dll.config?");
+				FNAPlatform.Log("OpenAL not found! Need FNA.dll.config?");
 				throw e;
 			}
 			catch(Exception)
@@ -457,11 +457,11 @@ namespace Microsoft.Xna.Framework
 				{
 					if (SDL.SDL_GL_SetSwapInterval(-1) != -1)
 					{
-						Log("Using EXT_swap_control_tear VSync!");
+						FNAPlatform.Log("Using EXT_swap_control_tear VSync!");
 					}
 					else
 					{
-						Log("EXT_swap_control_tear unsupported. Fall back to standard VSync.");
+						FNAPlatform.Log("EXT_swap_control_tear unsupported. Fall back to standard VSync.");
 						SDL.SDL_ClearError();
 						SDL.SDL_GL_SetSwapInterval(1);
 					}
@@ -1222,7 +1222,7 @@ namespace Microsoft.Xna.Framework
 				INTERNAL_haptics[which] = SDL.SDL_HapticOpenFromJoystick(thisJoystick);
 				if (INTERNAL_haptics[which] == IntPtr.Zero)
 				{
-					Log("HAPTIC OPEN ERROR: " + SDL.SDL_GetError());
+					FNAPlatform.Log("HAPTIC OPEN ERROR: " + SDL.SDL_GetError());
 				}
 			}
 			if (INTERNAL_haptics[which] != IntPtr.Zero)
@@ -1377,7 +1377,7 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// Print controller information to stdout.
-			Log(
+			FNAPlatform.Log(
 				"Controller " + which.ToString() + ": " +
 				SDL.SDL_GameControllerName(INTERNAL_devices[which])
 			);
@@ -1405,7 +1405,7 @@ namespace Microsoft.Xna.Framework
 			// A lot of errors can happen here, but honestly, they can be ignored...
 			SDL.SDL_ClearError();
 
-			Log("Removed device, player: " + output.ToString());
+			FNAPlatform.Log("Removed device, player: " + output.ToString());
 		}
 
 		// GetState can convert stick values to button values
