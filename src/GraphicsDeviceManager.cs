@@ -290,12 +290,7 @@ namespace Microsoft.Xna.Framework
 
 		public void ToggleFullScreen()
 		{
-			// Change settings.
 			IsFullScreen = !IsFullScreen;
-
-			/* FIXME: Does it really just do this or is it more specific...?
-			 * -flibit
-			 */
 			ApplyChanges();
 		}
 
