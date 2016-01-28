@@ -101,6 +101,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			MultiSampleCount = 0;
 			PresentationInterval = PresentInterval.Default;
 			DisplayOrientation = DisplayOrientation.Default;
+			RenderTargetUsage = RenderTargetUsage.DiscardContents;
 		}
 
 		#endregion
@@ -119,6 +120,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			clone.MultiSampleCount = MultiSampleCount;
 			clone.PresentationInterval = PresentationInterval;
 			clone.DisplayOrientation = DisplayOrientation;
+			clone.RenderTargetUsage = RenderTargetUsage;
 			return clone;
 		}
 
