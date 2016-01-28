@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{35253CE1-C864-4CD3-8249-4D1319748E8F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.Xna.Framework</RootNamespace>
