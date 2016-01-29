@@ -25,9 +25,9 @@ namespace Microsoft.Xna.Framework
 {
 	internal static class SDL2_FNAPlatform
 	{
-		#region Public Static Constants
+		#region Static Constants
 
-		public static readonly string OSVersion = SDL.SDL_GetPlatform();
+		private static readonly string OSVersion = SDL.SDL_GetPlatform();
 
 		#endregion
 
