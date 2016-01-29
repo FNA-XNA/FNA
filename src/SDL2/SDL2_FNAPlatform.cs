@@ -611,11 +611,6 @@ namespace Microsoft.Xna.Framework
 			throw new NotSupportedException("Unhandled SDL2 platform");
 		}
 
-		public static void Log(string Message)
-		{
-			Console.WriteLine(Message);
-		}
-
 		public static void ShowRuntimeError(string title, string message)
 		{
 			SDL.SDL_ShowSimpleMessageBox(

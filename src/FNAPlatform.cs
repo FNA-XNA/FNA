@@ -57,10 +57,11 @@ namespace Microsoft.Xna.Framework
 			SetGamePadLightBar =		SDL2_FNAPlatform.SetGamePadLightBar;
 			GetStorageRoot =		SDL2_FNAPlatform.GetStorageRoot;
 			IsStoragePathConnected =	SDL2_FNAPlatform.IsStoragePathConnected;
-			Log =				SDL2_FNAPlatform.Log;
 			ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
 			TextureDataFromStream =		SDL2_FNAPlatform.TextureDataFromStream;
 			SavePNG =			SDL2_FNAPlatform.SavePNG;
+
+			Log = Console.WriteLine;
 
 			AppDomain.CurrentDomain.ProcessExit += SDL2_FNAPlatform.ProgramExit;
 			SDL2_FNAPlatform.ProgramInit();
@@ -72,43 +73,45 @@ namespace Microsoft.Xna.Framework
 
 		public static void UnhookLogger()
 		{
-			Log = SDL2_FNAPlatform.Log;
+			Log = Console.WriteLine;
 		}
 
+		public static Action<string> Log;
+
 		public delegate GameWindow CreateWindowFunc();
-		public static CreateWindowFunc CreateWindow;
+		public static readonly CreateWindowFunc CreateWindow;
 
 		public delegate void DisposeWindowFunc(GameWindow window);
-		public static DisposeWindowFunc DisposeWindow;
+		public static readonly DisposeWindowFunc DisposeWindow;
 
 		public delegate void BeforeInitializeFunc();
-		public static BeforeInitializeFunc BeforeInitialize;
+		public static readonly BeforeInitializeFunc BeforeInitialize;
 
 		public delegate void RunLoopFunc(Game game);
-		public static RunLoopFunc RunLoop;
+		public static readonly RunLoopFunc RunLoop;
 
 		public delegate IGLDevice CreateGLDeviceFunc(
 			PresentationParameters presentationParameters
 		);
-		public static CreateGLDeviceFunc CreateGLDevice;
+		public static readonly CreateGLDeviceFunc CreateGLDevice;
 
 		public delegate IALDevice CreateALDeviceFunc();
-		public static CreateALDeviceFunc CreateALDevice;
+		public static readonly CreateALDeviceFunc CreateALDevice;
 
 		public delegate void SetPresentationIntervalFunc(PresentInterval interval);
-		public static SetPresentationIntervalFunc SetPresentationInterval;
+		public static readonly SetPresentationIntervalFunc SetPresentationInterval;
 
 		public delegate GraphicsAdapter[] GetGraphicsAdaptersFunc();
-		public static GetGraphicsAdaptersFunc GetGraphicsAdapters;
+		public static readonly GetGraphicsAdaptersFunc GetGraphicsAdapters;
 
 		public delegate Keys GetKeyFromScancodeFunc(Keys scancode);
-		public static GetKeyFromScancodeFunc GetKeyFromScancode;
+		public static readonly GetKeyFromScancodeFunc GetKeyFromScancode;
 
 		public delegate void StartTextInputFunc();
-		public static StartTextInputFunc StartTextInput;
+		public static readonly StartTextInputFunc StartTextInput;
 
 		public delegate void StopTextInputFunc();
-		public static StopTextInputFunc StopTextInput;
+		public static readonly StopTextInputFunc StopTextInput;
 
 		public delegate void GetMouseStateFunc(
 			out int x,
@@ -119,50 +122,48 @@ namespace Microsoft.Xna.Framework
 			out ButtonState x1,
 			out ButtonState x2
 		);
-		public static GetMouseStateFunc GetMouseState;
+		public static readonly GetMouseStateFunc GetMouseState;
 
 		public delegate void SetMousePositionFunc(
 			IntPtr window,
 			int x,
 			int y
 		);
-		public static SetMousePositionFunc SetMousePosition;
+		public static readonly SetMousePositionFunc SetMousePosition;
 
 		public delegate void OnIsMouseVisibleChangedFunc(bool visible);
-		public static OnIsMouseVisibleChangedFunc OnIsMouseVisibleChanged;
+		public static readonly OnIsMouseVisibleChangedFunc OnIsMouseVisibleChanged;
 
 		public delegate GamePadCapabilities GetGamePadCapabilitiesFunc(int index);
-		public static GetGamePadCapabilitiesFunc GetGamePadCapabilities;
+		public static readonly GetGamePadCapabilitiesFunc GetGamePadCapabilities;
 
 		public delegate GamePadState GetGamePadStateFunc(
 			int index,
 			GamePadDeadZone deadZoneMode
 		);
-		public static GetGamePadStateFunc GetGamePadState;
+		public static readonly GetGamePadStateFunc GetGamePadState;
 
 		public delegate bool SetGamePadVibrationFunc(
 			int index,
 			float leftMotor,
 			float rightMotor
 		);
-		public static SetGamePadVibrationFunc SetGamePadVibration;
+		public static readonly SetGamePadVibrationFunc SetGamePadVibration;
 
 		public delegate string GetGamePadGUIDFunc(int index);
-		public static GetGamePadGUIDFunc GetGamePadGUID;
+		public static readonly GetGamePadGUIDFunc GetGamePadGUID;
 
 		public delegate void SetGamePadLightBarFunc(int index, Color color);
-		public static SetGamePadLightBarFunc SetGamePadLightBar;
+		public static readonly SetGamePadLightBarFunc SetGamePadLightBar;
 
 		public delegate string GetStorageRootFunc();
-		public static GetStorageRootFunc GetStorageRoot;
+		public static readonly GetStorageRootFunc GetStorageRoot;
 
 		public delegate bool IsStoragePathConnectedFunc(string path);
-		public static IsStoragePathConnectedFunc IsStoragePathConnected;
-
-		public static Action<string> Log;
+		public static readonly IsStoragePathConnectedFunc IsStoragePathConnected;
 
 		public delegate void ShowRuntimeErrorFunc(string title, string message);
-		public static ShowRuntimeErrorFunc ShowRuntimeError;
+		public static readonly ShowRuntimeErrorFunc ShowRuntimeError;
 
 		public delegate void TextureDataFromStreamFunc(
 			Stream stream,
@@ -173,7 +174,7 @@ namespace Microsoft.Xna.Framework
 			int reqHeight = -1,
 			bool zoom = false
 		);
-		public static TextureDataFromStreamFunc TextureDataFromStream;
+		public static readonly TextureDataFromStreamFunc TextureDataFromStream;
 
 		public delegate void SavePNGFunc(
 			Stream stream,
@@ -183,7 +184,7 @@ namespace Microsoft.Xna.Framework
 			int imgHeight,
 			byte[] data
 		);
-		public static SavePNGFunc SavePNG;
+		public static readonly SavePNGFunc SavePNG;
 
 		#endregion
 	}
