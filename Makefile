@@ -326,12 +326,23 @@ SRC = \
 	lib/Vorbisfile-CS/Vorbisfile.cs \
 	lib/TheoraPlay-CS/TheoraPlay.cs
 
+RESDIR = src/Graphics/Effect/StockEffects/FXB
+RESNAME = Microsoft.Xna.Framework.Graphics.Effect.Resources
+RES = \
+	-resource:$(RESDIR)/AlphaTestEffect.fxb,$(RESNAME).AlphaTestEffect.fxb \
+	-resource:$(RESDIR)/BasicEffect.fxb,$(RESNAME).BasicEffect.fxb \
+	-resource:$(RESDIR)/DualTextureEffect.fxb,$(RESNAME).DualTextureEffect.fxb \
+	-resource:$(RESDIR)/EnvironmentMapEffect.fxb,$(RESNAME).EnvironmentMapEffect.fxb \
+	-resource:$(RESDIR)/SkinnedEffect.fxb,$(RESNAME).SkinnedEffect.fxb \
+	-resource:$(RESDIR)/SpriteEffect.fxb,$(RESNAME).SpriteEffect.fxb \
+	-resource:src/Graphics/Effect/YUVToRGBA/YUVToRGBAEffect.fxb,$(RESNAME).YUVToRGBAEffect.fxb
+
 # Targets
 
 debug: clean-debug
 	mkdir -p bin/Debug
 	cp FNA.dll.config bin/Debug
-	dmcs /unsafe -debug -define:DEBUG -out:bin/Debug/FNA.dll -target:library $(SRC)
+	dmcs /unsafe -debug -define:DEBUG -out:bin/Debug/FNA.dll -target:library $(SRC) $(RES)
 
 clean-debug:
 	rm -rf bin/Debug
@@ -339,7 +350,7 @@ clean-debug:
 release: clean-release
 	mkdir -p bin/Release
 	cp FNA.dll.config bin/Release
-	dmcs /unsafe -optimize -out:bin/Release/FNA.dll -target:library $(SRC)
+	dmcs /unsafe -optimize -out:bin/Release/FNA.dll -target:library $(SRC) $(RES)
 
 clean-release:
 	rm -rf bin/Release
