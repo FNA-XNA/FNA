@@ -224,14 +224,9 @@ namespace Microsoft.Xna.Framework
 			gdi.Adapter = GraphicsDevice.Adapter;
 			gdi.GraphicsProfile = GraphicsDevice.GraphicsProfile;
 			gdi.PresentationParameters = GraphicsDevice.PresentationParameters.Clone();
-			OnPreparingDeviceSettings(
-				this,
-				new PreparingDeviceSettingsEventArgs(gdi)
-			);
 
 			/* Apply the GraphicsDevice changes to the new Parameters.
-			 * FIXME: Do we care about what OnPreparingDeviceSettings says about
-			 * any of the data we're overwriting here?
+			 * Note that PreparingDeviceSettings can override any of these!
 			 * -flibit
 			 */
 			gdi.PresentationParameters.BackBufferFormat =
@@ -260,6 +255,12 @@ namespace Microsoft.Xna.Framework
 					8
 				);
 			}
+
+			// Give the user a chance to override the above settings.
+			OnPreparingDeviceSettings(
+				this,
+				new PreparingDeviceSettingsEventArgs(gdi)
+			);
 
 			// We're about to reset a device, notify the application.
 			OnDeviceResetting(this, EventArgs.Empty);
