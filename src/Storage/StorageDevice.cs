@@ -113,12 +113,6 @@ namespace Microsoft.Xna.Framework.Storage
 
 		#endregion
 
-		#region Private Delegates
-
-		private delegate StorageContainer OpenContainerAsynchronous(string displayName);
-
-		#endregion
-
 		#region Private XNA Lies
 
 		private class NotAsyncLie : IAsyncResult
