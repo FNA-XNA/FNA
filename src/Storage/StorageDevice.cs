@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.IO;
+using System.Threading;
 using System.Runtime.Remoting.Messaging;
 #endregion
 
@@ -87,8 +88,6 @@ namespace Microsoft.Xna.Framework.Storage
 
 		private PlayerIndex? devicePlayer;
 
-		private StorageContainer deviceContainer;
-
 		#endregion
 
 		#region Private Static Variables
@@ -116,25 +115,74 @@ namespace Microsoft.Xna.Framework.Storage
 
 		#region Private Delegates
 
-		private delegate StorageDevice ShowSelectorAsynchronous(
-			PlayerIndex? player,
-			int sizeInBytes,
-			int directoryCount
-		);
-
 		private delegate StorageContainer OpenContainerAsynchronous(string displayName);
+
+		#endregion
+
+		#region Private XNA Lies
+
+		private class NotAsyncLie : IAsyncResult
+		{
+			public object AsyncState
+			{
+				get;
+				private set;
+			}
+
+			public bool CompletedSynchronously
+			{
+				get
+				{
+					return true;
+				}
+			}
+
+			public bool IsCompleted
+			{
+				get
+				{
+					return true;
+				}
+			}
+
+			public WaitHandle AsyncWaitHandle
+			{
+				get;
+				private set;
+			}
+
+			public NotAsyncLie(object state)
+			{
+				AsyncState = state;
+				AsyncWaitHandle = new ManualResetEvent(true);
+			}
+		}
+
+		private class ShowSelectorLie : NotAsyncLie
+		{
+			public readonly PlayerIndex? PlayerIndex;
+
+			public ShowSelectorLie(object state, PlayerIndex? playerIndex) : base(state)
+			{
+				PlayerIndex = playerIndex;
+			}
+		}
+
+		private class OpenContainerLie : NotAsyncLie
+		{
+			public readonly string DisplayName;
+
+			public OpenContainerLie(object state, string displayName) : base(state)
+			{
+				DisplayName = displayName;
+			}
+		}
 
 		#endregion
 
 		#region Internal Constructors
 
-		/// <summary>
-		/// Creates a new <see cref="StorageDevice"/> instance.
-		/// </summary>
-		/// <param name="player">The playerIndex of the player.</param>
-		/// <param name="sizeInBytes">Size of the storage device.</param>
-		/// <param name="directoryCount"></param>
-		internal StorageDevice(PlayerIndex? player, int sizeInBytes, int directoryCount)
+		internal StorageDevice(PlayerIndex? player)
 		{
 			devicePlayer = player;
 		}
@@ -155,15 +203,12 @@ namespace Microsoft.Xna.Framework.Storage
 			AsyncCallback callback,
 			object state
 		) {
-			try
+			IAsyncResult result = new OpenContainerLie(state, displayName);
+			if (callback != null)
 			{
-				OpenContainerAsynchronous AsynchronousOpen = new OpenContainerAsynchronous(Open);
-				return AsynchronousOpen.BeginInvoke(displayName, callback, state);
+				callback(result);
 			}
-			finally
-			{
-				// TODO:  No resources to clean up?  Remove this finally block?
-			}
+			return result;
 		}
 
 		/// <summary>
@@ -173,33 +218,12 @@ namespace Microsoft.Xna.Framework.Storage
 		/// <param name="result">Result of BeginOpenContainer.</param>
 		public StorageContainer EndOpenContainer(IAsyncResult result)
 		{
-			StorageContainer returnValue = null;
-			try
-			{
-				// Retrieve the delegate.
-				AsyncResult asyncResult = result as AsyncResult;
-				if (asyncResult != null)
-				{
-					OpenContainerAsynchronous asyncDelegate = asyncResult.AsyncDelegate
-						as OpenContainerAsynchronous;
-
-					// Wait for the WaitHandle to become signaled.
-					result.AsyncWaitHandle.WaitOne();
-
-					// Call EndInvoke to retrieve the results.
-					if (asyncDelegate != null)
-					{
-						returnValue = asyncDelegate.EndInvoke(result);
-					}
-				}
-			}
-			finally
-			{
-				// Close the wait handle.
-				result.AsyncWaitHandle.Dispose();
-			}
-
-			return returnValue;
+			return new StorageContainer(
+				this,
+				(result as OpenContainerLie).DisplayName,
+				storageRoot,
+				devicePlayer
+			);
 		}
 
 		#endregion
@@ -259,8 +283,12 @@ namespace Microsoft.Xna.Framework.Storage
 			AsyncCallback callback,
 			object state
 		) {
-			ShowSelectorAsynchronous del = new ShowSelectorAsynchronous(Show);
-			return del.BeginInvoke(null, sizeInBytes, directoryCount, callback, state);
+			IAsyncResult result = new ShowSelectorLie(state, null);
+			if (callback != null)
+			{
+				callback(result);
+			}
+			return result;
 		}
 
 		/// <summary>
@@ -279,8 +307,12 @@ namespace Microsoft.Xna.Framework.Storage
 			AsyncCallback callback,
 			object state
 		) {
-			ShowSelectorAsynchronous del = new ShowSelectorAsynchronous(Show);
-			return del.BeginInvoke(player, sizeInBytes, directoryCount, callback, state);
+			IAsyncResult result = new ShowSelectorLie(state, player);
+			if (callback != null)
+			{
+				callback(result);
+			}
+			return result;
 		}
 
 		/// <summary>
@@ -290,29 +322,7 @@ namespace Microsoft.Xna.Framework.Storage
 		/// <param name="result">The result of BeginShowSelector.</param>
 		public static StorageDevice EndShowSelector(IAsyncResult result)
 		{
-			if (!result.IsCompleted)
-			{
-				// Wait for the WaitHandle to become signaled.
-				try
-				{
-					result.AsyncWaitHandle.WaitOne();
-				}
-				finally
-				{
-				}
-			}
-
-			// Retrieve the delegate.
-			AsyncResult asyncResult = (AsyncResult) result;
-
-			ShowSelectorAsynchronous del = asyncResult.AsyncDelegate as ShowSelectorAsynchronous;
-
-			if (del != null)
-			{
-				return del.EndInvoke(result);
-			}
-
-			throw new ArgumentException("result");
+			return new StorageDevice((result as ShowSelectorLie).PlayerIndex);
 		}
 
 		#endregion
@@ -322,32 +332,6 @@ namespace Microsoft.Xna.Framework.Storage
 		public void DeleteContainer(string titleName)
 		{
 			throw new NotImplementedException();
-		}
-
-		#endregion
-
-		#region Private OpenContainer Async Method
-
-		// Private method to handle the creation of the StorageDevice.
-		private StorageContainer Open(string displayName)
-		{
-			deviceContainer = new StorageContainer(
-				this,
-				displayName,
-				storageRoot,
-				devicePlayer
-			);
-			return deviceContainer;
-		}
-
-		#endregion
-
-		#region Private ShowSelector Async Method
-
-		// Private method to handle the creation of the StorageDevice.
-		private static StorageDevice Show(PlayerIndex? player, int sizeInBytes, int directoryCount)
-		{
-			return new StorageDevice(player, sizeInBytes, directoryCount);
 		}
 
 		#endregion
