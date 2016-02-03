@@ -489,7 +489,7 @@ namespace Microsoft.Xna.Framework
 			{
 				List<DisplayMode> modes = new List<DisplayMode>();
 				int numModes = SDL.SDL_GetNumDisplayModes(i);
-				for (int j = 0; j < numModes; j += 1)
+				for (int j = numModes - 1; j >= 0; j -= 1)
 				{
 					SDL.SDL_GetDisplayMode(i, j, out filler);
 
