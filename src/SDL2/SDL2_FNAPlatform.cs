@@ -521,8 +521,7 @@ namespace Microsoft.Xna.Framework
 						SurfaceFormat.Color // FIXME: Assumption!
 					),
 					new DisplayModeCollection(modes),
-					SDL.SDL_GetDisplayName(i),
-					i == 0
+					SDL.SDL_GetDisplayName(i)
 				);
 			}
 			return adapters;
