@@ -1103,6 +1103,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						ep,
 						typeof(DrawElements)
 					);
+					glDrawRangeElements = DrawRangeElementsUnchecked;
 					glDrawRangeElementsBaseVertex = DrawRangeElementsNoBaseUnchecked;
 				}
 			}
@@ -1511,6 +1512,22 @@ namespace Microsoft.Xna.Framework.Graphics
 			GLenum type,
 			IntPtr indices,
 			int baseVertex
+		) {
+			glDrawElements(
+				mode,
+				count,
+				type,
+				indices
+			);
+		}
+
+		private void DrawRangeElementsUnchecked(
+			GLenum mode,
+			int start,
+			int end,
+			int count,
+			GLenum type,
+			IntPtr indices
 		) {
 			glDrawElements(
 				mode,
