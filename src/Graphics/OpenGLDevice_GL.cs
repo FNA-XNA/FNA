@@ -720,6 +720,27 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private DrawRangeElements glDrawRangeElements;
 
+		private delegate void DrawElementsInstancedBaseVertex(
+			GLenum mode,
+			int count,
+			GLenum type,
+			IntPtr indices,
+			int instanceCount,
+			int baseVertex
+		);
+		private DrawElementsInstancedBaseVertex glDrawElementsInstancedBaseVertex;
+
+		private delegate void DrawRangeElementsBaseVertex(
+			GLenum mode,
+			int start,
+			int end,
+			int count,
+			GLenum type,
+			IntPtr indices,
+			int baseVertex
+		);
+		private DrawRangeElementsBaseVertex glDrawRangeElementsBaseVertex;
+
 		private delegate void DrawElements(
 			GLenum mode,
 			int count,
@@ -1045,27 +1066,41 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new NoSuitableGraphicsDeviceException(baseErrorString);
 			}
 
-			/* DrawRangeElements is better, but some ES2 targets don't have it. */
-			IntPtr ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElements");
-			if (ep != IntPtr.Zero)
+			/* ARB_draw_elements_base_vertex is ideal! */
+			IntPtr ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElementsBaseVertex");
+			supportsBaseVertex = ep != IntPtr.Zero;
+			if (supportsBaseVertex)
 			{
-				glDrawRangeElements = (DrawRangeElements) Marshal.GetDelegateForFunctionPointer(
+				glDrawRangeElementsBaseVertex = (DrawRangeElementsBaseVertex) Marshal.GetDelegateForFunctionPointer(
 					ep,
-					typeof(DrawRangeElements)
+					typeof(DrawRangeElementsBaseVertex)
 				);
 			}
 			else
 			{
-				ep = SDL.SDL_GL_GetProcAddress("glDrawElements");
-				if (ep == IntPtr.Zero)
+				/* DrawRangeElements is better, but some ES2 targets don't have it. */
+				ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElements");
+				if (ep != IntPtr.Zero)
 				{
-					throw new NoSuitableGraphicsDeviceException(baseErrorString);
+					glDrawRangeElements = (DrawRangeElements) Marshal.GetDelegateForFunctionPointer(
+						ep,
+						typeof(DrawRangeElements)
+					);
+					glDrawRangeElementsBaseVertex = DrawRangeElementsNoBase;
 				}
-				glDrawElements = (DrawElements) Marshal.GetDelegateForFunctionPointer(
-					ep,
-					typeof(DrawElements)
-				);
-				glDrawRangeElements = DrawRangeElementsUnchecked;
+				else
+				{
+					ep = SDL.SDL_GL_GetProcAddress("glDrawElements");
+					if (ep == IntPtr.Zero)
+					{
+						throw new NoSuitableGraphicsDeviceException(baseErrorString);
+					}
+					glDrawElements = (DrawElements) Marshal.GetDelegateForFunctionPointer(
+						ep,
+						typeof(DrawElements)
+					);
+					glDrawRangeElementsBaseVertex = DrawRangeElementsNoBaseUnchecked;
+				}
 			}
 
 			/* These functions are NOT supported in ES.
@@ -1294,10 +1329,22 @@ namespace Microsoft.Xna.Framework.Graphics
 					SDL.SDL_GL_GetProcAddress("glVertexAttribDivisor"),
 					typeof(VertexAttribDivisor)
 				);
-				glDrawElementsInstanced = (DrawElementsInstanced) Marshal.GetDelegateForFunctionPointer(
-					SDL.SDL_GL_GetProcAddress("glDrawElementsInstanced"),
-					typeof(DrawElementsInstanced)
-				);
+				/* The likelihood of someone having BaseVertex but not Instanced is 0...? */
+				if (supportsBaseVertex)
+				{
+					glDrawElementsInstancedBaseVertex = (DrawElementsInstancedBaseVertex) Marshal.GetDelegateForFunctionPointer(
+						SDL.SDL_GL_GetProcAddress("glDrawElementsInstancedBaseVertex"),
+						typeof(DrawElementsInstancedBaseVertex)
+					);
+				}
+				else
+				{
+					glDrawElementsInstanced = (DrawElementsInstanced) Marshal.GetDelegateForFunctionPointer(
+						SDL.SDL_GL_GetProcAddress("glDrawElementsInstanced"),
+						typeof(DrawElementsInstanced)
+					);
+					glDrawElementsInstancedBaseVertex = DrawElementsInstancedNoBase;
+				}
 			}
 			catch
 			{
@@ -1433,19 +1480,56 @@ namespace Microsoft.Xna.Framework.Graphics
 			return result;
 		}
 
-		private void DrawRangeElementsUnchecked(
+		private void DrawRangeElementsNoBase(
 			GLenum mode,
 			int start,
 			int end,
 			int count,
 			GLenum type,
-			IntPtr indices
+			IntPtr indices,
+			int baseVertex
+		) {
+			glDrawRangeElements(
+				mode,
+				start,
+				end,
+				count,
+				type,
+				indices
+			);
+		}
+
+		private void DrawRangeElementsNoBaseUnchecked(
+			GLenum mode,
+			int start,
+			int end,
+			int count,
+			GLenum type,
+			IntPtr indices,
+			int baseVertex
 		) {
 			glDrawElements(
 				mode,
 				count,
 				type,
 				indices
+			);
+		}
+
+		private void DrawElementsInstancedNoBase(
+			GLenum mode,
+			int count,
+			GLenum type,
+			IntPtr indices,
+			int instanceCount,
+			int baseVertex
+		) {
+			glDrawElementsInstanced(
+				mode,
+				count,
+				type,
+				indices,
+				instanceCount
 			);
 		}
 

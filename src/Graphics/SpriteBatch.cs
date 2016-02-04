@@ -849,20 +849,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			spriteData[numSprites].depth = depth;
 			spriteData[numSprites].effects = effects;
 
+			numSprites += 1;
 			if (sortMode == SpriteSortMode.Immediate)
 			{
-				RenderBatch(0, 1);
-			}
-			else
-			{
-				numSprites += 1;
+				PushVertices();
+				DrawPrimitives(texture, 0, 1);
+				numSprites = 0;
 			}
 		}
 
-		private void RenderBatch(int offset, int batchSize)
+		private void PushVertices()
 		{
-			GraphicsDevice.Textures[0] = spriteData[offset].texture;
-			for (int i = 0; i < batchSize; i += 1)
+			for (int i = 0; i < numSprites; i += 1)
 			{
 				/* FIXME: OPTIMIZATION POINT: This method
 				 * allocates like fuck right now! In general,
@@ -872,7 +870,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 */
 
 				// Current sprite being calculated
-				SpriteInfo info = spriteData[i + offset];
+				SpriteInfo info = spriteData[i];
 
 				// Calculate initial sprite information
 				Vector2 source = new Vector2(
@@ -901,8 +899,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Calculations performed with inverse texture size
 				Vector2 inverseTexSize = new Vector2(
-					(1.0f / (float) spriteData[offset].texture.Width),
-					(1.0f / (float) spriteData[offset].texture.Height)
+					(1.0f / (float) info.texture.Width),
+					(1.0f / (float) info.texture.Height)
 				);
 				if ((info.effects & SpriteInfo.SourceInTexels) == SpriteInfo.SourceInTexels)
 				{
@@ -917,8 +915,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Calculations done with texture size
 				if ((info.effects & SpriteInfo.DestSizeInPixels) != SpriteInfo.DestSizeInPixels)
 				{
-					destinationSize.X *= spriteData[offset].texture.Width;
-					destinationSize.Y *= spriteData[offset].texture.Height;
+					destinationSize.X *= info.texture.Width;
+					destinationSize.Y *= info.texture.Height;
 				}
 
 				// Calculations performed with rotation
@@ -974,34 +972,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 				}
 			}
-			vertexBuffer.SetData(vertexInfo, 0, batchSize * 4, SetDataOptions.None);
-
-			if (customEffect != null)
-			{
-				foreach (EffectPass pass in customEffect.CurrentTechnique.Passes)
-				{
-					pass.Apply();
-					GraphicsDevice.DrawIndexedPrimitives(
-						PrimitiveType.TriangleList,
-						0,
-						0,
-						batchSize * 4,
-						0,
-						batchSize * 2
-					);
-				}
-			}
-			else
-			{
-				GraphicsDevice.DrawIndexedPrimitives(
-					PrimitiveType.TriangleList,
-					0,
-					0,
-					batchSize * 4,
-					0,
-					batchSize * 2
-				);
-			}
+			vertexBuffer.SetData(vertexInfo, 0, numSprites * 4, SetDataOptions.None);
 		}
 
 		private void FlushBatch()
@@ -1046,19 +1017,19 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
+			PushVertices();
+
+			curTexture = spriteData[0].texture;
 			for (int i = 0; i < numSprites; i += 1)
 			{
 				if (spriteData[i].texture != curTexture)
 				{
-					if (i > offset)
-					{
-						RenderBatch(offset, i - offset);
-					}
+					DrawPrimitives(curTexture, offset, i - offset);
 					curTexture = spriteData[i].texture;
 					offset = i;
 				}
 			}
-			RenderBatch(offset, numSprites - offset);
+			DrawPrimitives(curTexture, offset, numSprites - offset);
 
 			numSprites = 0;
 		}
@@ -1103,6 +1074,37 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// FIXME: When is this actually applied? -flibit
 			spriteEffectPass.Apply();
+		}
+
+		private void DrawPrimitives(Texture texture, int baseSprite, int batchSize)
+		{
+			GraphicsDevice.Textures[0] = texture;
+			if (customEffect != null)
+			{
+				foreach (EffectPass pass in customEffect.CurrentTechnique.Passes)
+				{
+					pass.Apply();
+					GraphicsDevice.DrawIndexedPrimitives(
+						PrimitiveType.TriangleList,
+						baseSprite * 4,
+						0,
+						batchSize * 4,
+						0,
+						batchSize * 2
+					);
+				}
+			}
+			else
+			{
+				GraphicsDevice.DrawIndexedPrimitives(
+					PrimitiveType.TriangleList,
+					baseSprite * 4,
+					0,
+					batchSize * 4,
+					0,
+					batchSize * 2
+				);
+			}
 		}
 
 		[System.Diagnostics.Conditional("DEBUG")]

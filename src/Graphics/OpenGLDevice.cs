@@ -473,6 +473,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private bool supportsMultisampling;
 		private bool supportsFauxBackbuffer;
+		private bool supportsBaseVertex;
 
 		#endregion
 
@@ -1126,7 +1127,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			BindIndexBuffer(indices.buffer);
 
 			// Draw!
-			glDrawRangeElements(
+			glDrawRangeElementsBaseVertex(
 				XNAToGL.Primitive[(int) primitiveType],
 				minVertexIndex,
 				minVertexIndex + numVertices - 1,
@@ -1134,7 +1135,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				shortIndices ?
 					GLenum.GL_UNSIGNED_SHORT :
 					GLenum.GL_UNSIGNED_INT,
-				(IntPtr) (startIndex * (shortIndices ? 2 : 4))
+				(IntPtr) (startIndex * (shortIndices ? 2 : 4)),
+				baseVertex
 			);
 		}
 
@@ -1157,14 +1159,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			bool shortIndices = indices.IndexElementSize == IndexElementSize.SixteenBits;
 
 			// Draw!
-			glDrawElementsInstanced(
+			glDrawElementsInstancedBaseVertex(
 				XNAToGL.Primitive[(int) primitiveType],
 				XNAToGL.PrimitiveVerts(primitiveType, primitiveCount),
 				shortIndices ?
 					GLenum.GL_UNSIGNED_SHORT :
 					GLenum.GL_UNSIGNED_INT,
 				(IntPtr) (startIndex * (shortIndices ? 2 : 4)),
-				instanceCount
+				instanceCount,
+				baseVertex
 			);
 		}
 
@@ -1906,6 +1909,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			bool bindingsUpdated,
 			int baseVertex
 		) {
+			if (supportsBaseVertex)
+			{
+				baseVertex = 0;
+			}
+
 			if (	bindingsUpdated ||
 				baseVertex != ldBaseVertex ||
 				currentEffect != ldEffect ||
