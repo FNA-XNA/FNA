@@ -1075,6 +1075,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					ep,
 					typeof(DrawRangeElementsBaseVertex)
 				);
+				glDrawRangeElements = (DrawRangeElements) Marshal.GetDelegateForFunctionPointer(
+					SDL.SDL_GL_GetProcAddress("glDrawRangeElements"),
+					typeof(DrawRangeElements)
+				);
 			}
 			else
 			{
