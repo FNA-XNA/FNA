@@ -54,10 +54,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public bool IsDefaultAdapter
 		{
-			get
-			{
-				throw new NotImplementedException();
-			}
+			get;
+			private set;
 		}
 
 		/// <summary>
@@ -163,11 +161,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal GraphicsAdapter(
 			DisplayMode currentMode,
 			DisplayModeCollection modes,
-			string description
+			string description,
+			bool isDefault
 		) {
 			CurrentDisplayMode = currentMode;
 			SupportedDisplayModes = modes;
 			Description = description;
+			IsDefaultAdapter = isDefault;
 			UseNullDevice = false;
 			UseReferenceDevice = false;
 		}
