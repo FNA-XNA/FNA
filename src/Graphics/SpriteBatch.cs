@@ -940,10 +940,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (sortMode == SpriteSortMode.Immediate)
 			{
 				// FIXME: Make sorting less dump, then remove this -flibit
-				vertexInfo[0] = spriteData[0].vertices[0];
-				vertexInfo[1] = spriteData[0].vertices[1];
-				vertexInfo[2] = spriteData[0].vertices[2];
-				vertexInfo[3] = spriteData[0].vertices[3];
+				Array.Copy(spriteData[0].vertices, vertexInfo, 4);
 				vertexBuffer.SetData(vertexInfo, 0, 4, SetDataOptions.None);
 				DrawPrimitives(texture, 0, 1);
 			}
@@ -953,19 +950,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				spriteData[numSprites].depth = depth;
 				numSprites += 1;
 			}
-		}
-
-		private void PushVertices()
-		{
-			// FIXME: Make sorting less dump, then remove this -flibit
-			for (int i = 0, curVertex = 0; i < numSprites; i += 1, curVertex += 4)
-			{
-				vertexInfo[curVertex] = spriteData[i].vertices[0];
-				vertexInfo[curVertex + 1] = spriteData[i].vertices[1];
-				vertexInfo[curVertex + 2] = spriteData[i].vertices[2];
-				vertexInfo[curVertex + 3] = spriteData[i].vertices[3];
-			}
-			vertexBuffer.SetData(vertexInfo, 0, numSprites * 4, SetDataOptions.None);
 		}
 
 		private void FlushBatch()
@@ -1010,7 +994,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			PushVertices();
+			// FIXME: Make sorting less dump, then remove this -flibit
+			for (int i = 0; i < numSprites; i += 1)
+			{
+				Array.Copy(spriteData[i].vertices, 0, vertexInfo, i * 4, 4);
+			}
+			vertexBuffer.SetData(vertexInfo, 0, numSprites * 4, SetDataOptions.None);
 
 			curTexture = spriteData[0].texture;
 			for (int i = 0; i < numSprites; i += 1)
