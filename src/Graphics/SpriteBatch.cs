@@ -860,6 +860,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				float inverseTexW = 1.0f / (float) texture.Width;
 				float inverseTexH = 1.0f / (float) texture.Height;
+
 				sourceX = sourceRectangle.Value.X * inverseTexW;
 				sourceY = sourceRectangle.Value.Y * inverseTexH;
 				sourceW = Math.Max(
@@ -870,6 +871,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					sourceRectangle.Value.Height,
 					MathHelper.MachineEpsilonFloat
 				) * inverseTexH;
+
 				originX = (origin.X / sourceW) * inverseTexW;
 				originY = (origin.Y / sourceH) * inverseTexH;
 
@@ -885,8 +887,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				sourceY = 0.0f;
 				sourceW = 1.0f;
 				sourceH = 1.0f;
+
 				originX = origin.X * (1.0f / (float) texture.Width);
 				originY = origin.Y * (1.0f / (float) texture.Height);
+
 				if (!destSizeInPixels)
 				{
 					destW *= texture.Width;
