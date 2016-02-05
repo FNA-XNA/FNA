@@ -917,7 +917,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Calculate vertices, finally.
-			for (int j = 0, curVertex = numSprites * 4; j < 4; j += 1, curVertex += 1)
+			for (int j = 0; j < 4; j += 1)
 			{
 				float cornerX = (CornerOffsetX[j] - originX) * destW;
 				float cornerY = (CornerOffsetY[j] - originY) * destH;
