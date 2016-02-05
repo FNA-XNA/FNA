@@ -3551,12 +3551,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				glDisable(GLenum.GL_SCISSOR_TEST);
 			}
 
+			bool clearTarget = (options & ClearOptions.Target) == ClearOptions.Target;
 			bool clearDepth = (options & ClearOptions.DepthBuffer) == ClearOptions.DepthBuffer;
 			bool clearStencil = (options & ClearOptions.Stencil) == ClearOptions.Stencil;
 
 			// Get the clear mask, set the clear properties if needed
 			GLenum clearMask = GLenum.GL_ZERO;
-			if ((options & ClearOptions.Target) == ClearOptions.Target)
+			if (clearTarget)
 			{
 				clearMask |= GLenum.GL_COLOR_BUFFER_BIT;
 				if (!color.Equals(currentClearColor))
@@ -3614,7 +3615,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				glEnable(GLenum.GL_SCISSOR_TEST);
 			}
-			if (colorWriteEnable != ColorWriteChannels.All)
+			if (clearTarget && colorWriteEnable != ColorWriteChannels.All)
 			{
 				// FIXME: ColorWriteChannels1/2/3? -flibit
 				glColorMask(
