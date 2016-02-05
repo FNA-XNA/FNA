@@ -46,6 +46,22 @@ namespace Microsoft.Xna.Framework.Graphics
 			new Vector2(1, 1)
 		};
 
+		// Used to calculate texture coordinates
+		private static readonly float[] CornerOffsetX = new float[]
+		{
+			0.0f,
+			1.0f,
+			0.0f,
+			1.0f
+		};
+		private static readonly float[] CornerOffsetY = new float[]
+		{
+			0.0f,
+			0.0f,
+			1.0f,
+			1.0f
+		};
+
 		#endregion
 
 		#region Private Variables
@@ -108,6 +124,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			vertexInfo = new VertexPositionColorTexture[MAX_VERTICES];
 			spriteData = new SpriteInfo[MAX_SPRITES];
+			for (int i = 0; i < MAX_SPRITES; i += 1)
+			{
+				spriteData[i].vertices = new VertexPositionColorTexture[4];
+			}
 			vertexBuffer = new DynamicVertexBuffer(
 				graphicsDevice,
 				typeof(VertexPositionColorTexture),
@@ -299,7 +319,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				Vector2.Zero,
 				0.0f,
 				0.0f,
-				0
+				0,
+				false
 			);
 		}
 
@@ -323,7 +344,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				Vector2.Zero,
 				0.0f,
 				0.0f,
-				0
+				0,
+				false
 			);
 		}
 
@@ -352,7 +374,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				origin,
 				rotation,
 				layerDepth,
-				(byte) effects
+				(byte) effects,
+				false
 			);
 		}
 
@@ -381,7 +404,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				origin,
 				rotation,
 				layerDepth,
-				(byte) effects
+				(byte) effects,
+				false
 			);
 		}
 
@@ -404,7 +428,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				Vector2.Zero,
 				0.0f,
 				0.0f,
-				SpriteInfo.DestSizeInPixels
+				0,
+				true
 			);
 		}
 
@@ -428,7 +453,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				Vector2.Zero,
 				0.0f,
 				0.0f,
-				SpriteInfo.DestSizeInPixels
+				0,
+				true
 			);
 		}
 
@@ -456,7 +482,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				origin,
 				rotation,
 				layerDepth,
-				(byte) ((int) effects | SpriteInfo.DestSizeInPixels)
+				(byte) effects,
+				true
 			);
 		}
 
@@ -628,7 +655,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					offset,
 					rotation,
 					layerDepth,
-					(byte) effects
+					(byte) effects,
+					false
 				);
 
 				/* Add the character width and right-side bearing to the line
@@ -791,7 +819,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					offset,
 					rotation,
 					layerDepth,
-					(byte) effects
+					(byte) effects,
+					false
 				);
 
 				/* Add the character width and right-side bearing to the line
@@ -813,7 +842,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			Vector2 origin,
 			float rotation,
 			float depth,
-			byte effects
+			byte effects,
+			bool destSizeInPixels
 		) {
 			if (numSprites >= MAX_SPRITES)
 			{
@@ -821,156 +851,119 @@ namespace Microsoft.Xna.Framework.Graphics
 				FlushBatch();
 			}
 
-			// Calculate source/destination
-			spriteData[numSprites].destination = destination;
+			// Source/Destination/Origin Calculations
+			float sourceX, sourceY, sourceW, sourceH;
+			float destW = destination.Z;
+			float destH = destination.W;
+			float originX, originY;
 			if (sourceRectangle.HasValue)
 			{
-				spriteData[numSprites].source = sourceRectangle.Value;
-				if ((effects & SpriteInfo.DestSizeInPixels) != SpriteInfo.DestSizeInPixels)
+				float inverseTexW = 1.0f / (float) texture.Width;
+				float inverseTexH = 1.0f / (float) texture.Height;
+				sourceX = sourceRectangle.Value.X * inverseTexW;
+				sourceY = sourceRectangle.Value.Y * inverseTexH;
+				sourceW = Math.Max(
+					sourceRectangle.Value.Width,
+					MathHelper.MachineEpsilonFloat
+				) * inverseTexW;
+				sourceH = Math.Max(
+					sourceRectangle.Value.Height,
+					MathHelper.MachineEpsilonFloat
+				) * inverseTexH;
+				originX = (origin.X / sourceW) * inverseTexW;
+				originY = (origin.Y / sourceH) * inverseTexH;
+
+				if (!destSizeInPixels)
 				{
-					spriteData[numSprites].destination.Z *= sourceRectangle.Value.Width;
-					spriteData[numSprites].destination.W *= sourceRectangle.Value.Height;
+					destW *= sourceRectangle.Value.Width;
+					destH *= sourceRectangle.Value.Height;
 				}
-				effects |= SpriteInfo.SourceInTexels | SpriteInfo.DestSizeInPixels;
 			}
 			else
 			{
-				spriteData[numSprites].source.X = 0;
-				spriteData[numSprites].source.Y = 0;
-				spriteData[numSprites].source.Width = 1;
-				spriteData[numSprites].source.Height = 1;
+				sourceX = 0.0f;
+				sourceY = 0.0f;
+				sourceW = 1.0f;
+				sourceH = 1.0f;
+				originX = origin.X * (1.0f / (float) texture.Width);
+				originY = origin.Y * (1.0f / (float) texture.Height);
+				if (!destSizeInPixels)
+				{
+					destW *= texture.Width;
+					destH *= texture.Height;
+				}
 			}
 
-			// Everything else passed is just copied
-			spriteData[numSprites].texture = texture;
-			spriteData[numSprites].color = color;
-			spriteData[numSprites].origin = origin;
-			spriteData[numSprites].rotation = rotation;
-			spriteData[numSprites].depth = depth;
-			spriteData[numSprites].effects = effects;
+			// Rotation Calculations
+			float rotationMatrix1X;
+			float rotationMatrix1Y;
+			float rotationMatrix2X;
+			float rotationMatrix2Y;
+			if (!MathHelper.WithinEpsilon(rotation, 0.0f))
+			{
+				float sin = (float) Math.Sin(rotation);
+				float cos = (float) Math.Cos(rotation);
+				rotationMatrix1X = cos;
+				rotationMatrix1Y = sin;
+				rotationMatrix2X = -sin;
+				rotationMatrix2Y = cos;
+			}
+			else
+			{
+				rotationMatrix1X = 1.0f;
+				rotationMatrix1Y = 0.0f;
+				rotationMatrix2X = 0.0f;
+				rotationMatrix2Y = 1.0f;
+			}
 
-			numSprites += 1;
+			// Calculate vertices, finally.
+			for (int j = 0, curVertex = numSprites * 4; j < 4; j += 1, curVertex += 1)
+			{
+				float cornerX = (CornerOffsetX[j] - originX) * destW;
+				float cornerY = (CornerOffsetY[j] - originY) * destH;
+				spriteData[numSprites].vertices[j].Position.X = (
+					(rotationMatrix2X * cornerY) +
+					(rotationMatrix1X * cornerX) +
+					destination.X
+				);
+				spriteData[numSprites].vertices[j].Position.Y = (
+					(rotationMatrix2Y * cornerY) +
+					(rotationMatrix1Y * cornerX) +
+					destination.Y
+				);
+				spriteData[numSprites].vertices[j].Position.Z = depth;
+				spriteData[numSprites].vertices[j].Color = color;
+				spriteData[numSprites].vertices[j].TextureCoordinate.X = (CornerOffsetX[j ^ effects] * sourceW) + sourceX;
+				spriteData[numSprites].vertices[j].TextureCoordinate.Y = (CornerOffsetY[j ^ effects] * sourceH) + sourceY;
+			}
+
 			if (sortMode == SpriteSortMode.Immediate)
 			{
-				PushVertices();
+				// FIXME: Make sorting less dump, then remove this -flibit
+				vertexInfo[0] = spriteData[0].vertices[0];
+				vertexInfo[1] = spriteData[0].vertices[1];
+				vertexInfo[2] = spriteData[0].vertices[2];
+				vertexInfo[3] = spriteData[0].vertices[3];
+				vertexBuffer.SetData(vertexInfo, 0, 4, SetDataOptions.None);
 				DrawPrimitives(texture, 0, 1);
-				numSprites = 0;
+			}
+			else
+			{
+				spriteData[numSprites].texture = texture;
+				spriteData[numSprites].depth = depth;
+				numSprites += 1;
 			}
 		}
 
 		private void PushVertices()
 		{
-			for (int i = 0; i < numSprites; i += 1)
+			// FIXME: Make sorting less dump, then remove this -flibit
+			for (int i = 0, curVertex = 0; i < numSprites; i += 1, curVertex += 4)
 			{
-				/* FIXME: OPTIMIZATION POINT: This method
-				 * allocates like fuck right now! In general,
-				 * it's by far the slowest block of code in the
-				 * whole file, and needs fixing.
-				 * -flibit
-				 */
-
-				// Current sprite being calculated
-				SpriteInfo info = spriteData[i];
-
-				// Calculate initial sprite information
-				Vector2 source = new Vector2(
-					info.source.X,
-					info.source.Y
-				);
-				Vector2 destination = new Vector2(
-					info.destination.X,
-					info.destination.Y
-				);
-				Vector2 sourceSize = new Vector2(
-					Math.Max(
-						info.source.Width,
-						MathHelper.MachineEpsilonFloat
-					),
-					Math.Max(
-						info.source.Height,
-						MathHelper.MachineEpsilonFloat
-					)
-				);
-				Vector2 destinationSize = new Vector2(
-					info.destination.Z,
-					info.destination.W
-				);
-				Vector2 origin = info.origin / sourceSize;
-
-				// Calculations performed with inverse texture size
-				Vector2 inverseTexSize = new Vector2(
-					(1.0f / (float) info.texture.Width),
-					(1.0f / (float) info.texture.Height)
-				);
-				if ((info.effects & SpriteInfo.SourceInTexels) == SpriteInfo.SourceInTexels)
-				{
-					source *= inverseTexSize;
-					sourceSize *= inverseTexSize;
-				}
-				else
-				{
-					origin *= inverseTexSize;
-				}
-
-				// Calculations done with texture size
-				if ((info.effects & SpriteInfo.DestSizeInPixels) != SpriteInfo.DestSizeInPixels)
-				{
-					destinationSize.X *= info.texture.Width;
-					destinationSize.Y *= info.texture.Height;
-				}
-
-				// Calculations performed with rotation
-				Vector2 rotationMatrix1;
-				Vector2 rotationMatrix2;
-				if (!MathHelper.WithinEpsilon(info.rotation, 0.0f))
-				{
-					float sin = (float) Math.Sin(info.rotation);
-					float cos = (float) Math.Cos(info.rotation);
-					rotationMatrix1.X = cos;
-					rotationMatrix1.Y = sin;
-					rotationMatrix2.X = -sin;
-					rotationMatrix2.Y = cos;
-				}
-				else
-				{
-					rotationMatrix1.X = 1.0f;
-					rotationMatrix1.Y = 0.0f;
-					rotationMatrix2.X = 0.0f;
-					rotationMatrix2.Y = 1.0f;
-				}
-
-				// Calculate vertices, finally.
-				for (int j = 0, curVertex = i * 4; j < 4; j += 1, curVertex += 1)
-				{
-					Vector2 cornerOffset = (
-						SpriteInfo.CornerOffsets[j] - origin
-					) * destinationSize;
-
-					Vector2 position = Vector2.Add(
-						Vector2.Multiply(
-							rotationMatrix2,
-							cornerOffset.Y
-						),
-						Vector2.Add(
-							Vector2.Multiply(
-								rotationMatrix1,
-								cornerOffset.X
-							),
-							destination
-						)
-					);
-					vertexInfo[curVertex].Position.X = position.X;
-					vertexInfo[curVertex].Position.Y = position.Y;
-					vertexInfo[curVertex].Position.Z = info.depth;
-					vertexInfo[curVertex].Color = info.color;
-					vertexInfo[curVertex].TextureCoordinate = Vector2.Add(
-						Vector2.Multiply(
-							SpriteInfo.CornerOffsets[j ^ (info.effects & 0x3)],
-							sourceSize
-						),
-						source
-					);
-				}
+				vertexInfo[curVertex] = spriteData[i].vertices[0];
+				vertexInfo[curVertex + 1] = spriteData[i].vertices[1];
+				vertexInfo[curVertex + 2] = spriteData[i].vertices[2];
+				vertexInfo[curVertex + 3] = spriteData[i].vertices[3];
 			}
 			vertexBuffer.SetData(vertexInfo, 0, numSprites * 4, SetDataOptions.None);
 		}
@@ -1146,24 +1139,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private struct SpriteInfo
 		{
-			public Rectangle source;
-			public Vector4 destination;
-			public Color color;
-			public Vector2 origin;
-			public float rotation;
-			public float depth;
+			public VertexPositionColorTexture[] vertices;
 			public Texture2D texture;
-			public byte effects;
-
-			public const int SourceInTexels = 0x4;
-			public const int DestSizeInPixels = 0x8;
-			public static readonly Vector2[] CornerOffsets = new Vector2[]
-			{
-				new Vector2(0.0f, 0.0f),
-				new Vector2(1.0f, 0.0f),
-				new Vector2(0.0f, 1.0f),
-				new Vector2(1.0f, 1.0f)
-			};
+			public float depth;
 		}
 
 		#endregion
