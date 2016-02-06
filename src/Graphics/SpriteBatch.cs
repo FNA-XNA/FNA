@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 #endregion
 
@@ -71,8 +72,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IndexBuffer indexBuffer;
 
 		// Local data stored before buffering to GPU
-		private VertexPositionColorTexture[] vertexInfo;
-		private SpriteInfo[] spriteData;
+		private VertexPositionColorTexture4[] vertexInfo;
+		private Texture2D[] textureInfo;
 
 		// Default SpriteBatch Effect
 		private Effect spriteEffect;
@@ -122,12 +123,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			GraphicsDevice = graphicsDevice;
 
-			vertexInfo = new VertexPositionColorTexture[MAX_VERTICES];
-			spriteData = new SpriteInfo[MAX_SPRITES];
-			for (int i = 0; i < MAX_SPRITES; i += 1)
-			{
-				spriteData[i].vertices = new VertexPositionColorTexture[4];
-			}
+			vertexInfo = new VertexPositionColorTexture4[MAX_SPRITES];
+			textureInfo = new Texture2D[MAX_SPRITES];
 			vertexBuffer = new DynamicVertexBuffer(
 				graphicsDevice,
 				typeof(VertexPositionColorTexture),
@@ -921,37 +918,86 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Calculate vertices, finally.
-			for (int j = 0; j < 4; j += 1)
-			{
-				float cornerX = (CornerOffsetX[j] - originX) * destW;
-				float cornerY = (CornerOffsetY[j] - originY) * destH;
-				spriteData[numSprites].vertices[j].Position.X = (
-					(rotationMatrix2X * cornerY) +
-					(rotationMatrix1X * cornerX) +
-					destination.X
-				);
-				spriteData[numSprites].vertices[j].Position.Y = (
-					(rotationMatrix2Y * cornerY) +
-					(rotationMatrix1Y * cornerX) +
-					destination.Y
-				);
-				spriteData[numSprites].vertices[j].Position.Z = depth;
-				spriteData[numSprites].vertices[j].Color = color;
-				spriteData[numSprites].vertices[j].TextureCoordinate.X = (CornerOffsetX[j ^ effects] * sourceW) + sourceX;
-				spriteData[numSprites].vertices[j].TextureCoordinate.Y = (CornerOffsetY[j ^ effects] * sourceH) + sourceY;
-			}
+			float cornerX = (CornerOffsetX[0] - originX) * destW;
+			float cornerY = (CornerOffsetY[0] - originY) * destH;
+			vertexInfo[numSprites].Position0.X = (
+				(rotationMatrix2X * cornerY) +
+				(rotationMatrix1X * cornerX) +
+				destination.X
+			);
+			vertexInfo[numSprites].Position0.Y = (
+				(rotationMatrix2Y * cornerY) +
+				(rotationMatrix1Y * cornerX) +
+				destination.Y
+			);
+			cornerX = (CornerOffsetX[1] - originX) * destW;
+			cornerY = (CornerOffsetY[1] - originY) * destH;
+			vertexInfo[numSprites].Position1.X = (
+				(rotationMatrix2X * cornerY) +
+				(rotationMatrix1X * cornerX) +
+				destination.X
+			);
+			vertexInfo[numSprites].Position1.Y = (
+				(rotationMatrix2Y * cornerY) +
+				(rotationMatrix1Y * cornerX) +
+				destination.Y
+			);
+			cornerX = (CornerOffsetX[2] - originX) * destW;
+			cornerY = (CornerOffsetY[2] - originY) * destH;
+			vertexInfo[numSprites].Position2.X = (
+				(rotationMatrix2X * cornerY) +
+				(rotationMatrix1X * cornerX) +
+				destination.X
+			);
+			vertexInfo[numSprites].Position2.Y = (
+				(rotationMatrix2Y * cornerY) +
+				(rotationMatrix1Y * cornerX) +
+				destination.Y
+			);
+			cornerX = (CornerOffsetX[3] - originX) * destW;
+			cornerY = (CornerOffsetY[3] - originY) * destH;
+			vertexInfo[numSprites].Position3.X = (
+				(rotationMatrix2X * cornerY) +
+				(rotationMatrix1X * cornerX) +
+				destination.X
+			);
+			vertexInfo[numSprites].Position3.Y = (
+				(rotationMatrix2Y * cornerY) +
+				(rotationMatrix1Y * cornerX) +
+				destination.Y
+			);
+			vertexInfo[numSprites].TextureCoordinate0.X = (CornerOffsetX[0 ^ effects] * sourceW) + sourceX;
+			vertexInfo[numSprites].TextureCoordinate0.Y = (CornerOffsetY[0 ^ effects] * sourceH) + sourceY;
+			vertexInfo[numSprites].TextureCoordinate1.X = (CornerOffsetX[1 ^ effects] * sourceW) + sourceX;
+			vertexInfo[numSprites].TextureCoordinate1.Y = (CornerOffsetY[1 ^ effects] * sourceH) + sourceY;
+			vertexInfo[numSprites].TextureCoordinate2.X = (CornerOffsetX[2 ^ effects] * sourceW) + sourceX;
+			vertexInfo[numSprites].TextureCoordinate2.Y = (CornerOffsetY[2 ^ effects] * sourceH) + sourceY;
+			vertexInfo[numSprites].TextureCoordinate3.X = (CornerOffsetX[3 ^ effects] * sourceW) + sourceX;
+			vertexInfo[numSprites].TextureCoordinate3.Y = (CornerOffsetY[3 ^ effects] * sourceH) + sourceY;
+			vertexInfo[numSprites].Position0.Z = depth;
+			vertexInfo[numSprites].Position1.Z = depth;
+			vertexInfo[numSprites].Position2.Z = depth;
+			vertexInfo[numSprites].Position3.Z = depth;
+			vertexInfo[numSprites].Color0 = color;
+			vertexInfo[numSprites].Color1 = color;
+			vertexInfo[numSprites].Color2 = color;
+			vertexInfo[numSprites].Color3 = color;
 
 			if (sortMode == SpriteSortMode.Immediate)
 			{
-				// FIXME: Make sorting less dump, then remove this -flibit
-				Array.Copy(spriteData[0].vertices, vertexInfo, 4);
-				vertexBuffer.SetData(vertexInfo, 0, 4, SetDataOptions.None);
+				vertexBuffer.SetData(
+					0,
+					vertexInfo,
+					0,
+					1,
+					VertexPositionColorTexture4.RealStride,
+					SetDataOptions.None
+				);
 				DrawPrimitives(texture, 0, 1);
 			}
 			else
 			{
-				spriteData[numSprites].texture = texture;
-				spriteData[numSprites].depth = depth;
+				textureInfo[numSprites] = texture;
 				numSprites += 1;
 			}
 		}
@@ -973,7 +1019,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (sortMode == SpriteSortMode.Texture)
 			{
 				Array.Sort(
-					spriteData,
+					textureInfo,
+					vertexInfo,
 					0,
 					numSprites,
 					TextureCompare
@@ -982,7 +1029,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			else if (sortMode == SpriteSortMode.BackToFront)
 			{
 				Array.Sort(
-					spriteData,
+					vertexInfo,
+					textureInfo,
 					0,
 					numSprites,
 					BackToFrontCompare
@@ -991,27 +1039,30 @@ namespace Microsoft.Xna.Framework.Graphics
 			else if (sortMode == SpriteSortMode.FrontToBack)
 			{
 				Array.Sort(
-					spriteData,
+					vertexInfo,
+					textureInfo,
 					0,
 					numSprites,
 					FrontToBackCompare
 				);
 			}
 
-			// FIXME: Make sorting less dump, then remove this -flibit
-			for (int i = 0; i < numSprites; i += 1)
-			{
-				Array.Copy(spriteData[i].vertices, 0, vertexInfo, i * 4, 4);
-			}
-			vertexBuffer.SetData(vertexInfo, 0, numSprites * 4, SetDataOptions.None);
+			vertexBuffer.SetData(
+				0,
+				vertexInfo,
+				0,
+				numSprites,
+				VertexPositionColorTexture4.RealStride,
+				SetDataOptions.None
+			);
 
-			curTexture = spriteData[0].texture;
+			curTexture = textureInfo[0];
 			for (int i = 0; i < numSprites; i += 1)
 			{
-				if (spriteData[i].texture != curTexture)
+				if (textureInfo[i] != curTexture)
 				{
 					DrawPrimitives(curTexture, offset, i - offset);
-					curTexture = spriteData[i].texture;
+					curTexture = textureInfo[i];
 					offset = i;
 				}
 			}
@@ -1130,38 +1181,58 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Sprite Data Container Class
 
-		private struct SpriteInfo
+		[StructLayout(LayoutKind.Sequential, Pack = 1)]
+		public struct VertexPositionColorTexture4 : IVertexType
 		{
-			public VertexPositionColorTexture[] vertices;
-			public Texture2D texture;
-			public float depth;
+			public const int RealStride = 96;
+
+			VertexDeclaration IVertexType.VertexDeclaration
+			{
+				get
+				{
+					throw new NotImplementedException();
+				}
+			}
+
+			public Vector3 Position0;
+			public Color Color0;
+			public Vector2 TextureCoordinate0;
+			public Vector3 Position1;
+			public Color Color1;
+			public Vector2 TextureCoordinate1;
+			public Vector3 Position2;
+			public Color Color2;
+			public Vector2 TextureCoordinate2;
+			public Vector3 Position3;
+			public Color Color3;
+			public Vector2 TextureCoordinate3;
 		}
 
 		#endregion
 
 		#region Private Sprite Comparison Classes
 
-		private class TextureComparer : IComparer<SpriteInfo>
+		private class TextureComparer : IComparer<Texture2D>
 		{
-			public int Compare(SpriteInfo x, SpriteInfo y)
+			public int Compare(Texture2D x, Texture2D y)
 			{
-				return x.texture.GetHashCode().CompareTo(y.texture.GetHashCode());
+				return x.GetHashCode().CompareTo(y.GetHashCode());
 			}
 		}
 
-		private class BackToFrontComparer : IComparer<SpriteInfo>
+		private class BackToFrontComparer : IComparer<VertexPositionColorTexture4>
 		{
-			public int Compare(SpriteInfo x, SpriteInfo y)
+			public int Compare(VertexPositionColorTexture4 x, VertexPositionColorTexture4 y)
 			{
-				return y.depth.CompareTo(x.depth);
+				return y.Position0.Z.CompareTo(x.Position0.Z);
 			}
 		}
 
-		private class FrontToBackComparer : IComparer<SpriteInfo>
+		private class FrontToBackComparer : IComparer<VertexPositionColorTexture4>
 		{
-			public int Compare(SpriteInfo x, SpriteInfo y)
+			public int Compare(VertexPositionColorTexture4 x, VertexPositionColorTexture4 y)
 			{
-				return x.depth.CompareTo(y.depth);
+				return x.Position0.Z.CompareTo(y.Position0.Z);
 			}
 		}
 
