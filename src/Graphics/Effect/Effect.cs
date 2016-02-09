@@ -1076,8 +1076,8 @@ namespace Microsoft.Xna.Framework.Graphics
 								(int) mem[j].info.rows,
 								(int) mem[j].info.columns,
 								(int) mem[j].info.elements,
-								XNAClass[(int) param.value.type.parameter_class],
-								XNAType[(int) param.value.type.parameter_type],
+								XNAClass[(int) mem[j].info.parameter_class],
+								XNAType[(int) mem[j].info.parameter_type],
 								null, // FIXME: Nested structs! -flibit
 								null,
 								curOffset
