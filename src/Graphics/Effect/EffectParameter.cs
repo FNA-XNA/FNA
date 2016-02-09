@@ -107,6 +107,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			ColumnCount = columnCount;
 			if (elementCount > 0)
 			{
+				int curOffset = 0;
 				List<EffectParameter> elements = new List<EffectParameter>(elementCount);
 				for (int i = 0; i < elementCount; i += 1)
 				{
@@ -114,7 +115,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					if (structureMembers != null)
 					{
 						List<EffectParameter> memList = new List<EffectParameter>();
-						int curOffset = 0;
 						for (int j = 0; j < structureMembers.Count; j += 1)
 						{
 							int memElems = 0;
@@ -132,14 +132,14 @@ namespace Microsoft.Xna.Framework.Graphics
 								structureMembers[j].ParameterType,
 								null, // FIXME: Nested structs! -flibit
 								structureMembers[j].Annotations,
-								new IntPtr(data.ToInt64() + (j * 4 * curOffset))
+								new IntPtr(data.ToInt64() + curOffset)
 							));
 							int memSize = structureMembers[j].RowCount * structureMembers[j].ColumnCount;
 							if (memElems > 0)
 							{
 								memSize *= memElems;
 							}
-							curOffset += memSize;
+							curOffset += memSize * 4;
 						}
 						elementMembers = new EffectParameterCollection(memList);
 					}

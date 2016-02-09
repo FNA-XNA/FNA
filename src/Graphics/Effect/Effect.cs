@@ -1066,27 +1066,26 @@ namespace Microsoft.Xna.Framework.Graphics
 					List<EffectParameter> memList = new List<EffectParameter>();
 					unsafe
 					{
-						MojoShader.MOJOSHADER_symbolStructMember* mem;
+						MojoShader.MOJOSHADER_symbolStructMember* mem = (MojoShader.MOJOSHADER_symbolStructMember*) param.value.type.members;
 						IntPtr curOffset = IntPtr.Zero;
 						for (int j = 0; j < param.value.type.member_count; j += 1)
 						{
-							mem = (MojoShader.MOJOSHADER_symbolStructMember*) param.value.type.members;
 							memList.Add(new EffectParameter(
-								Marshal.PtrToStringAnsi(mem->name),
+								Marshal.PtrToStringAnsi(mem[j].name),
 								null,
-								(int) mem->info.rows,
-								(int) mem->info.columns,
-								(int) mem->info.elements,
+								(int) mem[j].info.rows,
+								(int) mem[j].info.columns,
+								(int) mem[j].info.elements,
 								XNAClass[(int) param.value.type.parameter_class],
 								XNAType[(int) param.value.type.parameter_type],
 								null, // FIXME: Nested structs! -flibit
 								null,
 								curOffset
 							));
-							uint memSize = mem->info.rows + mem->info.columns;
-							if (mem->info.elements > 0)
+							uint memSize = mem[j].info.rows + mem[j].info.columns;
+							if (mem[j].info.elements > 0)
 							{
-								memSize *= mem->info.elements;
+								memSize *= mem[j].info.elements;
 							}
 							curOffset += (int) memSize * 4;
 						}
