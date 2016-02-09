@@ -110,6 +110,39 @@ namespace Microsoft.Xna.Framework.Graphics
 				List<EffectParameter> elements = new List<EffectParameter>(elementCount);
 				for (int i = 0; i < elementCount; i += 1)
 				{
+					EffectParameterCollection elementMembers = null;
+					if (structureMembers != null)
+					{
+						List<EffectParameter> memList = new List<EffectParameter>();
+						int curOffset = 0;
+						for (int j = 0; j < structureMembers.Count; j += 1)
+						{
+							int memElems = 0;
+							if (structureMembers[j].Elements != null)
+							{
+								memElems = structureMembers[j].Elements.Count;
+							}
+							memList.Add(new EffectParameter(
+								structureMembers[j].Name,
+								structureMembers[j].Semantic,
+								structureMembers[j].RowCount,
+								structureMembers[j].ColumnCount,
+								memElems,
+								structureMembers[j].ParameterClass,
+								structureMembers[j].ParameterType,
+								null, // FIXME: Nested structs! -flibit
+								structureMembers[j].Annotations,
+								new IntPtr(data.ToInt64() + (j * 4 * curOffset))
+							));
+							int memSize = structureMembers[j].RowCount * structureMembers[j].ColumnCount;
+							if (memElems > 0)
+							{
+								memSize *= memElems;
+							}
+							curOffset += memSize;
+						}
+						elementMembers = new EffectParameterCollection(memList);
+					}
 					// FIXME: Probably incomplete? -flibit
 					elements.Add(new EffectParameter(
 						null,
@@ -119,10 +152,10 @@ namespace Microsoft.Xna.Framework.Graphics
 						0,
 						ParameterClass,
 						parameterType,
-						null, // FIXME: See mojoshader_effects.c:readvalue -flibit
+						elementMembers,
 						null,
 						new IntPtr(
-							data.ToInt64() + (i * rowCount * columnCount)
+							data.ToInt64() + (i * 4 * rowCount * columnCount)
 						)
 					));
 				}

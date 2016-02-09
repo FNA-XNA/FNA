@@ -1022,21 +1022,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			for (int i = 0; i < effectPtr->param_count; i += 1)
 			{
 				MojoShader.MOJOSHADER_effectParam param = paramPtr[i];
-				if (	param.value.value_type == MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_VERTEXSHADER ||
-					param.value.value_type == MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_PIXELSHADER	)
+				if (	param.value.type.parameter_type == MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_VERTEXSHADER ||
+					param.value.type.parameter_type == MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_PIXELSHADER	)
 				{
 					// Skip shader objects...
 					continue;
 				}
-				else if (	param.value.value_type >= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_SAMPLER &&
-						param.value.value_type <= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_SAMPLERCUBE	)
+				else if (	param.value.type.parameter_type >= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_SAMPLER &&
+						param.value.type.parameter_type <= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_SAMPLERCUBE	)
 				{
 					string textureName = String.Empty;
 					MojoShader.MOJOSHADER_effectSamplerState* states = (MojoShader.MOJOSHADER_effectSamplerState*) param.value.values;
 					for (int j = 0; j < param.value.value_count; j += 1)
 					{
-						if (	states[j].value.value_type >= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_TEXTURE &&
-							states[j].value.value_type <= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_TEXTURECUBE	)
+						if (	states[j].value.type.parameter_type >= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_TEXTURE &&
+							states[j].value.type.parameter_type <= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_TEXTURECUBE	)
 						{
 							MojoShader.MOJOSHADER_effectObject *objectPtr = (MojoShader.MOJOSHADER_effectObject*) effectPtr->objects;
 							int* index = (int*) states[j].value.values;
@@ -1059,15 +1059,50 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 					continue;
 				}
+
+				EffectParameterCollection structMembers = null;
+				if (param.value.type.member_count > 0)
+				{
+					List<EffectParameter> memList = new List<EffectParameter>();
+					unsafe
+					{
+						MojoShader.MOJOSHADER_symbolStructMember* mem;
+						IntPtr curOffset = IntPtr.Zero;
+						for (int j = 0; j < param.value.type.member_count; j += 1)
+						{
+							mem = (MojoShader.MOJOSHADER_symbolStructMember*) param.value.type.members;
+							memList.Add(new EffectParameter(
+								Marshal.PtrToStringAnsi(mem->name),
+								null,
+								(int) mem->info.rows,
+								(int) mem->info.columns,
+								(int) mem->info.elements,
+								XNAClass[(int) param.value.type.parameter_class],
+								XNAType[(int) param.value.type.parameter_type],
+								null, // FIXME: Nested structs! -flibit
+								null,
+								curOffset
+							));
+							uint memSize = mem->info.rows + mem->info.columns;
+							if (mem->info.elements > 0)
+							{
+								memSize *= mem->info.elements;
+							}
+							curOffset += (int) memSize * 4;
+						}
+					}
+					structMembers = new EffectParameterCollection(memList);
+				}
+
 				parameters.Add(new EffectParameter(
 					Marshal.PtrToStringAnsi(param.value.name),
 					Marshal.PtrToStringAnsi(param.value.semantic),
-					(int) param.value.row_count,
-					(int) param.value.column_count,
-					(int) param.value.element_count,
-					XNAClass[(int) param.value.value_class],
-					XNAType[(int) param.value.value_type],
-					null, // FIXME: See mojoshader_effects.c:readvalue -flibit
+					(int) param.value.type.rows,
+					(int) param.value.type.columns,
+					(int) param.value.type.elements,
+					XNAClass[(int) param.value.type.parameter_class],
+					XNAType[(int) param.value.type.parameter_type],
+					structMembers,
 					INTERNAL_readAnnotations(
 						param.annotations,
 						param.annotation_count
