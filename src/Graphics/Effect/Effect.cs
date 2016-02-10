@@ -1160,10 +1160,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				annotations.Add(new EffectAnnotation(
 					Marshal.PtrToStringAnsi(anno.name),
 					Marshal.PtrToStringAnsi(anno.semantic),
-					(int) anno.row_count,
-					(int) anno.column_count,
-					XNAClass[(int) anno.value_class],
-					XNAType[(int) anno.value_type],
+					(int) anno.type.rows,
+					(int) anno.type.columns,
+					XNAClass[(int) anno.type.parameter_class],
+					XNAType[(int) anno.type.parameter_type],
 					anno.values
 				));
 			}
