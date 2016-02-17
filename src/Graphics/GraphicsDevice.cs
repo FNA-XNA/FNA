@@ -1260,7 +1260,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int indexOffset,
 			int primitiveCount,
 			VertexDeclaration vertexDeclaration
-		) where T : struct, IVertexType {
+		) where T : struct {
 			ApplyState();
 
 			// Pin the buffers.
