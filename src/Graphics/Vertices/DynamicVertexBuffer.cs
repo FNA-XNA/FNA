@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
@@ -99,7 +100,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				data,
 				startIndex,
 				elementCount,
-				VertexDeclaration.VertexStride,
+				Marshal.SizeOf(typeof(T)),
 				options
 			);
 		}
