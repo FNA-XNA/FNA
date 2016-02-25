@@ -63,7 +63,15 @@ namespace Microsoft.Xna.Framework.Content
 			float framesPerSecond = input.ReadObject<float>();
 			VideoSoundtrackType soundTrackType = (VideoSoundtrackType) input.ReadObject<int>();
 
-			return new Video(path, durationMS, width, height, framesPerSecond, soundTrackType);
+			return new Video(
+				path,
+				input.GraphicsDevice,
+				durationMS,
+				width,
+				height,
+				framesPerSecond,
+				soundTrackType
+			);
 		}
 
 		#endregion

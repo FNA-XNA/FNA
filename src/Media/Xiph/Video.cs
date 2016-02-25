@@ -11,6 +11,8 @@
 using System;
 using System.IO;
 using System.Threading;
+
+using Microsoft.Xna.Framework.Graphics;
 #endregion
 
 namespace Microsoft.Xna.Framework.Media
@@ -66,6 +68,12 @@ namespace Microsoft.Xna.Framework.Media
 			set;
 		}
 
+		internal GraphicsDevice GraphicsDevice
+		{
+			get;
+			private set;
+		}
+
 		#endregion
 
 		#region Internal Variables: TheoraPlay
@@ -83,9 +91,10 @@ namespace Microsoft.Xna.Framework.Media
 
 		#region Internal Constructors
 
-		internal Video(string fileName)
+		internal Video(string fileName, GraphicsDevice device)
 		{
 			this.fileName = fileName;
+			GraphicsDevice = device;
 
 			// Set everything to NULL. Yes, this actually matters later.
 			theoraDecoder = IntPtr.Zero;
@@ -102,12 +111,13 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal Video(
 			string fileName,
+			GraphicsDevice device,
 			int durationMS,
 			int width,
 			int height,
 			float framesPerSecond,
 			VideoSoundtrackType soundtrackType
-		) : this(fileName) {
+		) : this(fileName, device) {
 			/* If you got here, you've still got the XNB file! Well done!
 			 * Except if you're running FNA, you're not using the WMV anymore.
 			 * But surely it's the same video, right...?

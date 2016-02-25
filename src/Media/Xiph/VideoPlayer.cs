@@ -382,27 +382,7 @@ namespace Microsoft.Xna.Framework.Media
 
 			// Initialize private members.
 			timer = new Stopwatch();
-
-			// The VideoPlayer will use the GraphicsDevice that is set now.
-			currentDevice = Game.Instance.GraphicsDevice;
-
-			// Initialize this here to prevent null GetTexture returns.
 			videoTexture = new RenderTargetBinding[1];
-			videoTexture[0] = new RenderTargetBinding(
-				new RenderTarget2D(
-					currentDevice,
-					1280,
-					720,
-					false,
-					SurfaceFormat.Color,
-					DepthFormat.None,
-					0,
-					RenderTargetUsage.PreserveContents
-				)
-			);
-
-			// Initialize the other GL bits.
-			GL_initialize();
 		}
 
 		public void Dispose()
@@ -430,6 +410,11 @@ namespace Microsoft.Xna.Framework.Media
 		public Texture2D GetTexture()
 		{
 			checkDisposed();
+
+			if (Video == null)
+			{
+				throw new InvalidOperationException();
+			}
 
 			// Be sure we can even get something from TheoraPlay...
 			if (	State == MediaState.Stopped ||
@@ -617,6 +602,17 @@ namespace Microsoft.Xna.Framework.Media
 				} while (Video.videoStream == IntPtr.Zero);
 				nextVideo = TheoraPlay.getVideoFrame(Video.videoStream);
 
+				// The VideoPlayer will use the GraphicsDevice that is set now.
+				if (currentDevice != Video.GraphicsDevice)
+				{
+					if (currentDevice != null)
+					{
+						GL_dispose();
+					}
+					currentDevice = Video.GraphicsDevice;
+					GL_initialize();
+				}
+
 				RenderTargetBinding overlap = videoTexture[0];
 				videoTexture[0] = new RenderTargetBinding(
 					new RenderTarget2D(
@@ -630,7 +626,10 @@ namespace Microsoft.Xna.Framework.Media
 						RenderTargetUsage.PreserveContents
 					)
 				);
-				overlap.RenderTarget.Dispose();
+				if (overlap.RenderTarget != null)
+				{
+					overlap.RenderTarget.Dispose();
+				}
 				GL_setupTextures(
 					(int) currentVideo.width,
 					(int) currentVideo.height

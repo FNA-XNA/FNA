@@ -380,7 +380,7 @@ namespace Microsoft.Xna.Framework.Content
 				else if ((typeof(T) == typeof(Video)))
 				{
 					// FIXME: Not using the stream! -flibit
-					result = new Video(modifiedAssetName);
+					result = new Video(modifiedAssetName, graphicsDeviceService.GraphicsDevice);
 				}
 				else
 				{

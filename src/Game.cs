@@ -211,9 +211,6 @@ namespace Microsoft.Xna.Framework
 
 		#region Internal Fields
 
-		/* This variable solely exists for the VideoPlayer -flibit */
-		internal static Game Instance = null;
-
 		internal bool RunApplication;
 
 		#endregion
@@ -278,8 +275,6 @@ namespace Microsoft.Xna.Framework
 
 		public Game()
 		{
-			Instance = this;
-
 			AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
 			LaunchParameters = new LaunchParameters();
@@ -362,7 +357,6 @@ namespace Microsoft.Xna.Framework
 				AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
 
 				_isDisposed = true;
-				Instance = null;
 			}
 		}
 
