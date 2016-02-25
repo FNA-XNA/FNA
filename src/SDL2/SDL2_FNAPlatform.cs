@@ -43,6 +43,18 @@ namespace Microsoft.Xna.Framework
 			 */
 			SDL.SDL_SetMainReady();
 
+			// If available, load the SDL_GameControllerDB
+			string mappingsDB = Path.Combine(
+				TitleContainer.Location,
+				"gamecontrollerdb.txt"
+			);
+			if (File.Exists(mappingsDB))
+			{
+				SDL.SDL_GameControllerAddMappingsFromFile(
+					mappingsDB
+				);
+			}
+
 			// This _should_ be the first real SDL call we make...
 			SDL.SDL_Init(
 				SDL.SDL_INIT_VIDEO |
@@ -58,18 +70,6 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_SetHint(
 					SDL.SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,
 					"1"
-				);
-			}
-
-			// If available, load the SDL_GameControllerDB
-			string mappingsDB = Path.Combine(
-				TitleContainer.Location,
-				"gamecontrollerdb.txt"
-			);
-			if (File.Exists(mappingsDB))
-			{
-				SDL.SDL_GameControllerAddMappingsFromFile(
-					mappingsDB
 				);
 			}
 		}
