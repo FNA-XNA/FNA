@@ -38,7 +38,6 @@ namespace Microsoft.Xna.Framework
 
 			CreateWindow =			SDL2_FNAPlatform.CreateWindow;
 			DisposeWindow =			SDL2_FNAPlatform.DisposeWindow;
-			BeforeInitialize =		SDL2_FNAPlatform.BeforeInitialize;
 			RunLoop =			SDL2_FNAPlatform.RunLoop;
 			CreateGLDevice =		SDL2_FNAPlatform.CreateGLDevice;
 			CreateALDevice =		SDL2_FNAPlatform.CreateALDevice;
@@ -83,9 +82,6 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void DisposeWindowFunc(GameWindow window);
 		public static readonly DisposeWindowFunc DisposeWindow;
-
-		public delegate void BeforeInitializeFunc();
-		public static readonly BeforeInitializeFunc BeforeInitialize;
 
 		public delegate void RunLoopFunc(Game game);
 		public static readonly RunLoopFunc RunLoop;
