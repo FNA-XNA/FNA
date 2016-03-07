@@ -8,6 +8,7 @@
 #endregion
 
 #region Using Statements
+using System;
 using System.Collections.Generic;
 #endregion
 
@@ -25,6 +26,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+#if DEBUG
+				// XNA checks for disposed textures here! -flibit
+				if (value.IsDisposed)
+				{
+					throw new ObjectDisposedException(
+						value.GetType().ToString()
+					);
+				}
+#endif
 				textures[index] = value;
 				if (!modifiedSamplers.Contains(index))
 				{
