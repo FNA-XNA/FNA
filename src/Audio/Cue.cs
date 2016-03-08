@@ -88,12 +88,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Internal Properties
 
+		private ulong elapsedFrames;
 		internal bool JustStarted
 		{
 			get
 			{
-				// Arbitrarily 1/12 of a second, with some wiggle room -flibit
-				return INTERNAL_timer.ElapsedMilliseconds < 80;
+				return elapsedFrames < 2;
 			}
 		}
 
@@ -306,6 +306,10 @@ namespace Microsoft.Xna.Framework.Audio
 					return curVar.GetValue();
 				}
 			}
+			if (name.Equals("NumCueInstances"))
+			{
+				return INTERNAL_category.INTERNAL_cueInstanceCount(Name);
+			}
 			throw new ArgumentException("Instance variable not found!");
 		}
 
@@ -328,9 +332,7 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new InvalidOperationException("Cue already playing!");
 			}
 
-			INTERNAL_category.INTERNAL_initCue(this);
-
-			if (GetVariable("NumCueInstances") >= INTERNAL_data.InstanceLimit)
+			if (INTERNAL_category.INTERNAL_cueInstanceCount(Name) >= INTERNAL_data.InstanceLimit)
 			{
 				if (INTERNAL_data.MaxCueBehavior == MaxInstanceBehavior.Fail)
 				{
@@ -369,6 +371,7 @@ namespace Microsoft.Xna.Framework.Audio
 				return;
 			}
 
+			elapsedFrames = 0;
 			INTERNAL_timer.Start();
 			if (INTERNAL_data.FadeInMS > 0)
 			{
@@ -461,6 +464,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				return true;
 			}
+			elapsedFrames += 1;
 
 			// Play events when the timestamp has been hit.
 			for (int i = 0; i < INTERNAL_eventList.Count; i += 1)

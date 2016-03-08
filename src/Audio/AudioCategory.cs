@@ -57,7 +57,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private List<Cue> activeCues;
 
-		private Dictionary<string, int> cueInstanceCounts;
+		private Dictionary<string, List<Cue>> cueInstanceCounts;
 
 		private byte maxCueInstances;
 		private MaxInstanceBehavior maxCueBehavior;
@@ -80,7 +80,7 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_name = name;
 			INTERNAL_volume = new PrimitiveInstance<float>(volume);
 			activeCues = new List<Cue>();
-			cueInstanceCounts = new Dictionary<string, int>();
+			cueInstanceCounts = new Dictionary<string, List<Cue>>();
 
 			maxCueInstances = maxInstances;
 			maxCueBehavior = (MaxInstanceBehavior) maxBehavior;
@@ -131,10 +131,12 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					Cue curCue = activeCues[0];
 					curCue.Stop(options);
-					curCue.SetVariable("NumCueInstances", 0);
-					cueInstanceCounts[curCue.Name] -= 1;
 				}
 				activeCues.Clear();
+				foreach (List<Cue> count in cueInstanceCounts.Values)
+				{
+					count.Clear();
+				}
 			}
 		}
 
@@ -190,25 +192,6 @@ namespace Microsoft.Xna.Framework.Audio
 						i -= 1;
 					}
 				}
-				foreach (Cue curCue in activeCues)
-				{
-					curCue.SetVariable(
-						"NumCueInstances",
-						cueInstanceCounts[curCue.Name]
-					);
-				}
-			}
-		}
-
-		internal void INTERNAL_initCue(Cue newCue)
-		{
-			lock (activeCues)
-			{
-				if (!cueInstanceCounts.ContainsKey(newCue.Name))
-				{
-					cueInstanceCounts.Add(newCue.Name, 0);
-				}
-				newCue.SetVariable("NumCueInstances", cueInstanceCounts[newCue.Name]);
 			}
 		}
 
@@ -252,7 +235,6 @@ namespace Microsoft.Xna.Framework.Audio
 						}
 						if (lowestIndex > -1)
 						{
-							cueInstanceCounts[activeCues[lowestIndex].Name] -= 1;
 							activeCues[lowestIndex].Stop(AudioStopOptions.AsAuthored);
 						}
 						else
@@ -269,8 +251,7 @@ namespace Microsoft.Xna.Framework.Audio
 						}
 					}
 				}
-				cueInstanceCounts[newCue.Name] += 1;
-				newCue.SetVariable("NumCueInstances", cueInstanceCounts[newCue.Name]);
+				cueInstanceCounts[newCue.Name].Add(newCue);
 				activeCues.Add(newCue);
 			}
 			return true;
@@ -314,7 +295,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 				if (lowestIndex > -1)
 				{
-					cueInstanceCounts[name] -= 1;
 					activeCues[lowestIndex].Stop(AudioStopOptions.AsAuthored);
 					return true;
 				}
@@ -332,10 +312,19 @@ namespace Microsoft.Xna.Framework.Audio
 					if (activeCues.Contains(cue))
 					{
 						activeCues.Remove(cue);
-						cueInstanceCounts[cue.Name] -= 1;
+						cueInstanceCounts[cue.Name].Remove(cue);
 					}
 				}
 			}
+		}
+
+		internal int INTERNAL_cueInstanceCount(string name)
+		{
+			if (!cueInstanceCounts.ContainsKey(name))
+			{
+				cueInstanceCounts.Add(name, new List<Cue>());
+			}
+			return cueInstanceCounts[name].Count;
 		}
 
 		#endregion
