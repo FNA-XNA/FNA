@@ -914,6 +914,13 @@ namespace Microsoft.Xna.Framework.Graphics
 					dstPtr[10] = value.M33;
 					dstPtr[11] = value.M34;
 				}
+				else if (ColumnCount == 2 && RowCount == 2)
+				{
+					dstPtr[0] = value.M11;
+					dstPtr[1] = value.M12;
+					dstPtr[2] = value.M21;
+					dstPtr[3] = value.M22;
+				}
 				else
 				{
 					throw new NotImplementedException(
@@ -1005,6 +1012,16 @@ namespace Microsoft.Xna.Framework.Graphics
 						dstPtr[curOffset++] = value[i].M34;
 					}
 				}
+				else if (ColumnCount == 2 && RowCount == 2)
+				{
+					for (int i = 0; i < value.Length; i += 1)
+					{
+						dstPtr[curOffset++] = value[i].M11;
+						dstPtr[curOffset++] = value[i].M12;
+						dstPtr[curOffset++] = value[i].M21;
+						dstPtr[curOffset++] = value[i].M22;
+					}
+				}
 				else
 				{
 					throw new NotImplementedException(
@@ -1082,6 +1099,13 @@ namespace Microsoft.Xna.Framework.Graphics
 					dstPtr[9] = value.M14;
 					dstPtr[10] = value.M24;
 					dstPtr[11] = value.M34;
+				}
+				else if (ColumnCount == 2 && RowCount == 2)
+				{
+					dstPtr[0] = value.M11;
+					dstPtr[1] = value.M21;
+					dstPtr[2] = value.M12;
+					dstPtr[3] = value.M22;
 				}
 				else
 				{
@@ -1172,6 +1196,16 @@ namespace Microsoft.Xna.Framework.Graphics
 						dstPtr[curOffset++] = value[i].M14;
 						dstPtr[curOffset++] = value[i].M24;
 						dstPtr[curOffset++] = value[i].M34;
+					}
+				}
+				else if (ColumnCount == 2 && RowCount == 2)
+				{
+					for (int i = 0; i < value.Length; i += 1)
+					{
+						dstPtr[curOffset++] = value[i].M11;
+						dstPtr[curOffset++] = value[i].M21;
+						dstPtr[curOffset++] = value[i].M12;
+						dstPtr[curOffset++] = value[i].M22;
 					}
 				}
 				else
