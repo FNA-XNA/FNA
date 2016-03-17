@@ -286,9 +286,12 @@ namespace Microsoft.Xna.Framework.Media
 			timer.Stop();
 			timer.Reset();
 
-			soundStream.Stop();
-			soundStream.BufferNeeded -= QueueBuffer;
-			Vorbisfile.ov_time_seek(vorbisFile, 0.0);
+			if (!IsDisposed)
+			{
+				soundStream.Stop();
+				soundStream.BufferNeeded -= QueueBuffer;
+				Vorbisfile.ov_time_seek(vorbisFile, 0.0);
+			}			
 		}
 
 		internal float[] GetSamples()
