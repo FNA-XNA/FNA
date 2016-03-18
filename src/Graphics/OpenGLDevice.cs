@@ -2799,17 +2799,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region glGetTexImage Methods
 
-		public void GetTextureData2D<T>(
+		public void GetTextureData2D(
 			IGLTexture texture,
 			SurfaceFormat format,
 			int width,
 			int height,
 			int level,
 			Rectangle? rect,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct {
+			int elementCount,
+			int elementSizeInBytes
+		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
@@ -2834,41 +2835,25 @@ namespace Microsoft.Xna.Framework.Graphics
 			else if (rect == null)
 			{
 				// Just throw the whole texture into the user array.
-				GCHandle ptr = GCHandle.Alloc(data, GCHandleType.Pinned);
-				try
-				{
-					glGetTexImage(
-						GLenum.GL_TEXTURE_2D,
-						0,
-						glFormat,
-						XNAToGL.TextureDataType[(int) format],
-						ptr.AddrOfPinnedObject()
-					);
-				}
-				finally
-				{
-					ptr.Free();
-				}
+				glGetTexImage(
+					GLenum.GL_TEXTURE_2D,
+					0,
+					glFormat,
+					XNAToGL.TextureDataType[(int) format],
+					data
+				);
 			}
 			else
 			{
 				// Get the whole texture...
-				T[] texData = new T[width * height];
-				GCHandle ptr = GCHandle.Alloc(texData, GCHandleType.Pinned);
-				try
-				{
-					glGetTexImage(
-						GLenum.GL_TEXTURE_2D,
-						0,
-						glFormat,
-						XNAToGL.TextureDataType[(int) format],
-						ptr.AddrOfPinnedObject()
-					);
-				}
-				finally
-				{
-					ptr.Free();
-				}
+				IntPtr texData = Marshal.AllocHGlobal(width * height * elementSizeInBytes);
+				glGetTexImage(
+					GLenum.GL_TEXTURE_2D,
+					0,
+					glFormat,
+					XNAToGL.TextureDataType[(int) format],
+					texData
+				);
 
 				// Now, blit the rect region into the user array.
 				Rectangle region = rect.Value;
@@ -2888,9 +2873,15 @@ namespace Microsoft.Xna.Framework.Graphics
 							// If we're past the end, we're done!
 							return;
 						}
-						data[curPixel - startIndex] = texData[(row * width) + col];
+						// FIXME: Can we copy via pitch instead, or something? -flibit
+						memcpy(
+							data + ((curPixel - startIndex) * elementSizeInBytes),
+							texData + (((row * width) + col) * elementSizeInBytes),
+							(IntPtr) elementSizeInBytes
+						);
 					}
 				}
+				Marshal.FreeHGlobal(texData);
 			}
 
 #if !DISABLE_THREADING
@@ -2898,17 +2889,18 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 		}
 
-		public void GetTextureDataCube<T>(
+		public void GetTextureDataCube(
 			IGLTexture texture,
 			SurfaceFormat format,
 			int size,
 			CubeMapFace cubeMapFace,
 			int level,
 			Rectangle? rect,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct {
+			int elementCount,
+			int elementSizeInBytes
+		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
@@ -2922,41 +2914,25 @@ namespace Microsoft.Xna.Framework.Graphics
 			else if (rect == null)
 			{
 				// Just throw the whole texture into the user array.
-				GCHandle ptr = GCHandle.Alloc(data, GCHandleType.Pinned);
-				try
-				{
-					glGetTexImage(
-						GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
-						0,
-						glFormat,
-						XNAToGL.TextureDataType[(int) format],
-						ptr.AddrOfPinnedObject()
-					);
-				}
-				finally
-				{
-					ptr.Free();
-				}
+				glGetTexImage(
+					GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
+					0,
+					glFormat,
+					XNAToGL.TextureDataType[(int) format],
+					data
+				);
 			}
 			else
 			{
 				// Get the whole texture...
-				T[] texData = new T[size * size];
-				GCHandle ptr = GCHandle.Alloc(texData, GCHandleType.Pinned);
-				try
-				{
-					glGetTexImage(
-						GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
-						0,
-						glFormat,
-						XNAToGL.TextureDataType[(int) format],
-						ptr.AddrOfPinnedObject()
-					);
-				}
-				finally
-				{
-					ptr.Free();
-				}
+				IntPtr texData = Marshal.AllocHGlobal(size * size * elementSizeInBytes);
+				glGetTexImage(
+					GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
+					0,
+					glFormat,
+					XNAToGL.TextureDataType[(int) format],
+					texData
+				);
 
 				// Now, blit the rect region into the user array.
 				Rectangle region = rect.Value;
@@ -2976,9 +2952,15 @@ namespace Microsoft.Xna.Framework.Graphics
 							// If we're past the end, we're done!
 							return;
 						}
-						data[curPixel - startIndex] = texData[(row * size) + col];
+						// FIXME: Can we copy via pitch instead, or something? -flibit
+						memcpy(
+							data + ((curPixel - startIndex) * elementSizeInBytes),
+							texData + (((row * size) + col) * elementSizeInBytes),
+							(IntPtr) elementSizeInBytes
+						);
 					}
 				}
+				Marshal.FreeHGlobal(texData);
 			}
 
 #if !DISABLE_THREADING
@@ -3119,14 +3101,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <param name="data">The texture data array</param>
 		/// <param name="rect">The portion of the image to read from</param>
 		/// <returns>True if we successfully read the texture data</returns>
-		private bool ReadTargetIfApplicable<T>(
+		private bool ReadTargetIfApplicable(
 			IGLTexture texture,
 			int width,
 			int height,
 			int level,
-			T[] data,
+			IntPtr data,
 			Rectangle? rect
-		) where T : struct {
+		) {
 			bool texUnbound = (	currentDrawBuffers != 1 ||
 						currentAttachments[0] != (texture as OpenGLTexture).Handle	);
 			if (texUnbound && !useES2)
@@ -3174,23 +3156,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			/* glReadPixels should be faster than reading
 			 * back from the render target if we are already bound.
 			 */
-			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			try
-			{
-				glReadPixels(
-					x,
-					y,
-					w,
-					h,
-					GLenum.GL_RGBA, // FIXME: Assumption!
-					GLenum.GL_UNSIGNED_BYTE,
-					handle.AddrOfPinnedObject()
-				);
-			}
-			finally
-			{
-				handle.Free();
-			}
+			glReadPixels(
+				x,
+				y,
+				w,
+				h,
+				GLenum.GL_RGBA, // FIXME: Assumption!
+				GLenum.GL_UNSIGNED_BYTE,
+				data
+			);
 
 			if (texUnbound)
 			{

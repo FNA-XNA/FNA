@@ -204,6 +204,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.GetTextureData2D(
 				texture,
 				Format,
@@ -211,10 +212,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				Height,
 				level,
 				rect,
-				data,
+				handle.AddrOfPinnedObject(),
 				startIndex,
-				elementCount
+				elementCount,
+				Marshal.SizeOf(typeof(T))
 			);
+			handle.Free();
 		}
 
 		#endregion

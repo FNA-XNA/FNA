@@ -219,29 +219,31 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementSizeInBytes
 		);
 		void SetTextureData2DPointer(Texture2D texture, IntPtr ptr);
-		void GetTextureData2D<T>(
+		void GetTextureData2D(
 			IGLTexture texture,
 			SurfaceFormat format,
 			int width,
 			int height,
 			int level,
 			Rectangle? rect,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct;
-		// void GetTextureData3D<T>();
-		void GetTextureDataCube<T>(
+			int elementCount,
+			int elementSizeInBytes
+		);
+		// void GetTextureData3D();
+		void GetTextureDataCube(
 			IGLTexture texture,
 			SurfaceFormat format,
 			int size,
 			CubeMapFace cubeMapFace,
 			int level,
 			Rectangle? rect,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct;
+			int elementCount,
+			int elementSizeInBytes
+		);
 
 		IGLRenderbuffer GenRenderbuffer(
 			int width,

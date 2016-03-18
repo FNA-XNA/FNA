@@ -190,6 +190,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.GetTextureDataCube(
 				texture,
 				Format,
@@ -197,10 +198,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				cubeMapFace,
 				level,
 				rect,
-				data,
+				handle.AddrOfPinnedObject(),
 				startIndex,
-				elementCount
+				elementCount,
+				Marshal.SizeOf(typeof(T))
 			);
+			handle.Free();
 		}
 
 		#endregion
