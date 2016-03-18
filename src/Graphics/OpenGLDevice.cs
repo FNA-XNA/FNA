@@ -1120,9 +1120,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			int primitiveCount,
 			IndexBuffer indices
 		) {
-			// Unsigned short or unsigned int?
-			bool shortIndices = indices.IndexElementSize == IndexElementSize.SixteenBits;
-
 			// Bind the index buffer
 			BindIndexBuffer(indices.buffer);
 
@@ -1132,10 +1129,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				minVertexIndex,
 				minVertexIndex + numVertices - 1,
 				XNAToGL.PrimitiveVerts(primitiveType, primitiveCount),
-				shortIndices ?
-					GLenum.GL_UNSIGNED_SHORT :
-					GLenum.GL_UNSIGNED_INT,
-				(IntPtr) (startIndex * (shortIndices ? 2 : 4)),
+				XNAToGL.IndexType[(int) indices.IndexElementSize],
+				(IntPtr) (startIndex * XNAToGL.IndexSize[(int) indices.IndexElementSize]),
 				baseVertex
 			);
 		}
@@ -1155,17 +1150,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Bind the index buffer
 			BindIndexBuffer(indices.buffer);
 
-			// Unsigned short or unsigned int?
-			bool shortIndices = indices.IndexElementSize == IndexElementSize.SixteenBits;
-
 			// Draw!
 			glDrawElementsInstancedBaseVertex(
 				XNAToGL.Primitive[(int) primitiveType],
 				XNAToGL.PrimitiveVerts(primitiveType, primitiveCount),
-				shortIndices ?
-					GLenum.GL_UNSIGNED_SHORT :
-					GLenum.GL_UNSIGNED_INT,
-				(IntPtr) (startIndex * (shortIndices ? 2 : 4)),
+				XNAToGL.IndexType[(int) indices.IndexElementSize],
+				(IntPtr) (startIndex * XNAToGL.IndexSize[(int) indices.IndexElementSize]),
 				instanceCount,
 				baseVertex
 			);
@@ -1197,21 +1187,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Unbind current index buffer.
 			BindIndexBuffer(OpenGLBuffer.NullBuffer);
 
-			// Unsigned short or unsigned int?
-			bool shortIndices = indexElementSize == IndexElementSize.SixteenBits;
-
 			// Draw!
 			glDrawRangeElements(
 				XNAToGL.Primitive[(int) primitiveType],
 				0,
 				numVertices - 1,
 				XNAToGL.PrimitiveVerts(primitiveType, primitiveCount),
-				shortIndices ?
-					GLenum.GL_UNSIGNED_SHORT :
-					GLenum.GL_UNSIGNED_INT,
+				XNAToGL.IndexType[(int) indexElementSize],
 				(IntPtr) (
 					indexData.ToInt64() +
-					(indexOffset * (shortIndices ? 2 : 4))
+					(indexOffset * XNAToGL.IndexSize[(int) indexElementSize])
 				)
 			);
 		}
@@ -2146,7 +2131,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			result = new OpenGLBuffer(
 				handle,
-				(IntPtr) (indexCount * (indexElementSize == IndexElementSize.SixteenBits ? 2 : 4)),
+				(IntPtr) (indexCount * XNAToGL.IndexSize[(int) indexElementSize]),
 				dynamic ? GLenum.GL_STREAM_DRAW : GLenum.GL_STATIC_DRAW
 			);
 
@@ -4155,6 +4140,18 @@ namespace Microsoft.Xna.Framework.Graphics
 						element.VertexElementFormat == VertexElementFormat.NormalizedShort2 ||
 						element.VertexElementFormat == VertexElementFormat.NormalizedShort4	);
 			}
+
+			public static readonly GLenum[] IndexType = new GLenum[]
+			{
+				GLenum.GL_UNSIGNED_SHORT,	// IndexElementSize.SixteenBits
+				GLenum.GL_UNSIGNED_INT		// IndexElementSize.ThirtyTwoBits
+			};
+
+			public static readonly int[] IndexSize = new int[]
+			{
+				2,	// IndexElementSize.SixteenBits
+				4	// IndexElementSize.ThirtyTwoBits
+			};
 
 			public static readonly GLenum[] Primitive = new GLenum[]
 			{
