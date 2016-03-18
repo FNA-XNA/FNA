@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Audio
@@ -160,14 +161,16 @@ namespace Microsoft.Xna.Framework.Audio
 
 			// Push the data to OpenAL.
 			IALBuffer newBuf = availableBuffers.Dequeue();
+			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 			AudioDevice.ALDevice.SetBufferData(
 				newBuf,
 				channels,
-				buffer,
+				handle.AddrOfPinnedObject(),
 				offset,
 				count,
 				sampleRate
 			);
+			handle.Free();
 
 			// If we're already playing, queue immediately.
 			if (INTERNAL_alSource != null)
@@ -328,12 +331,15 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			if (INTERNAL_alSource != null && queuedBuffers.Count > 0)
 			{
+				GCHandle handle = GCHandle.Alloc(samples, GCHandleType.Pinned);
 				AudioDevice.ALDevice.GetBufferData(
 					INTERNAL_alSource,
 					queuedBuffers.ToArray(), // FIXME: Blech -flibit
-					samples,
+					handle.AddrOfPinnedObject(),
+					samples.Length,
 					channels
 				);
+				handle.Free();
 			}
 			else
 			{
@@ -365,14 +371,16 @@ namespace Microsoft.Xna.Framework.Audio
 
 			// Push buffer to the AL.
 			IALBuffer newBuf = availableBuffers.Dequeue();
+			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 			AudioDevice.ALDevice.SetBufferData(
 				newBuf,
 				channels,
-				buffer,
+				handle.AddrOfPinnedObject(),
 				offset,
 				count,
 				sampleRate
 			);
+			handle.Free();
 
 			// If we're already playing, queue immediately.
 			if (INTERNAL_alSource != null)

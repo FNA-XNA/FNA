@@ -173,9 +173,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new NotSupportedException("Calling GetData on a resource that was created with BufferUsage.WriteOnly is not supported.");
 			}
 
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			if (vertexStride == 0)
 			{
-				vertexStride = Marshal.SizeOf(typeof(T));
+				vertexStride = elementSizeInBytes;
 			}
 			if (	elementCount > 1 &&
 				(elementCount * vertexStride) > (VertexCount * VertexDeclaration.VertexStride)	)
@@ -183,14 +184,17 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new InvalidOperationException("The array is not the correct size for the amount of data requested.");
 			}
 
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.GetVertexBufferData(
 				buffer,
 				offsetInBytes,
-				data,
+				handle.AddrOfPinnedObject(),
 				startIndex,
 				elementCount,
+				elementSizeInBytes,
 				vertexStride
 			);
+			handle.Free();
 		}
 
 		#endregion
@@ -288,15 +292,17 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.SetVertexBufferData(
 				buffer,
-				elementSizeInBytes,
 				offsetInBytes,
-				data,
+				handle.AddrOfPinnedObject(),
 				startIndex,
 				elementCount,
+				elementSizeInBytes,
 				options
 			);
+			handle.Free();
 		}
 
 		#endregion

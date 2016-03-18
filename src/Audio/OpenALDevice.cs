@@ -326,42 +326,38 @@ namespace Microsoft.Xna.Framework.Audio
 		public void SetBufferData(
 			IALBuffer buffer,
 			AudioChannels channels,
-			byte[] data,
+			IntPtr data,
 			int offset,
 			int count,
 			int sampleRate
 		) {
-			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			AL10.alBufferData(
 				(buffer as OpenALBuffer).Handle,
 				XNAToShort[(int) channels],
-				handle.AddrOfPinnedObject() + offset,
+				data + offset,
 				(IntPtr) count,
 				(IntPtr) sampleRate
 			);
-			handle.Free();
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
 		}
 
-		public void SetBufferData(
+		public void SetBufferFloatData(
 			IALBuffer buffer,
 			AudioChannels channels,
-			float[] data,
+			IntPtr data,
 			int offset,
 			int count,
 			int sampleRate
 		) {
-			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			AL10.alBufferData(
 				(buffer as OpenALBuffer).Handle,
 				XNAToFloat[(int) channels],
-				handle.AddrOfPinnedObject() + (offset * 4),
+				data + (offset * 4),
 				(IntPtr) (count * 4),
 				(IntPtr) sampleRate
 			);
-			handle.Free();
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
@@ -659,10 +655,11 @@ namespace Microsoft.Xna.Framework.Audio
 		public void GetBufferData(
 			IALSource source,
 			IALBuffer[] buffer,
-			float[] samples,
+			IntPtr samples,
+			int samplesLen,
 			AudioChannels channels
 		) {
-			int copySize1 = samples.Length / (int) channels;
+			int copySize1 = samplesLen / (int) channels;
 			int copySize2 = 0;
 
 			// Where are we now?
@@ -696,7 +693,6 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 
 			// Copy!
-			GCHandle handle = GCHandle.Alloc(samples, GCHandleType.Pinned);
 			if (copySize1 > 0)
 			{
 				ALEXT.alGetBufferSamplesSOFT(
@@ -707,7 +703,7 @@ namespace Microsoft.Xna.Framework.Audio
 						ALEXT.AL_STEREO_SOFT :
 						ALEXT.AL_MONO_SOFT,
 					ALEXT.AL_FLOAT_SOFT,
-					handle.AddrOfPinnedObject()
+					samples
 				);
 				offset = 0;
 			}
@@ -721,10 +717,9 @@ namespace Microsoft.Xna.Framework.Audio
 						ALEXT.AL_STEREO_SOFT :
 						ALEXT.AL_MONO_SOFT,
 					ALEXT.AL_FLOAT_SOFT,
-					handle.AddrOfPinnedObject() + (copySize1 * (int) channels)
+					samples + (copySize1 * (int) channels)
 				);
 			}
-			handle.Free();
 		}
 
 		#endregion

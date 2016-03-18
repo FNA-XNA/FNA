@@ -2178,15 +2178,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region glSetBufferData Methods
 
-		public void SetVertexBufferData<T>(
+		public void SetVertexBufferData(
 			IGLBuffer buffer,
-			int elementSizeInBytes,
 			int offsetInBytes,
-			T[] data,
+			IntPtr data,
 			int startIndex,
 			int elementCount,
+			int elementSizeInBytes,
 			SetDataOptions options
-		) where T : struct {
+		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
@@ -2203,30 +2203,27 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			GCHandle dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-
 			glBufferSubData(
 				GLenum.GL_ARRAY_BUFFER,
 				(IntPtr) offsetInBytes,
 				(IntPtr) (elementSizeInBytes * elementCount),
-				(IntPtr) (dataHandle.AddrOfPinnedObject().ToInt64() + startIndex * elementSizeInBytes)
+				data + (startIndex * elementSizeInBytes)
 			);
-
-			dataHandle.Free();
 
 #if !DISABLE_THREADING
 			});
 #endif
 		}
 
-		public void SetIndexBufferData<T>(
+		public void SetIndexBufferData(
 			IGLBuffer buffer,
 			int offsetInBytes,
-			T[] data,
+			IntPtr data,
 			int startIndex,
 			int elementCount,
+			int elementSizeInBytes,
 			SetDataOptions options
-		) where T : struct {
+		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
@@ -2243,17 +2240,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			GCHandle dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			glBufferSubData(
 				GLenum.GL_ELEMENT_ARRAY_BUFFER,
 				(IntPtr) offsetInBytes,
 				(IntPtr) (elementSizeInBytes * elementCount),
-				(IntPtr) (dataHandle.AddrOfPinnedObject().ToInt64() + startIndex * elementSizeInBytes)
+				data + (startIndex * elementSizeInBytes)
 			);
-
-			dataHandle.Free();
 
 #if !DISABLE_THREADING
 			});
@@ -2264,60 +2256,53 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region glGetBufferData Methods
 
-		public void GetVertexBufferData<T>(
+		public void GetVertexBufferData(
 			IGLBuffer buffer,
 			int offsetInBytes,
-			T[] data,
+			IntPtr data,
 			int startIndex,
 			int elementCount,
+			int elementSizeInBytes,
 			int vertexStride
-		) where T : struct {
+		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
 			BindVertexBuffer(buffer);
 
-			GCHandle dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-
 			glGetBufferSubData(
 				GLenum.GL_ARRAY_BUFFER,
 				(IntPtr) offsetInBytes,
 				(IntPtr) (elementCount * vertexStride),
-				dataHandle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T)))
+				data + (startIndex * elementSizeInBytes)
 			);
-
-			dataHandle.Free();
 
 #if !DISABLE_THREADING
 			});
 #endif
 		}
 
-		public void GetIndexBufferData<T>(
+		public void GetIndexBufferData(
 			IGLBuffer buffer,
 			int offsetInBytes,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct {
+			int elementCount,
+			int elementSizeInBytes
+		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
 			BindIndexBuffer(buffer);
 
-			GCHandle dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-
-			int typeSize = Marshal.SizeOf(typeof(T));
 			glGetBufferSubData(
 				GLenum.GL_ELEMENT_ARRAY_BUFFER,
 				(IntPtr) offsetInBytes,
-				(IntPtr) (elementCount * typeSize),
-				dataHandle.AddrOfPinnedObject() + (startIndex * typeSize)
+				(IntPtr) (elementCount * elementSizeInBytes),
+				data + (startIndex * elementSizeInBytes)
 			);
-
-			dataHandle.Free();
 
 #if !DISABLE_THREADING
 			});
@@ -3093,13 +3078,26 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region glReadPixels Methods
 
-		public void ReadBackbuffer<T>(
-			T[] data,
+		public void ReadBackbuffer(
+			IntPtr data,
+			int dataLen,
 			int startIndex,
 			int elementCount,
+			int elementSizeInBytes,
 			Rectangle? rect
-		) where T : struct {
-			if (startIndex > 0 || elementCount != data.Length)
+		) {
+			/* FIXME: Right now we're expecting one of the following:
+			 * - byte[]
+			 * - int[]
+			 * - uint[]
+			 * - Color[]
+			 * Anything else will freak out because we're using
+			 * color backbuffers. Maybe check this out when adding
+			 * support for more backbuffer types!
+			 * -flibit
+			 */
+
+			if (startIndex > 0 || elementCount != (dataLen / elementSizeInBytes))
 			{
 				throw new NotImplementedException(
 					"ReadBackbuffer startIndex/elementCount"
@@ -3132,36 +3130,34 @@ namespace Microsoft.Xna.Framework.Graphics
 				h = Backbuffer.Height;
 			}
 
-			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			try
-			{
-				glReadPixels(
-					x,
-					y,
-					w,
-					h,
-					GLenum.GL_RGBA,
-					GLenum.GL_UNSIGNED_BYTE,
-					handle.AddrOfPinnedObject()
-				);
-			}
-			finally
-			{
-				handle.Free();
-			}
+			glReadPixels(
+				x,
+				y,
+				w,
+				h,
+				GLenum.GL_RGBA,
+				GLenum.GL_UNSIGNED_BYTE,
+				data
+			);
 
 			BindReadFramebuffer(prevReadBuffer);
 
 			// Now we get to do a software-based flip! Yes, really! -flibit
-			int pitch = w * 4 / Marshal.SizeOf(typeof(T));
-			T[] tempRow = new T[pitch];
+			int pitch = w * 4;
+			byte[] tempRow = new byte[pitch];
+			GCHandle handle = GCHandle.Alloc(tempRow, GCHandleType.Pinned);
+			IntPtr temp = handle.AddrOfPinnedObject();
 			for (int row = 0; row < h / 2; row += 1)
 			{
-				Array.Copy(data, row * pitch, tempRow, 0, pitch);
-				Array.Copy(data, (h - row - 1) * pitch, data, row * pitch, pitch);
-				Array.Copy(tempRow, 0, data, (h - row - 1) * pitch, pitch);
+				// Top to temp, bottom to top, temp to bottom
+				memcpy(temp, data + (row * pitch), (IntPtr) pitch);
+				memcpy(data + (row * pitch), data + ((h - row - 1) * pitch), (IntPtr) pitch);
+				memcpy(data + ((h - row - 1) * pitch), temp, (IntPtr) pitch);
 			}
+			handle.Free();
 		}
+		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void memcpy(IntPtr dst, IntPtr src, IntPtr len);
 
 		/// <summary>
 		/// Attempts to read the texture data directly from the FBO using glReadPixels

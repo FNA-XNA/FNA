@@ -148,12 +148,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		void ResolveTarget(RenderTargetBinding target);
 
-		void ReadBackbuffer<T>(
-			T[] data,
+		void ReadBackbuffer(
+			IntPtr data,
+			int dataLen,
 			int startIndex,
 			int elementCount,
+			int elementSizeInBytes,
 			Rectangle? rect
-		) where T : struct;
+		);
 
 		IGLTexture CreateTexture2D(
 			SurfaceFormat format,
@@ -258,23 +260,24 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexStride
 		);
 		void AddDisposeVertexBuffer(IGLBuffer buffer);
-		void SetVertexBufferData<T>(
+		void SetVertexBufferData(
 			IGLBuffer buffer,
+			int offsetInBytes,
+			IntPtr data,
+			int startIndex,
+			int elementCount,
 			int elementSizeInBytes,
-			int offsetInBytes,
-			T[] data,
-			int startIndex,
-			int elementCount,
 			SetDataOptions options
-		) where T : struct;
-		void GetVertexBufferData<T>(
+		);
+		void GetVertexBufferData(
 			IGLBuffer buffer,
 			int offsetInBytes,
-			T[] data,
+			IntPtr data,
 			int startIndex,
 			int elementCount,
+			int elementSizeInBytes,
 			int vertexStride
-		) where T : struct;
+		);
 
 		IGLBuffer GenIndexBuffer(
 			bool dynamic,
@@ -282,21 +285,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			IndexElementSize indexElementSize
 		);
 		void AddDisposeIndexBuffer(IGLBuffer buffer);
-		void SetIndexBufferData<T>(
+		void SetIndexBufferData(
 			IGLBuffer buffer,
 			int offsetInBytes,
-			T[] data,
+			IntPtr data,
 			int startIndex,
 			int elementCount,
+			int elementSizeInBytes,
 			SetDataOptions options
-		) where T : struct;
-		void GetIndexBufferData<T>(
+		);
+		void GetIndexBufferData(
 			IGLBuffer buffer,
 			int offsetInBytes,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct;
+			int elementCount,
+			int elementSizeInBytes
+		);
 
 		IGLEffect CreateEffect(byte[] effectCode);
 		IGLEffect CloneEffect(IGLEffect effect);

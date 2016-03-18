@@ -737,7 +737,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void GetBackBufferData<T>(T[] data) where T : struct
 		{
-			GLDevice.ReadBackbuffer(data, 0, data.Length, null);
+			GetBackBufferData(null, data, 0, data.Length);
 		}
 
 		public void GetBackBufferData<T>(
@@ -745,7 +745,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount
 		) where T : struct {
-			GLDevice.ReadBackbuffer(data, startIndex, elementCount, null);
+			GetBackBufferData(null, data, startIndex, elementCount);
 		}
 
 		public void GetBackBufferData<T>(
@@ -754,7 +754,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount
 		) where T : struct {
-			GLDevice.ReadBackbuffer(data, startIndex, elementCount, rect);
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GLDevice.ReadBackbuffer(
+				handle.AddrOfPinnedObject(),
+				data.Length * elementSizeInBytes,
+				startIndex,
+				elementCount,
+				elementSizeInBytes,
+				rect
+			);
+			handle.Free();
 		}
 
 		#endregion
