@@ -581,6 +581,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region memcpy Export
+
+		/* This is used a lot for GetData/Read calls... -flibit */
+		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void memcpy(IntPtr dst, IntPtr src, IntPtr len);
+
+		#endregion
+
 		#region Public Constructor
 
 		public OpenGLDevice(
@@ -3087,8 +3095,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			Marshal.FreeHGlobal(temp);
 		}
-		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern void memcpy(IntPtr dst, IntPtr src, IntPtr len);
 
 		/// <summary>
 		/// Attempts to read the texture data directly from the FBO using glReadPixels
