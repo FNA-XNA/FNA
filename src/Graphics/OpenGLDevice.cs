@@ -3144,9 +3144,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Now we get to do a software-based flip! Yes, really! -flibit
 			int pitch = w * 4;
-			byte[] tempRow = new byte[pitch];
-			GCHandle handle = GCHandle.Alloc(tempRow, GCHandleType.Pinned);
-			IntPtr temp = handle.AddrOfPinnedObject();
+			IntPtr temp = Marshal.AllocHGlobal(pitch);
 			for (int row = 0; row < h / 2; row += 1)
 			{
 				// Top to temp, bottom to top, temp to bottom
@@ -3154,7 +3152,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				memcpy(data + (row * pitch), data + ((h - row - 1) * pitch), (IntPtr) pitch);
 				memcpy(data + ((h - row - 1) * pitch), temp, (IntPtr) pitch);
 			}
-			handle.Free();
+			Marshal.FreeHGlobal(temp);
 		}
 		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void memcpy(IntPtr dst, IntPtr src, IntPtr len);
