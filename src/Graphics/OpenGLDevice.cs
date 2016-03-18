@@ -2586,7 +2586,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region glTexSubImage Methods
 
-		public void SetTextureData2D<T>(
+		public void SetTextureData2D(
 			IGLTexture texture,
 			SurfaceFormat format,
 			int x,
@@ -2594,90 +2594,69 @@ namespace Microsoft.Xna.Framework.Graphics
 			int w,
 			int h,
 			int level,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct {
+			int elementCount,
+			int elementSizeInBytes
+		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 			BindTexture(texture);
 
-			GCHandle dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
-			int startByte = startIndex * elementSizeInBytes;
-			IntPtr dataPtr = (IntPtr) (dataHandle.AddrOfPinnedObject().ToInt64() + startByte);
-
 			GLenum glFormat = XNAToGL.TextureFormat[(int) format];
-			try
+			if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
 			{
-				if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
-				{
-					int dataLength;
-					if (elementCount > 0)
-					{
-						dataLength = elementCount * elementSizeInBytes;
-					}
-					else
-					{
-						dataLength = data.Length - startByte;
-					}
-
-					/* Note that we're using glInternalFormat, not glFormat.
-					 * In this case, they should actually be the same thing,
-					 * but we use glFormat somewhat differently for
-					 * compressed textures.
-					 * -flibit
-					 */
-					glCompressedTexSubImage2D(
-						GLenum.GL_TEXTURE_2D,
-						level,
-						x,
-						y,
-						w,
-						h,
-						XNAToGL.TextureInternalFormat[(int) format],
-						dataLength,
-						dataPtr
-					);
-				}
-				else
-				{
-					// Set pixel alignment to match texel size in bytes
-					int packSize = Texture.GetFormatSize(format);
-					if (packSize != 4)
-					{
-						glPixelStorei(
-							GLenum.GL_UNPACK_ALIGNMENT,
-							packSize
-						);
-					}
-
-					glTexSubImage2D(
-						GLenum.GL_TEXTURE_2D,
-						level,
-						x,
-						y,
-						w,
-						h,
-						glFormat,
-						XNAToGL.TextureDataType[(int) format],
-						dataPtr
-					);
-
-					// Keep this state sane -flibit
-					if (packSize != 4)
-					{
-						glPixelStorei(
-							GLenum.GL_UNPACK_ALIGNMENT,
-							4
-						);
-					}
-				}
+				/* Note that we're using glInternalFormat, not glFormat.
+				 * In this case, they should actually be the same thing,
+				 * but we use glFormat somewhat differently for
+				 * compressed textures.
+				 * -flibit
+				 */
+				glCompressedTexSubImage2D(
+					GLenum.GL_TEXTURE_2D,
+					level,
+					x,
+					y,
+					w,
+					h,
+					XNAToGL.TextureInternalFormat[(int) format],
+					elementCount * elementSizeInBytes,
+					data + (startIndex * elementSizeInBytes)
+				);
 			}
-			finally
+			else
 			{
-				dataHandle.Free();
+				// Set pixel alignment to match texel size in bytes
+				int packSize = Texture.GetFormatSize(format);
+				if (packSize != 4)
+				{
+					glPixelStorei(
+						GLenum.GL_UNPACK_ALIGNMENT,
+						packSize
+					);
+				}
+
+				glTexSubImage2D(
+					GLenum.GL_TEXTURE_2D,
+					level,
+					x,
+					y,
+					w,
+					h,
+					glFormat,
+					XNAToGL.TextureDataType[(int) format],
+					data + (startIndex * elementSizeInBytes)
+				);
+
+				// Keep this state sane -flibit
+				if (packSize != 4)
+				{
+					glPixelStorei(
+						GLenum.GL_UNPACK_ALIGNMENT,
+						4
+					);
+				}
 			}
 
 #if !DISABLE_THREADING
@@ -2685,7 +2664,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 		}
 
-		public void SetTextureData3D<T>(
+		public void SetTextureData3D(
 			IGLTexture texture,
 			SurfaceFormat format,
 			int level,
@@ -2695,43 +2674,36 @@ namespace Microsoft.Xna.Framework.Graphics
 			int bottom,
 			int front,
 			int back,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct {
+			int elementCount,
+			int elementSizeInBytes
+		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 			BindTexture(texture);
 
-			GCHandle dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			try
-			{
-				glTexSubImage3D(
-					GLenum.GL_TEXTURE_3D,
-					level,
-					left,
-					top,
-					front,
-					right - left,
-					bottom - top,
-					back - front,
-					XNAToGL.TextureFormat[(int) format],
-					XNAToGL.TextureDataType[(int) format],
-					(IntPtr) (dataHandle.AddrOfPinnedObject().ToInt64() + startIndex * Marshal.SizeOf(typeof(T)))
-				);
-			}
-			finally
-			{
-				dataHandle.Free();
-			}
+			glTexSubImage3D(
+				GLenum.GL_TEXTURE_3D,
+				level,
+				left,
+				top,
+				front,
+				right - left,
+				bottom - top,
+				back - front,
+				XNAToGL.TextureFormat[(int) format],
+				XNAToGL.TextureDataType[(int) format],
+				data + (startIndex * elementSizeInBytes)
+			);
 
 #if !DISABLE_THREADING
 			});
 #endif
 		}
 
-		public void SetTextureDataCube<T>(
+		public void SetTextureDataCube(
 			IGLTexture texture,
 			SurfaceFormat format,
 			int xOffset,
@@ -2740,71 +2712,50 @@ namespace Microsoft.Xna.Framework.Graphics
 			int height,
 			CubeMapFace cubeMapFace,
 			int level,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct {
+			int elementCount,
+			int elementSizeInBytes
+		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 			BindTexture(texture);
 
-			GCHandle dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
-			int startByte = startIndex * elementSizeInBytes;
-			IntPtr dataPtr = (IntPtr) (dataHandle.AddrOfPinnedObject().ToInt64() + startByte);
-
 			GLenum glFormat = XNAToGL.TextureFormat[(int) format];
-			try
+			if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
 			{
-				if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
-				{
-					int dataLength;
-					if (elementCount > 0)
-					{
-						dataLength = elementCount * elementSizeInBytes;
-					}
-					else
-					{
-						dataLength = data.Length - startByte;
-					}
-
-					/* Note that we're using glInternalFormat, not glFormat.
-					 * In this case, they should actually be the same thing,
-					 * but we use glFormat somewhat differently for
-					 * compressed textures.
-					 * -flibit
-					 */
-					glCompressedTexSubImage2D(
-						GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
-						level,
-						xOffset,
-						yOffset,
-						width,
-						height,
-						XNAToGL.TextureInternalFormat[(int) format],
-						dataLength,
-						dataPtr
-					);
-				}
-				else
-				{
-					glTexSubImage2D(
-						GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
-						level,
-						xOffset,
-						yOffset,
-						width,
-						height,
-						glFormat,
-						XNAToGL.TextureDataType[(int) format],
-						dataPtr
-					);
-				}
+				/* Note that we're using glInternalFormat, not glFormat.
+				 * In this case, they should actually be the same thing,
+				 * but we use glFormat somewhat differently for
+				 * compressed textures.
+				 * -flibit
+				 */
+				glCompressedTexSubImage2D(
+					GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
+					level,
+					xOffset,
+					yOffset,
+					width,
+					height,
+					XNAToGL.TextureInternalFormat[(int) format],
+					elementCount * elementSizeInBytes,
+					data + (startIndex * elementSizeInBytes)
+				);
 			}
-			finally
+			else
 			{
-				dataHandle.Free();
+				glTexSubImage2D(
+					GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
+					level,
+					xOffset,
+					yOffset,
+					width,
+					height,
+					glFormat,
+					XNAToGL.TextureDataType[(int) format],
+					data + (startIndex * elementSizeInBytes)
+				);
 			}
 
 #if !DISABLE_THREADING

@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
@@ -117,6 +118,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				height = Math.Max(1, Size >> level);
 			}
 
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.SetTextureDataCube(
 				texture,
 				Format,
@@ -126,10 +128,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				height,
 				cubeMapFace,
 				level,
-				data,
+				handle.AddrOfPinnedObject(),
 				startIndex,
-				elementCount
+				elementCount,
+				Marshal.SizeOf(typeof(T))
 			);
+			handle.Free();
 		}
 
 		#endregion

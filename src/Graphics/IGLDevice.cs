@@ -176,7 +176,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int levelCount
 		);
 		void AddDisposeTexture(IGLTexture texture);
-		void SetTextureData2D<T>(
+		void SetTextureData2D(
 			IGLTexture texture,
 			SurfaceFormat format,
 			int x,
@@ -184,11 +184,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			int w,
 			int h,
 			int level,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct;
-		void SetTextureData3D<T>(
+			int elementCount,
+			int elementSizeInBytes
+		);
+		void SetTextureData3D(
 			IGLTexture texture,
 			SurfaceFormat format,
 			int level,
@@ -198,11 +199,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			int bottom,
 			int front,
 			int back,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct;
-		void SetTextureDataCube<T>(
+			int elementCount,
+			int elementSizeInBytes
+		);
+		void SetTextureDataCube(
 			IGLTexture texture,
 			SurfaceFormat format,
 			int xOffset,
@@ -211,10 +213,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			int height,
 			CubeMapFace cubeMapFace,
 			int level,
-			T[] data,
+			IntPtr data,
 			int startIndex,
-			int elementCount
-		) where T : struct;
+			int elementCount,
+			int elementSizeInBytes
+		);
 		void SetTextureData2DPointer(Texture2D texture, IntPtr ptr);
 		void GetTextureData2D<T>(
 			IGLTexture texture,

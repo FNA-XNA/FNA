@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
@@ -138,6 +139,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				h = Math.Max(Height >> level, 1);
 			}
 
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.SetTextureData2D(
 				texture,
 				Format,
@@ -146,10 +148,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				w,
 				h,
 				level,
-				data,
+				handle.AddrOfPinnedObject(),
 				startIndex,
-				elementCount
+				elementCount,
+				Marshal.SizeOf(typeof(T))
 			);
+			handle.Free();
 		}
 
 		#endregion

@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
@@ -117,6 +118,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentNullException("data");
 			}
 
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.SetTextureData3D(
 				texture,
 				Format,
@@ -127,9 +129,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				bottom,
 				front,
 				back,
-				data,
+				handle.AddrOfPinnedObject(),
 				startIndex,
-				elementCount
+				elementCount,
+				Marshal.SizeOf(typeof(T))
 			);
 		}
 
