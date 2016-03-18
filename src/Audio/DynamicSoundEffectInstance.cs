@@ -372,7 +372,7 @@ namespace Microsoft.Xna.Framework.Audio
 			// Push buffer to the AL.
 			IALBuffer newBuf = availableBuffers.Dequeue();
 			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-			AudioDevice.ALDevice.SetBufferData(
+			AudioDevice.ALDevice.SetBufferFloatData(
 				newBuf,
 				channels,
 				handle.AddrOfPinnedObject(),
