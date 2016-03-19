@@ -134,6 +134,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				elementCount,
 				Marshal.SizeOf(typeof(T))
 			);
+			handle.Free();
 		}
 
 		#endregion
