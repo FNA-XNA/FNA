@@ -52,7 +52,13 @@ namespace Microsoft.Xna.Framework.Content
 			{
 				throw new ContentLoadException("Resource is not in binary format");
 			}
-			return new MemoryStream(byteArrayObject);
+			return new MemoryStream(
+				byteArrayObject,
+				0,
+				byteArrayObject.Length,
+				true,
+				true // This MUST be true! We may need GetBuffer()!
+			);
 		}
 
 		#endregion
