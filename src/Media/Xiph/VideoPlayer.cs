@@ -81,6 +81,13 @@ namespace Microsoft.Xna.Framework.Media
 
 		private void GL_dispose()
 		{
+			if (currentDevice == null)
+			{
+				// We never initialized to begin with...
+				return;
+			}
+			currentDevice = null;
+
 			// Delete the Effect
 			shaderProgram.Dispose();
 
@@ -605,10 +612,7 @@ namespace Microsoft.Xna.Framework.Media
 				// The VideoPlayer will use the GraphicsDevice that is set now.
 				if (currentDevice != Video.GraphicsDevice)
 				{
-					if (currentDevice != null)
-					{
-						GL_dispose();
-					}
+					GL_dispose();
 					currentDevice = Video.GraphicsDevice;
 					GL_initialize();
 				}
