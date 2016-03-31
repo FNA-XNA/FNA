@@ -117,8 +117,8 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		private static ushort Pack(float x, float y)
 		{
 			return (ushort) (
-				(ushort) Math.Round(MathHelper.Clamp(x, -127.0f, 127.0f)) |
-				(((ushort) Math.Round(MathHelper.Clamp(y, -127.0f, 127.0f))) << 8)
+				((ushort) Math.Round(MathHelper.Clamp(x, -1, 1) * 127.0f)) |
+				(((ushort) Math.Round(MathHelper.Clamp(y, -1, 1) * 127.0f)) << 8)
 			);
 		}
 

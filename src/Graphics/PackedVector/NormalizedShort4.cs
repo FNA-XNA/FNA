@@ -114,10 +114,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		private static ulong Pack(float x, float y, float z, float w)
 		{
 			return (ulong) (
-				((ulong) Math.Round(MathHelper.Clamp(x, -32767, 32767))) |
-				(((ulong) Math.Round(MathHelper.Clamp(y, -32767, 32767))) << 16) |
-				(((ulong) Math.Round(MathHelper.Clamp(z, -32767, 32767))) << 32) |
-				(((ulong) Math.Round(MathHelper.Clamp(w, -32767, 32767))) << 48)
+				((ulong) Math.Round(MathHelper.Clamp(x, -1, 1) * 32767.0f)) |
+				(((ulong) Math.Round(MathHelper.Clamp(y, -1, 1) * 32767.0f)) << 16) |
+				(((ulong) Math.Round(MathHelper.Clamp(z, -1, 1) * 32767.0f)) << 32) |
+				(((ulong) Math.Round(MathHelper.Clamp(w, -1, 1) * 32767.0f)) << 48)
 			);
 		}
 
