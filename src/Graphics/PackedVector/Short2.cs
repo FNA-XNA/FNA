@@ -118,7 +118,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		{
 			return (
 				((uint) Math.Round(MathHelper.Clamp(x, 0, 65535))) |
-				(((uint) Math.Round(MathHelper.Clamp(x, 0, 65535))) << 16)
+				(((uint) Math.Round(MathHelper.Clamp(y, 0, 65535))) << 16)
 			);
 		}
 

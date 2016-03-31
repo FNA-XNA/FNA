@@ -114,10 +114,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		private static uint Pack(float x, float y, float z, float w)
 		{
 			return (uint) (
-				(uint) Math.Round(MathHelper.Clamp(x, -1, 1) * 127.0f) |
+				((uint) Math.Round(MathHelper.Clamp(x, -1, 1) * 127.0f)) |
 				(((uint) Math.Round(MathHelper.Clamp(y, -1, 1) * 127.0f)) << 8) |
-				(((uint) Math.Round(MathHelper.Clamp(y, -1, 1) * 127.0f)) << 16) |
-				(((uint) Math.Round(MathHelper.Clamp(y, -1, 1) * 127.0f)) << 24)
+				(((uint) Math.Round(MathHelper.Clamp(z, -1, 1) * 127.0f)) << 16) |
+				(((uint) Math.Round(MathHelper.Clamp(w, -1, 1) * 127.0f)) << 24)
 			);
 		}
 

@@ -186,9 +186,9 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		{
 			return (ulong) (
 				((ulong) Math.Round(MathHelper.Clamp(x, 0, 65535))) |
-				(((ulong) Math.Round(MathHelper.Clamp(y, 0, 65535))) << 16) |
-				(((ulong) Math.Round(MathHelper.Clamp(z, 0, 65535))) << 32) |
-				(((ulong) Math.Round(MathHelper.Clamp(w, 0, 65535))) << 48)
+				((ulong) Math.Round(MathHelper.Clamp(y, 0, 65535)) << 16) |
+				((ulong) Math.Round(MathHelper.Clamp(z, 0, 65535)) << 32) |
+				((ulong) Math.Round(MathHelper.Clamp(w, 0, 65535)) << 48)
 			);
 		}
 

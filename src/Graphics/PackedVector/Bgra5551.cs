@@ -160,10 +160,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		private static ushort Pack(float x, float y, float z, float w)
 		{
 			return (ushort) (
-				(((ushort) (Math.Round(MathHelper.Clamp(x, 0, 1) * 31.0f)) & 0x1F) << 10) |
-				(((ushort) (Math.Round(MathHelper.Clamp(y, 0, 1) * 31.0f)) & 0x1F) << 5) |
-				((ushort) (Math.Round(MathHelper.Clamp(z, 0, 1) * 31.0f)) & 0x1F) |
-				(((ushort) Math.Round(MathHelper.Clamp(w, 0, 1))) << 15)
+				(((ushort) Math.Round(MathHelper.Clamp(x, 0, 1) * 31.0f)) << 10) |
+				(((ushort) Math.Round(MathHelper.Clamp(y, 0, 1) * 31.0f)) << 5) |
+				((ushort) Math.Round(MathHelper.Clamp(z, 0, 1) * 31.0f)) |
+				((ushort) Math.Round(MathHelper.Clamp(w, 0, 1)) << 15)
 			);
 		}
 

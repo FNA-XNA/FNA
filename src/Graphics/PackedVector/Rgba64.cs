@@ -81,10 +81,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector4 ToVector4()
 		{
 			return new Vector4(
-				(float) ((packedValue & 0xFFFF) / 65535.0f),
-				(float) (((packedValue >> 16) & 0xFFFF) / 65535.0f),
-				(float) (((packedValue >> 32) & 0xFFFF) / 65535.0f),
-				(float) ((packedValue >> 48) / 65535.0f)
+				(packedValue & 0xFFFF) / 65535.0f,
+				((packedValue >> 16) & 0xFFFF) / 65535.0f,
+				((packedValue >> 32) & 0xFFFF) / 65535.0f,
+				(packedValue >> 48) / 65535.0f
 			);
 		}
 
@@ -161,9 +161,9 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		{
 			return (ulong) (
 				((ulong) Math.Round((MathHelper.Clamp(x, 0, 1) * 65535.0f))) |
-				(((ulong) (Math.Round(MathHelper.Clamp(y, 0, 1) * 65535.0f))) << 16) |
-				(((ulong) (Math.Round(MathHelper.Clamp(z, 0, 1) * 65535.0f))) << 32) |
-				(((ulong) (Math.Round(MathHelper.Clamp(w, 0, 1) * 65535.0f))) << 48)
+				(((ulong) Math.Round(MathHelper.Clamp(y, 0, 1) * 65535.0f)) << 16) |
+				(((ulong) Math.Round(MathHelper.Clamp(z, 0, 1) * 65535.0f)) << 32) |
+				(((ulong) Math.Round(MathHelper.Clamp(w, 0, 1) * 65535.0f)) << 48)
 			);
 		}
 
