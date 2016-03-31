@@ -57,10 +57,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector4 ToVector4()
 		{
 			return new Vector4(
-				(short) (packedValue & 0xFFFF),
-				(short) ((packedValue >> 16) & 0xFFFF),
-				(short) ((packedValue >> 32) & 0xFFFF),
-				(short) ((packedValue >> 48) & 0xFFFF)
+				((short) (packedValue & 0xFFFF)) / 32767.0f,
+				((short) ((packedValue >> 16) & 0xFFFF)) / 32767.0f,
+				((short) ((packedValue >> 32) & 0xFFFF)) / 32767.0f,
+				((short) (packedValue >> 48)) / 32767.0f
 			);
 		}
 
