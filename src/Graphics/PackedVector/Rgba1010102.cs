@@ -81,10 +81,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector4 ToVector4()
 		{
 			return new Vector4(
-				(float) (((packedValue >> 22) & 0x03FF) / 1023.0f),
-				(float) (((packedValue >> 12) & 0x03FF) / 1023.0f),
-				(float) (((packedValue >> 2) & 0x03FF) / 1023.0f),
-				(float) ((packedValue & 0x03) / 3.0f)
+				(float) ((packedValue & 0x03FF) / 1023.0f),
+				(float) (((packedValue >> 10) & 0x03FF) / 1023.0f),
+				(float) (((packedValue >> 20) & 0x03FF) / 1023.0f),
+				(float) ((packedValue >> 30) / 3.0f)
 			);
 		}
 
@@ -131,7 +131,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>A string representation of the packed vector.</returns>
 		public override string ToString()
 		{
-			return ToVector4().ToString();
+			return packedValue.ToString("X");
 		}
 
 		/// <summary>
@@ -160,10 +160,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		private static uint Pack(float x, float y, float z, float w)
 		{
 			return (uint) (
-				(((int) (MathHelper.Clamp(x, 0, 1) * 1023.0f) & 0x03FF) << 22) |
-				(((int) (MathHelper.Clamp(y, 0, 1) * 1023.0f) & 0x03FF) << 12) |
-				(((int) (MathHelper.Clamp(z, 0, 1) * 1023.0f) & 0x03FF) << 2) |
-				((int) (MathHelper.Clamp(w, 0, 1) * 3.0f) & 0x03)
+				((uint) (Math.Round(MathHelper.Clamp(x, 0, 1) * 1023.0f)) & 0x03FF) |
+				(((uint) (Math.Round(MathHelper.Clamp(y, 0, 1) * 1023.0f)) & 0x03FF) << 10) |
+				(((uint) (Math.Round(MathHelper.Clamp(z, 0, 1) * 1023.0f)) & 0x03FF) << 20) |
+				(((uint) (Math.Round(MathHelper.Clamp(w, 0, 1) * 3.0f)) & 0x03) << 30)
 			);
 		}
 

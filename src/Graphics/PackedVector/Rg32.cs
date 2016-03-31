@@ -79,8 +79,8 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector2 ToVector2()
 		{
 			return new Vector2(
-				(float) (((packedValue >> 16) & 0xFFFF) / 65535.0f),
-				(float) ((packedValue & 0xFFFF) / 65535.0f)
+				(packedValue & 0xFFFF) / 65535.0f,
+				(packedValue >> 16) / 65535.0f
 			);
 		}
 
@@ -136,7 +136,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>A string representation of the packed vector.</returns>
 		public override string ToString()
 		{
-			return ToVector2().ToString();
+			return packedValue.ToString("X");
 		}
 
 		/// <summary>
@@ -165,8 +165,8 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		private static uint Pack(float x, float y)
 		{
 			return (uint) (
-				(((int) (MathHelper.Clamp(x, 0, 1) * 65535.0f) & 0xFFFF) << 16) |
-				((int) (MathHelper.Clamp(y, 0, 1) * 65535.0f) & 0xFFFF)
+				(((uint) Math.Round(MathHelper.Clamp(x, 0, 1) * 65535.0f)) & 0xFFFF) |
+				((((uint) Math.Round(MathHelper.Clamp(y, 0, 1) * 65535.0f)) & 0xFFFF) << 16)
 			);
 		}
 

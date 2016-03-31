@@ -126,7 +126,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>A string representation of the packed vector.</returns>
 		public override string ToString()
 		{
-			return (packedValue / 255.0f).ToString();
+			return packedValue.ToString("X");
 		}
 
 		/// <summary>

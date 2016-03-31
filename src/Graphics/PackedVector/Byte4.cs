@@ -55,7 +55,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// </param>
 		public Byte4(Vector4 vector)
 		{
-			packedValue = Pack(ref vector);
+			packedValue = Pack(vector.X, vector.Y, vector.Z, vector.W);
 		}
 
 		/// <summary>
@@ -67,8 +67,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <param name="w">Initial value for the w component.</param>
 		public Byte4(float x, float y, float z, float w)
 		{
-			Vector4 vector = new Vector4(x, y, z, w);
-			packedValue = Pack(ref vector);
+			packedValue = Pack(x, y, z, w);
 		}
 
 		#endregion
@@ -83,9 +82,9 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		{
 			return new Vector4(
 				(float) (packedValue & 0xFF),
-				(float) ((packedValue >> 0x8) & 0xFF),
-				(float) ((packedValue >> 0x10) & 0xFF),
-				(float) ((packedValue >> 0x18) & 0xFF)
+				(float) ((packedValue >> 8) & 0xFF),
+				(float) ((packedValue >> 16) & 0xFF),
+				(float) (packedValue >> 24)
 			);
 		}
 
@@ -99,7 +98,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <param name="vector">The vector to create the packed representation from.</param>
 		void IPackedVector.PackFromVector4(Vector4 vector)
 		{
-			packedValue = Pack(ref vector);
+			packedValue = Pack(vector.X, vector.Y, vector.Z, vector.W);
 		}
 
 		#endregion
@@ -171,7 +170,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>String that represents the object.</returns>
 		public override string ToString()
 		{
-			return packedValue.ToString("x8");
+			return packedValue.ToString("X");
 		}
 
 		#endregion
@@ -183,13 +182,13 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// </summary>
 		/// <param name="vector">The vector containing the values to pack.</param>
 		/// <returns>The ulong containing the packed values.</returns>
-		static uint Pack(ref Vector4 vector)
+		static uint Pack(float x, float y, float z, float w)
 		{
-			return (
-				((uint) MathHelper.Clamp(vector.X, 0, 255) & 0xFF) |
-				(((uint) MathHelper.Clamp(vector.Y, 0, 255) & 0xFF) << 0x8) |
-				(((uint) MathHelper.Clamp(vector.Z, 0, 255) & 0xFF) << 0x10) |
-				(((uint) MathHelper.Clamp(vector.W, 0, 255) & 0xFF) << 0x18)
+			return (uint) (
+				((uint) Math.Round(MathHelper.Clamp(x, 0, 255))) |
+				(((uint) Math.Round(MathHelper.Clamp(y, 0, 255))) << 8) |
+				(((uint) Math.Round(MathHelper.Clamp(z, 0, 255))) << 16) |
+				(((uint) Math.Round(MathHelper.Clamp(w, 0, 255))) << 24)
 			);
 		}
 

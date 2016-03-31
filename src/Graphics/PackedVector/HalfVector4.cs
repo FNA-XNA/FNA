@@ -56,8 +56,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <param name="w">Initial value for the q component.</param>
 		public HalfVector4(float x, float y, float z, float w)
 		{
-			Vector4 vector = new Vector4(x, y, z, w);
-			packedValue = Pack(ref vector);
+			packedValue = Pack(x, y, z, w);
 		}
 
 		/// <summary>
@@ -69,7 +68,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// </param>
 		public HalfVector4(Vector4 vector)
 		{
-			packedValue = Pack(ref vector);
+			packedValue = Pack(vector.X, vector.Y, vector.Z, vector.W);
 		}
 
 		#endregion
@@ -100,7 +99,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <param name="vector">The vector to create the packed representation from.</param>
 		void IPackedVector.PackFromVector4(Vector4 vector)
 		{
-			packedValue = Pack(ref vector);
+			packedValue = Pack(vector.X, vector.Y, vector.Z, vector.W);
 		}
 
 		#endregion
@@ -113,7 +112,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>String that represents the object.</returns>
 		public override string ToString()
 		{
-			return ToVector4().ToString();
+			return packedValue.ToString("X");
 		}
 
 		/// <summary>
@@ -184,13 +183,13 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// </summary>
 		/// <param name="vector">The vector containing the values to pack.</param>
 		/// <returns>The ulong containing the packed values.</returns>
-		private static ulong Pack(ref Vector4 vector)
+		private static ulong Pack(float x, float y, float z, float w)
 		{
-			return (
-				((ulong) HalfTypeHelper.Convert(vector.X)) |
-				(((ulong) HalfTypeHelper.Convert(vector.Y) << 0x10)) |
-				(((ulong) HalfTypeHelper.Convert(vector.Z) << 0x20)) |
-				(((ulong) HalfTypeHelper.Convert(vector.W) << 0x30))
+			return (ulong) (
+				((ulong) HalfTypeHelper.Convert(x)) |
+				(((ulong) HalfTypeHelper.Convert(y) << 0x10)) |
+				(((ulong) HalfTypeHelper.Convert(z) << 0x20)) |
+				(((ulong) HalfTypeHelper.Convert(w) << 0x30))
 			);
 		}
 

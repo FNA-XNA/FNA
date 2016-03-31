@@ -56,12 +56,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		public Vector2 ToVector2()
 		{
-			const float maxVal = 0x7FFF;
-
 			return new Vector2(
-				((short) (packedValue & 0xFFFF)) / maxVal,
-				((short) (packedValue >> 0x10)) / maxVal
-			);;
+				((short) (packedValue & 0xFFFF)) / 32767.0f,
+				((short) (packedValue >> 16)) / 32767.0f
+			);
 		}
 
 		#endregion
@@ -75,14 +73,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		Vector4 IPackedVector.ToVector4()
 		{
-			const float maxVal = 0x7FFF;
-
-			return new Vector4(
-				((short) ((packedValue >> 0x00) & 0xFFFF)) / maxVal,
-				((short) ((packedValue >> 0x10) & 0xFFFF)) / maxVal,
-				0,
-				1
-			);
+			return new Vector4(ToVector2(), 0.0f, 1.0f);
 		}
 
 		#endregion
@@ -123,15 +114,11 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		#region Private Static Pack Method
 
-		private static uint Pack(float vectorX, float vectorY)
+		private static uint Pack(float x, float y)
 		{
-			const float maxPos = 0x7FFF;
-			const float minNeg = -maxPos;
-
-			// Round rather than truncate
-			return (
-				((uint) ((int) MathHelper.Clamp((float) Math.Round(vectorX * maxPos), minNeg, maxPos) & 0xFFFF)) |
-				((uint) (((int) MathHelper.Clamp((float) Math.Round(vectorY * maxPos), minNeg, maxPos) & 0xFFFF) << 0x10))
+			return (uint) (
+				((uint) Math.Round(MathHelper.Clamp(x, -32767, 32767))) |
+				(((uint) Math.Round(MathHelper.Clamp(x, -32767, 32767))) << 16)
 			);
 		}
 

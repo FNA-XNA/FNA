@@ -81,10 +81,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector4 ToVector4()
 		{
 			return new Vector4(
-				(float) (((packedValue >> 48) & 0xFFFF) / 65535.0f),
-				(float) (((packedValue >> 32) & 0xFFFF) / 65535.0f),
+				(float) ((packedValue & 0xFFFF) / 65535.0f),
 				(float) (((packedValue >> 16) & 0xFFFF) / 65535.0f),
-				(float) ((packedValue & 0xFFFF) / 65535.0f)
+				(float) (((packedValue >> 32) & 0xFFFF) / 65535.0f),
+				(float) ((packedValue >> 48) / 65535.0f)
 			);
 		}
 
@@ -131,7 +131,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>A string representation of the packed vector.</returns>
 		public override string ToString()
 		{
-			return ToVector4().ToString();
+			return packedValue.ToString("X");
 		}
 
 		/// <summary>
@@ -160,10 +160,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		private static ulong Pack(float x, float y, float z, float w)
 		{
 			return (ulong) (
-				(((long) (MathHelper.Clamp(x, 0, 1) * 65535.0f) & 0xFFFF) << 48) |
-				(((long) (MathHelper.Clamp(y, 0, 1) * 65535.0f) & 0xFFFF) << 32) |
-				(((long) (MathHelper.Clamp(z, 0, 1) * 65535.0f) & 0xFFFF) << 16) |
-				((long) (MathHelper.Clamp(w, 0, 1) * 65535.0f) & 0xFFFF)
+				((ulong) Math.Round((MathHelper.Clamp(x, 0, 1) * 65535.0f))) |
+				(((ulong) (Math.Round(MathHelper.Clamp(y, 0, 1) * 65535.0f))) << 16) |
+				(((ulong) (Math.Round(MathHelper.Clamp(z, 0, 1) * 65535.0f))) << 32) |
+				(((ulong) (Math.Round(MathHelper.Clamp(w, 0, 1) * 65535.0f))) << 48)
 			);
 		}
 

@@ -33,14 +33,14 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		#region Internal Static Methods
 
-		internal static UInt16 Convert(float f)
+		internal static ushort Convert(float f)
 		{
 			uif uif = new uif();
 			uif.f = f;
 			return Convert(uif.i);
 		}
 
-		internal static UInt16 Convert(int i)
+		internal static ushort Convert(int i)
 		{
 			int s = (i >> 16) & 0x00008000;
 			int e = ((i >> 23) & 0x000000ff) - (127 - 15);
@@ -50,7 +50,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 			{
 				if (e < -10)
 				{
-					return (UInt16)s;
+					return (ushort) s;
 				}
 
 				m = m | 0x00800000;
@@ -61,18 +61,18 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 				m = (m + a + b) >> t;
 
-				return (UInt16) (s | m);
+				return (ushort) (s | m);
 			}
 			else if (e == 0xff - (127 - 15))
 			{
 				if (m == 0)
 				{
-					return (UInt16) (s | 0x7c00);
+					return (ushort) (s | 0x7c00);
 				}
 				else
 				{
 					m >>= 13;
-					return (UInt16) (s | 0x7c00 | m | ((m == 0) ? 1 : 0));
+					return (ushort) (s | 0x7c00 | m | ((m == 0) ? 1 : 0));
 				}
 			}
 			else
@@ -87,10 +87,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 				if (e > 30)
 				{
-					return (UInt16) (s | 0x7c00);
+					return (ushort) (s | 0x7c00);
 				}
 
-				return (UInt16) (s | (e << 10) | (m >> 13));
+				return (ushort) (s | (e << 10) | (m >> 13));
 			}
 		}
 

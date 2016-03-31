@@ -57,8 +57,8 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector2 ToVector2()
 		{
 			return new Vector2(
-				(short) (packedValue & 0xFFFF),
-				(short) (packedValue >> 0x10)
+				(ushort) (packedValue & 0xFFFF),
+				(ushort) (packedValue >> 16)
 			);
 		}
 
@@ -73,12 +73,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		Vector4 IPackedVector.ToVector4()
 		{
-			return new Vector4(
-				(short) (packedValue & 0xFFFF),
-				(short) (packedValue >> 0x10),
-				0,
-				1
-			);
+			return new Vector4(ToVector2(), 0.0f, 1.0f);
 		}
 
 		#endregion
@@ -112,21 +107,18 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		public override string ToString()
 		{
-			return packedValue.ToString("x8");
+			return packedValue.ToString("X");
 		}
 
 		#endregion
 
 		#region Private Static Pack Method
 
-		private static uint Pack(float vectorX, float vectorY)
+		private static uint Pack(float x, float y)
 		{
-			const float maxPos = 0x7FFF;
-			const float minNeg = ~((int) maxPos);
-
 			return (
-				((uint) ((int) Math.Max (Math.Min (vectorX, maxPos), minNeg) & 0xFFFF)) |
-				((uint) (((int) Math.Max (Math.Min (vectorY, maxPos), minNeg) & 0xFFFF) << 0x10))
+				((uint) Math.Round(MathHelper.Clamp(x, 0, 65535))) |
+				(((uint) Math.Round(MathHelper.Clamp(x, 0, 65535))) << 16)
 			);
 		}
 

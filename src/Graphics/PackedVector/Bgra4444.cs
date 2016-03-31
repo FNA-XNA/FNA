@@ -17,7 +17,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 	/// Packed vector type containing unsigned normalized values, ranging from 0 to 1, using
 	/// 4 bits each for x, y, z, and w.
 	/// </summary>
-	public struct Bgra4444 : IPackedVector<UInt16>, IEquatable<Bgra4444>
+	public struct Bgra4444 : IPackedVector<ushort>, IEquatable<Bgra4444>
 	{
 		#region Public Properties
 
@@ -25,7 +25,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// Gets and sets the packed value.
 		/// </summary>
 		[CLSCompliant(false)]
-		public UInt16 PackedValue
+		public ushort PackedValue
 		{
 			get
 			{
@@ -41,7 +41,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		#region Private Variables
 
-		private UInt16 packedValue;
+		private ushort packedValue;
 
 		#endregion
 
@@ -80,13 +80,11 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>The packed vector in Vector4 format</returns>
 		public Vector4 ToVector4()
 		{
-			const float maxVal = 1 / 15.0f;
-
 			return new Vector4(
-				((packedValue >> 8) & 0x0F) * maxVal,
-				((packedValue >> 4) & 0x0F) * maxVal,
-				(packedValue & 0x0F) * maxVal,
-				((packedValue >> 12) & 0x0F) * maxVal
+				(packedValue >> 12) / 15.0f,
+				((packedValue >> 8) & 0x0F) / 15.0f,
+				((packedValue >> 4) & 0x0F) / 15.0f,
+				(packedValue & 0x0F) / 15.0f
 			);
 		}
 
@@ -133,7 +131,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>A string representation of the packed vector.</returns>
 		public override string ToString()
 		{
-			return ToVector4().ToString();
+			return packedValue.ToString("X");
 		}
 
 		/// <summary>
@@ -159,13 +157,13 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		#region Private Static Pack Method
 
-		private static UInt16 Pack(float x, float y, float z, float w)
+		private static ushort Pack(float x, float y, float z, float w)
 		{
-			return (UInt16) (
-				(((int) (MathHelper.Clamp(w, 0, 1) * 15.0f) & 0x0F) << 12) |
-				(((int) (MathHelper.Clamp(x, 0, 1) * 15.0f) & 0x0F) << 8) |
-				(((int) (MathHelper.Clamp(y, 0, 1) * 15.0f) & 0x0F) << 4) |
-				((int) (MathHelper.Clamp(z, 0, 1) * 15.0f) & 0x0F)
+			return (ushort) (
+				(((ushort) Math.Round((MathHelper.Clamp(w, 0, 1) * 15.0f)) & 0x0F) << 12) |
+				(((ushort) Math.Round((MathHelper.Clamp(x, 0, 1) * 15.0f)) & 0x0F) << 8) |
+				(((ushort) Math.Round((MathHelper.Clamp(y, 0, 1) * 15.0f)) & 0x0F) << 4) |
+				((ushort) Math.Round((MathHelper.Clamp(z, 0, 1) * 15.0f)) & 0x0F)
 			);
 		}
 

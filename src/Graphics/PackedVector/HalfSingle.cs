@@ -13,7 +13,7 @@ using System;
 
 namespace Microsoft.Xna.Framework.Graphics.PackedVector
 {
-	public struct HalfSingle : IPackedVector<UInt16>, IEquatable<HalfSingle>, IPackedVector
+	public struct HalfSingle : IPackedVector<ushort>, IEquatable<HalfSingle>, IPackedVector
 	{
 		#region Public Properties
 
@@ -34,7 +34,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		#region Private Variables
 
-		private UInt16 packedValue;
+		private ushort packedValue;
 
 		#endregion
 
@@ -65,7 +65,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		Vector4 IPackedVector.ToVector4()
 		{
-			return new Vector4(ToSingle(), 0f, 0f, 1f);
+			return new Vector4(ToSingle(), 0.0f, 0.0f, 1.0f);
 		}
 
 		#endregion
@@ -84,7 +84,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		public override string ToString()
 		{
-			return ToSingle().ToString();
+			return packedValue.ToString("X");
 		}
 
 		public override int GetHashCode()

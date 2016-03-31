@@ -73,8 +73,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		Vector4 IPackedVector.ToVector4()
 		{
-			Vector2 vector = ToVector2();
-			return new Vector4(vector.X, vector.Y, 0f, 1f);
+			return new Vector4(ToVector2(), 0.0f, 1.0f);
 		}
 
 		#endregion
@@ -83,7 +82,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		public override string ToString()
 		{
-			return ToVector2().ToString();
+			return packedValue.ToString("X");
 		}
 
 		public override int GetHashCode()
@@ -117,7 +116,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		private static uint PackHelper(float vectorX, float vectorY)
 		{
-			return (
+			return (uint) (
 				HalfTypeHelper.Convert(vectorX) |
 				((uint) (HalfTypeHelper.Convert(vectorY) << 0x10))
 			);

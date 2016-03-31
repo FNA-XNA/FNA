@@ -58,7 +58,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		{
 			return new Vector2(
 				((sbyte) (packedValue & 0xFF)) / 127.0f,
-				((sbyte) ((packedValue >> 8) & 0xFF)) / 127.0f
+				((sbyte) (packedValue >> 8)) / 127.0f
 			);
 		}
 
@@ -117,8 +117,8 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		private static ushort Pack(float x, float y)
 		{
 			return (ushort) (
-				((((ushort) (MathHelper.Clamp(x, -1.0f, 1.0f) * 127.0f)) << 0) & 0x00FF) |
-				((((ushort) (MathHelper.Clamp(y, -1.0f, 1.0f) * 127.0f)) << 8) & 0xFF00)
+				(ushort) Math.Round(MathHelper.Clamp(x, -127.0f, 127.0f)) |
+				(((ushort) Math.Round(MathHelper.Clamp(y, -127.0f, 127.0f))) << 8)
 			);
 		}
 

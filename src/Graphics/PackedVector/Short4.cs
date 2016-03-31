@@ -55,7 +55,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// </param>
 		public Short4(Vector4 vector)
 		{
-			packedValue = Pack(ref vector);
+			packedValue = Pack(vector.X, vector.Y, vector.Z, vector.W);
 		}
 
 		/// <summary>
@@ -67,8 +67,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <param name="w">Initial value for the w component.</param>
 		public Short4(float x, float y, float z, float w)
 		{
-			Vector4 vector = new Vector4(x, y, z, w);
-			packedValue = Pack(ref vector);
+			packedValue = Pack(x, y, z, w);
 		}
 
 		#endregion
@@ -82,10 +81,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector4 ToVector4()
 		{
 			return new Vector4(
-				(short) (packedValue & 0xFFFF),
-				(short) ((packedValue >> 0x10) & 0xFFFF),
-				(short) ((packedValue >> 0x20) & 0xFFFF),
-				(short) ((packedValue >> 0x30) & 0xFFFF)
+				(ushort) (packedValue & 0xFFFF),
+				(ushort) ((packedValue >> 16) & 0xFFFF),
+				(ushort) ((packedValue >> 32) & 0xFFFF),
+				(ushort) (packedValue >> 48)
 			);
 		}
 
@@ -99,7 +98,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <param name="vector">The vector to create the packed representation from.</param>
 		void IPackedVector.PackFromVector4(Vector4 vector)
 		{
-			packedValue = Pack(ref vector);
+			packedValue = Pack(vector.X, vector.Y, vector.Z, vector.W);
 		}
 
 		#endregion
@@ -171,7 +170,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>String that represents the object.</returns>
 		public override string ToString()
 		{
-			return packedValue.ToString("x16");
+			return packedValue.ToString("X");
 		}
 
 		#endregion
@@ -183,16 +182,13 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// </summary>
 		/// <param name="vector">The vector containing the values to pack.</param>
 		/// <returns>The ulong containing the packed values.</returns>
-		static ulong Pack(ref Vector4 vector)
+		static ulong Pack(float x, float y, float z, float w)
 		{
-			const float maxPos = 0x7FFF;
-			const float minNeg = ~((int) maxPos);
-
-			return (
-				(((ulong) MathHelper.Clamp(vector.X, minNeg, maxPos) & 0xFFFF) << 0x00) |
-				(((ulong) MathHelper.Clamp(vector.Y, minNeg, maxPos) & 0xFFFF) << 0x10) |
-				(((ulong) MathHelper.Clamp(vector.Z, minNeg, maxPos) & 0xFFFF) << 0x20) |
-				(((ulong) MathHelper.Clamp(vector.W, minNeg, maxPos) & 0xFFFF) << 0x30)
+			return (ulong) (
+				((ulong) Math.Round(MathHelper.Clamp(x, 0, 65535))) |
+				(((ulong) Math.Round(MathHelper.Clamp(y, 0, 65535))) << 16) |
+				(((ulong) Math.Round(MathHelper.Clamp(z, 0, 65535))) << 32) |
+				(((ulong) Math.Round(MathHelper.Clamp(w, 0, 65535))) << 48)
 			);
 		}
 
