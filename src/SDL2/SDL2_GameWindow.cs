@@ -240,6 +240,8 @@ namespace Microsoft.Xna.Framework
 			int clientWidth,
 			int clientHeight
 		) {
+			bool center = false;
+
 			// Fullscreen
 			if (	INTERNAL_wantsFullscreen &&
 				(SDL.SDL_GetWindowFlags(INTERNAL_sdlWindow) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN) == 0	)
@@ -258,7 +260,17 @@ namespace Microsoft.Xna.Framework
 			if (!INTERNAL_wantsFullscreen)
 			{
 				SDL.SDL_SetWindowFullscreen(INTERNAL_sdlWindow, 0);
-				SDL.SDL_SetWindowSize(INTERNAL_sdlWindow, clientWidth, clientHeight);
+				int w, h;
+				SDL.SDL_GetWindowSize(
+					INTERNAL_sdlWindow,
+					out w,
+					out h
+				);
+				if (clientWidth != w || clientHeight != h)
+				{
+					SDL.SDL_SetWindowSize(INTERNAL_sdlWindow, clientWidth, clientHeight);
+					center = true;
+				}
 			}
 
 			// Get on the right display!
@@ -278,15 +290,19 @@ namespace Microsoft.Xna.Framework
 			{
 				SDL.SDL_SetWindowFullscreen(INTERNAL_sdlWindow, 0);
 				INTERNAL_deviceName = screenDeviceName;
+				center = true;
 			}
 
-			// Window always gets centered, per XNA behavior
-			int pos = SDL.SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex);
-			SDL.SDL_SetWindowPosition(
-				INTERNAL_sdlWindow,
-				pos,
-				pos
-			);
+			// Window always gets centered on changes, per XNA behavior
+			if (center)
+			{
+				int pos = SDL.SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex);
+				SDL.SDL_SetWindowPosition(
+					INTERNAL_sdlWindow,
+					pos,
+					pos
+				);
+			}
 
 			// Set fullscreen after we've done all the ugly stuff.
 			if (INTERNAL_wantsFullscreen)
