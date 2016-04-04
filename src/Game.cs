@@ -93,14 +93,7 @@ namespace Microsoft.Xna.Framework
 				if (_isActive != value)
 				{
 					_isActive = value;
-					if (_isActive)
-					{
-						OnActivated(this, EventArgs.Empty);
-					}
-					else
-					{
-						OnDeactivated(this, EventArgs.Empty);
-					}
+					Raise(_isActive ? Activated : Deactivated, EventArgs.Empty);
 				}
 			}
 		}
@@ -288,6 +281,9 @@ namespace Microsoft.Xna.Framework
 			_services = new GameServiceContainer();
 			_components = new GameComponentCollection();
 			_content = new ContentManager(_services);
+
+			Activated += OnActivated;
+			Deactivated += OnDeactivated;
 
 			Window = FNAPlatform.CreateWindow();
 
