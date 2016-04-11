@@ -141,6 +141,10 @@ namespace Microsoft.Xna.Framework
 		{
 			SDL.SDL_ShowWindow(game.Window.Handle);
 
+			Rectangle windowBounds = game.Window.ClientBounds;
+			Mouse.INTERNAL_WindowWidth = windowBounds.Width;
+			Mouse.INTERNAL_WindowHeight = windowBounds.Height;
+
 			// Which display did we end up on?
 			int displayIndex = SDL.SDL_GetWindowDisplayIndex(
 				game.Window.Handle
