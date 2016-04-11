@@ -212,7 +212,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			return result;
 		}
 
-		public Matrix GetValueMatrix()
+		public Matrix GetValueMatrixTranspose()
 		{
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
@@ -313,7 +313,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		public Matrix[] GetValueMatrixArray(int count)
+		public Matrix[] GetValueMatrixTransposeArray(int count)
 		{
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			Matrix[] result = new Matrix[count];
@@ -433,7 +433,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			return result;
 		}
 
-		public Matrix GetValueMatrixTranspose()
+		public Matrix GetValueMatrix()
 		{
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
@@ -534,7 +534,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		public Matrix[] GetValueMatrixTransposeArray(int count)
+		public Matrix[] GetValueMatrixArray(int count)
 		{
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			Matrix[] result = new Matrix[count];
@@ -847,7 +847,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Marshal.Copy(value, 0, values, value.Length);
 		}
 
-		public void SetValue(Matrix value)
+		public void SetValueTranspose(Matrix value)
 		{
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
@@ -932,7 +932,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		public void SetValue(Matrix[] value)
+		public void SetValueTranspose(Matrix[] value)
 		{
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
@@ -1033,7 +1033,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		public void SetValueTranspose(Matrix value)
+		public void SetValue(Matrix value)
 		{
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
@@ -1118,7 +1118,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		public void SetValueTranspose(Matrix[] value)
+		public void SetValue(Matrix[] value)
 		{
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
