@@ -15,6 +15,20 @@ namespace Microsoft.Xna.Framework.Input
 {
 	public static class GamePad
 	{
+		#region Internal Constants
+
+		/* Based on the XInput constants */
+		internal const float LeftDeadZone = 7849.0f / 32768.0f;
+		internal const float RightDeadZone = 8689.0f / 32768.0f;
+
+		/* FIXME: Apparently this is supposed to be 30 / 32768?!
+		 * There's no way that's enough. So for now, this.
+		 * -flibit
+		 */
+		internal const float TriggerThreshold = 0.27f;
+
+		#endregion
+
 		#region Internal Static Variables
 
 		/* Determines how many controllers we should be tracking.

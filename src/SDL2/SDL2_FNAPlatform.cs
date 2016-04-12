@@ -952,74 +952,64 @@ namespace Microsoft.Xna.Framework
 				return new GamePadState();
 			}
 
-			// Do not attempt to understand this number at all costs!
-			const float DeadZoneSize = 0.27f;
-
 			// The "master" button state is built from this.
 			Buttons gc_buttonState = (Buttons) 0;
 
 			// Sticks
-			GamePadThumbSticks gc_sticks = new GamePadThumbSticks(
-				new Vector2(
-					(float) SDL.SDL_GameControllerGetAxis(
-						device,
-						SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX
-					) / 32768.0f,
-					(float) SDL.SDL_GameControllerGetAxis(
-						device,
-						SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY
-					) / -32768.0f * invertAxis
-				),
-				new Vector2(
-					(float) SDL.SDL_GameControllerGetAxis(
-						device,
-						SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX
-					) / 32768.0f,
-					(float) SDL.SDL_GameControllerGetAxis(
-						device,
-						SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTY
-					) / -32768.0f * invertAxis
-				),
-				deadZoneMode
+			Vector2 stickLeft = new Vector2(
+				(float) SDL.SDL_GameControllerGetAxis(
+					device,
+					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX
+				) / 32768.0f,
+				(float) SDL.SDL_GameControllerGetAxis(
+					device,
+					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY
+				) / -32768.0f * invertAxis
+			);
+			Vector2 stickRight = new Vector2(
+				(float) SDL.SDL_GameControllerGetAxis(
+					device,
+					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX
+				) / 32768.0f,
+				(float) SDL.SDL_GameControllerGetAxis(
+					device,
+					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTY
+				) / -32768.0f * invertAxis
 			);
 			gc_buttonState |= READ_StickToButtons(
-				gc_sticks.Left,
+				stickLeft,
 				Buttons.LeftThumbstickLeft,
 				Buttons.LeftThumbstickRight,
 				Buttons.LeftThumbstickUp,
 				Buttons.LeftThumbstickDown,
-				DeadZoneSize
+				GamePad.LeftDeadZone
 			);
 			gc_buttonState |= READ_StickToButtons(
-				gc_sticks.Right,
+				stickRight,
 				Buttons.RightThumbstickLeft,
 				Buttons.RightThumbstickRight,
 				Buttons.RightThumbstickUp,
 				Buttons.RightThumbstickDown,
-				DeadZoneSize
+				GamePad.RightDeadZone
 			);
 
 			// Triggers
-			GamePadTriggers gc_triggers = new GamePadTriggers(
-				(float) SDL.SDL_GameControllerGetAxis(
-					device,
-					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERLEFT
-				) / 32768.0f,
-				(float) SDL.SDL_GameControllerGetAxis(
-					device,
-					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERRIGHT
-				) / 32768.0f
-			);
-			gc_buttonState |= READ_TriggerToButton(
-				gc_triggers.Left,
-				Buttons.LeftTrigger,
-				DeadZoneSize
-			);
-			gc_buttonState |= READ_TriggerToButton(
-				gc_triggers.Right,
-				Buttons.RightTrigger,
-				DeadZoneSize
-			);
+			float triggerLeft = (float) SDL.SDL_GameControllerGetAxis(
+				device,
+				SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERLEFT
+			) / 32768.0f;
+			float triggerRight = (float) SDL.SDL_GameControllerGetAxis(
+				device,
+				SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERRIGHT
+			) / 32768.0f;
+			if (triggerLeft > GamePad.TriggerThreshold)
+			{
+				gc_buttonState |= Buttons.LeftTrigger;
+			}
+			if (triggerRight > GamePad.TriggerThreshold)
+			{
+				gc_buttonState |= Buttons.RightTrigger;
+			}
 
 			// Buttons
 			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A) != 0)
@@ -1066,9 +1056,6 @@ namespace Microsoft.Xna.Framework
 			{
 				gc_buttonState |= Buttons.RightShoulder;
 			}
-
-			// DPad
-			GamePadDPad gc_dpad;
 			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP) != 0)
 			{
 				gc_buttonState |= Buttons.DPadUp;
@@ -1085,17 +1072,13 @@ namespace Microsoft.Xna.Framework
 			{
 				gc_buttonState |= Buttons.DPadRight;
 			}
-			gc_dpad = new GamePadDPad(gc_buttonState);
-
-			// Compile the master buttonstate
-			GamePadButtons gc_buttons = new GamePadButtons(gc_buttonState);
 
 			// Build the GamePadState, increment PacketNumber if state changed.
 			GamePadState gc_builtState = new GamePadState(
-				gc_sticks,
-				gc_triggers,
-				gc_buttons,
-				gc_dpad
+				new GamePadThumbSticks(stickLeft, stickRight, deadZoneMode),
+				new GamePadTriggers(triggerLeft, triggerRight),
+				new GamePadButtons(gc_buttonState),
+				new GamePadDPad(gc_buttonState)
 			);
 			gc_builtState.IsConnected = true;
 			gc_builtState.PacketNumber = INTERNAL_states[index].PacketNumber;
@@ -1441,19 +1424,6 @@ namespace Microsoft.Xna.Framework
 			if (stick.Y < -DeadZoneSize)
 			{
 				b |= down;
-			}
-
-			return b;
-		}
-
-		// GetState can convert trigger values to button values
-		private static Buttons READ_TriggerToButton(float trigger, Buttons button, float DeadZoneSize)
-		{
-			Buttons b = (Buttons) 0;
-
-			if (trigger > DeadZoneSize)
-			{
-				b |= button;
 			}
 
 			return b;
