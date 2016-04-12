@@ -101,5 +101,26 @@ namespace Microsoft.Xna.Framework.Input
 		}
 
 		#endregion
+
+		#region Internal Static Methods
+
+		internal static float ExcludeAxisDeadZone(float value, float deadZone)
+		{
+			if (value < -deadZone)
+			{
+				value += deadZone;
+			}
+			else if (value > deadZone)
+			{
+				value -= deadZone;
+			}
+			else
+			{
+				return 0.0f;
+			}
+			return value / (1.0f - deadZone);
+		}
+
+		#endregion
 	}
 }

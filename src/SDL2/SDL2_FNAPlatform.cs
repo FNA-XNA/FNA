@@ -960,21 +960,21 @@ namespace Microsoft.Xna.Framework
 				(float) SDL.SDL_GameControllerGetAxis(
 					device,
 					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX
-				) / 32768.0f,
+				) / 32767.0f,
 				(float) SDL.SDL_GameControllerGetAxis(
 					device,
 					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY
-				) / -32768.0f * invertAxis
+				) / -32767.0f * invertAxis
 			);
 			Vector2 stickRight = new Vector2(
 				(float) SDL.SDL_GameControllerGetAxis(
 					device,
 					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX
-				) / 32768.0f,
+				) / 32767.0f,
 				(float) SDL.SDL_GameControllerGetAxis(
 					device,
 					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTY
-				) / -32768.0f * invertAxis
+				) / -32767.0f * invertAxis
 			);
 			gc_buttonState |= READ_StickToButtons(
 				stickLeft,
@@ -997,11 +997,11 @@ namespace Microsoft.Xna.Framework
 			float triggerLeft = (float) SDL.SDL_GameControllerGetAxis(
 				device,
 				SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERLEFT
-			) / 32768.0f;
+			) / 32767.0f;
 			float triggerRight = (float) SDL.SDL_GameControllerGetAxis(
 				device,
 				SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERRIGHT
-			) / 32768.0f;
+			) / 32767.0f;
 			if (triggerLeft > GamePad.TriggerThreshold)
 			{
 				gc_buttonState |= Buttons.LeftTrigger;
@@ -1076,7 +1076,7 @@ namespace Microsoft.Xna.Framework
 			// Build the GamePadState, increment PacketNumber if state changed.
 			GamePadState gc_builtState = new GamePadState(
 				new GamePadThumbSticks(stickLeft, stickRight, deadZoneMode),
-				new GamePadTriggers(triggerLeft, triggerRight),
+				new GamePadTriggers(triggerLeft, triggerRight, deadZoneMode),
 				new GamePadButtons(gc_buttonState),
 				new GamePadDPad(gc_buttonState)
 			);

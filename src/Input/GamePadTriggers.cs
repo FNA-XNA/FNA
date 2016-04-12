@@ -19,20 +19,12 @@ namespace Microsoft.Xna.Framework.Input
 			{
 				return left;
 			}
-			internal set
-			{
-				left = MathHelper.Clamp(value, 0f, 1f);
-			}
 		}
 		public float Right
 		{
 			get
 			{
 				return right;
-			}
-			internal set
-			{
-				right = MathHelper.Clamp(value, 0f, 1f);
 			}
 		}
 
@@ -47,10 +39,49 @@ namespace Microsoft.Xna.Framework.Input
 
 		#region Public Constructor
 
-		public GamePadTriggers(float leftTrigger, float rightTrigger):this()
+		public GamePadTriggers(float leftTrigger, float rightTrigger)
 		{
-			Left = leftTrigger;
-			Right = rightTrigger;
+			left = MathHelper.Clamp(leftTrigger, 0.0f, 1.0f);
+			right = MathHelper.Clamp(rightTrigger, 0.0f, 1.0f);
+		}
+
+		#endregion
+
+		#region Internal Constructor
+
+		internal GamePadTriggers(
+			float leftTrigger,
+			float rightTrigger,
+			GamePadDeadZone deadZoneMode
+		) {
+			/* XNA applies dead zones before rounding/clamping values.
+			 * The public constructor does not allow this because the
+			 * dead zone must be known first.
+			 */
+			if (deadZoneMode == GamePadDeadZone.None)
+			{
+				left = MathHelper.Clamp(leftTrigger, 0.0f, 1.0f);
+				right = MathHelper.Clamp(rightTrigger, 0.0f, 1.0f);
+			}
+			else
+			{
+				left = MathHelper.Clamp(
+					GamePad.ExcludeAxisDeadZone(
+						leftTrigger,
+						GamePad.TriggerThreshold
+					),
+					0.0f,
+					1.0f
+				);
+				right = MathHelper.Clamp(
+					GamePad.ExcludeAxisDeadZone(
+						rightTrigger,
+						GamePad.TriggerThreshold
+					),
+					0.0f,
+					1.0f
+				);
+			}
 		}
 
 		#endregion
