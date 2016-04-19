@@ -77,7 +77,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		// Default SpriteBatch Effect
 		private Effect spriteEffect;
-		private EffectParameter spriteMatrixTransform;
+		private IntPtr spriteMatrixTransform;
 		private EffectPass spriteEffectPass;
 
 		// Tracks Begin/End calls
@@ -143,7 +143,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				graphicsDevice,
 				spriteEffectCode
 			);
-			spriteMatrixTransform = spriteEffect.Parameters["MatrixTransform"];
+			spriteMatrixTransform = spriteEffect.Parameters["MatrixTransform"].values;
 			spriteEffectPass = spriteEffect.CurrentTechnique.Passes[0];
 
 			beginCalled = false;
@@ -1083,31 +1083,29 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			Viewport viewport = GraphicsDevice.Viewport;
 
-			// Inlined CreateOrthographicOffCenter
-			Matrix projection = new Matrix(
-				(float) (2.0 / (double) viewport.Width),
-				0.0f,
-				0.0f,
-				0.0f,
-				0.0f,
-				(float) (-2.0 / (double) viewport.Height),
-				0.0f,
-				0.0f,
-				0.0f,
-				0.0f,
-				1.0f,
-				0.0f,
-				-1.0f,
-				1.0f,
-				0.0f,
-				1.0f
-			);
-			Matrix.Multiply(
-				ref transformMatrix,
-				ref projection,
-				out projection
-			);
-			spriteMatrixTransform.SetValue(projection);
+			// Inlined CreateOrthographicOffCenter * transformMatrix
+			float tfWidth = (float) (2.0 / (double) viewport.Width);
+			float tfHeight = (float) (-2.0 / (double) viewport.Height);
+			unsafe
+			{
+				float* dstPtr = (float*) spriteMatrixTransform;
+				dstPtr[0] = tfWidth * transformMatrix.M11;
+				dstPtr[1] = tfHeight * transformMatrix.M21;
+				dstPtr[2] = transformMatrix.M31;
+				dstPtr[3] = -transformMatrix.M11 + transformMatrix.M21 + transformMatrix.M41;
+				dstPtr[4] = tfWidth * transformMatrix.M12;
+				dstPtr[5] = tfHeight * transformMatrix.M22;
+				dstPtr[6] = transformMatrix.M32;
+				dstPtr[7] = -transformMatrix.M12 + transformMatrix.M22 + transformMatrix.M42;
+				dstPtr[8] = tfWidth * transformMatrix.M13;
+				dstPtr[9] = tfHeight * transformMatrix.M23;
+				dstPtr[10] = transformMatrix.M33;
+				dstPtr[11] = -transformMatrix.M13 + transformMatrix.M23 + transformMatrix.M43;
+				dstPtr[12] = tfWidth * transformMatrix.M14;
+				dstPtr[13] = tfHeight * transformMatrix.M24;
+				dstPtr[14] = transformMatrix.M34;
+				dstPtr[15] = -transformMatrix.M14 + transformMatrix.M24 + transformMatrix.M44;
+			}
 
 			// FIXME: When is this actually applied? -flibit
 			spriteEffectPass.Apply();
