@@ -79,11 +79,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal Texture texture;
 
-		#endregion
-
-		#region Private Variables
-
-		private IntPtr values;
+		internal IntPtr values;
 
 		#endregion
 
