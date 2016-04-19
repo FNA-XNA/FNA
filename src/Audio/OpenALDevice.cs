@@ -162,7 +162,7 @@ namespace Microsoft.Xna.Framework.Audio
 			// We do NOT use automatic attenuation! XNA does not do this!
 			AL10.alDistanceModel(AL10.AL_NONE);
 
-			EFX.alGenFilters((IntPtr) 1, out INTERNAL_alFilter);
+			EFX.alGenFilters(1, out INTERNAL_alFilter);
 		}
 
 		#endregion
@@ -171,7 +171,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Dispose()
 		{
-			EFX.alDeleteFilters((IntPtr) 1, ref INTERNAL_alFilter);
+			EFX.alDeleteFilters(1, ref INTERNAL_alFilter);
 
 			ALC10.alcMakeContextCurrent(IntPtr.Zero);
 			if (alContext != IntPtr.Zero)
@@ -204,7 +204,7 @@ namespace Microsoft.Xna.Framework.Audio
 		public IALBuffer GenBuffer()
 		{
 			uint result;
-			AL10.alGenBuffers((IntPtr) 1, out result);
+			AL10.alGenBuffers(1, out result);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
@@ -223,7 +223,7 @@ namespace Microsoft.Xna.Framework.Audio
 			uint result;
 
 			// Generate the buffer now, in case we need to perform alBuffer ops.
-			AL10.alGenBuffers((IntPtr) 1, out result);
+			AL10.alGenBuffers(1, out result);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
@@ -261,8 +261,8 @@ namespace Microsoft.Xna.Framework.Audio
 				result,
 				format,
 				data,
-				(IntPtr) data.Length,
-				(IntPtr) sampleRate
+				data.Length,
+				(int) sampleRate
 			);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
@@ -317,7 +317,7 @@ namespace Microsoft.Xna.Framework.Audio
 		public void DeleteBuffer(IALBuffer buffer)
 		{
 			uint handle = (buffer as OpenALBuffer).Handle;
-			AL10.alDeleteBuffers((IntPtr) 1, ref handle);
+			AL10.alDeleteBuffers(1, ref handle);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
@@ -335,8 +335,8 @@ namespace Microsoft.Xna.Framework.Audio
 				(buffer as OpenALBuffer).Handle,
 				XNAToShort[(int) channels],
 				data + offset,
-				(IntPtr) count,
-				(IntPtr) sampleRate
+				count,
+				sampleRate
 			);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
@@ -355,8 +355,8 @@ namespace Microsoft.Xna.Framework.Audio
 				(buffer as OpenALBuffer).Handle,
 				XNAToFloat[(int) channels],
 				data + (offset * 4),
-				(IntPtr) (count * 4),
-				(IntPtr) sampleRate
+				count * 4,
+				sampleRate
 			);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
@@ -370,7 +370,7 @@ namespace Microsoft.Xna.Framework.Audio
 		public IALSource GenSource()
 		{
 			uint result;
-			AL10.alGenSources((IntPtr) 1, out result);
+			AL10.alGenSources(1, out result);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
@@ -384,7 +384,7 @@ namespace Microsoft.Xna.Framework.Audio
 		public IALSource GenSource(IALBuffer buffer)
 		{
 			uint result;
-			AL10.alGenSources((IntPtr) 1, out result);
+			AL10.alGenSources(1, out result);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
@@ -410,7 +410,7 @@ namespace Microsoft.Xna.Framework.Audio
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
-			AL10.alDeleteSources((IntPtr) 1, ref handle);
+			AL10.alDeleteSources(1, ref handle);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
@@ -603,7 +603,7 @@ namespace Microsoft.Xna.Framework.Audio
 			uint buf = (buffer as OpenALBuffer).Handle;
 			AL10.alSourceQueueBuffers(
 				(source as OpenALSource).Handle,
-				(IntPtr) 1,
+				1,
 				ref buf
 			);
 #if VERBOSE_AL_DEBUGGING
@@ -619,7 +619,7 @@ namespace Microsoft.Xna.Framework.Audio
 			uint[] bufs = new uint[buffersToDequeue];
 			AL10.alSourceUnqueueBuffers(
 				(source as OpenALSource).Handle,
-				(IntPtr) buffersToDequeue,
+				buffersToDequeue,
 				bufs
 			);
 #if VERBOSE_AL_DEBUGGING
@@ -729,8 +729,8 @@ namespace Microsoft.Xna.Framework.Audio
 		public IALReverb GenReverb(DSPParameter[] parameters)
 		{
 			uint slot, effect;
-			EFX.alGenAuxiliaryEffectSlots((IntPtr) 1, out slot);
-			EFX.alGenEffects((IntPtr) 1, out effect);
+			EFX.alGenAuxiliaryEffectSlots(1, out slot);
+			EFX.alGenEffects(1, out effect);
 			// Set up the Reverb Effect
 			EFX.alEffecti(
 				effect,
@@ -782,8 +782,8 @@ namespace Microsoft.Xna.Framework.Audio
 			OpenALReverb rv = (reverb as OpenALReverb);
 			uint slot = rv.SlotHandle;
 			uint effect = rv.EffectHandle;
-			EFX.alDeleteAuxiliaryEffectSlots((IntPtr) 1, ref slot);
-			EFX.alDeleteEffects((IntPtr) 1, ref effect);
+			EFX.alDeleteAuxiliaryEffectSlots(1, ref slot);
+			EFX.alDeleteEffects(1, ref effect);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
@@ -1038,7 +1038,7 @@ namespace Microsoft.Xna.Framework.Audio
 				name,
 				(uint) sampleRate,
 				AL10.AL_FORMAT_MONO16,
-				(IntPtr) bufSize
+				bufSize
 			);
 			ALC11.alcCaptureStart(result);
 #if VERBOSE_AL_DEBUGGING
@@ -1068,13 +1068,13 @@ namespace Microsoft.Xna.Framework.Audio
 			ALC10.alcGetIntegerv(
 				handle,
 				ALC11.ALC_CAPTURE_SAMPLES,
-				(IntPtr) 1,
+				1,
 				samples
 			);
 			samples[0] = Math.Min(samples[0], count / 2);
 			if (samples[0] > 0)
 			{
-				ALC11.alcCaptureSamples(handle, buffer, (IntPtr) samples[0]);
+				ALC11.alcCaptureSamples(handle, buffer, samples[0]);
 			}
 #if VERBOSE_AL_DEBUGGING
 			if (CheckALCError())
@@ -1091,7 +1091,7 @@ namespace Microsoft.Xna.Framework.Audio
 			ALC10.alcGetIntegerv(
 				handle,
 				ALC11.ALC_CAPTURE_SAMPLES,
-				(IntPtr) 1,
+				1,
 				samples
 			);
 			return samples[0] > 0;
