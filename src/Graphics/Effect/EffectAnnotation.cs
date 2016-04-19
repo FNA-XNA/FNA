@@ -106,7 +106,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public Matrix GetValueMatrix()
 		{
-			// FIXME: This assumes 4x4! -flibit
 			unsafe
 			{
 				float* resPtr = (float*) values;
