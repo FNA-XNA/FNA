@@ -1092,19 +1092,19 @@ namespace Microsoft.Xna.Framework.Graphics
 				dstPtr[0] = tfWidth * transformMatrix.M11;
 				dstPtr[1] = tfHeight * transformMatrix.M21;
 				dstPtr[2] = transformMatrix.M31;
-				dstPtr[3] = -transformMatrix.M11 + transformMatrix.M21 + transformMatrix.M41;
+				dstPtr[3] = (transformMatrix.M41 * tfWidth) - transformMatrix.M44;
 				dstPtr[4] = tfWidth * transformMatrix.M12;
 				dstPtr[5] = tfHeight * transformMatrix.M22;
 				dstPtr[6] = transformMatrix.M32;
-				dstPtr[7] = -transformMatrix.M12 + transformMatrix.M22 + transformMatrix.M42;
+				dstPtr[7] = (transformMatrix.M42 * tfHeight) + transformMatrix.M44;
 				dstPtr[8] = tfWidth * transformMatrix.M13;
 				dstPtr[9] = tfHeight * transformMatrix.M23;
 				dstPtr[10] = transformMatrix.M33;
-				dstPtr[11] = -transformMatrix.M13 + transformMatrix.M23 + transformMatrix.M43;
+				dstPtr[11] = transformMatrix.M43;
 				dstPtr[12] = tfWidth * transformMatrix.M14;
 				dstPtr[13] = tfHeight * transformMatrix.M24;
 				dstPtr[14] = transformMatrix.M34;
-				dstPtr[15] = -transformMatrix.M14 + transformMatrix.M24 + transformMatrix.M44;
+				dstPtr[15] = transformMatrix.M44;
 			}
 
 			// FIXME: When is this actually applied? -flibit
