@@ -94,9 +94,9 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Public Static Dispose Method
+		#region Private Static Dispose Method
 
-		public static void Dispose(object sender, EventArgs e)
+		private static void Dispose(object sender, EventArgs e)
 		{
 			InstancePool.Clear();
 			DynamicInstancePool.Clear();
