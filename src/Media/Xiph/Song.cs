@@ -331,7 +331,11 @@ namespace Microsoft.Xna.Framework.Media
 			if (total == 0)
 			{
 				eof = true;
-				soundStream.BufferNeeded -= QueueBuffer;
+				if ((sender as DynamicSoundEffectInstance).PendingBufferCount == 0)
+				{
+					soundStream.BufferNeeded -= QueueBuffer;
+					MediaPlayer.SongFinishedPlaying();
+				}
 				return;
 			}
 
@@ -360,14 +364,6 @@ namespace Microsoft.Xna.Framework.Media
 				}
 				// Arbitrarily 1 frame in a 15Hz game -flibit
 				Thread.Sleep(67);
-			}
-			if (PlayCount > 0)
-			{
-				/* If PlayCount is 0 at this point, then we were stopped by the
-				 * calling application, and this event shouldn't happen.
-				 * -flibit
-				 */
-				MediaPlayer.OnSongFinishedPlaying(null, null);
 			}
 		}
 #endif

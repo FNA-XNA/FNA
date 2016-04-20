@@ -83,6 +83,7 @@ namespace Microsoft.Xna.Framework.Audio
 				InstancePool = new List<SoundEffectInstance>();
 				DynamicInstancePool = new List<DynamicSoundEffectInstance>();
 				ActiveMics = new List<Microphone>();
+				AppDomain.CurrentDomain.ProcessExit += Dispose;
 			}
 			else
 			{
@@ -95,15 +96,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Public Static Dispose Method
 
-		public static void Dispose()
+		public static void Dispose(object sender, EventArgs e)
 		{
-			if (ALDevice != null)
-			{
-				InstancePool.Clear();
-				DynamicInstancePool.Clear();
-				ALDevice.Dispose();
-				// ALDevice = null; <- May cause Exceptions!
-			}
+			InstancePool.Clear();
+			DynamicInstancePool.Clear();
+			ALDevice.Dispose();
 		}
 
 		#endregion
@@ -112,29 +109,31 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public static void Update()
 		{
-			if (ALDevice != null)
+			ALDevice.Update();
+
+			for (int i = 0; i < InstancePool.Count; i += 1)
 			{
-				ALDevice.Update();
-
-				for (int i = 0; i < InstancePool.Count; i += 1)
+				if (InstancePool[i].State == SoundState.Stopped)
 				{
-					if (InstancePool[i].State == SoundState.Stopped)
-					{
-						InstancePool[i].Dispose();
-						InstancePool.RemoveAt(i);
-						i -= 1;
-					}
+					InstancePool[i].Dispose();
+					InstancePool.RemoveAt(i);
+					i -= 1;
 				}
+			}
 
-				foreach (DynamicSoundEffectInstance sfi in DynamicInstancePool)
+			for (int i = 0; i < DynamicInstancePool.Count; i += 1)
+			{
+				DynamicSoundEffectInstance sfi = DynamicInstancePool[i];
+				sfi.Update();
+				if (sfi.State == SoundState.Stopped)
 				{
-					sfi.Update();
+					i -= 1;
 				}
+			}
 
-				foreach (Microphone mic in ActiveMics)
-				{
-					mic.CheckBuffer();
-				}
+			foreach (Microphone mic in ActiveMics)
+			{
+				mic.CheckBuffer();
 			}
 		}
 

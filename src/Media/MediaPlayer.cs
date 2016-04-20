@@ -92,10 +92,7 @@ namespace Microsoft.Xna.Framework.Media
 				if (INTERNAL_state != value)
 				{
 					INTERNAL_state = value;
-					if (MediaStateChanged != null)
-					{
-						MediaStateChanged(null, EventArgs.Empty);
-					}
+					FrameworkDispatcher.MediaStateChanged = true;
 				}
 			}
 		}
@@ -196,9 +193,9 @@ namespace Microsoft.Xna.Framework.Media
 
 			PlaySong(song);
 
-			if (previousSong != song && ActiveSongChanged != null)
+			if (previousSong != song)
 			{
-				ActiveSongChanged.Invoke(null, EventArgs.Empty);
+				FrameworkDispatcher.ActiveSongChanged = true;
 			}
 		}
 
@@ -243,7 +240,7 @@ namespace Microsoft.Xna.Framework.Media
 			// Loop through so that we reset the PlayCount as well.
 			foreach (Song song in Queue.Songs)
 			{
-				Queue.ActiveSong.Stop();
+				song.Stop();
 			}
 
 			State = MediaState.Stopped;
@@ -261,9 +258,8 @@ namespace Microsoft.Xna.Framework.Media
 
 		#region Internal Static Methods
 
-		internal static void OnSongFinishedPlaying(object sender, EventArgs args)
+		internal static void SongFinishedPlaying()
 		{
-			// TODO: Check args to see if song sucessfully played.
 			numSongsInQueuePlayed += 1;
 
 			if (numSongsInQueuePlayed >= Queue.Count)
@@ -273,16 +269,29 @@ namespace Microsoft.Xna.Framework.Media
 				{
 					Stop();
 
-					if (ActiveSongChanged != null)
-					{
-						ActiveSongChanged.Invoke(null, null);
-					}
+					FrameworkDispatcher.ActiveSongChanged = true;
 
 					return;
 				}
 			}
 
 			MoveNext();
+		}
+
+		internal static void OnActiveSongChanged()
+		{
+			if (ActiveSongChanged != null)
+			{
+				ActiveSongChanged(null, EventArgs.Empty);
+			}
+		}
+
+		internal static void OnMediaStateChanged()
+		{
+			if (MediaStateChanged != null)
+			{
+				MediaStateChanged(null, EventArgs.Empty);
+			}
 		}
 
 		#endregion
@@ -311,10 +320,7 @@ namespace Microsoft.Xna.Framework.Media
 				PlaySong(nextSong);
 			}
 
-			if (ActiveSongChanged != null)
-			{
-				ActiveSongChanged.Invoke(null, null);
-			}
+			FrameworkDispatcher.ActiveSongChanged = true;
 		}
 
 		private static void PlaySong(Song song)
