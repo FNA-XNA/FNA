@@ -42,7 +42,7 @@ namespace Microsoft.Xna.Framework
 				 */
 
 				// Checks and cleans instances, fires events accordingly
-				Audio.AudioDevice.Update();
+				AudioDevice.Update();
 			}
 			if (ActiveSongChanged)
 			{
