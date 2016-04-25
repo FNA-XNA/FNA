@@ -60,7 +60,15 @@ namespace Microsoft.Xna.Framework
 			TextureDataFromStream =		SDL2_FNAPlatform.TextureDataFromStream;
 			SavePNG =			SDL2_FNAPlatform.SavePNG;
 
-			Log = Console.WriteLine;
+			// Static init is a strange beast... -flibit
+			if (Game.logStore != null)
+			{
+				Log = Game.logStore;
+			}
+			else
+			{
+				Log = Console.WriteLine;
+			}
 
 			AppDomain.CurrentDomain.ProcessExit += SDL2_FNAPlatform.ProgramExit;
 			SDL2_FNAPlatform.ProgramInit();

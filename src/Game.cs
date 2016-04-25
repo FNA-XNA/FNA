@@ -1237,14 +1237,23 @@ namespace Microsoft.Xna.Framework
 
 		#region FNA Extensions
 
+		/* We have to store this here because we may be
+		 * setting the log before static initialization.
+		 * Sometimes stuff is logged at that time, so we
+		 * have to force it to use what we're sent!
+		 * -flibit
+		 */
+		internal static Action<string> logStore;
 		public static void LogHookEXT(Action<string> logFunc)
 		{
 			if (logFunc == null)
 			{
+				logStore = null;
 				FNAPlatform.UnhookLogger();
 			}
 			else
 			{
+				logStore = logFunc;
 				FNAPlatform.Log = logFunc;
 			}
 		}
