@@ -331,14 +331,35 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public Quaternion GetValueQuaternion()
 		{
-			// FIXME: Is this really a thing Effects do? -flibit
-			throw new NotImplementedException("Quaternions?");
+			unsafe
+			{
+				float* resPtr = (float*) values;
+				return new Quaternion(
+					resPtr[0],
+					resPtr[1],
+					resPtr[2],
+					resPtr[3]
+				);
+			}
 		}
 
 		public Quaternion[] GetValueQuaternionArray(int count)
 		{
-			// FIXME: Is this really a thing Effects do? -flibit
-			throw new NotImplementedException("Quaternions?");
+			Quaternion[] result = new Quaternion[count];
+			unsafe
+			{
+				float* resPtr = (float*) values;
+				for (int i = 0; i < count; i += 1, resPtr += 4)
+				{
+					result[i] = new Quaternion(
+						resPtr[0],
+						resPtr[1],
+						resPtr[2],
+						resPtr[3]
+					);
+				}
+			}
+			return result;
 		}
 
 		public float GetValueSingle()
@@ -905,14 +926,29 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Quaternion value)
 		{
-			// FIXME: Is this really a thing Effects do? -flibit
-			throw new NotImplementedException("Quaternions?");
+			unsafe
+			{
+				float* dstPtr = (float*) values;
+				dstPtr[0] = value.X;
+				dstPtr[1] = value.Y;
+				dstPtr[2] = value.Z;
+				dstPtr[3] = value.W;
+			}
 		}
 
 		public void SetValue(Quaternion[] value)
 		{
-			// FIXME: Is this really a thing Effects do? -flibit
-			throw new NotImplementedException("Quaternions?");
+			unsafe
+			{
+				float* dstPtr = (float*) values;
+				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
+				{
+					dstPtr[0] = value[i].X;
+					dstPtr[1] = value[i].Y;
+					dstPtr[2] = value[i].Z;
+					dstPtr[3] = value[i].W;
+				}
+			}
 		}
 
 		public void SetValue(float value)
