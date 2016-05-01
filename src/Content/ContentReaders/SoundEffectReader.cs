@@ -62,8 +62,8 @@ namespace Microsoft.Xna.Framework.Content
 			// cbSize, unused
 			input.ReadUInt16();
 
-			// Seek past the rest of this crap
-			input.BaseStream.Seek(formatLength - 18, SeekOrigin.Current);
+			// Seek past the rest of this crap (cannot seek though!)
+			input.ReadBytes((int) (formatLength - 18));
 
 			// Wavedata
 			byte[] data = input.ReadBytes(input.ReadInt32());
