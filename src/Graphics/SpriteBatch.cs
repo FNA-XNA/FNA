@@ -371,7 +371,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				origin,
 				rotation,
 				layerDepth,
-				(byte) effects,
+				(byte) (effects & (SpriteEffects) 0x03),
 				false
 			);
 		}
@@ -401,7 +401,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				origin,
 				rotation,
 				layerDepth,
-				(byte) effects,
+				(byte) (effects & (SpriteEffects) 0x03),
 				false
 			);
 		}
@@ -479,7 +479,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				origin,
 				rotation,
 				layerDepth,
-				(byte) effects,
+				(byte) (effects & (SpriteEffects) 0x03),
 				true
 			);
 		}
@@ -564,6 +564,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				return;
 			}
+			effects &= (SpriteEffects) 0x03;
 
 			// FIXME: This needs an accuracy check! -flibit
 
@@ -730,6 +731,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				return;
 			}
+			effects &= (SpriteEffects) 0x03;
 
 			// FIXME: This needs an accuracy check! -flibit
 
