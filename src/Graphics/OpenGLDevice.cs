@@ -1768,6 +1768,31 @@ namespace Microsoft.Xna.Framework.Graphics
 				null,
 				IntPtr.Zero
 			);
+#if DEBUG
+			MojoShader.MOJOSHADER_effect mojoShaderEffect = (MojoShader.MOJOSHADER_effect) Marshal.PtrToStructure(
+				effect, 
+				typeof(MojoShader.MOJOSHADER_effect)
+			);
+			if (mojoShaderEffect.error_count > 0)
+			{
+				MojoShader.MOJOSHADER_error mojoShaderError = (MojoShader.MOJOSHADER_error) Marshal.PtrToStructure(
+					mojoShaderEffect.errors,
+					typeof(MojoShader.MOJOSHADER_error)
+				);
+
+				unsafe
+				{
+					byte* endPtr = (byte*) mojoShaderError.error;
+					while (*endPtr != 0)
+					{
+						endPtr++;
+					}
+					byte[] bytes = new byte[endPtr - (byte*)mojoShaderError.error];
+					Marshal.Copy(mojoShaderError.error, bytes, 0, bytes.Length);
+					FNAPlatform.Log("MojoShader parseEffect error: " + System.Text.Encoding.UTF8.GetString(bytes));
+				}
+			}
+#endif
 			glEffect = MojoShader.MOJOSHADER_glCompileEffect(effect);
 			if (glEffect == IntPtr.Zero)
 			{
