@@ -1768,6 +1768,31 @@ namespace Microsoft.Xna.Framework.Graphics
 				null,
 				IntPtr.Zero
 			);
+
+#if DEBUG
+			unsafe
+			{
+				MojoShader.MOJOSHADER_effect *effectPtr = (MojoShader.MOJOSHADER_effect*) effect;
+				MojoShader.MOJOSHADER_error* err = (MojoShader.MOJOSHADER_error*) effectPtr->errors;
+				for (int i = 0; i < effectPtr->error_count; i += 1)
+				{
+					// From the SDL2# LPToUtf8StringMarshaler
+					byte* endPtr = (byte*) err[i].error;
+					while (*endPtr != 0)
+					{
+						endPtr++;
+					}
+					byte[] bytes = new byte[endPtr - (byte*) err[i].error];
+					Marshal.Copy(err[i].error, bytes, 0, bytes.Length);
+
+					FNAPlatform.Log(
+						"MOJOSHADER_parseEffect Error: " +
+						System.Text.Encoding.UTF8.GetString(bytes)
+					);
+				}
+			}
+#endif
+
 			glEffect = MojoShader.MOJOSHADER_glCompileEffect(effect);
 			if (glEffect == IntPtr.Zero)
 			{
