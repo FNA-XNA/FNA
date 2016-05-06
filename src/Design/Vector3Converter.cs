@@ -38,7 +38,7 @@ namespace Microsoft.Xna.Framework.Design
 			if (s != null)
 			{
 				string[] v = s.Split(
-					culture.NumberFormat.NumberGroupSeparator.ToCharArray()
+					culture.TextInfo.ListSeparator.ToCharArray()
 				);
 				return new Vector3(
 					float.Parse(v[0], culture),
@@ -59,7 +59,7 @@ namespace Microsoft.Xna.Framework.Design
 			{
 				Vector3 vec = (Vector3) value;
 				return string.Join(
-					culture.NumberFormat.NumberGroupSeparator,
+					culture.TextInfo.ListSeparator,
 					new string[]
 					{
 						vec.X.ToString(culture),

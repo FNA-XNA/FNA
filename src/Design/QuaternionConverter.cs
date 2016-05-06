@@ -38,7 +38,7 @@ namespace Microsoft.Xna.Framework.Design
 			if (s != null)
 			{
 				string[] v = s.Split(
-					culture.NumberFormat.NumberGroupSeparator.ToCharArray()
+					culture.TextInfo.ListSeparator.ToCharArray()
 				);
 				return new Quaternion(
 					float.Parse(v[0], culture),
@@ -60,7 +60,7 @@ namespace Microsoft.Xna.Framework.Design
 			{
 				Quaternion quat = (Quaternion) value;
 				return string.Join(
-					culture.NumberFormat.NumberGroupSeparator,
+					culture.TextInfo.ListSeparator,
 					new string[]
 					{
 						quat.X.ToString(culture),

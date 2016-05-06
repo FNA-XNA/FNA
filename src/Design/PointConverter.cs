@@ -38,7 +38,7 @@ namespace Microsoft.Xna.Framework.Design
 			if (s != null)
 			{
 				string[] v = s.Split(
-					culture.NumberFormat.NumberGroupSeparator.ToCharArray()
+					culture.TextInfo.ListSeparator.ToCharArray()
 				);
 				return new Point(
 					int.Parse(v[0], culture),
@@ -58,7 +58,7 @@ namespace Microsoft.Xna.Framework.Design
 			{
 				Point pt = (Point) value;
 				return string.Join(
-					culture.NumberFormat.NumberGroupSeparator,
+					culture.TextInfo.ListSeparator,
 					new string[]
 					{
 						pt.X.ToString(culture),
