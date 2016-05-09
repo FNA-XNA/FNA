@@ -32,12 +32,19 @@ namespace Microsoft.Xna.Framework.Graphics
 		private const int MAX_INDICES = MAX_SPRITES * 6;
 
 		// Used to quickly flip text for DrawString
-		private static readonly Vector2[] axisDirection = new Vector2[]
+		private static readonly float[] axisDirectionX = new float[]
 		{
-			new Vector2(-1, -1),
-			new Vector2( 1, -1),
-			new Vector2(-1,  1),
-			new Vector2( 1,  1)
+			-1.0f,
+			1.0f,
+			-1.0f,
+			1.0f
+		};
+		private static readonly float[] axisDirectionY = new float[]
+		{
+			-1.0f,
+			-1.0f,
+			1.0f,
+			1.0f
 		};
 		private static readonly Vector2[] axisIsMirrored = new Vector2[]
 		{
@@ -306,12 +313,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			PushSprite(
 				texture,
 				null,
-				new Vector4(
-					position.X,
-					position.Y,
-					1.0f,
-					1.0f
-				),
+				position.X,
+				position.Y,
+				1.0f,
+				1.0f,
 				color,
 				Vector2.Zero,
 				0.0f,
@@ -331,12 +336,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			PushSprite(
 				texture,
 				sourceRectangle,
-				new Vector4(
-					position.X,
-					position.Y,
-					1.0f,
-					1.0f
-				),
+				position.X,
+				position.Y,
+				1.0f,
+				1.0f,
 				color,
 				Vector2.Zero,
 				0.0f,
@@ -361,12 +364,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			PushSprite(
 				texture,
 				sourceRectangle,
-				new Vector4(
-					position.X,
-					position.Y,
-					scale,
-					scale
-				),
+				position.X,
+				position.Y,
+				scale,
+				scale,
 				color,
 				origin,
 				rotation,
@@ -391,12 +392,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			PushSprite(
 				texture,
 				sourceRectangle,
-				new Vector4(
-					position.X,
-					position.Y,
-					scale.X,
-					scale.Y
-				),
+				position.X,
+				position.Y,
+				scale.X,
+				scale.Y,
 				color,
 				origin,
 				rotation,
@@ -415,12 +414,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			PushSprite(
 				texture,
 				null,
-				new Vector4(
-					destinationRectangle.X,
-					destinationRectangle.Y,
-					destinationRectangle.Width,
-					destinationRectangle.Height
-				),
+				destinationRectangle.X,
+				destinationRectangle.Y,
+				destinationRectangle.Width,
+				destinationRectangle.Height,
 				color,
 				Vector2.Zero,
 				0.0f,
@@ -440,12 +437,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			PushSprite(
 				texture,
 				sourceRectangle,
-				new Vector4(
-					destinationRectangle.X,
-					destinationRectangle.Y,
-					destinationRectangle.Width,
-					destinationRectangle.Height
-				),
+				destinationRectangle.X,
+				destinationRectangle.Y,
+				destinationRectangle.Width,
+				destinationRectangle.Height,
 				color,
 				Vector2.Zero,
 				0.0f,
@@ -469,12 +464,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			PushSprite(
 				texture,
 				sourceRectangle,
-				new Vector4(
-					destinationRectangle.X,
-					destinationRectangle.Y,
-					destinationRectangle.Width,
-					destinationRectangle.Height
-				),
+				destinationRectangle.X,
+				destinationRectangle.Y,
+				destinationRectangle.Width,
+				destinationRectangle.Height,
 				color,
 				origin,
 				rotation,
@@ -629,8 +622,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Calculate the character origin
 				Vector2 offset = baseOffset;
-				offset.X += (curOffset.X + spriteFont.croppingData[index].X) * axisDirection[(int) effects].X;
-				offset.Y += (curOffset.Y + spriteFont.croppingData[index].Y) * axisDirection[(int) effects].Y;
+				offset.X += (curOffset.X + spriteFont.croppingData[index].X) * axisDirectionX[(int) effects];
+				offset.Y += (curOffset.Y + spriteFont.croppingData[index].Y) * axisDirectionY[(int) effects];
 				if (effects != SpriteEffects.None)
 				{
 					offset += new Vector2(
@@ -643,12 +636,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				PushSprite(
 					spriteFont.textureValue,
 					spriteFont.glyphData[index],
-					new Vector4(
-						position.X,
-						position.Y,
-						scale.X,
-						scale.Y
-					),
+					position.X,
+					position.Y,
+					scale.X,
+					scale.Y,
 					color,
 					offset,
 					rotation,
@@ -794,8 +785,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Calculate the character origin
 				Vector2 offset = baseOffset;
-				offset.X += (curOffset.X + spriteFont.croppingData[index].X) * axisDirection[(int) effects].X;
-				offset.Y += (curOffset.Y + spriteFont.croppingData[index].Y) * axisDirection[(int) effects].Y;
+				offset.X += (curOffset.X + spriteFont.croppingData[index].X) * axisDirectionX[(int) effects];
+				offset.Y += (curOffset.Y + spriteFont.croppingData[index].Y) * axisDirectionY[(int) effects];
 				if (effects != SpriteEffects.None)
 				{
 					offset += new Vector2(
@@ -808,12 +799,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				PushSprite(
 					spriteFont.textureValue,
 					spriteFont.glyphData[index],
-					new Vector4(
-						position.X,
-						position.Y,
-						scale.X,
-						scale.Y
-					),
+					position.X,
+					position.Y,
+					scale.X,
+					scale.Y,
 					color,
 					offset,
 					rotation,
@@ -836,7 +825,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		private void PushSprite(
 			Texture2D texture,
 			Rectangle? sourceRectangle,
-			Vector4 destination,
+			float destinationX,
+			float destinationY,
+			float destinationW,
+			float destinationH,
 			Color color,
 			Vector2 origin,
 			float rotation,
@@ -852,8 +844,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Source/Destination/Origin Calculations
 			float sourceX, sourceY, sourceW, sourceH;
-			float destW = destination.Z;
-			float destH = destination.W;
 			float originX, originY;
 			if (sourceRectangle.HasValue)
 			{
@@ -876,8 +866,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				if (!destSizeInPixels)
 				{
-					destW *= sourceRectangle.Value.Width;
-					destH *= sourceRectangle.Value.Height;
+					destinationW *= sourceRectangle.Value.Width;
+					destinationH *= sourceRectangle.Value.Height;
 				}
 			}
 			else
@@ -892,8 +882,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				if (!destSizeInPixels)
 				{
-					destW *= texture.Width;
-					destH *= texture.Height;
+					destinationW *= texture.Width;
+					destinationH *= texture.Height;
 				}
 			}
 
@@ -920,53 +910,53 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Calculate vertices, finally.
-			float cornerX = (CornerOffsetX[0] - originX) * destW;
-			float cornerY = (CornerOffsetY[0] - originY) * destH;
+			float cornerX = (CornerOffsetX[0] - originX) * destinationW;
+			float cornerY = (CornerOffsetY[0] - originY) * destinationH;
 			vertexInfo[numSprites].Position0.X = (
 				(rotationMatrix2X * cornerY) +
 				(rotationMatrix1X * cornerX) +
-				destination.X
+				destinationX
 			);
 			vertexInfo[numSprites].Position0.Y = (
 				(rotationMatrix2Y * cornerY) +
 				(rotationMatrix1Y * cornerX) +
-				destination.Y
+				destinationY
 			);
-			cornerX = (CornerOffsetX[1] - originX) * destW;
-			cornerY = (CornerOffsetY[1] - originY) * destH;
+			cornerX = (CornerOffsetX[1] - originX) * destinationW;
+			cornerY = (CornerOffsetY[1] - originY) * destinationH;
 			vertexInfo[numSprites].Position1.X = (
 				(rotationMatrix2X * cornerY) +
 				(rotationMatrix1X * cornerX) +
-				destination.X
+				destinationX
 			);
 			vertexInfo[numSprites].Position1.Y = (
 				(rotationMatrix2Y * cornerY) +
 				(rotationMatrix1Y * cornerX) +
-				destination.Y
+				destinationY
 			);
-			cornerX = (CornerOffsetX[2] - originX) * destW;
-			cornerY = (CornerOffsetY[2] - originY) * destH;
+			cornerX = (CornerOffsetX[2] - originX) * destinationW;
+			cornerY = (CornerOffsetY[2] - originY) * destinationH;
 			vertexInfo[numSprites].Position2.X = (
 				(rotationMatrix2X * cornerY) +
 				(rotationMatrix1X * cornerX) +
-				destination.X
+				destinationX
 			);
 			vertexInfo[numSprites].Position2.Y = (
 				(rotationMatrix2Y * cornerY) +
 				(rotationMatrix1Y * cornerX) +
-				destination.Y
+				destinationY
 			);
-			cornerX = (CornerOffsetX[3] - originX) * destW;
-			cornerY = (CornerOffsetY[3] - originY) * destH;
+			cornerX = (CornerOffsetX[3] - originX) * destinationW;
+			cornerY = (CornerOffsetY[3] - originY) * destinationH;
 			vertexInfo[numSprites].Position3.X = (
 				(rotationMatrix2X * cornerY) +
 				(rotationMatrix1X * cornerX) +
-				destination.X
+				destinationX
 			);
 			vertexInfo[numSprites].Position3.Y = (
 				(rotationMatrix2Y * cornerY) +
 				(rotationMatrix1Y * cornerX) +
-				destination.Y
+				destinationY
 			);
 			vertexInfo[numSprites].TextureCoordinate0.X = (CornerOffsetX[0 ^ effects] * sourceW) + sourceX;
 			vertexInfo[numSprites].TextureCoordinate0.Y = (CornerOffsetY[0 ^ effects] * sourceH) + sourceY;
