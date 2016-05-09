@@ -46,12 +46,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			1.0f,
 			1.0f
 		};
-		private static readonly Vector2[] axisIsMirrored = new Vector2[]
+		private static readonly float[] axisIsMirroredX = new float[]
 		{
-			new Vector2(0, 0),
-			new Vector2(1, 0),
-			new Vector2(0, 1),
-			new Vector2(1, 1)
+			0.0f,
+			1.0f,
+			0.0f,
+			1.0f
+		};
+		private static readonly float[] axisIsMirroredY = new float[]
+		{
+			0.0f,
+			0.0f,
+			1.0f,
+			1.0f
 		};
 
 		// Used to calculate texture coordinates
@@ -498,7 +505,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				color,
 				0.0f,
 				Vector2.Zero,
-				new Vector2(1.0f),
+				Vector2.One,
 				SpriteEffects.None,
 				0.0f
 			);
@@ -565,7 +572,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			Vector2 baseOffset = origin;
 			if (effects != SpriteEffects.None)
 			{
-				baseOffset -= spriteFont.MeasureString(text) * axisIsMirrored[(int) effects];
+				Vector2 size = spriteFont.MeasureString(text);
+				baseOffset.X -= size.X * axisIsMirroredX[(int) effects];
+				baseOffset.Y -= size.Y * axisIsMirroredY[(int) effects];
 			}
 
 			Vector2 curOffset = Vector2.Zero;
@@ -626,10 +635,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				offset.Y += (curOffset.Y + spriteFont.croppingData[index].Y) * axisDirectionY[(int) effects];
 				if (effects != SpriteEffects.None)
 				{
-					offset += new Vector2(
-						spriteFont.glyphData[index].Width,
-						spriteFont.glyphData[index].Height
-					) * axisIsMirrored[(int) effects];
+					offset.X += spriteFont.glyphData[index].Width * axisIsMirroredX[(int) effects];
+					offset.Y += spriteFont.glyphData[index].Height * axisIsMirroredY[(int) effects];
 				}
 
 				// Draw!
@@ -668,7 +675,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				color,
 				0.0f,
 				Vector2.Zero,
-				new Vector2(1.0f),
+				Vector2.One,
 				SpriteEffects.None,
 				0.0f
 			);
@@ -730,7 +737,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			Vector2 baseOffset = origin;
 			if (effects != SpriteEffects.None)
 			{
-				baseOffset -= spriteFont.MeasureString(text) * axisIsMirrored[(int) effects];
+				Vector2 size = spriteFont.MeasureString(text);
+				baseOffset.X -= size.X * axisIsMirroredX[(int) effects];
+				baseOffset.Y -= size.Y * axisIsMirroredY[(int) effects];
 			}
 
 			Vector2 curOffset = Vector2.Zero;
@@ -789,10 +798,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				offset.Y += (curOffset.Y + spriteFont.croppingData[index].Y) * axisDirectionY[(int) effects];
 				if (effects != SpriteEffects.None)
 				{
-					offset += new Vector2(
-						spriteFont.glyphData[index].Width,
-						spriteFont.glyphData[index].Height
-					) * axisIsMirrored[(int) effects];
+					offset.X += spriteFont.glyphData[index].Width * axisIsMirroredX[(int) effects];
+					offset.Y += spriteFont.glyphData[index].Height * axisIsMirroredY[(int) effects];
 				}
 
 				// Draw!
