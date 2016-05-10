@@ -311,8 +311,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				GraphicsDevice.GLDevice.AddDisposeEffect(glEffect);
-				stateChangesHandle.Free();
+				if (glEffect != null)
+				{
+					GraphicsDevice.GLDevice.AddDisposeEffect(glEffect);
+				}
+				if (stateChangesHandle.IsAllocated)
+				{
+					stateChangesHandle.Free();
+				}
 			}
 			base.Dispose(disposing);
 		}
