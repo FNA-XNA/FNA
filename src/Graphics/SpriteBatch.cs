@@ -1056,7 +1056,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			curTexture = textureInfo[0];
-			for (int i = 0; i < numSprites; i += 1)
+			for (int i = 1; i < numSprites; i += 1)
 			{
 				if (textureInfo[i] != curTexture)
 				{
