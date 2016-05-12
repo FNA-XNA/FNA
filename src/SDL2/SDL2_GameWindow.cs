@@ -28,7 +28,7 @@ namespace Microsoft.Xna.Framework
 		 * Right now SDL_SetWindowResizable is not in upstream.
 		 * We've got it in our SDL-mirror for now, but it's not
 		 * available in any official capacity. So, we're mixing the
-		 * environment variable with official work for now.
+		 * environment variable with unofficial work for now.
 		 * -flibit
 		 */
 		[DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
