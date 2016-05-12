@@ -118,6 +118,7 @@ namespace Microsoft.Xna.Framework
 		public static readonly StopTextInputFunc StopTextInput;
 
 		public delegate void GetMouseStateFunc(
+			IntPtr window,
 			out int x,
 			out int y,
 			out ButtonState left,

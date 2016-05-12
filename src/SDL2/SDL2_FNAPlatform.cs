@@ -546,6 +546,7 @@ namespace Microsoft.Xna.Framework
 		}
 
 		public static void GetMouseState(
+			IntPtr window,
 			out int x,
 			out int y,
 			out ButtonState left,
@@ -554,7 +555,11 @@ namespace Microsoft.Xna.Framework
 			out ButtonState x1,
 			out ButtonState x2
 		) {
-			uint flags = SDL.SDL_GetMouseState(out x, out y);
+			uint flags = SDL.SDL_GetGlobalMouseState(out x, out y);
+			int wx, wy;
+			SDL.SDL_GetWindowPosition(window, out wx, out wy);
+			x -= wx;
+			y -= wy;
 			left =		(ButtonState) (flags & SDL.SDL_BUTTON_LMASK);
 			middle =	(ButtonState) ((flags & SDL.SDL_BUTTON_MMASK) >> 1);
 			right =		(ButtonState) ((flags & SDL.SDL_BUTTON_RMASK) >> 2);

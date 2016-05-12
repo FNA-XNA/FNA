@@ -57,6 +57,7 @@ namespace Microsoft.Xna.Framework.Input
 			ButtonState left, middle, right, x1, x2;
 
 			FNAPlatform.GetMouseState(
+				WindowHandle,
 				out x,
 				out y,
 				out left,
