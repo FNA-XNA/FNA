@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 using SDL2;
 
@@ -23,23 +24,38 @@ namespace Microsoft.Xna.Framework
 	{
 		#region Public GameWindow Properties
 
+		/* FIXME: SDL2 bug!
+		 * Right now SDL_SetWindowResizable is not in upstream.
+		 * We've got it in our SDL-mirror for now, but it's not
+		 * available in any official capacity. So, we're mixing the
+		 * environment variable with official work for now.
+		 * -flibit
+		 */
+		[DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void SDL_SetWindowResizable(IntPtr window, SDL.SDL_bool resizable);
+
 		[DefaultValue(false)]
 		public override bool AllowUserResizing
 		{
-			/* FIXME: This change should happen immediately. However, SDL2 does
-			 * not yet have an SDL_SetWindowResizable, so for now this is
-			 * basically just a check for when the window is first made.
-			 * -flibit
-			 */
 			get
 			{
-				return Environment.GetEnvironmentVariable(
-					"FNA_WORKAROUND_WINDOW_RESIZABLE"
-				) == "1";
+				return ((SDL.SDL_GetWindowFlags(INTERNAL_sdlWindow) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE) != 0);
 			}
 			set
 			{
-				// No-op. :(
+				try
+				{
+					SDL_SetWindowResizable(
+						INTERNAL_sdlWindow,
+						value ?
+							SDL.SDL_bool.SDL_TRUE :
+							SDL.SDL_bool.SDL_FALSE
+					);
+				}
+				catch
+				{
+					// No-op. :(
+				}
 			}
 		}
 
@@ -151,7 +167,7 @@ namespace Microsoft.Xna.Framework
 			);
 
 			// FIXME: Once we have SDL_SetWindowResizable, remove this. -flibit
-			if (AllowUserResizing)
+			if (Environment.GetEnvironmentVariable("FNA_WORKAROUND_WINDOW_RESIZABLE") == "1")
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE;
 			}
