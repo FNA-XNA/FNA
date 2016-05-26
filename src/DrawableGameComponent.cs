@@ -103,7 +103,17 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Pubilc Virtual Methods
+		#region Protected Methods
+
+		protected override void Dispose(bool disposing)
+		{
+			// FIXME: Why is this overridden?
+			base.Dispose(disposing);
+		}
+
+		#endregion
+
+		#region Public Virtual Methods
 
 		public virtual void Draw(GameTime gameTime)
 		{
