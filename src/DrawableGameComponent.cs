@@ -107,7 +107,10 @@ namespace Microsoft.Xna.Framework
 
 		protected override void Dispose(bool disposing)
 		{
-			// FIXME: Why is this overridden?
+			if (_initialized)
+			{
+				UnloadContent();
+			}
 			base.Dispose(disposing);
 		}
 
