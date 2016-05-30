@@ -844,6 +844,10 @@ namespace Microsoft.Xna.Framework
 					0x00FF0000,
 					0xFF000000
 				);
+				SDL.SDL_SetSurfaceBlendMode(
+					surface,
+					SDL.SDL_BlendMode.SDL_BLENDMODE_NONE
+				);
 				SDL.SDL_BlitScaled(
 					surface,
 					IntPtr.Zero,
