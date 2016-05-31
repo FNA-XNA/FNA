@@ -6,6 +6,7 @@ T: MojoShader/MOJOSHADER_glGetProcAddress
 R: Gendarme.Rules.Performance.AvoidLargeStructureRule
 T: MojoShader/MOJOSHADER_symbol
 T: MojoShader/MOJOSHADER_preshaderInstruction
+T: MojoShader/MOJOSHADER_preshader
 T: MojoShader/MOJOSHADER_parseData
 T: MojoShader/MOJOSHADER_effectValue
 T: MojoShader/MOJOSHADER_effectState
@@ -21,7 +22,7 @@ T: MojoShader
 M: System.Int32 MojoShader::MOJOSHADER_version()
 M: System.IntPtr MojoShader::MOJOSHADER_changeset()
 M: System.Int32 MojoShader::MOJOSHADER_maxShaderModel(System.String)
-M: System.IntPtr MojoShader::MOJOSHADER_parse(System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_parse(System.String,System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
 M: System.Void MojoShader::MOJOSHADER_freeParseData(System.IntPtr)
 M: System.IntPtr MojoShader::MOJOSHADER_parsePreshader(System.Byte[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
 M: System.Void MojoShader::MOJOSHADER_freePreshader(System.IntPtr)
@@ -236,7 +237,7 @@ R: Gendarme.Rules.Interoperability.CentralizePInvokesIntoNativeMethodsTypeRule
 M: System.Int32 MojoShader::MOJOSHADER_version()
 M: System.IntPtr MojoShader::MOJOSHADER_changeset()
 M: System.Int32 MojoShader::MOJOSHADER_maxShaderModel(System.String)
-M: System.IntPtr MojoShader::MOJOSHADER_parse(System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_parse(System.String,System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
 M: System.Void MojoShader::MOJOSHADER_freeParseData(System.IntPtr)
 M: System.IntPtr MojoShader::MOJOSHADER_parsePreshader(System.Byte[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
 M: System.Void MojoShader::MOJOSHADER_freePreshader(System.IntPtr)
