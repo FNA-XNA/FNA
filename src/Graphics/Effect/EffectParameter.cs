@@ -184,9 +184,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				int* resPtr = (int*) values;
-				for (int i = 0; i < count; i += 1, resPtr += 4)
+				for (int i = 0; i < result.Length; resPtr += 4)
 				{
-					result[i] = *resPtr != 0;
+					for (int j = 0; j < ColumnCount; j += 1, i += 1)
+					{
+						result[i] = *(resPtr + j) != 0;
+					}
 				}
 			}
 			return result;
@@ -204,13 +207,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		public int[] GetValueInt32Array(int count)
 		{
 			int[] result = new int[count];
-			unsafe
+			for (int i = 0, j = 0; i < result.Length; i += ColumnCount, j += 16)
 			{
-				int* resPtr = (int*) values;
-				for (int i = 0; i < count; i += 1, resPtr += 4)
-				{
-					result[i] = *resPtr;
-				}
+				Marshal.Copy(values + j, result, i, ColumnCount);
 			}
 			return result;
 		}
@@ -374,13 +373,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		public float[] GetValueSingleArray(int count)
 		{
 			float[] result = new float[count];
-			unsafe
+			for (int i = 0, j = 0; i < result.Length; i += ColumnCount, j += 16)
 			{
-				float* resPtr = (float*) values;
-				for (int i = 0; i < count; i += 1, resPtr += 4)
-				{
-					result[i] = *resPtr;
-				}
+				Marshal.Copy(values + j, result, i, ColumnCount);
 			}
 			return result;
 		}
@@ -514,10 +509,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				int* dstPtr = (int*) values;
-				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
+				for (int i = 0; i < value.Length; dstPtr += 4)
 				{
-					// Ugh, this branch, stupid C#.
-					*dstPtr = value[i] ? 1 : 0;
+					for (int j = 0; j < ColumnCount; j += 1, i += 1)
+					{
+						// Ugh, this branch, stupid C#.
+						*(dstPtr + j) = value[i] ? 1 : 0;
+					}
 				}
 			}
 		}
@@ -544,13 +542,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(int[] value)
 		{
-			unsafe
+			for (int i = 0, j = 0; i < value.Length; i += ColumnCount, j += 16)
 			{
-				int* dstPtr = (int*) values;
-				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
-				{
-					*dstPtr = value[i];
-				}
+				Marshal.Copy(value, i, values + j, ColumnCount);
 			}
 		}
 
@@ -962,13 +956,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(float[] value)
 		{
-			unsafe
+			for (int i = 0, j = 0; i < value.Length; i += ColumnCount, j += 16)
 			{
-				float* dstPtr = (float*) values;
-				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
-				{
-					*dstPtr = value[i];
-				}
+				Marshal.Copy(value, i, values + j, ColumnCount);
 			}
 		}
 
