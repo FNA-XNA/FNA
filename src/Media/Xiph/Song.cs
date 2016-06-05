@@ -248,10 +248,17 @@ namespace Microsoft.Xna.Framework.Media
 #else
 			soundStream.Play(false);
 
+			/* When MediaPlayer IsRepeating, this thread will still exist!
+			 * We can continue to use that thread without spawning a new one.
+			 * -flibit
+			 */
 			exitThread = false;
-			songThread = new Thread(SongThread);
-			songThread.IsBackground = true;
-			songThread.Start();
+			if (songThread == null)
+			{
+				songThread = new Thread(SongThread);
+				songThread.IsBackground = true;
+				songThread.Start();
+			}
 #endif
 
 			timer.Start();
@@ -280,6 +287,7 @@ namespace Microsoft.Xna.Framework.Media
 			if (songThread != null && Thread.CurrentThread != songThread)
 			{
 				songThread.Join();
+				songThread = null;
 			}
 #endif
 
