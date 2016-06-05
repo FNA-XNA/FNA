@@ -7,18 +7,6 @@
  */
 #endregion
 
-#region NO_STREAM_THREAD Option
-// #define NO_STREAM_THREAD
-/* We use a thread to stream Songs specifically, because if the game hangs, the
- * Song needs to keep playing, as Windows Media Player would in XNA4.
- *
- * If you know that won't happen and want to cut out a thread, or you want to
- * use this with XNA4 somehow, you can uncomment this define.
- *
- * -flibit
- */
-#endregion
-
 #region Using Statements
 using System;
 using System.IO;
@@ -159,10 +147,15 @@ namespace Microsoft.Xna.Framework.Media
 		private static GCHandle bufferHandle = GCHandle.Alloc(vorbisBuffer, GCHandleType.Pinned);
 		private static IntPtr bufferPtr = bufferHandle.AddrOfPinnedObject();
 
-#if !NO_STREAM_THREAD
+		/* PROTIP: If you want to use this file in XNA4, take this bool name and delete
+		 * ALL of the code that runs when this is 'true'. Then it should compile.
+		 * -flibit
+		 */
+		private static readonly bool DISABLE_THREADS = Environment.GetEnvironmentVariable(
+			"FNA_SONG_DISABLE_THREADS"
+		) == "1";
 		private Thread songThread;
 		private bool exitThread;
-#endif
 
 		#endregion
 
@@ -243,23 +236,26 @@ namespace Microsoft.Xna.Framework.Media
 			eof = false;
 			soundStream.BufferNeeded += QueueBuffer;
 
-#if NO_STREAM_THREAD
-			soundStream.Play();
-#else
-			soundStream.Play(false);
-
-			/* When MediaPlayer IsRepeating, this thread will still exist!
-			 * We can continue to use that thread without spawning a new one.
-			 * -flibit
-			 */
-			exitThread = false;
-			if (songThread == null)
+			if (DISABLE_THREADS)
 			{
-				songThread = new Thread(SongThread);
-				songThread.IsBackground = true;
-				songThread.Start();
+				soundStream.Play();
 			}
-#endif
+			else
+			{
+				soundStream.Play(false);
+
+				/* When MediaPlayer IsRepeating, this thread will still exist!
+				 * We can continue to use that thread without spawning a new one.
+				 * -flibit
+				 */
+				exitThread = false;
+				if (songThread == null)
+				{
+					songThread = new Thread(SongThread);
+					songThread.IsBackground = true;
+					songThread.Start();
+				}
+			}
 
 			timer.Start();
 
@@ -282,14 +278,15 @@ namespace Microsoft.Xna.Framework.Media
 		{
 			PlayCount = 0;
 
-#if !NO_STREAM_THREAD
-			exitThread = true;
-			if (songThread != null && Thread.CurrentThread != songThread)
+			if (!DISABLE_THREADS)
 			{
-				songThread.Join();
-				songThread = null;
+				exitThread = true;
+				if (songThread != null && Thread.CurrentThread != songThread)
+				{
+					songThread.Join();
+					songThread = null;
+				}
 			}
-#endif
 
 			timer.Stop();
 			timer.Reset();
@@ -359,7 +356,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		#region Private Song Update Thread
 
-#if !NO_STREAM_THREAD
+		// DISABLE_THREADS: DELETE THIS CODE WHEN USING IN XNA4!
 		private void SongThread()
 		{
 			while (!exitThread)
@@ -374,7 +371,6 @@ namespace Microsoft.Xna.Framework.Media
 				Thread.Sleep(67);
 			}
 		}
-#endif
 
 		#endregion
 
