@@ -50,7 +50,7 @@ namespace Microsoft.Xna.Framework
 			CreateALDevice =		SDL2_FNAPlatform.CreateALDevice;
 			SetPresentationInterval =	SDL2_FNAPlatform.SetPresentationInterval;
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
-			GetKeyFromScancode =		SDL2_KeyboardUtil.GetKeyFromScancode;
+			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
 			StartTextInput =		SDL2.SDL.SDL_StartTextInput;
 			StopTextInput =			SDL2.SDL.SDL_StopTextInput;
 			GetMouseState =			SDL2_FNAPlatform.GetMouseState;

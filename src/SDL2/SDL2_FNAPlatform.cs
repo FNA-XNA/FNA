@@ -29,6 +29,10 @@ namespace Microsoft.Xna.Framework
 
 		private static readonly string OSVersion = SDL.SDL_GetPlatform();
 
+		private static readonly bool UseScancodes = Environment.GetEnvironmentVariable(
+			"FNA_KEYBOARD_USE_SCANCODES"
+		) == "1";
+
 		#endregion
 
 		#region Init/Exit Methods
@@ -513,10 +517,7 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// Do we want to read keycodes or scancodes?
-			SDL2_KeyboardUtil.UseScancodes = Environment.GetEnvironmentVariable(
-				"FNA_KEYBOARD_USE_SCANCODES"
-			) == "1";
-			if (SDL2_KeyboardUtil.UseScancodes)
+			if (UseScancodes)
 			{
 				FNAPlatform.Log("Using scancodes instead of keycodes!");
 			}
@@ -560,7 +561,7 @@ namespace Microsoft.Xna.Framework
 					// Keyboard
 					if (evt.type == SDL.SDL_EventType.SDL_KEYDOWN)
 					{
-						Keys key = SDL2_KeyboardUtil.ToXNA(ref evt.key.keysym);
+						Keys key = ToXNAKey(ref evt.key.keysym);
 						if (!keys.Contains(key))
 						{
 							keys.Add(key);
@@ -582,7 +583,7 @@ namespace Microsoft.Xna.Framework
 					}
 					else if (evt.type == SDL.SDL_EventType.SDL_KEYUP)
 					{
-						Keys key = SDL2_KeyboardUtil.ToXNA(ref evt.key.keysym);
+						Keys key = ToXNAKey(ref evt.key.keysym);
 						if (keys.Remove(key))
 						{
 							if (textInputBindings.ContainsKey(key))
@@ -1826,6 +1827,422 @@ namespace Microsoft.Xna.Framework
 				result[i] = String.Empty;
 			}
 			return result;
+		}
+
+		#endregion
+
+		#region SDL2<->XNA Key Conversion Methods
+
+		/* From: http://blogs.msdn.com/b/shawnhar/archive/2007/07/02/twin-paths-to-garbage-collector-nirvana.aspx
+		 * "If you use an enum type as a dictionary key, internal dictionary operations will cause boxing.
+		 * You can avoid this by using integer keys, and casting your enum values to ints before adding
+		 * them to the dictionary."
+		 */
+		private static Dictionary<int, Keys> INTERNAL_keyMap = new Dictionary<int, Keys>()
+		{
+			{ (int) SDL.SDL_Keycode.SDLK_a,			Keys.A },
+			{ (int) SDL.SDL_Keycode.SDLK_b,			Keys.B },
+			{ (int) SDL.SDL_Keycode.SDLK_c,			Keys.C },
+			{ (int) SDL.SDL_Keycode.SDLK_d,			Keys.D },
+			{ (int) SDL.SDL_Keycode.SDLK_e,			Keys.E },
+			{ (int) SDL.SDL_Keycode.SDLK_f,			Keys.F },
+			{ (int) SDL.SDL_Keycode.SDLK_g,			Keys.G },
+			{ (int) SDL.SDL_Keycode.SDLK_h,			Keys.H },
+			{ (int) SDL.SDL_Keycode.SDLK_i,			Keys.I },
+			{ (int) SDL.SDL_Keycode.SDLK_j,			Keys.J },
+			{ (int) SDL.SDL_Keycode.SDLK_k,			Keys.K },
+			{ (int) SDL.SDL_Keycode.SDLK_l,			Keys.L },
+			{ (int) SDL.SDL_Keycode.SDLK_m,			Keys.M },
+			{ (int) SDL.SDL_Keycode.SDLK_n,			Keys.N },
+			{ (int) SDL.SDL_Keycode.SDLK_o,			Keys.O },
+			{ (int) SDL.SDL_Keycode.SDLK_p,			Keys.P },
+			{ (int) SDL.SDL_Keycode.SDLK_q,			Keys.Q },
+			{ (int) SDL.SDL_Keycode.SDLK_r,			Keys.R },
+			{ (int) SDL.SDL_Keycode.SDLK_s,			Keys.S },
+			{ (int) SDL.SDL_Keycode.SDLK_t,			Keys.T },
+			{ (int) SDL.SDL_Keycode.SDLK_u,			Keys.U },
+			{ (int) SDL.SDL_Keycode.SDLK_v,			Keys.V },
+			{ (int) SDL.SDL_Keycode.SDLK_w,			Keys.W },
+			{ (int) SDL.SDL_Keycode.SDLK_x,			Keys.X },
+			{ (int) SDL.SDL_Keycode.SDLK_y,			Keys.Y },
+			{ (int) SDL.SDL_Keycode.SDLK_z,			Keys.Z },
+			{ (int) SDL.SDL_Keycode.SDLK_0,			Keys.D0 },
+			{ (int) SDL.SDL_Keycode.SDLK_1,			Keys.D1 },
+			{ (int) SDL.SDL_Keycode.SDLK_2,			Keys.D2 },
+			{ (int) SDL.SDL_Keycode.SDLK_3,			Keys.D3 },
+			{ (int) SDL.SDL_Keycode.SDLK_4,			Keys.D4 },
+			{ (int) SDL.SDL_Keycode.SDLK_5,			Keys.D5 },
+			{ (int) SDL.SDL_Keycode.SDLK_6,			Keys.D6 },
+			{ (int) SDL.SDL_Keycode.SDLK_7,			Keys.D7 },
+			{ (int) SDL.SDL_Keycode.SDLK_8,			Keys.D8 },
+			{ (int) SDL.SDL_Keycode.SDLK_9,			Keys.D9 },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_0,		Keys.NumPad0 },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_1,		Keys.NumPad1 },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_2,		Keys.NumPad2 },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_3,		Keys.NumPad3 },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_4,		Keys.NumPad4 },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_5,		Keys.NumPad5 },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_6,		Keys.NumPad6 },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_7,		Keys.NumPad7 },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_8,		Keys.NumPad8 },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_9,		Keys.NumPad9 },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_CLEAR,		Keys.OemClear },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_DECIMAL,	Keys.Decimal },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_DIVIDE,		Keys.Divide },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_ENTER,		Keys.Enter },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_MINUS,		Keys.Subtract },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_MULTIPLY,	Keys.Multiply },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_PERIOD,		Keys.OemPeriod },
+			{ (int) SDL.SDL_Keycode.SDLK_KP_PLUS,		Keys.Add },
+			{ (int) SDL.SDL_Keycode.SDLK_F1,		Keys.F1 },
+			{ (int) SDL.SDL_Keycode.SDLK_F2,		Keys.F2 },
+			{ (int) SDL.SDL_Keycode.SDLK_F3,		Keys.F3 },
+			{ (int) SDL.SDL_Keycode.SDLK_F4,		Keys.F4 },
+			{ (int) SDL.SDL_Keycode.SDLK_F5,		Keys.F5 },
+			{ (int) SDL.SDL_Keycode.SDLK_F6,		Keys.F6 },
+			{ (int) SDL.SDL_Keycode.SDLK_F7,		Keys.F7 },
+			{ (int) SDL.SDL_Keycode.SDLK_F8,		Keys.F8 },
+			{ (int) SDL.SDL_Keycode.SDLK_F9,		Keys.F9 },
+			{ (int) SDL.SDL_Keycode.SDLK_F10,		Keys.F10 },
+			{ (int) SDL.SDL_Keycode.SDLK_F11,		Keys.F11 },
+			{ (int) SDL.SDL_Keycode.SDLK_F12,		Keys.F12 },
+			{ (int) SDL.SDL_Keycode.SDLK_F13,		Keys.F13 },
+			{ (int) SDL.SDL_Keycode.SDLK_F14,		Keys.F14 },
+			{ (int) SDL.SDL_Keycode.SDLK_F15,		Keys.F15 },
+			{ (int) SDL.SDL_Keycode.SDLK_F16,		Keys.F16 },
+			{ (int) SDL.SDL_Keycode.SDLK_F17,		Keys.F17 },
+			{ (int) SDL.SDL_Keycode.SDLK_F18,		Keys.F18 },
+			{ (int) SDL.SDL_Keycode.SDLK_F19,		Keys.F19 },
+			{ (int) SDL.SDL_Keycode.SDLK_F20,		Keys.F20 },
+			{ (int) SDL.SDL_Keycode.SDLK_F21,		Keys.F21 },
+			{ (int) SDL.SDL_Keycode.SDLK_F22,		Keys.F22 },
+			{ (int) SDL.SDL_Keycode.SDLK_F23,		Keys.F23 },
+			{ (int) SDL.SDL_Keycode.SDLK_F24,		Keys.F24 },
+			{ (int) SDL.SDL_Keycode.SDLK_SPACE,		Keys.Space },
+			{ (int) SDL.SDL_Keycode.SDLK_UP,		Keys.Up },
+			{ (int) SDL.SDL_Keycode.SDLK_DOWN,		Keys.Down },
+			{ (int) SDL.SDL_Keycode.SDLK_LEFT,		Keys.Left },
+			{ (int) SDL.SDL_Keycode.SDLK_RIGHT,		Keys.Right },
+			{ (int) SDL.SDL_Keycode.SDLK_LALT,		Keys.LeftAlt },
+			{ (int) SDL.SDL_Keycode.SDLK_RALT,		Keys.RightAlt },
+			{ (int) SDL.SDL_Keycode.SDLK_LCTRL,		Keys.LeftControl },
+			{ (int) SDL.SDL_Keycode.SDLK_RCTRL,		Keys.RightControl },
+			{ (int) SDL.SDL_Keycode.SDLK_LGUI,		Keys.LeftWindows },
+			{ (int) SDL.SDL_Keycode.SDLK_RGUI,		Keys.RightWindows },
+			{ (int) SDL.SDL_Keycode.SDLK_LSHIFT,		Keys.LeftShift },
+			{ (int) SDL.SDL_Keycode.SDLK_RSHIFT,		Keys.RightShift },
+			{ (int) SDL.SDL_Keycode.SDLK_APPLICATION,	Keys.Apps },
+			{ (int) SDL.SDL_Keycode.SDLK_SLASH,		Keys.OemQuestion },
+			{ (int) SDL.SDL_Keycode.SDLK_BACKSLASH,		Keys.OemBackslash },
+			{ (int) SDL.SDL_Keycode.SDLK_LEFTBRACKET,	Keys.OemOpenBrackets },
+			{ (int) SDL.SDL_Keycode.SDLK_RIGHTBRACKET,	Keys.OemCloseBrackets },
+			{ (int) SDL.SDL_Keycode.SDLK_CAPSLOCK,		Keys.CapsLock },
+			{ (int) SDL.SDL_Keycode.SDLK_COMMA,		Keys.OemComma },
+			{ (int) SDL.SDL_Keycode.SDLK_DELETE,		Keys.Delete },
+			{ (int) SDL.SDL_Keycode.SDLK_END,		Keys.End },
+			{ (int) SDL.SDL_Keycode.SDLK_BACKSPACE,		Keys.Back },
+			{ (int) SDL.SDL_Keycode.SDLK_RETURN,		Keys.Enter },
+			{ (int) SDL.SDL_Keycode.SDLK_ESCAPE,		Keys.Escape },
+			{ (int) SDL.SDL_Keycode.SDLK_HOME,		Keys.Home },
+			{ (int) SDL.SDL_Keycode.SDLK_INSERT,		Keys.Insert },
+			{ (int) SDL.SDL_Keycode.SDLK_MINUS,		Keys.OemMinus },
+			{ (int) SDL.SDL_Keycode.SDLK_NUMLOCKCLEAR,	Keys.NumLock },
+			{ (int) SDL.SDL_Keycode.SDLK_PAGEUP,		Keys.PageUp },
+			{ (int) SDL.SDL_Keycode.SDLK_PAGEDOWN,		Keys.PageDown },
+			{ (int) SDL.SDL_Keycode.SDLK_PAUSE,		Keys.Pause },
+			{ (int) SDL.SDL_Keycode.SDLK_PERIOD,		Keys.OemPeriod },
+			{ (int) SDL.SDL_Keycode.SDLK_EQUALS,		Keys.OemPlus },
+			{ (int) SDL.SDL_Keycode.SDLK_PRINTSCREEN,	Keys.PrintScreen },
+			{ (int) SDL.SDL_Keycode.SDLK_QUOTE,		Keys.OemQuotes },
+			{ (int) SDL.SDL_Keycode.SDLK_SCROLLLOCK,	Keys.Scroll },
+			{ (int) SDL.SDL_Keycode.SDLK_SEMICOLON,		Keys.OemSemicolon },
+			{ (int) SDL.SDL_Keycode.SDLK_SLEEP,		Keys.Sleep },
+			{ (int) SDL.SDL_Keycode.SDLK_TAB,		Keys.Tab },
+			{ (int) SDL.SDL_Keycode.SDLK_BACKQUOTE,		Keys.OemTilde },
+			{ (int) SDL.SDL_Keycode.SDLK_UNKNOWN,		Keys.None }
+		};
+		private static Dictionary<int, Keys> INTERNAL_scanMap = new Dictionary<int, Keys>()
+		{
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_A,		Keys.A },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_B,		Keys.B },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_C,		Keys.C },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_D,		Keys.D },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_E,		Keys.E },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F,		Keys.F },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_G,		Keys.G },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_H,		Keys.H },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_I,		Keys.I },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_J,		Keys.J },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_K,		Keys.K },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_L,		Keys.L },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_M,		Keys.M },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_N,		Keys.N },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_O,		Keys.O },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_P,		Keys.P },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_Q,		Keys.Q },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_R,		Keys.R },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_S,		Keys.S },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_T,		Keys.T },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_U,		Keys.U },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_V,		Keys.V },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_W,		Keys.W },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_X,		Keys.X },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_Y,		Keys.Y },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_Z,		Keys.Z },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_0,		Keys.D0 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_1,		Keys.D1 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_2,		Keys.D2 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_3,		Keys.D3 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_4,		Keys.D4 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_5,		Keys.D5 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_6,		Keys.D6 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_7,		Keys.D7 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_8,		Keys.D8 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_9,		Keys.D9 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_0,		Keys.NumPad0 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_1,		Keys.NumPad1 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_2,		Keys.NumPad2 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_3,		Keys.NumPad3 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_4,		Keys.NumPad4 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_5,		Keys.NumPad5 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_6,		Keys.NumPad6 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_7,		Keys.NumPad7 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_8,		Keys.NumPad8 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_9,		Keys.NumPad9 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_CLEAR,		Keys.OemClear },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_DECIMAL,	Keys.Decimal },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_DIVIDE,	Keys.Divide },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_ENTER,		Keys.Enter },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_MINUS,		Keys.Subtract },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_MULTIPLY,	Keys.Multiply },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_PERIOD,	Keys.OemPeriod },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_KP_PLUS,		Keys.Add },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F1,		Keys.F1 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F2,		Keys.F2 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F3,		Keys.F3 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F4,		Keys.F4 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F5,		Keys.F5 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F6,		Keys.F6 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F7,		Keys.F7 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F8,		Keys.F8 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F9,		Keys.F9 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F10,		Keys.F10 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F11,		Keys.F11 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F12,		Keys.F12 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F13,		Keys.F13 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F14,		Keys.F14 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F15,		Keys.F15 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F16,		Keys.F16 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F17,		Keys.F17 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F18,		Keys.F18 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F19,		Keys.F19 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F20,		Keys.F20 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F21,		Keys.F21 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F22,		Keys.F22 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F23,		Keys.F23 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_F24,		Keys.F24 },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_SPACE,		Keys.Space },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_UP,		Keys.Up },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_DOWN,		Keys.Down },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_LEFT,		Keys.Left },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_RIGHT,		Keys.Right },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_LALT,		Keys.LeftAlt },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_RALT,		Keys.RightAlt },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_LCTRL,		Keys.LeftControl },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_RCTRL,		Keys.RightControl },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_LGUI,		Keys.LeftWindows },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_RGUI,		Keys.RightWindows },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_LSHIFT,		Keys.LeftShift },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_RSHIFT,		Keys.RightShift },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_APPLICATION,	Keys.Apps },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_SLASH,		Keys.OemQuestion },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_BACKSLASH,	Keys.OemBackslash },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_LEFTBRACKET,	Keys.OemOpenBrackets },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_RIGHTBRACKET,	Keys.OemCloseBrackets },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_CAPSLOCK,		Keys.CapsLock },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_COMMA,		Keys.OemComma },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_DELETE,		Keys.Delete },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_END,		Keys.End },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE,	Keys.Back },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_RETURN,		Keys.Enter },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_ESCAPE,		Keys.Escape },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_HOME,		Keys.Home },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_INSERT,		Keys.Insert },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_MINUS,		Keys.OemMinus },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_NUMLOCKCLEAR,	Keys.NumLock },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_PAGEUP,		Keys.PageUp },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_PAGEDOWN,		Keys.PageDown },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_PAUSE,		Keys.Pause },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_PERIOD,		Keys.OemPeriod },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_EQUALS,		Keys.OemPlus },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_PRINTSCREEN,	Keys.PrintScreen },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_APOSTROPHE,	Keys.OemQuotes },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_SCROLLLOCK,	Keys.Scroll },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_SEMICOLON,	Keys.OemSemicolon },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_SLEEP,		Keys.Sleep },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_TAB,		Keys.Tab },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_GRAVE,		Keys.OemTilde },
+			{ (int) SDL.SDL_Scancode.SDL_SCANCODE_UNKNOWN,		Keys.None }
+		};
+		private static Dictionary<int, SDL.SDL_Scancode> INTERNAL_xnaMap = new Dictionary<int, SDL.SDL_Scancode>()
+		{
+			{ (int) Keys.A,			SDL.SDL_Scancode.SDL_SCANCODE_A },
+			{ (int) Keys.B,			SDL.SDL_Scancode.SDL_SCANCODE_B },
+			{ (int) Keys.C,			SDL.SDL_Scancode.SDL_SCANCODE_C },
+			{ (int) Keys.D,			SDL.SDL_Scancode.SDL_SCANCODE_D },
+			{ (int) Keys.E,			SDL.SDL_Scancode.SDL_SCANCODE_E },
+			{ (int) Keys.F,			SDL.SDL_Scancode.SDL_SCANCODE_F },
+			{ (int) Keys.G,			SDL.SDL_Scancode.SDL_SCANCODE_G },
+			{ (int) Keys.H,			SDL.SDL_Scancode.SDL_SCANCODE_H },
+			{ (int) Keys.I,			SDL.SDL_Scancode.SDL_SCANCODE_I },
+			{ (int) Keys.J,			SDL.SDL_Scancode.SDL_SCANCODE_J },
+			{ (int) Keys.K,			SDL.SDL_Scancode.SDL_SCANCODE_K },
+			{ (int) Keys.L,			SDL.SDL_Scancode.SDL_SCANCODE_L },
+			{ (int) Keys.M,			SDL.SDL_Scancode.SDL_SCANCODE_M },
+			{ (int) Keys.N,			SDL.SDL_Scancode.SDL_SCANCODE_N },
+			{ (int) Keys.O,			SDL.SDL_Scancode.SDL_SCANCODE_O },
+			{ (int) Keys.P,			SDL.SDL_Scancode.SDL_SCANCODE_P },
+			{ (int) Keys.Q,			SDL.SDL_Scancode.SDL_SCANCODE_Q },
+			{ (int) Keys.R,			SDL.SDL_Scancode.SDL_SCANCODE_R },
+			{ (int) Keys.S,			SDL.SDL_Scancode.SDL_SCANCODE_S },
+			{ (int) Keys.T,			SDL.SDL_Scancode.SDL_SCANCODE_T },
+			{ (int) Keys.U,			SDL.SDL_Scancode.SDL_SCANCODE_U },
+			{ (int) Keys.V,			SDL.SDL_Scancode.SDL_SCANCODE_V },
+			{ (int) Keys.W,			SDL.SDL_Scancode.SDL_SCANCODE_W },
+			{ (int) Keys.X,			SDL.SDL_Scancode.SDL_SCANCODE_X },
+			{ (int) Keys.Y,			SDL.SDL_Scancode.SDL_SCANCODE_Y },
+			{ (int) Keys.Z,			SDL.SDL_Scancode.SDL_SCANCODE_Z },
+			{ (int) Keys.D0,		SDL.SDL_Scancode.SDL_SCANCODE_0 },
+			{ (int) Keys.D1,		SDL.SDL_Scancode.SDL_SCANCODE_1 },
+			{ (int) Keys.D2,		SDL.SDL_Scancode.SDL_SCANCODE_2 },
+			{ (int) Keys.D3,		SDL.SDL_Scancode.SDL_SCANCODE_3 },
+			{ (int) Keys.D4,		SDL.SDL_Scancode.SDL_SCANCODE_4 },
+			{ (int) Keys.D5,		SDL.SDL_Scancode.SDL_SCANCODE_5 },
+			{ (int) Keys.D6,		SDL.SDL_Scancode.SDL_SCANCODE_6 },
+			{ (int) Keys.D7,		SDL.SDL_Scancode.SDL_SCANCODE_7 },
+			{ (int) Keys.D8,		SDL.SDL_Scancode.SDL_SCANCODE_8 },
+			{ (int) Keys.D9,		SDL.SDL_Scancode.SDL_SCANCODE_9 },
+			{ (int) Keys.NumPad0,		SDL.SDL_Scancode.SDL_SCANCODE_KP_0 },
+			{ (int) Keys.NumPad1,		SDL.SDL_Scancode.SDL_SCANCODE_KP_1 },
+			{ (int) Keys.NumPad2,		SDL.SDL_Scancode.SDL_SCANCODE_KP_2 },
+			{ (int) Keys.NumPad3,		SDL.SDL_Scancode.SDL_SCANCODE_KP_3 },
+			{ (int) Keys.NumPad4,		SDL.SDL_Scancode.SDL_SCANCODE_KP_4 },
+			{ (int) Keys.NumPad5,		SDL.SDL_Scancode.SDL_SCANCODE_KP_5 },
+			{ (int) Keys.NumPad6,		SDL.SDL_Scancode.SDL_SCANCODE_KP_6 },
+			{ (int) Keys.NumPad7,		SDL.SDL_Scancode.SDL_SCANCODE_KP_7 },
+			{ (int) Keys.NumPad8,		SDL.SDL_Scancode.SDL_SCANCODE_KP_8 },
+			{ (int) Keys.NumPad9,		SDL.SDL_Scancode.SDL_SCANCODE_KP_9 },
+			{ (int) Keys.OemClear,		SDL.SDL_Scancode.SDL_SCANCODE_KP_CLEAR },
+			{ (int) Keys.Decimal,		SDL.SDL_Scancode.SDL_SCANCODE_KP_DECIMAL },
+			{ (int) Keys.Divide,		SDL.SDL_Scancode.SDL_SCANCODE_KP_DIVIDE },
+			{ (int) Keys.Multiply,		SDL.SDL_Scancode.SDL_SCANCODE_KP_MULTIPLY },
+			{ (int) Keys.Subtract,		SDL.SDL_Scancode.SDL_SCANCODE_KP_MINUS },
+			{ (int) Keys.Add,		SDL.SDL_Scancode.SDL_SCANCODE_KP_PLUS },
+			{ (int) Keys.F1,		SDL.SDL_Scancode.SDL_SCANCODE_F1 },
+			{ (int) Keys.F2,		SDL.SDL_Scancode.SDL_SCANCODE_F2 },
+			{ (int) Keys.F3,		SDL.SDL_Scancode.SDL_SCANCODE_F3 },
+			{ (int) Keys.F4,		SDL.SDL_Scancode.SDL_SCANCODE_F4 },
+			{ (int) Keys.F5,		SDL.SDL_Scancode.SDL_SCANCODE_F5 },
+			{ (int) Keys.F6,		SDL.SDL_Scancode.SDL_SCANCODE_F6 },
+			{ (int) Keys.F7,		SDL.SDL_Scancode.SDL_SCANCODE_F7 },
+			{ (int) Keys.F8,		SDL.SDL_Scancode.SDL_SCANCODE_F8 },
+			{ (int) Keys.F9,		SDL.SDL_Scancode.SDL_SCANCODE_F9 },
+			{ (int) Keys.F10,		SDL.SDL_Scancode.SDL_SCANCODE_F10 },
+			{ (int) Keys.F11,		SDL.SDL_Scancode.SDL_SCANCODE_F11 },
+			{ (int) Keys.F12,		SDL.SDL_Scancode.SDL_SCANCODE_F12 },
+			{ (int) Keys.F13,		SDL.SDL_Scancode.SDL_SCANCODE_F13 },
+			{ (int) Keys.F14,		SDL.SDL_Scancode.SDL_SCANCODE_F14 },
+			{ (int) Keys.F15,		SDL.SDL_Scancode.SDL_SCANCODE_F15 },
+			{ (int) Keys.F16,		SDL.SDL_Scancode.SDL_SCANCODE_F16 },
+			{ (int) Keys.F17,		SDL.SDL_Scancode.SDL_SCANCODE_F17 },
+			{ (int) Keys.F18,		SDL.SDL_Scancode.SDL_SCANCODE_F18 },
+			{ (int) Keys.F19,		SDL.SDL_Scancode.SDL_SCANCODE_F19 },
+			{ (int) Keys.F20,		SDL.SDL_Scancode.SDL_SCANCODE_F20 },
+			{ (int) Keys.F21,		SDL.SDL_Scancode.SDL_SCANCODE_F21 },
+			{ (int) Keys.F22,		SDL.SDL_Scancode.SDL_SCANCODE_F22 },
+			{ (int) Keys.F23,		SDL.SDL_Scancode.SDL_SCANCODE_F23 },
+			{ (int) Keys.F24,		SDL.SDL_Scancode.SDL_SCANCODE_F24 },
+			{ (int) Keys.Space,		SDL.SDL_Scancode.SDL_SCANCODE_SPACE },
+			{ (int) Keys.Up,		SDL.SDL_Scancode.SDL_SCANCODE_UP },
+			{ (int) Keys.Down,		SDL.SDL_Scancode.SDL_SCANCODE_DOWN },
+			{ (int) Keys.Left,		SDL.SDL_Scancode.SDL_SCANCODE_LEFT },
+			{ (int) Keys.Right,		SDL.SDL_Scancode.SDL_SCANCODE_RIGHT },
+			{ (int) Keys.LeftAlt,		SDL.SDL_Scancode.SDL_SCANCODE_LALT },
+			{ (int) Keys.RightAlt,		SDL.SDL_Scancode.SDL_SCANCODE_RALT },
+			{ (int) Keys.LeftControl,	SDL.SDL_Scancode.SDL_SCANCODE_LCTRL },
+			{ (int) Keys.RightControl,	SDL.SDL_Scancode.SDL_SCANCODE_RCTRL },
+			{ (int) Keys.LeftWindows,	SDL.SDL_Scancode.SDL_SCANCODE_LGUI },
+			{ (int) Keys.RightWindows,	SDL.SDL_Scancode.SDL_SCANCODE_RGUI },
+			{ (int) Keys.LeftShift,		SDL.SDL_Scancode.SDL_SCANCODE_LSHIFT },
+			{ (int) Keys.RightShift,	SDL.SDL_Scancode.SDL_SCANCODE_RSHIFT },
+			{ (int) Keys.Apps,		SDL.SDL_Scancode.SDL_SCANCODE_APPLICATION },
+			{ (int) Keys.OemQuestion,	SDL.SDL_Scancode.SDL_SCANCODE_SLASH },
+			{ (int) Keys.OemBackslash,	SDL.SDL_Scancode.SDL_SCANCODE_BACKSLASH },
+			{ (int) Keys.OemOpenBrackets,	SDL.SDL_Scancode.SDL_SCANCODE_LEFTBRACKET },
+			{ (int) Keys.OemCloseBrackets,	SDL.SDL_Scancode.SDL_SCANCODE_RIGHTBRACKET },
+			{ (int) Keys.CapsLock,		SDL.SDL_Scancode.SDL_SCANCODE_CAPSLOCK },
+			{ (int) Keys.OemComma,		SDL.SDL_Scancode.SDL_SCANCODE_COMMA },
+			{ (int) Keys.Delete,		SDL.SDL_Scancode.SDL_SCANCODE_DELETE },
+			{ (int) Keys.End,		SDL.SDL_Scancode.SDL_SCANCODE_END },
+			{ (int) Keys.Back,		SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE },
+			{ (int) Keys.Enter,		SDL.SDL_Scancode.SDL_SCANCODE_RETURN },
+			{ (int) Keys.Escape,		SDL.SDL_Scancode.SDL_SCANCODE_ESCAPE },
+			{ (int) Keys.Home,		SDL.SDL_Scancode.SDL_SCANCODE_HOME },
+			{ (int) Keys.Insert,		SDL.SDL_Scancode.SDL_SCANCODE_INSERT },
+			{ (int) Keys.OemMinus,		SDL.SDL_Scancode.SDL_SCANCODE_MINUS },
+			{ (int) Keys.NumLock,		SDL.SDL_Scancode.SDL_SCANCODE_NUMLOCKCLEAR },
+			{ (int) Keys.PageUp,		SDL.SDL_Scancode.SDL_SCANCODE_PAGEUP },
+			{ (int) Keys.PageDown,		SDL.SDL_Scancode.SDL_SCANCODE_PAGEDOWN },
+			{ (int) Keys.Pause,		SDL.SDL_Scancode.SDL_SCANCODE_PAUSE },
+			{ (int) Keys.OemPeriod,		SDL.SDL_Scancode.SDL_SCANCODE_PERIOD },
+			{ (int) Keys.OemPlus,		SDL.SDL_Scancode.SDL_SCANCODE_EQUALS },
+			{ (int) Keys.PrintScreen,	SDL.SDL_Scancode.SDL_SCANCODE_PRINTSCREEN },
+			{ (int) Keys.OemQuotes,		SDL.SDL_Scancode.SDL_SCANCODE_APOSTROPHE },
+			{ (int) Keys.Scroll,		SDL.SDL_Scancode.SDL_SCANCODE_SCROLLLOCK },
+			{ (int) Keys.OemSemicolon,	SDL.SDL_Scancode.SDL_SCANCODE_SEMICOLON },
+			{ (int) Keys.Sleep,		SDL.SDL_Scancode.SDL_SCANCODE_SLEEP },
+			{ (int) Keys.Tab,		SDL.SDL_Scancode.SDL_SCANCODE_TAB },
+			{ (int) Keys.OemTilde,		SDL.SDL_Scancode.SDL_SCANCODE_GRAVE },
+			{ (int) Keys.None,		SDL.SDL_Scancode.SDL_SCANCODE_UNKNOWN }
+		};
+
+		private static Keys ToXNAKey(ref SDL.SDL_Keysym key)
+		{
+			Keys retVal;
+			if (UseScancodes)
+			{
+				if (INTERNAL_scanMap.TryGetValue((int) key.scancode, out retVal))
+				{
+					return retVal;
+				}
+			}
+			else
+			{
+				if (INTERNAL_keyMap.TryGetValue((int) key.sym, out retVal))
+				{
+					return retVal;
+				}
+			}
+			FNAPlatform.Log(
+				"KEY/SCANCODE MISSING FROM SDL2->XNA DICTIONARY: " +
+				key.sym.ToString() + " " +
+				key.scancode.ToString()
+			);
+			return Keys.None;
+		}
+
+		public static Keys GetKeyFromScancode(Keys scancode)
+		{
+			SDL.SDL_Scancode retVal;
+			if (INTERNAL_xnaMap.TryGetValue((int) scancode, out retVal))
+			{
+				return INTERNAL_keyMap[(int) SDL.SDL_GetKeyFromScancode(retVal)];
+			}
+			else
+			{
+				FNAPlatform.Log("SCANCODE MISSING FROM XNA->SDL2 DICTIONARY: " + scancode.ToString());
+				return Keys.None;
+			}
 		}
 
 		#endregion

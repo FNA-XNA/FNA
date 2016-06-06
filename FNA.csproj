@@ -337,7 +337,6 @@
     <Compile Include="src\Ray.cs" />
     <Compile Include="src\Rectangle.cs" />
     <Compile Include="src\SDL2\SDL2_FNAPlatform.cs" />
-    <Compile Include="src\SDL2\SDL2_KeyboardUtil.cs" />
     <Compile Include="src\Storage\StorageContainer.cs" />
     <Compile Include="src\Storage\StorageDevice.cs" />
     <Compile Include="src\Storage\StorageDeviceNotConnectedException.cs" />
