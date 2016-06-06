@@ -47,14 +47,11 @@
     <Compile Include="src\Audio\Cue.cs" />
     <Compile Include="src\Audio\CueData.cs" />
     <Compile Include="src\Audio\DynamicSoundEffectInstance.cs" />
-    <Compile Include="src\Audio\IALDevice.cs" />
     <Compile Include="src\Audio\InstancePlayLimitException.cs" />
     <Compile Include="src\Audio\Microphone.cs" />
     <Compile Include="src\Audio\MicrophoneState.cs" />
     <Compile Include="src\Audio\NoAudioHardwareException.cs" />
     <Compile Include="src\Audio\NoMicrophoneConnectedException.cs" />
-    <Compile Include="src\Audio\NullDevice.cs" />
-    <Compile Include="src\Audio\OpenALDevice.cs" />
     <Compile Include="src\Audio\RendererDetail.cs" />
     <Compile Include="src\Audio\SoundBank.cs" />
     <Compile Include="src\Audio\SoundEffect.cs" />
@@ -157,8 +154,15 @@
     <Compile Include="src\Design\Vector4Converter.cs" />
     <Compile Include="src\DisplayOrientation.cs" />
     <Compile Include="src\DrawableGameComponent.cs" />
-    <Compile Include="src\FNAPlatform.cs" />
-    <Compile Include="src\FNAWindow.cs" />
+    <Compile Include="src\FNAPlatform\FNAPlatform.cs" />
+    <Compile Include="src\FNAPlatform\FNAWindow.cs" />
+    <Compile Include="src\FNAPlatform\IALDevice.cs" />
+    <Compile Include="src\FNAPlatform\IGLDevice.cs" />
+    <Compile Include="src\FNAPlatform\NullALDevice.cs" />
+    <Compile Include="src\FNAPlatform\OpenALDevice.cs" />
+    <Compile Include="src\FNAPlatform\OpenGLDevice.cs" />
+    <Compile Include="src\FNAPlatform\OpenGLDevice_GL.cs" />
+    <Compile Include="src\FNAPlatform\SDL2_FNAPlatform.cs" />
     <Compile Include="src\FrameworkDispatcher.cs" />
     <Compile Include="src\Game.cs" />
     <Compile Include="src\GameComponent.cs" />
@@ -205,7 +209,6 @@
     <Compile Include="src\Graphics\GraphicsDeviceStatus.cs" />
     <Compile Include="src\Graphics\GraphicsProfile.cs" />
     <Compile Include="src\Graphics\GraphicsResource.cs" />
-    <Compile Include="src\Graphics\IGLDevice.cs" />
     <Compile Include="src\Graphics\IGraphicsDeviceService.cs" />
     <Compile Include="src\Graphics\IRenderTarget.cs" />
     <Compile Include="src\Graphics\Model.cs" />
@@ -218,8 +221,6 @@
     <Compile Include="src\Graphics\ModelMeshPartCollection.cs" />
     <Compile Include="src\Graphics\NoSuitableGraphicsDeviceException.cs" />
     <Compile Include="src\Graphics\OcclusionQuery.cs" />
-    <Compile Include="src\Graphics\OpenGLDevice.cs" />
-    <Compile Include="src\Graphics\OpenGLDevice_GL.cs" />
     <Compile Include="src\Graphics\PackedVector\Alpha8.cs" />
     <Compile Include="src\Graphics\PackedVector\Bgr565.cs" />
     <Compile Include="src\Graphics\PackedVector\Bgra4444.cs" />
@@ -336,7 +337,6 @@
     <Compile Include="src\Quaternion.cs" />
     <Compile Include="src\Ray.cs" />
     <Compile Include="src\Rectangle.cs" />
-    <Compile Include="src\SDL2\SDL2_FNAPlatform.cs" />
     <Compile Include="src\Storage\StorageContainer.cs" />
     <Compile Include="src\Storage\StorageDevice.cs" />
     <Compile Include="src\Storage\StorageDeviceNotConnectedException.cs" />

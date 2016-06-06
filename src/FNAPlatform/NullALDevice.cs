@@ -20,7 +20,7 @@ namespace Microsoft.Xna.Framework.Audio
 	 * part of the XNA4 spec, however, so behavior here is entirely undefined!
 	 * -flibit
 	 */
-	internal class NullDevice : IALDevice
+	internal class NullALDevice : IALDevice
 	{
 		private class NullBuffer : IALBuffer
 		{

@@ -67,7 +67,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (disableSound)
 			{
-				ALDevice = new NullDevice();
+				ALDevice = new NullALDevice();
 			}
 			else
 			{

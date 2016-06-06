@@ -13,14 +13,11 @@ SRC = \
 	src/Audio/Cue.cs \
 	src/Audio/CueData.cs \
 	src/Audio/DynamicSoundEffectInstance.cs \
-	src/Audio/IALDevice.cs \
 	src/Audio/InstancePlayLimitException.cs \
 	src/Audio/Microphone.cs \
 	src/Audio/MicrophoneState.cs \
 	src/Audio/NoAudioHardwareException.cs \
 	src/Audio/NoMicrophoneConnectedException.cs \
-	src/Audio/NullDevice.cs \
-	src/Audio/OpenALDevice.cs \
 	src/Audio/RendererDetail.cs \
 	src/Audio/SoundBank.cs \
 	src/Audio/SoundEffect.cs \
@@ -123,8 +120,15 @@ SRC = \
 	src/Design/Vector4Converter.cs \
 	src/DisplayOrientation.cs \
 	src/DrawableGameComponent.cs \
-	src/FNAPlatform.cs \
-	src/FNAWindow.cs \
+	src/FNAPlatform/FNAPlatform.cs \
+	src/FNAPlatform/FNAWindow.cs \
+	src/FNAPlatform/IALDevice.cs \
+	src/FNAPlatform/IGLDevice.cs \
+	src/FNAPlatform/NullALDevice.cs \
+	src/FNAPlatform/OpenALDevice.cs \
+	src/FNAPlatform/OpenGLDevice.cs \
+	src/FNAPlatform/OpenGLDevice_GL.cs \
+	src/FNAPlatform/SDL2_FNAPlatform.cs \
 	src/FrameworkDispatcher.cs \
 	src/Game.cs \
 	src/GameComponent.cs \
@@ -171,7 +175,6 @@ SRC = \
 	src/Graphics/GraphicsDeviceStatus.cs \
 	src/Graphics/GraphicsProfile.cs \
 	src/Graphics/GraphicsResource.cs \
-	src/Graphics/IGLDevice.cs \
 	src/Graphics/IGraphicsDeviceService.cs \
 	src/Graphics/IRenderTarget.cs \
 	src/Graphics/Model.cs \
@@ -184,8 +187,6 @@ SRC = \
 	src/Graphics/ModelMeshPartCollection.cs \
 	src/Graphics/NoSuitableGraphicsDeviceException.cs \
 	src/Graphics/OcclusionQuery.cs \
-	src/Graphics/OpenGLDevice.cs \
-	src/Graphics/OpenGLDevice_GL.cs \
 	src/Graphics/PackedVector/Alpha8.cs \
 	src/Graphics/PackedVector/Bgr565.cs \
 	src/Graphics/PackedVector/Bgra4444.cs \
@@ -302,7 +303,6 @@ SRC = \
 	src/Quaternion.cs \
 	src/Ray.cs \
 	src/Rectangle.cs \
-	src/SDL2/SDL2_FNAPlatform.cs \
 	src/Storage/StorageContainer.cs \
 	src/Storage/StorageDevice.cs \
 	src/Storage/StorageDeviceNotConnectedException.cs \
