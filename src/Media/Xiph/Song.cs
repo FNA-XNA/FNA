@@ -148,7 +148,8 @@ namespace Microsoft.Xna.Framework.Media
 		private static IntPtr bufferPtr = bufferHandle.AddrOfPinnedObject();
 
 		/* PROTIP: If you want to use this file in XNA4, take this bool name and delete
-		 * ALL of the code that runs when this is 'true'. Then it should compile.
+		 * ALL of the code that runs when this is 'false'. After that,
+		 * it should compile after fixing the obvious bits (like the namespace).
 		 * -flibit
 		 */
 		private static readonly bool DISABLE_THREADS = Environment.GetEnvironmentVariable(
