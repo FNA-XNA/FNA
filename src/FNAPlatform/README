@@ -1,0 +1,26 @@
+This is FNAPlatform, the platform abstraction layer and implementations for FNA.
+
+The way FNA platforms are written is by implementing the following interfaces:
+
+1. FNAPlatform
+	- Write implementations of the delegate types listed in FNAPlatform.cs
+	- Assign the new functions in the FNAPlatform static constructor
+2. IGLDevice
+	- Implement the interfaces listed in IGLDevice.cs
+	- When implementing FNAPlatform.CreateGLDevice, use your new GLDevice
+3. IALDevice
+	- Implement the interfaces listed in IALDevice.cs
+	- When implementing FNAPlatform.CreateALDevice, use your new ALDevice
+
+Determining platform backends at runtime allows us to have portability across
+all targets with a single binary, which is convenient for targeting multiple
+platforms as well as multiple backends for each platform all simultaneously.
+
+The expectation is that new platforms will add code exclusively to this folder.
+Some interfaces may need to change for new platforms, but changing the interface
+should be as simple as making the modifications at the interface layer and
+fixing the code in both the XNA reimplementation code as well as each platform
+backend file that depends on those interfaces, all of which should throw errors
+at compile time right away, regardless of your current target platform.
+
+When submitting new platforms, please test ALL platforms and ALL backends!
