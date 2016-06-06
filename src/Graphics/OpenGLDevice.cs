@@ -543,44 +543,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Private Static SDL2 Bug Workaround
-
-		private static void GetWindowDimensions(
-			PresentationParameters presentationParameters,
-			out int width,
-			out int height
-		) {
-			if (presentationParameters.IsFullScreen)
-			{
-				/* FIXME: SDL2 bug!
-				 * SDL's a little weird about SDL_GetWindowSize.
-				 * If you call it early enough (for example,
-				 * Game.Initialize()), it reports outdated ints.
-				 * So you know what, let's just use this.
-				 * -flibit
-				 */
-				SDL.SDL_DisplayMode mode;
-				SDL.SDL_GetCurrentDisplayMode(
-					SDL.SDL_GetWindowDisplayIndex(
-						presentationParameters.DeviceWindowHandle
-					),
-					out mode
-				);
-				width = mode.w;
-				height = mode.h;
-			}
-			else
-			{
-				SDL.SDL_GetWindowSize(
-					presentationParameters.DeviceWindowHandle,
-					out width,
-					out height
-				);
-			}
-		}
-
-		#endregion
-
 		#region memcpy Export
 
 		/* This is used a lot for GetData/Read calls... -flibit */
@@ -680,14 +642,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Initialize the faux-backbuffer
-			int winWidth, winHeight;
-			GetWindowDimensions(
-				presentationParameters,
-				out winWidth,
-				out winHeight
-			);
-			if (	winWidth != presentationParameters.BackBufferWidth ||
-				winHeight != presentationParameters.BackBufferHeight ||
+			Rectangle bounds = FNAPlatform.GetWindowBounds(presentationParameters.DeviceWindowHandle);
+			if (	bounds.Width != presentationParameters.BackBufferWidth ||
+				bounds.Height != presentationParameters.BackBufferHeight ||
 				presentationParameters.MultiSampleCount > 0	)
 			{
 				if (!supportsFauxBackbuffer)
@@ -806,14 +763,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			PresentationParameters presentationParameters,
 			bool renderTargetBound
 		) {
-			int winWidth, winHeight;
-			GetWindowDimensions(
-				presentationParameters,
-				out winWidth,
-				out winHeight
-			);
-			bool useFauxBackbuffer = (	winWidth != presentationParameters.BackBufferWidth ||
-							winHeight != presentationParameters.BackBufferHeight ||
+			Rectangle bounds = FNAPlatform.GetWindowBounds(presentationParameters.DeviceWindowHandle);
+			bool useFauxBackbuffer = (	bounds.Width != presentationParameters.BackBufferWidth ||
+							bounds.Height != presentationParameters.BackBufferHeight ||
 							presentationParameters.MultiSampleCount > 0	);
 			if (useFauxBackbuffer)
 			{

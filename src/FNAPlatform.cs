@@ -38,6 +38,13 @@ namespace Microsoft.Xna.Framework
 
 			CreateWindow =			SDL2_FNAPlatform.CreateWindow;
 			DisposeWindow =			SDL2_FNAPlatform.DisposeWindow;
+			ApplyWindowChanges =		SDL2_FNAPlatform.ApplyWindowChanges;
+			GetWindowBounds =		SDL2_FNAPlatform.GetWindowBounds;
+			GetWindowResizable =		SDL2_FNAPlatform.GetWindowResizable;
+			SetWindowResizable =		SDL2_FNAPlatform.SetWindowResizable;
+			GetWindowBorderless =		SDL2_FNAPlatform.GetWindowBorderless;
+			SetWindowBorderless =		SDL2_FNAPlatform.SetWindowBorderless;
+			SetWindowTitle =		SDL2_FNAPlatform.SetWindowTitle;
 			RunLoop =			SDL2_FNAPlatform.RunLoop;
 			CreateGLDevice =		SDL2_FNAPlatform.CreateGLDevice;
 			CreateALDevice =		SDL2_FNAPlatform.CreateALDevice;
@@ -90,6 +97,34 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void DisposeWindowFunc(GameWindow window);
 		public static readonly DisposeWindowFunc DisposeWindow;
+
+		public delegate void ApplyWindowChangesFunc(
+			IntPtr window,
+			int clientWidth,
+			int clientHeight,
+			bool wantsFullscreen,
+			string screenDeviceName,
+			ref string resultDeviceName
+		);
+		public static readonly ApplyWindowChangesFunc ApplyWindowChanges;
+
+		public delegate Rectangle GetWindowBoundsFunc(IntPtr window);
+		public static readonly GetWindowBoundsFunc GetWindowBounds;
+
+		public delegate bool GetWindowResizableFunc(IntPtr window);
+		public static readonly GetWindowResizableFunc GetWindowResizable;
+
+		public delegate void SetWindowResizableFunc(IntPtr window, bool resizable);
+		public static readonly SetWindowResizableFunc SetWindowResizable;
+
+		public delegate bool GetWindowBorderlessFunc(IntPtr window);
+		public static readonly GetWindowBorderlessFunc GetWindowBorderless;
+
+		public delegate void SetWindowBorderlessFunc(IntPtr window, bool borderless);
+		public static readonly SetWindowBorderlessFunc SetWindowBorderless;
+
+		public delegate void SetWindowTitleFunc(IntPtr window, string title);
+		public static readonly SetWindowTitleFunc SetWindowTitle;
 
 		public delegate void RunLoopFunc(Game game);
 		public static readonly RunLoopFunc RunLoop;

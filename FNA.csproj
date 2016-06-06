@@ -158,6 +158,7 @@
     <Compile Include="src\DisplayOrientation.cs" />
     <Compile Include="src\DrawableGameComponent.cs" />
     <Compile Include="src\FNAPlatform.cs" />
+    <Compile Include="src\FNAWindow.cs" />
     <Compile Include="src\FrameworkDispatcher.cs" />
     <Compile Include="src\Game.cs" />
     <Compile Include="src\GameComponent.cs" />
@@ -336,7 +337,6 @@
     <Compile Include="src\Ray.cs" />
     <Compile Include="src\Rectangle.cs" />
     <Compile Include="src\SDL2\SDL2_FNAPlatform.cs" />
-    <Compile Include="src\SDL2\SDL2_GameWindow.cs" />
     <Compile Include="src\SDL2\SDL2_KeyboardUtil.cs" />
     <Compile Include="src\Storage\StorageContainer.cs" />
     <Compile Include="src\Storage\StorageDevice.cs" />

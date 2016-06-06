@@ -124,6 +124,7 @@ SRC = \
 	src/DisplayOrientation.cs \
 	src/DrawableGameComponent.cs \
 	src/FNAPlatform.cs \
+	src/FNAWindow.cs \
 	src/FrameworkDispatcher.cs \
 	src/Game.cs \
 	src/GameComponent.cs \
@@ -302,7 +303,6 @@ SRC = \
 	src/Ray.cs \
 	src/Rectangle.cs \
 	src/SDL2/SDL2_FNAPlatform.cs \
-	src/SDL2/SDL2_GameWindow.cs \
 	src/SDL2/SDL2_KeyboardUtil.cs \
 	src/Storage/StorageContainer.cs \
 	src/Storage/StorageDevice.cs \

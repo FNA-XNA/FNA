@@ -31,7 +31,7 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Public Static Methods
+		#region Init/Exit Methods
 
 		public static void ProgramInit()
 		{
@@ -93,6 +93,10 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_Quit();
 		}
 
+		#endregion
+
+		#region Window Methods
+
 		public static GameWindow CreateWindow()
 		{
 			// GLContext environment variables
@@ -104,13 +108,80 @@ namespace Microsoft.Xna.Framework
 			) == "1";
 
 			// Set and initialize the SDL2 window
-			GameWindow result = new SDL2_GameWindow(
-				forceES2 ||
-				OSVersion.Equals("Emscripten") ||
-				OSVersion.Equals("Android") ||
-				OSVersion.Equals("iOS"),
-				forceCoreProfile
+			SDL.SDL_WindowFlags initFlags = (
+				SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL |
+				SDL.SDL_WindowFlags.SDL_WINDOW_HIDDEN |
+				SDL.SDL_WindowFlags.SDL_WINDOW_INPUT_FOCUS |
+				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
 			);
+
+			// FIXME: Once we have SDL_SetWindowResizable, remove this. -flibit
+			if (Environment.GetEnvironmentVariable("FNA_WORKAROUND_WINDOW_RESIZABLE") == "1")
+			{
+				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE;
+			}
+
+			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_RED_SIZE, 8);
+			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_GREEN_SIZE, 8);
+			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_BLUE_SIZE, 8);
+			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_ALPHA_SIZE, 8);
+			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_DEPTH_SIZE, 24);
+			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_STENCIL_SIZE, 8);
+			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_DOUBLEBUFFER, 1);
+			if (forceES2)
+			{
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_RETAINED_BACKING,
+					0
+				);
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_ACCELERATED_VISUAL,
+					1
+				);
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION,
+					2
+				);
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION,
+					0
+				);
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
+					(int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_ES
+				);
+			}
+			else if (forceCoreProfile)
+			{
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION,
+					3
+				);
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION,
+					2
+				);
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
+					(int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE
+				);
+			}
+#if DEBUG
+			SDL.SDL_GL_SetAttribute(
+				SDL.SDL_GLattr.SDL_GL_CONTEXT_FLAGS,
+				(int) SDL.SDL_GLcontext.SDL_GL_CONTEXT_DEBUG_FLAG
+			);
+#endif
+			string title = MonoGame.Utilities.AssemblyHelper.GetDefaultWindowTitle();
+			IntPtr window = SDL.SDL_CreateWindow(
+				title,
+				SDL.SDL_WINDOWPOS_CENTERED,
+				SDL.SDL_WINDOWPOS_CENTERED,
+				GraphicsDeviceManager.DefaultBackBufferWidth,
+				GraphicsDeviceManager.DefaultBackBufferHeight,
+				initFlags
+			);
+			INTERNAL_SetIcon(window, title);
 
 			// Disable the screensaver.
 			SDL.SDL_DisableScreenSaver();
@@ -118,7 +189,12 @@ namespace Microsoft.Xna.Framework
 			// We hide the mouse cursor by default.
 			SDL.SDL_ShowCursor(0);
 
-			return result;
+			return new FNAWindow(
+				window,
+				SDL.SDL_GetDisplayName(
+					SDL.SDL_GetWindowDisplayIndex(window)
+				)
+			);
 		}
 
 		public static void DisposeWindow(GameWindow window)
@@ -136,6 +212,267 @@ namespace Microsoft.Xna.Framework
 
 			SDL.SDL_DestroyWindow(window.Handle);
 		}
+
+		public static void ApplyWindowChanges(
+			IntPtr window,
+			int clientWidth,
+			int clientHeight,
+			bool wantsFullscreen,
+			string screenDeviceName,
+			ref string resultDeviceName
+		) {
+			bool center = false;
+
+			// Fullscreen
+			if (	wantsFullscreen &&
+				(SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN) == 0	)
+			{
+				/* FIXME: SDL2/OSX bug!
+				 * For whatever reason, Spaces windows on OSX
+				 * like to be high-DPI if you set fullscreen
+				 * while the window is hidden. But, if you just
+				 * show the window first, everything is fine.
+				 * -flibit
+				 */
+				SDL.SDL_ShowWindow(window);
+			}
+
+			// When windowed, set the size before moving
+			if (!wantsFullscreen)
+			{
+				SDL.SDL_SetWindowFullscreen(window, 0);
+				int w, h;
+				SDL.SDL_GetWindowSize(
+					window,
+					out w,
+					out h
+				);
+				if (clientWidth != w || clientHeight != h)
+				{
+					SDL.SDL_SetWindowSize(window, clientWidth, clientHeight);
+					center = true;
+				}
+			}
+
+			// Get on the right display!
+			int displayIndex = 0;
+			for (int i = 0; i < GraphicsAdapter.Adapters.Count; i += 1)
+			{
+				// FIXME: Should be checking Name, not Description! -flibit
+				if (screenDeviceName == GraphicsAdapter.Adapters[i].Description)
+				{
+					displayIndex = i;
+					break;
+				}
+			}
+
+			// Just to be sure, become a window first before changing displays
+			if (resultDeviceName != screenDeviceName)
+			{
+				SDL.SDL_SetWindowFullscreen(window, 0);
+				resultDeviceName = screenDeviceName;
+				center = true;
+			}
+
+			// Window always gets centered on changes, per XNA behavior
+			if (center)
+			{
+				int pos = SDL.SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex);
+				SDL.SDL_SetWindowPosition(
+					window,
+					pos,
+					pos
+				);
+			}
+
+			// Set fullscreen after we've done all the ugly stuff.
+			if (wantsFullscreen)
+			{
+				SDL.SDL_SetWindowFullscreen(
+					window,
+					(uint) SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP
+				);
+			}
+		}
+
+		public static Rectangle GetWindowBounds(IntPtr window)
+		{
+			Rectangle result;
+			if ((SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN) != 0)
+			{
+				/* FIXME: SDL2 bug!
+				 * SDL's a little weird about SDL_GetWindowSize.
+				 * If you call it early enough (for example,
+				 * Game.Initialize()), it reports outdated ints.
+				 * So you know what, let's just use this.
+				 * -flibit
+				 */
+				SDL.SDL_DisplayMode mode;
+				SDL.SDL_GetCurrentDisplayMode(
+					SDL.SDL_GetWindowDisplayIndex(
+						window
+					),
+					out mode
+				);
+				result.X = 0;
+				result.Y = 0;
+				result.Width = mode.w;
+				result.Height = mode.h;
+			}
+			else
+			{
+				SDL.SDL_GetWindowPosition(
+					window,
+					out result.X,
+					out result.Y
+				);
+				SDL.SDL_GetWindowSize(
+					window,
+					out result.Width,
+					out result.Height
+				);
+			}
+			return result;
+		}
+
+		public static bool GetWindowResizable(IntPtr window)
+		{
+			return ((SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE) != 0);
+		}
+
+		public static void SetWindowResizable(IntPtr window, bool resizable)
+		{
+			try
+			{
+				SDL_SetWindowResizable(
+					window,
+					resizable ?
+						SDL.SDL_bool.SDL_TRUE :
+						SDL.SDL_bool.SDL_FALSE
+				);
+			}
+			catch
+			{
+				// No-op. :(
+			}
+		}
+
+		public static bool GetWindowBorderless(IntPtr window)
+		{
+			return ((SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_BORDERLESS) != 0);
+		}
+
+		public static void SetWindowBorderless(IntPtr window, bool borderless)
+		{
+			SDL.SDL_SetWindowBordered(
+				window,
+				borderless ?
+					SDL.SDL_bool.SDL_FALSE :
+					SDL.SDL_bool.SDL_TRUE
+			);
+		}
+
+		public static void SetWindowTitle(IntPtr window, string title)
+		{
+			SDL.SDL_SetWindowTitle(
+				window,
+				title
+			);
+		}
+
+		private static void INTERNAL_SetIcon(IntPtr window, string title)
+		{
+			string fileIn = String.Empty;
+
+			/* If the game's using SDL2_image, provide the option to use a PNG
+			 * instead of a BMP. Nice for anyone who cares about transparency.
+			 * -flibit
+			 */
+			try
+			{
+				fileIn = INTERNAL_GetIconName(title, ".png");
+				if (!String.IsNullOrEmpty(fileIn))
+				{
+					IntPtr icon = SDL_image.IMG_Load(fileIn);
+					SDL.SDL_SetWindowIcon(window, icon);
+					SDL.SDL_FreeSurface(icon);
+					return;
+				}
+			}
+			catch(DllNotFoundException)
+			{
+				// Not that big a deal guys.
+			}
+
+			fileIn = INTERNAL_GetIconName(title, ".bmp");
+			if (!String.IsNullOrEmpty(fileIn))
+			{
+				IntPtr icon = SDL.SDL_LoadBMP(fileIn);
+				SDL.SDL_SetWindowIcon(window, icon);
+				SDL.SDL_FreeSurface(icon);
+			}
+		}
+
+		private static string INTERNAL_GetIconName(string title, string extension)
+		{
+			string fileIn = String.Empty;
+			if (File.Exists(title + extension))
+			{
+				// If the title and filename work, it just works. Fine.
+				fileIn = title + extension;
+			}
+			else
+			{
+				// But sometimes the title has invalid characters inside.
+
+				/* In addition to the filesystem's invalid charset, we need to
+				 * blacklist the Windows standard set too, no matter what.
+				 * -flibit
+				 */
+				char[] hardCodeBadChars = new char[]
+				{
+					'<',
+					'>',
+					':',
+					'"',
+					'/',
+					'\\',
+					'|',
+					'?',
+					'*'
+				};
+				List<char> badChars = new List<char>();
+				badChars.AddRange(Path.GetInvalidFileNameChars());
+				badChars.AddRange(hardCodeBadChars);
+
+				string stripChars = title;
+				foreach (char c in badChars)
+				{
+					stripChars = stripChars.Replace(c.ToString(), "");
+				}
+				stripChars += extension;
+
+				if (File.Exists(stripChars))
+				{
+					fileIn = stripChars;
+				}
+			}
+			return fileIn;
+		}
+
+		/* FIXME: SDL2 bug!
+		 * Right now SDL_SetWindowResizable is not in upstream.
+		 * We've got it in our SDL-mirror for now, but it's not
+		 * available in any official capacity. So, we're mixing the
+		 * environment variable with unofficial work for now.
+		 * -flibit
+		 */
+		[DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void SDL_SetWindowResizable(IntPtr window, SDL.SDL_bool resizable);
+
+		#endregion
+
+		#region Event Loop
 
 		public static void RunLoop(Game game)
 		{
@@ -313,7 +650,7 @@ namespace Microsoft.Xna.Framework
 							Mouse.INTERNAL_WindowHeight = evt.window.data2;
 
 							// Should be called on user resize only, NOT ApplyChanges!
-							((SDL2_GameWindow) game.Window).INTERNAL_ClientSizeChanged();
+							((FNAWindow) game.Window).INTERNAL_ClientSizeChanged();
 						}
 						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_SIZE_CHANGED)
 						{
@@ -435,6 +772,10 @@ namespace Microsoft.Xna.Framework
 			game.Exit();
 		}
 
+		#endregion
+
+		#region IGL/IAL Methods
+
 		public static IGLDevice CreateGLDevice(
 			PresentationParameters presentationParameters
 		) {
@@ -461,6 +802,10 @@ namespace Microsoft.Xna.Framework
 				return null;
 			}
 		}
+
+		#endregion
+
+		#region Graphics Methods
 
 		public static void SetPresentationInterval(PresentInterval interval)
 		{
@@ -545,6 +890,10 @@ namespace Microsoft.Xna.Framework
 			return adapters;
 		}
 
+		#endregion
+
+		#region Mouse Methods
+
 		public static void GetMouseState(
 			IntPtr window,
 			out int x,
@@ -571,6 +920,10 @@ namespace Microsoft.Xna.Framework
 		{
 			SDL.SDL_ShowCursor(visible ? 1 : 0);
 		}
+
+		#endregion
+
+		#region Storage Methods
 
 		public static string GetStorageRoot()
 		{
@@ -634,6 +987,10 @@ namespace Microsoft.Xna.Framework
 			throw new NotSupportedException("Unhandled SDL2 platform");
 		}
 
+		#endregion
+
+		#region Logging/Messaging Methods
+
 		public static void ShowRuntimeError(string title, string message)
 		{
 			SDL.SDL_ShowSimpleMessageBox(
@@ -643,6 +1000,10 @@ namespace Microsoft.Xna.Framework
 				IntPtr.Zero
 			);
 		}
+
+		#endregion
+
+		#region Image I/O Methods
 
 		public static void TextureDataFromStream(
 			Stream stream,
@@ -879,6 +1240,25 @@ namespace Microsoft.Xna.Framework
 				(pngOut[36])
 			) + pngHeaderSize + pngFooterSize;
 			stream.Write(pngOut, 0, size);
+		}
+
+		private static unsafe IntPtr INTERNAL_convertSurfaceFormat(IntPtr surface)
+		{
+			IntPtr result = surface;
+			unsafe
+			{
+				SDL.SDL_Surface* surPtr = (SDL.SDL_Surface*) surface;
+				SDL.SDL_PixelFormat* pixelFormatPtr = (SDL.SDL_PixelFormat*) surPtr->format;
+
+				// SurfaceFormat.Color is SDL_PIXELFORMAT_ABGR8888
+				if (pixelFormatPtr->format != SDL.SDL_PIXELFORMAT_ABGR8888)
+				{
+					// Create a properly formatted copy, free the old surface
+					result = SDL.SDL_ConvertSurfaceFormat(surface, SDL.SDL_PIXELFORMAT_ABGR8888, 0);
+					SDL.SDL_FreeSurface(surface);
+				}
+			}
+			return result;
 		}
 
 		#endregion
@@ -1444,29 +1824,6 @@ namespace Microsoft.Xna.Framework
 			for (int i = 0; i < result.Length; i += 1)
 			{
 				result[i] = String.Empty;
-			}
-			return result;
-		}
-
-		#endregion
-
-		#region Private Static SDL_Surface Interop
-
-		private static unsafe IntPtr INTERNAL_convertSurfaceFormat(IntPtr surface)
-		{
-			IntPtr result = surface;
-			unsafe
-			{
-				SDL.SDL_Surface* surPtr = (SDL.SDL_Surface*) surface;
-				SDL.SDL_PixelFormat* pixelFormatPtr = (SDL.SDL_PixelFormat*) surPtr->format;
-
-				// SurfaceFormat.Color is SDL_PIXELFORMAT_ABGR8888
-				if (pixelFormatPtr->format != SDL.SDL_PIXELFORMAT_ABGR8888)
-				{
-					// Create a properly formatted copy, free the old surface
-					result = SDL.SDL_ConvertSurfaceFormat(surface, SDL.SDL_PIXELFORMAT_ABGR8888, 0);
-					SDL.SDL_FreeSurface(surface);
-				}
 			}
 			return result;
 		}
