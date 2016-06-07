@@ -244,14 +244,23 @@ namespace Microsoft.Xna.Framework
 			// When windowed, set the size before moving
 			if (!wantsFullscreen)
 			{
-				SDL.SDL_SetWindowFullscreen(window, 0);
-				int w, h;
-				SDL.SDL_GetWindowSize(
-					window,
-					out w,
-					out h
-				);
-				if (clientWidth != w || clientHeight != h)
+				bool resize = false;
+				if ((SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN) != 0)
+				{
+					SDL.SDL_SetWindowFullscreen(window, 0);
+					resize = true;
+				}
+				else
+				{
+					int w, h;
+					SDL.SDL_GetWindowSize(
+						window,
+						out w,
+						out h
+					);
+					resize = (clientWidth != w || clientHeight != h);
+				}
+				if (resize)
 				{
 					SDL.SDL_SetWindowSize(window, clientWidth, clientHeight);
 					center = true;
