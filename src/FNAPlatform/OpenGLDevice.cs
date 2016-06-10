@@ -2013,10 +2013,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						attr.CurrentNormalized = normalized;
 						attr.CurrentStride = vertexDeclaration.VertexStride;
 					}
-					if (SupportsHardwareInstancing)
-					{
-						attributeDivisor[attribLoc] = 0;
-					}
+					attributeDivisor[attribLoc] = 0;
 				}
 				FlushGLVertexAttributes();
 
