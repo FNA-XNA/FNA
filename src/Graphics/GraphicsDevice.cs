@@ -552,6 +552,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			Rectangle? destinationRectangle,
 			IntPtr overrideWindowHandle
 		) {
+			if (overrideWindowHandle == IntPtr.Zero)
+			{
+				overrideWindowHandle = PresentationParameters.DeviceWindowHandle;
+			}
 			GLDevice.SwapBuffers(
 				sourceRectangle,
 				destinationRectangle,
