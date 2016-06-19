@@ -67,14 +67,18 @@ namespace Microsoft.Xna.Framework
 			TextureDataFromStream =		SDL2_FNAPlatform.TextureDataFromStream;
 			SavePNG =			SDL2_FNAPlatform.SavePNG;
 
-			// Static init is a strange beast... -flibit
-			if (Game.logStore != null)
+			// Don't overwrite application log hooks!
+			if (FNALoggerEXT.LogInfo == null)
 			{
-				Log = Game.logStore;
+				FNALoggerEXT.LogInfo = Console.WriteLine;
 			}
-			else
+			if (FNALoggerEXT.LogWarn == null)
 			{
-				Log = Console.WriteLine;
+				FNALoggerEXT.LogWarn = Console.WriteLine;
+			}
+			if (FNALoggerEXT.LogError == null)
+			{
+				FNALoggerEXT.LogError = Console.WriteLine;
 			}
 
 			AppDomain.CurrentDomain.ProcessExit += SDL2_FNAPlatform.ProgramExit;
@@ -84,13 +88,6 @@ namespace Microsoft.Xna.Framework
 		#endregion
 
 		#region Public Static Methods
-
-		public static void UnhookLogger()
-		{
-			Log = Console.WriteLine;
-		}
-
-		public static Action<string> Log;
 
 		public delegate GameWindow CreateWindowFunc();
 		public static readonly CreateWindowFunc CreateWindow;

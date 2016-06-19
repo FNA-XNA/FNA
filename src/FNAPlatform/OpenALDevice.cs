@@ -1110,7 +1110,7 @@ namespace Microsoft.Xna.Framework.Audio
 				return;
 			}
 
-			FNAPlatform.Log("OpenAL Error: " + err.ToString("X4"));
+			FNALoggerEXT.LogError("OpenAL Error: " + err.ToString("X4"));
 #if VERBOSE_AL_DEBUGGING
 			throw new InvalidOperationException("OpenAL Error!");
 #endif
@@ -1125,7 +1125,7 @@ namespace Microsoft.Xna.Framework.Audio
 				return false;
 			}
 
-			FNAPlatform.Log("OpenAL Device Error: " + err.ToString("X4"));
+			FNALoggerEXT.LogError("OpenAL Device Error: " + err.ToString("X4"));
 			return true;
 		}
 

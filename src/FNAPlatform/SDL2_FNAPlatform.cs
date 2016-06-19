@@ -528,7 +528,7 @@ namespace Microsoft.Xna.Framework
 			// Do we want to read keycodes or scancodes?
 			if (UseScancodes)
 			{
-				FNAPlatform.Log("Using scancodes instead of keycodes!");
+				FNALoggerEXT.LogInfo("Using scancodes instead of keycodes!");
 			}
 
 			// Active Key List
@@ -801,7 +801,7 @@ namespace Microsoft.Xna.Framework
 			}
 			catch(DllNotFoundException e)
 			{
-				FNAPlatform.Log("OpenAL not found! Need FNA.dll.config?");
+				FNALoggerEXT.LogError("OpenAL not found! Need FNA.dll.config?");
 				throw e;
 			}
 			catch(Exception)
@@ -830,11 +830,11 @@ namespace Microsoft.Xna.Framework
 				{
 					if (SDL.SDL_GL_SetSwapInterval(-1) != -1)
 					{
-						FNAPlatform.Log("Using EXT_swap_control_tear VSync!");
+						FNALoggerEXT.LogInfo("Using EXT_swap_control_tear VSync!");
 					}
 					else
 					{
-						FNAPlatform.Log("EXT_swap_control_tear unsupported. Fall back to standard VSync.");
+						FNALoggerEXT.LogInfo("EXT_swap_control_tear unsupported. Fall back to standard VSync.");
 						SDL.SDL_ClearError();
 						SDL.SDL_GL_SetSwapInterval(1);
 					}
@@ -1617,7 +1617,7 @@ namespace Microsoft.Xna.Framework
 				INTERNAL_haptics[which] = SDL.SDL_HapticOpenFromJoystick(thisJoystick);
 				if (INTERNAL_haptics[which] == IntPtr.Zero)
 				{
-					FNAPlatform.Log("HAPTIC OPEN ERROR: " + SDL.SDL_GetError());
+					FNALoggerEXT.LogError("HAPTIC OPEN ERROR: " + SDL.SDL_GetError());
 				}
 			}
 			if (INTERNAL_haptics[which] != IntPtr.Zero)
@@ -1772,7 +1772,7 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// Print controller information to stdout.
-			FNAPlatform.Log(
+			FNALoggerEXT.LogInfo(
 				"Controller " + which.ToString() + ": " +
 				SDL.SDL_GameControllerName(INTERNAL_devices[which])
 			);
@@ -1800,7 +1800,7 @@ namespace Microsoft.Xna.Framework
 			// A lot of errors can happen here, but honestly, they can be ignored...
 			SDL.SDL_ClearError();
 
-			FNAPlatform.Log("Removed device, player: " + output.ToString());
+			FNALoggerEXT.LogInfo("Removed device, player: " + output.ToString());
 		}
 
 		// GetState can convert stick values to button values
@@ -2232,7 +2232,7 @@ namespace Microsoft.Xna.Framework
 					return retVal;
 				}
 			}
-			FNAPlatform.Log(
+			FNALoggerEXT.LogError(
 				"KEY/SCANCODE MISSING FROM SDL2->XNA DICTIONARY: " +
 				key.sym.ToString() + " " +
 				key.scancode.ToString()
@@ -2255,14 +2255,17 @@ namespace Microsoft.Xna.Framework
 				{
 					return result;
 				}
-				FNAPlatform.Log(
+				FNALoggerEXT.LogError(
 					"KEYCODE MISSING FROM SDL2->XNA DICTIONARY: " +
 					sym.ToString()
 				);
 			}
 			else
 			{
-				FNAPlatform.Log("SCANCODE MISSING FROM XNA->SDL2 DICTIONARY: " + scancode.ToString());
+				FNALoggerEXT.LogError(
+					"SCANCODE MISSING FROM XNA->SDL2 DICTIONARY: " +
+					scancode.ToString()
+				);
 			}
 			return Keys.None;
 		}

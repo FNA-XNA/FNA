@@ -154,6 +154,7 @@
     <Compile Include="src\Design\Vector4Converter.cs" />
     <Compile Include="src\DisplayOrientation.cs" />
     <Compile Include="src\DrawableGameComponent.cs" />
+    <Compile Include="src\FNALoggerEXT.cs" />
     <Compile Include="src\FNAPlatform\FNAPlatform.cs" />
     <Compile Include="src\FNAPlatform\FNAWindow.cs" />
     <Compile Include="src\FNAPlatform\IALDevice.cs" />

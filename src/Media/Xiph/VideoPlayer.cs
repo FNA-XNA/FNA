@@ -641,13 +641,13 @@ namespace Microsoft.Xna.Framework.Media
 			}
 
 			// Initialize the thread!
-			FNAPlatform.Log("Starting Theora player...");
+			FNALoggerEXT.LogInfo("Starting Theora player...");
 			timer.Start();
 			if (audioStream != null)
 			{
 				audioStream.Play();
 			}
-			FNAPlatform.Log("Started!");
+			FNALoggerEXT.LogInfo("Started!");
 		}
 
 		public void Stop()
@@ -664,7 +664,7 @@ namespace Microsoft.Xna.Framework.Media
 			State = MediaState.Stopped;
 
 			// Wait for the player to end if it's still going.
-			FNAPlatform.Log("Signaled Theora player to stop, waiting...");
+			FNALoggerEXT.LogInfo("Signaled Theora player to stop, waiting...");
 			timer.Stop();
 			timer.Reset();
 			if (audioStream != null)
@@ -679,7 +679,7 @@ namespace Microsoft.Xna.Framework.Media
 			}
 			Video.AttachedToPlayer = false;
 			Video.Dispose();
-			FNAPlatform.Log("Stopped!");
+			FNALoggerEXT.LogInfo("Stopped!");
 		}
 
 		public void Pause()

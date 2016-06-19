@@ -120,6 +120,7 @@ SRC = \
 	src/Design/Vector4Converter.cs \
 	src/DisplayOrientation.cs \
 	src/DrawableGameComponent.cs \
+	src/FNALoggerEXT.cs \
 	src/FNAPlatform/FNAPlatform.cs \
 	src/FNAPlatform/FNAWindow.cs \
 	src/FNAPlatform/IALDevice.cs \

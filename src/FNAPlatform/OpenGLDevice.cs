@@ -597,10 +597,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			MojoShader.MOJOSHADER_glMakeContextCurrent(shaderContext);
 
 			// Print GL information
-			FNAPlatform.Log("OpenGL Device: " + glGetString(GLenum.GL_RENDERER));
-			FNAPlatform.Log("OpenGL Driver: " + glGetString(GLenum.GL_VERSION));
-			FNAPlatform.Log("OpenGL Vendor: " + glGetString(GLenum.GL_VENDOR));
-			FNAPlatform.Log("MojoShader Profile: " + shaderProfile);
+			FNALoggerEXT.LogInfo("OpenGL Device: " + glGetString(GLenum.GL_RENDERER));
+			FNALoggerEXT.LogInfo("OpenGL Driver: " + glGetString(GLenum.GL_VERSION));
+			FNALoggerEXT.LogInfo("OpenGL Vendor: " + glGetString(GLenum.GL_VENDOR));
+			FNALoggerEXT.LogInfo("MojoShader Profile: " + shaderProfile);
 
 			// Load the extension list, initialize extension-dependent components
 			string extensions;
@@ -1737,7 +1737,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					byte[] bytes = new byte[endPtr - (byte*) err[i].error];
 					Marshal.Copy(err[i].error, bytes, 0, bytes.Length);
 
-					FNAPlatform.Log(
+					FNALoggerEXT.LogError(
 						"MOJOSHADER_parseEffect Error: " +
 						System.Text.Encoding.UTF8.GetString(bytes)
 					);

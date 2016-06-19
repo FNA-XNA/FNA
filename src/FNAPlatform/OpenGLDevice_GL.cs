@@ -843,7 +843,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr message, // const GLchar*
 			IntPtr userParam // const GLvoid*
 		) {
-			FNAPlatform.Log(
+			string err = (
 				Marshal.PtrToStringAnsi(message) +
 				"\n\tSource: " +
 				source.ToString() +
@@ -854,8 +854,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			if (type == GLenum.GL_DEBUG_TYPE_ERROR_ARB)
 			{
+				FNALoggerEXT.LogError(err);
 				throw new InvalidOperationException("ARB_debug_output found an error.");
 			}
+			FNALoggerEXT.LogWarn(err);
 		}
 
 		/* END DEBUG OUTPUT FUNCTIONS */
@@ -1255,7 +1257,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				if (useES2)
 				{
-					FNAPlatform.Log("Some non-ES functions failed to load. Beware...");
+					FNALoggerEXT.LogWarn("Some non-ES functions failed to load. Beware...");
 				}
 				else
 				{
@@ -1420,7 +1422,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr messageControl = SDL.SDL_GL_GetProcAddress("glDebugMessageControlARB");
 			if (messageCallback == IntPtr.Zero || messageControl == IntPtr.Zero)
 			{
-				FNAPlatform.Log("ARB_debug_output not supported!");
+				FNALoggerEXT.LogWarn("ARB_debug_output not supported!");
 			}
 			else
 			{
@@ -1463,7 +1465,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr stringMarkerCallback = SDL.SDL_GL_GetProcAddress("glStringMarkerGREMEDY");
 			if (stringMarkerCallback == IntPtr.Zero)
 			{
-				FNAPlatform.Log("GREMEDY_string_marker not supported!");
+				FNALoggerEXT.LogWarn("GREMEDY_string_marker not supported!");
 			}
 			else
 			{
