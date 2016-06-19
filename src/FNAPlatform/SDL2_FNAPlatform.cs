@@ -2242,16 +2242,29 @@ namespace Microsoft.Xna.Framework
 
 		public static Keys GetKeyFromScancode(Keys scancode)
 		{
+			if (UseScancodes)
+			{
+				return scancode;
+			}
 			SDL.SDL_Scancode retVal;
 			if (INTERNAL_xnaMap.TryGetValue((int) scancode, out retVal))
 			{
-				return INTERNAL_keyMap[(int) SDL.SDL_GetKeyFromScancode(retVal)];
+				Keys result;
+				SDL.SDL_Keycode sym = SDL.SDL_GetKeyFromScancode(retVal);
+				if (INTERNAL_keyMap.TryGetValue((int) sym, out result))
+				{
+					return result;
+				}
+				FNAPlatform.Log(
+					"KEYCODE MISSING FROM SDL2->XNA DICTIONARY: " +
+					sym.ToString()
+				);
 			}
 			else
 			{
 				FNAPlatform.Log("SCANCODE MISSING FROM XNA->SDL2 DICTIONARY: " + scancode.ToString());
-				return Keys.None;
 			}
+			return Keys.None;
 		}
 
 		#endregion
