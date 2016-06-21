@@ -231,7 +231,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int elementSizeInBytes
 		);
-		// void GetTextureData3D();
+		void GetTextureData3D(
+			IGLTexture texture,
+			SurfaceFormat format,
+			int left,
+			int top,
+			int front,
+			int right,
+			int bottom,
+			int back,
+			int level,
+			IntPtr data,
+			int startIndex,
+			int elementCount,
+			int elementSizeInBytes
+		);
 		void GetTextureDataCube(
 			IGLTexture texture,
 			SurfaceFormat format,

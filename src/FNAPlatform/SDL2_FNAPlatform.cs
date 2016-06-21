@@ -790,6 +790,11 @@ namespace Microsoft.Xna.Framework
 			PresentationParameters presentationParameters
 		) {
 			// This loads the OpenGL entry points.
+			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_FORCE_GLDEVICE") == "ModernGLDevice")
+			{
+				// FIXME: This is still experimental! -flibit
+				return new ModernGLDevice(presentationParameters);
+			}
 			return new OpenGLDevice(presentationParameters);
 		}
 

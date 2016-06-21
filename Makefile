@@ -125,6 +125,8 @@ SRC = \
 	src/FNAPlatform/FNAWindow.cs \
 	src/FNAPlatform/IALDevice.cs \
 	src/FNAPlatform/IGLDevice.cs \
+	src/FNAPlatform/ModernGLDevice.cs \
+	src/FNAPlatform/ModernGLDevice_GL.cs \
 	src/FNAPlatform/NullALDevice.cs \
 	src/FNAPlatform/OpenALDevice.cs \
 	src/FNAPlatform/OpenGLDevice.cs \

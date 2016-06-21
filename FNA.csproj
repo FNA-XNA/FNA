@@ -159,6 +159,8 @@
     <Compile Include="src\FNAPlatform\FNAWindow.cs" />
     <Compile Include="src\FNAPlatform\IALDevice.cs" />
     <Compile Include="src\FNAPlatform\IGLDevice.cs" />
+    <Compile Include="src\FNAPlatform\ModernGLDevice.cs" />
+    <Compile Include="src\FNAPlatform\ModernGLDevice_GL.cs" />
     <Compile Include="src\FNAPlatform\NullALDevice.cs" />
     <Compile Include="src\FNAPlatform\OpenALDevice.cs" />
     <Compile Include="src\FNAPlatform\OpenGLDevice.cs" />

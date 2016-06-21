@@ -225,7 +225,23 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentException("Neither box size nor box position can be negative");
 			}
 
-			throw new NotImplementedException();
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.GetTextureData3D(
+				texture,
+				Format,
+				left,
+				top,
+				front,
+				right,
+				bottom,
+				back,
+				level,
+				handle.AddrOfPinnedObject(),
+				startIndex,
+				elementCount,
+				Marshal.SizeOf(typeof(T))
+			);
+			handle.Free();
 		}
 
 		#endregion
