@@ -232,47 +232,36 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public float CalculateRPC(float varInput)
 		{
-			// TODO: Non-linear curves
-			if (varInput == 0.0f)
-			{
-				if (Points[0].X == 0.0f)
-				{
-					// Some curves may start X->0 elsewhere.
-					return Points[0].Y;
-				}
-				return 0.0f;
-			}
-			else if (varInput <= Points[0].X)
+			// Min/Max
+			if (varInput <= Points[0].X)
 			{
 				// Zero to first defined point
-				return Points[0].Y / (varInput / Points[0].X);
+				return Points[0].Y;
 			}
-			else if (varInput >= Points[Points.Length - 1].X)
+			if (varInput >= Points[Points.Length - 1].X)
 			{
 				// Last defined point to infinity
-				return Points[Points.Length - 1].Y / (Points[Points.Length - 1].X / varInput);
+				return Points[Points.Length - 1].Y;
 			}
-			else
+
+			// Something between points... TODO: Non-linear curves
+			float result = 0.0f;
+			for (int i = 0; i < Points.Length - 1; i += 1)
 			{
-				// Something between points...
-				float result = 0.0f;
-				for (int i = 0; i < Points.Length - 1; i += 1)
+				// y = b
+				result = Points[i].Y;
+				if (varInput >= Points[i].X && varInput <= Points[i + 1].X)
 				{
-					// y = b
-					result = Points[i].Y;
-					if (varInput >= Points[i].X && varInput <= Points[i + 1].X)
-					{
-						// y += mx
-						result +=
-							((Points[i + 1].Y - Points[i].Y) /
-							(Points[i + 1].X - Points[i].X)) *
-								(varInput - Points[i].X);
-						// Pre-algebra, rockin`!
-						break;
-					}
+					// y += mx
+					result +=
+						((Points[i + 1].Y - Points[i].Y) /
+						(Points[i + 1].X - Points[i].X)) *
+							(varInput - Points[i].X);
+					// Pre-algebra, rockin`!
+					break;
 				}
-				return result;
 			}
+			return result;
 		}
 	}
 
