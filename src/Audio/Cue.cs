@@ -20,6 +20,7 @@ namespace Microsoft.Xna.Framework.Audio
 	{
 		#region Public Properties
 
+		// FIXME: What is this...? -flibit
 		public bool IsCreated
 		{
 			get;
@@ -50,12 +51,14 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 		}
 
+		// FIXME: Is this just to load WaveBank tracks? -flibit
 		public bool IsPrepared
 		{
 			get;
 			private set;
 		}
 
+		// FIXME: Is this just to load WaveBank tracks? -flibit
 		public bool IsPreparing
 		{
 			get;
@@ -184,6 +187,8 @@ namespace Microsoft.Xna.Framework.Audio
 			Name = name;
 
 			INTERNAL_data = data;
+			IsPrepared = false;
+			IsPreparing = true;
 			foreach (XACTSound curSound in data.Sounds)
 			{
 				if (!curSound.HasLoadedTracks)
@@ -194,6 +199,8 @@ namespace Microsoft.Xna.Framework.Audio
 					);
 				}
 			}
+			IsPrepared = true;
+			IsPreparing = false;
 
 			INTERNAL_isManaged = managed;
 
