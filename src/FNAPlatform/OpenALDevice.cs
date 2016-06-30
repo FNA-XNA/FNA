@@ -229,6 +229,7 @@ namespace Microsoft.Xna.Framework.Audio
 #endif
 
 			int format;
+			int length = data.Length;
 			if (isADPCM)
 			{
 				format = (channels == 2) ?
@@ -247,6 +248,14 @@ namespace Microsoft.Xna.Framework.Audio
 					format = (channels == 2) ?
 						AL10.AL_FORMAT_STEREO16:
 						AL10.AL_FORMAT_MONO16;
+
+					/* We have to perform extra data validation on
+					 * PCM16 data, as the MS SoundEffect builder will
+					 * leave extra bytes at the end which will confuse
+					 * alBufferData and throw an AL_INVALID_VALUE.
+					 * -flibit
+					 */
+					length &= 0x7FFFFFFE;
 				}
 				else
 				{
@@ -261,7 +270,7 @@ namespace Microsoft.Xna.Framework.Audio
 				result,
 				format,
 				data,
-				data.Length,
+				length,
 				(int) sampleRate
 			);
 #if VERBOSE_AL_DEBUGGING
