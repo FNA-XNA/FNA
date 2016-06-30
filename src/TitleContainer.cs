@@ -83,34 +83,39 @@ namespace Microsoft.Xna.Framework
 		{
 			string[] splits = name.Split(Path.DirectorySeparatorChar);
 			splits[0] = "/";
-			splits[1] = "/" + splits[1];
 			int i;
+
+			// The directories...
 			for (i = 1; i < splits.Length - 1; i += 1)
 			{
-				string[] dirs = Directory.GetDirectories(splits[0]);
-				foreach (string d in dirs)
-				{
-					string di = d.Substring(d.LastIndexOf("/") + 1);
-					if (splits[i].ToLower().Equals(di.ToLower()))
-					{
-						splits[i] = di;
-						break;
-					}
-				}
-				splits[0] += Path.DirectorySeparatorChar + splits[i];
+				splits[0] += SearchCase(
+					splits[i],
+					Directory.GetDirectories(splits[0])
+				);
 			}
-			string[] files = Directory.GetFiles(splits[0]);
-			foreach (string f in files)
-			{
-				string fi = f.Substring(f.LastIndexOf("/") + 1);
-				if (splits[i].ToLower().Equals(fi.ToLower()))
-				{
-					splits[i] = fi;
-					break;
-				}
-			}
-			splits[0] += Path.DirectorySeparatorChar + splits[i];
+
+			// The file...
+			splits[0] += SearchCase(
+				splits[i],
+				Directory.GetFiles(splits[0])
+			);
+
+			// Finally.
 			return File.OpenRead(splits[0]);
+		}
+
+		private static string SearchCase(string name, string[] list)
+		{
+			foreach (string l in list)
+			{
+				string li = l.Substring(l.LastIndexOf("/") + 1);
+				if (name.ToLower().Equals(li.ToLower()))
+				{
+					return Path.DirectorySeparatorChar + li;
+				}
+			}
+			// If you got here, get ready to crash!
+			return Path.DirectorySeparatorChar + name;
 		}
 #endif
 
