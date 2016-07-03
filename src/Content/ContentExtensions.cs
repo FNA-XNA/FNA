@@ -10,7 +10,6 @@
 #region Using Statements
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 #endregion
 
@@ -32,7 +31,6 @@ namespace Microsoft.Xna.Framework.Content
 
 		public static PropertyInfo[] GetAllProperties(this Type type)
 		{
-
 			/* Sometimes, overridden properties of abstract classes can show up even with
 			 * BindingFlags.DeclaredOnly is passed to GetProperties. Make sure that
 			 * all properties in this list are defined in this class by comparing
@@ -45,7 +43,8 @@ namespace Microsoft.Xna.Framework.Content
 				BindingFlags.Instance |
 				BindingFlags.DeclaredOnly
 			);
-			List<PropertyInfo> allProps = type.GetProperties(attrs).ToList();
+			// FIXME: Holy moly does this alloc a lot -flibit
+			List<PropertyInfo> allProps = new List<PropertyInfo>(type.GetProperties(attrs));
 			PropertyInfo[] props = allProps.FindAll(
 				p => p.GetGetMethod(true) != null && p.GetGetMethod(true) == p.GetGetMethod(true).GetBaseDefinition()
 			).ToArray();

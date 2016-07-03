@@ -10,7 +10,6 @@
 #region Using Statements
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 #endregion
 
@@ -159,7 +158,7 @@ namespace Microsoft.Xna.Framework.Content
 				}
 
 				// Skip over indexer properties
-				if (property.GetIndexParameters().Any())
+				if (property.GetIndexParameters().Length > 0)
 				{
 					return null;
 				}

@@ -8,8 +8,6 @@
 #endregion
 
 #region Using Statements
-using System.Linq;
-
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
