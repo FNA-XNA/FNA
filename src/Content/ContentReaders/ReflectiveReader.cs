@@ -67,8 +67,26 @@ namespace Microsoft.Xna.Framework.Content
 
 			constructor = TargetType.GetDefaultConstructor();
 
-			PropertyInfo[] properties = TargetType.GetAllProperties();
-			FieldInfo[] fields = TargetType.GetAllFields();
+			const BindingFlags attrs = (
+				BindingFlags.NonPublic |
+				BindingFlags.Public |
+				BindingFlags.Instance |
+				BindingFlags.DeclaredOnly
+			);
+
+			/* Sometimes, overridden properties of abstract classes can show up even with
+			 * BindingFlags.DeclaredOnly is passed to GetProperties. Make sure that
+			 * all properties in this list are defined in this class by comparing
+			 * its get method with that of its base class. If they're the same
+			 * Then it's an overridden property.
+			 */
+			// FIXME: Holy moly does this alloc a lot -flibit
+			PropertyInfo[] properties = new List<PropertyInfo>(
+				TargetType.GetProperties(attrs)
+			).FindAll(
+				p => p.GetGetMethod(true) != null && p.GetGetMethod(true) == p.GetGetMethod(true).GetBaseDefinition()
+			).ToArray();
+			FieldInfo[] fields = TargetType.GetFields(attrs);
 			readers = new List<ReadElement>(fields.Length + properties.Length);
 
 			// Gather the properties.
