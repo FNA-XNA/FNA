@@ -311,6 +311,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		// 4, per XNA4 HiDef spec
 		private readonly RenderTargetBinding[] renderTargetBindings = new RenderTargetBinding[4];
 
+		// Used to prevent allocs on SetRenderTarget()
+		private readonly RenderTargetBinding[] singleTargetCache = new RenderTargetBinding[1];
+
 		#endregion
 
 		#region Private Buffer Object Variables
@@ -783,7 +786,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else
 			{
-				SetRenderTargets(new RenderTargetBinding(renderTarget));
+				singleTargetCache[0] = new RenderTargetBinding(renderTarget);
+				SetRenderTargets(singleTargetCache);
 			}
 		}
 
@@ -795,7 +799,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else
 			{
-				SetRenderTargets(new RenderTargetBinding(renderTarget, cubeMapFace));
+				singleTargetCache[0] = new RenderTargetBinding(renderTarget, cubeMapFace);
+				SetRenderTargets(singleTargetCache);
 			}
 		}
 
