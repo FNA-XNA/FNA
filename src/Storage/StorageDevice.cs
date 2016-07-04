@@ -36,7 +36,7 @@ namespace Microsoft.Xna.Framework.Storage
 			{
 				try
 				{
-					return new DriveInfo(storageRoot).AvailableFreeSpace;
+					return drive.AvailableFreeSpace;
 				}
 				catch(Exception e)
 				{
@@ -56,7 +56,15 @@ namespace Microsoft.Xna.Framework.Storage
 		{
 			get
 			{
-				return FNAPlatform.IsStoragePathConnected(storageRoot);
+				try
+				{
+					return drive.IsReady;
+				}
+				catch
+				{
+					// The storageRoot path is invalid / has been removed.
+					return false;
+				}
 			}
 		}
 
@@ -69,7 +77,7 @@ namespace Microsoft.Xna.Framework.Storage
 			{
 				try
 				{
-					return new DriveInfo(storageRoot).TotalSize;
+					return drive.TotalSize;
 				}
 				catch(Exception e)
 				{
@@ -93,6 +101,7 @@ namespace Microsoft.Xna.Framework.Storage
 		#region Private Static Variables
 
 		private static readonly string storageRoot = FNAPlatform.GetStorageRoot();
+		private static readonly DriveInfo drive = new DriveInfo(Path.GetPathRoot(storageRoot));
 
 		#endregion
 

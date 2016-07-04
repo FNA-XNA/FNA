@@ -977,31 +977,6 @@ namespace Microsoft.Xna.Framework
 			throw new NotSupportedException("Unhandled SDL2 platform!");
 		}
 
-		public static bool IsStoragePathConnected(string path)
-		{
-			if (	OSVersion.Equals("Linux") ||
-				OSVersion.Equals("Mac OS X")	)
-			{
-				/* Linux and Mac use locally connected storage in the user's
-				 * home location, which should always be "connected".
-				 */
-				return true;
-			}
-			if (OSVersion.Equals("Windows"))
-			{
-				try
-				{
-					return new DriveInfo(path).IsReady;
-				}
-				catch
-				{
-					// The storageRoot path is invalid / has been removed.
-					return false;
-				}
-			}
-			throw new NotSupportedException("Unhandled SDL2 platform");
-		}
-
 		#endregion
 
 		#region Logging/Messaging Methods
