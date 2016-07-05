@@ -426,12 +426,21 @@ namespace Microsoft.Xna.Framework.Media
 		/// <returns>Song object that can be used to play the song.</returns>
 		public static Song FromUri(string name, Uri uri)
 		{
-			if (!uri.IsFile)
+			// Assuming relative path at first
+			string path = uri.ToString();
+			if (Uri.IsWellFormedUriString(path, UriKind.Absolute))
 			{
-				throw new InvalidOperationException("Only local file URIs are supported for now");
+				// If it's absolute, be sure we can actually get it...
+				if (!uri.IsFile)
+				{
+					throw new InvalidOperationException(
+						"Only local file URIs are supported for now"
+					);
+				}
+				path = uri.LocalPath;
 			}
 
-			return new Song(uri.LocalPath)
+			return new Song(path)
 			{
 				Name = name
 			};
