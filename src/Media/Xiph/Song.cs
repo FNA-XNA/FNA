@@ -426,9 +426,8 @@ namespace Microsoft.Xna.Framework.Media
 		/// <returns>Song object that can be used to play the song.</returns>
 		public static Song FromUri(string name, Uri uri)
 		{
-			// Assuming relative path at first
-			string path = uri.ToString();
-			if (Uri.IsWellFormedUriString(path, UriKind.Absolute))
+			string path;
+			if (uri.IsAbsoluteUri)
 			{
 				// If it's absolute, be sure we can actually get it...
 				if (!uri.IsFile)
@@ -438,6 +437,10 @@ namespace Microsoft.Xna.Framework.Media
 					);
 				}
 				path = uri.LocalPath;
+			}
+			else
+			{
+				path = uri.ToString();
 			}
 
 			return new Song(path)
