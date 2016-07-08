@@ -4077,6 +4077,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_TRIANGLE_STRIP,	// PrimitiveType.TriangleStrip
 				GLenum.GL_LINES,		// PrimitiveType.LineList
 				GLenum.GL_LINE_STRIP,		// PrimitiveType.LineStrip
+				GLenum.GL_POINTS		// PrimitiveType.PointListEXT
 			};
 
 			public static int PrimitiveVerts(PrimitiveType primitiveType, int primitiveCount)
@@ -4091,6 +4092,8 @@ namespace Microsoft.Xna.Framework.Graphics
 						return primitiveCount * 2;
 					case PrimitiveType.LineStrip:
 						return primitiveCount + 1;
+					case PrimitiveType.PointListEXT:
+						return primitiveCount;
 				}
 				throw new NotSupportedException();
 			}

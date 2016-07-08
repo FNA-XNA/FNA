@@ -181,6 +181,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_RENDERBUFFER =			0x8D41,
 			GL_MAX_DRAW_BUFFERS =			0x8824,
 			// Draw Primitives
+			GL_POINTS =				0x0000,
 			GL_LINES =				0x0001,
 			GL_LINE_STRIP =				0x0003,
 			GL_TRIANGLES =				0x0004,
