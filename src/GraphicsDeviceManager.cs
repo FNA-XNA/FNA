@@ -37,6 +37,7 @@ namespace Microsoft.Xna.Framework
 				if (graphicsDevice == null)
 				{
 					((IGraphicsDeviceManager) this).CreateDevice();
+					graphicsDevice.Disposing += OnDeviceDisposing;
 				}
 				return graphicsDevice;
 			}
@@ -188,7 +189,6 @@ namespace Microsoft.Xna.Framework
 				{
 					if (graphicsDevice != null)
 					{
-						OnDeviceDisposing(this, EventArgs.Empty);
 						graphicsDevice.Dispose();
 						graphicsDevice = null;
 					}

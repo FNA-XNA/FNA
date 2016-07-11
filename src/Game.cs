@@ -455,7 +455,6 @@ namespace Microsoft.Xna.Framework
 			EndRun();
 
 			OnExiting(this, EventArgs.Empty);
-			UnloadContent();
 		}
 
 		private TimeSpan _accumulatedElapsedTime;
@@ -752,6 +751,7 @@ namespace Microsoft.Xna.Framework
 			if (	_graphicsDeviceService != null &&
 				_graphicsDeviceService.GraphicsDevice != null	)
 			{
+				_graphicsDeviceService.DeviceDisposing += (o, e) => UnloadContent();
 				LoadContent();
 			}
 		}
