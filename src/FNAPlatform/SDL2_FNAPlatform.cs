@@ -787,15 +787,16 @@ namespace Microsoft.Xna.Framework
 		#region IGL/IAL Methods
 
 		public static IGLDevice CreateGLDevice(
-			PresentationParameters presentationParameters
+			PresentationParameters presentationParameters,
+			GraphicsAdapter adapter
 		) {
 			// This loads the OpenGL entry points.
 			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_FORCE_GLDEVICE") == "ModernGLDevice")
 			{
 				// FIXME: This is still experimental! -flibit
-				return new ModernGLDevice(presentationParameters);
+				return new ModernGLDevice(presentationParameters, adapter);
 			}
-			return new OpenGLDevice(presentationParameters);
+			return new OpenGLDevice(presentationParameters, adapter);
 		}
 
 		public static IALDevice CreateALDevice()

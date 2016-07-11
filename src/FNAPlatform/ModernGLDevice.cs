@@ -542,7 +542,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Public Constructor
 
 		public ModernGLDevice(
-			PresentationParameters presentationParameters
+			PresentationParameters presentationParameters,
+			GraphicsAdapter adapter
 		) {
 			// Create OpenGL context
 			glContext = SDL.SDL_GL_CreateContext(
@@ -625,10 +626,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Initialize the faux-backbuffer
-			Rectangle bounds = FNAPlatform.GetWindowBounds(presentationParameters.DeviceWindowHandle);
-			if (	bounds.Width != presentationParameters.BackBufferWidth ||
-				bounds.Height != presentationParameters.BackBufferHeight ||
-				presentationParameters.MultiSampleCount > 0	)
+			if (UseFauxBackbuffer(presentationParameters, adapter.CurrentDisplayMode))
 			{
 				Backbuffer = new OpenGLBackbuffer(
 					this,
@@ -756,13 +754,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void ResetBackbuffer(
 			PresentationParameters presentationParameters,
+			GraphicsAdapter adapter,
 			bool renderTargetBound
 		) {
-			Rectangle bounds = FNAPlatform.GetWindowBounds(presentationParameters.DeviceWindowHandle);
-			bool useFauxBackbuffer = (	bounds.Width != presentationParameters.BackBufferWidth ||
-							bounds.Height != presentationParameters.BackBufferHeight ||
-							presentationParameters.MultiSampleCount > 0	);
-			if (useFauxBackbuffer)
+			if (UseFauxBackbuffer(presentationParameters, adapter.CurrentDisplayMode))
 			{
 				if (Backbuffer is NullBackbuffer)
 				{
@@ -3805,6 +3800,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		#endregion
 
 		#region The Faux-Backbuffer
+
+		private bool UseFauxBackbuffer(PresentationParameters presentationParameters, DisplayMode mode)
+		{
+			bool fullscreenMismatch = (	presentationParameters.IsFullScreen &&
+							(	mode.Width != presentationParameters.BackBufferWidth ||
+								mode.Height != presentationParameters.BackBufferHeight	)	);
+			return fullscreenMismatch || (presentationParameters.MultiSampleCount > 0);
+		}
 
 		private class OpenGLBackbuffer : IGLBackbuffer
 		{

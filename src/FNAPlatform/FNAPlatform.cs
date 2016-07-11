@@ -126,7 +126,8 @@ namespace Microsoft.Xna.Framework
 		public static readonly RunLoopFunc RunLoop;
 
 		public delegate IGLDevice CreateGLDeviceFunc(
-			PresentationParameters presentationParameters
+			PresentationParameters presentationParameters,
+			GraphicsAdapter adapter
 		);
 		public static readonly CreateGLDeviceFunc CreateGLDevice;
 

@@ -120,6 +120,7 @@ namespace Microsoft.Xna.Framework
 			int clientWidth,
 			int clientHeight
 		) {
+			string prevName = deviceName;
 			FNAPlatform.ApplyWindowChanges(
 				window,
 				clientWidth,
@@ -128,6 +129,10 @@ namespace Microsoft.Xna.Framework
 				screenDeviceName,
 				ref deviceName
 			);
+			if (deviceName != prevName)
+			{
+				OnScreenDeviceNameChanged();
+			}
 		}
 
 		#endregion
@@ -137,6 +142,11 @@ namespace Microsoft.Xna.Framework
 		internal void INTERNAL_ClientSizeChanged()
 		{
 			OnClientSizeChanged();
+		}
+
+		internal void INTERNAL_ScreenDeviceNameChanged()
+		{
+			OnScreenDeviceNameChanged();
 		}
 
 		#endregion

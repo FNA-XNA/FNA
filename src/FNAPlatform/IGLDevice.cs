@@ -67,6 +67,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		void ResetBackbuffer(
 			PresentationParameters presentationParameters,
+			GraphicsAdapter adapter,
 			bool renderTargetBound
 		);
 		void SwapBuffers(

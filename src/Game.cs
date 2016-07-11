@@ -183,15 +183,7 @@ namespace Microsoft.Xna.Framework
 			{
 				if (_graphicsDeviceService == null)
 				{
-					_graphicsDeviceService = (IGraphicsDeviceService)
-						Services.GetService(typeof(IGraphicsDeviceService));
-
-					if (_graphicsDeviceService == null)
-					{
-						throw new InvalidOperationException(
-							"No Graphics Device Service"
-						);
-					}
+					return InitializeGraphicsService();
 				}
 				return _graphicsDeviceService.GraphicsDevice;
 			}
@@ -838,14 +830,7 @@ namespace Microsoft.Xna.Framework
 		{
 			AssertNotDisposed();
 
-			if (GraphicsDevice == null)
-			{
-				IGraphicsDeviceManager graphicsDeviceManager = Services.GetService(
-					typeof(IGraphicsDeviceManager)
-				) as IGraphicsDeviceManager;
-
-				graphicsDeviceManager.CreateDevice();
-			}
+			InitializeGraphicsService();
 
 			Initialize();
 
@@ -878,6 +863,22 @@ namespace Microsoft.Xna.Framework
 			{
 				_drawables.Add(drawable);
 			}
+		}
+
+		private GraphicsDevice InitializeGraphicsService()
+		{
+			_graphicsDeviceService = (IGraphicsDeviceService)
+				Services.GetService(typeof(IGraphicsDeviceService));
+
+			if (_graphicsDeviceService == null)
+			{
+				throw new InvalidOperationException(
+					"No Graphics Device Service"
+				);
+			}
+
+			// This will call IGraphicsDeviceManager.CreateDevice
+			return _graphicsDeviceService.GraphicsDevice;
 		}
 
 		#endregion

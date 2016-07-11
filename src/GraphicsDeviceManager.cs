@@ -37,7 +37,6 @@ namespace Microsoft.Xna.Framework
 				if (graphicsDevice == null)
 				{
 					((IGraphicsDeviceManager) this).CreateDevice();
-					graphicsDevice.Disposing += OnDeviceDisposing;
 				}
 				return graphicsDevice;
 			}
@@ -262,12 +261,13 @@ namespace Microsoft.Xna.Framework
 				new PreparingDeviceSettingsEventArgs(gdi)
 			);
 
-			// We're about to reset a device, notify the application.
-			OnDeviceResetting(this, EventArgs.Empty);
-
-			// Make the Platform device changes.
+			// Reset!
 			game.Window.BeginScreenDeviceChange(
 				gdi.PresentationParameters.IsFullScreen
+			);
+			GraphicsDevice.Reset(
+				gdi.PresentationParameters,
+				gdi.Adapter
 			);
 			game.Window.EndScreenDeviceChange(
 				gdi.Adapter.Description, // FIXME: Should be Name! -flibit
@@ -281,12 +281,6 @@ namespace Microsoft.Xna.Framework
 					gdi.PresentationParameters.PresentationInterval :
 					PresentInterval.Immediate
 			);
-
-			// Reset!
-			GraphicsDevice.Reset(gdi.PresentationParameters, gdi.Adapter);
-
-			// We just reset a device, notify the application.
-			OnDeviceReset(this, EventArgs.Empty);
 		}
 
 		public void ToggleFullScreen()
@@ -306,16 +300,10 @@ namespace Microsoft.Xna.Framework
 			// Only reset if there's an actual change in size
 			if (pp.BackBufferWidth != width || pp.BackBufferHeight != height)
 			{
-				// We're about to reset a device, notify the application.
-				OnDeviceResetting(this, EventArgs.Empty);
-
 				pp.BackBufferWidth = width;
 				pp.BackBufferHeight = height;
 
 				GraphicsDevice.Reset();
-
-				// We just reset a device, notify the application.
-				OnDeviceReset(this, EventArgs.Empty);
 			}
 		}
 
@@ -391,12 +379,17 @@ namespace Microsoft.Xna.Framework
 			PreferredBackBufferFormat = gdi.PresentationParameters.BackBufferFormat;
 			PreferredDepthStencilFormat = gdi.PresentationParameters.DepthStencilFormat;
 
-			// Create the GraphicsDevice, apply the initial settings.
+			// Create the GraphicsDevice, hook the callbacks
 			graphicsDevice = new GraphicsDevice(
 				gdi.Adapter,
 				gdi.GraphicsProfile,
 				gdi.PresentationParameters
 			);
+			graphicsDevice.Disposing += OnDeviceDisposing;
+			graphicsDevice.DeviceResetting += OnDeviceResetting;
+			graphicsDevice.DeviceReset += OnDeviceReset;
+
+			// Set device defaults
 			ApplyChanges();
 
 			// Call the DeviceCreated Event

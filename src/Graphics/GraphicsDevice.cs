@@ -387,7 +387,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Set up the IGLDevice
-			GLDevice = FNAPlatform.CreateGLDevice(PresentationParameters);
+			GLDevice = FNAPlatform.CreateGLDevice(PresentationParameters, adapter);
 
 			// The mouse needs to know this for faux-backbuffer mouse scaling.
 			Input.Mouse.INTERNAL_BackBufferWidth = PresentationParameters.BackBufferWidth;
@@ -642,6 +642,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			 */
 			GLDevice.ResetBackbuffer(
 				PresentationParameters,
+				Adapter,
 				RenderTargetCount > 0
 			);
 
