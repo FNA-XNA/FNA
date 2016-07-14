@@ -859,13 +859,12 @@ namespace Microsoft.Xna.Framework
 			ref Quaternion rotation,
 			out Vector2 result
 		) {
-			Quaternion v = new Quaternion(value.X, value.Y, 0, 0), i, t;
-			Quaternion.Inverse(ref rotation, out i);
-			Quaternion.Multiply(ref rotation, ref v, out t);
-			Quaternion.Multiply(ref t, ref i, out v);
+			float x = 2 * -(rotation.Z * value.Y);
+			float y = 2 * (rotation.Z * value.X);
+			float z = 2 * (rotation.X * value.Y - rotation.Y * value.X);
 
-			result.X = v.X;
-			result.Y = v.Y;
+			result.X = value.X + x * rotation.W + (rotation.Y * z - rotation.Z * y);
+			result.Y = value.Y + y * rotation.W + (rotation.Z * x - rotation.X * z);
 		}
 
 		/// <summary>
