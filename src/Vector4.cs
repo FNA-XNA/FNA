@@ -617,10 +617,10 @@ namespace Microsoft.Xna.Framework
 			float amount
 		) {
 			return new Vector4(
-				MathHelper.Hermite(value1.W, tangent1.W, value2.W, tangent2.W, amount),
 				MathHelper.Hermite(value1.X, tangent1.X, value2.X, tangent2.X, amount),
 				MathHelper.Hermite(value1.Y, tangent1.Y, value2.Y, tangent2.Y, amount),
-				MathHelper.Hermite(value1.Z, tangent1.Z, value2.Z, tangent2.Z, amount)
+				MathHelper.Hermite(value1.Z, tangent1.Z, value2.Z, tangent2.Z, amount),
+				MathHelper.Hermite(value1.W, tangent1.W, value2.W, tangent2.W, amount)
 			);
 		}
 
