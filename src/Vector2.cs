@@ -859,13 +859,14 @@ namespace Microsoft.Xna.Framework
 			ref Quaternion rotation,
 			out Vector2 result
 		) {
-            float x = 2 * -(rotation.Z * value.Y);
-            float y = 2 * (rotation.Z * value.X);
-            float z = 2 * (rotation.X * value.Y - rotation.Y * value.X);
+			Quaternion v = new Quaternion(value.X, value.Y, 0, 0), i, t;
+			Quaternion.Inverse(ref rotation, out i);
+			Quaternion.Multiply(ref rotation, ref v, out t);
+			Quaternion.Multiply(ref t, ref i, out v);
 
-            result.X = value.X + x * rotation.W + (rotation.Y * z - rotation.Z * y);
-            result.Y = value.Y + y * rotation.W + (rotation.Z * x - rotation.X * z);
-        }
+			result.X = v.X;
+			result.Y = v.Y;
+		}
 
 		/// <summary>
 		/// Apply transformation on all vectors within array of <see cref="Vector2"/> by the specified <see cref="Matrix"/> and places the results in an another array.
