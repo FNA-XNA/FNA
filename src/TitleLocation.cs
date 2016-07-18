@@ -9,9 +9,6 @@
 
 #region Using Statements
 using System;
-using System.IO;
-
-using Microsoft.Xna.Framework.Utilities;
 #endregion
 
 namespace Microsoft.Xna.Framework
