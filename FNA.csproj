@@ -386,6 +386,7 @@
     <Compile Include="src\Storage\StorageDevice.cs" />
     <Compile Include="src\Storage\StorageDeviceNotConnectedException.cs" />
     <Compile Include="src\TitleContainer.cs" />
+    <Compile Include="src\TitleLocation.cs" />
     <Compile Include="src\Utilities\AssemblyHelper.cs" />
     <Compile Include="src\Utilities\FileHelpers.cs" />
     <Compile Include="src\Vector2.cs" />

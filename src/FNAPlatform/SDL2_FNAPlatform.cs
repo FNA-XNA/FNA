@@ -49,7 +49,7 @@ namespace Microsoft.Xna.Framework
 
 			// If available, load the SDL_GameControllerDB
 			string mappingsDB = Path.Combine(
-				TitleContainer.Location,
+				TitleLocation.Path,
 				"gamecontrollerdb.txt"
 			);
 			if (File.Exists(mappingsDB))

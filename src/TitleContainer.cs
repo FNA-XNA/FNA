@@ -29,25 +29,6 @@ namespace Microsoft.Xna.Framework
 {
 	public static class TitleContainer
 	{
-		#region Internal Static Properties
-
-		static internal string Location
-		{
-			get;
-			private set;
-		}
-
-		#endregion
-
-		#region Static Constructor
-
-		static TitleContainer()
-		{
-			Location = AppDomain.CurrentDomain.BaseDirectory;
-		}
-
-		#endregion
-
 		#region Public Static Methods
 
 		/// <summary>
@@ -64,13 +45,13 @@ namespace Microsoft.Xna.Framework
 			{
 				return OpenStreamCase(safeName);
 			}
-			return OpenStreamCase(Path.Combine(Location, safeName));
+			return OpenStreamCase(Path.Combine(TitleLocation.Path, safeName));
 #else
 			if (Path.IsPathRooted(safeName))
 			{
 				return File.OpenRead(safeName);
 			}
-			return File.OpenRead(Path.Combine(Location, safeName));
+			return File.OpenRead(Path.Combine(TitleLocation.Path, safeName));
 #endif
 		}
 

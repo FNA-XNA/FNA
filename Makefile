@@ -310,6 +310,7 @@ SRC = \
 	src/Storage/StorageDevice.cs \
 	src/Storage/StorageDeviceNotConnectedException.cs \
 	src/TitleContainer.cs \
+	src/TitleLocation.cs \
 	src/Utilities/AssemblyHelper.cs \
 	src/Utilities/FileHelpers.cs \
 	src/Vector2.cs \

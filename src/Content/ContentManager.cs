@@ -54,7 +54,7 @@ namespace Microsoft.Xna.Framework.Content
 				{
 					return RootDirectory;
 				}
-				return Path.Combine(TitleContainer.Location, RootDirectory);
+				return Path.Combine(TitleLocation.Path, RootDirectory);
 			}
 		}
 
