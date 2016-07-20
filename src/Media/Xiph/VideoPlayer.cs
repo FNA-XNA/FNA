@@ -456,7 +456,10 @@ namespace Microsoft.Xna.Framework.Media
 				if (TheoraPlay.THEORAPLAY_isDecoding(Video.theoraDecoder) == 0)
 				{
 					// FIXME: This is part of the Duration hack!
-					Video.Duration = new TimeSpan(0, 0, 0, 0, (int) currentVideo.playms);
+					if (Video.needsDurationHack)
+					{
+						Video.Duration = new TimeSpan(0, 0, 0, 0, (int) currentVideo.playms);
+					}
 
 					// Stop and reset the timer. If we're looping, the loop will start it again.
 					timer.Stop();
@@ -574,7 +577,10 @@ namespace Microsoft.Xna.Framework.Media
 			video.AttachedToPlayer = true;
 
 			// FIXME: This is a part of the Duration hack!
-			Video.Duration = TimeSpan.MaxValue;
+			if (Video.needsDurationHack)
+			{
+				Video.Duration = TimeSpan.MaxValue;
+			}
 
 			// Check the player state before attempting anything.
 			if (State != MediaState.Stopped)

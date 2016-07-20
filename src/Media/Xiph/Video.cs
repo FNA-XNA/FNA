@@ -80,6 +80,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal IntPtr theoraDecoder;
 		internal IntPtr videoStream;
+		internal bool needsDurationHack;
 
 		#endregion
 
@@ -107,6 +108,7 @@ namespace Microsoft.Xna.Framework.Media
 
 			// FIXME: This is a part of the Duration hack!
 			Duration = TimeSpan.MaxValue;
+			needsDurationHack = true;
 		}
 
 		internal Video(
@@ -136,6 +138,7 @@ namespace Microsoft.Xna.Framework.Media
 
 			// FIXME: Oh, hey! I wish we had this info in TheoraPlay!
 			Duration = TimeSpan.FromMilliseconds(durationMS);
+			needsDurationHack = false;
 
 			VideoSoundtrackType = soundtrackType;
 		}
