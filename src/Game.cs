@@ -328,7 +328,6 @@ namespace Microsoft.Xna.Framework
 							disposable.Dispose();
 						}
 					}
-					_components = null;
 
 					if (_content != null)
 					{
