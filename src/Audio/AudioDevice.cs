@@ -131,9 +131,13 @@ namespace Microsoft.Xna.Framework.Audio
 				ALDevice = FNAPlatform.CreateALDevice();
 			}
 
-			// Populate device list
+			// Populate device info
 			if (ALDevice != null)
 			{
+				ALDevice.SetMasterVolume(MasterVolume);
+				ALDevice.SetDopplerScale(DopplerScale);
+				ALDevice.SetSpeedOfSound(SpeedOfSound);
+
 				Renderers = ALDevice.GetDevices();
 				Microphone.All = ALDevice.GetCaptureDevices();
 
