@@ -44,67 +44,59 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Public Static Properties
 
-		// FIXME: This should affect all sounds! alListener? -flibit
-		private static float INTERNAL_masterVolume = 1.0f;
 		public static float MasterVolume
 		{
 			get
 			{
-				return INTERNAL_masterVolume;
+				return AudioDevice.MasterVolume;
 			}
 			set
 			{
-				INTERNAL_masterVolume = value;
+				AudioDevice.MasterVolume = value;
 			}
 		}
 
-		// FIXME: How does this affect OpenAL? -flibit
-		private static float INTERNAL_distanceScale = 1.0f;
 		public static float DistanceScale
 		{
 			get
 			{
-				return INTERNAL_distanceScale;
+				return AudioDevice.DistanceScale;
 			}
 			set
 			{
 				if (value <= 0.0f)
 				{
-					throw new ArgumentOutOfRangeException("value of DistanceScale");
+					throw new ArgumentOutOfRangeException("value <= 0.0f");
 				}
-				INTERNAL_distanceScale = value;
+				AudioDevice.DistanceScale = value;
 			}
 		}
 
-		// FIXME: How does this affect OpenAL? -flibit
-		private static float INTERNAL_dopplerScale = 1.0f;
 		public static float DopplerScale
 		{
 			get
 			{
-				return INTERNAL_dopplerScale;
+				return AudioDevice.DopplerScale;
 			}
 			set
 			{
 				if (value <= 0.0f)
 				{
-					throw new ArgumentOutOfRangeException("value of DopplerScale");
+					throw new ArgumentOutOfRangeException("value <= 0.0f");
 				}
-				INTERNAL_dopplerScale = value;
+				AudioDevice.DopplerScale = value;
 			}
 		}
 
-		// FIXME: How does this affect OpenAL? -flibit
-		private static float INTERNAL_speedOfSound = 343.5f;
 		public static float SpeedOfSound
 		{
 			get
 			{
-				return INTERNAL_speedOfSound;
+				return AudioDevice.SpeedOfSound;
 			}
 			set
 			{
-				INTERNAL_speedOfSound = value;
+				AudioDevice.SpeedOfSound = value;
 			}
 		}
 
@@ -257,8 +249,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public bool Play()
 		{
-			// FIXME: Perhaps MasterVolume should be applied to alListener? -flibit
-			return Play(MasterVolume, 0.0f, 0.0f);
+			return Play(1.0f, 0.0f, 0.0f);
 		}
 
 		public bool Play(float volume, float pitch, float pan)

@@ -159,7 +159,7 @@ namespace Microsoft.Xna.Framework.Audio
 				);
 			}
 
-			// Push the data to OpenAL.
+			// Push buffer to the AL.
 			IALBuffer newBuf = availableBuffers.Dequeue();
 			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 			AudioDevice.ALDevice.SetBufferData(

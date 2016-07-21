@@ -109,8 +109,7 @@ namespace Microsoft.Xna.Framework.Media
 			set
 			{
 				/* FIXME: Works around MasterVolume only temporarily!
-				 * Figure out how MasterVolume actually applies to instances,
-				 * then deal with this accordingly.
+				 * We need to detach this source from the AL listener properties.
 				 * -flibit
 				 */
 				soundStream.Volume = value * (1.0f / SoundEffect.MasterVolume);

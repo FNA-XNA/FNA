@@ -17,6 +17,63 @@ namespace Microsoft.Xna.Framework.Audio
 {
 	internal static class AudioDevice
 	{
+		#region SoundEffect Master Properties
+
+		private static float INTERNAL_masterVolume = 1.0f;
+		public static float MasterVolume
+		{
+			get
+			{
+				return INTERNAL_masterVolume;
+			}
+			set
+			{
+				INTERNAL_masterVolume = value;
+				if (ALDevice != null)
+				{
+					ALDevice.SetMasterVolume(value);
+				}
+			}
+		}
+
+		public static float DistanceScale = 1.0f;
+
+		private static float INTERNAL_dopplerScale = 1.0f;
+		public static float DopplerScale
+		{
+			get
+			{
+				return INTERNAL_dopplerScale;
+			}
+			set
+			{
+				INTERNAL_dopplerScale = value;
+				if (ALDevice != null)
+				{
+					ALDevice.SetDopplerScale(value);
+				}
+			}
+		}
+
+		private static float INTERNAL_speedOfSound = 343.5f;
+		public static float SpeedOfSound
+		{
+			get
+			{
+				return INTERNAL_speedOfSound;
+			}
+			set
+			{
+				INTERNAL_speedOfSound = value;
+				if (ALDevice != null)
+				{
+					ALDevice.SetSpeedOfSound(value);
+				}
+			}
+		}
+
+		#endregion
+
 		#region RendererDetail List
 
 		public static ReadOnlyCollection<RendererDetail> Renderers;

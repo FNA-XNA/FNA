@@ -22,6 +22,10 @@ namespace Microsoft.Xna.Framework.Audio
 		ReadOnlyCollection<RendererDetail> GetDevices();
 		ReadOnlyCollection<Microphone> GetCaptureDevices();
 
+		void SetMasterVolume(float volume);
+		void SetDopplerScale(float scale);
+		void SetSpeedOfSound(float speed);
+
 		IALBuffer GenBuffer();
 		IALBuffer GenBuffer(
 			byte[] data,

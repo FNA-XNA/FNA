@@ -238,7 +238,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Apply3D(AudioListener[] listeners, AudioEmitter emitter)
 		{
-			throw new NotSupportedException("OpenAL can only make use of one listener.");
+			throw new NotSupportedException("Only one listener is supported.");
 		}
 
 		#endregion

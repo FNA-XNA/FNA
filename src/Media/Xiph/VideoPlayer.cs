@@ -333,7 +333,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		#endregion
 
-		#region Private Member Data: OpenAL
+		#region Private Member Data: Audio Stream
 
 		private DynamicSoundEffectInstance audioStream;
 
@@ -351,7 +351,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		#endregion
 
-		#region Private Methods: OpenAL
+		#region Private Methods: Audio Stream
 
 		private void UpdateVolume()
 		{
@@ -366,8 +366,7 @@ namespace Microsoft.Xna.Framework.Media
 			else
 			{
 				/* FIXME: Works around MasterVolume only temporarily!
-				 * Figure out how MasterVolume actually applies to instances,
-				 * then deal with this accordingly.
+				 * We need to detach this source from the AL listener properties.
 				 * -flibit
 				 */
 				audioStream.Volume = Volume * (1.0f / SoundEffect.MasterVolume);
@@ -766,7 +765,7 @@ namespace Microsoft.Xna.Framework.Media
 				TheoraPlay.THEORAPLAY_freeAudio(audioPtr);
 			}
 
-			// If we actually got data, buffer it into OpenAL.
+			// If we actually got data, queue it!
 			if (data.Count > 0)
 			{
 				audioStream.SubmitFloatBufferEXT(data.ToArray());

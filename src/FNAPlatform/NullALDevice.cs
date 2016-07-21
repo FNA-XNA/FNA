@@ -66,6 +66,21 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 		}
 
+		public void SetMasterVolume(float volume)
+		{
+			// No-op, duh.
+		}
+
+		public void SetDopplerScale(float volume)
+		{
+			// No-op, duh.
+		}
+
+		public void SetSpeedOfSound(float volume)
+		{
+			// No-op, duh.
+		}
+
 		public IALBuffer GenBuffer()
 		{
 			return new NullBuffer();

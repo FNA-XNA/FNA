@@ -199,6 +199,28 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
+		#region Public Listener Methods
+
+		public void SetMasterVolume(float volume)
+		{
+			/* FIXME: How to ignore listener for individual sources? -flibit
+			 * AL10.alListenerf(AL10.AL_GAIN, volume);
+			 * Media.MediaPlayer.Queue.ActiveSong.Volume = Media.MediaPlayer.Volume;
+			 */
+		}
+
+		public void SetDopplerScale(float scale)
+		{
+			AL10.alDopplerFactor(scale);
+		}
+
+		public void SetSpeedOfSound(float speed)
+		{
+			AL11.alSpeedOfSound(speed);
+		}
+
+		#endregion
+
 		#region OpenAL Buffer Methods
 
 		public IALBuffer GenBuffer()
@@ -387,6 +409,11 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				return null;
 			}
+			AL10.alSourcef(
+				result,
+				AL10.AL_REFERENCE_DISTANCE,
+				AudioDevice.DistanceScale
+			);
 			return new OpenALSource(result);
 		}
 
@@ -405,6 +432,11 @@ namespace Microsoft.Xna.Framework.Audio
 				result,
 				AL10.AL_BUFFER,
 				(int) (buffer as OpenALBuffer).Handle
+			);
+			AL10.alSourcef(
+				result,
+				AL10.AL_REFERENCE_DISTANCE,
+				AudioDevice.DistanceScale
 			);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
@@ -476,7 +508,7 @@ namespace Microsoft.Xna.Framework.Audio
 			AL10.alSourcef(
 				(source as OpenALSource).Handle,
 				AL10.AL_GAIN,
-				volume * SoundEffect.MasterVolume
+				volume * SoundEffect.MasterVolume // FIXME: alListener(AL_GAIN) -flibit
 			);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
