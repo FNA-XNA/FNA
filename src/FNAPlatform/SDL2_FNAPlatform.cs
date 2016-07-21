@@ -214,7 +214,13 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 			);
 
+			if (Mouse.WindowHandle == window.Handle)
+			{
+				Mouse.WindowHandle = IntPtr.Zero;
+			}
+
 			SDL.SDL_DestroyWindow(window.Handle);
+
 		}
 
 		public static void ApplyWindowChanges(
@@ -921,7 +927,7 @@ namespace Microsoft.Xna.Framework
 			out ButtonState x2
 		) {
 			uint flags = SDL.SDL_GetGlobalMouseState(out x, out y);
-			int wx, wy;
+			int wx = 0, wy = 0;
 			SDL.SDL_GetWindowPosition(window, out wx, out wy);
 			x -= wx;
 			y -= wy;

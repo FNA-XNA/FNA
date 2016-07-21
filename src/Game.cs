@@ -333,7 +333,6 @@ namespace Microsoft.Xna.Framework
 					if (_content != null)
 					{
 						_content.Dispose();
-						_content = null;
 					}
 
 
@@ -341,15 +340,12 @@ namespace Microsoft.Xna.Framework
 					{
 						// FIXME: Does XNA4 require the GDM to be disposable? -flibit
 						(_graphicsDeviceService as IDisposable).Dispose();
-						_graphicsDeviceService = null;
 					}
 
 					if (Window != null)
 					{
 						FNAPlatform.DisposeWindow(Window);
-						Window = null;
 					}
-					Mouse.WindowHandle = IntPtr.Zero;
 
 					ContentTypeReaderManager.ClearTypeCreators();
 				}
@@ -732,9 +728,6 @@ namespace Microsoft.Xna.Framework
 			{
 				Components[i].Initialize();
 			}
-
-			_graphicsDeviceService = (IGraphicsDeviceService)
-				Services.GetService(typeof(IGraphicsDeviceService));
 
 			/* FIXME: If this test fails, is LoadContent ever called?
 			 * This seems like a condition that warrants an exception more
