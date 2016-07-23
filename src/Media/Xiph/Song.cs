@@ -196,12 +196,14 @@ namespace Microsoft.Xna.Framework.Media
 			 * But surely it's the same song, right...?
 			 * Well, consider this a check more than anything. If this bothers
 			 * you, just remove the XNB file and we'll read the OGG straight up.
+			 *
+			 * FIXME: Guess what, durationMS isn't terribly accurate, so forget it.
 			 * -flibit
-			 */
 			if (Math.Abs(Duration.Milliseconds - durationMS) > 1000)
 			{
 				throw new InvalidOperationException("XNB/OGG duration mismatch!");
 			}
+			 */
 		}
 
 		~Song()

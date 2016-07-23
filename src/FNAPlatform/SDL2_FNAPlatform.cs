@@ -220,7 +220,6 @@ namespace Microsoft.Xna.Framework
 			}
 
 			SDL.SDL_DestroyWindow(window.Handle);
-
 		}
 
 		public static void ApplyWindowChanges(
