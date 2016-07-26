@@ -101,7 +101,7 @@ namespace Microsoft.Xna.Framework.Storage
 				rootPath,
 				Path.GetFileNameWithoutExtension(
 					AppDomain.CurrentDomain.FriendlyName
-				)
+				).Replace(".vshost", "")
 			);
 
 			// Create the root folder for all titles, if needed.
