@@ -4100,10 +4100,23 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private bool UseFauxBackbuffer(PresentationParameters presentationParameters, DisplayMode mode)
 		{
-			bool fullscreenMismatch = (	presentationParameters.IsFullScreen &&
-							(	mode.Width != presentationParameters.BackBufferWidth ||
-								mode.Height != presentationParameters.BackBufferHeight	)	);
-			return fullscreenMismatch || (presentationParameters.MultiSampleCount > 0);
+			int dispWidth, dispHeight;
+			if (presentationParameters.IsFullScreen)
+			{
+				dispWidth = mode.Width;
+				dispHeight = mode.Height;
+			}
+			else
+			{
+				Rectangle bounds = FNAPlatform.GetWindowBounds(
+					presentationParameters.DeviceWindowHandle
+				);
+				dispWidth = bounds.Width;
+				dispHeight = bounds.Height;
+			}
+			bool displayMismatch = (	dispWidth != presentationParameters.BackBufferWidth ||
+							dispHeight != presentationParameters.BackBufferHeight	);
+			return displayMismatch || (presentationParameters.MultiSampleCount > 0);
 		}
 
 		private class OpenGLBackbuffer : IGLBackbuffer
