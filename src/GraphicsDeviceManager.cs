@@ -292,24 +292,6 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Internal Methods
-
-		internal void INTERNAL_ResizeGraphicsDevice(int width, int height)
-		{
-			PresentationParameters pp = GraphicsDevice.PresentationParameters;
-
-			// Only reset if there's an actual change in size
-			if (pp.BackBufferWidth != width || pp.BackBufferHeight != height)
-			{
-				pp.BackBufferWidth = width;
-				pp.BackBufferHeight = height;
-
-				GraphicsDevice.Reset();
-			}
-		}
-
-		#endregion
-
 		#region Protected Methods
 
 		protected virtual void OnDeviceCreated(object sender, EventArgs args)
