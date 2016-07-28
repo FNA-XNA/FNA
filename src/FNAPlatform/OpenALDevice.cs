@@ -476,7 +476,6 @@ namespace Microsoft.Xna.Framework.Audio
 				false,
 				(uint) bits - 1
 			);
-			monoData = null;
 		}
 
 		#endregion
