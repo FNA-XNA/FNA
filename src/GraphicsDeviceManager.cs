@@ -265,14 +265,15 @@ namespace Microsoft.Xna.Framework
 			game.Window.BeginScreenDeviceChange(
 				gdi.PresentationParameters.IsFullScreen
 			);
-			GraphicsDevice.Reset(
-				gdi.PresentationParameters,
-				gdi.Adapter
-			);
 			game.Window.EndScreenDeviceChange(
 				gdi.Adapter.Description, // FIXME: Should be Name! -flibit
 				gdi.PresentationParameters.BackBufferWidth,
 				gdi.PresentationParameters.BackBufferHeight
+			);
+			// FIXME: This should be before EndScreenDeviceChange! -flibit
+			GraphicsDevice.Reset(
+				gdi.PresentationParameters,
+				gdi.Adapter
 			);
 
 			// Apply the PresentInterval.

@@ -673,25 +673,14 @@ namespace Microsoft.Xna.Framework
 							Mouse.INTERNAL_WindowHeight = evt.window.data2;
 
 							// Need to reset the graphics device any time the window size changes
+							GraphicsDevice device = game.GraphicsDevice;
 							GraphicsDeviceManager gdm = game.Services.GetService(
 								typeof(IGraphicsDeviceService)
 							) as GraphicsDeviceManager;
-							// FIXME: gdm == null? -flibit
-							if (gdm.IsFullScreen)
-							{
-								GraphicsDevice device = game.GraphicsDevice;
-								gdm.INTERNAL_ResizeGraphicsDevice(
-									device.GLDevice.Backbuffer.Width,
-									device.GLDevice.Backbuffer.Height
-								);
-							}
-							else
-							{
-								gdm.INTERNAL_ResizeGraphicsDevice(
-									evt.window.data1,
-									evt.window.data2
-								);
-							}
+							gdm.INTERNAL_ResizeGraphicsDevice(
+								device.GLDevice.Backbuffer.Width,
+								device.GLDevice.Backbuffer.Height
+							);
 						}
 						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_EXPOSED)
 						{
