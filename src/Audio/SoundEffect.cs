@@ -106,6 +106,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal List<WeakReference> Instances = new List<WeakReference>();
 		internal IALBuffer INTERNAL_buffer;
+		internal IALBuffer INTERNAL_monoBuffer;
 
 		#endregion
 

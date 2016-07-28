@@ -32,6 +32,21 @@ namespace Microsoft.Xna.Framework.Audio
 					return TimeSpan.Zero;
 				}
 			}
+			public int Channels
+			{
+				get
+				{
+					return 1;
+				}
+			}
+
+			public int SampleRate
+			{
+				get
+				{
+					return 1;
+				}
+			}
 		}
 
 		private class NullSource : IALSource
@@ -81,7 +96,7 @@ namespace Microsoft.Xna.Framework.Audio
 			// No-op, duh.
 		}
 
-		public IALBuffer GenBuffer()
+		public IALBuffer GenBuffer(int sampleRate, AudioChannels channels)
 		{
 			return new NullBuffer();
 		}
@@ -105,24 +120,26 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SetBufferData(
 			IALBuffer buffer,
-			AudioChannels channels,
 			IntPtr data,
 			int offset,
-			int count,
-			int sampleRate
+			int count
 		) {
 			// No-op, duh.
 		}
 
 		public void SetBufferFloatData(
 			IALBuffer buffer,
-			AudioChannels channels,
 			IntPtr data,
 			int offset,
-			int count,
-			int sampleRate
+			int count
 		) {
 			// No-op, duh.
+		}
+
+		public IALBuffer ConvertStereoToMono(IALBuffer buffer)
+		{
+			// No-op, we should never get here!
+			return null;
 		}
 
 		public IALSource GenSource()

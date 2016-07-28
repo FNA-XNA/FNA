@@ -127,6 +127,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
+		#region Internal Variables: 3D Audio
+
+		internal bool INTERNAL_positionalAudio = false;
+		internal Vector3 position = new Vector3(0.0f, 0.0f, 0.1f);
+
+		#endregion
+
 		#region Internal Variables: XACT Filters
 
 		internal byte FilterType;
@@ -153,15 +160,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal IALSource INTERNAL_alSource;
 		private IALReverb INTERNAL_alReverb;
-
-		#endregion
-
-		#region Private Variables: 3D Audio
-
-		protected Vector3 position = new Vector3(0.0f, 0.0f, 0.1f);
-
-		// Used to prevent outdated positional audio data from being used
-		protected bool INTERNAL_positionalAudio = false;
 
 		#endregion
 
@@ -211,29 +209,45 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Apply3D(AudioListener listener, AudioEmitter emitter)
 		{
+			// We positional now
+			if (!INTERNAL_positionalAudio)
+			{
+				// Do we need to convert a stereo buffer to mono?
+				if (	!isDynamic &&
+					INTERNAL_parentEffect.INTERNAL_buffer.Channels == 2 &&
+					INTERNAL_parentEffect.INTERNAL_monoBuffer == null	)
+				{
+					INTERNAL_parentEffect.INTERNAL_monoBuffer = AudioDevice.ALDevice.ConvertStereoToMono(
+						INTERNAL_parentEffect.INTERNAL_buffer
+					);
+				}
+
+				// K, we really positional now
+				INTERNAL_positionalAudio = true;
+			}
+
 			if (INTERNAL_alSource == null)
 			{
 				return;
 			}
 
-			// Set up orientation matrix
-			Matrix orientation = Matrix.CreateWorld(Vector3.Zero, listener.Forward, listener.Up);
-
 			// Set up our final position according to orientation of listener
-			position = Vector3.Transform(emitter.Position - listener.Position, orientation);
-			if (position != Vector3.Zero)
+			Vector3 position = Vector3.Transform(
+				emitter.Position - listener.Position,
+				Matrix.CreateWorld(Vector3.Zero, listener.Forward, listener.Up)
+			);
+
+			// XACT doesn't do automated attenuation!
+			if (INTERNAL_isXACTSource)
 			{
 				position.Normalize();
 			}
 
-			// Set the position based on relative positon
+			// Finally.
 			AudioDevice.ALDevice.SetSourcePosition(
 				INTERNAL_alSource,
 				position
 			);
-
-			// We positional now
-			INTERNAL_positionalAudio = true;
 		}
 
 		public void Apply3D(AudioListener[] listeners, AudioEmitter emitter)
@@ -259,9 +273,16 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_alSource = null;
 			}
 
-			INTERNAL_alSource = AudioDevice.ALDevice.GenSource(
-				INTERNAL_parentEffect.INTERNAL_buffer
-			);
+			IALBuffer srcBuf;
+			if (INTERNAL_positionalAudio && INTERNAL_parentEffect.INTERNAL_monoBuffer != null)
+			{
+				srcBuf = INTERNAL_parentEffect.INTERNAL_monoBuffer;
+			}
+			else
+			{
+				srcBuf = INTERNAL_parentEffect.INTERNAL_buffer;
+			}
+			INTERNAL_alSource = AudioDevice.ALDevice.GenSource(srcBuf);
 			if (INTERNAL_alSource == null)
 			{
 				FNALoggerEXT.LogWarn("AL SOURCE WAS NOT AVAILABLE, SKIPPING.");
@@ -271,7 +292,6 @@ namespace Microsoft.Xna.Framework.Audio
 			// Apply Pan/Position
 			if (INTERNAL_positionalAudio)
 			{
-				INTERNAL_positionalAudio = false;
 				AudioDevice.ALDevice.SetSourcePosition(
 					INTERNAL_alSource,
 					position

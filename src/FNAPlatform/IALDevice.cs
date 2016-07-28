@@ -26,7 +26,7 @@ namespace Microsoft.Xna.Framework.Audio
 		void SetDopplerScale(float scale);
 		void SetSpeedOfSound(float speed);
 
-		IALBuffer GenBuffer();
+		IALBuffer GenBuffer(int sampleRate, AudioChannels channels);
 		IALBuffer GenBuffer(
 			byte[] data,
 			uint sampleRate,
@@ -39,20 +39,17 @@ namespace Microsoft.Xna.Framework.Audio
 		void DeleteBuffer(IALBuffer buffer);
 		void SetBufferData(
 			IALBuffer buffer,
-			AudioChannels channels,
 			IntPtr data,
 			int offset,
-			int count,
-			int sampleRate
+			int count
 		);
 		void SetBufferFloatData(
 			IALBuffer buffer,
-			AudioChannels channels,
 			IntPtr data,
 			int offset,
-			int count,
-			int sampleRate
+			int count
 		);
+		IALBuffer ConvertStereoToMono(IALBuffer buffer);
 
 		IALSource GenSource();
 		IALSource GenSource(IALBuffer buffer);
@@ -120,6 +117,14 @@ namespace Microsoft.Xna.Framework.Audio
 	internal interface IALBuffer
 	{
 		TimeSpan Duration
+		{
+			get;
+		}
+		int Channels
+		{
+			get;
+		}
+		int SampleRate
 		{
 			get;
 		}

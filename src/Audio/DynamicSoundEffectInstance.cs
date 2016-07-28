@@ -155,7 +155,7 @@ namespace Microsoft.Xna.Framework.Audio
 			if (availableBuffers.Count == 0)
 			{
 				availableBuffers.Enqueue(
-					AudioDevice.ALDevice.GenBuffer()
+					AudioDevice.ALDevice.GenBuffer(sampleRate, channels)
 				);
 			}
 
@@ -164,11 +164,9 @@ namespace Microsoft.Xna.Framework.Audio
 			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 			AudioDevice.ALDevice.SetBufferData(
 				newBuf,
-				channels,
 				handle.AddrOfPinnedObject(),
 				offset,
-				count,
-				sampleRate
+				count
 			);
 			handle.Free();
 
@@ -366,7 +364,7 @@ namespace Microsoft.Xna.Framework.Audio
 			// Generate a buffer if we don't have any to use.
 			if (availableBuffers.Count == 0)
 			{
-				availableBuffers.Enqueue(AudioDevice.ALDevice.GenBuffer());
+				availableBuffers.Enqueue(AudioDevice.ALDevice.GenBuffer(sampleRate, channels));
 			}
 
 			// Push buffer to the AL.
@@ -374,11 +372,9 @@ namespace Microsoft.Xna.Framework.Audio
 			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 			AudioDevice.ALDevice.SetBufferFloatData(
 				newBuf,
-				channels,
 				handle.AddrOfPinnedObject(),
 				offset,
-				count,
-				sampleRate
+				count
 			);
 			handle.Free();
 

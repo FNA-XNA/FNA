@@ -48,10 +48,24 @@ namespace Microsoft.Xna.Framework.Audio
 				private set;
 			}
 
-			public OpenALBuffer(uint handle, TimeSpan duration)
+			public int Channels
+			{
+				get;
+				private set;
+			}
+
+			public int SampleRate
+			{
+				get;
+				private set;
+			}
+
+			public OpenALBuffer(uint handle, TimeSpan duration, int channels, int sampleRate)
 			{
 				Handle = handle;
 				Duration = duration;
+				Channels = channels;
+				SampleRate = sampleRate;
 			}
 		}
 
@@ -159,9 +173,6 @@ namespace Microsoft.Xna.Framework.Audio
 			AL10.alListener3f(AL10.AL_VELOCITY, 0.0f, 0.0f, 0.0f);
 			AL10.alListenerf(AL10.AL_GAIN, 1.0f);
 
-			// We do NOT use automatic attenuation! XNA does not do this!
-			AL10.alDistanceModel(AL10.AL_NONE);
-
 			EFX.alGenFilters(1, out INTERNAL_alFilter);
 		}
 
@@ -223,14 +234,14 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region OpenAL Buffer Methods
 
-		public IALBuffer GenBuffer()
+		public IALBuffer GenBuffer(int sampleRate, AudioChannels channels)
 		{
 			uint result;
 			AL10.alGenBuffers(1, out result);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
-			return new OpenALBuffer(result, TimeSpan.Zero);
+			return new OpenALBuffer(result, TimeSpan.Zero, (int) channels, sampleRate);
 		}
 
 		public IALBuffer GenBuffer(
@@ -342,7 +353,7 @@ namespace Microsoft.Xna.Framework.Audio
 #endif
 
 			// Finally.
-			return new OpenALBuffer(result, resultDur);
+			return new OpenALBuffer(result, resultDur, (int) channels, (int) sampleRate);
 		}
 
 		public void DeleteBuffer(IALBuffer buffer)
@@ -356,18 +367,17 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SetBufferData(
 			IALBuffer buffer,
-			AudioChannels channels,
 			IntPtr data,
 			int offset,
-			int count,
-			int sampleRate
+			int count
 		) {
+			OpenALBuffer buf = buffer as OpenALBuffer;
 			AL10.alBufferData(
-				(buffer as OpenALBuffer).Handle,
-				XNAToShort[(int) channels],
+				buf.Handle,
+				XNAToShort[buf.Channels],
 				data + offset,
 				count,
-				sampleRate
+				buf.SampleRate
 			);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
@@ -376,22 +386,97 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SetBufferFloatData(
 			IALBuffer buffer,
-			AudioChannels channels,
 			IntPtr data,
 			int offset,
-			int count,
-			int sampleRate
+			int count
 		) {
+			OpenALBuffer buf = buffer as OpenALBuffer;
 			AL10.alBufferData(
-				(buffer as OpenALBuffer).Handle,
-				XNAToFloat[(int) channels],
+				buf.Handle,
+				XNAToFloat[buf.Channels],
 				data + (offset * 4),
 				count * 4,
-				sampleRate
+				buf.SampleRate
 			);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif
+		}
+
+		public IALBuffer ConvertStereoToMono(IALBuffer buffer)
+		{
+			OpenALBuffer buf = buffer as OpenALBuffer;
+			int bufLen, bits;
+			AL10.alGetBufferi(
+				buf.Handle,
+				AL10.AL_SIZE,
+				out bufLen
+			);
+			AL10.alGetBufferi(
+				buf.Handle,
+				AL10.AL_BITS,
+				out bits
+			);
+			bits /= 8;
+#if VERBOSE_AL_DEBUGGING
+			CheckALError();
+#endif
+
+			byte[] data = new byte[bufLen];
+			GCHandle dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			IntPtr dataPtr = dataHandle.AddrOfPinnedObject();
+			ALEXT.alGetBufferSamplesSOFT(
+				buf.Handle,
+				0,
+				bufLen / bits / 2,
+				ALEXT.AL_STEREO_SOFT,
+				bits == 2 ? ALEXT.AL_SHORT_SOFT : ALEXT.AL_BYTE_SOFT,
+				dataPtr
+			);
+#if VERBOSE_AL_DEBUGGING
+			CheckALError();
+#endif
+
+			byte[] monoData = new byte[bufLen / 2];
+			GCHandle monoHandle = GCHandle.Alloc(monoData, GCHandleType.Pinned);
+			IntPtr monoPtr = monoHandle.AddrOfPinnedObject();
+			unsafe
+			{
+				if (bits == 2)
+				{
+					short* src = (short*) dataPtr;
+					short* dst = (short*) monoPtr;
+					for (int i = 0; i < monoData.Length / 2; i += 1)
+					{
+						dst[i] = (short) (((int) src[0] + (int) src[1]) / 2);
+						src += 2;
+					}
+				}
+				else
+				{
+					sbyte* src = (sbyte*) dataPtr;
+					sbyte* dst = (sbyte*) monoPtr;
+					for (int i = 0; i < monoData.Length; i += 1)
+					{
+						dst[i] = (sbyte) (((short) src[0] + (short) src[1]) / 2);
+						src += 2;
+					}
+				}
+			}
+			monoHandle.Free();
+			dataHandle.Free();
+			data = null;
+
+			return GenBuffer(
+				monoData,
+				(uint) buf.SampleRate,
+				1,
+				0,
+				0,
+				false,
+				(uint) bits - 1
+			);
+			monoData = null;
 		}
 
 		#endregion

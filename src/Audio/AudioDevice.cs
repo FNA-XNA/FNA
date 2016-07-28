@@ -202,13 +202,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Public Static Buffer Methods
 
-		public static IALBuffer GenBuffer()
+		public static IALBuffer GenBuffer(int sampleRate, AudioChannels channels)
 		{
 			if (ALDevice == null)
 			{
 				throw new NoAudioHardwareException();
 			}
-			return ALDevice.GenBuffer();
+			return ALDevice.GenBuffer(sampleRate, channels);
 		}
 
 		public static IALBuffer GenBuffer(
