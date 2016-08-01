@@ -55,14 +55,15 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Private Variables
 
-		private List<Cue> activeCues;
+		private readonly List<Cue> activeCues;
 
-		private Dictionary<string, List<Cue>> cueInstanceCounts;
+		private readonly Dictionary<string, List<Cue>> cueInstanceCounts;
 
-		private byte maxCueInstances;
-		private MaxInstanceBehavior maxCueBehavior;
-		private ushort maxFadeInMS;
-		private ushort maxFadeOutMS;
+		private readonly float baseVolume;
+		private readonly byte maxCueInstances;
+		private readonly MaxInstanceBehavior maxCueBehavior;
+		private readonly ushort maxFadeInMS;
+		private readonly ushort maxFadeOutMS;
 
 		#endregion
 
@@ -82,6 +83,7 @@ namespace Microsoft.Xna.Framework.Audio
 			activeCues = new List<Cue>();
 			cueInstanceCounts = new Dictionary<string, List<Cue>>();
 
+			baseVolume = volume;
 			maxCueInstances = maxInstances;
 			maxCueBehavior = (MaxInstanceBehavior) maxBehavior;
 			maxFadeInMS = fadeInMS;
@@ -119,7 +121,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			lock (activeCues)
 			{
-				INTERNAL_volume.Value = volume;
+				INTERNAL_volume.Value = baseVolume * volume;
 			}
 		}
 
