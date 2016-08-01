@@ -507,7 +507,7 @@ namespace Microsoft.Xna.Framework.Audio
 					reader.ReadSingle();
 					reader.ReadSingle();
 
-					// Unknown value
+					// Variation On Loop flags, unused
 					reader.ReadUInt16();
 					
 					// Finally.
