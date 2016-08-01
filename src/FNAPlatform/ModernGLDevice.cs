@@ -2785,11 +2785,46 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			uint prevReadBuffer = currentReadFramebuffer;
-			BindReadFramebuffer(
-				(Backbuffer is OpenGLBackbuffer) ?
-					(Backbuffer as OpenGLBackbuffer).Handle :
+
+			if (Backbuffer.MultiSampleCount > 0)
+			{
+				// We have to resolve the renderbuffer to a texture first.
+				OpenGLBackbuffer glBack = Backbuffer as OpenGLBackbuffer;
+				if (glBack.Texture == 0)
+				{
+					glCreateTextures(GLenum.GL_TEXTURE_2D, 1, out glBack.Texture);
+					glTextureStorage2D(
+						glBack.Texture,
+						1,
+						GLenum.GL_RGBA,
+						glBack.Width,
+						glBack.Height
+					);
+				}
+				glNamedFramebufferTexture(
+					glBack.Handle,
+					GLenum.GL_COLOR_ATTACHMENT0,
+					glBack.Texture,
 					0
-			);
+				);
+				glBlitNamedFramebuffer(
+					glBack.Handle,
+					resolveFramebufferDraw,
+					0, 0, glBack.Width, glBack.Height,
+					0, 0, glBack.Width, glBack.Height,
+					GLenum.GL_COLOR_BUFFER_BIT,
+					GLenum.GL_LINEAR
+				);
+				BindReadFramebuffer(resolveFramebufferDraw);
+			}
+			else
+			{
+				BindReadFramebuffer(
+					(Backbuffer is OpenGLBackbuffer) ?
+						(Backbuffer as OpenGLBackbuffer).Handle :
+						0
+				);
+			}
 
 			int x;
 			int y;

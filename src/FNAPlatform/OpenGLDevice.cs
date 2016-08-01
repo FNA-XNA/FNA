@@ -3034,11 +3034,56 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			uint prevReadBuffer = currentReadFramebuffer;
-			BindReadFramebuffer(
-				(Backbuffer is OpenGLBackbuffer) ?
-					(Backbuffer as OpenGLBackbuffer).Handle :
+
+			if (Backbuffer.MultiSampleCount > 0)
+			{
+				// We have to resolve the renderbuffer to a texture first.
+				uint prevDrawBuffer = currentDrawFramebuffer;
+
+				OpenGLBackbuffer glBack = Backbuffer as OpenGLBackbuffer;
+				if (glBack.Texture == 0)
+				{
+					glGenTextures(1, out glBack.Texture);
+					glBindTexture(GLenum.GL_TEXTURE_2D, glBack.Texture);
+					glTexImage2D(
+						GLenum.GL_TEXTURE_2D,
+						0,
+						(int) GLenum.GL_RGBA,
+						glBack.Width,
+						glBack.Height,
+						0,
+						GLenum.GL_RGBA,
+						GLenum.GL_UNSIGNED_BYTE,
+						IntPtr.Zero
+					);
+					glBindTexture(Textures[0].Target, Textures[0].Handle);
+				}
+				BindFramebuffer(resolveFramebufferDraw);
+				glFramebufferTexture2D(
+					GLenum.GL_FRAMEBUFFER,
+					GLenum.GL_COLOR_ATTACHMENT0,
+					GLenum.GL_TEXTURE_2D,
+					glBack.Texture,
 					0
-			);
+				);
+				BindReadFramebuffer(glBack.Handle);
+				glBlitFramebuffer(
+					0, 0, glBack.Width, glBack.Height,
+					0, 0, glBack.Width, glBack.Height,
+					GLenum.GL_COLOR_BUFFER_BIT,
+					GLenum.GL_LINEAR
+				);
+				BindDrawFramebuffer(prevDrawBuffer);
+				BindReadFramebuffer(resolveFramebufferDraw);
+			}
+			else
+			{
+				BindReadFramebuffer(
+					(Backbuffer is OpenGLBackbuffer) ?
+						(Backbuffer as OpenGLBackbuffer).Handle :
+						0
+				);
+			}
 
 			int x;
 			int y;
