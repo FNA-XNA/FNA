@@ -328,6 +328,10 @@ namespace Microsoft.Xna.Framework.Audio
 				1.0,
 				0xFF,
 				0,
+				false,
+				false,
+				false,
+				false,
 				0,
 				false,
 				new byte[] { 0xFF }
@@ -353,12 +357,11 @@ namespace Microsoft.Xna.Framework.Audio
 				reader.ReadUInt16();
 
 				// Load the Event
-				if (eventType == 0)
+				if (eventType == 0) // StopEvent
 				{
 					// TODO: Codename OhGodNo
-					// Stop Event
 				}
-				else if (eventType == 1)
+				else if (eventType == 1) // Basic PlayWaveEvent
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -395,12 +398,16 @@ namespace Microsoft.Xna.Framework.Audio
 						clipVolume,
 						filterType,
 						loopCount,
+						false,
+						false,
+						false,
+						false,
 						0,
 						false,
 						new byte[] { 0xFF }
 					);
 				}
-				else if (eventType == 3)
+				else if (eventType == 3) // PlayWaveEvent with track variation
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -460,12 +467,16 @@ namespace Microsoft.Xna.Framework.Audio
 						clipVolume,
 						filterType,
 						loopCount,
+						false,
+						false,
+						false,
+						false,
 						variationType,
 						variationOnLoop,
 						weights
 					);
 				}
-				else if (eventType == 4)
+				else if (eventType == 4) // PlayWaveEvent with effect variation
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -507,9 +518,26 @@ namespace Microsoft.Xna.Framework.Audio
 					reader.ReadSingle();
 					reader.ReadSingle();
 
-					// Variation On Loop flags, unused
-					reader.ReadUInt16();
-					
+					// Variation On Loop flags
+					ushort varFlags = reader.ReadUInt16();
+					if ((varFlags & 0x1000) == 0)
+					{
+						minPitch = 0;
+						maxPitch = 0;
+					}
+					if ((varFlags & 0x2000) == 0)
+					{
+						minVolume = clipVolume;
+						maxVolume = clipVolume;
+					}
+					// varFlags & 0xC000 is freq/qfactor, always together
+					bool pitchVarLoop = (varFlags & 0x0100) > 0;
+					bool volumeVarLoop = (varFlags & 0x0200) > 0;
+					// varFlags & 0x0C00 is freq/qfactor loop, always together
+					bool pitchVarAdd = (varFlags & 0x0004) > 0;
+					bool volumeVarAdd = (varFlags & 0x0001) > 0;
+					// varFlags & 0x0050 is freq/qfactor add, can be separate
+
 					// Finally.
 					Events[i] = new PlayWaveEvent(
 						eventTimestamp,
@@ -521,12 +549,16 @@ namespace Microsoft.Xna.Framework.Audio
 						maxVolume,
 						filterType,
 						loopCount,
+						pitchVarLoop,
+						pitchVarAdd,
+						volumeVarLoop,
+						volumeVarAdd,
 						0,
 						false,
 						new byte[] { 0xFF }
 					);
 				}
-				else if (eventType == 6)
+				else if (eventType == 6) // PlayWaveEvent with track/effect variation
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -562,24 +594,25 @@ namespace Microsoft.Xna.Framework.Audio
 					reader.ReadSingle();
 					reader.ReadSingle();
 
-					// Unknown value
-					reader.ReadByte();
-
-					// Variation flags
-					// FIXME: There's probably more to these flags...
-					byte varFlags = reader.ReadByte();
-					if ((varFlags & 0x20) != 0x20)
+					// Variation On Loop flags
+					ushort varFlags = reader.ReadUInt16();
+					if ((varFlags & 0x1000) == 0)
 					{
-						// Throw out the volume variation.
-						minVolume = clipVolume;
-						maxVolume = clipVolume;
-					}
-					if ((varFlags & 0x10) != 0x10)
-					{
-						// Throw out the pitch variation
 						minPitch = 0;
 						maxPitch = 0;
 					}
+					if ((varFlags & 0x2000) == 0)
+					{
+						minVolume = clipVolume;
+						maxVolume = clipVolume;
+					}
+					// varFlags & 0xC000 is freq/qfactor, always together
+					bool pitchVarLoop = (varFlags & 0x0100) > 0;
+					bool volumeVarLoop = (varFlags & 0x0200) > 0;
+					// varFlags & 0x0C00 is freq/qfactor loop, always together
+					bool pitchVarAdd = (varFlags & 0x0004) > 0;
+					bool volumeVarAdd = (varFlags & 0x0001) > 0;
+					// varFlags & 0x0050 is freq/qfactor add, can be separate
 
 					// Number of WaveBank tracks
 					ushort numTracks = reader.ReadUInt16();
@@ -621,12 +654,16 @@ namespace Microsoft.Xna.Framework.Audio
 						maxVolume,
 						filterType,
 						loopCount,
+						pitchVarLoop,
+						pitchVarAdd,
+						volumeVarLoop,
+						volumeVarAdd,
 						variationType,
 						variationOnLoop,
 						weights
 					);
 				}
-				else if (eventType == 7)
+				else if (eventType == 7) // SetPitchEvent
 				{
 					// Unknown values
 					reader.ReadBytes(2);
@@ -657,7 +694,7 @@ namespace Microsoft.Xna.Framework.Audio
 						max
 					);
 				}
-				else if (eventType == 8)
+				else if (eventType == 8) // SetVolumeEvent
 				{
 					// Unknown values
 					reader.ReadBytes(2);
@@ -700,15 +737,13 @@ namespace Microsoft.Xna.Framework.Audio
 						XACTCalculator.CalculateAmplitudeRatio(max)
 					);
 				}
-				else if (eventType == 15)
+				else if (eventType == 15) // ???
 				{
 					// TODO: Codename OhGodNo -flibit
-					// Unknown Event!
 				}
-				else if (eventType == 17)
+				else if (eventType == 17) // Volume Repeat Event
 				{
 					// TODO: Codename OhGodNo -flibit
-					// Volume Repeat Event
 				}
 				else
 				{
@@ -787,8 +822,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private byte INTERNAL_loopCount;
 
-		private VariationPlaylistType INTERNAL_variationType;
-		private bool INTERNAL_variationOnLoop;
+		private bool INTERNAL_pitchVariationOnLoop;
+		private bool INTERNAL_pitchVariationAdd;
+		private bool INTERNAL_volumeVariationOnLoop;
+		private bool INTERNAL_volumeVariationAdd;
+		private VariationPlaylistType INTERNAL_trackVariationType;
+		private bool INTERNAL_trackVariationOnLoop;
 		private byte[] INTERNAL_weights;
 		private int INTERNAL_curWave;
 
@@ -804,8 +843,12 @@ namespace Microsoft.Xna.Framework.Audio
 			double maxVolume,
 			byte filterType,
 			byte loopCount,
-			ushort variationType,
-			bool variationOnLoop,
+			bool pitchVariationOnLoop,
+			bool pitchVariationAdd,
+			bool volumeVariationOnLoop,
+			bool volumeVariationAdd,
+			ushort trackVariationType,
+			bool trackVariationOnLoop,
 			byte[] weights
 		) : base(1, timestamp) {
 			INTERNAL_tracks = tracks;
@@ -816,8 +859,12 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_maxVolume = maxVolume;
 			INTERNAL_filterType = filterType;
 			INTERNAL_loopCount = loopCount;
-			INTERNAL_variationType = (VariationPlaylistType) variationType;
-			INTERNAL_variationOnLoop = variationOnLoop;
+			INTERNAL_pitchVariationOnLoop = pitchVariationOnLoop;
+			INTERNAL_pitchVariationAdd = pitchVariationAdd;
+			INTERNAL_volumeVariationOnLoop = volumeVariationOnLoop;
+			INTERNAL_volumeVariationAdd = volumeVariationAdd;
+			INTERNAL_trackVariationType = (VariationPlaylistType) trackVariationType;
+			INTERNAL_trackVariationOnLoop = trackVariationOnLoop;
 			INTERNAL_weights = weights;
 			INTERNAL_waves = new SoundEffect[tracks.Length];
 			INTERNAL_curWave = -1;
@@ -837,7 +884,9 @@ namespace Microsoft.Xna.Framework.Audio
 		public SoundEffectInstance GenerateInstance(
 			double soundVolume,
 			float soundPitch,
-			int currentLoop
+			int currentLoop,
+			float? prevVolume,
+			float? prevPitch
 		) {
 			if (currentLoop > INTERNAL_loopCount && INTERNAL_loopCount != 255)
 			{
@@ -847,26 +896,47 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_getNextSound();
 			SoundEffectInstance result = INTERNAL_waves[INTERNAL_curWave].CreateInstance();
 			result.INTERNAL_isXACTSource = true;
-			result.Volume = XACTCalculator.CalculateAmplitudeRatio(
-				soundVolume + (
+
+			if (INTERNAL_volumeVariationAdd && currentLoop > 0)
+			{
+				result.Volume = prevVolume.Value + XACTCalculator.CalculateAmplitudeRatio(
 					random.NextDouble() *
-					(INTERNAL_maxVolume - INTERNAL_minVolume)
-				) + INTERNAL_minVolume
-			);
+					(INTERNAL_maxVolume - INTERNAL_minVolume) +
+					INTERNAL_minVolume
+				);
+			}
+			else
+			{
+				result.Volume = XACTCalculator.CalculateAmplitudeRatio(
+					soundVolume + (
+						random.NextDouble() *
+						(INTERNAL_maxVolume - INTERNAL_minVolume)
+					) + INTERNAL_minVolume
+				);
+			}
 			result.Pitch = (
 				random.Next(
 					INTERNAL_minPitch,
 					INTERNAL_maxPitch
 				) / 1000.0f
-			) + soundPitch;
+			) + ((INTERNAL_pitchVariationAdd && currentLoop > 0) ?
+				prevPitch.Value :
+				soundPitch
+			);
+
 			result.FilterType = INTERNAL_filterType;
-			result.IsLooped = !INTERNAL_variationOnLoop && (INTERNAL_loopCount == 255);
+			result.IsLooped = (
+				(INTERNAL_loopCount == 255) &&
+				!INTERNAL_trackVariationOnLoop &&
+				!INTERNAL_volumeVariationOnLoop &&
+				!INTERNAL_pitchVariationOnLoop
+			);
 			return result;
 		}
 
 		private void INTERNAL_getNextSound()
 		{
-			if (INTERNAL_variationType == VariationPlaylistType.Ordered)
+			if (INTERNAL_trackVariationType == VariationPlaylistType.Ordered)
 			{
 				INTERNAL_curWave += 1;
 				if (INTERNAL_curWave >= INTERNAL_waves.Length)
@@ -874,7 +944,7 @@ namespace Microsoft.Xna.Framework.Audio
 					INTERNAL_curWave = 0;
 				}
 			}
-			else if (INTERNAL_variationType == VariationPlaylistType.OrderedFromRandom)
+			else if (INTERNAL_trackVariationType == VariationPlaylistType.OrderedFromRandom)
 			{
 				// FIXME: It seems like XACT organizes this for us?
 				INTERNAL_curWave += 1;
@@ -883,7 +953,7 @@ namespace Microsoft.Xna.Framework.Audio
 					INTERNAL_curWave = 0;
 				}
 			}
-			else if (INTERNAL_variationType == VariationPlaylistType.Random)
+			else if (INTERNAL_trackVariationType == VariationPlaylistType.Random)
 			{
 				double max = 0.0;
 				for (int i = 0; i < INTERNAL_weights.Length; i += 1)
@@ -901,8 +971,8 @@ namespace Microsoft.Xna.Framework.Audio
 					max -= INTERNAL_weights[i];
 				}
 			}
-			else if (	INTERNAL_variationType == VariationPlaylistType.RandomNoImmediateRepeats ||
-					INTERNAL_variationType == VariationPlaylistType.Shuffle	)
+			else if (	INTERNAL_trackVariationType == VariationPlaylistType.RandomNoImmediateRepeats ||
+					INTERNAL_trackVariationType == VariationPlaylistType.Shuffle	)
 			{
 				// FIXME: Is Shuffle really any different from this?
 				double max = 0.0;
@@ -933,7 +1003,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new NotImplementedException(
 					"Variation Playlist Type unhandled: " +
-					INTERNAL_variationType.ToString()
+					INTERNAL_trackVariationType.ToString()
 				);
 			}
 		}

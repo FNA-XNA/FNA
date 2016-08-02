@@ -507,6 +507,8 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					// Get the event that spawned this instance...
 					PlayWaveEvent evt = (PlayWaveEvent) INTERNAL_waveEventSounds[INTERNAL_instancePool[i]];
+					float prevVolume = INTERNAL_instanceVolumes[i];
+					float prevPitch = INTERNAL_instancePitches[i];
 
 					// Then delete all the guff
 					INTERNAL_waveEventSounds.Remove(INTERNAL_instancePool[i]);
@@ -519,7 +521,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 					// Increment the loop counter, try to get another loop
 					INTERNAL_eventLoops[evt] += 1;
-					PlayWave(evt);
+					PlayWave(evt, prevVolume, prevPitch);
 
 					// Removed a wave, have to step back...
 					i -= 1;
@@ -896,12 +898,14 @@ namespace Microsoft.Xna.Framework.Audio
 			return true;
 		}
 
-		private void PlayWave(PlayWaveEvent evt)
+		private void PlayWave(PlayWaveEvent evt, float? prevVolume = null, float? prevPitch = null)
 		{
 			SoundEffectInstance sfi = evt.GenerateInstance(
 				INTERNAL_activeSound.Volume,
 				INTERNAL_activeSound.Pitch,
-				INTERNAL_eventLoops[evt]
+				INTERNAL_eventLoops[evt],
+				prevVolume,
+				prevPitch
 			);
 			if (sfi != null)
 			{
