@@ -109,6 +109,9 @@ namespace Microsoft.Xna.Framework
 		private DisplayOrientation supportedOrientations;
 		private bool drawBegun;
 		private bool disposed;
+		private bool useResizedBackBuffer;
+		private int resizedBackBufferWidth;
+		private int resizedBackBufferHeight;
 
 		#endregion
 
@@ -165,6 +168,9 @@ namespace Microsoft.Xna.Framework
 
 			game.Services.AddService(typeof(IGraphicsDeviceManager), this);
 			game.Services.AddService(typeof(IGraphicsDeviceService), this);
+
+			useResizedBackBuffer = false;
+			game.Window.ClientSizeChanged += INTERNAL_OnClientSizeChanged;
 		}
 
 		#endregion
@@ -230,10 +236,21 @@ namespace Microsoft.Xna.Framework
 			 */
 			gdi.PresentationParameters.BackBufferFormat =
 				PreferredBackBufferFormat;
-			gdi.PresentationParameters.BackBufferWidth =
-				PreferredBackBufferWidth;
-			gdi.PresentationParameters.BackBufferHeight =
-				PreferredBackBufferHeight;
+			if (useResizedBackBuffer)
+			{
+				gdi.PresentationParameters.BackBufferWidth =
+					resizedBackBufferWidth;
+				gdi.PresentationParameters.BackBufferHeight =
+					resizedBackBufferHeight;
+				useResizedBackBuffer = false;
+			}
+			else
+			{
+				gdi.PresentationParameters.BackBufferWidth =
+					PreferredBackBufferWidth;
+				gdi.PresentationParameters.BackBufferHeight =
+					PreferredBackBufferHeight;
+			}
 			gdi.PresentationParameters.DepthStencilFormat =
 				PreferredDepthStencilFormat;
 			gdi.PresentationParameters.IsFullScreen =
@@ -334,6 +351,19 @@ namespace Microsoft.Xna.Framework
 			{
 				PreparingDeviceSettings(sender, args);
 			}
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private void INTERNAL_OnClientSizeChanged(object sender, EventArgs e)
+		{
+			Rectangle size = (sender as GameWindow).ClientBounds;
+			resizedBackBufferWidth = size.Width;
+			resizedBackBufferHeight = size.Height;
+			useResizedBackBuffer = true;
+			ApplyChanges();
 		}
 
 		#endregion
