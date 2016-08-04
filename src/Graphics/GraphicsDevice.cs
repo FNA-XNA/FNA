@@ -603,6 +603,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("presentationParameters");
 			}
+			PresentationParameters = presentationParameters;
+			Adapter = graphicsAdapter;
+
+			// Verify MSAA before we really start...
+			PresentationParameters.MultiSampleCount = Math.Min(
+				MathHelper.ClosestMSAAPower(
+					PresentationParameters.MultiSampleCount
+				),
+				GLDevice.MaxMultiSampleCount
+			);
 
 			// We're about to reset, let the application know.
 			if (DeviceResetting != null)
@@ -626,15 +636,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				resources.RemoveAll(wr => !wr.IsAlive);
 			}
 			*/
-
-			// Set the new PresentationParameters first.
-			PresentationParameters = presentationParameters;
-			PresentationParameters.MultiSampleCount = Math.Min(
-				MathHelper.ClosestMSAAPower(
-					PresentationParameters.MultiSampleCount
-				),
-				GLDevice.MaxMultiSampleCount
-			);
 
 			/* Reset the backbuffer first, before doing anything else.
 			 * The GLDevice needs to know what we're up to right away.
@@ -673,9 +674,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				PresentationParameters.BackBufferWidth,
 				PresentationParameters.BackBufferHeight
 			);
-
-			// FIXME: This should probably mean something. -flibit
-			Adapter = graphicsAdapter;
 
 			// We just reset, let the application know.
 			if (DeviceReset != null)
