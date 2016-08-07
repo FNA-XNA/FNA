@@ -81,10 +81,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector4 ToVector4()
 		{
 			return new Vector4(
-				(ushort) (packedValue & 0xFFFF),
-				(ushort) ((packedValue >> 16) & 0xFFFF),
-				(ushort) ((packedValue >> 32) & 0xFFFF),
-				(ushort) (packedValue >> 48)
+				(short) (packedValue & 0xFFFF),
+				(short) ((packedValue >> 16) & 0xFFFF),
+				(short) ((packedValue >> 32) & 0xFFFF),
+				(short) (packedValue >> 48)
 			);
 		}
 
@@ -185,10 +185,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		static ulong Pack(float x, float y, float z, float w)
 		{
 			return (ulong) (
-				((ulong) Math.Round(MathHelper.Clamp(x, 0, 65535))) |
-				((ulong) Math.Round(MathHelper.Clamp(y, 0, 65535)) << 16) |
-				((ulong) Math.Round(MathHelper.Clamp(z, 0, 65535)) << 32) |
-				((ulong) Math.Round(MathHelper.Clamp(w, 0, 65535)) << 48)
+				((long) Math.Round(MathHelper.Clamp(x, -32768, 32767))) |
+				((long) Math.Round(MathHelper.Clamp(y, -32768, 32767)) << 16) |
+				((long) Math.Round(MathHelper.Clamp(z, -32768, 32767)) << 32) |
+				((long) Math.Round(MathHelper.Clamp(w, -32768, 32767)) << 48)
 			);
 		}
 

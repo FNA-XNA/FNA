@@ -45,7 +45,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 			packedValue = Pack(vector.X, vector.Y);
 		}
 
-		public Short2(Single x,Single y)
+		public Short2(float x, float y)
 		{
 			packedValue = Pack(x, y);
 		}
@@ -57,8 +57,8 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector2 ToVector2()
 		{
 			return new Vector2(
-				(ushort) (packedValue & 0xFFFF),
-				(ushort) (packedValue >> 16)
+				(short) (packedValue & 0xFFFF),
+				(short) (packedValue >> 16)
 			);
 		}
 
@@ -116,9 +116,9 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		private static uint Pack(float x, float y)
 		{
-			return (
-				((uint) Math.Round(MathHelper.Clamp(x, 0, 65535))) |
-				(((uint) Math.Round(MathHelper.Clamp(y, 0, 65535))) << 16)
+			return (uint) (
+				((int) Math.Round(MathHelper.Clamp(x, -32768, 32767))) |
+				(((int) Math.Round(MathHelper.Clamp(y, -32768, 32767))) << 16)
 			);
 		}
 
