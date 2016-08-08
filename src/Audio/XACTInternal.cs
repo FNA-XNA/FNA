@@ -17,21 +17,17 @@ namespace Microsoft.Xna.Framework.Audio
 	{
 		public static double ParseDecibel(byte binaryValue)
 		{
-			/* FIXME: This calculation probably came from someone's TI-83.
-			 * I plotted out Codename Naddachance's bytes out, and
-			 * the closest formula I could come up with (hastily)
-			 * was this:
-			 * dBValue = 37.5 * Math.Log10(binaryValue * 2.0) - 96.0
-			 * But of course, volumes are still wrong. So I dunno.
+			/* FIXME: This magnificent beauty came from Mathematica!
+			 * The byte values for all possible input dB values from the .xap are here:
+			 * http://www.flibitijibibo.com/XACTVolume.txt
+			 * Yes, this is actually what the XACT builder really does.
+			 *
+			 * Thanks to Kenny for plotting all that data.
 			 * -flibit
 			 */
 			return (
-				(-96.0 - 67.7385212334047) /
-				(1 + Math.Pow(
-					binaryValue / 80.1748600297963,
-					0.432254984608615
-				))
-			) + 67.7385212334047;
+				(3969.0 * Math.Log10(binaryValue / 28240.0)) + 8715.0
+			) / 100.0;
 		}
 
 		public static float CalculateAmplitudeRatio(double decibel)
