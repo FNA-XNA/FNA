@@ -238,7 +238,7 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 
 			// XACT doesn't do automated attenuation!
-			if (INTERNAL_isXACTSource)
+			if (INTERNAL_isXACTSource && position != Vector3.Zero)
 			{
 				position.Normalize();
 			}
