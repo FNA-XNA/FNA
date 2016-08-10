@@ -461,43 +461,23 @@ namespace Microsoft.Xna.Framework.Media
 				timer.Stop();
 				timer.Reset();
 
+				// Kill whatever audio/video we've got
+				if (audioStream != null)
+				{
+					audioStream.Stop();
+					audioStream.Dispose();
+					audioStream = null;
+				}
+				TheoraPlay.THEORAPLAY_freeVideo(previousFrame);
+				Video.AttachedToPlayer = false;
+				Video.Dispose();
+
 				// If looping, go back to the start. Otherwise, we'll be exiting.
 				if (IsLooped && State == MediaState.Playing)
 				{
-					// Kill the audio, no matter what.
-					if (audioStream != null)
-					{
-						audioStream.Stop();
-						audioStream.Dispose();
-						audioStream = null;
-					}
-
-					// Free everything and start over.
-					TheoraPlay.THEORAPLAY_freeVideo(previousFrame);
-					previousFrame = IntPtr.Zero;
-					Video.AttachedToPlayer = false;
-					Video.Dispose();
+					// Starting over!
 					Video.AttachedToPlayer = true;
-					Video.Initialize();
-
-					// Grab the initial audio again.
-					if (TheoraPlay.THEORAPLAY_hasAudioStream(Video.theoraDecoder) != 0)
-					{
-						InitAudioStream();
-					}
-
-					// Grab the initial video again.
-					if (TheoraPlay.THEORAPLAY_hasVideoStream(Video.theoraDecoder) != 0)
-					{
-						currentVideo = TheoraPlay.getVideoFrame(Video.videoStream);
-						previousFrame = Video.videoStream;
-						do
-						{
-							// The decoder miiight not be ready yet.
-							Video.videoStream = TheoraPlay.THEORAPLAY_getVideo(Video.theoraDecoder);
-						} while (Video.videoStream == IntPtr.Zero);
-						nextVideo = TheoraPlay.getVideoFrame(Video.videoStream);
-					}
+					InitializeTheoraStream();
 
 					// Start! Again!
 					timer.Start();
@@ -508,19 +488,8 @@ namespace Microsoft.Xna.Framework.Media
 				}
 				else
 				{
-					// Stop everything, clean up. We out.
+					// We out, give them the last frame.
 					State = MediaState.Stopped;
-					if (audioStream != null)
-					{
-						audioStream.Stop();
-						audioStream.Dispose();
-						audioStream = null;
-					}
-					TheoraPlay.THEORAPLAY_freeVideo(previousFrame);
-					Video.AttachedToPlayer = false;
-					Video.Dispose();
-
-					// We're done, so give them the last frame.
 					return videoTexture[0].RenderTarget as Texture2D;
 				}
 			}
@@ -569,7 +538,7 @@ namespace Microsoft.Xna.Framework.Media
 
 			// We need to assign this regardless of what happens next.
 			Video = video;
-			video.AttachedToPlayer = true;
+			Video.AttachedToPlayer = true;
 
 			// FIXME: This is a part of the Duration hack!
 			if (Video.needsDurationHack)
@@ -583,33 +552,15 @@ namespace Microsoft.Xna.Framework.Media
 				return;
 			}
 
-			// Update the player state now, for the thread we're about to make.
+			// Update the player state now, before initializing
 			State = MediaState.Playing;
 
-			// Start the video if it hasn't been yet.
-			if (Video.IsDisposed)
-			{
-				video.Initialize();
-			}
+			// Hook up the decoder to this player
+			InitializeTheoraStream();
 
-			// Grab the first bit of audio. We're trying to start the decoding ASAP.
-			if (TheoraPlay.THEORAPLAY_hasAudioStream(Video.theoraDecoder) != 0)
-			{
-				InitAudioStream();
-			}
-
-			// Grab the first bit of video, set up the texture.
+			// Set up the texture data
 			if (TheoraPlay.THEORAPLAY_hasVideoStream(Video.theoraDecoder) != 0)
 			{
-				currentVideo = TheoraPlay.getVideoFrame(Video.videoStream);
-				previousFrame = Video.videoStream;
-				do
-				{
-					// The decoder miiight not be ready yet.
-					Video.videoStream = TheoraPlay.THEORAPLAY_getVideo(Video.theoraDecoder);
-				} while (Video.videoStream == IntPtr.Zero);
-				nextVideo = TheoraPlay.getVideoFrame(Video.videoStream);
-
 				// The VideoPlayer will use the GraphicsDevice that is set now.
 				if (currentDevice != Video.GraphicsDevice)
 				{
@@ -641,7 +592,7 @@ namespace Microsoft.Xna.Framework.Media
 				);
 			}
 
-			// Initialize the thread!
+			// The player can finally start now!
 			FNALoggerEXT.LogInfo("Starting Theora player...");
 			timer.Start();
 			if (audioStream != null)
@@ -778,32 +729,57 @@ namespace Microsoft.Xna.Framework.Media
 			StreamAudio();
 		}
 
-		private void InitAudioStream()
+		#endregion
+
+		#region Theora Decoder Hookup Method
+
+		private void InitializeTheoraStream()
 		{
-			// The number of buffers to queue into the source.
-			const int NUM_BUFFERS = 4;
-
-			// Generate the source.
-			IntPtr audioPtr = IntPtr.Zero;
-			do
+			// Start the video if it hasn't been yet.
+			if (Video.IsDisposed)
 			{
-				audioPtr = TheoraPlay.THEORAPLAY_getAudio(Video.theoraDecoder);
-			} while (audioPtr == IntPtr.Zero);
-			TheoraPlay.THEORAPLAY_AudioPacket packet = TheoraPlay.getAudioPacket(audioPtr);
-			audioStream = new DynamicSoundEffectInstance(
-				packet.freq,
-				(AudioChannels) packet.channels
-			);
-			audioStream.BufferNeeded += OnBufferRequest;
-			UpdateVolume();
+				Video.Initialize();
+			}
 
-			// Fill and queue the buffers.
-			for (int i = 0; i < NUM_BUFFERS; i += 1)
+			// Grab the first bit of audio. We're trying to start the decoding ASAP.
+			if (TheoraPlay.THEORAPLAY_hasAudioStream(Video.theoraDecoder) != 0)
 			{
-				if (!StreamAudio())
+				// Generate the source.
+				IntPtr audioPtr = IntPtr.Zero;
+				do
 				{
-					break;
+					// The decoder miiight not be ready yet.
+					audioPtr = TheoraPlay.THEORAPLAY_getAudio(Video.theoraDecoder);
+				} while (audioPtr == IntPtr.Zero);
+				TheoraPlay.THEORAPLAY_AudioPacket packet = TheoraPlay.getAudioPacket(audioPtr);
+				audioStream = new DynamicSoundEffectInstance(
+					packet.freq,
+					(AudioChannels) packet.channels
+				);
+				audioStream.BufferNeeded += OnBufferRequest;
+				UpdateVolume();
+
+				// Fill and queue the buffers.
+				for (int i = 0; i < 4; i += 1)
+				{
+					if (!StreamAudio())
+					{
+						break;
+					}
 				}
+			}
+
+			// Grab the first bit of video.
+			if (TheoraPlay.THEORAPLAY_hasVideoStream(Video.theoraDecoder) != 0)
+			{
+				currentVideo = TheoraPlay.getVideoFrame(Video.videoStream);
+				previousFrame = Video.videoStream;
+				do
+				{
+					// The decoder miiight not be ready yet.
+					Video.videoStream = TheoraPlay.THEORAPLAY_getVideo(Video.theoraDecoder);
+				} while (Video.videoStream == IntPtr.Zero);
+				nextVideo = TheoraPlay.getVideoFrame(Video.videoStream);
 			}
 		}
 
