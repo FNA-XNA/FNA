@@ -433,99 +433,95 @@ namespace Microsoft.Xna.Framework.Media
 			}
 
 			// Get the latest video frames.
-			bool missedFrame = false;
-			while (nextVideo.playms <= timer.ElapsedMilliseconds && !missedFrame)
+			bool hasFrames = true;
+			while (nextVideo.playms <= timer.ElapsedMilliseconds && hasFrames)
 			{
 				currentVideo = nextVideo;
-				IntPtr nextFrame = TheoraPlay.THEORAPLAY_getVideo(Video.theoraDecoder);
-				if (nextFrame != IntPtr.Zero)
+				hasFrames = TheoraPlay.THEORAPLAY_availableVideo(Video.theoraDecoder) > 0;
+				if (hasFrames)
 				{
+					IntPtr nextFrame = TheoraPlay.THEORAPLAY_getVideo(Video.theoraDecoder);
 					TheoraPlay.THEORAPLAY_freeVideo(previousFrame);
 					previousFrame = Video.videoStream;
 					Video.videoStream = nextFrame;
 					nextVideo = TheoraPlay.getVideoFrame(Video.videoStream);
-					missedFrame = false;
+				}
+			}
+
+			// Check for the end...
+			if (TheoraPlay.THEORAPLAY_isDecoding(Video.theoraDecoder) == 0)
+			{
+				// FIXME: This is part of the Duration hack!
+				if (Video.needsDurationHack)
+				{
+					Video.Duration = new TimeSpan(0, 0, 0, 0, (int) currentVideo.playms);
+				}
+
+				// Stop and reset the timer. If we're looping, the loop will start it again.
+				timer.Stop();
+				timer.Reset();
+
+				// If looping, go back to the start. Otherwise, we'll be exiting.
+				if (IsLooped && State == MediaState.Playing)
+				{
+					// Kill the audio, no matter what.
+					if (audioStream != null)
+					{
+						audioStream.Stop();
+						audioStream.Dispose();
+						audioStream = null;
+					}
+
+					// Free everything and start over.
+					TheoraPlay.THEORAPLAY_freeVideo(previousFrame);
+					previousFrame = IntPtr.Zero;
+					Video.AttachedToPlayer = false;
+					Video.Dispose();
+					Video.AttachedToPlayer = true;
+					Video.Initialize();
+
+					// Grab the initial audio again.
+					if (TheoraPlay.THEORAPLAY_hasAudioStream(Video.theoraDecoder) != 0)
+					{
+						InitAudioStream();
+					}
+
+					// Grab the initial video again.
+					if (TheoraPlay.THEORAPLAY_hasVideoStream(Video.theoraDecoder) != 0)
+					{
+						currentVideo = TheoraPlay.getVideoFrame(Video.videoStream);
+						previousFrame = Video.videoStream;
+						do
+						{
+							// The decoder miiight not be ready yet.
+							Video.videoStream = TheoraPlay.THEORAPLAY_getVideo(Video.theoraDecoder);
+						} while (Video.videoStream == IntPtr.Zero);
+						nextVideo = TheoraPlay.getVideoFrame(Video.videoStream);
+					}
+
+					// Start! Again!
+					timer.Start();
+					if (audioStream != null)
+					{
+						audioStream.Play();
+					}
 				}
 				else
 				{
-					// Don't mind me, just ignoring that complete failure above!
-					missedFrame = true;
-				}
-
-				if (TheoraPlay.THEORAPLAY_isDecoding(Video.theoraDecoder) == 0)
-				{
-					// FIXME: This is part of the Duration hack!
-					if (Video.needsDurationHack)
+					// Stop everything, clean up. We out.
+					State = MediaState.Stopped;
+					if (audioStream != null)
 					{
-						Video.Duration = new TimeSpan(0, 0, 0, 0, (int) currentVideo.playms);
+						audioStream.Stop();
+						audioStream.Dispose();
+						audioStream = null;
 					}
+					TheoraPlay.THEORAPLAY_freeVideo(previousFrame);
+					Video.AttachedToPlayer = false;
+					Video.Dispose();
 
-					// Stop and reset the timer. If we're looping, the loop will start it again.
-					timer.Stop();
-					timer.Reset();
-
-					// If looping, go back to the start. Otherwise, we'll be exiting.
-					if (IsLooped && State == MediaState.Playing)
-					{
-						// Kill the audio, no matter what.
-						if (audioStream != null)
-						{
-							audioStream.Stop();
-							audioStream.Dispose();
-							audioStream = null;
-						}
-
-						// Free everything and start over.
-						TheoraPlay.THEORAPLAY_freeVideo(previousFrame);
-						previousFrame = IntPtr.Zero;
-						Video.AttachedToPlayer = false;
-						Video.Dispose();
-						Video.AttachedToPlayer = true;
-						Video.Initialize();
-
-						// Grab the initial audio again.
-						if (TheoraPlay.THEORAPLAY_hasAudioStream(Video.theoraDecoder) != 0)
-						{
-							InitAudioStream();
-						}
-
-						// Grab the initial video again.
-						if (TheoraPlay.THEORAPLAY_hasVideoStream(Video.theoraDecoder) != 0)
-						{
-							currentVideo = TheoraPlay.getVideoFrame(Video.videoStream);
-							previousFrame = Video.videoStream;
-							do
-							{
-								// The decoder miiight not be ready yet.
-								Video.videoStream = TheoraPlay.THEORAPLAY_getVideo(Video.theoraDecoder);
-							} while (Video.videoStream == IntPtr.Zero);
-							nextVideo = TheoraPlay.getVideoFrame(Video.videoStream);
-						}
-
-						// Start! Again!
-						timer.Start();
-						if (audioStream != null)
-						{
-							audioStream.Play();
-						}
-					}
-					else
-					{
-						// Stop everything, clean up. We out.
-						State = MediaState.Stopped;
-						if (audioStream != null)
-						{
-							audioStream.Stop();
-							audioStream.Dispose();
-							audioStream = null;
-						}
-						TheoraPlay.THEORAPLAY_freeVideo(previousFrame);
-						Video.AttachedToPlayer = false;
-						Video.Dispose();
-
-						// We're done, so give them the last frame.
-						return videoTexture[0].RenderTarget as Texture2D;
-					}
+					// We're done, so give them the last frame.
+					return videoTexture[0].RenderTarget as Texture2D;
 				}
 			}
 
