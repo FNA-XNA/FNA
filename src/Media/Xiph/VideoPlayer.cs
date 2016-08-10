@@ -743,8 +743,6 @@ namespace Microsoft.Xna.Framework.Media
 
 			// We'll store this here, so alBufferData can use it too.
 			TheoraPlay.THEORAPLAY_AudioPacket currentAudio;
-			currentAudio.channels = 0;
-			currentAudio.freq = 0;
 
 			// There might be an initial period of silence, so forcibly push through.
 			while (	audioStream.State == SoundState.Stopped &&
@@ -769,18 +767,19 @@ namespace Microsoft.Xna.Framework.Media
 			if (data.Count > 0)
 			{
 				audioStream.SubmitFloatBufferEXT(data.ToArray());
-				return true;
 			}
-			return false;
+			else if (TheoraPlay.THEORAPLAY_isDecoding(Video.theoraDecoder) == 0)
+			{
+				// Okay, we ran out. No need for this!
+				audioStream.BufferNeeded -= OnBufferRequest;
+				return false;
+			}
+			return true;
 		}
 
 		private void OnBufferRequest(object sender, EventArgs args)
 		{
-			if (!StreamAudio())
-			{
-				// Okay, we ran out. No need for this!
-				audioStream.BufferNeeded -= OnBufferRequest;
-			}
+			StreamAudio();
 		}
 
 		private void InitAudioStream()
