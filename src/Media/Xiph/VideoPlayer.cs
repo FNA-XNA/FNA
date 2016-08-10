@@ -696,10 +696,14 @@ namespace Microsoft.Xna.Framework.Media
 				TheoraPlay.THEORAPLAY_availableAudio(Video.theoraDecoder) == 0	);
 
 			// Add to the buffer from the decoder until it's large enough.
-			while (	data.Count < BUFFER_SIZE &&
-				TheoraPlay.THEORAPLAY_availableAudio(Video.theoraDecoder) > 0	)
+			while (data.Count < BUFFER_SIZE)
 			{
 				IntPtr audioPtr = TheoraPlay.THEORAPLAY_getAudio(Video.theoraDecoder);
+				if (audioPtr == IntPtr.Zero)
+				{
+					// FIXME: THEORAPLAY_availableAudio has rounding issues! -flibit
+					break;
+				}
 				currentAudio = TheoraPlay.getAudioPacket(audioPtr);
 				data.AddRange(
 					TheoraPlay.getSamples(
