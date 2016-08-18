@@ -1939,6 +1939,7 @@ namespace Microsoft.Xna.Framework
 			{ (int) SDL.SDL_Keycode.SDLK_SLEEP,		Keys.Sleep },
 			{ (int) SDL.SDL_Keycode.SDLK_TAB,		Keys.Tab },
 			{ (int) SDL.SDL_Keycode.SDLK_BACKQUOTE,		Keys.OemTilde },
+			{ 178 /* FIXME: AZERTY ^2 in SDL2? -flibit */,	Keys.OemTilde },
 			{ (int) SDL.SDL_Keycode.SDLK_UNKNOWN,		Keys.None }
 		};
 		private static Dictionary<int, Keys> INTERNAL_scanMap = new Dictionary<int, Keys>()
