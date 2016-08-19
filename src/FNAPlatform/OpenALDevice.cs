@@ -618,7 +618,7 @@ namespace Microsoft.Xna.Framework.Audio
 				AL10.AL_POSITION,
 				pan,
 				0.0f,
-				(float) Math.Sqrt(1 - Math.Pow(pan, 2))
+				(float) -Math.Sqrt(1 - Math.Pow(pan, 2))
 			);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
