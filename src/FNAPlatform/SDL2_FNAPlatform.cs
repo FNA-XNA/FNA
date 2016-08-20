@@ -1588,7 +1588,7 @@ namespace Microsoft.Xna.Framework
 				INTERNAL_haptics[which] = SDL.SDL_HapticOpenFromJoystick(thisJoystick);
 				if (INTERNAL_haptics[which] == IntPtr.Zero)
 				{
-					FNALoggerEXT.LogError("HAPTIC OPEN ERROR: " + SDL.SDL_GetError());
+					FNALoggerEXT.LogWarn("HAPTIC OPEN ERROR: " + SDL.SDL_GetError());
 				}
 			}
 			if (INTERNAL_haptics[which] != IntPtr.Zero)
@@ -1940,6 +1940,7 @@ namespace Microsoft.Xna.Framework
 			{ (int) SDL.SDL_Keycode.SDLK_TAB,		Keys.Tab },
 			{ (int) SDL.SDL_Keycode.SDLK_BACKQUOTE,		Keys.OemTilde },
 			{ 178 /* FIXME: AZERTY ^2 in SDL2? -flibit */,	Keys.OemTilde },
+			{ 233 /* FIXME: BEPO E in SDL2? -flibit */,	Keys.None },
 			{ (int) SDL.SDL_Keycode.SDLK_UNKNOWN,		Keys.None }
 		};
 		private static Dictionary<int, Keys> INTERNAL_scanMap = new Dictionary<int, Keys>()
@@ -2204,7 +2205,7 @@ namespace Microsoft.Xna.Framework
 					return retVal;
 				}
 			}
-			FNALoggerEXT.LogError(
+			FNALoggerEXT.LogWarn(
 				"KEY/SCANCODE MISSING FROM SDL2->XNA DICTIONARY: " +
 				key.sym.ToString() + " " +
 				key.scancode.ToString()
@@ -2227,14 +2228,14 @@ namespace Microsoft.Xna.Framework
 				{
 					return result;
 				}
-				FNALoggerEXT.LogError(
+				FNALoggerEXT.LogWarn(
 					"KEYCODE MISSING FROM SDL2->XNA DICTIONARY: " +
 					sym.ToString()
 				);
 			}
 			else
 			{
-				FNALoggerEXT.LogError(
+				FNALoggerEXT.LogWarn(
 					"SCANCODE MISSING FROM XNA->SDL2 DICTIONARY: " +
 					scancode.ToString()
 				);
