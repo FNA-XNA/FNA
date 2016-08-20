@@ -1588,7 +1588,7 @@ namespace Microsoft.Xna.Framework
 				INTERNAL_haptics[which] = SDL.SDL_HapticOpenFromJoystick(thisJoystick);
 				if (INTERNAL_haptics[which] == IntPtr.Zero)
 				{
-					FNALoggerEXT.LogWarn("HAPTIC OPEN ERROR: " + SDL.SDL_GetError());
+					FNALoggerEXT.LogError("HAPTIC OPEN ERROR: " + SDL.SDL_GetError());
 				}
 			}
 			if (INTERNAL_haptics[which] != IntPtr.Zero)
