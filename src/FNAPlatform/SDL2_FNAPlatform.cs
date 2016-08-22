@@ -119,6 +119,11 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
 			);
 
+			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
+			{
+				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI;
+			}
+
 			// FIXME: Once we have SDL_SetWindowResizable, remove this. -flibit
 			if (Environment.GetEnvironmentVariable("FNA_WORKAROUND_WINDOW_RESIZABLE") == "1")
 			{
@@ -192,6 +197,18 @@ namespace Microsoft.Xna.Framework
 
 			// We hide the mouse cursor by default.
 			SDL.SDL_ShowCursor(0);
+
+			/* If high DPI is not found, unset the HIGHDPI var.
+			 * This is our way to communicate that it failed...
+			 * -flibit
+			 */
+			int drawX, drawY;
+			SDL.SDL_GL_GetDrawableSize(window, out drawX, out drawY);
+			if (	drawX == GraphicsDeviceManager.DefaultBackBufferWidth &&
+				drawY == GraphicsDeviceManager.DefaultBackBufferHeight	)
+			{
+				Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "0");
+			}
 
 			return new FNAWindow(
 				window,

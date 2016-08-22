@@ -852,7 +852,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					dstX = 0;
 					dstY = 0;
-					SDL.SDL_GetWindowSize(
+					SDL.SDL_GL_GetDrawableSize(
 						overrideWindowHandle,
 						out dstW,
 						out dstH
@@ -4145,22 +4145,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private bool UseFauxBackbuffer(PresentationParameters presentationParameters, DisplayMode mode)
 		{
-			int dispWidth, dispHeight;
-			if (presentationParameters.IsFullScreen)
-			{
-				dispWidth = mode.Width;
-				dispHeight = mode.Height;
-			}
-			else
-			{
-				Rectangle bounds = FNAPlatform.GetWindowBounds(
-					presentationParameters.DeviceWindowHandle
-				);
-				dispWidth = bounds.Width;
-				dispHeight = bounds.Height;
-			}
-			bool displayMismatch = (	dispWidth != presentationParameters.BackBufferWidth ||
-							dispHeight != presentationParameters.BackBufferHeight	);
+			int drawX, drawY;
+			SDL.SDL_GL_GetDrawableSize(
+				presentationParameters.DeviceWindowHandle,
+				out drawX,
+				out drawY
+			);
+			bool displayMismatch = (	drawX != presentationParameters.BackBufferWidth ||
+							drawY != presentationParameters.BackBufferHeight	);
 			return displayMismatch || (presentationParameters.MultiSampleCount > 0);
 		}
 
