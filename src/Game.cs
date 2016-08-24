@@ -710,7 +710,10 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual void Draw(GameTime gameTime)
 		{
-			currentlyDrawingComponents.AddRange(drawableComponents);
+			for (int i = 0; i < drawableComponents.Count; i += 1)
+			{
+				currentlyDrawingComponents.Add(drawableComponents[i]);
+			}
 			foreach (IDrawable drawable in currentlyDrawingComponents)
 			{
 				if (drawable.Visible)
@@ -726,7 +729,10 @@ namespace Microsoft.Xna.Framework
 #if BASIC_PROFILER
 			updateStart = gameTimer.ElapsedTicks;
 #endif
-			currentlyUpdatingComponents.AddRange(updateableComponents);
+			for (int i = 0; i < updateableComponents.Count; i += 1)
+			{
+				currentlyUpdatingComponents.Add(updateableComponents[i]);
+			}
 			foreach (IUpdateable updateable in currentlyUpdatingComponents)
 			{
 				if (updateable.Enabled)
