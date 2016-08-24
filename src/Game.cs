@@ -46,25 +46,47 @@ namespace Microsoft.Xna.Framework
 	{
 		#region Public Properties
 
-		public LaunchParameters LaunchParameters
+		public GameComponentCollection Components
 		{
 			get;
 			private set;
 		}
 
-		public GameComponentCollection Components
+		private ContentManager INTERNAL_content;
+		public ContentManager Content
 		{
 			get
 			{
-				return _components;
+				return INTERNAL_content;
+			}
+			set
+			{
+				if (value == null)
+				{
+					throw new ArgumentNullException();
+				}
+				INTERNAL_content = value;
 			}
 		}
 
+		public GraphicsDevice GraphicsDevice
+		{
+			get
+			{
+				if (graphicsDeviceService == null)
+				{
+					return InitializeGraphicsService();
+				}
+				return graphicsDeviceService.GraphicsDevice;
+			}
+		}
+
+		private TimeSpan INTERNAL_inactiveSleepTime;
 		public TimeSpan InactiveSleepTime
 		{
 			get
 			{
-				return _inactiveSleepTime;
+				return INTERNAL_inactiveSleepTime;
 			}
 			set
 			{
@@ -75,25 +97,26 @@ namespace Microsoft.Xna.Framework
 						default(Exception)
 					);
 				}
-				if (_inactiveSleepTime != value)
+				if (INTERNAL_inactiveSleepTime != value)
 				{
-					_inactiveSleepTime = value;
+					INTERNAL_inactiveSleepTime = value;
 				}
 			}
 		}
 
+		private bool INTERNAL_isActive;
 		public bool IsActive
 		{
 			get
 			{
-				return _isActive;
+				return INTERNAL_isActive;
 			}
 			internal set
 			{
-				if (_isActive != value)
+				if (INTERNAL_isActive != value)
 				{
-					_isActive = value;
-					if (_isActive)
+					INTERNAL_isActive = value;
+					if (INTERNAL_isActive)
 					{
 						OnActivated(this, EventArgs.Empty);
 					}
@@ -105,27 +128,41 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
+		public bool IsFixedTimeStep
+		{
+			get;
+			set;
+		}
+
+		private bool INTERNAL_isMouseVisible;
 		public bool IsMouseVisible
 		{
 			get
 			{
-				return _isMouseVisible;
+				return INTERNAL_isMouseVisible;
 			}
 			set
 			{
-				if (_isMouseVisible != value)
+				if (INTERNAL_isMouseVisible != value)
 				{
-					_isMouseVisible = value;
+					INTERNAL_isMouseVisible = value;
 					FNAPlatform.OnIsMouseVisibleChanged(value);
 				}
 			}
 		}
 
+		public LaunchParameters LaunchParameters
+		{
+			get;
+			private set;
+		}
+
+		private TimeSpan INTERNAL_targetElapsedTime;
 		public TimeSpan TargetElapsedTime
 		{
 			get
 			{
-				return _targetElapsedTime;
+				return INTERNAL_targetElapsedTime;
 			}
 			set
 			{
@@ -137,88 +174,31 @@ namespace Microsoft.Xna.Framework
 					);
 				}
 
-				_targetElapsedTime = value;
-			}
-		}
-
-		public bool IsFixedTimeStep
-		{
-			get
-			{
-				return _isFixedTimeStep;
-			}
-			set
-			{
-				_isFixedTimeStep = value;
+				INTERNAL_targetElapsedTime = value;
 			}
 		}
 
 		public GameServiceContainer Services
 		{
-			get
-			{
-				return _services;
-			}
-		}
-
-		public ContentManager Content
-		{
-			get
-			{
-				return _content;
-			}
-			set
-			{
-				if (value == null)
-				{
-					throw new ArgumentNullException();
-				}
-				_content = value;
-			}
-		}
-
-		public GraphicsDevice GraphicsDevice
-		{
-			get
-			{
-				if (_graphicsDeviceService == null)
-				{
-					return InitializeGraphicsService();
-				}
-				return _graphicsDeviceService.GraphicsDevice;
-			}
+			get;
+			private set;
 		}
 
 		public GameWindow Window
 		{
-			get
-			{
-				return _window;
-			}
-			internal set
-			{
-				if (_window == null)
-				{
-					Mouse.WindowHandle = value.Handle;
-				}
-
-				_window = value;
-			}
+			get;
+			private set;
 		}
 
 		#endregion
 
-		#region Internal Fields
+		#region Internal Variables
 
 		internal bool RunApplication;
 
 		#endregion
 
-		#region Private Fields
-
-		private GameComponentCollection _components;
-		private GameServiceContainer _services;
-		private ContentManager _content;
+		#region Private Variables
 
 		private SortingFilteringCollection<IDrawable> _drawables =
 			new SortingFilteringCollection<IDrawable>(
@@ -240,23 +220,18 @@ namespace Microsoft.Xna.Framework
 				(u, handler) => u.UpdateOrderChanged -= handler
 			);
 
-		private IGraphicsDeviceService _graphicsDeviceService;
+		private IGraphicsDeviceService graphicsDeviceService;
+		private bool hasInitialized;
+		private bool suppressDraw;
+		private bool isDisposed;
 
-		private GameWindow _window;
+		private readonly GameTime gameTime;
+		private Stopwatch gameTimer;
+		private TimeSpan accumulatedElapsedTime;
+		private long previousTicks = 0;
+		private int updateFrameLag;
 
-		private bool _isActive = true;
-		private bool _isMouseVisible = false;
-
-		private bool _initialized = false;
-		private bool _isFixedTimeStep = true;
-
-		private TimeSpan _targetElapsedTime = TimeSpan.FromTicks(166667); // 60fps
-
-		private TimeSpan _inactiveSleepTime = TimeSpan.FromSeconds(0.02);
-
-		private readonly TimeSpan _maxElapsedTime = TimeSpan.FromMilliseconds(500);
-
-		private bool _suppressDraw;
+		private static readonly TimeSpan MaxElapsedTime = TimeSpan.FromMilliseconds(500);
 
 #if BASIC_PROFILER
 		private long drawStart;
@@ -270,19 +245,38 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Public Constructors
+		#region Events
+
+		public event EventHandler<EventArgs> Activated;
+		public event EventHandler<EventArgs> Deactivated;
+		public event EventHandler<EventArgs> Disposed;
+		public event EventHandler<EventArgs> Exiting;
+
+		#endregion
+
+		#region Public Constructor
 
 		public Game()
 		{
 			AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
 			LaunchParameters = new LaunchParameters();
-			_services = new GameServiceContainer();
-			_components = new GameComponentCollection();
-			_content = new ContentManager(_services);
+			Components = new GameComponentCollection();
+			Services = new GameServiceContainer();
+			Content = new ContentManager(Services);
+
+			IsActive = true;
+			IsMouseVisible = false;
+			TargetElapsedTime = TimeSpan.FromTicks(166667); // 60fps
+			InactiveSleepTime = TimeSpan.FromSeconds(0.02);
+
+			hasInitialized = false;
+			suppressDraw = false;
+			isDisposed = false;
+
+			gameTime = new GameTime();
 
 			Window = FNAPlatform.CreateWindow();
-
 			FrameworkDispatcher.Update();
 
 			// Ready to run the loop!
@@ -302,7 +296,6 @@ namespace Microsoft.Xna.Framework
 
 		#region IDisposable Implementation
 
-		private bool _isDisposed;
 		public void Dispose()
 		{
 			Dispose(true);
@@ -315,30 +308,30 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!_isDisposed)
+			if (!isDisposed)
 			{
 				if (disposing)
 				{
 					// Dispose loaded game components.
-					for (int i = 0; i < _components.Count; i += 1)
+					for (int i = 0; i < Components.Count; i += 1)
 					{
-						IDisposable disposable = _components[i] as IDisposable;
+						IDisposable disposable = Components[i] as IDisposable;
 						if (disposable != null)
 						{
 							disposable.Dispose();
 						}
 					}
 
-					if (_content != null)
+					if (Content != null)
 					{
-						_content.Dispose();
+						Content.Dispose();
 					}
 
 
-					if (_graphicsDeviceService != null)
+					if (graphicsDeviceService != null)
 					{
 						// FIXME: Does XNA4 require the GDM to be disposable? -flibit
-						(_graphicsDeviceService as IDisposable).Dispose();
+						(graphicsDeviceService as IDisposable).Dispose();
 					}
 
 					if (Window != null)
@@ -351,14 +344,14 @@ namespace Microsoft.Xna.Framework
 
 				AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
 
-				_isDisposed = true;
+				isDisposed = true;
 			}
 		}
 
 		[DebuggerNonUserCode]
 		private void AssertNotDisposed()
 		{
-			if (_isDisposed)
+			if (isDisposed)
 			{
 				string name = GetType().Name;
 				throw new ObjectDisposedException(
@@ -373,47 +366,38 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Events
-
-		public event EventHandler<EventArgs> Activated;
-		public event EventHandler<EventArgs> Deactivated;
-		public event EventHandler<EventArgs> Disposed;
-		public event EventHandler<EventArgs> Exiting;
-
-		#endregion
-
 		#region Public Methods
 
 		public void Exit()
 		{
 			RunApplication = false;
-			_suppressDraw = true;
+			suppressDraw = true;
 		}
 
 		public void ResetElapsedTime()
 		{
-			if (_initialized)
+			if (hasInitialized)
 			{
-				_gameTimer.Reset();
-				_gameTimer.Start();
-				_accumulatedElapsedTime = TimeSpan.Zero;
-				_gameTime.ElapsedGameTime = TimeSpan.Zero;
-				_previousTicks = 0L;
+				gameTimer.Reset();
+				gameTimer.Start();
+				accumulatedElapsedTime = TimeSpan.Zero;
+				gameTime.ElapsedGameTime = TimeSpan.Zero;
+				previousTicks = 0L;
 			}
 		}
 
 		public void SuppressDraw()
 		{
-			_suppressDraw = true;
+			suppressDraw = true;
 		}
 
 		public void RunOneFrame()
 		{
-			if (!_initialized)
+			if (!hasInitialized)
 			{
 				DoInitialize();
-				_gameTimer = Stopwatch.StartNew();
-				_initialized = true;
+				gameTimer = Stopwatch.StartNew();
+				hasInitialized = true;
 			}
 
 			BeginRun();
@@ -428,14 +412,14 @@ namespace Microsoft.Xna.Framework
 		{
 			AssertNotDisposed();
 
-			if (!_initialized)
+			if (!hasInitialized)
 			{
 				DoInitialize();
-				_initialized = true;
+				hasInitialized = true;
 			}
 
 			BeginRun();
-			_gameTimer = Stopwatch.StartNew();
+			gameTimer = Stopwatch.StartNew();
 
 			FNAPlatform.RunLoop(this);
 
@@ -443,12 +427,6 @@ namespace Microsoft.Xna.Framework
 
 			OnExiting(this, EventArgs.Empty);
 		}
-
-		private TimeSpan _accumulatedElapsedTime;
-		private readonly GameTime _gameTime = new GameTime();
-		private Stopwatch _gameTimer;
-		private long _previousTicks = 0;
-		private int _updateFrameLag;
 
 		public void Tick()
 		{
@@ -461,18 +439,18 @@ namespace Microsoft.Xna.Framework
 		RetryTick:
 
 			// Advance the accumulated elapsed time.
-			long currentTicks = _gameTimer.Elapsed.Ticks;
-			_accumulatedElapsedTime += TimeSpan.FromTicks(currentTicks - _previousTicks);
-			_previousTicks = currentTicks;
+			long currentTicks = gameTimer.Elapsed.Ticks;
+			accumulatedElapsedTime += TimeSpan.FromTicks(currentTicks - previousTicks);
+			previousTicks = currentTicks;
 
 			/* If we're in the fixed timestep mode and not enough time has elapsed
 			 * to perform an update we sleep off the the remaining time to save battery
 			 * life and/or release CPU time to other threads and processes.
 			 */
-			if (IsFixedTimeStep && _accumulatedElapsedTime < TargetElapsedTime)
+			if (IsFixedTimeStep && accumulatedElapsedTime < TargetElapsedTime)
 			{
 				int sleepTime = (
-					(int) (TargetElapsedTime - _accumulatedElapsedTime).TotalMilliseconds
+					(int) (TargetElapsedTime - accumulatedElapsedTime).TotalMilliseconds
 				);
 
 				/* NOTE: While sleep can be inaccurate in general it is
@@ -485,76 +463,76 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// Do not allow any update to take longer than our maximum.
-			if (_accumulatedElapsedTime > _maxElapsedTime)
+			if (accumulatedElapsedTime > MaxElapsedTime)
 			{
-				_accumulatedElapsedTime = _maxElapsedTime;
+				accumulatedElapsedTime = MaxElapsedTime;
 			}
 
 			if (IsFixedTimeStep)
 			{
-				_gameTime.ElapsedGameTime = TargetElapsedTime;
+				gameTime.ElapsedGameTime = TargetElapsedTime;
 				int stepCount = 0;
 
 				// Perform as many full fixed length time steps as we can.
-				while (_accumulatedElapsedTime >= TargetElapsedTime)
+				while (accumulatedElapsedTime >= TargetElapsedTime)
 				{
-					_gameTime.TotalGameTime += TargetElapsedTime;
-					_accumulatedElapsedTime -= TargetElapsedTime;
+					gameTime.TotalGameTime += TargetElapsedTime;
+					accumulatedElapsedTime -= TargetElapsedTime;
 					stepCount += 1;
 
 					AssertNotDisposed();
-					Update(_gameTime);
+					Update(gameTime);
 				}
 
 				// Every update after the first accumulates lag
-				_updateFrameLag += Math.Max(0, stepCount - 1);
+				updateFrameLag += Math.Max(0, stepCount - 1);
 
 				/* If we think we are running slowly, wait
 				 * until the lag clears before resetting it
 				 */
-				if (_gameTime.IsRunningSlowly)
+				if (gameTime.IsRunningSlowly)
 				{
-					if (_updateFrameLag == 0)
+					if (updateFrameLag == 0)
 					{
-						_gameTime.IsRunningSlowly = false;
+						gameTime.IsRunningSlowly = false;
 					}
 				}
-				else if (_updateFrameLag >= 5)
+				else if (updateFrameLag >= 5)
 				{
 					/* If we lag more than 5 frames,
 					 * start thinking we are running slowly.
 					 */
-					_gameTime.IsRunningSlowly = true;
+					gameTime.IsRunningSlowly = true;
 				}
 
 				/* Every time we just do one update and one draw,
 				 * then we are not running slowly, so decrease the lag.
 				 */
-				if (stepCount == 1 && _updateFrameLag > 0)
+				if (stepCount == 1 && updateFrameLag > 0)
 				{
-					_updateFrameLag -= 1;
+					updateFrameLag -= 1;
 				}
 
 				/* Draw needs to know the total elapsed time
 				 * that occured for the fixed length updates.
 				 */
-				_gameTime.ElapsedGameTime = TimeSpan.FromTicks(TargetElapsedTime.Ticks * stepCount);
+				gameTime.ElapsedGameTime = TimeSpan.FromTicks(TargetElapsedTime.Ticks * stepCount);
 			}
 			else
 			{
 				// Perform a single variable length update.
-				_gameTime.ElapsedGameTime = _accumulatedElapsedTime;
-				_gameTime.TotalGameTime += _accumulatedElapsedTime;
-				_accumulatedElapsedTime = TimeSpan.Zero;
+				gameTime.ElapsedGameTime = accumulatedElapsedTime;
+				gameTime.TotalGameTime += accumulatedElapsedTime;
+				accumulatedElapsedTime = TimeSpan.Zero;
 
 				AssertNotDisposed();
-				Update(_gameTime);
+				Update(gameTime);
 			}
 
 			// Draw unless the update suppressed it.
-			if (_suppressDraw)
+			if (suppressDraw)
 			{
-				_suppressDraw = false;
+				suppressDraw = false;
 			}
 			else
 			{
@@ -564,7 +542,7 @@ namespace Microsoft.Xna.Framework
 				 */
 				if (BeginDraw())
 				{
-					Draw(_gameTime);
+					Draw(gameTime);
 					EndDraw();
 				}
 			}
@@ -583,9 +561,9 @@ namespace Microsoft.Xna.Framework
 			 * Additionally, if we haven't even started yet, be quiet until we have!
 			 * -flibit
 			 */
-			if (_gameTime.TotalGameTime != TimeSpan.Zero && BeginDraw())
+			if (gameTime.TotalGameTime != TimeSpan.Zero && BeginDraw())
 			{
-				Draw(new GameTime(_gameTime.TotalGameTime, TimeSpan.Zero));
+				Draw(new GameTime(gameTime.TotalGameTime, TimeSpan.Zero));
 				EndDraw();
 			}
 		}
@@ -597,7 +575,7 @@ namespace Microsoft.Xna.Framework
 		protected virtual bool BeginDraw()
 		{
 #if BASIC_PROFILER
-			drawStart = _gameTimer.ElapsedTicks;
+			drawStart = gameTimer.ElapsedTicks;
 #endif
 			return true;
 		}
@@ -605,7 +583,7 @@ namespace Microsoft.Xna.Framework
 		protected virtual void EndDraw()
 		{
 #if BASIC_PROFILER
-			drawTime = _gameTimer.ElapsedTicks - drawStart;
+			drawTime = gameTimer.ElapsedTicks - drawStart;
 			Viewport viewport = GraphicsDevice.Viewport;
 			float top = 50;
 			float bottom = viewport.Height - 50;
@@ -732,10 +710,10 @@ namespace Microsoft.Xna.Framework
 			 * This seems like a condition that warrants an exception more
 			 * than a silent failure.
 			 */
-			if (	_graphicsDeviceService != null &&
-				_graphicsDeviceService.GraphicsDevice != null	)
+			if (	graphicsDeviceService != null &&
+				graphicsDeviceService.GraphicsDevice != null	)
 			{
-				_graphicsDeviceService.DeviceDisposing += (o, e) => UnloadContent();
+				graphicsDeviceService.DeviceDisposing += (o, e) => UnloadContent();
 				LoadContent();
 			}
 		}
@@ -754,12 +732,12 @@ namespace Microsoft.Xna.Framework
 		protected virtual void Update(GameTime gameTime)
 		{
 #if BASIC_PROFILER
-			updateStart = _gameTimer.ElapsedTicks;
+			updateStart = gameTimer.ElapsedTicks;
 #endif
 			FrameworkDispatcher.Update();
 			_updateables.ForEachFilteredItem(UpdateAction, gameTime);
 #if BASIC_PROFILER
-			updateTime = _gameTimer.ElapsedTicks - updateStart;
+			updateTime = gameTimer.ElapsedTicks - updateStart;
 #endif
 		}
 
@@ -838,8 +816,8 @@ namespace Microsoft.Xna.Framework
 			{
 				CategorizeComponent(Components[i]);
 			}
-			_components.ComponentAdded += Components_ComponentAdded;
-			_components.ComponentRemoved += Components_ComponentRemoved;
+			Components.ComponentAdded += Components_ComponentAdded;
+			Components.ComponentRemoved += Components_ComponentRemoved;
 		}
 
 		private void CategorizeComponent(IGameComponent component)
@@ -859,10 +837,10 @@ namespace Microsoft.Xna.Framework
 
 		private GraphicsDevice InitializeGraphicsService()
 		{
-			_graphicsDeviceService = (IGraphicsDeviceService)
+			graphicsDeviceService = (IGraphicsDeviceService)
 				Services.GetService(typeof(IGraphicsDeviceService));
 
-			if (_graphicsDeviceService == null)
+			if (graphicsDeviceService == null)
 			{
 				throw new InvalidOperationException(
 					"No Graphics Device Service"
@@ -870,7 +848,7 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// This will call IGraphicsDeviceManager.CreateDevice
-			return _graphicsDeviceService.GraphicsDevice;
+			return graphicsDeviceService.GraphicsDevice;
 		}
 
 		#endregion
