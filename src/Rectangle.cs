@@ -261,9 +261,9 @@ namespace Microsoft.Xna.Framework
 		public void Contains(ref Rectangle value, out bool result)
 		{
 			result = (	(this.X <= value.X) &&
-					(value.X < (this.X + this.Width)) &&
+					((value.X + value.Width) <= (this.X + this.Width)) &&
 					(this.Y <= value.Y) &&
-					(value.Y < (this.Y + this.Height))	);
+					((value.Y + value.Height) <= (this.Y + this.Height))	);
 		}
 
 		/// <summary>
