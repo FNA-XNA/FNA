@@ -57,10 +57,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector4 ToVector4()
 		{
 			return new Vector4(
-				((sbyte)(packedValue & 0xFF)) / 127.0f,
-				((sbyte)((packedValue >> 8) & 0xFF)) / 127.0f,
-				((sbyte)((packedValue >> 16) & 0xFF)) / 127.0f,
-				((sbyte)((packedValue >> 24) & 0xFF)) / 127.0f
+				((sbyte) (packedValue & 0xFF)) / 127.0f,
+				((sbyte) ((packedValue >> 8) & 0xFF)) / 127.0f,
+				((sbyte) ((packedValue >> 16) & 0xFF)) / 127.0f,
+				((sbyte) ((packedValue >> 24) & 0xFF)) / 127.0f
 			);
 		}
 
@@ -113,10 +113,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		private static uint Pack(float x, float y, float z, float w)
 		{
-			uint byte4 = (((uint)(MathHelper.Clamp(x, -1.0f, 1.0f) * 127.0f)) << 0) & 0x000000FF;
-			uint byte3 = (((uint)(MathHelper.Clamp(y, -1.0f, 1.0f) * 127.0f)) << 8) & 0x0000FF00;
-			uint byte2 = (((uint)(MathHelper.Clamp(z, -1.0f, 1.0f) * 127.0f)) << 16) & 0x00FF0000;
-			uint byte1 = (((uint)(MathHelper.Clamp(w, -1.0f, 1.0f) * 127.0f)) << 24) & 0xFF000000;
+			uint byte4 = (((uint) (MathHelper.Clamp(x, -1.0f, 1.0f) * 127.0f)) << 0) & 0x000000FF;
+			uint byte3 = (((uint) (MathHelper.Clamp(y, -1.0f, 1.0f) * 127.0f)) << 8) & 0x0000FF00;
+			uint byte2 = (((uint) (MathHelper.Clamp(z, -1.0f, 1.0f) * 127.0f)) << 16) & 0x00FF0000;
+			uint byte1 = (((uint) (MathHelper.Clamp(w, -1.0f, 1.0f) * 127.0f)) << 24) & 0xFF000000;
 
 			return byte4 | byte3 | byte2 | byte1;
 		}
