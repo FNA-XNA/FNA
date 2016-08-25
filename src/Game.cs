@@ -267,6 +267,8 @@ namespace Microsoft.Xna.Framework
 			gameTime = new GameTime();
 
 			Window = FNAPlatform.CreateWindow();
+			Mouse.WindowHandle = Window.Handle;
+
 			FrameworkDispatcher.Update();
 
 			// Ready to run the loop!
