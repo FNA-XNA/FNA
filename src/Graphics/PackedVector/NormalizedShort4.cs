@@ -59,7 +59,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 			const float maxVal = 0x7FFF;
 
 			return new Vector4(
-				((short) ((packedValue >> 0x00) & 0xFFFF)) / maxVal,
+				((short) (packedValue & 0xFFFF)) / maxVal,
 				((short) ((packedValue >> 0x10) & 0xFFFF)) / maxVal,
 				((short) ((packedValue >> 0x20) & 0xFFFF)) / maxVal,
 				((short) ((packedValue >> 0x30) & 0xFFFF)) / maxVal
@@ -118,10 +118,34 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 			const float max = 0x7FFF;
 			const float min = -max;
 
-			var word4 = ((ulong) MathHelper.Clamp((float) Math.Round(x * max), min, max) & 0xFFFF) << 0x00;
-			var word3 = ((ulong) MathHelper.Clamp((float) Math.Round(y * max), min, max) & 0xFFFF) << 0x10;
-			var word2 = ((ulong) MathHelper.Clamp((float) Math.Round(z * max), min, max) & 0xFFFF) << 0x20;
-			var word1 = ((ulong) MathHelper.Clamp((float) Math.Round(w * max), min, max) & 0xFFFF) << 0x30;
+			ulong word4 = (
+				(ulong) MathHelper.Clamp(
+					(float) Math.Round(x * max),
+					min,
+					max
+				) & 0xFFFF
+			);
+			ulong word3 = (
+				(ulong) MathHelper.Clamp(
+					(float) Math.Round(y * max),
+					min,
+					max
+				) & 0xFFFF
+			) << 0x10;
+			ulong word2 = (
+				(ulong) MathHelper.Clamp(
+					(float) Math.Round(z * max),
+					min,
+					max
+				) & 0xFFFF
+			) << 0x20;
+			ulong word1 = (
+				(ulong) MathHelper.Clamp(
+					(float) Math.Round(w * max),
+					min,
+					max
+				) & 0xFFFF
+			) << 0x30;
 
 			return (word4 | word3 | word2 | word1);
 		}
