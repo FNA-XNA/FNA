@@ -56,9 +56,11 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		public Vector2 ToVector2()
 		{
+			const float maxVal = 0x7FFF;
+
 			return new Vector2(
-				((short) (packedValue & 0xFFFF)) / 32767.0f,
-				((short) (packedValue >> 16)) / 32767.0f
+				(short)(packedValue & 0xFFFF) / maxVal,
+				(short)(packedValue >> 0x10) / maxVal
 			);
 		}
 
@@ -116,10 +118,13 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		private static uint Pack(float x, float y)
 		{
-			return (uint) (
-				((uint) Math.Round(MathHelper.Clamp(x, -1, 1) * 32767.0f)) |
-				(((uint) Math.Round(MathHelper.Clamp(y, -1, 1) * 32767.0f)) << 16)
-			);
+			const float max = 0x7FFF;
+			const float min = -max;
+
+			uint word2 = (uint)((int)MathHelper.Clamp((float)Math.Round(x * max), min, max) & 0xFFFF);
+			uint word1 = (uint)(((int)MathHelper.Clamp((float)Math.Round(y * max), min, max) & 0xFFFF) << 0x10);
+
+			return (word2 | word1);
 		}
 
 		#endregion
