@@ -118,12 +118,12 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		{
 			int byte2 = (
 				((ushort)
-					(MathHelper.Clamp(x, -1.0f, 1.0f) * 127.0f)
+					Math.Round(MathHelper.Clamp(x, -1.0f, 1.0f) * 127.0f)
 				)
 			) & 0x00FF;
 			int byte1 = (
 				((ushort)
-					(MathHelper.Clamp(y, -1.0f, 1.0f) * 127.0f)
+					Math.Round(MathHelper.Clamp(y, -1.0f, 1.0f) * 127.0f)
 				) << 8
 			) & 0xFF00;
 
