@@ -199,9 +199,15 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Variables
 
+		/* You will notice that these lists have some locks on them in the code.
+		 * Technically this is not accurate to XNA4, as they just happily crash
+		 * whenever there's an Add/Remove happening mid-copy.
+		 *
+		 * But do you really think I want to get reports about that crap?
+		 * -flibit
+		 */
 		private List<IUpdateable> updateableComponents;
 		private List<IUpdateable> currentlyUpdatingComponents;
-
 		private List<IDrawable> drawableComponents;
 		private List<IDrawable> currentlyDrawingComponents;
 
@@ -711,9 +717,12 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual void Draw(GameTime gameTime)
 		{
-			for (int i = 0; i < drawableComponents.Count; i += 1)
+			lock (drawableComponents)
 			{
-				currentlyDrawingComponents.Add(drawableComponents[i]);
+				for (int i = 0; i < drawableComponents.Count; i += 1)
+				{
+					currentlyDrawingComponents.Add(drawableComponents[i]);
+				}
 			}
 			foreach (IDrawable drawable in currentlyDrawingComponents)
 			{
@@ -730,9 +739,12 @@ namespace Microsoft.Xna.Framework
 #if BASIC_PROFILER
 			updateStart = gameTimer.ElapsedTicks;
 #endif
-			for (int i = 0; i < updateableComponents.Count; i += 1)
+			lock (updateableComponents)
 			{
-				currentlyUpdatingComponents.Add(updateableComponents[i]);
+				for (int i = 0; i < updateableComponents.Count; i += 1)
+				{
+					currentlyUpdatingComponents.Add(updateableComponents[i]);
+				}
 			}
 			foreach (IUpdateable updateable in currentlyUpdatingComponents)
 			{
@@ -833,14 +845,20 @@ namespace Microsoft.Xna.Framework
 			IUpdateable updateable = component as IUpdateable;
 			if (updateable != null)
 			{
-				SortUpdateable(updateable);
+				lock (updateableComponents)
+				{
+					SortUpdateable(updateable);
+				}
 				updateable.UpdateOrderChanged += OnUpdateOrderChanged;
 			}
 
 			IDrawable drawable = component as IDrawable;
 			if (drawable != null)
 			{
-				SortDrawable(drawable);
+				lock (drawableComponents)
+				{
+					SortDrawable(drawable);
+				}
 				drawable.DrawOrderChanged += OnDrawOrderChanged;
 			}
 		}
@@ -909,14 +927,20 @@ namespace Microsoft.Xna.Framework
 			IUpdateable updateable = e.GameComponent as IUpdateable;
 			if (updateable != null)
 			{
-				updateableComponents.Remove(updateable);
+				lock (updateableComponents)
+				{
+					updateableComponents.Remove(updateable);
+				}
 				updateable.UpdateOrderChanged -= OnUpdateOrderChanged;
 			}
 
 			IDrawable drawable = e.GameComponent as IDrawable;
 			if (drawable != null)
 			{
-				drawableComponents.Remove(drawable);
+				lock (drawableComponents)
+				{
+					drawableComponents.Remove(drawable);
+				}
 				drawable.DrawOrderChanged -= OnDrawOrderChanged;
 			}
 		}
@@ -925,16 +949,22 @@ namespace Microsoft.Xna.Framework
 		{
 			// FIXME: Is there a better way to re-sort one item? -flibit
 			IUpdateable updateable = sender as IUpdateable;
-			updateableComponents.Remove(updateable);
-			SortUpdateable(updateable);
+			lock (updateableComponents)
+			{
+				updateableComponents.Remove(updateable);
+				SortUpdateable(updateable);
+			}
 		}
 
 		private void OnDrawOrderChanged(object sender, EventArgs e)
 		{
 			// FIXME: Is there a better way to re-sort one item? -flibit
 			IDrawable drawable = sender as IDrawable;
-			drawableComponents.Remove(drawable);
-			SortDrawable(drawable);
+			lock (drawableComponents)
+			{
+				drawableComponents.Remove(drawable);
+				SortDrawable(drawable);
+			}
 		}
 
 		private void OnUnhandledException(
