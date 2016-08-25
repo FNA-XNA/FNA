@@ -592,7 +592,7 @@ namespace Microsoft.Xna.Framework
 
 		public override bool Equals(object obj)
 		{
-			return (obj is BoundingBox) ? this.Equals((BoundingBox)obj) : false;
+			return (obj is BoundingBox) && Equals((BoundingBox) obj);
 		}
 
 		public override int GetHashCode()

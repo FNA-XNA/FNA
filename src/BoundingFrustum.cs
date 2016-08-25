@@ -685,8 +685,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public override bool Equals(object obj)
 		{
-			BoundingFrustum f = obj as BoundingFrustum;
-			return (object.Equals(f, null)) ? false : (this == f);
+			return (obj is BoundingFrustum) && Equals((BoundingFrustum) obj);
 		}
 
 		/// <summary>

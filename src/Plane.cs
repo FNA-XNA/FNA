@@ -317,9 +317,9 @@ namespace Microsoft.Xna.Framework
 			return plane1.Equals(plane2);
 		}
 
-		public override bool Equals(object other)
+		public override bool Equals(object obj)
 		{
-			return (other is Plane) ? this.Equals((Plane) other) : false;
+			return (obj is Plane) && this.Equals((Plane) obj);
 		}
 
 		public bool Equals(Plane other)

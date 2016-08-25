@@ -255,15 +255,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public override bool Equals(object obj)
 		{
-			if (!(obj is Vector3))
-			{
-				return false;
-			}
-
-			Vector3 other = (Vector3) obj;
-			return (	(MathHelper.WithinEpsilon(X, other.X)) &&
-					(MathHelper.WithinEpsilon(Y, other.Y)) &&
-					(MathHelper.WithinEpsilon(Z, other.Z))	);
+			return (obj is Vector3) && Equals((Vector3) obj);
 		}
 
 		/// <summary>

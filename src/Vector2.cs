@@ -150,12 +150,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public override bool Equals(object obj)
 		{
-			if(obj is Vector2)
-			{
-				return Equals((Vector2)obj);
-			}
-
-			return false;
+			return (obj is Vector2) && Equals((Vector2) obj);
 		}
 
 		/// <summary>
