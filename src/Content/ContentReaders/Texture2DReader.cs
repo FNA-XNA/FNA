@@ -67,7 +67,7 @@ namespace Microsoft.Xna.Framework.Content
 				{
 					surfaceFormat = SurfaceFormat.Color;
 				}
-				if (legacyFormat == 28)
+				else if (legacyFormat == 28)
 				{
 					surfaceFormat = SurfaceFormat.Dxt1;
 				}
