@@ -1785,9 +1785,9 @@ namespace Microsoft.Xna.Framework
 		public static Color FromNonPremultiplied(int r, int g, int b, int a)
 		{
 			return new Color(
-				(byte) (r * a / 255),
-				(byte) (g * a / 255),
-				(byte) (b * a / 255),
+				(r * a / 255),
+				(g * a / 255),
+				(b * a / 255),
 				a
 			);
 		}
