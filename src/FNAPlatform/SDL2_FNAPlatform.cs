@@ -1966,8 +1966,12 @@ namespace Microsoft.Xna.Framework
 			{ (int) SDL.SDL_Keycode.SDLK_SLEEP,		Keys.Sleep },
 			{ (int) SDL.SDL_Keycode.SDLK_TAB,		Keys.Tab },
 			{ (int) SDL.SDL_Keycode.SDLK_BACKQUOTE,		Keys.OemTilde },
-			{ 178 /* FIXME: AZERTY ^2 in SDL2? -flibit */,	Keys.OemTilde },
-			{ 233 /* FIXME: BEPO E in SDL2? -flibit */,	Keys.None },
+			{ '²' /* FIXME: AZERTY SDL2? -flibit */,	Keys.OemTilde },
+			{ 'é' /* FIXME: BEPO SDL2? -flibit */,		Keys.None },
+			{ '|' /* FIXME: Norwegian SDL2? -flibit */,	Keys.OemPipe },
+			{ '+' /* FIXME: Norwegian SDL2? -flibit */,	Keys.OemPlus },
+			{ 'ø' /* FIXME: Norwegian SDL2? -flibit */,	Keys.OemSemicolon },
+			{ 'æ' /* FIXME: Norwegian SDL2? -flibit */,	Keys.OemQuotes },
 			{ (int) SDL.SDL_Keycode.SDLK_UNKNOWN,		Keys.None }
 		};
 		private static Dictionary<int, Keys> INTERNAL_scanMap = new Dictionary<int, Keys>()
