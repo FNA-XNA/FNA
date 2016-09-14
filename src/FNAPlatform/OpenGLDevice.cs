@@ -2783,7 +2783,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			int width,
 			int height,
 			int level,
-			Rectangle? rect,
+			int subX,
+			int subY,
+			int subW,
+			int subH,
 			IntPtr data,
 			int startIndex,
 			int elementCount,
@@ -2799,7 +2802,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				height,
 				level,
 				data,
-				rect
+				subX,
+				subY,
+				subW,
+				subH
 			)) {
 				return;
 			}
@@ -2810,7 +2816,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new NotImplementedException("GetData, CompressedTexture");
 			}
-			else if (rect == null)
+			else if (subX == 0 && subY == 0 && subW == width && subH == height)
 			{
 				// Just throw the whole texture into the user array.
 				glGetTexImage(
@@ -2834,11 +2840,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 
 				// Now, blit the rect region into the user array.
-				Rectangle region = rect.Value;
 				int curPixel = -1;
-				for (int row = region.Y; row < region.Y + region.Height; row += 1)
+				for (int row = subY; row < subY + subH; row += 1)
 				{
-					for (int col = region.X; col < region.X + region.Width; col += 1)
+					for (int col = subX; col < subX + subW; col += 1)
 					{
 						curPixel += 1;
 						if (curPixel < startIndex)
@@ -2891,7 +2896,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			int size,
 			CubeMapFace cubeMapFace,
 			int level,
-			Rectangle? rect,
+			int subX,
+			int subY,
+			int subW,
+			int subH,
 			IntPtr data,
 			int startIndex,
 			int elementCount,
@@ -2907,7 +2915,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new NotImplementedException("GetData, CompressedTexture");
 			}
-			else if (rect == null)
+			else if (subX == 0 && subY == 0 && subW == size && subH == size)
 			{
 				// Just throw the whole texture into the user array.
 				glGetTexImage(
@@ -2931,11 +2939,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 
 				// Now, blit the rect region into the user array.
-				Rectangle region = rect.Value;
 				int curPixel = -1;
-				for (int row = region.Y; row < region.Y + region.Height; row += 1)
+				for (int row = subY; row < subY + subH; row += 1)
 				{
-					for (int col = region.X; col < region.X + region.Width; col += 1)
+					for (int col = subX; col < subX + subW; col += 1)
 					{
 						curPixel += 1;
 						if (curPixel < startIndex)
@@ -3146,32 +3153,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			int height,
 			int level,
 			IntPtr data,
-			Rectangle? rect
+			int subX,
+			int subY,
+			int subW,
+			int subH
 		) {
 			bool texUnbound = (	currentDrawBuffers != 1 ||
 						currentAttachments[0] != (texture as OpenGLTexture).Handle	);
 			if (texUnbound && !useES2)
 			{
 				return false;
-			}
-
-			int x;
-			int y;
-			int w;
-			int h;
-			if (rect.HasValue)
-			{
-				x = rect.Value.X;
-				y = rect.Value.Y;
-				w = rect.Value.Width;
-				h = rect.Value.Height;
-			}
-			else
-			{
-				x = 0;
-				y = 0;
-				w = width;
-				h = height;
 			}
 
 			uint prevReadBuffer = currentReadFramebuffer;
@@ -3196,10 +3187,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * back from the render target if we are already bound.
 			 */
 			glReadPixels(
-				x,
-				y,
-				w,
-				h,
+				subX,
+				subY,
+				subW,
+				subH,
 				GLenum.GL_RGBA, // FIXME: Assumption!
 				GLenum.GL_UNSIGNED_BYTE,
 				data

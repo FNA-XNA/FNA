@@ -2588,7 +2588,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			int width,
 			int height,
 			int level,
-			Rectangle? rect,
+			int subX,
+			int subY,
+			int subW,
+			int subH,
 			IntPtr data,
 			int startIndex,
 			int elementCount,
@@ -2604,35 +2607,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				height,
 				level,
 				data,
-				rect
+				subX,
+				subY,
+				subW,
+				subH
 			)) {
 				return;
-			}
-
-			int x, y, w, h;
-			if (rect == null)
-			{
-				x = 0;
-				y = 0;
-				w = width;
-				h = height;
-			}
-			else
-			{
-				x = rect.Value.X;
-				y = rect.Value.Y;
-				w = rect.Value.Width;
-				h = rect.Value.Height;
 			}
 
 			glGetTextureSubImage(
 				(texture as OpenGLTexture).Handle,
 				level,
-				x,
-				y,
+				subX,
+				subY,
 				0,
-				w,
-				h,
+				subW,
+				subH,
 				1,
 				XNAToGL.TextureFormat[(int) format],
 				XNAToGL.TextureDataType[(int) format],
@@ -2690,7 +2680,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			int size,
 			CubeMapFace cubeMapFace,
 			int level,
-			Rectangle? rect,
+			int subX,
+			int subY,
+			int subW,
+			int subH,
 			IntPtr data,
 			int startIndex,
 			int elementCount,
@@ -2700,30 +2693,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			ForceToMainThread(() => {
 #endif
 
-			int x, y, w, h;
-			if (rect == null)
-			{
-				x = 0;
-				y = 0;
-				w = size;
-				h = size;
-			}
-			else
-			{
-				x = rect.Value.X;
-				y = rect.Value.Y;
-				w = rect.Value.Width;
-				h = rect.Value.Height;
-			}
-
 			glGetTextureSubImage(
 				(texture as OpenGLTexture).Handle,
 				level,
-				x,
-				y,
+				subX,
+				subY,
 				(int) cubeMapFace,
-				w,
-				h,
+				subW,
+				subH,
 				1,
 				XNAToGL.TextureFormat[(int) format],
 				XNAToGL.TextureDataType[(int) format],
@@ -2887,32 +2864,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			int height,
 			int level,
 			IntPtr data,
-			Rectangle? rect
+			int subX,
+			int subY,
+			int subW,
+			int subH
 		) {
 			bool texUnbound = (	currentDrawBuffers != 1 ||
 						currentAttachments[0] != (texture as OpenGLTexture).Handle	);
 			if (texUnbound)
 			{
 				return false;
-			}
-
-			int x;
-			int y;
-			int w;
-			int h;
-			if (rect.HasValue)
-			{
-				x = rect.Value.X;
-				y = rect.Value.Y;
-				w = rect.Value.Width;
-				h = rect.Value.Height;
-			}
-			else
-			{
-				x = 0;
-				y = 0;
-				w = width;
-				h = height;
 			}
 
 			uint prevReadBuffer = currentReadFramebuffer;
@@ -2922,10 +2883,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * back from the render target if we are already bound.
 			 */
 			glReadPixels(
-				x,
-				y,
-				w,
-				h,
+				subX,
+				subY,
+				subW,
+				subH,
 				GLenum.GL_RGBA, // FIXME: Assumption!
 				GLenum.GL_UNSIGNED_BYTE,
 				data

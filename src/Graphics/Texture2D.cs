@@ -204,6 +204,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
+			int subX, subY, subW, subH;
+			if (rect == null)
+			{
+				subX = 0;
+				subY = 0;
+				subW = Width;
+				subH = Height;
+			}
+			else
+			{
+				subX = rect.Value.X;
+				subY = rect.Value.Y;
+				subW = rect.Value.Width;
+				subH = rect.Value.Height;
+			}
+
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.GetTextureData2D(
 				texture,
@@ -211,7 +227,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				Width,
 				Height,
 				level,
-				rect,
+				subX,
+				subY,
+				subW,
+				subH,
 				handle.AddrOfPinnedObject(),
 				startIndex,
 				elementCount,

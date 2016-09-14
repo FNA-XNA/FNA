@@ -190,6 +190,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
+			int subX, subY, subW, subH;
+			if (rect == null)
+			{
+				subX = 0;
+				subY = 0;
+				subW = Size;
+				subH = Size;
+			}
+			else
+			{
+				subX = rect.Value.X;
+				subY = rect.Value.Y;
+				subW = rect.Value.Width;
+				subH = rect.Value.Height;
+			}
+
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.GetTextureDataCube(
 				texture,
@@ -197,7 +213,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				Size,
 				cubeMapFace,
 				level,
-				rect,
+				subX,
+				subY,
+				subW,
+				subH,
 				handle.AddrOfPinnedObject(),
 				startIndex,
 				elementCount,
