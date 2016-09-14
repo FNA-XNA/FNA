@@ -819,6 +819,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						renderTargets[i].CubeMapFace != renderTargetBindings[i].CubeMapFace	)
 					{
 						isRedundant = false;
+						break;
 					}
 				}
 				if (isRedundant)
