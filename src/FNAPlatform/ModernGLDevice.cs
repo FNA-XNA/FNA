@@ -2741,7 +2741,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount,
 			int elementSizeInBytes,
-			Rectangle? rect
+			int subX,
+			int subY,
+			int subW,
+			int subH
 		) {
 			/* FIXME: Right now we're expecting one of the following:
 			 * - byte[]
@@ -2803,30 +2806,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			int x;
-			int y;
-			int w;
-			int h;
-			if (rect != null)
-			{
-				x = rect.Value.X;
-				y = rect.Value.Y;
-				w = rect.Value.Width;
-				h = rect.Value.Height;
-			}
-			else
-			{
-				x = 0;
-				y = 0;
-				w = Backbuffer.Width;
-				h = Backbuffer.Height;
-			}
-
 			glReadPixels(
-				x,
-				y,
-				w,
-				h,
+				subX,
+				subY,
+				subW,
+				subH,
 				GLenum.GL_RGBA,
 				GLenum.GL_UNSIGNED_BYTE,
 				data
@@ -2835,14 +2819,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			BindReadFramebuffer(prevReadBuffer);
 
 			// Now we get to do a software-based flip! Yes, really! -flibit
-			int pitch = w * 4;
+			int pitch = subW * 4;
 			IntPtr temp = Marshal.AllocHGlobal(pitch);
-			for (int row = 0; row < h / 2; row += 1)
+			for (int row = 0; row < subH / 2; row += 1)
 			{
 				// Top to temp, bottom to top, temp to bottom
 				memcpy(temp, data + (row * pitch), (IntPtr) pitch);
-				memcpy(data + (row * pitch), data + ((h - row - 1) * pitch), (IntPtr) pitch);
-				memcpy(data + ((h - row - 1) * pitch), temp, (IntPtr) pitch);
+				memcpy(data + (row * pitch), data + ((subH - row - 1) * pitch), (IntPtr) pitch);
+				memcpy(data + ((subH - row - 1) * pitch), temp, (IntPtr) pitch);
 			}
 			Marshal.FreeHGlobal(temp);
 		}

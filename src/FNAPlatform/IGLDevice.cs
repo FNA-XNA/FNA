@@ -155,7 +155,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount,
 			int elementSizeInBytes,
-			Rectangle? rect
+			int subX,
+			int subY,
+			int subW,
+			int subH
 		);
 
 		IGLTexture CreateTexture2D(

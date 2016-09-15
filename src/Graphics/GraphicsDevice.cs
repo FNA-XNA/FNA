@@ -760,6 +760,22 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount
 		) where T : struct {
+			int x, y, w, h;
+			if (rect == null)
+			{
+				x = 0;
+				y = 0;
+				w = GLDevice.Backbuffer.Width;
+				h = GLDevice.Backbuffer.Height;
+			}
+			else
+			{
+				x = rect.Value.X;
+				y = rect.Value.Y;
+				w = rect.Value.Width;
+				h = rect.Value.Height;
+			}
+
 			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GLDevice.ReadBackbuffer(
@@ -768,7 +784,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				startIndex,
 				elementCount,
 				elementSizeInBytes,
-				rect
+				x,
+				y,
+				w,
+				h
 			);
 			handle.Free();
 		}
