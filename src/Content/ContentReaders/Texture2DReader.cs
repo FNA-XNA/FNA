@@ -65,7 +65,7 @@ namespace Microsoft.Xna.Framework.Content
 				int legacyFormat = reader.ReadInt32();
 				if (legacyFormat == 1)
 				{
-					surfaceFormat = SurfaceFormat.Color;
+					surfaceFormat = SurfaceFormat.ColorBgraEXT;
 				}
 				else if (legacyFormat == 28)
 				{

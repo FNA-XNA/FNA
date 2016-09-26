@@ -94,5 +94,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// Float pixel format for high dynamic range data.
 		/// </summary>
 		HdrBlendable,
+		/// <summary>
+		/// Unsigned 32-bit ABGR pixel format for store 8 bits per channel (XNA3)
+		/// </summary>
+		ColorBgraEXT,
 	}
 }

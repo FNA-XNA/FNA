@@ -3497,7 +3497,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_RED,				// SurfaceFormat.HalfSingle
 				GLenum.GL_RG,				// SurfaceFormat.HalfVector2
 				GLenum.GL_RGBA,				// SurfaceFormat.HalfVector4
-				GLenum.GL_RGBA				// SurfaceFormat.HdrBlendable
+				GLenum.GL_RGBA,				// SurfaceFormat.HdrBlendable
+				GLenum.GL_BGRA				// SurfaceFormat.ColorBgraEXT
 			};
 
 			public static readonly GLenum[] TextureInternalFormat = new GLenum[]
@@ -3521,7 +3522,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_R16F,					// SurfaceFormat.HalfSingle
 				GLenum.GL_RG16F,				// SurfaceFormat.HalfVector2
 				GLenum.GL_RGBA16F,				// SurfaceFormat.HalfVector4
-				GLenum.GL_RGBA16F				// SurfaceFormat.HdrBlendable
+				GLenum.GL_RGBA16F,				// SurfaceFormat.HdrBlendable
+				GLenum.GL_RGBA8,				// SurfaceFormat.ColorBgraEXT
 			};
 
 			public static readonly GLenum[] TextureDataType = new GLenum[]
@@ -3545,7 +3547,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_HALF_FLOAT,				// SurfaceFormat.HalfSingle
 				GLenum.GL_HALF_FLOAT,				// SurfaceFormat.HalfVector2
 				GLenum.GL_HALF_FLOAT,				// SurfaceFormat.HalfVector4
-				GLenum.GL_HALF_FLOAT				// SurfaceFormat.HdrBlendable
+				GLenum.GL_HALF_FLOAT,				// SurfaceFormat.HdrBlendable
+				GLenum.GL_UNSIGNED_BYTE,			// SurfaceFormat.ColorBgraEXT
 			};
 
 			public static readonly GLenum[] BlendMode = new GLenum[]
