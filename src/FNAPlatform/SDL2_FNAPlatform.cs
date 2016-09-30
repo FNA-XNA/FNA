@@ -35,6 +35,15 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region 2.0.5 Features
+
+		[DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void SDL_SetWindowResizable(IntPtr window, SDL.SDL_bool resizable);
+
+		private const string SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING = "SDL_WINDOWS_DISABLE_THREAD_NAMING";
+
+		#endregion
+
 		#region Init/Exit Methods
 
 		public static void ProgramInit()
@@ -46,6 +55,16 @@ namespace Microsoft.Xna.Framework
 			 * -flibit
 			 */
 			SDL.SDL_SetMainReady();
+
+			// Also, Windows is an idiot. -flibit
+			if (	OSVersion.Equals("Windows") &&
+				System.Diagnostics.Debugger.IsAttached	)
+			{
+				SDL.SDL_SetHint(
+					SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING,
+					"1"
+				);
+			}
 
 			// If available, load the SDL_GameControllerDB
 			string mappingsDB = Path.Combine(
@@ -504,16 +523,6 @@ namespace Microsoft.Xna.Framework
 			}
 			return fileIn;
 		}
-
-		/* FIXME: SDL2 bug!
-		 * Right now SDL_SetWindowResizable is not in upstream.
-		 * We've got it in our SDL-mirror for now, but it's not
-		 * available in any official capacity. So, we're mixing the
-		 * environment variable with unofficial work for now.
-		 * -flibit
-		 */
-		[DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern void SDL_SetWindowResizable(IntPtr window, SDL.SDL_bool resizable);
 
 		#endregion
 
