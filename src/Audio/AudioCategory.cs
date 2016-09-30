@@ -51,6 +51,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal CrossfadeType crossfadeType;
 
+		internal List<AudioCategory> subCategories;
+
 		#endregion
 
 		#region Private Variables
@@ -89,6 +91,7 @@ namespace Microsoft.Xna.Framework.Audio
 			maxFadeInMS = fadeInMS;
 			maxFadeOutMS = fadeOutMS;
 			crossfadeType = (CrossfadeType) fadeType;
+			subCategories = new List<AudioCategory>();
 		}
 
 		#endregion
@@ -122,6 +125,10 @@ namespace Microsoft.Xna.Framework.Audio
 			lock (activeCues)
 			{
 				INTERNAL_volume.Value = baseVolume * volume;
+				foreach (AudioCategory ac in subCategories)
+				{
+					ac.SetVolume(INTERNAL_volume.Value);
+				}
 			}
 		}
 
