@@ -2821,7 +2821,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Just throw the whole texture into the user array.
 				glGetTexImage(
 					GLenum.GL_TEXTURE_2D,
-					0,
+					level,
 					glFormat,
 					XNAToGL.TextureDataType[(int) format],
 					data
@@ -2833,7 +2833,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr texData = Marshal.AllocHGlobal(width * height * elementSizeInBytes);
 				glGetTexImage(
 					GLenum.GL_TEXTURE_2D,
-					0,
+					level,
 					glFormat,
 					XNAToGL.TextureDataType[(int) format],
 					texData
@@ -2920,7 +2920,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Just throw the whole texture into the user array.
 				glGetTexImage(
 					GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
-					0,
+					level,
 					glFormat,
 					XNAToGL.TextureDataType[(int) format],
 					data
@@ -2932,7 +2932,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr texData = Marshal.AllocHGlobal(size * size * elementSizeInBytes);
 				glGetTexImage(
 					GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
-					0,
+					level,
 					glFormat,
 					XNAToGL.TextureDataType[(int) format],
 					texData

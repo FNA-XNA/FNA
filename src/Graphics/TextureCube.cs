@@ -195,8 +195,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				subX = 0;
 				subY = 0;
-				subW = Size;
-				subH = Size;
+				subW = Size >> level;
+				subH = Size >> level;
 			}
 			else
 			{
@@ -210,7 +210,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			GraphicsDevice.GLDevice.GetTextureDataCube(
 				texture,
 				Format,
-				Size,
+				Size >> level,
 				cubeMapFace,
 				level,
 				subX,

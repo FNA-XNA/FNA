@@ -209,8 +209,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				subX = 0;
 				subY = 0;
-				subW = Width;
-				subH = Height;
+				subW = Width >> level;
+				subH = Height >> level;
 			}
 			else
 			{
@@ -224,8 +224,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			GraphicsDevice.GLDevice.GetTextureData2D(
 				texture,
 				Format,
-				Width,
-				Height,
+				Width >> level,
+				Height >> level,
 				level,
 				subX,
 				subY,
