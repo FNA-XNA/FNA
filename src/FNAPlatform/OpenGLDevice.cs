@@ -2796,7 +2796,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			ForceToMainThread(() => {
 #endif
 
-			if (ReadTargetIfApplicable(
+			if (level == 0 && ReadTargetIfApplicable(
 				texture,
 				width,
 				height,
