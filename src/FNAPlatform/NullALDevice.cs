@@ -147,7 +147,7 @@ namespace Microsoft.Xna.Framework.Audio
 			return new NullSource();
 		}
 
-		public IALSource GenSource(IALBuffer buffer)
+		public IALSource GenSource(IALBuffer buffer, bool isXACT)
 		{
 			return new NullSource();
 		}

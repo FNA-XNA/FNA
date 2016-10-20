@@ -174,6 +174,13 @@ namespace Microsoft.Xna.Framework.Audio
 			AL10.alListenerf(AL10.AL_GAIN, 1.0f);
 
 			EFX.alGenFilters(1, out INTERNAL_alFilter);
+
+			// FIXME: Remove for OpenAL Soft 1.18! -flibit
+			if (!AL10.alIsExtensionPresent("AL_SOFT_gain_clamp_ex"))
+			{
+				FNAPlatform.LogWarn("AL_SOFT_gain_clamp_ex not found!");
+				FNAPlatform.LogWarn("Update your OpenAL Soft library!");
+			}
 		}
 
 		#endregion
@@ -501,7 +508,7 @@ namespace Microsoft.Xna.Framework.Audio
 			return new OpenALSource(result);
 		}
 
-		public IALSource GenSource(IALBuffer buffer)
+		public IALSource GenSource(IALBuffer buffer, bool isXACT)
 		{
 			uint result;
 			AL10.alGenSources(1, out result);
@@ -522,6 +529,14 @@ namespace Microsoft.Xna.Framework.Audio
 				AL10.AL_REFERENCE_DISTANCE,
 				AudioDevice.DistanceScale
 			);
+			if (isXACT)
+			{
+				AL10.alSourcef(
+					result,
+					AL10.AL_MAX_GAIN,
+					64.0f // FIXME: Arbitrary, but try to keep this sane! -flibit
+				);
+			}
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
 #endif

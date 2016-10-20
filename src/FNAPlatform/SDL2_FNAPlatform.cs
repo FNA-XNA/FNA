@@ -35,15 +35,6 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region 2.0.5 Features
-
-		[DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern void SDL_SetWindowResizable(IntPtr window, SDL.SDL_bool resizable);
-
-		private const string SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING = "SDL_WINDOWS_DISABLE_THREAD_NAMING";
-
-		#endregion
-
 		#region Init/Exit Methods
 
 		public static void ProgramInit()
@@ -61,7 +52,7 @@ namespace Microsoft.Xna.Framework
 				System.Diagnostics.Debugger.IsAttached	)
 			{
 				SDL.SDL_SetHint(
-					SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING,
+					SDL.SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING,
 					"1"
 				);
 			}
@@ -141,12 +132,6 @@ namespace Microsoft.Xna.Framework
 			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI;
-			}
-
-			// FIXME: Once we have SDL_SetWindowResizable, remove this. -flibit
-			if (Environment.GetEnvironmentVariable("FNA_WORKAROUND_WINDOW_RESIZABLE") == "1")
-			{
-				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE;
 			}
 
 			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_RED_SIZE, 8);
@@ -406,19 +391,12 @@ namespace Microsoft.Xna.Framework
 
 		public static void SetWindowResizable(IntPtr window, bool resizable)
 		{
-			try
-			{
-				SDL_SetWindowResizable(
-					window,
-					resizable ?
-						SDL.SDL_bool.SDL_TRUE :
-						SDL.SDL_bool.SDL_FALSE
-				);
-			}
-			catch
-			{
-				// No-op. :(
-			}
+			SDL.SDL_SetWindowResizable(
+				window,
+				resizable ?
+					SDL.SDL_bool.SDL_TRUE :
+					SDL.SDL_bool.SDL_FALSE
+			);
 		}
 
 		public static bool GetWindowBorderless(IntPtr window)

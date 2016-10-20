@@ -52,7 +52,7 @@ namespace Microsoft.Xna.Framework.Audio
 		IALBuffer ConvertStereoToMono(IALBuffer buffer);
 
 		IALSource GenSource();
-		IALSource GenSource(IALBuffer buffer);
+		IALSource GenSource(IALBuffer buffer, bool isXACT);
 		void StopAndDisposeSource(IALSource source);
 		void PlaySource(IALSource source);
 		void PauseSource(IALSource source);
