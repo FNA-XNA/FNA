@@ -412,6 +412,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private GLenum[] drawBuffersArray;
 		private uint currentRenderbuffer;
 		private DepthFormat currentDepthStencilFormat;
+		private uint[] attachments = new uint[1];
+		private GLenum[] attachmentTypes = new GLenum[1];
 
 		#endregion
 
@@ -3580,8 +3582,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			int i;
-			uint[] attachments = new uint[renderTargets.Length];
-			GLenum[] attachmentTypes = new GLenum[renderTargets.Length];
+
+			if (renderTargets.Length > attachments.Length)
+			{
+				Array.Resize(ref attachments, renderTargets.Length);
+				Array.Resize(ref attachmentTypes, renderTargets.Length);
+			}
+
 			for (i = 0; i < renderTargets.Length; i += 1)
 			{
 				IGLRenderbuffer colorBuffer = (renderTargets[i].RenderTarget as IRenderTarget).ColorBuffer;
@@ -3605,7 +3612,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Update the color attachments, DrawBuffers state
-			for (i = 0; i < attachments.Length; i += 1)
+			for (i = 0; i < renderTargets.Length; i += 1)
 			{
 				if (attachments[i] != currentAttachments[i])
 				{
@@ -3696,10 +3703,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				i += 1;
 			}
-			if (attachments.Length != currentDrawBuffers)
+			if (renderTargets.Length != currentDrawBuffers)
 			{
-				glDrawBuffers(attachments.Length, drawBuffersArray);
-				currentDrawBuffers = attachments.Length;
+				glDrawBuffers(renderTargets.Length, drawBuffersArray);
+				currentDrawBuffers = renderTargets.Length;
 			}
 
 			// Update the depth/stencil attachment
