@@ -2273,30 +2273,14 @@ namespace Microsoft.Xna.Framework
 		private static unsafe int Win32OnPaint(IntPtr func, IntPtr evtPtr)
 		{
 			SDL.SDL_Event* evt = (SDL.SDL_Event*) evtPtr;
-			if (evt->type == SDL.SDL_EventType.SDL_WINDOWEVENT)
+			if (	evt->type == SDL.SDL_EventType.SDL_WINDOWEVENT &&
+				evt->window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_EXPOSED	)
 			{
-				if (evt->window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED)
-				{
-					SDL.SDL_SysWMinfo info = new SDL.SDL_SysWMinfo();
-					SDL.SDL_VERSION(out info.version);
-					SDL.SDL_GetWindowWMInfo(
-						SDL.SDL_GetWindowFromID(evt->window.windowID),
-						ref info
-					);
-					InvalidateRect(
-						info.info.win.window,
-						IntPtr.Zero,
-						0
-					);
-				}
-				if (evt->window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_EXPOSED)
-				{
-					Marshal.GetDelegateForFunctionPointer(
-						func,
-						typeof(QuickDrawFunc)
-					).DynamicInvoke(null);
-					return 0;
-				}
+				Marshal.GetDelegateForFunctionPointer(
+					func,
+					typeof(QuickDrawFunc)
+				).DynamicInvoke(null);
+				return 0;
 			}
 			return 1;
 		}
