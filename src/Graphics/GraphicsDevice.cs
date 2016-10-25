@@ -308,8 +308,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private RenderTarget Variables
 
-		// 4, per XNA4 HiDef spec
-		private readonly RenderTargetBinding[] renderTargetBindings = new RenderTargetBinding[4];
+		// Per XNA4 HiDef spec
+		internal const int MAX_RENDERTARGET_BINDINGS = 4;
+		private readonly RenderTargetBinding[] renderTargetBindings = new RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
 
 		// Used to prevent allocs on SetRenderTarget()
 		private readonly RenderTargetBinding[] singleTargetCache = new RenderTargetBinding[1];
