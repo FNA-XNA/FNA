@@ -412,8 +412,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private GLenum[] drawBuffersArray;
 		private uint currentRenderbuffer;
 		private DepthFormat currentDepthStencilFormat;
-		private uint[] attachments = new uint[1];
-		private GLenum[] attachmentTypes = new GLenum[1];
+		private uint[] attachments;
+		private GLenum[] attachmentTypes;
 
 		#endregion
 
@@ -701,8 +701,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Initialize render target FBO and state arrays
 			int numAttachments;
 			glGetIntegerv(GLenum.GL_MAX_DRAW_BUFFERS, out numAttachments);
+			numAttachments = Math.Min(numAttachments, GraphicsDevice.MAX_RENDERTARGET_BINDINGS);
 			currentAttachments = new uint[numAttachments];
 			currentAttachmentTypes = new GLenum[numAttachments];
+			attachments = new uint[numAttachments];
+			attachmentTypes = new GLenum[numAttachments];
 			drawBuffersArray = new GLenum[numAttachments];
 			for (int i = 0; i < numAttachments; i += 1)
 			{

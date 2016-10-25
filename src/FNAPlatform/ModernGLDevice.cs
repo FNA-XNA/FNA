@@ -405,6 +405,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private GLenum[] drawBuffersArray;
 		private uint currentRenderbuffer;
 		private DepthFormat currentDepthStencilFormat;
+		private uint[] attachments = new uint[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
+		private GLenum[] attachmentTypes = new GLenum[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 
 		#endregion
 
@@ -691,12 +693,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Initialize render target FBO and state arrays
-			int numAttachments;
-			glGetIntegerv(GLenum.GL_MAX_DRAW_BUFFERS, out numAttachments);
-			currentAttachments = new uint[numAttachments];
-			currentAttachmentTypes = new GLenum[numAttachments];
-			drawBuffersArray = new GLenum[numAttachments];
-			for (int i = 0; i < numAttachments; i += 1)
+			currentAttachments = new uint[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
+			currentAttachmentTypes = new GLenum[currentAttachments.Length];
+			drawBuffersArray = new GLenum[currentAttachments.Length];
+			for (int i = 0; i < currentAttachments.Length; i += 1)
 			{
 				currentAttachments[i] = 0;
 				currentAttachmentTypes[i] = GLenum.GL_TEXTURE_2D;
@@ -3240,8 +3240,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			int i;
-			uint[] attachments = new uint[renderTargets.Length];
-			GLenum[] attachmentTypes = new GLenum[renderTargets.Length];
 			for (i = 0; i < renderTargets.Length; i += 1)
 			{
 				IGLRenderbuffer colorBuffer = (renderTargets[i].RenderTarget as IRenderTarget).ColorBuffer;
@@ -3265,7 +3263,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Update the color attachments, DrawBuffers state
-			for (i = 0; i < attachments.Length; i += 1)
+			for (i = 0; i < renderTargets.Length; i += 1)
 			{
 				if (attachments[i] != currentAttachments[i])
 				{
@@ -3355,14 +3353,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				i += 1;
 			}
-			if (attachments.Length != currentDrawBuffers)
+			if (renderTargets.Length != currentDrawBuffers)
 			{
 				glNamedFramebufferDrawBuffers(
 					targetFramebuffer,
-					attachments.Length,
+					renderTargets.Length,
 					drawBuffersArray
 				);
-				currentDrawBuffers = attachments.Length;
+				currentDrawBuffers = renderTargets.Length;
 			}
 
 			// Update the depth/stencil attachment
