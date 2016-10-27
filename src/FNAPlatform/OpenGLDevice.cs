@@ -714,7 +714,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				GraphicsDevice.MAX_RENDERTARGET_BINDINGS
 			);
 			attachments = new uint[numAttachments];
-			attachmentTypes = new uint[numAttachments];
+			attachmentTypes = new GLenum[numAttachments];
 			currentAttachments = new uint[numAttachments];
 			currentAttachmentTypes = new GLenum[numAttachments];
 			drawBuffersArray = new GLenum[numAttachments];
