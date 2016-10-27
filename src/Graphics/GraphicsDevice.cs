@@ -415,6 +415,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				0,
 				MAX_VERTEXTEXTURE_SAMPLERS
 			);
+			vertexSamplerStart = GLDevice.MaxTextureSlots - maxVertexTextures;
 			Textures = new TextureCollection(
 				maxTextures,
 				modifiedSamplers
