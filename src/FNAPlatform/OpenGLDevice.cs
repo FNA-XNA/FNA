@@ -406,12 +406,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		private uint targetFramebuffer = 0;
 		private uint resolveFramebufferRead = 0;
 		private uint resolveFramebufferDraw = 0;
-		private uint[] currentAttachments;
-		private GLenum[] currentAttachmentTypes;
+		private readonly uint[] currentAttachments;
+		private readonly GLenum[] currentAttachmentTypes;
 		private int currentDrawBuffers;
-		private GLenum[] drawBuffersArray;
+		private readonly GLenum[] drawBuffersArray;
 		private uint currentRenderbuffer;
 		private DepthFormat currentDepthStencilFormat;
+		private readonly uint[] attachments;
+		private readonly GLenum[] attachmentTypes;
 
 		#endregion
 
@@ -672,6 +674,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Initialize texture collection array
 			int numSamplers;
 			glGetIntegerv(GLenum.GL_MAX_TEXTURE_IMAGE_UNITS, out numSamplers);
+			numSamplers = Math.Min(
+				numSamplers,
+				GraphicsDevice.MAX_TEXTURE_SAMPLERS + GraphicsDevice.MAX_VERTEXTEXTURE_SAMPLERS
+			);
 			Textures = new OpenGLTexture[numSamplers];
 			for (int i = 0; i < numSamplers; i += 1)
 			{
@@ -682,6 +688,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Initialize vertex attribute state arrays
 			int numAttributes;
 			glGetIntegerv(GLenum.GL_MAX_VERTEX_ATTRIBS, out numAttributes);
+			numAttributes = Math.Min(
+				numAttributes,
+				GraphicsDevice.MAX_VERTEX_ATTRIBUTES
+			);
 			attributes = new VertexAttribute[numAttributes];
 			attributeEnabled = new bool[numAttributes];
 			previousAttributeEnabled = new bool[numAttributes];
@@ -699,6 +709,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Initialize render target FBO and state arrays
 			int numAttachments;
 			glGetIntegerv(GLenum.GL_MAX_DRAW_BUFFERS, out numAttachments);
+			numAttachments = Math.Min(
+				numAttachments,
+				GraphicsDevice.MAX_RENDERTARGET_BINDINGS
+			);
+			attachments = new uint[numAttachments];
+			attachmentTypes = new uint[numAttachments];
 			currentAttachments = new uint[numAttachments];
 			currentAttachmentTypes = new GLenum[numAttachments];
 			drawBuffersArray = new GLenum[numAttachments];
@@ -3580,8 +3596,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			int i;
-			uint[] attachments = new uint[renderTargets.Length];
-			GLenum[] attachmentTypes = new GLenum[renderTargets.Length];
 			for (i = 0; i < renderTargets.Length; i += 1)
 			{
 				IGLRenderbuffer colorBuffer = (renderTargets[i].RenderTarget as IRenderTarget).ColorBuffer;
@@ -3605,7 +3619,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Update the color attachments, DrawBuffers state
-			for (i = 0; i < attachments.Length; i += 1)
+			for (i = 0; i < renderTargets.Length; i += 1)
 			{
 				if (attachments[i] != currentAttachments[i])
 				{
@@ -3696,10 +3710,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				i += 1;
 			}
-			if (attachments.Length != currentDrawBuffers)
+			if (renderTargets.Length != currentDrawBuffers)
 			{
-				glDrawBuffers(attachments.Length, drawBuffersArray);
-				currentDrawBuffers = attachments.Length;
+				glDrawBuffers(renderTargets.Length, drawBuffersArray);
+				currentDrawBuffers = renderTargets.Length;
 			}
 
 			// Update the depth/stencil attachment

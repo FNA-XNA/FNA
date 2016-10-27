@@ -26,6 +26,18 @@ namespace Microsoft.Xna.Framework.Graphics
 {
 	public class GraphicsDevice : IDisposable
 	{
+		#region Internal Constants
+
+		// Per XNA4 General Spec
+		internal const int MAX_TEXTURE_SAMPLERS = 16;
+
+		// Per XNA4 HiDef Spec
+		internal const int MAX_VERTEX_ATTRIBUTES = 16;
+		internal const int MAX_RENDERTARGET_BINDINGS = 4;
+		internal const int MAX_VERTEXTEXTURE_SAMPLERS = 4;
+
+		#endregion
+
 		#region Public GraphicsDevice State Properties
 
 		public bool IsDisposed
@@ -308,8 +320,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private RenderTarget Variables
 
-		// 4, per XNA4 HiDef spec
-		private readonly RenderTargetBinding[] renderTargetBindings = new RenderTargetBinding[4];
+		private readonly RenderTargetBinding[] renderTargetBindings = new RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
 
 		// Used to prevent allocs on SetRenderTarget()
 		private readonly RenderTargetBinding[] singleTargetCache = new RenderTargetBinding[1];
@@ -318,8 +329,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Buffer Object Variables
 
-		// 16, per XNA4 HiDef spec
-		private VertexBufferBinding[] vertexBufferBindings = new VertexBufferBinding[16];
+		private readonly VertexBufferBinding[] vertexBufferBindings = new VertexBufferBinding[MAX_VERTEX_ATTRIBUTES];
 		private int vertexBufferCount = 0;
 		private bool vertexBuffersUpdated = false;
 
@@ -399,9 +409,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			RasterizerState = RasterizerState.CullCounterClockwise;
 
 			// Initialize the Texture/Sampler state containers
-			int maxTextures = Math.Min(GLDevice.MaxTextureSlots, 16); // Per XNA4 spec
-			int maxVertexTextures = MathHelper.Clamp(GLDevice.MaxTextureSlots - 16, 0, 4); // Per XNA4 HiDef spec
-			vertexSamplerStart = GLDevice.MaxTextureSlots - maxVertexTextures;
+			int maxTextures = Math.Min(GLDevice.MaxTextureSlots, MAX_TEXTURE_SAMPLERS);
+			int maxVertexTextures = MathHelper.Clamp(
+				GLDevice.MaxTextureSlots - MAX_TEXTURE_SAMPLERS,
+				0,
+				MAX_VERTEXTEXTURE_SAMPLERS
+			);
 			Textures = new TextureCollection(
 				maxTextures,
 				modifiedSamplers
