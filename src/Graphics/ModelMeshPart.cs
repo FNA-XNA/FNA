@@ -50,7 +50,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Set the new effect.
 				INTERNAL_effect = value;
-				parent.Effects.Add(value);
+
+				if (INTERNAL_effect != null && !parent.Effects.Contains(INTERNAL_effect))
+				{
+					parent.Effects.Add(value);
+				}
 			}
 		}
 
