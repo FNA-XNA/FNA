@@ -1016,8 +1016,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			float originY = origin.Y / sourceH / (float) texture.Height;
 
 			// Calculate vertices
-			float cornerX = (CornerOffsetX[0] - originX) * destinationW;
-			float cornerY = (CornerOffsetY[0] - originY) * destinationH;
+			float cornerX = -originX * destinationW;
+			float cornerY = -originY * destinationH;
 			vertexInfo[numSprites].Position0.X = (
 				(-rotationSin * cornerY) +
 				(rotationCos * cornerX) +
@@ -1028,8 +1028,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				(rotationSin * cornerX) +
 				destinationY
 			);
-			cornerX = (CornerOffsetX[1] - originX) * destinationW;
-			cornerY = (CornerOffsetY[1] - originY) * destinationH;
+			cornerX = (1.0f - originX) * destinationW;
+			cornerY = -originY * destinationH;
 			vertexInfo[numSprites].Position1.X = (
 				(-rotationSin * cornerY) +
 				(rotationCos * cornerX) +
@@ -1040,8 +1040,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				(rotationSin * cornerX) +
 				destinationY
 			);
-			cornerX = (CornerOffsetX[2] - originX) * destinationW;
-			cornerY = (CornerOffsetY[2] - originY) * destinationH;
+			cornerX = -originX * destinationW;
+			cornerY = (1.0f - originY) * destinationH;
 			vertexInfo[numSprites].Position2.X = (
 				(-rotationSin * cornerY) +
 				(rotationCos * cornerX) +
@@ -1052,8 +1052,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				(rotationSin * cornerX) +
 				destinationY
 			);
-			cornerX = (CornerOffsetX[3] - originX) * destinationW;
-			cornerY = (CornerOffsetY[3] - originY) * destinationH;
+			cornerX = (1.0f - originX) * destinationW;
+			cornerY = (1.0f - originY) * destinationH;
 			vertexInfo[numSprites].Position3.X = (
 				(-rotationSin * cornerY) +
 				(rotationCos * cornerX) +
