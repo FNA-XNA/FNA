@@ -319,17 +319,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			CheckBegin("Draw");
 			PushSprite(
 				texture,
-				null,
+				0.0f,
+				0.0f,
+				1.0f,
+				1.0f,
 				position.X,
 				position.Y,
-				1.0f,
-				1.0f,
+				texture.Width,
+				texture.Height,
 				color,
 				Vector2.Zero,
 				0.0f,
+				1.0f,
 				0.0f,
-				0,
-				false
+				0
 			);
 		}
 
@@ -339,20 +342,49 @@ namespace Microsoft.Xna.Framework.Graphics
 			Rectangle? sourceRectangle,
 			Color color
 		) {
+			float sourceX, sourceY, sourceW, sourceH;
+			float destW, destH;
+			if (sourceRectangle.HasValue)
+			{
+				sourceX = sourceRectangle.Value.X / (float) texture.Width;
+				sourceY = sourceRectangle.Value.Y / (float) texture.Height;
+				sourceW = Math.Max(
+					sourceRectangle.Value.Width,
+					MathHelper.MachineEpsilonFloat
+				) / (float) texture.Width;
+				sourceH = Math.Max(
+					sourceRectangle.Value.Height,
+					MathHelper.MachineEpsilonFloat
+				) / (float) texture.Height;
+				destW = sourceRectangle.Value.Width;
+				destH = sourceRectangle.Value.Height;
+			}
+			else
+			{
+				sourceX = 0.0f;
+				sourceY = 0.0f;
+				sourceW = 1.0f;
+				sourceH = 1.0f;
+				destW = texture.Width;
+				destH = texture.Height;
+			}
 			CheckBegin("Draw");
 			PushSprite(
 				texture,
-				sourceRectangle,
+				sourceX,
+				sourceY,
+				sourceW,
+				sourceH,
 				position.X,
 				position.Y,
-				1.0f,
-				1.0f,
+				destW,
+				destH,
 				color,
 				Vector2.Zero,
 				0.0f,
+				1.0f,
 				0.0f,
-				0,
-				false
+				0
 			);
 		}
 
@@ -368,19 +400,49 @@ namespace Microsoft.Xna.Framework.Graphics
 			float layerDepth
 		) {
 			CheckBegin("Draw");
+			float sourceX, sourceY, sourceW, sourceH;
+			float destW = scale;
+			float destH = scale;
+			if (sourceRectangle.HasValue)
+			{
+				sourceX = sourceRectangle.Value.X / (float) texture.Width;
+				sourceY = sourceRectangle.Value.Y / (float) texture.Height;
+				sourceW = Math.Max(
+					sourceRectangle.Value.Width,
+					MathHelper.MachineEpsilonFloat
+				) / (float) texture.Width;
+				sourceH = Math.Max(
+					sourceRectangle.Value.Height,
+					MathHelper.MachineEpsilonFloat
+				) / (float) texture.Height;
+				destW *= sourceRectangle.Value.Width;
+				destH *= sourceRectangle.Value.Height;
+			}
+			else
+			{
+				sourceX = 0.0f;
+				sourceY = 0.0f;
+				sourceW = 1.0f;
+				sourceH = 1.0f;
+				destW *= texture.Width;
+				destH *= texture.Height;
+			}
 			PushSprite(
 				texture,
-				sourceRectangle,
+				sourceX,
+				sourceY,
+				sourceW,
+				sourceH,
 				position.X,
 				position.Y,
-				scale,
-				scale,
+				destW,
+				destH,
 				color,
 				origin,
-				rotation,
+				(float) Math.Sin(rotation),
+				(float) Math.Cos(rotation),
 				layerDepth,
-				(byte) (effects & (SpriteEffects) 0x03),
-				false
+				(byte) (effects & (SpriteEffects) 0x03)
 			);
 		}
 
@@ -396,19 +458,47 @@ namespace Microsoft.Xna.Framework.Graphics
 			float layerDepth
 		) {
 			CheckBegin("Draw");
+			float sourceX, sourceY, sourceW, sourceH;
+			if (sourceRectangle.HasValue)
+			{
+				sourceX = sourceRectangle.Value.X / (float) texture.Width;
+				sourceY = sourceRectangle.Value.Y / (float) texture.Height;
+				sourceW = Math.Max(
+					sourceRectangle.Value.Width,
+					MathHelper.MachineEpsilonFloat
+				) / (float) texture.Width;
+				sourceH = Math.Max(
+					sourceRectangle.Value.Height,
+					MathHelper.MachineEpsilonFloat
+				) / (float) texture.Height;
+				scale.X *= sourceRectangle.Value.Width;
+				scale.Y *= sourceRectangle.Value.Height;
+			}
+			else
+			{
+				sourceX = 0.0f;
+				sourceY = 0.0f;
+				sourceW = 1.0f;
+				sourceH = 1.0f;
+				scale.X *= texture.Width;
+				scale.Y *= texture.Height;
+			}
 			PushSprite(
 				texture,
-				sourceRectangle,
+				sourceX,
+				sourceY,
+				sourceW,
+				sourceH,
 				position.X,
 				position.Y,
 				scale.X,
 				scale.Y,
 				color,
 				origin,
-				rotation,
+				(float) Math.Sin(rotation),
+				(float) Math.Cos(rotation),
 				layerDepth,
-				(byte) (effects & (SpriteEffects) 0x03),
-				false
+				(byte) (effects & (SpriteEffects) 0x03)
 			);
 		}
 
@@ -420,7 +510,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			CheckBegin("Draw");
 			PushSprite(
 				texture,
-				null,
+				0.0f,
+				0.0f,
+				1.0f,
+				1.0f,
 				destinationRectangle.X,
 				destinationRectangle.Y,
 				destinationRectangle.Width,
@@ -428,9 +521,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				color,
 				Vector2.Zero,
 				0.0f,
+				1.0f,
 				0.0f,
-				0,
-				true
+				0
 			);
 		}
 
@@ -441,9 +534,33 @@ namespace Microsoft.Xna.Framework.Graphics
 			Color color
 		) {
 			CheckBegin("Draw");
+			float sourceX, sourceY, sourceW, sourceH;
+			if (sourceRectangle.HasValue)
+			{
+				sourceX = sourceRectangle.Value.X / (float) texture.Width;
+				sourceY = sourceRectangle.Value.Y / (float) texture.Height;
+				sourceW = Math.Max(
+					sourceRectangle.Value.Width,
+					MathHelper.MachineEpsilonFloat
+				) / (float) texture.Width;
+				sourceH = Math.Max(
+					sourceRectangle.Value.Height,
+					MathHelper.MachineEpsilonFloat
+				) / (float) texture.Height;
+			}
+			else
+			{
+				sourceX = 0.0f;
+				sourceY = 0.0f;
+				sourceW = 1.0f;
+				sourceH = 1.0f;
+			}
 			PushSprite(
 				texture,
-				sourceRectangle,
+				sourceX,
+				sourceY,
+				sourceW,
+				sourceH,
 				destinationRectangle.X,
 				destinationRectangle.Y,
 				destinationRectangle.Width,
@@ -451,9 +568,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				color,
 				Vector2.Zero,
 				0.0f,
+				1.0f,
 				0.0f,
-				0,
-				true
+				0
 			);
 		}
 
@@ -468,19 +585,43 @@ namespace Microsoft.Xna.Framework.Graphics
 			float layerDepth
 		) {
 			CheckBegin("Draw");
+			float sourceX, sourceY, sourceW, sourceH;
+			if (sourceRectangle.HasValue)
+			{
+				sourceX = sourceRectangle.Value.X / (float) texture.Width;
+				sourceY = sourceRectangle.Value.Y / (float) texture.Height;
+				sourceW = Math.Max(
+					sourceRectangle.Value.Width,
+					MathHelper.MachineEpsilonFloat
+				) / (float) texture.Width;
+				sourceH = Math.Max(
+					sourceRectangle.Value.Height,
+					MathHelper.MachineEpsilonFloat
+				) / (float) texture.Height;
+			}
+			else
+			{
+				sourceX = 0.0f;
+				sourceY = 0.0f;
+				sourceW = 1.0f;
+				sourceH = 1.0f;
+			}
 			PushSprite(
 				texture,
-				sourceRectangle,
+				sourceX,
+				sourceY,
+				sourceW,
+				sourceH,
 				destinationRectangle.X,
 				destinationRectangle.Y,
 				destinationRectangle.Width,
 				destinationRectangle.Height,
 				color,
 				origin,
-				rotation,
+				(float) Math.Sin(rotation),
+				(float) Math.Cos(rotation),
 				layerDepth,
-				(byte) (effects & (SpriteEffects) 0x03),
-				true
+				(byte) (effects & (SpriteEffects) 0x03)
 			);
 		}
 
@@ -642,17 +783,26 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Draw!
 				PushSprite(
 					spriteFont.textureValue,
-					spriteFont.glyphData[index],
+					spriteFont.glyphData[index].X / (float) spriteFont.textureValue.Width,
+					spriteFont.glyphData[index].Y / (float) spriteFont.textureValue.Height,
+					Math.Max(
+						spriteFont.glyphData[index].Width,
+						MathHelper.MachineEpsilonFloat
+					) / (float) spriteFont.textureValue.Width,
+					Math.Max(
+						spriteFont.glyphData[index].Height,
+						MathHelper.MachineEpsilonFloat
+					) / (float) spriteFont.textureValue.Height,
 					position.X,
 					position.Y,
-					scale.X,
-					scale.Y,
+					spriteFont.glyphData[index].Width * scale.X,
+					spriteFont.glyphData[index].Height * scale.Y,
 					color,
 					offset,
-					rotation,
+					(float) Math.Sin(rotation),
+					(float) Math.Cos(rotation),
 					layerDepth,
-					(byte) effects,
-					false
+					(byte) effects
 				);
 
 				/* Add the character width and right-side bearing to the line
@@ -805,17 +955,26 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Draw!
 				PushSprite(
 					spriteFont.textureValue,
-					spriteFont.glyphData[index],
+					spriteFont.glyphData[index].X / (float) spriteFont.textureValue.Width,
+					spriteFont.glyphData[index].Y / (float) spriteFont.textureValue.Height,
+					Math.Max(
+						spriteFont.glyphData[index].Width,
+						MathHelper.MachineEpsilonFloat
+					) / (float) spriteFont.textureValue.Width,
+					Math.Max(
+						spriteFont.glyphData[index].Height,
+						MathHelper.MachineEpsilonFloat
+					) / (float) spriteFont.textureValue.Height,
 					position.X,
 					position.Y,
-					scale.X,
-					scale.Y,
+					spriteFont.glyphData[index].Width * scale.X,
+					spriteFont.glyphData[index].Height * scale.Y,
 					color,
 					offset,
-					rotation,
+					(float) Math.Sin(rotation),
+					(float) Math.Cos(rotation),
 					layerDepth,
-					(byte) effects,
-					false
+					(byte) effects
 				);
 
 				/* Add the character width and right-side bearing to the line
@@ -831,17 +990,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void PushSprite(
 			Texture2D texture,
-			Rectangle? sourceRectangle,
+			float sourceX,
+			float sourceY,
+			float sourceW,
+			float sourceH,
 			float destinationX,
 			float destinationY,
 			float destinationW,
 			float destinationH,
 			Color color,
 			Vector2 origin,
-			float rotation,
+			float rotationSin,
+			float rotationCos,
 			float depth,
-			byte effects,
-			bool destSizeInPixels
+			byte effects
 		) {
 			if (numSprites >= MAX_SPRITES)
 			{
@@ -849,120 +1011,57 @@ namespace Microsoft.Xna.Framework.Graphics
 				FlushBatch();
 			}
 
-			// Source/Destination/Origin Calculations
-			float sourceX, sourceY, sourceW, sourceH;
-			float originX, originY;
-			if (sourceRectangle.HasValue)
-			{
-				float inverseTexW = 1.0f / (float) texture.Width;
-				float inverseTexH = 1.0f / (float) texture.Height;
+			// Origin Calculation
+			float originX = origin.X / sourceW / (float) texture.Width;
+			float originY = origin.Y / sourceH / (float) texture.Height;
 
-				sourceX = sourceRectangle.Value.X * inverseTexW;
-				sourceY = sourceRectangle.Value.Y * inverseTexH;
-				sourceW = Math.Max(
-					sourceRectangle.Value.Width,
-					MathHelper.MachineEpsilonFloat
-				) * inverseTexW;
-				sourceH = Math.Max(
-					sourceRectangle.Value.Height,
-					MathHelper.MachineEpsilonFloat
-				) * inverseTexH;
-
-				originX = (origin.X / sourceW) * inverseTexW;
-				originY = (origin.Y / sourceH) * inverseTexH;
-
-				if (!destSizeInPixels)
-				{
-					destinationW *= sourceRectangle.Value.Width;
-					destinationH *= sourceRectangle.Value.Height;
-				}
-			}
-			else
-			{
-				sourceX = 0.0f;
-				sourceY = 0.0f;
-				sourceW = 1.0f;
-				sourceH = 1.0f;
-
-				originX = origin.X * (1.0f / (float) texture.Width);
-				originY = origin.Y * (1.0f / (float) texture.Height);
-
-				if (!destSizeInPixels)
-				{
-					destinationW *= texture.Width;
-					destinationH *= texture.Height;
-				}
-			}
-
-			// Rotation Calculations
-			float rotationMatrix1X;
-			float rotationMatrix1Y;
-			float rotationMatrix2X;
-			float rotationMatrix2Y;
-			if (!MathHelper.WithinEpsilon(rotation, 0.0f))
-			{
-				float sin = (float) Math.Sin(rotation);
-				float cos = (float) Math.Cos(rotation);
-				rotationMatrix1X = cos;
-				rotationMatrix1Y = sin;
-				rotationMatrix2X = -sin;
-				rotationMatrix2Y = cos;
-			}
-			else
-			{
-				rotationMatrix1X = 1.0f;
-				rotationMatrix1Y = 0.0f;
-				rotationMatrix2X = 0.0f;
-				rotationMatrix2Y = 1.0f;
-			}
-
-			// Calculate vertices, finally.
+			// Calculate vertices
 			float cornerX = (CornerOffsetX[0] - originX) * destinationW;
 			float cornerY = (CornerOffsetY[0] - originY) * destinationH;
 			vertexInfo[numSprites].Position0.X = (
-				(rotationMatrix2X * cornerY) +
-				(rotationMatrix1X * cornerX) +
+				(-rotationSin * cornerY) +
+				(rotationCos * cornerX) +
 				destinationX
 			);
 			vertexInfo[numSprites].Position0.Y = (
-				(rotationMatrix2Y * cornerY) +
-				(rotationMatrix1Y * cornerX) +
+				(rotationCos * cornerY) +
+				(rotationSin * cornerX) +
 				destinationY
 			);
 			cornerX = (CornerOffsetX[1] - originX) * destinationW;
 			cornerY = (CornerOffsetY[1] - originY) * destinationH;
 			vertexInfo[numSprites].Position1.X = (
-				(rotationMatrix2X * cornerY) +
-				(rotationMatrix1X * cornerX) +
+				(-rotationSin * cornerY) +
+				(rotationCos * cornerX) +
 				destinationX
 			);
 			vertexInfo[numSprites].Position1.Y = (
-				(rotationMatrix2Y * cornerY) +
-				(rotationMatrix1Y * cornerX) +
+				(rotationCos * cornerY) +
+				(rotationSin * cornerX) +
 				destinationY
 			);
 			cornerX = (CornerOffsetX[2] - originX) * destinationW;
 			cornerY = (CornerOffsetY[2] - originY) * destinationH;
 			vertexInfo[numSprites].Position2.X = (
-				(rotationMatrix2X * cornerY) +
-				(rotationMatrix1X * cornerX) +
+				(-rotationSin * cornerY) +
+				(rotationCos * cornerX) +
 				destinationX
 			);
 			vertexInfo[numSprites].Position2.Y = (
-				(rotationMatrix2Y * cornerY) +
-				(rotationMatrix1Y * cornerX) +
+				(rotationCos * cornerY) +
+				(rotationSin * cornerX) +
 				destinationY
 			);
 			cornerX = (CornerOffsetX[3] - originX) * destinationW;
 			cornerY = (CornerOffsetY[3] - originY) * destinationH;
 			vertexInfo[numSprites].Position3.X = (
-				(rotationMatrix2X * cornerY) +
-				(rotationMatrix1X * cornerX) +
+				(-rotationSin * cornerY) +
+				(rotationCos * cornerX) +
 				destinationX
 			);
 			vertexInfo[numSprites].Position3.Y = (
-				(rotationMatrix2Y * cornerY) +
-				(rotationMatrix1Y * cornerX) +
+				(rotationCos * cornerY) +
+				(rotationSin * cornerX) +
 				destinationY
 			);
 			vertexInfo[numSprites].TextureCoordinate0.X = (CornerOffsetX[0 ^ effects] * sourceW) + sourceX;
