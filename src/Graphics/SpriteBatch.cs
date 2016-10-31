@@ -328,7 +328,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				texture.Width,
 				texture.Height,
 				color,
-				Vector2.Zero,
+				0.0f,
+				0.0f,
 				0.0f,
 				1.0f,
 				0.0f,
@@ -380,7 +381,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				destW,
 				destH,
 				color,
-				Vector2.Zero,
+				0.0f,
+				0.0f,
 				0.0f,
 				1.0f,
 				0.0f,
@@ -438,7 +440,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				destW,
 				destH,
 				color,
-				origin,
+				origin.X / sourceW / (float) texture.Width,
+				origin.Y / sourceH / (float) texture.Height,
 				(float) Math.Sin(rotation),
 				(float) Math.Cos(rotation),
 				layerDepth,
@@ -494,7 +497,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				scale.X,
 				scale.Y,
 				color,
-				origin,
+				origin.X / sourceW / (float) texture.Width,
+				origin.Y / sourceH / (float) texture.Height,
 				(float) Math.Sin(rotation),
 				(float) Math.Cos(rotation),
 				layerDepth,
@@ -519,7 +523,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				destinationRectangle.Width,
 				destinationRectangle.Height,
 				color,
-				Vector2.Zero,
+				0.0f,
+				0.0f,
 				0.0f,
 				1.0f,
 				0.0f,
@@ -566,7 +571,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				destinationRectangle.Width,
 				destinationRectangle.Height,
 				color,
-				Vector2.Zero,
+				0.0f,
+				0.0f,
 				0.0f,
 				1.0f,
 				0.0f,
@@ -617,7 +623,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				destinationRectangle.Width,
 				destinationRectangle.Height,
 				color,
-				origin,
+				origin.X / sourceW / (float) texture.Width,
+				origin.Y / sourceH / (float) texture.Height,
 				(float) Math.Sin(rotation),
 				(float) Math.Cos(rotation),
 				layerDepth,
@@ -771,34 +778,40 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Calculate the character origin
-				Vector2 offset = baseOffset;
-				offset.X += (curOffset.X + spriteFont.croppingData[index].X) * axisDirectionX[(int) effects];
-				offset.Y += (curOffset.Y + spriteFont.croppingData[index].Y) * axisDirectionY[(int) effects];
+				float offsetX = baseOffset.X + (
+					curOffset.X + spriteFont.croppingData[index].X
+				) * axisDirectionX[(int) effects];
+				float offsetY = baseOffset.Y + (
+					curOffset.Y + spriteFont.croppingData[index].Y
+				) * axisDirectionY[(int) effects];
 				if (effects != SpriteEffects.None)
 				{
-					offset.X += spriteFont.glyphData[index].Width * axisIsMirroredX[(int) effects];
-					offset.Y += spriteFont.glyphData[index].Height * axisIsMirroredY[(int) effects];
+					offsetX += spriteFont.glyphData[index].Width * axisIsMirroredX[(int) effects];
+					offsetY += spriteFont.glyphData[index].Height * axisIsMirroredY[(int) effects];
 				}
 
 				// Draw!
+				float sourceW = Math.Max(
+					spriteFont.glyphData[index].Width,
+					MathHelper.MachineEpsilonFloat
+				) / (float) spriteFont.textureValue.Width;
+				float sourceH = Math.Max(
+					spriteFont.glyphData[index].Height,
+					MathHelper.MachineEpsilonFloat
+				) / (float) spriteFont.textureValue.Height;
 				PushSprite(
 					spriteFont.textureValue,
 					spriteFont.glyphData[index].X / (float) spriteFont.textureValue.Width,
 					spriteFont.glyphData[index].Y / (float) spriteFont.textureValue.Height,
-					Math.Max(
-						spriteFont.glyphData[index].Width,
-						MathHelper.MachineEpsilonFloat
-					) / (float) spriteFont.textureValue.Width,
-					Math.Max(
-						spriteFont.glyphData[index].Height,
-						MathHelper.MachineEpsilonFloat
-					) / (float) spriteFont.textureValue.Height,
+					sourceW,
+					sourceH,
 					position.X,
 					position.Y,
 					spriteFont.glyphData[index].Width * scale.X,
 					spriteFont.glyphData[index].Height * scale.Y,
 					color,
-					offset,
+					offsetX / sourceW / (float) spriteFont.textureValue.Width,
+					offsetY / sourceH / (float) spriteFont.textureValue.Height,
 					(float) Math.Sin(rotation),
 					(float) Math.Cos(rotation),
 					layerDepth,
@@ -943,34 +956,40 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Calculate the character origin
-				Vector2 offset = baseOffset;
-				offset.X += (curOffset.X + spriteFont.croppingData[index].X) * axisDirectionX[(int) effects];
-				offset.Y += (curOffset.Y + spriteFont.croppingData[index].Y) * axisDirectionY[(int) effects];
+				float offsetX = baseOffset.X + (
+					curOffset.X + spriteFont.croppingData[index].X
+				) * axisDirectionX[(int) effects];
+				float offsetY = baseOffset.Y + (
+					curOffset.Y + spriteFont.croppingData[index].Y
+				) * axisDirectionY[(int) effects];
 				if (effects != SpriteEffects.None)
 				{
-					offset.X += spriteFont.glyphData[index].Width * axisIsMirroredX[(int) effects];
-					offset.Y += spriteFont.glyphData[index].Height * axisIsMirroredY[(int) effects];
+					offsetX += spriteFont.glyphData[index].Width * axisIsMirroredX[(int) effects];
+					offsetY += spriteFont.glyphData[index].Height * axisIsMirroredY[(int) effects];
 				}
 
 				// Draw!
+				float sourceW = Math.Max(
+					spriteFont.glyphData[index].Width,
+					MathHelper.MachineEpsilonFloat
+				) / (float) spriteFont.textureValue.Width;
+				float sourceH = Math.Max(
+					spriteFont.glyphData[index].Height,
+					MathHelper.MachineEpsilonFloat
+				) / (float) spriteFont.textureValue.Height;
 				PushSprite(
 					spriteFont.textureValue,
 					spriteFont.glyphData[index].X / (float) spriteFont.textureValue.Width,
 					spriteFont.glyphData[index].Y / (float) spriteFont.textureValue.Height,
-					Math.Max(
-						spriteFont.glyphData[index].Width,
-						MathHelper.MachineEpsilonFloat
-					) / (float) spriteFont.textureValue.Width,
-					Math.Max(
-						spriteFont.glyphData[index].Height,
-						MathHelper.MachineEpsilonFloat
-					) / (float) spriteFont.textureValue.Height,
+					sourceW,
+					sourceH,
 					position.X,
 					position.Y,
 					spriteFont.glyphData[index].Width * scale.X,
 					spriteFont.glyphData[index].Height * scale.Y,
 					color,
-					offset,
+					offsetX / sourceW / (float) spriteFont.textureValue.Width,
+					offsetY / sourceH / (float) spriteFont.textureValue.Height,
 					(float) Math.Sin(rotation),
 					(float) Math.Cos(rotation),
 					layerDepth,
@@ -999,7 +1018,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			float destinationW,
 			float destinationH,
 			Color color,
-			Vector2 origin,
+			float originX,
+			float originY,
 			float rotationSin,
 			float rotationCos,
 			float depth,
@@ -1011,11 +1031,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				FlushBatch();
 			}
 
-			// Origin Calculation
-			float originX = origin.X / sourceW / (float) texture.Width;
-			float originY = origin.Y / sourceH / (float) texture.Height;
-
-			// Calculate vertices
 			float cornerX = -originX * destinationW;
 			float cornerY = -originY * destinationH;
 			vertexInfo[numSprites].Position0.X = (
