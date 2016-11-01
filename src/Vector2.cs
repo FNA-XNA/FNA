@@ -160,8 +160,9 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(Vector2 other)
 		{
-			return (	(MathHelper.WithinEpsilon(X, other.X)) &&
-					(MathHelper.WithinEpsilon(Y, other.Y))	);
+			return
+				X == other.X &&
+				Y == other.Y;
 		}
 
 		/// <summary>
@@ -1055,8 +1056,9 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public static bool operator ==(Vector2 value1, Vector2 value2)
 		{
-			return (	(MathHelper.WithinEpsilon(value1.X, value2.X)) &&
-					(MathHelper.WithinEpsilon(value1.Y, value2.Y))	);
+			return
+				value1.X == value2.X &&
+				value1.Y == value2.Y;
 		}
 
 		/// <summary>
