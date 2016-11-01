@@ -297,8 +297,8 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(BoundingSphere other)
 		{
-			return (	this.Center == other.Center &&
-					MathHelper.WithinEpsilon(this.Radius, other.Radius)	);
+			return (	Center == other.Center &&
+					Radius == other.Radius	);
 		}
 
 		#endregion

@@ -410,22 +410,22 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(Matrix other)
 		{
-			return (	(MathHelper.WithinEpsilon(M11, other.M11)) &&
-					(MathHelper.WithinEpsilon(M12, other.M12)) &&
-					(MathHelper.WithinEpsilon(M13, other.M13)) &&
-					(MathHelper.WithinEpsilon(M14, other.M14)) &&
-					(MathHelper.WithinEpsilon(M21, other.M21)) &&
-					(MathHelper.WithinEpsilon(M22, other.M22)) &&
-					(MathHelper.WithinEpsilon(M23, other.M23)) &&
-					(MathHelper.WithinEpsilon(M24, other.M24)) &&
-					(MathHelper.WithinEpsilon(M31, other.M31)) &&
-					(MathHelper.WithinEpsilon(M32, other.M32)) &&
-					(MathHelper.WithinEpsilon(M33, other.M33)) &&
-					(MathHelper.WithinEpsilon(M34, other.M34)) &&
-					(MathHelper.WithinEpsilon(M41, other.M41)) &&
-					(MathHelper.WithinEpsilon(M42, other.M42)) &&
-					(MathHelper.WithinEpsilon(M43, other.M43)) &&
-					(MathHelper.WithinEpsilon(M44, other.M44))	);
+			return (	M11 == other.M11 &&
+					M12 == other.M12 &&
+					M13 == other.M13 &&
+					M14 == other.M14 &&
+					M21 == other.M21 &&
+					M22 == other.M22 &&
+					M23 == other.M23 &&
+					M24 == other.M24 &&
+					M31 == other.M31 &&
+					M32 == other.M32 &&
+					M33 == other.M33 &&
+					M34 == other.M34 &&
+					M41 == other.M41 &&
+					M42 == other.M42 &&
+					M43 == other.M43 &&
+					M44 == other.M44	);
 		}
 
 		/// <summary>

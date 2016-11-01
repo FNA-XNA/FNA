@@ -157,10 +157,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(Quaternion other)
 		{
-			return (	(MathHelper.WithinEpsilon(this.X, other.X)) &&
-					(MathHelper.WithinEpsilon(this.Y, other.Y)) &&
-					(MathHelper.WithinEpsilon(this.Z, other.Z)) &&
-					(MathHelper.WithinEpsilon(this.W, other.W))	);
+			return (	X == other.X &&
+					Y == other.Y &&
+					Z == other.Z &&
+					W == other.W	);
 		}
 
 		/// <summary>

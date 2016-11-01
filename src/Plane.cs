@@ -324,7 +324,7 @@ namespace Microsoft.Xna.Framework
 
 		public bool Equals(Plane other)
 		{
-			return ((Normal == other.Normal) && (MathHelper.WithinEpsilon(D, other.D)));
+			return (Normal == other.Normal && D == other.D);
 		}
 
 		public override int GetHashCode()

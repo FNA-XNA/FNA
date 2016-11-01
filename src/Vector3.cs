@@ -265,10 +265,9 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(Vector3 other)
 		{
-			return
-				X == other.X &&
-				Y == other.Y &&
-				Z == other.Z;
+			return (	X == other.X &&
+					Y == other.Y &&
+					Z == other.Z	);
 		}
 
 		/// <summary>
@@ -1366,10 +1365,9 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public static bool operator ==(Vector3 value1, Vector3 value2)
 		{
-			return
-				value1.X == value2.X &&
-				value1.Y == value2.Y &&
-				value1.Z == value2.Z;
+			return (	value1.X == value2.X &&
+					value1.Y == value2.Y &&
+					value1.Z == value2.Z	);
 		}
 
 		/// <summary>
