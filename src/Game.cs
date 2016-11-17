@@ -263,6 +263,7 @@ namespace Microsoft.Xna.Framework
 
 			IsActive = true;
 			IsMouseVisible = false;
+			IsFixedTimeStep = true;
 			TargetElapsedTime = TimeSpan.FromTicks(166667); // 60fps
 			InactiveSleepTime = TimeSpan.FromSeconds(0.02);
 
