@@ -438,6 +438,11 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (name.Equals(curVar.Name))
 				{
+					if (curVar.IsGlobal)
+					{
+						throw new ArgumentException("Global variables cannot be set on a cue instance!");				    
+					}
+
 					if (curVar.IsReadOnly)
 					{
 						throw new ArgumentException("Readonly variables cannot be set!");  
