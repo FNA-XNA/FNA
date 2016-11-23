@@ -443,6 +443,11 @@ namespace Microsoft.Xna.Framework.Audio
 						throw new ArgumentException("Global variables cannot be set on a cue instance!");				    
 					}
 
+					if (!curVar.IsPublic)
+					{
+						throw new ArgumentException("Private variables cannot be set!");				    
+					}
+
 					if (curVar.IsReadOnly)
 					{
 						throw new ArgumentException("Readonly variables cannot be set!");  
