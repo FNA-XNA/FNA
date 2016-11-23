@@ -47,7 +47,7 @@ namespace Microsoft.Xna.Framework.Audio
 			get
 			{
 				return (	INTERNAL_timer.IsRunning ||
-						INTERNAL_timer.ElapsedTicks > 0	);
+						INTERNAL_timer.ElapsedTicks > 0	) && !IsStopping;
 			}
 		}
 
@@ -69,7 +69,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return !IsPlaying;
+				return !IsPlaying && !IsStopping && !IsPaused;
 			}
 		}
 
@@ -275,7 +275,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Apply3D(AudioListener listener, AudioEmitter emitter)
 		{
-			if (IsPlaying && !INTERNAL_isPositional)
+			if ((IsPlaying || IsStopping) && !INTERNAL_isPositional)
 			{
 				throw new InvalidOperationException("Apply3D call after Play!");
 			}
@@ -333,7 +333,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Pause()
 		{
-			if (IsPlaying)
+			if (IsPlaying || IsStopping)
 			{
 				INTERNAL_timer.Stop();
 				foreach (SoundEffectInstance sfi in INTERNAL_instancePool)
@@ -345,7 +345,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Play()
 		{
-			if (IsPlaying)
+			if (IsPlaying || IsStopping)
 			{
 				throw new InvalidOperationException("Cue already playing!");
 			}
