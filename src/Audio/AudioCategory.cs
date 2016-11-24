@@ -154,6 +154,10 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					count.Clear();
 				}
+				foreach (AudioCategory ac in subCategories)
+				{
+					ac.Stop(options);
+				}
 			}
 		}
 
