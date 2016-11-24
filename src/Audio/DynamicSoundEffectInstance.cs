@@ -208,9 +208,15 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal void Play(bool isManaged)
 		{
+			// No-op if we're already playing.
 			if (State != SoundState.Stopped)
 			{
-				return; // No-op if we're already playing.
+				if (State == SoundState.Paused)
+				{
+					// ... but be sure pause/resume still works
+					Resume();
+				}
+				return;
 			}
 
 			if (INTERNAL_alSource != null)
