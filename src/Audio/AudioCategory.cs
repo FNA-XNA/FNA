@@ -106,6 +106,10 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					curCue.Pause();
 				}
+				foreach (AudioCategory ac in subCategories)
+				{
+					ac.Pause();
+				}
 			}
 		}
 
@@ -116,6 +120,10 @@ namespace Microsoft.Xna.Framework.Audio
 				foreach (Cue curCue in activeCues)
 				{
 					curCue.Resume();
+				}
+				foreach (AudioCategory ac in subCategories)
+				{
+					ac.Resume();
 				}
 			}
 		}
