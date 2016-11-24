@@ -116,6 +116,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Private ALC Variables
 
+		private const float VolumeAdjustmentFactor = 2;
+
 		// OpenAL Device/Context Handles
 		private IntPtr alDevice;
 		private IntPtr alContext;
@@ -607,7 +609,7 @@ namespace Microsoft.Xna.Framework.Audio
 			AL10.alSourcef(
 				(source as OpenALSource).Handle,
 				AL10.AL_GAIN,
-				volume * SoundEffect.MasterVolume // FIXME: alListener(AL_GAIN) -flibit
+				volume * SoundEffect.MasterVolume * VolumeAdjustmentFactor // FIXME: alListener(AL_GAIN) -flibit
 			);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
