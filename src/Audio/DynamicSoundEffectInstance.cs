@@ -231,6 +231,11 @@ namespace Microsoft.Xna.Framework.Audio
 				PendingBufferCount -= 1;
 			}
 
+			if (AudioDevice.ALDevice == null)
+			{
+				throw new NoAudioHardwareException();
+			}
+
 			INTERNAL_alSource = AudioDevice.ALDevice.GenSource();
 			if (INTERNAL_alSource == null)
 			{
