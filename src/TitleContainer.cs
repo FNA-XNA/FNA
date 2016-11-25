@@ -62,6 +62,11 @@ namespace Microsoft.Xna.Framework
 #if CASE_SENSITIVITY_HACK
 		private static Stream OpenStreamCase(string name)
 		{
+			if (File.Exists(name))
+			{
+				return File.OpenRead(name);
+			}
+
 			string[] splits = name.Split(Path.DirectorySeparatorChar);
 			splits[0] = "/";
 			int i;
@@ -82,6 +87,12 @@ namespace Microsoft.Xna.Framework
 			);
 
 			// Finally.
+			splits[0] = splits[0].Remove(0, 1);
+			FNALoggerEXT.LogError(
+				"Case sensitivity!\n\t" +
+				name.Substring(TitleLocation.Path.Length) + "\n\t" +
+				splits[0].Substring(TitleLocation.Path.Length)
+			);
 			return File.OpenRead(splits[0]);
 		}
 
