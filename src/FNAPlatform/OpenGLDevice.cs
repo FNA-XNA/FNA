@@ -539,7 +539,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Profile-specific Variables
 
-		private bool useES2;
+		private bool useES3;
 		private bool useCoreProfile;
 		private uint vao;
 
@@ -566,9 +566,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Check for a possible ES context
 			int flags;
-			int es2Flag = (int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_ES;
+			int es3Flag = (int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_ES;
 			SDL.SDL_GL_GetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK, out flags);
-			useES2 = (flags & es2Flag) == es2Flag;
+			useES3 = (flags & es3Flag) == es3Flag;
 
 			// Check for a possible Core context
 			int coreFlag = (int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE;
@@ -1691,7 +1691,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			if (sampler.MipMapLevelOfDetailBias != tex.LODBias)
 			{
-				System.Diagnostics.Debug.Assert(!useES2);
+				System.Diagnostics.Debug.Assert(!useES3);
 				tex.LODBias = sampler.MipMapLevelOfDetailBias;
 				glTexParameterf(
 					tex.Target,
@@ -2390,7 +2390,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_TEXTURE_BASE_LEVEL,
 				result.MaxMipmapLevel
 			);
-			if (!useES2)
+			if (!useES3)
 			{
 				glTexParameterf(
 					result.Target,
@@ -3160,7 +3160,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			bool texUnbound = (	currentDrawBuffers != 1 ||
 						currentAttachments[0] != (texture as OpenGLTexture).Handle	);
-			if (texUnbound && !useES2)
+			if (texUnbound && !useES3)
 			{
 				return false;
 			}

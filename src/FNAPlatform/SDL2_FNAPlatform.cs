@@ -114,8 +114,8 @@ namespace Microsoft.Xna.Framework
 		public static GameWindow CreateWindow()
 		{
 			// GLContext environment variables
-			bool forceES2 = Environment.GetEnvironmentVariable(
-				"FNA_OPENGL_FORCE_ES2"
+			bool forceES3 = Environment.GetEnvironmentVariable(
+				"FNA_OPENGL_FORCE_ES3"
 			) == "1";
 			bool forceCoreProfile = Environment.GetEnvironmentVariable(
 				"FNA_OPENGL_FORCE_CORE_PROFILE"
@@ -141,7 +141,7 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_DEPTH_SIZE, 24);
 			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_STENCIL_SIZE, 8);
 			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_DOUBLEBUFFER, 1);
-			if (forceES2)
+			if (forceES3)
 			{
 				SDL.SDL_GL_SetAttribute(
 					SDL.SDL_GLattr.SDL_GL_RETAINED_BACKING,
@@ -153,7 +153,7 @@ namespace Microsoft.Xna.Framework
 				);
 				SDL.SDL_GL_SetAttribute(
 					SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION,
-					2
+					3
 				);
 				SDL.SDL_GL_SetAttribute(
 					SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION,

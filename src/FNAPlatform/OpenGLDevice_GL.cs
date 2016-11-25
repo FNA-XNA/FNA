@@ -874,9 +874,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private void LoadGLEntryPoints()
 		{
 			string baseErrorString;
-			if (useES2)
+			if (useES3)
 			{
-				baseErrorString = "OpenGL ES 2.0";
+				baseErrorString = "OpenGL ES 3.0";
 			}
 			else
 			{
@@ -1085,7 +1085,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else
 			{
-				/* DrawRangeElements is better, but some ES2 targets don't have it. */
+				/* DrawRangeElements is better, but some ES3 targets don't have it. */
 				ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElements");
 				if (ep != IntPtr.Zero)
 				{
@@ -1116,7 +1116,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * will certainly not have these.
 			 * -flibit
 			 */
-			if (useES2)
+			if (useES3)
 			{
 				ep = SDL.SDL_GL_GetProcAddress("glPolygonMode");
 				if (ep != IntPtr.Zero)
@@ -1256,7 +1256,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			catch
 			{
-				if (useES2)
+				if (useES3)
 				{
 					FNALoggerEXT.LogWarn("Some non-ES functions failed to load. Beware...");
 				}
