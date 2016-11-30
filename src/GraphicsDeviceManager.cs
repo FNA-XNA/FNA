@@ -283,7 +283,7 @@ namespace Microsoft.Xna.Framework
 				gdi.PresentationParameters.IsFullScreen
 			);
 			game.Window.EndScreenDeviceChange(
-				gdi.Adapter.Description, // FIXME: Should be Name! -flibit
+				gdi.Adapter.DeviceName,
 				gdi.PresentationParameters.BackBufferWidth,
 				gdi.PresentationParameters.BackBufferHeight
 			);

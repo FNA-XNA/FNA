@@ -307,8 +307,7 @@ namespace Microsoft.Xna.Framework
 			int displayIndex = 0;
 			for (int i = 0; i < GraphicsAdapter.Adapters.Count; i += 1)
 			{
-				// FIXME: Should be checking Name, not Description! -flibit
-				if (screenDeviceName == GraphicsAdapter.Adapters[i].Description)
+				if (screenDeviceName == GraphicsAdapter.Adapters[i].DeviceName)
 				{
 					displayIndex = i;
 					break;
@@ -904,6 +903,7 @@ namespace Microsoft.Xna.Framework
 						SurfaceFormat.Color // FIXME: Assumption!
 					),
 					new DisplayModeCollection(modes),
+					@"\\.\DISPLAY" + (i + 1).ToString(),
 					SDL.SDL_GetDisplayName(i)
 				);
 			}
