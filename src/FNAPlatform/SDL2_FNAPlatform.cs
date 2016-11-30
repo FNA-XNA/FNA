@@ -216,9 +216,9 @@ namespace Microsoft.Xna.Framework
 
 			return new FNAWindow(
 				window,
-				SDL.SDL_GetDisplayName(
-					SDL.SDL_GetWindowDisplayIndex(window)
-				)
+				@"\\.\DISPLAY" + (
+					SDL.SDL_GetWindowDisplayIndex(window) + 1
+				).ToString()
 			);
 		}
 
