@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 #endregion
 
@@ -338,6 +339,24 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 		}
 
+		internal enum XactEventSettingType
+		{
+			Equation = 0x00,
+			Ramp = 0x01
+		}
+
+		internal enum XactEventEquationType
+		{
+			Value = 0x04,
+			Random = 0x08
+		}
+
+		internal enum XactEventOp
+		{
+			Replace = 0x00,
+			Add = 0x01
+		}
+
 		public XACTClip(BinaryReader reader, double clipVolume, byte filterType)
 		{
 			// Number of XACT Events
@@ -586,7 +605,7 @@ namespace Microsoft.Xna.Framework.Audio
 					double minVolume = XACTCalculator.ParseDecibel(reader.ReadByte());
 					double maxVolume = XACTCalculator.ParseDecibel(reader.ReadByte());
 
-					// Frequency Variation, unusued
+					// Frequency Variation, unused
 					reader.ReadSingle();
 					reader.ReadSingle();
 
@@ -663,36 +682,98 @@ namespace Microsoft.Xna.Framework.Audio
 						weights
 					);
 				}
-				else if (eventType == 7) // SetPitchEvent
+				else if (eventType == 0x07 || eventType == 0x10) // SetPitchEvent or version with recurrence. What is the recurrence flag pattern?
 				{
-					// Unknown values
-					reader.ReadBytes(2);
+					// Unused byte (separator?)
+					byte separator = reader.ReadByte();
+					Debug.Assert(separator == 0xFF);
 
-					/* Event Flags
-					 * 0x08 = Min/Max Values
-					 * Rest is unknown
-					 */
-					bool minMax = (reader.ReadByte() & 0x08) == 0x08;
+					// Read and convert the event setting type (Equation or Ramp).
+					XactEventSettingType settingType = (XactEventSettingType)(reader.ReadByte() & 0x01);
 
-					// Min/Max Random
-					float min = reader.ReadSingle() / 100.0f;
-					float max;
-					if (minMax)
+					switch (settingType)
 					{
-						max = reader.ReadSingle() / 100.0f;
-					}
-					else
-					{
-						max = min;
-					}
+						case XactEventSettingType.Equation:
+							/* Event Flags
+							 * bit0   - 0=Replace 1=Add
+							 * bit1   - Unknown
+							 * bit2-3 - 01=Value 10=Random
+							*/
+							byte eventFlags = reader.ReadByte();
+							XactEventEquationType equationType = (XactEventEquationType) (eventFlags & (0x04 | 0x08));
+							XactEventOp operation = (XactEventOp)(eventFlags & 0x01);
 
-					// FIXME: Any more...? -flibit
+							switch (equationType)
+							{
+								case XactEventEquationType.Value:
+									// Absolute or relative value to set the pitch to.
+									float eventValue = reader.ReadSingle() / 100.0f;
 
-					Events[i] = new SetPitchEvent(
-						eventTimestamp,
-						min,
-						max
-					);
+									// Unused/unknown trailing bytes.
+									reader.ReadBytes(9);
+
+									// Is this is a recurrence pitch event?
+									if (eventType == 0x10)
+									{
+										int count;
+										float frequency;
+										ReadRecurrenceData(reader, out count, out frequency);
+
+										Events[i] = new SetEquationPitchEvent(eventTimestamp, eventValue, operation, count, frequency);
+									}
+									else
+									{
+										Events[i] = new SetEquationPitchEvent(eventTimestamp, eventValue, operation);
+									}
+									break;
+								case XactEventEquationType.Random:
+									// Random pitch Min/Max.
+									float eventMin = reader.ReadSingle()/100.0f;
+									float eventMax = reader.ReadSingle()/100.0f;
+
+									// Unused/unknown trailing bytes.
+									reader.ReadBytes(5);
+
+									// Is this is a recurrence pitch event?
+									if (eventType == 0x10)
+									{
+										int count;
+										float frequency;
+										ReadRecurrenceData(reader, out count, out frequency);
+
+										Events[i] = new SetRandomPitchEvent(eventTimestamp, eventMin, eventMax, operation, count, frequency);
+									}
+									else
+									{
+										Events[i] = new SetRandomPitchEvent(eventTimestamp, eventMin, eventMax, operation);
+									}
+									break;
+								default:
+									throw new NotImplementedException("Encountered event unexpected equation type.");
+							}
+							break;
+						case XactEventSettingType.Ramp:
+							// Ramp type.
+
+							float initialValue = reader.ReadSingle()/100.0f;
+
+							// Slope appears to be encoded as (endValue - startValue) / duration;
+							float initialSlope = reader.ReadSingle();
+							float slopeDelta = reader.ReadSingle();
+
+							// Duration of the ramp in seconds.
+
+							float duration = reader.ReadUInt16()/1000.0f;
+
+							// Number of slices to break up the duration.
+							const float slices = 10;
+							float endValue = initialSlope*duration*slices + initialValue;
+
+							// FIXME: Create a Ramp Event type that can operate over the period from timestamp to timestamp + duration.
+							//Events[i] = new SetRampPitchEvent(eventTimestamp, initialValue, initialSlope, slopeDelta, duration);
+							Events[i] = new NullEvent(eventTimestamp);
+							break;
+					}
 				}
 				else if (eventType == 8) // SetVolumeEvent
 				{
@@ -740,10 +821,12 @@ namespace Microsoft.Xna.Framework.Audio
 				else if (eventType == 15) // ???
 				{
 					// TODO: Codename OhGodNo -flibit
+					Events[i] = new NullEvent(eventTimestamp);
 				}
 				else if (eventType == 17) // Volume Repeat Event
 				{
 					// TODO: Codename OhGodNo -flibit
+					Events[i] = new NullEvent(eventTimestamp);
 				}
 				else
 				{
@@ -758,6 +841,12 @@ namespace Microsoft.Xna.Framework.Audio
 					);
 				}
 			}
+		}
+
+		private static void ReadRecurrenceData(BinaryReader reader, out int count, out float frequency)
+		{
+			count = reader.ReadUInt16();
+			frequency = reader.ReadUInt16() / 1000.0f;
 		}
 
 		public void LoadTracks(AudioEngine audioEngine, List<string> waveBankNames)
@@ -789,12 +878,23 @@ namespace Microsoft.Xna.Framework.Audio
 			private set;
 		}
 
-		protected static Random random = new Random();
+		public int Count { get; private set; }
+
+		public float Frequency { get; private set; }
+
+		protected static readonly Random random = new Random();
 
 		public XACTEvent(uint type, uint timestamp)
+			: this(type, timestamp, 0, 0)
+		{
+		}
+
+		protected XACTEvent(uint type, uint timestamp, int count, float frequency)			
 		{
 			Type = type;
 			Timestamp = timestamp;
+			Count = count;
+			Frequency = frequency;
 		}
 	}
 
@@ -1035,25 +1135,69 @@ namespace Microsoft.Xna.Framework.Audio
 		}
 	}
 
-	internal class SetPitchEvent : XACTEvent
+	internal class SetEquationPitchEvent : XACTEvent
 	{
-		private float INTERNAL_min;
-		private float INTERNAL_max;
+		private readonly float value;
+		private readonly XACTClip.XactEventOp operation;
 
-		public SetPitchEvent(
-			uint timestamp,
-			float min,
-			float max
-		) : base(3, timestamp) {
-			INTERNAL_min = min;
-			INTERNAL_max = max;
+		public SetEquationPitchEvent(uint timestamp, float value, XACTClip.XactEventOp operation, int count = 0,
+			float frequency = 0)
+			: base(3, timestamp, count, frequency)
+		{
+			this.value = value;
+			this.operation = operation;
 		}
 
-		public float GetPitch()
+		public float GetPitch(float currentPitch)
 		{
-			return INTERNAL_min + (float) (
-				random.NextDouble() * (INTERNAL_max - INTERNAL_min)
-			);
+			switch (operation)
+			{
+				case XACTClip.XactEventOp.Replace:
+					return value;
+				case XACTClip.XactEventOp.Add:
+					return currentPitch + value;
+				default:
+					return currentPitch;
+			}
+		}
+	}
+
+	internal class SetRandomPitchEvent : XACTEvent
+	{
+		private readonly float min;
+		private readonly float max;
+		private readonly XACTClip.XactEventOp operation;
+
+		public SetRandomPitchEvent(uint timestamp, float min, float max, XACTClip.XactEventOp operation, int count = 0,
+			float frequency = 0)
+			: base(4, timestamp, count, frequency)
+		{
+			this.min = min;
+			this.max = max;
+			this.operation = operation;
+		}
+
+		public float GetPitch(float currentPitch)
+		{
+			float randomPitch = min + (float)(random.NextDouble() * (max - min));
+			switch (operation)
+			{
+				case XACTClip.XactEventOp.Replace:
+					return randomPitch;
+				case XACTClip.XactEventOp.Add:
+					return currentPitch + randomPitch;
+				default:
+					return currentPitch;
+			}
+		}
+	}
+
+	internal class NullEvent : XACTEvent
+	{
+		public NullEvent(
+			uint timestamp
+		) : base(0, timestamp)
+		{
 		}
 	}
 }

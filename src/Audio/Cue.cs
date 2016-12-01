@@ -503,7 +503,12 @@ namespace Microsoft.Xna.Framework.Audio
 					INTERNAL_timer.ElapsedMilliseconds > INTERNAL_eventList[i].Timestamp	)
 				{
 					uint type = INTERNAL_eventList[i].Type;
-					if (type == 1)
+					if (type == 0)
+					{
+						// FIXME: NullEvent used as a placeholder for unsupported event types.
+						Debug.Assert(INTERNAL_eventList[i] is NullEvent);
+					}
+					else if (type == 1)
 					{
 						PlayWave((PlayWaveEvent) INTERNAL_eventList[i]);
 					}
@@ -513,7 +518,11 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					else if (type == 3)
 					{
-						eventPitch = ((SetPitchEvent) INTERNAL_eventList[i]).GetPitch();
+						eventPitch = ((SetEquationPitchEvent)INTERNAL_eventList[i]).GetPitch(eventPitch);
+					}
+					else if (type == 4)
+					{
+						eventPitch = ((SetRandomPitchEvent)INTERNAL_eventList[i]).GetPitch(eventPitch);
 					}
 					else
 					{
