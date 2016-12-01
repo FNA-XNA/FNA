@@ -736,10 +736,10 @@ namespace Microsoft.Xna.Framework.Audio
 				 * authored pitch and RPC/Event pitch results.
 				 */
 				INTERNAL_instancePool[i].Pitch = (
-					INTERNAL_instancePitches[i] +
-					rpcPitch +
-					eventPitch +
-					INTERNAL_rpcTrackPitches[i]
+					INTERNAL_instancePitches[i]/12 +
+					rpcPitch/12 +
+					eventPitch/12 +
+					INTERNAL_rpcTrackPitches[i]/12
 				);
 
 				/* The final filter is determined by the instance's filter type,
