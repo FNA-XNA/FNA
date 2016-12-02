@@ -17,6 +17,13 @@ namespace Microsoft.Xna.Framework.Audio
 {
 	internal static class AudioDevice
 	{
+		#region Public Constants
+
+		// Per XAudio2. Yes, it's seriously this high. -flibit
+		public const float MAX_GAIN_VALUE = 16777216.0f;
+
+		#endregion
+
 		#region SoundEffect Master Properties
 
 		private static float INTERNAL_masterVolume = 1.0f;

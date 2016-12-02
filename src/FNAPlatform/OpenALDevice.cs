@@ -534,7 +534,7 @@ namespace Microsoft.Xna.Framework.Audio
 				AL10.alSourcef(
 					result,
 					AL10.AL_MAX_GAIN,
-					64.0f // FIXME: Arbitrary, but try to keep this sane! -flibit
+					AudioDevice.MAX_GAIN_VALUE
 				);
 			}
 #if VERBOSE_AL_DEBUGGING
