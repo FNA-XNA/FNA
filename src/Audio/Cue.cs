@@ -685,7 +685,7 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					else if (curRPC.Parameter == RPCParameter.Pitch)
 					{
-						float pitch = result / 1000.0f;
+						float pitch = result / 100.0f;
 						if (i == 0)
 						{
 							rpcPitch += pitch;
