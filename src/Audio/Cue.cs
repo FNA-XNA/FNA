@@ -296,8 +296,51 @@ namespace Microsoft.Xna.Framework.Audio
 					INTERNAL_listener.Position
 				)
 			);
-			// TODO: DopplerPitchScaler, OrientationAngle
+
+			// Doppler
+			SetVariable(
+				"DopplerPitchScalar",
+				 CalculateDoppler()
+			);
+
+			// TODO: OrientationAngle
 			INTERNAL_isPositional = true;
+		}
+
+		private float CalculateDoppler()
+		{
+			// Adapted from algorithm published as a part of the webaudio specification:
+			//   https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html#Spatialization-doppler-shift
+
+			float dopplerShift = 1;
+			float dopplerFactor = INTERNAL_emitter.DopplerScale;
+
+			if (dopplerFactor > 0)
+			{
+				float speedOfSound = INTERNAL_baseEngine.GetGlobalVariable("SpeedOfSound");
+				float scaledSpeedOfSound = speedOfSound / dopplerFactor;
+
+				// Calculate the emitter to listener vector.
+				Vector3 emitterToListener = INTERNAL_emitter.Position - INTERNAL_listener.Position;
+				float sourceListenerLength = emitterToListener.Length();
+
+				float projectedListenerVelocity = -Vector3.Dot(emitterToListener, INTERNAL_listener.Velocity)/sourceListenerLength;
+				float projectedEmitterVelocity = -Vector3.Dot(emitterToListener, INTERNAL_emitter.Velocity)/sourceListenerLength;
+
+				projectedListenerVelocity = Math.Min(projectedListenerVelocity, scaledSpeedOfSound);
+				projectedEmitterVelocity = Math.Min(projectedEmitterVelocity, scaledSpeedOfSound);
+
+				dopplerShift = (speedOfSound - dopplerFactor*projectedListenerVelocity)/(speedOfSound - dopplerFactor*projectedEmitterVelocity);
+				if (float.IsNaN(dopplerShift))
+				{
+					dopplerShift = 1;
+				}
+
+				// Limit the pitch shifting to 2 octaves up and 1 octaves down per XACT behavior.
+				dopplerShift = MathHelper.Clamp(dopplerShift, .5f, 4f);
+			}
+
+			return dopplerShift;
 		}
 
 		public float GetVariable(string name)
