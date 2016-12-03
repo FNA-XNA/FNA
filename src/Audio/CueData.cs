@@ -675,11 +675,11 @@ namespace Microsoft.Xna.Framework.Audio
 					bool minMax = (reader.ReadByte() & 0x08) == 0x08;
 
 					// Min/Max Random
-					float min = reader.ReadSingle() / 1000.0f;
+					float min = reader.ReadSingle() / 100.0f;
 					float max;
 					if (minMax)
 					{
-						max = reader.ReadSingle() / 1000.0f;
+						max = reader.ReadSingle() / 100.0f;
 					}
 					else
 					{
