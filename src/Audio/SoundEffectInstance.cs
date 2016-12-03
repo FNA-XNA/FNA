@@ -76,12 +76,9 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_pitch = value;
 				if (INTERNAL_alSource != null)
 				{
-					// XACT uses -12 to 12 (semitones) internally for pitch, OpenAL uses -1 to 1 (octaves).
-					float finalPitch = INTERNAL_isXACTSource ? value / 12.0f : value;
-
 					AudioDevice.ALDevice.SetSourcePitch(
 						INTERNAL_alSource,
-						finalPitch,
+						value,
 						!INTERNAL_isXACTSource
 					);
 				}

@@ -914,7 +914,8 @@ namespace Microsoft.Xna.Framework.Audio
 					) + INTERNAL_minVolume
 				);
 			}
-			result.Pitch = (
+
+			float aggregatePitch = (
 				random.Next(
 					INTERNAL_minPitch,
 					INTERNAL_maxPitch
@@ -924,6 +925,9 @@ namespace Microsoft.Xna.Framework.Audio
 				soundPitch
 			);
 
+			// XACT uses -12 to 12 (semitones) internally for pitch, OpenAL uses -1 to 1 (octaves).
+			result.Pitch = aggregatePitch / 12.0f;
+			
 			result.FilterType = INTERNAL_filterType;
 			result.IsLooped = (
 				(INTERNAL_loopCount == 255) &&
