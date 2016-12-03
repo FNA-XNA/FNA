@@ -914,15 +914,14 @@ namespace Microsoft.Xna.Framework.Audio
 					) + INTERNAL_minVolume
 				);
 			}
-
-			result.Pitch =
-				soundPitch +
+			result.Pitch = (
 				random.Next(
 					INTERNAL_minPitch,
 					INTERNAL_maxPitch
 				) / 100.0f
-				+ ((INTERNAL_pitchVariationAdd && currentLoop > 0) ?
-					prevPitch.Value : 0
+			) + ((INTERNAL_pitchVariationAdd && currentLoop > 0) ?
+				prevPitch.Value :
+				soundPitch
 			);
 
 			result.FilterType = INTERNAL_filterType;
