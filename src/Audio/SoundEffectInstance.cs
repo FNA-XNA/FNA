@@ -76,9 +76,12 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_pitch = value;
 				if (INTERNAL_alSource != null)
 				{
+					// XNA/FNA use -12 to 12 (semitones) internally for pitch, OpenAL uses -1 to 1 (octaves).
+					float convertedPitch = value/12.0f;
+
 					AudioDevice.ALDevice.SetSourcePitch(
 						INTERNAL_alSource,
-						value,
+						convertedPitch,
 						!INTERNAL_isXACTSource
 					);
 				}
