@@ -289,15 +289,75 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			INTERNAL_listener = listener;
 			INTERNAL_emitter = emitter;
+
+			Vector3 emitterToListener = INTERNAL_listener.Position - INTERNAL_emitter.Position;
+			float distance = emitterToListener.Length();
+			Vector3 direction = emitterToListener/distance;
+
 			SetVariable(
 				"Distance",
-				Vector3.Distance(
-					INTERNAL_emitter.Position,
-					INTERNAL_listener.Position
-				)
+				distance
 			);
-			// TODO: DopplerPitchScaler, OrientationAngle
+
+			SetVariable(
+				"DopplerPitchScalar",
+				 CalculateDoppler(emitterToListener, distance)
+			);
+
+			SetVariable(
+				"OrientationAngle",
+				CalculateOrientationAngle(direction)
+			);
+
 			INTERNAL_isPositional = true;
+		}
+
+		private float CalculateDoppler(Vector3 emitterToListener, float distance)
+		{
+			// Adapted from algorithm published as a part of the webaudio specification:
+			//   https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html#Spatialization-doppler-shift
+
+			float dopplerShift = 1;
+
+			float dopplerFactor = INTERNAL_emitter.DopplerScale;
+			if (dopplerFactor > 0)
+			{
+				float speedOfSound = INTERNAL_baseEngine.GetGlobalVariable("SpeedOfSound");
+				float scaledSpeedOfSound = speedOfSound/dopplerFactor;
+
+				// Project the velocities along the emitter to listener vector.
+				float projectedListenerVelocity = Vector3.Dot(emitterToListener,
+					INTERNAL_listener.Velocity)/distance;
+				float projectedEmitterVelocity = Vector3.Dot(emitterToListener,
+					INTERNAL_emitter.Velocity)/distance;
+
+				// Clamp to the speed of the medium.
+				projectedListenerVelocity = Math.Min(projectedListenerVelocity,
+					scaledSpeedOfSound);
+				projectedEmitterVelocity = Math.Min(projectedEmitterVelocity,
+					scaledSpeedOfSound);
+
+				// Apply doppler effect.
+				dopplerShift = (speedOfSound - dopplerFactor*projectedListenerVelocity)
+											 /(speedOfSound - dopplerFactor*projectedEmitterVelocity);
+				if (float.IsNaN(dopplerShift))
+				{
+					dopplerShift = 1;
+				}
+
+				// Limit the pitch shifting to 2 octaves up and 1 octaves down per XACT behavior.
+				dopplerShift = MathHelper.Clamp(dopplerShift, .5f, 4f);
+			}
+
+			return dopplerShift;
+		}
+
+		private float CalculateOrientationAngle(Vector3 direction)
+		{
+			float slope = Vector3.Dot(direction, INTERNAL_listener.Forward);
+			float angle = MathHelper.ToDegrees((float)Math.Acos(slope));
+
+			return angle;
 		}
 
 		public float GetVariable(string name)
@@ -685,7 +745,7 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					else if (curRPC.Parameter == RPCParameter.Pitch)
 					{
-						float pitch = result / 1000.0f;
+						float pitch = result / 100.0f;
 						if (i == 0)
 						{
 							rpcPitch += pitch;
@@ -736,10 +796,10 @@ namespace Microsoft.Xna.Framework.Audio
 				 * authored pitch and RPC/Event pitch results.
 				 */
 				INTERNAL_instancePool[i].Pitch = (
-					INTERNAL_instancePitches[i] +
-					rpcPitch +
-					eventPitch +
-					INTERNAL_rpcTrackPitches[i]
+					INTERNAL_instancePitches[i]/12 +
+					rpcPitch/12 +
+					eventPitch/12 +
+					INTERNAL_rpcTrackPitches[i]/12
 				);
 
 				/* The final filter is determined by the instance's filter type,
