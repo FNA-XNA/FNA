@@ -743,8 +743,8 @@ namespace Microsoft.Xna.Framework.Audio
 					INTERNAL_rpcTrackPitches[i]
 				);
 
-				// XACT uses -12 to 12 (semitones) internally for pitch, OpenAL uses -1 to 1 (octaves).
-				INTERNAL_instancePool[i].Pitch = aggregatePitch/12.0f;
+				// XACT uses -12 to 12 (semitones) internally for pitch, XNA uses -1 to 1 (octaves).
+				INTERNAL_instancePool[i].Pitch = aggregatePitch / 12.0f;
 
 				/* The final filter is determined by the instance's filter type,
 				 * in addition to our calculation of the HF/LF gain values.
@@ -927,9 +927,8 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_instancePool.Add(sfi);
 				INTERNAL_instanceVolumes.Add(sfi.Volume);
 
-				// XACT uses -12 to 12 (semitones) internally for pitch, OpenAL uses -1 to 1 (octaves).
-				float pitch = sfi.Pitch*12.0f;
-				INTERNAL_instancePitches.Add(pitch);
+				// XACT uses -12 to 12 (semitones) internally for pitch, XNA uses -1 to 1 (octaves).
+				INTERNAL_instancePitches.Add(sfi.Pitch * 12.0f);
 
 				INTERNAL_waveEventSounds.Add(sfi, evt);
 				INTERNAL_rpcTrackVolumes.Add(1.0f);

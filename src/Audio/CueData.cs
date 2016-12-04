@@ -925,7 +925,7 @@ namespace Microsoft.Xna.Framework.Audio
 				soundPitch
 			);
 
-			// XACT uses -12 to 12 (semitones) internally for pitch, OpenAL uses -1 to 1 (octaves).
+			// XACT uses -12 to 12 (semitones) internally for pitch, XNA uses -1 to 1 (octaves).
 			result.Pitch = aggregatePitch / 12.0f;
 			
 			result.FilterType = INTERNAL_filterType;
