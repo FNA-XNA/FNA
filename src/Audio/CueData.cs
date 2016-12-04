@@ -182,7 +182,7 @@ namespace Microsoft.Xna.Framework.Audio
 			Volume = XACTCalculator.ParseDecibel(reader.ReadByte());
 
 			// Sound Pitch
-			Pitch = (reader.ReadInt16() / 1000.0f);
+			Pitch = (reader.ReadInt16() / 100.0f);
 
 			// Unknown value
 			reader.ReadByte();
@@ -675,11 +675,11 @@ namespace Microsoft.Xna.Framework.Audio
 					bool minMax = (reader.ReadByte() & 0x08) == 0x08;
 
 					// Min/Max Random
-					float min = reader.ReadSingle() / 1000.0f;
+					float min = reader.ReadSingle() / 100.0f;
 					float max;
 					if (minMax)
 					{
-						max = reader.ReadSingle() / 1000.0f;
+						max = reader.ReadSingle() / 100.0f;
 					}
 					else
 					{
@@ -914,16 +914,20 @@ namespace Microsoft.Xna.Framework.Audio
 					) + INTERNAL_minVolume
 				);
 			}
-			result.Pitch = (
+
+			float aggregatePitch = (
 				random.Next(
 					INTERNAL_minPitch,
 					INTERNAL_maxPitch
-				) / 1000.0f
+				) / 100.0f
 			) + ((INTERNAL_pitchVariationAdd && currentLoop > 0) ?
 				prevPitch.Value :
 				soundPitch
 			);
 
+			// XACT uses -12 to 12 (semitones) internally for pitch, OpenAL uses -1 to 1 (octaves).
+			result.Pitch = aggregatePitch / 12.0f;
+			
 			result.FilterType = INTERNAL_filterType;
 			result.IsLooped = (
 				(INTERNAL_loopCount == 255) &&
