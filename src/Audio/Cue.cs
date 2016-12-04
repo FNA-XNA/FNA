@@ -927,11 +927,11 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_instancePool.Add(sfi);
 				INTERNAL_instanceVolumes.Add(sfi.Volume);
 
-        // XACT uses -12 to 12 (semitones) internally for pitch, OpenAL uses -1 to 1 (octaves).
-        float pitch = sfi.Pitch*12.0f;
-        INTERNAL_instancePitches.Add(pitch);
+				// XACT uses -12 to 12 (semitones) internally for pitch, OpenAL uses -1 to 1 (octaves).
+				float pitch = sfi.Pitch*12.0f;
+				INTERNAL_instancePitches.Add(pitch);
 
-        INTERNAL_waveEventSounds.Add(sfi, evt);
+				INTERNAL_waveEventSounds.Add(sfi, evt);
 				INTERNAL_rpcTrackVolumes.Add(1.0f);
 				INTERNAL_rpcTrackPitches.Add(0.0f);
 				sfi.Play();
