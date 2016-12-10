@@ -333,7 +333,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Pause()
 		{
-			if (IsPlaying || IsStopping)
+			if (IsPlaying)
 			{
 				INTERNAL_timer.Stop();
 				foreach (SoundEffectInstance sfi in INTERNAL_instancePool)
