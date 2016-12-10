@@ -69,7 +69,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return !IsPlaying && !IsStopping && !IsPaused;
+				return !IsPrepared && !IsPlaying && !IsStopping && !IsPaused;
 			}
 		}
 
@@ -407,6 +407,8 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_eventPlayed.Add(false);
 				INTERNAL_eventLoops.Add(evt, 0);
 			}
+
+			IsPrepared = false;
 		}
 
 		public void Resume()
