@@ -442,11 +442,14 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			if (IsPlaying)
 			{
-				if (	options == AudioStopOptions.AsAuthored &&
-					INTERNAL_data.FadeOutMS > 0	)
+				if (!IsPaused)
 				{
-					INTERNAL_startFadeOut(INTERNAL_data.FadeOutMS);
-					return;
+					if (	options == AudioStopOptions.AsAuthored &&
+						INTERNAL_data.FadeOutMS > 0	)
+					{
+						INTERNAL_startFadeOut(INTERNAL_data.FadeOutMS);
+						return;
+					}
 				}
 				INTERNAL_timer.Stop();
 				INTERNAL_timer.Reset();
