@@ -503,38 +503,7 @@ namespace Microsoft.Xna.Framework.Audio
 				if (	!INTERNAL_eventPlayed[i] &&
 					INTERNAL_timer.ElapsedMilliseconds > INTERNAL_eventList[i].Timestamp	)
 				{
-
-					XACTEvent.EventTypeCode type = INTERNAL_eventList[i].Type;
-					if (type == 0)
-					{
-						// FIXME: NullEvent used as a placeholder for unsupported event types.
-						//Debug.Assert(INTERNAL_eventList[i] is NullEvent);
-						INTERNAL_eventList[i].Apply();
-					}
-					else if (type == XACTEvent.EventTypeCode.PlayWave)
-					{
-						//PlayWave((PlayWaveEvent) INTERNAL_eventList[i]);
-						INTERNAL_eventList[i].Apply();
-					}
-					else if (type == XACTEvent.EventTypeCode.SetVolume)
-					{
-						//eventVolume = ((SetVolumeEvent) INTERNAL_eventList[i]).GetVolume();
-						INTERNAL_eventList[i].Apply();
-					}
-					else if (type == XACTEvent.EventTypeCode.SetEquationPitch)
-					{
-						//eventPitch = ((SetEquationPitchEvent)INTERNAL_eventList[i]).GetPitch(eventPitch);
-						INTERNAL_eventList[i].Apply();
-					}
-					else if (type == XACTEvent.EventTypeCode.SetRandomPitch)
-					{
-						//eventPitch = ((SetRandomPitchEvent)INTERNAL_eventList[i]).GetPitch(eventPitch);
-						INTERNAL_eventList[i].Apply();
-					}
-					else
-					{
-						throw new NotImplementedException("Unhandled XACTEvent type!");
-					}
+          INTERNAL_eventList[i].Apply();
 					INTERNAL_eventPlayed[i] = true;
 				}
 			}
