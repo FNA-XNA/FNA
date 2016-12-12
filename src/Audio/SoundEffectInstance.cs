@@ -73,7 +73,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				value = MathHelper.Clamp(value, -1.0f, 1.0f);
+				value = MathHelper.Clamp(value, -2.0f, 2.0f);
 				INTERNAL_pitch = value;
 				if (INTERNAL_alSource != null)
 				{
