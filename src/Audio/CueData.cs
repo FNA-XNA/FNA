@@ -376,11 +376,11 @@ namespace Microsoft.Xna.Framework.Audio
 				reader.ReadUInt16();
 
 				// Load the Event
-				if (eventType == 0) // StopEvent
+				if (eventType == 0x00) // StopEvent
 				{
 					// TODO: Codename OhGodNo
 				}
-				else if (eventType == 1) // Basic PlayWaveEvent
+				else if (eventType == 0x01) // Basic PlayWaveEvent
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -495,7 +495,7 @@ namespace Microsoft.Xna.Framework.Audio
 						weights
 					);
 				}
-				else if (eventType == 4) // PlayWaveEvent with effect variation
+				else if (eventType == 0x04) // PlayWaveEvent with effect variation
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -577,7 +577,7 @@ namespace Microsoft.Xna.Framework.Audio
 						new byte[] { 0xFF }
 					);
 				}
-				else if (eventType == 6) // PlayWaveEvent with track/effect variation
+				else if (eventType == 0x06) // PlayWaveEvent with track/effect variation
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -775,7 +775,7 @@ namespace Microsoft.Xna.Framework.Audio
 							break;
 					}
 				}
-				else if (eventType == 8) // SetVolumeEvent
+				else if (eventType == 0x08) // SetVolumeEvent
 				{
 					// Unknown values
 					reader.ReadBytes(2);
