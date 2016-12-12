@@ -310,6 +310,24 @@ namespace Microsoft.Xna.Framework.Audio
 
 	internal class XACTClip
 	{
+		internal enum XactEventSettingType
+		{
+			Equation = 0x00,
+			Ramp = 0x01
+		}
+
+		internal enum XactEventEquationType
+		{
+			Value = 0x04,
+			Random = 0x08
+		}
+
+		internal enum XactEventOp
+		{
+			Replace = 0x00,
+			Add = 0x01
+		}
+
 		public XACTEvent[] Events
 		{
 			get;
@@ -337,24 +355,6 @@ namespace Microsoft.Xna.Framework.Audio
 				false,
 				new byte[] { 0xFF }
 			);
-		}
-
-		internal enum XactEventSettingType
-		{
-			Equation = 0x00,
-			Ramp = 0x01
-		}
-
-		internal enum XactEventEquationType
-		{
-			Value = 0x04,
-			Random = 0x08
-		}
-
-		internal enum XactEventOp
-		{
-			Replace = 0x00,
-			Add = 0x01
 		}
 
 		public XACTClip(BinaryReader reader, double clipVolume, byte filterType)
