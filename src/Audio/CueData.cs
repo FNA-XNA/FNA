@@ -310,6 +310,18 @@ namespace Microsoft.Xna.Framework.Audio
 
 	internal class XACTClip
 	{
+		internal enum StopEventBehavior
+		{
+			Release = 0x00,
+			Immediate = 0x01
+		}
+
+		internal enum StopEventScope
+		{
+			Track = 0x00,
+			Cue = 0x02
+		}
+
 		internal enum XactEventSettingType
 		{
 			Equation = 0x00,
@@ -378,7 +390,23 @@ namespace Microsoft.Xna.Framework.Audio
 				// Load the Event
 				if (eventType == 0x00) // StopEvent
 				{
-					// TODO: Codename OhGodNo
+					// Unknown value
+					reader.ReadByte();
+
+					/* Event Flags
+					 * bit0   - Play Release (0), Immediate (1)
+					 * bit1   - Stop Track (0), Stop Cue (1)
+					 * bit2-7 - Unused
+					 */
+					byte eventFlags = reader.ReadByte();
+					StopEventBehavior behavior = (StopEventBehavior) (eventFlags & 0x01);
+					StopEventScope scope = (StopEventScope) (eventFlags & 0x02);
+
+					AudioStopOptions stopOptions = behavior == StopEventBehavior.Release
+						? AudioStopOptions.AsAuthored
+						: AudioStopOptions.Immediate;
+
+					Events[i] = new StopEvent(eventTimestamp, stopOptions, scope);
 				}
 				else if (eventType == 0x01) // Basic PlayWaveEvent
 				{
@@ -894,6 +922,39 @@ namespace Microsoft.Xna.Framework.Audio
 		}
 
 		public abstract void Apply();
+	}
+
+	internal class StopEvent : XACTEvent
+	{
+		public readonly AudioStopOptions StopOptions;
+		public readonly XACTClip.StopEventScope Scope;
+		public XACTClip Track;
+
+		public StopEvent(uint timestamp, AudioStopOptions stopOptions,
+			XACTClip.StopEventScope scope)
+			: base(timestamp)
+		{
+			StopOptions = stopOptions;
+			Scope = scope;
+		}
+
+		public override void Apply()
+		{
+			AudioStopOptions stopOptions = StopOptions;
+
+			switch (Scope)
+			{
+				case XACTClip.StopEventScope.Cue:
+					Cue.Stop(stopOptions);
+					break;
+				case XACTClip.StopEventScope.Track:
+					// FIXME: Need to stop the track
+					// FACT currently doesn't appear to support multiple tracks anyway.
+					//Track.Stop(stopOptions);
+					throw new NotImplementedException("Stop events targeting the track are not supported!");
+					break;
+			}
+		}
 	}
 
 	internal class PlayWaveEvent : XACTEvent
