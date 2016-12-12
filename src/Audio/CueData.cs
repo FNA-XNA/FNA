@@ -889,6 +889,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public float Frequency { get; private set; }
 
+		public Cue Cue { get; set; }
+
 		protected static readonly Random random = new Random();
 
 		public XACTEvent(EventTypeCode type, uint timestamp)
@@ -902,7 +904,10 @@ namespace Microsoft.Xna.Framework.Audio
 			Timestamp = timestamp;
 			Count = count;
 			Frequency = frequency;
+			Cue = null;
 		}
+
+		public abstract void Apply();
 	}
 
 	internal class PlayWaveEvent : XACTEvent
@@ -1118,6 +1123,11 @@ namespace Microsoft.Xna.Framework.Audio
 				);
 			}
 		}
+
+		public override void Apply()
+		{
+			Cue.PlayWave(this);
+		}
 	}
 
 	internal class SetVolumeEvent : XACTEvent
@@ -1139,6 +1149,11 @@ namespace Microsoft.Xna.Framework.Audio
 			return INTERNAL_min + (float) (
 				random.NextDouble() * (INTERNAL_max - INTERNAL_min)
 			);
+		}
+
+		public override void Apply()
+		{
+			Cue.eventVolume = GetVolume();
 		}
 	}
 
@@ -1166,6 +1181,11 @@ namespace Microsoft.Xna.Framework.Audio
 				default:
 					return currentPitch;
 			}
+		}
+
+		public override void Apply()
+		{
+			Cue.eventPitch = GetPitch(Cue.eventPitch);
 		}
 	}
 
@@ -1197,6 +1217,11 @@ namespace Microsoft.Xna.Framework.Audio
 					return currentPitch;
 			}
 		}
+
+		public override void Apply()
+		{
+			Cue.eventPitch = GetPitch(Cue.eventPitch);
+		}
 	}
 
 	internal class NullEvent : XACTEvent
@@ -1205,6 +1230,11 @@ namespace Microsoft.Xna.Framework.Audio
 			uint timestamp
 		) : base(0, timestamp)
 		{
+		}
+
+		public override void Apply()
+		{
+			// Do nothing.
 		}
 	}
 }

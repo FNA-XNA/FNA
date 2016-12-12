@@ -127,8 +127,8 @@ namespace Microsoft.Xna.Framework.Audio
 		private List<float> INTERNAL_rpcTrackPitches;
 
 		// Events can control volume/pitch as well!
-		private float eventVolume;
-		private float eventPitch;
+		internal float eventVolume;
+		internal float eventPitch;
 
 		// User-controlled sounds require a bit more trickery.
 		private bool INTERNAL_userControlledPlaying;
@@ -409,6 +409,7 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_activeSound.GatherEvents(INTERNAL_eventList);
 			foreach (XACTEvent evt in INTERNAL_eventList)
 			{
+				evt.Cue = this;
 				INTERNAL_eventPlayed.Add(false);
 				INTERNAL_eventLoops.Add(evt, 0);
 			}
@@ -507,23 +508,28 @@ namespace Microsoft.Xna.Framework.Audio
 					if (type == 0)
 					{
 						// FIXME: NullEvent used as a placeholder for unsupported event types.
-						Debug.Assert(INTERNAL_eventList[i] is NullEvent);
+						//Debug.Assert(INTERNAL_eventList[i] is NullEvent);
+						INTERNAL_eventList[i].Apply();
 					}
 					else if (type == XACTEvent.EventTypeCode.PlayWave)
 					{
-						PlayWave((PlayWaveEvent) INTERNAL_eventList[i]);
+						//PlayWave((PlayWaveEvent) INTERNAL_eventList[i]);
+						INTERNAL_eventList[i].Apply();
 					}
 					else if (type == XACTEvent.EventTypeCode.SetVolume)
 					{
-						eventVolume = ((SetVolumeEvent) INTERNAL_eventList[i]).GetVolume();
+						//eventVolume = ((SetVolumeEvent) INTERNAL_eventList[i]).GetVolume();
+						INTERNAL_eventList[i].Apply();
 					}
 					else if (type == XACTEvent.EventTypeCode.SetEquationPitch)
 					{
-						eventPitch = ((SetEquationPitchEvent)INTERNAL_eventList[i]).GetPitch(eventPitch);
+						//eventPitch = ((SetEquationPitchEvent)INTERNAL_eventList[i]).GetPitch(eventPitch);
+						INTERNAL_eventList[i].Apply();
 					}
 					else if (type == XACTEvent.EventTypeCode.SetRandomPitch)
 					{
-						eventPitch = ((SetRandomPitchEvent)INTERNAL_eventList[i]).GetPitch(eventPitch);
+						//eventPitch = ((SetRandomPitchEvent)INTERNAL_eventList[i]).GetPitch(eventPitch);
+						INTERNAL_eventList[i].Apply();
 					}
 					else
 					{
@@ -941,7 +947,7 @@ namespace Microsoft.Xna.Framework.Audio
 			return true;
 		}
 
-		private void PlayWave(PlayWaveEvent evt, float? prevVolume = null, float? prevPitch = null)
+		internal void PlayWave(PlayWaveEvent evt, float? prevVolume = null, float? prevPitch = null)
 		{
 			SoundEffectInstance sfi = evt.GenerateInstance(
 				INTERNAL_activeSound.Volume,
