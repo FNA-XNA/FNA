@@ -294,7 +294,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			foreach (XACTClip curClip in INTERNAL_clips)
 			{
-				curClip.LoadTracks(audioEngine, waveBankNames);
+				curClip.LoadEvents(audioEngine, waveBankNames);
 			}
 			HasLoadedTracks = true;
 		}
@@ -849,13 +849,13 @@ namespace Microsoft.Xna.Framework.Audio
 			frequency = reader.ReadUInt16() / 1000.0f;
 		}
 
-		public void LoadTracks(AudioEngine audioEngine, List<string> waveBankNames)
+		public void LoadEvents(AudioEngine audioEngine, List<string> waveBankNames)
 		{
 			foreach (XACTEvent curEvent in Events)
 			{
 				if (curEvent.Type == XACTEvent.EventTypeCode.PlayWave)
 				{
-					((PlayWaveEvent) curEvent).LoadTracks(
+					((PlayWaveEvent) curEvent).LoadWaves(
 						audioEngine,
 						waveBankNames
 					);
@@ -977,7 +977,7 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_curWave = -1;
 		}
 
-		public void LoadTracks(AudioEngine audioEngine, List<string> waveBankNames)
+		public void LoadWaves(AudioEngine audioEngine, List<string> waveBankNames)
 		{
 			for (int i = 0; i < INTERNAL_waves.Length; i += 1)
 			{
