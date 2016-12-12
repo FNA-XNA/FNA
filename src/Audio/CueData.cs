@@ -1191,16 +1191,17 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_max = max;
 		}
 
-		public float GetVolume()
-		{
-			return INTERNAL_min + (float) (
-				random.NextDouble() * (INTERNAL_max - INTERNAL_min)
-			);
-		}
 
 		public override void Apply()
 		{
 			Cue.eventVolume = GetVolume();
+		}
+
+		private float GetVolume()
+		{
+			return INTERNAL_min + (float)(
+				random.NextDouble() * (INTERNAL_max - INTERNAL_min)
+			);
 		}
 	}
 
@@ -1217,7 +1218,12 @@ namespace Microsoft.Xna.Framework.Audio
 			this.operation = operation;
 		}
 
-		public float GetPitch(float currentPitch)
+		public override void Apply()
+		{
+			Cue.eventPitch = GetPitch(Cue.eventPitch);
+		}
+
+		private float GetPitch(float currentPitch)
 		{
 			switch (operation)
 			{
@@ -1228,11 +1234,6 @@ namespace Microsoft.Xna.Framework.Audio
 				default:
 					return currentPitch;
 			}
-		}
-
-		public override void Apply()
-		{
-			Cue.eventPitch = GetPitch(Cue.eventPitch);
 		}
 	}
 
@@ -1251,7 +1252,12 @@ namespace Microsoft.Xna.Framework.Audio
 			this.operation = operation;
 		}
 
-		public float GetPitch(float currentPitch)
+		public override void Apply()
+		{
+			Cue.eventPitch = GetPitch(Cue.eventPitch);
+		}
+
+		private float GetPitch(float currentPitch)
 		{
 			float randomPitch = min + (float)(random.NextDouble() * (max - min));
 			switch (operation)
@@ -1263,11 +1269,6 @@ namespace Microsoft.Xna.Framework.Audio
 				default:
 					return currentPitch;
 			}
-		}
-
-		public override void Apply()
-		{
-			Cue.eventPitch = GetPitch(Cue.eventPitch);
 		}
 	}
 
