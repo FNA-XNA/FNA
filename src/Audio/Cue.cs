@@ -503,7 +503,7 @@ namespace Microsoft.Xna.Framework.Audio
 				if (	!INTERNAL_eventPlayed[i] &&
 					INTERNAL_timer.ElapsedMilliseconds > INTERNAL_eventList[i].Timestamp	)
 				{
-          INTERNAL_eventList[i].Apply();
+					INTERNAL_eventList[i].Apply();
 					INTERNAL_eventPlayed[i] = true;
 				}
 			}
