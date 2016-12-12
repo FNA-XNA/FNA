@@ -67,10 +67,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public bool IsStopped
 		{
-			get
-			{
-				return !IsPlaying;
-			}
+			get;
+			private set;
 		}
 
 		public bool IsStopping
@@ -202,6 +200,8 @@ namespace Microsoft.Xna.Framework.Audio
 			IsPrepared = true;
 			IsPreparing = false;
 
+			IsStopped = false;
+
 			INTERNAL_isManaged = managed;
 
 			INTERNAL_category = INTERNAL_baseEngine.INTERNAL_initCue(
@@ -263,6 +263,8 @@ namespace Microsoft.Xna.Framework.Audio
 					INTERNAL_rpcTrackVolumes.Clear();
 					INTERNAL_rpcTrackPitches.Clear();
 					INTERNAL_timer.Stop();
+
+					IsStopped = true;
 				}
 				INTERNAL_category.INTERNAL_removeActiveCue(this);
 				IsDisposed = true;
@@ -463,6 +465,8 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_userControlledPlaying = false;
 				INTERNAL_category.INTERNAL_removeActiveCue(this);
 
+				IsStopped = true;
+
 				// If this is a managed Cue, we're done here.
 				if (INTERNAL_isManaged)
 				{
@@ -645,7 +649,13 @@ namespace Microsoft.Xna.Framework.Audio
 						INTERNAL_timer.Reset();
 						INTERNAL_category.INTERNAL_removeActiveCue(this);
 					}
-					return INTERNAL_userControlledPlaying;
+					if (INTERNAL_userControlledPlaying)
+					{
+						// We're "still" "playing" right now...
+						return true;
+					}
+					IsStopped = true;
+					return false;
 				}
 			}
 
