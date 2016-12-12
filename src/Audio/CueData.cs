@@ -853,7 +853,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			foreach (XACTEvent curEvent in Events)
 			{
-				if (curEvent.Type == XACTEvent.EventTypeCode.PlayWave)
+				if (curEvent is PlayWaveEvent)
 				{
 					((PlayWaveEvent) curEvent).LoadWaves(
 						audioEngine,
@@ -866,19 +866,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 	internal abstract class XACTEvent
 	{
-		public enum EventTypeCode
-		{
-			PlayWave = 1,
-			SetVolume = 2,
-			SetEquationPitch = 3,
-			SetRandomPitch = 4
-		}
-
-		public EventTypeCode Type
-		{
-			get;
-		}
-
 		public uint Timestamp
 		{
 			get;
@@ -893,14 +880,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		protected static readonly Random random = new Random();
 
-		public XACTEvent(EventTypeCode type, uint timestamp)
-			: this(type, timestamp, 0, 0)
+		public XACTEvent(uint timestamp)
+			: this(timestamp, 0, 0)
 		{
 		}
 
-		protected XACTEvent(EventTypeCode type, uint timestamp, int count, float frequency)			
+		protected XACTEvent(uint timestamp, int count, float frequency)			
 		{
-			Type = type;
 			Timestamp = timestamp;
 			Count = count;
 			Frequency = frequency;
@@ -962,7 +948,7 @@ namespace Microsoft.Xna.Framework.Audio
 			ushort trackVariationType,
 			bool trackVariationOnLoop,
 			byte[] weights
-		) : base(EventTypeCode.PlayWave, timestamp) {
+		) : base(timestamp) {
 			INTERNAL_tracks = tracks;
 			INTERNAL_waveBanks = waveBanks;
 			INTERNAL_minPitch = minPitch;
@@ -1139,7 +1125,7 @@ namespace Microsoft.Xna.Framework.Audio
 			uint timestamp,
 			float min,
 			float max
-		) : base(EventTypeCode.SetVolume, timestamp) {
+		) : base(timestamp) {
 			INTERNAL_min = min;
 			INTERNAL_max = max;
 		}
@@ -1164,7 +1150,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public SetEquationPitchEvent(uint timestamp, float value, XACTClip.XactEventOp operation, int count = 0,
 			float frequency = 0)
-			: base(EventTypeCode.SetEquationPitch, timestamp, count, frequency)
+			: base(timestamp, count, frequency)
 		{
 			this.value = value;
 			this.operation = operation;
@@ -1197,7 +1183,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public SetRandomPitchEvent(uint timestamp, float min, float max, XACTClip.XactEventOp operation, int count = 0,
 			float frequency = 0)
-			: base(EventTypeCode.SetRandomPitch, timestamp, count, frequency)
+			: base(timestamp, count, frequency)
 		{
 			this.min = min;
 			this.max = max;
@@ -1228,7 +1214,7 @@ namespace Microsoft.Xna.Framework.Audio
 	{
 		public NullEvent(
 			uint timestamp
-		) : base(0, timestamp)
+		) : base(timestamp)
 		{
 		}
 
