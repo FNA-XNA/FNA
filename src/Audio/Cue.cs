@@ -263,11 +263,14 @@ namespace Microsoft.Xna.Framework.Audio
 					INTERNAL_rpcTrackVolumes.Clear();
 					INTERNAL_rpcTrackPitches.Clear();
 					INTERNAL_timer.Stop();
-
-					IsStopped = true;
 				}
 				INTERNAL_category.INTERNAL_removeActiveCue(this);
 				IsDisposed = true;
+
+				// IXACTCue* no longer exists, these should all be false
+				IsStopped = false;
+				IsCreated = false;
+				IsPrepared = false;
 			}
 		}
 
