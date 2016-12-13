@@ -47,7 +47,7 @@ namespace Microsoft.Xna.Framework.Audio
 			get
 			{
 				return (	INTERNAL_timer.IsRunning ||
-						INTERNAL_timer.ElapsedTicks > 0	);
+						INTERNAL_timer.ElapsedTicks > 0	) && !IsStopping;
 			}
 		}
 
@@ -280,7 +280,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Apply3D(AudioListener listener, AudioEmitter emitter)
 		{
-			if (IsPlaying && !INTERNAL_isPositional)
+			if ((IsPlaying || IsStopping) && !INTERNAL_isPositional)
 			{
 				throw new InvalidOperationException("Apply3D call after Play!");
 			}
@@ -350,7 +350,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Play()
 		{
-			if (IsPlaying)
+			if (IsPlaying || IsStopping)
 			{
 				throw new InvalidOperationException("Cue already playing!");
 			}
@@ -412,6 +412,8 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_eventPlayed.Add(false);
 				INTERNAL_eventLoops.Add(evt, 0);
 			}
+
+			IsPrepared = false;
 		}
 
 		public void Resume()
@@ -447,11 +449,14 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			if (IsPlaying)
 			{
-				if (	options == AudioStopOptions.AsAuthored &&
-					INTERNAL_data.FadeOutMS > 0	)
+				if (!IsPaused)
 				{
-					INTERNAL_startFadeOut(INTERNAL_data.FadeOutMS);
-					return;
+					if (	options == AudioStopOptions.AsAuthored &&
+						INTERNAL_data.FadeOutMS > 0	)
+					{
+						INTERNAL_startFadeOut(INTERNAL_data.FadeOutMS);
+						return;
+					}
 				}
 				INTERNAL_timer.Stop();
 				INTERNAL_timer.Reset();
