@@ -454,7 +454,7 @@ namespace Microsoft.Xna.Framework.Audio
 						new byte[] { 0xFF }
 					);
 				}
-				else if (eventType == 3) // PlayWaveEvent with track variation
+				else if (eventType == 0x03) // PlayWaveEvent with track variation
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -756,8 +756,8 @@ namespace Microsoft.Xna.Framework.Audio
 									break;
 								case XactEventEquationType.Random:
 									// Random pitch Min/Max.
-									float eventMin = reader.ReadSingle()/100.0f;
-									float eventMax = reader.ReadSingle()/100.0f;
+									float eventMin = reader.ReadSingle() / 100.0f;
+									float eventMax = reader.ReadSingle() / 100.0f;
 
 									// Unused/unknown trailing bytes.
 									reader.ReadBytes(5);
@@ -783,7 +783,7 @@ namespace Microsoft.Xna.Framework.Audio
 						case XactEventSettingType.Ramp:
 							// Ramp type.
 
-							float initialValue = reader.ReadSingle()/100.0f;
+							float initialValue = reader.ReadSingle() / 100.0f;
 
 							// Slope appears to be encoded as (endValue - startValue) / duration;
 							float initialSlope = reader.ReadSingle();
@@ -791,11 +791,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 							// Duration of the ramp in seconds.
 
-							float duration = reader.ReadUInt16()/1000.0f;
+							float duration = reader.ReadUInt16() / 1000.0f;
 
 							// Number of slices to break up the duration.
 							const float slices = 10;
-							float endValue = initialSlope*duration*slices + initialValue;
+							float endValue = initialSlope * duration * slices + initialValue;
 
 							// FIXME: Create a Ramp Event type that can operate over the period from timestamp to timestamp + duration.
 							//Events[i] = new SetRampPitchEvent(eventTimestamp, initialValue, initialSlope, slopeDelta, duration);
@@ -803,67 +803,135 @@ namespace Microsoft.Xna.Framework.Audio
 							break;
 					}
 				}
-				else if (eventType == 0x08) // SetVolumeEvent
+				else if (eventType == 0x08 || eventType == 0x11) // SetVolumeEvent or version with recurrence. What is the recurrence flag pattern?
 				{
-					// Unknown values
-					reader.ReadBytes(2);
+					// Unused byte (separator?)
+					byte separator = reader.ReadByte();
+					Debug.Assert(separator == 0xFF);
 
-					/* Event Flags
-					 * 0x08 = Min/Max Values
-					 * 0x01 = Add, rather than replace
-					 * Rest is unknown
-					 */
-					byte flags = reader.ReadByte();
-					bool addVolume = (flags & 0x01) == 0x01;
-					bool minMax = (flags & 0x08) == 0x08;
+					// Read and convert the event setting type (Equation or Ramp).
+					XactEventSettingType settingType = (XactEventSettingType)(reader.ReadByte() & 0x01);
 
-					// Operand Constant
-					float min = reader.ReadSingle() / 100.0f;
-					float max;
-					if (minMax)
+					switch (settingType)
 					{
-						max = reader.ReadSingle() / 100.0f;
+						case XactEventSettingType.Equation:
+							/* Event Flags
+							 * bit0   - 0=Replace 1=Add
+							 * bit1   - Unknown
+							 * bit2-3 - 01=Value 10=Random
+							*/
+							byte eventFlags = reader.ReadByte();
+							XactEventEquationType equationType = (XactEventEquationType)(eventFlags & (0x04 | 0x08));
+							XactEventOp operation = (XactEventOp)(eventFlags & 0x01);
 
-						// Unknown bytes
-						reader.ReadBytes(5);
+							switch (equationType)
+							{
+								case XactEventEquationType.Value:
+									// Absolute or relative value to set the pitch to.
+									float eventValue = reader.ReadSingle() / 100.0f;
+
+									// Unused/unknown trailing bytes.
+									reader.ReadBytes(9);
+
+									// Is this is a recurrence pitch event?
+									if (eventType == 0x11)
+									{
+										int count;
+										float frequency;
+										ReadRecurrenceData(reader, out count, out frequency);
+
+										Events[i] = new SetEquationVolumeEvent(eventTimestamp, eventValue, operation, count, frequency);
+									}
+									else
+									{
+										Events[i] = new SetEquationVolumeEvent(eventTimestamp, eventValue, operation);
+									}
+									break;
+								case XactEventEquationType.Random:
+									// Random pitch Min/Max.
+									float eventMin = reader.ReadSingle() / 100.0f;
+									float eventMax = reader.ReadSingle() / 100.0f;
+
+									// Unused/unknown trailing bytes.
+									reader.ReadBytes(5);
+
+									// Is this is a recurrence pitch event?
+									if (eventType == 0x11)
+									{
+										int count;
+										float frequency;
+										ReadRecurrenceData(reader, out count, out frequency);
+
+										Events[i] = new SetRandomVolumeEvent(eventTimestamp, eventMin, eventMax, operation, count, frequency);
+									}
+									else
+									{
+										Events[i] = new SetRandomVolumeEvent(eventTimestamp, eventMin, eventMax, operation);
+									}
+									break;
+								default:
+									throw new NotImplementedException("Encountered event unexpected equation type.");
+							}
+							break;
+						case XactEventSettingType.Ramp:
+							// Ramp type.
+
+							float initialValue = reader.ReadSingle() / 100.0f;
+
+							// Slope appears to be encoded as (endValue - startValue) / duration;
+							float initialSlope = reader.ReadSingle();
+							float slopeDelta = reader.ReadSingle();
+
+							// Duration of the ramp in seconds.
+
+							float duration = reader.ReadUInt16() / 1000.0f;
+
+							// Number of slices to break up the duration.
+							const float slices = 10;
+							float endValue = initialSlope * duration * slices + initialValue;
+
+							// FIXME: Create a Ramp Event type that can operate over the period from timestamp to timestamp + duration.
+							//Events[i] = new SetRampVolumEvent(eventTimestamp, initialValue, initialSlope, slopeDelta, duration);
+							Events[i] = new NullEvent(eventTimestamp);
+							break;
+					}
+				}
+				else if (eventType == 9 || eventType == 18) // Marker or version with recurrence. What is the recurrence flag pattern?
+				{
+					// Unused byte (separator?)
+					byte separator = reader.ReadByte();
+					Debug.Assert(separator == 0xFF);
+
+					// Data value for the marker (0-999)
+					int markerData = reader.ReadInt32();
+
+					// Is this is a recurrence marker event?
+					if (eventType == 18)
+					{
+						int count;
+						float frequency;
+						ReadRecurrenceData(reader, out count, out frequency);
+
+						Events[i] = new MarkerEvent(eventTimestamp, markerData, count, frequency);
 					}
 					else
 					{
-						max = min;
-
-						// Unknown values
-						reader.ReadBytes(8);
+						Events[i] = new MarkerEvent(eventTimestamp, markerData);
 					}
-					if (addVolume)
-					{
-						min += (float) clipVolume;
-						max += (float) clipVolume;
-					}
-
-					Events[i] = new SetVolumeEvent(
-						eventTimestamp,
-						XACTCalculator.CalculateAmplitudeRatio(min),
-						XACTCalculator.CalculateAmplitudeRatio(max)
-					);
 				}
 				else if (eventType == 15) // ???
 				{
 					// TODO: Codename OhGodNo -flibit
 					Events[i] = new NullEvent(eventTimestamp);
 				}
-				else if (eventType == 17) // Volume Repeat Event
+				else if (eventType == 23) // ???
 				{
 					// TODO: Codename OhGodNo -flibit
 					Events[i] = new NullEvent(eventTimestamp);
 				}
 				else
 				{
-					/* TODO: All XACT Events.
-					 * The following type information is based on
-					 * third-party contributions:
-					 * Type 9 - Marker Event
-					 * -flibit
-					 */
+					// TODO: All XACT Events.
 					throw new NotImplementedException(
 						"EVENT TYPE " + eventType.ToString() + " NOT IMPLEMENTED!"
 					);
@@ -1177,31 +1245,70 @@ namespace Microsoft.Xna.Framework.Audio
 		}
 	}
 
-	internal class SetVolumeEvent : XACTEvent
+	internal class SetEquationVolumeEvent : XACTEvent
 	{
-		private float INTERNAL_min;
-		private float INTERNAL_max;
+		private readonly float value;
+		private readonly XACTClip.XactEventOp operation;
 
-		public SetVolumeEvent(
-			uint timestamp,
-			float min,
-			float max
-		) : base(timestamp) {
-			INTERNAL_min = min;
-			INTERNAL_max = max;
+		public SetEquationVolumeEvent(uint timestamp, float value, XACTClip.XactEventOp operation, int count = 0,
+			float frequency = 0)
+			: base(timestamp, count, frequency)
+		{
+			this.value = value;
+			this.operation = operation;
 		}
-
 
 		public override void Apply()
 		{
-			Cue.eventVolume = GetVolume();
+			Cue.eventVolume = GetVolume(Cue.eventVolume);
 		}
 
-		private float GetVolume()
+		private float GetVolume(float currentVolume)
 		{
-			return INTERNAL_min + (float)(
-				random.NextDouble() * (INTERNAL_max - INTERNAL_min)
-			);
+			switch (operation)
+			{
+				case XACTClip.XactEventOp.Replace:
+					return value;
+				case XACTClip.XactEventOp.Add:
+					return currentVolume + value;
+				default:
+					return currentVolume;
+			}
+		}
+	}
+
+	internal class SetRandomVolumeEvent : XACTEvent
+	{
+		private readonly float min;
+		private readonly float max;
+		private readonly XACTClip.XactEventOp operation;
+
+		public SetRandomVolumeEvent(uint timestamp, float min, float max, XACTClip.XactEventOp operation, int count = 0,
+			float frequency = 0)
+			: base(timestamp, count, frequency)
+		{
+			this.min = min;
+			this.max = max;
+			this.operation = operation;
+		}
+
+		public override void Apply()
+		{
+			Cue.eventVolume = GetVolume(Cue.eventVolume);
+		}
+
+		private float GetVolume(float currentVolume)
+		{
+			float randomVolume = min + (float)(random.NextDouble() * (max - min));
+			switch (operation)
+			{
+				case XACTClip.XactEventOp.Replace:
+					return randomVolume;
+				case XACTClip.XactEventOp.Add:
+					return currentVolume + randomVolume;
+				default:
+					return currentVolume;
+			}
 		}
 	}
 
@@ -1269,6 +1376,23 @@ namespace Microsoft.Xna.Framework.Audio
 				default:
 					return currentPitch;
 			}
+		}
+	}
+
+	internal class MarkerEvent : XACTEvent
+	{
+		private readonly int markerData;
+
+		public MarkerEvent(uint timestamp, int markerData, int count = 0,
+			float frequency = 0)
+			: base(timestamp, count, frequency)
+		{
+			this.markerData = markerData;
+		}
+
+		public override void Apply()
+		{
+			// FIXME: Implement action for a marker event. Some kind of callback?
 		}
 	}
 
