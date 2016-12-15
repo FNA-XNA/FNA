@@ -843,7 +843,7 @@ namespace Microsoft.Xna.Framework.Audio
 							{
 								case XactEventEquationType.Value:
 									// Absolute or relative value to set to.
-									float eventValue = reader.ReadSingle() / 100.0f;
+									float eventValue = XACTCalculator.CalculateAmplitudeRatio(reader.ReadSingle() / 100.0f);
 
 									// Unused/unknown trailing bytes.
 									reader.ReadBytes(9);
@@ -863,9 +863,9 @@ namespace Microsoft.Xna.Framework.Audio
 									}
 									break;
 								case XactEventEquationType.Random:
-									// Random pitch Min/Max.
-									float eventMin = reader.ReadSingle() / 100.0f;
-									float eventMax = reader.ReadSingle() / 100.0f;
+									// Random min/max.
+									float eventMin = XACTCalculator.CalculateAmplitudeRatio(reader.ReadSingle() / 100.0f);
+									float eventMax = XACTCalculator.CalculateAmplitudeRatio(reader.ReadSingle() / 100.0f);
 
 									// Unused/unknown trailing bytes.
 									reader.ReadBytes(5);
