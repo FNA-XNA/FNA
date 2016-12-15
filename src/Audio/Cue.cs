@@ -127,8 +127,8 @@ namespace Microsoft.Xna.Framework.Audio
 		private List<float> INTERNAL_rpcTrackPitches;
 
 		// Events can control volume/pitch as well!
-		private float eventVolume;
-		private float eventPitch;
+		internal float eventVolume;
+		internal float eventPitch;
 
 		// User-controlled sounds require a bit more trickery.
 		private bool INTERNAL_userControlledPlaying;
@@ -502,23 +502,7 @@ namespace Microsoft.Xna.Framework.Audio
 				if (	!INTERNAL_eventPlayed[i] &&
 					INTERNAL_timer.ElapsedMilliseconds > INTERNAL_eventList[i].Timestamp	)
 				{
-					uint type = INTERNAL_eventList[i].Type;
-					if (type == 1)
-					{
-						PlayWave((PlayWaveEvent) INTERNAL_eventList[i]);
-					}
-					else if (type == 2)
-					{
-						eventVolume = ((SetVolumeEvent) INTERNAL_eventList[i]).GetVolume();
-					}
-					else if (type == 3)
-					{
-						eventPitch = ((SetPitchEvent) INTERNAL_eventList[i]).GetPitch();
-					}
-					else
-					{
-						throw new NotImplementedException("Unhandled XACTEvent type!");
-					}
+					INTERNAL_eventList[i].Apply(this, null);
 					INTERNAL_eventPlayed[i] = true;
 				}
 			}
@@ -931,7 +915,7 @@ namespace Microsoft.Xna.Framework.Audio
 			return true;
 		}
 
-		private void PlayWave(PlayWaveEvent evt, float? prevVolume = null, float? prevPitch = null)
+		internal void PlayWave(PlayWaveEvent evt, float? prevVolume = null, float? prevPitch = null)
 		{
 			SoundEffectInstance sfi = evt.GenerateInstance(
 				INTERNAL_activeSound.Volume,
