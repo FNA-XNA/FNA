@@ -979,8 +979,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public float Frequency { get; private set; }
 
-		public Cue Cue { get; set; }
-
 		protected static readonly Random random = new Random();
 
 		public XACTEvent(uint timestamp)
@@ -993,10 +991,9 @@ namespace Microsoft.Xna.Framework.Audio
 			Timestamp = timestamp;
 			Count = count;
 			Frequency = frequency;
-			Cue = null;
 		}
 
-		public abstract void Apply();
+		public abstract void Apply(Cue cue, XACTClip track);
 	}
 
 	internal class StopEvent : XACTEvent
@@ -1013,19 +1010,19 @@ namespace Microsoft.Xna.Framework.Audio
 			Scope = scope;
 		}
 
-		public override void Apply()
+		public override void Apply(Cue cue, XACTClip track)
 		{
 			AudioStopOptions stopOptions = StopOptions;
 
 			switch (Scope)
 			{
 				case XACTClip.StopEventScope.Cue:
-					Cue.Stop(stopOptions);
+					cue.Stop(stopOptions);
 					break;
 				case XACTClip.StopEventScope.Track:
 					// FIXME: Need to stop the track
 					// FACT currently doesn't appear to support multiple tracks anyway.
-					//Track.Stop(stopOptions);
+					//track.Stop(stopOptions);
 					throw new NotImplementedException("Stop events targeting the track are not supported!");
 					break;
 			}
@@ -1246,9 +1243,9 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 		}
 
-		public override void Apply()
+		public override void Apply(Cue cue, XACTClip track)
 		{
-			Cue.PlayWave(this);
+			cue.PlayWave(this);
 		}
 	}
 
@@ -1265,9 +1262,9 @@ namespace Microsoft.Xna.Framework.Audio
 			this.operation = operation;
 		}
 
-		public override void Apply()
+		public override void Apply(Cue cue, XACTClip track)
 		{
-			Cue.eventVolume = GetVolume(Cue.eventVolume);
+			cue.eventVolume = GetVolume(cue.eventVolume);
 		}
 
 		private float GetVolume(float currentVolume)
@@ -1299,9 +1296,9 @@ namespace Microsoft.Xna.Framework.Audio
 			this.operation = operation;
 		}
 
-		public override void Apply()
+		public override void Apply(Cue cue, XACTClip track)
 		{
-			Cue.eventVolume = GetVolume(Cue.eventVolume);
+			cue.eventVolume = GetVolume(cue.eventVolume);
 		}
 
 		private float GetVolume(float currentVolume)
@@ -1332,9 +1329,9 @@ namespace Microsoft.Xna.Framework.Audio
 			this.operation = operation;
 		}
 
-		public override void Apply()
+		public override void Apply(Cue cue, XACTClip track)
 		{
-			Cue.eventPitch = GetPitch(Cue.eventPitch);
+			cue.eventPitch = GetPitch(cue.eventPitch);
 		}
 
 		private float GetPitch(float currentPitch)
@@ -1366,9 +1363,9 @@ namespace Microsoft.Xna.Framework.Audio
 			this.operation = operation;
 		}
 
-		public override void Apply()
+		public override void Apply(Cue cue, XACTClip track)
 		{
-			Cue.eventPitch = GetPitch(Cue.eventPitch);
+			cue.eventPitch = GetPitch(cue.eventPitch);
 		}
 
 		private float GetPitch(float currentPitch)
@@ -1397,7 +1394,7 @@ namespace Microsoft.Xna.Framework.Audio
 			this.markerData = markerData;
 		}
 
-		public override void Apply()
+		public override void Apply(Cue cue, XACTClip track)
 		{
 			// FIXME: Implement action for a marker event. Some kind of callback?
 		}
@@ -1411,7 +1408,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 		}
 
-		public override void Apply()
+		public override void Apply(Cue cue, XACTClip track)
 		{
 			// Do nothing.
 		}

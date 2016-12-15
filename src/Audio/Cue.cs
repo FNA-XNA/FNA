@@ -409,7 +409,6 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_activeSound.GatherEvents(INTERNAL_eventList);
 			foreach (XACTEvent evt in INTERNAL_eventList)
 			{
-				evt.Cue = this;
 				INTERNAL_eventPlayed.Add(false);
 				INTERNAL_eventLoops.Add(evt, 0);
 			}
@@ -503,7 +502,7 @@ namespace Microsoft.Xna.Framework.Audio
 				if (	!INTERNAL_eventPlayed[i] &&
 					INTERNAL_timer.ElapsedMilliseconds > INTERNAL_eventList[i].Timestamp	)
 				{
-					INTERNAL_eventList[i].Apply();
+					INTERNAL_eventList[i].Apply(this, null);
 					INTERNAL_eventPlayed[i] = true;
 				}
 			}
