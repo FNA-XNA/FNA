@@ -310,6 +310,21 @@ namespace Microsoft.Xna.Framework.Audio
 
 	internal class XACTClip
 	{
+		internal enum EventTypeCode
+		{
+			Stop = 0,
+			PlayWave = 1,
+			PlayWaveWithTrackVariation = 3,
+			PlayWaveWithEffectVariation = 4,
+			PlayWaveWithTrackAndEffectVariation = 6,
+			Pitch = 7,
+			Volume = 8,
+			Marker = 9,
+			PitchRepeating = 16,
+			VolumeRepeating = 17,
+			MarkerRepeating = 18
+		}
+
 		internal enum StopEventBehavior
 		{
 			Release = 0x00,
@@ -380,7 +395,7 @@ namespace Microsoft.Xna.Framework.Audio
 				uint eventInfo = reader.ReadUInt32();
 
 				// XACT Event Type, Timestamp
-				uint eventType = eventInfo & 0x0000001F;
+				EventTypeCode eventType = (EventTypeCode) (eventInfo & 0x0000001F);
 				uint eventTimestamp = (eventInfo >> 5) & 0x0000FFFF;
 				// uint eventUnknown = eventInfo >> 21;
 
@@ -388,7 +403,7 @@ namespace Microsoft.Xna.Framework.Audio
 				reader.ReadUInt16();
 
 				// Load the Event
-				if (eventType == 0x00) // StopEvent
+				if (eventType == EventTypeCode.Stop)
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -408,7 +423,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 					Events[i] = new StopEvent(eventTimestamp, stopOptions, scope);
 				}
-				else if (eventType == 0x01) // Basic PlayWaveEvent
+				else if (eventType == EventTypeCode.PlayWave)
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -454,7 +469,7 @@ namespace Microsoft.Xna.Framework.Audio
 						new byte[] { 0xFF }
 					);
 				}
-				else if (eventType == 0x03) // PlayWaveEvent with track variation
+				else if (eventType == EventTypeCode.PlayWaveWithTrackVariation)
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -523,7 +538,7 @@ namespace Microsoft.Xna.Framework.Audio
 						weights
 					);
 				}
-				else if (eventType == 0x04) // PlayWaveEvent with effect variation
+				else if (eventType == EventTypeCode.PlayWaveWithEffectVariation)
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -605,7 +620,7 @@ namespace Microsoft.Xna.Framework.Audio
 						new byte[] { 0xFF }
 					);
 				}
-				else if (eventType == 0x06) // PlayWaveEvent with track/effect variation
+				else if (eventType == EventTypeCode.PlayWaveWithTrackAndEffectVariation)
 				{
 					// Unknown value
 					reader.ReadByte();
@@ -710,7 +725,7 @@ namespace Microsoft.Xna.Framework.Audio
 						weights
 					);
 				}
-				else if (eventType == 0x07 || eventType == 0x10) // SetPitchEvent or version with recurrence. What is the recurrence flag pattern?
+				else if (eventType == EventTypeCode.Pitch || eventType == EventTypeCode.PitchRepeating)
 				{
 					// Unused byte (separator?)
 					byte separator = reader.ReadByte();
@@ -741,7 +756,7 @@ namespace Microsoft.Xna.Framework.Audio
 									reader.ReadBytes(9);
 
 									// Is this is a recurrence pitch event?
-									if (eventType == 0x10)
+									if (eventType == EventTypeCode.PitchRepeating)
 									{
 										int count;
 										float frequency;
@@ -763,7 +778,7 @@ namespace Microsoft.Xna.Framework.Audio
 									reader.ReadBytes(5);
 
 									// Is this is a recurrence pitch event?
-									if (eventType == 0x10)
+									if (eventType == EventTypeCode.PitchRepeating)
 									{
 										int count;
 										float frequency;
@@ -803,7 +818,7 @@ namespace Microsoft.Xna.Framework.Audio
 							break;
 					}
 				}
-				else if (eventType == 0x08 || eventType == 0x11) // SetVolumeEvent or version with recurrence. What is the recurrence flag pattern?
+				else if (eventType == EventTypeCode.Volume || eventType == EventTypeCode.VolumeRepeating)
 				{
 					// Unused byte (separator?)
 					byte separator = reader.ReadByte();
@@ -827,14 +842,14 @@ namespace Microsoft.Xna.Framework.Audio
 							switch (equationType)
 							{
 								case XactEventEquationType.Value:
-									// Absolute or relative value to set the pitch to.
+									// Absolute or relative value to set to.
 									float eventValue = reader.ReadSingle() / 100.0f;
 
 									// Unused/unknown trailing bytes.
 									reader.ReadBytes(9);
 
-									// Is this is a recurrence pitch event?
-									if (eventType == 0x11)
+									// Is this is a recurrence event?
+									if (eventType == EventTypeCode.VolumeRepeating)
 									{
 										int count;
 										float frequency;
@@ -855,8 +870,8 @@ namespace Microsoft.Xna.Framework.Audio
 									// Unused/unknown trailing bytes.
 									reader.ReadBytes(5);
 
-									// Is this is a recurrence pitch event?
-									if (eventType == 0x11)
+									// Is this is a recurrence event?
+									if (eventType == EventTypeCode.VolumeRepeating)
 									{
 										int count;
 										float frequency;
@@ -896,7 +911,7 @@ namespace Microsoft.Xna.Framework.Audio
 							break;
 					}
 				}
-				else if (eventType == 9 || eventType == 18) // Marker or version with recurrence. What is the recurrence flag pattern?
+				else if (eventType == EventTypeCode.Marker || eventType == EventTypeCode.MarkerRepeating)
 				{
 					// Unused byte (separator?)
 					byte separator = reader.ReadByte();
@@ -906,7 +921,7 @@ namespace Microsoft.Xna.Framework.Audio
 					int markerData = reader.ReadInt32();
 
 					// Is this is a recurrence marker event?
-					if (eventType == 18)
+					if (eventType == EventTypeCode.MarkerRepeating)
 					{
 						int count;
 						float frequency;
@@ -919,19 +934,11 @@ namespace Microsoft.Xna.Framework.Audio
 						Events[i] = new MarkerEvent(eventTimestamp, markerData);
 					}
 				}
-				else if (eventType == 15) // ???
-				{
-					// TODO: Codename OhGodNo -flibit
-					Events[i] = new NullEvent(eventTimestamp);
-				}
-				else if (eventType == 23) // ???
-				{
-					// TODO: Codename OhGodNo -flibit
-					Events[i] = new NullEvent(eventTimestamp);
-				}
 				else
 				{
-					// TODO: All XACT Events.
+					// TODO: All XACT Events?
+					// 15 - TODO: Codename OhGodNo -flibit
+					// 23 - TODO: Codename OhGodNo -flibit
 					throw new NotImplementedException(
 						"EVENT TYPE " + eventType.ToString() + " NOT IMPLEMENTED!"
 					);
