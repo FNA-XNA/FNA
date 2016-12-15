@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Collections.Generic;
 
 using Microsoft.Xna.Framework.Graphics;
 #endregion
@@ -351,6 +352,24 @@ namespace Microsoft.Xna.Framework
 			{
 				PreparingDeviceSettings(sender, args);
 			}
+		}
+
+		protected virtual bool CanResetDevice(
+			GraphicsDeviceInformation newDeviceInfo
+		) {
+			throw new NotImplementedException();
+		}
+
+		protected virtual GraphicsDeviceInformation FindBestDevice(
+			bool anySuitableDevice
+		) {
+			throw new NotImplementedException();
+		}
+
+		protected virtual void RankDevices(
+			List<GraphicsDeviceInformation> foundDevices
+		) {
+			throw new NotImplementedException();
 		}
 
 		#endregion
