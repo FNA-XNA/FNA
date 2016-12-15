@@ -1016,8 +1016,6 @@ namespace Microsoft.Xna.Framework.Audio
 				else
 				{
 					// TODO: All XACT Events?
-					// 15 - TODO: Codename OhGodNo -flibit
-					// 23 - TODO: Codename OhGodNo -flibit
 					throw new NotImplementedException(
 						"EVENT TYPE " + eventType.ToString() + " NOT IMPLEMENTED!"
 					);
