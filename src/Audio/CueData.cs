@@ -875,7 +875,7 @@ namespace Microsoft.Xna.Framework.Audio
 						if (equationType == XactEventEquationType.Value)
 						{
 							// Absolute or relative value to set to.
-							float eventValue = XACTCalculator.CalculateAmplitudeRatio(reader.ReadSingle() / 100.0f);
+							float eventValue = reader.ReadSingle() / 100.0f;
 
 							// Unused/unknown trailing bytes.
 							reader.ReadBytes(9);
@@ -911,8 +911,8 @@ namespace Microsoft.Xna.Framework.Audio
 						else if (equationType == XactEventEquationType.Random)
 						{
 							// Random min/max.
-							float eventMin = XACTCalculator.CalculateAmplitudeRatio(reader.ReadSingle() / 100.0f);
-							float eventMax = XACTCalculator.CalculateAmplitudeRatio(reader.ReadSingle() / 100.0f);
+							float eventMin = reader.ReadSingle() / 100.0f;
+							float eventMax = reader.ReadSingle() / 100.0f;
 
 							// Unused/unknown trailing bytes.
 							reader.ReadBytes(5);
@@ -1359,9 +1359,11 @@ namespace Microsoft.Xna.Framework.Audio
 			switch (operation)
 			{
 				case XACTClip.XactEventOp.Replace:
-					return value;
+					return XACTCalculator.CalculateAmplitudeRatio(value);
 				case XACTClip.XactEventOp.Add:
-					return currentVolume + value;
+					return XACTCalculator.CalculateAmplitudeRatio(
+						XACTCalculator.CalculateDecibels(currentVolume) 
+						+ value);
 				default:
 					return currentVolume;
 			}
@@ -1398,13 +1400,15 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private float GetVolume(float currentVolume)
 		{
-			float randomVolume = min + (float) (random.NextDouble() * (max - min));
+			float randomVolumeDb = min + (float) (random.NextDouble() * (max - min));
 			switch (operation)
 			{
 				case XACTClip.XactEventOp.Replace:
-					return randomVolume;
+					return XACTCalculator.CalculateAmplitudeRatio(randomVolumeDb);
 				case XACTClip.XactEventOp.Add:
-					return currentVolume + randomVolume;
+					return XACTCalculator.CalculateAmplitudeRatio(
+						XACTCalculator.CalculateDecibels(currentVolume) +
+						randomVolumeDb);
 				default:
 					return currentVolume;
 			}
