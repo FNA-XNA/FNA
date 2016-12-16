@@ -30,9 +30,14 @@ namespace Microsoft.Xna.Framework.Audio
 			) / 100.0;
 		}
 
-		public static float CalculateAmplitudeRatio(double decibel)
+		public static double CalculateDecibels(float amplitudeRatio)
 		{
-			return (float) Math.Pow(10, decibel / 20.0);
+			return 20*Math.Log10(amplitudeRatio);
+		}
+
+		public static float CalculateAmplitudeRatio(double decibels)
+		{
+		  return (float) Math.Pow(10, decibels / 20.0);
 		}
 
 		public static float CalculateVolume(byte binaryValue)
