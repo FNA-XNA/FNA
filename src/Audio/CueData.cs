@@ -1209,7 +1209,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (INTERNAL_volumeVariationAdd && currentLoop > 0)
 			{
-				result.Volume = prevVolume.Value + XACTCalculator.CalculateAmplitudeRatio(
+				result.Volume = XACTCalculator.CalculateAmplitudeRatio(
+					XACTCalculator.CalculateDecibels(prevVolume.Value) + 
 					random.NextDouble() *
 					(INTERNAL_maxVolume - INTERNAL_minVolume) +
 					INTERNAL_minVolume
