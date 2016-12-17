@@ -1395,7 +1395,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private double GetVolume(double currentVolume)
 		{
-			double randomVolume = min + (float) (random.NextDouble() * (max - min));
+			double randomVolume = min + (random.NextDouble() * (max - min));
 			switch (operation)
 			{
 				case XACTClip.XactEventOp.Replace:
