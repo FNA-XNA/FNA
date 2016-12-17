@@ -27,17 +27,13 @@ namespace Microsoft.Xna.Framework.Audio
 			 */
 			return (
 				(3969.0 * Math.Log10(binaryValue / 28240.0)) + 8715.0
-			) / 100.0;
+			);
 		}
 
 		public static float CalculateAmplitudeRatio(double decibel)
 		{
-			return (float) Math.Pow(10, decibel / 20.0);
-		}
-
-		public static float CalculateVolume(byte binaryValue)
-		{
-			return CalculateAmplitudeRatio(ParseDecibel(binaryValue));
+			// 2000 rather than 20, 'decibel' is in 'db * 100'
+			return (float) Math.Pow(10, decibel / 2000.0);
 		}
 	}
 

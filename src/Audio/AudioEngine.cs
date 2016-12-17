@@ -236,7 +236,11 @@ namespace Microsoft.Xna.Framework.Audio
 					short parent = reader.ReadInt16();
 
 					// Volume
-					float volume = XACTCalculator.CalculateVolume(reader.ReadByte());
+					float volume = XACTCalculator.CalculateAmplitudeRatio(
+						XACTCalculator.ParseDecibel(
+							reader.ReadByte()
+						)
+					);
 
 					// Visibility Flags, unused
 					reader.ReadByte();

@@ -875,7 +875,7 @@ namespace Microsoft.Xna.Framework.Audio
 						if (equationType == XactEventEquationType.Value)
 						{
 							// Absolute or relative value to set to.
-							float eventValue = XACTCalculator.CalculateAmplitudeRatio(reader.ReadSingle() / 100.0f);
+							float eventValue = reader.ReadSingle();
 
 							// Unused/unknown trailing bytes.
 							reader.ReadBytes(9);
@@ -911,8 +911,8 @@ namespace Microsoft.Xna.Framework.Audio
 						else if (equationType == XactEventEquationType.Random)
 						{
 							// Random min/max.
-							float eventMin = XACTCalculator.CalculateAmplitudeRatio(reader.ReadSingle() / 100.0f);
-							float eventMax = XACTCalculator.CalculateAmplitudeRatio(reader.ReadSingle() / 100.0f);
+							float eventMin = reader.ReadSingle();
+							float eventMax = reader.ReadSingle();
 
 							// Unused/unknown trailing bytes.
 							reader.ReadBytes(5);
@@ -1195,35 +1195,33 @@ namespace Microsoft.Xna.Framework.Audio
 			double soundVolume,
 			float soundPitch,
 			int currentLoop,
-			float? prevVolume,
-			float? prevPitch
+			double? prevVolume,
+			float? prevPitch,
+			out double finalVolume
 		) {
 			if (currentLoop > INTERNAL_loopCount && INTERNAL_loopCount != 255)
 			{
 				// We've finished all the loops!
+				finalVolume = 0.0;
 				return null;
 			}
 			INTERNAL_getNextSound();
 			SoundEffectInstance result = INTERNAL_waves[INTERNAL_curWave].CreateInstance();
 			result.INTERNAL_isXACTSource = true;
 
+			finalVolume = (
+				random.NextDouble() *
+				(INTERNAL_maxVolume - INTERNAL_minVolume)
+			) + INTERNAL_minVolume;
 			if (INTERNAL_volumeVariationAdd && currentLoop > 0)
 			{
-				result.Volume = prevVolume.Value + XACTCalculator.CalculateAmplitudeRatio(
-					random.NextDouble() *
-					(INTERNAL_maxVolume - INTERNAL_minVolume) +
-					INTERNAL_minVolume
-				);
+				finalVolume += prevVolume.Value;
 			}
 			else
 			{
-				result.Volume = XACTCalculator.CalculateAmplitudeRatio(
-					soundVolume + (
-						random.NextDouble() *
-						(INTERNAL_maxVolume - INTERNAL_minVolume)
-					) + INTERNAL_minVolume
-				);
+				finalVolume += soundVolume;
 			}
+			result.Volume = XACTCalculator.CalculateAmplitudeRatio(finalVolume);
 
 			float aggregatePitch = (
 				random.Next(
@@ -1353,7 +1351,7 @@ namespace Microsoft.Xna.Framework.Audio
 			cue.eventVolume = GetVolume(cue.eventVolume);
 		}
 
-		private float GetVolume(float currentVolume)
+		private double GetVolume(double currentVolume)
 		{
 			switch (operation)
 			{
@@ -1395,9 +1393,9 @@ namespace Microsoft.Xna.Framework.Audio
 			cue.eventVolume = GetVolume(cue.eventVolume);
 		}
 
-		private float GetVolume(float currentVolume)
+		private double GetVolume(double currentVolume)
 		{
-			float randomVolume = min + (float) (random.NextDouble() * (max - min));
+			double randomVolume = min + (float) (random.NextDouble() * (max - min));
 			switch (operation)
 			{
 				case XACTClip.XactEventOp.Replace:

@@ -119,7 +119,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		// Sound list
 		private List<SoundEffectInstance> INTERNAL_instancePool;
-		private List<float> INTERNAL_instanceVolumes;
+		private List<double> INTERNAL_instanceVolumes;
 		private List<float> INTERNAL_instancePitches;
 
 		// RPC data list
@@ -127,7 +127,7 @@ namespace Microsoft.Xna.Framework.Audio
 		private List<float> INTERNAL_rpcTrackPitches;
 
 		// Events can control volume/pitch as well!
-		internal float eventVolume;
+		internal double eventVolume;
 		internal float eventPitch;
 
 		// User-controlled sounds require a bit more trickery.
@@ -209,7 +209,7 @@ namespace Microsoft.Xna.Framework.Audio
 				data.Category
 			);
 
-			eventVolume = 1.0f;
+			eventVolume = 0.0;
 			eventPitch = 0.0f;
 
 			INTERNAL_userControlledPlaying = false;
@@ -223,7 +223,7 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_timer =  new Stopwatch();
 
 			INTERNAL_instancePool = new List<SoundEffectInstance>();
-			INTERNAL_instanceVolumes = new List<float>();
+			INTERNAL_instanceVolumes = new List<double>();
 			INTERNAL_instancePitches = new List<float>();
 
 			INTERNAL_rpcTrackVolumes = new List<float>();
@@ -514,7 +514,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					// Get the event that spawned this instance...
 					PlayWaveEvent evt = (PlayWaveEvent) INTERNAL_waveEventSounds[INTERNAL_instancePool[i]];
-					float prevVolume = INTERNAL_instanceVolumes[i];
+					double prevVolume = INTERNAL_instanceVolumes[i];
 					float prevPitch = INTERNAL_instancePitches[i];
 
 					// Then delete all the guff
@@ -652,7 +652,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 
 			// RPC updates
-			float rpcVolume = 1.0f;
+			float rpcVolume = 0.0f;
 			float rpcPitch = 0.0f;
 			float hfGain = 1.0f;
 			float lfGain = 1.0f;
@@ -664,7 +664,7 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 				if (i > 0)
 				{
-					INTERNAL_rpcTrackVolumes[i - 1] = 1.0f;
+					INTERNAL_rpcTrackVolumes[i - 1] = 0.0f;
 					INTERNAL_rpcTrackPitches[i - 1] = 0.0f;
 				}
 				foreach (uint curCode in INTERNAL_activeSound.RPCCodes[i])
@@ -686,14 +686,13 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					if (curRPC.Parameter == RPCParameter.Volume)
 					{
-						float vol = XACTCalculator.CalculateAmplitudeRatio(result / 100.0);
 						if (i == 0)
 						{
-							rpcVolume *= vol;
+							rpcVolume += result;
 						}
 						else
 						{
-							INTERNAL_rpcTrackVolumes[i - 1] *= vol;
+							INTERNAL_rpcTrackVolumes[i - 1] += result;
 						}
 					}
 					else if (curRPC.Parameter == RPCParameter.Pitch)
@@ -736,14 +735,12 @@ namespace Microsoft.Xna.Framework.Audio
 				/* The final volume should be the combination of the
 				 * authored volume, category volume, RPC/Event volumes, and fade.
 				 */
-				INTERNAL_instancePool[i].Volume = (
-					INTERNAL_instanceVolumes[i] *
-					INTERNAL_category.INTERNAL_volume.Value *
-					rpcVolume *
-					INTERNAL_rpcTrackVolumes[i] *
-					eventVolume *
-					fadePerc
-				);
+				INTERNAL_instancePool[i].Volume = XACTCalculator.CalculateAmplitudeRatio(
+					INTERNAL_instanceVolumes[i] +
+					rpcVolume +
+					INTERNAL_rpcTrackVolumes[i] +
+					eventVolume
+				) * INTERNAL_category.INTERNAL_volume.Value * fadePerc;
 
 				/* The final pitch should be the combination of the
 				 * authored pitch and RPC/Event pitch results.
@@ -804,7 +801,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal float INTERNAL_calculateVolume()
 		{
-			float retval = 1.0f;
+			float retval = 0.0f;
 			for (int i = 0; i < INTERNAL_activeSound.RPCCodes.Count; i += 1)
 			foreach (uint curCode in INTERNAL_activeSound.RPCCodes[i])
 			{
@@ -827,7 +824,7 @@ namespace Microsoft.Xna.Framework.Audio
 						)
 					);
 				}
-				retval *= XACTCalculator.CalculateAmplitudeRatio(result / 100.0);
+				retval += result;
 			}
 			return retval;
 		}
@@ -915,14 +912,16 @@ namespace Microsoft.Xna.Framework.Audio
 			return true;
 		}
 
-		internal void PlayWave(PlayWaveEvent evt, float? prevVolume = null, float? prevPitch = null)
+		internal void PlayWave(PlayWaveEvent evt, double? prevVolume = null, float? prevPitch = null)
 		{
+			double finalVolume;
 			SoundEffectInstance sfi = evt.GenerateInstance(
 				INTERNAL_activeSound.Volume,
 				INTERNAL_activeSound.Pitch,
 				INTERNAL_eventLoops[evt],
 				prevVolume,
-				prevPitch
+				prevPitch,
+				out finalVolume
 			);
 			if (sfi != null)
 			{
@@ -938,13 +937,13 @@ namespace Microsoft.Xna.Framework.Audio
 					);
 				}
 				INTERNAL_instancePool.Add(sfi);
-				INTERNAL_instanceVolumes.Add(sfi.Volume);
+				INTERNAL_instanceVolumes.Add(finalVolume);
 
 				// XACT uses -12 to 12 (semitones) internally for pitch, XNA uses -1 to 1 (octaves).
 				INTERNAL_instancePitches.Add(sfi.Pitch * 12.0f);
 
 				INTERNAL_waveEventSounds.Add(sfi, evt);
-				INTERNAL_rpcTrackVolumes.Add(1.0f);
+				INTERNAL_rpcTrackVolumes.Add(0.0f);
 				INTERNAL_rpcTrackPitches.Add(0.0f);
 				sfi.Play();
 			}
