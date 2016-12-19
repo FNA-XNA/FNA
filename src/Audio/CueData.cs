@@ -131,7 +131,7 @@ namespace Microsoft.Xna.Framework.Audio
 			private set;
 		}
 
-		public float Pitch
+		public short Pitch
 		{
 			get;
 			private set;
@@ -183,7 +183,7 @@ namespace Microsoft.Xna.Framework.Audio
 			Volume = XACTCalculator.ParseDecibel(reader.ReadByte());
 
 			// Sound Pitch
-			Pitch = (reader.ReadInt16() / 100.0f);
+			Pitch = reader.ReadInt16();
 
 			// Unknown value
 			reader.ReadByte();
@@ -741,7 +741,7 @@ namespace Microsoft.Xna.Framework.Audio
 						if (equationType == XactEventEquationType.Value)
 						{
 							// Absolute or relative value to set the pitch to.
-							float eventValue = reader.ReadSingle() / 100.0f;
+							float eventValue = reader.ReadSingle();
 
 							// Unused/unknown trailing bytes.
 							reader.ReadBytes(9);
@@ -777,8 +777,8 @@ namespace Microsoft.Xna.Framework.Audio
 						else if (equationType == XactEventEquationType.Random)
 						{
 							// Random pitch Min/Max.
-							float eventMin = reader.ReadSingle() / 100.0f;
-							float eventMax = reader.ReadSingle() / 100.0f;
+							float eventMin = reader.ReadSingle();
+							float eventMax = reader.ReadSingle();
 
 							// Unused/unknown trailing bytes.
 							reader.ReadBytes(5);
@@ -1193,16 +1193,18 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public SoundEffectInstance GenerateInstance(
 			double soundVolume,
-			float soundPitch,
+			short soundPitch,
 			int currentLoop,
 			double? prevVolume,
-			float? prevPitch,
-			out double finalVolume
+			short? prevPitch,
+			out double finalVolume,
+			out short finalPitch
 		) {
 			if (currentLoop > INTERNAL_loopCount && INTERNAL_loopCount != 255)
 			{
 				// We've finished all the loops!
 				finalVolume = 0.0;
+				finalPitch = 0;
 				return null;
 			}
 			INTERNAL_getNextSound();
@@ -1223,18 +1225,19 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			result.Volume = XACTCalculator.CalculateAmplitudeRatio(finalVolume);
 
-			float aggregatePitch = (
-				random.Next(
-					INTERNAL_minPitch,
-					INTERNAL_maxPitch
-				) / 100.0f
-			) + ((INTERNAL_pitchVariationAdd && currentLoop > 0) ?
-				prevPitch.Value :
-				soundPitch
+			finalPitch = (short) random.Next(
+				INTERNAL_minPitch,
+				INTERNAL_maxPitch
 			);
-
-			// XACT uses -12 to 12 (semitones) internally for pitch, XNA uses -1 to 1 (octaves).
-			result.Pitch = aggregatePitch / 12.0f;
+			if (INTERNAL_pitchVariationAdd && currentLoop > 0)
+			{
+				finalPitch += prevPitch.Value;
+			}
+			else
+			{
+				finalPitch += soundPitch;
+			}
+			result.Pitch = finalPitch / 1200.0f;
 			
 			result.FilterType = INTERNAL_filterType;
 			result.IsLooped = (
