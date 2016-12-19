@@ -20,7 +20,7 @@
  * colors indicate a rough percentage of time spent in both Update() and Draw().
  * Blue is Update(), Red is Draw(). There may be time spent in other parts of
  * the frame (usually GraphicsDevice.Present if you're faster than the display's
- * refresh rate), but compares to these two functions, the time spent is likely
+ * refresh rate), but compared to these two functions, the time spent is likely
  * marginal in comparison.
  *
  * If you want _real_ profile data, use a _real_ profiler!
