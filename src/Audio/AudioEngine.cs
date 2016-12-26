@@ -329,7 +329,7 @@ namespace Microsoft.Xna.Framework.Audio
 					for (byte j = 0; j < numPoints; j += 1)
 					{
 						float x = reader.ReadSingle();
-						float y = reader.ReadSingle();
+						float y = reader.ReadSingle() / 100.0f;
 						byte type = reader.ReadByte();
 						rpcPoints[j] = new RPCPoint(
 							x, y,
