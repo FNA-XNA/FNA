@@ -123,7 +123,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 	internal class XACTSound
 	{
-		private XACTClip[] INTERNAL_clips;
+		internal XACTClip[] INTERNAL_clips;
 
 		public double Volume
 		{
