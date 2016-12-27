@@ -222,6 +222,8 @@ namespace Microsoft.Xna.Framework.Audio
 			Points = rpcPoints;
 		}
 
+		public RPCPoint LastPoint { get { return Points[Points.Length - 1]; } }
+
 		public float CalculateRPC(float varInput)
 		{
 			// Min/Max
