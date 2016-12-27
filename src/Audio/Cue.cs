@@ -748,26 +748,25 @@ namespace Microsoft.Xna.Framework.Audio
 			for (int i = 0; i < INTERNAL_instancePool.Count; i += 1)
 			{
 				/* The final volume should be the combination of the
-				 * authored volume, category volume, RPC/Event volumes, and fade.
+				 * authored volume, category volume, RPC Track volume, 
+				 * Event volumes, and fade.
 				 */
 				INTERNAL_instancePool[i].Volume = XACTCalculator.CalculateAmplitudeRatio(
 					INTERNAL_instanceVolumes[i] +
-					rpcVolume +
-					INTERNAL_rpcTrackVolumes[i] +
+					(i == 0 ? rpcVolume : INTERNAL_rpcTrackVolumes[i-1]) +
 					eventVolume
 				) * INTERNAL_category.INTERNAL_volume.Value * fadePerc;
 
 				/* The final pitch should be the combination of the
-				 * authored pitch and RPC/Event pitch results.
+				 * authored pitch, RPC Track pitch, and Event pitch.
 				 *
 				 * XACT uses -1200 to 1200 (+/- 12 semitones),
 				 * XNA uses -1.0f to 1.0f (+/- 1 octave).
 				 */
 				INTERNAL_instancePool[i].Pitch = (
 					INTERNAL_instancePitches[i] +
-					rpcPitch +
-					eventPitch +
-					INTERNAL_rpcTrackPitches[i]
+					(i == 0 ? rpcPitch : INTERNAL_rpcTrackPitches[i-1]) +
+					eventPitch
 				) / 1200.0f;
 
 				/* The final filter is determined by the instance's filter type,
