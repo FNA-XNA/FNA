@@ -1199,7 +1199,8 @@ namespace Microsoft.Xna.Framework.Audio
 		public EventInstance(XACTEvent evt)
 		{
 			Event = evt;
-			Timestamp = Event.Timestamp;
+			Timestamp = Event.Timestamp
+				+ XACTEvent.Random.Next(0, Event.RandomOffset);
 			LoopCount = Event.LoopCount;
 			Played = false;
 		}
