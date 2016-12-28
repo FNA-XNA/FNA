@@ -30,10 +30,10 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 		}
 
+		// Note: This takes decibels*100 as input, not decibels.
 		public static float CalculateAmplitudeRatio(double decibel)
 		{
-			// 2000 rather than 20, 'decibel' is in 'db * 100'
-			return (float) Math.Pow(10, decibel / 2000.0);
+			return (float) Math.Pow(10, decibel / 20.0f / 100.0f);
 		}
 	}
 
@@ -221,6 +221,8 @@ namespace Microsoft.Xna.Framework.Audio
 			Parameter = (RPCParameter) rpcParameter;
 			Points = rpcPoints;
 		}
+
+		public RPCPoint LastPoint { get { return Points[Points.Length - 1]; } }
 
 		public float CalculateRPC(float varInput)
 		{
