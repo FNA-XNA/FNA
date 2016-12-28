@@ -1205,6 +1205,25 @@ namespace Microsoft.Xna.Framework.Audio
 		}
 
 		public abstract void Apply(Cue cue, XACTClip track, float elapsedTime);
+
+		protected void HandleRepeating()
+		{
+			if (LoopCount > 0)
+			{
+				// If not set to infinite looping.
+				if (Event.LoopCount != 65535)
+				{
+					LoopCount = LoopCount - 1;
+				}
+
+				// FIXME: Use Frequency Units (Seconds / Beats per Minute) instead of constant of seconds.
+				Timestamp = Timestamp + Event.Frequency * 1000.0f;
+			}
+			else
+			{
+				Played = true;
+			}
+		}
 	}
 
 	internal class PlayWaveEventInstance : EventInstance
@@ -1269,6 +1288,8 @@ namespace Microsoft.Xna.Framework.Audio
 					cue.eventPitch = evt.GetPitch(cue.eventPitch);
 					break;
 			}
+
+			HandleRepeating();
 		}
 	}
 
@@ -1291,6 +1312,8 @@ namespace Microsoft.Xna.Framework.Audio
 					cue.eventPitch = evt.GetPitch(cue.eventPitch);
 					break;
 			}
+
+			HandleRepeating();
 		}
 	}
 
@@ -1315,6 +1338,10 @@ namespace Microsoft.Xna.Framework.Audio
 						cue.eventPitch = GetValue(evt, elapsedTime);
 						break;
 				}
+			}
+			else
+			{
+				HandleRepeating();
 			}
 		}
 
@@ -1345,6 +1372,8 @@ namespace Microsoft.Xna.Framework.Audio
 		public override void Apply(Cue cue, XACTClip track, float elapsedTime)
 		{
 			// FIXME: Implement action for a marker event. Some kind of callback?
+
+			HandleRepeating();
 		}
 	}
 }
