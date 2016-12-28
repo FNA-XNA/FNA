@@ -1248,7 +1248,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public override void Apply(Cue cue, XACTClip track, float elapsedTime)
 		{
-			cue.PlayWave(this);
+			// Only actually play if we are not in the process of stopping.
+			if (!cue.IsStopping)
+			{
+				cue.PlayWave(this);
+			}
 			Played = true;
 		}
 	}
