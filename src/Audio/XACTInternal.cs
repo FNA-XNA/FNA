@@ -30,9 +30,9 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 		}
 
+		// Note: This takes 'decibels * 100' as input!
 		public static float CalculateAmplitudeRatio(double decibel)
 		{
-			// 2000 rather than 20, 'decibel' is in 'db * 100'
 			return (float) Math.Pow(10, decibel / 2000.0);
 		}
 	}
