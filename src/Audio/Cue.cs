@@ -75,8 +75,8 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return INTERNAL_fadeMode == FadeMode.FadeOut
-							 || INTERNAL_fadeMode == FadeMode.ReleaseRpc;
+				return (	INTERNAL_fadeMode == FadeMode.FadeOut ||
+						INTERNAL_fadeMode == FadeMode.ReleaseRpc	);
 			}
 		}
 
@@ -218,7 +218,7 @@ namespace Microsoft.Xna.Framework.Audio
 							RPC curRPC = INTERNAL_baseEngine.INTERNAL_getRPC(curCode);
 							if (!INTERNAL_baseEngine.INTERNAL_isGlobalVariable(curRPC.Variable))
 							{
-									// Only release times applied to volume are considered.
+								// Only release times applied to volume are considered.
 								if (curRPC.Variable.Equals("ReleaseTime") && curRPC.Parameter == RPCParameter.Volume)
 								{
 									maxReleaseMS = Math.Max((ushort)curRPC.LastPoint.X, maxReleaseMS);
@@ -600,9 +600,13 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					if (INTERNAL_category.crossfadeType == CrossfadeType.Linear)
 					{
-						fadePerc = (INTERNAL_fadeEnd
-												- (INTERNAL_timer.ElapsedMilliseconds - INTERNAL_fadeStart))
-											 / (float) INTERNAL_fadeEnd;
+						fadePerc = (
+							INTERNAL_fadeEnd -
+							(
+								INTERNAL_timer.ElapsedMilliseconds -
+								INTERNAL_fadeStart
+							)
+						) / (float) INTERNAL_fadeEnd;
 					}
 					else
 					{
@@ -633,9 +637,10 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 				else if (INTERNAL_fadeMode == FadeMode.ReleaseRpc)
 				{
-					float releasePerc = (INTERNAL_timer.ElapsedMilliseconds
-															 - INTERNAL_fadeStart)
-															/ (float) INTERNAL_maxRpcReleaseTime;
+					float releasePerc = (
+						INTERNAL_timer.ElapsedMilliseconds -
+						INTERNAL_fadeStart
+					) / (float) INTERNAL_maxRpcReleaseTime;
 					if (releasePerc > 1.0f)
 					{
 						Stop(AudioStopOptions.Immediate);
@@ -763,8 +768,7 @@ namespace Microsoft.Xna.Framework.Audio
 						{
 							if (INTERNAL_fadeMode == FadeMode.ReleaseRpc)
 							{
-								long elapsedFromStop = INTERNAL_timer.ElapsedMilliseconds
-																			 - INTERNAL_fadeStart;
+								long elapsedFromStop = INTERNAL_timer.ElapsedMilliseconds - INTERNAL_fadeStart;
 								variableValue = elapsedFromStop;
 							}
 						}
@@ -781,14 +785,13 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					if (curRPC.Parameter == RPCParameter.Volume)
 					{
-						double volume = result;
 						if (i == 0)
 						{
-							rpcVolume += volume;
+							rpcVolume += result;
 						}
 						else
 						{
-							INTERNAL_rpcTrackVolumes[i - 1] += volume;
+							INTERNAL_rpcTrackVolumes[i - 1] += result;
 						}
 					}
 					else if (curRPC.Parameter == RPCParameter.Pitch)
@@ -821,7 +824,8 @@ namespace Microsoft.Xna.Framework.Audio
 					else
 					{
 						throw new NotImplementedException(
-							"RPC Parameter Type: " + curRPC.Parameter.ToString());
+							"RPC Parameter Type: " + curRPC.Parameter.ToString()
+						);
 					}
 				}
 			}
@@ -835,7 +839,7 @@ namespace Microsoft.Xna.Framework.Audio
 				 */
 				INTERNAL_instancePool[i].Volume = XACTCalculator.CalculateAmplitudeRatio(
 					INTERNAL_instanceVolumes[i] +
-					(i == 0 ? rpcVolume : INTERNAL_rpcTrackVolumes[i-1]) +
+					(i == 0 ? rpcVolume : INTERNAL_rpcTrackVolumes[i - 1]) +
 					eventVolume
 				) * INTERNAL_category.INTERNAL_volume.Value * fadePerc;
 
@@ -847,7 +851,7 @@ namespace Microsoft.Xna.Framework.Audio
 				 */
 				INTERNAL_instancePool[i].Pitch = (
 					INTERNAL_instancePitches[i] +
-					(i == 0 ? rpcPitch : INTERNAL_rpcTrackPitches[i-1]) +
+					(i == 0 ? rpcPitch : INTERNAL_rpcTrackPitches[i - 1]) +
 					eventPitch
 				) / 1200.0f;
 
@@ -919,8 +923,7 @@ namespace Microsoft.Xna.Framework.Audio
 					{
 						if (INTERNAL_fadeMode == FadeMode.ReleaseRpc)
 						{
-							long elapsedFromStop = INTERNAL_timer.ElapsedMilliseconds
-																			- INTERNAL_fadeStart;
+							long elapsedFromStop = INTERNAL_timer.ElapsedMilliseconds - INTERNAL_fadeStart;
 							variableValue = elapsedFromStop;
 						}
 					}
