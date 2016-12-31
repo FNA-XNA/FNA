@@ -548,6 +548,11 @@ namespace Microsoft.Xna.Framework.Audio
 			elapsedFrames += 1;
 
 			// Trigger events for each track
+			if (INTERNAL_activeSound == null)
+			{
+				// ... unless there aren't any.
+				return INTERNAL_userControlledPlaying;
+			}
 			foreach (XACTClipInstance clip in INTERNAL_activeSound.Clips)
 			{
 				// Play events when the timestamp has been hit.
