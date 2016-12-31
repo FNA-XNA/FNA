@@ -35,6 +35,12 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			return (float) Math.Pow(10, decibel / 2000.0);
 		}
+
+		// Interestingly, Reverb gains are stored as floats without the x100!
+		public static float CalculateReverbAmplitudeRatio(float decibel)
+		{
+			return (float) Math.Pow(10, decibel / 20.0f);
+		}
 	}
 
 	internal enum MaxInstanceBehavior : byte

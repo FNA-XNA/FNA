@@ -1047,7 +1047,7 @@ namespace Microsoft.Xna.Framework.Audio
 			EFX.alEffectf(
 				(reverb as OpenALReverb).EffectHandle,
 				EFX.AL_EAXREVERB_GAINHF,
-				XACTCalculator.CalculateAmplitudeRatio(
+				XACTCalculator.CalculateReverbAmplitudeRatio(
 					value - 8.0f
 				)
 			);
@@ -1095,7 +1095,7 @@ namespace Microsoft.Xna.Framework.Audio
 				(reverb as OpenALReverb).EffectHandle,
 				EFX.AL_EAXREVERB_REFLECTIONS_GAIN,
 				Math.Min(
-					XACTCalculator.CalculateAmplitudeRatio(value),
+					XACTCalculator.CalculateReverbAmplitudeRatio(value),
 					3.16f
 				)
 			);
@@ -1111,7 +1111,7 @@ namespace Microsoft.Xna.Framework.Audio
 				(reverb as OpenALReverb).EffectHandle,
 				EFX.AL_EAXREVERB_GAIN,
 				Math.Min(
-					XACTCalculator.CalculateAmplitudeRatio(value),
+					XACTCalculator.CalculateReverbAmplitudeRatio(value),
 					1.0f
 				)
 			);
