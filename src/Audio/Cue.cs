@@ -547,12 +547,44 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			elapsedFrames += 1;
 
-			// Trigger events for each track
-			if (INTERNAL_activeSound == null)
+			// User control updates
+			if (INTERNAL_data.IsUserControlled)
 			{
-				// ... unless there aren't any.
-				return INTERNAL_userControlledPlaying;
+				string varName = INTERNAL_data.UserControlVariable;
+				if (	INTERNAL_userControlledPlaying &&
+					(INTERNAL_baseEngine.INTERNAL_isGlobalVariable(varName) ?
+						!MathHelper.WithinEpsilon(INTERNAL_controlledValue, INTERNAL_baseEngine.GetGlobalVariable(varName)) :
+						!MathHelper.WithinEpsilon(INTERNAL_controlledValue, GetVariable(INTERNAL_data.UserControlVariable)))	)
+				{
+					// TODO: Crossfading
+					foreach (SoundEffectInstance sfi in INTERNAL_instancePool)
+					{
+						sfi.Stop();
+						sfi.Dispose();
+					}
+					INTERNAL_instancePool.Clear();
+					INTERNAL_instanceVolumes.Clear();
+					INTERNAL_instancePitches.Clear();
+					INTERNAL_rpcTrackVolumes.Clear();
+					INTERNAL_rpcTrackPitches.Clear();
+					if (!INTERNAL_calculateNextSound())
+					{
+						// Nothing to play, bail.
+						return true;
+					}
+					INTERNAL_activeSound.InitializeClips();
+					INTERNAL_timer.Stop();
+					INTERNAL_timer.Reset();
+					INTERNAL_timer.Start();
+				}
+
+				if (INTERNAL_activeSound == null)
+				{
+					return INTERNAL_userControlledPlaying;
+				}
 			}
+
+			// Trigger events for each track
 			foreach (XACTClipInstance clip in INTERNAL_activeSound.Clips)
 			{
 				// Play events when the timestamp has been hit.
@@ -661,43 +693,6 @@ namespace Microsoft.Xna.Framework.Audio
 				else
 				{
 					throw new NotImplementedException("Unsupported FadeMode!");
-				}
-			}
-
-			// User control updates
-			if (INTERNAL_data.IsUserControlled)
-			{
-				string varName = INTERNAL_data.UserControlVariable;
-				if (	INTERNAL_userControlledPlaying &&
-					(INTERNAL_baseEngine.INTERNAL_isGlobalVariable(varName) ?
-						!MathHelper.WithinEpsilon(INTERNAL_controlledValue, INTERNAL_baseEngine.GetGlobalVariable(varName)) :
-						!MathHelper.WithinEpsilon(INTERNAL_controlledValue, GetVariable(INTERNAL_data.UserControlVariable)))	)
-				{
-					// TODO: Crossfading
-					foreach (SoundEffectInstance sfi in INTERNAL_instancePool)
-					{
-						sfi.Stop();
-						sfi.Dispose();
-					}
-					INTERNAL_instancePool.Clear();
-					INTERNAL_instanceVolumes.Clear();
-					INTERNAL_instancePitches.Clear();
-					INTERNAL_rpcTrackVolumes.Clear();
-					INTERNAL_rpcTrackPitches.Clear();
-					if (!INTERNAL_calculateNextSound())
-					{
-						// Nothing to play, bail.
-						return true;
-					}
-					INTERNAL_activeSound.InitializeClips();
-					INTERNAL_timer.Stop();
-					INTERNAL_timer.Reset();
-					INTERNAL_timer.Start();
-				}
-
-				if (INTERNAL_activeSound == null)
-				{
-					return INTERNAL_userControlledPlaying;
 				}
 			}
 
