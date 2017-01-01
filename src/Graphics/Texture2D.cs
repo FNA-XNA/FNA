@@ -1,6 +1,6 @@
 #region License
 /* FNA - XNA4 Reimplementation for Desktop Platforms
- * Copyright 2009-2016 Ethan Lee and the MonoGame Team
+ * Copyright 2009-2017 Ethan Lee and the MonoGame Team
  *
  * Released under the Microsoft Public License.
  * See LICENSE for details.
@@ -246,7 +246,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void SaveAsJpeg(Stream stream, int width, int height)
 		{
 			// dealwithit.png -flibit
-			throw new NotSupportedException("It's 2016. Time to move on.");
+			throw new NotSupportedException("It's 2017. Time to move on.");
 		}
 
 		public void SaveAsPng(Stream stream, int width, int height)
