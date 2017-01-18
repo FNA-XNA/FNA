@@ -313,17 +313,18 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The new angle, in radians.</returns>
 		public static float WrapAngle(float angle)
 		{
-			angle = (float) Math.IEEERemainder((double) angle, 6.2831854820251465);
-			if (angle <= -3.14159274f)
+			if ((angle > -Pi) && (angle <= Pi))
 			{
-				angle += 6.28318548f;
+				return angle;
 			}
-			else
+			angle %= TwoPi;
+			if (angle <= Pi)
 			{
-				if (angle > 3.14159274f)
-				{
-					angle -= 6.28318548f;
-				}
+				return angle + TwoPi;
+			}
+			if (angle > Pi)
+			{
+				return angle - TwoPi;
 			}
 			return angle;
 		}
