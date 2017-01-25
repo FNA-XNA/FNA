@@ -955,6 +955,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal void INTERNAL_startFadeOut(ushort ms)
 		{
+			if (INTERNAL_fadeMode == FadeMode.FadeOut)
+			{
+				return; // Already in the middle of something...
+			}
 			INTERNAL_fadeStart = INTERNAL_timer.ElapsedMilliseconds;
 			INTERNAL_fadeEnd = ms;
 			INTERNAL_fadeMode = FadeMode.FadeOut;

@@ -228,14 +228,28 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					else if (maxCueBehavior == MaxInstanceBehavior.Queue)
 					{
-						newCue.INTERNAL_startFadeIn(maxFadeInMS);
-						activeCues[0].INTERNAL_startFadeOut(maxFadeOutMS);
+						if (maxFadeInMS > 0)
+						{
+							newCue.INTERNAL_startFadeIn(maxFadeInMS);
+						}
+						if (maxFadeOutMS > 0)
+						{
+							activeCues[0].INTERNAL_startFadeOut(maxFadeOutMS);
+						}
+						else
+						{
+							activeCues[0].Stop(AudioStopOptions.AsAuthored);
+						}
 					}
 					else if (maxCueBehavior == MaxInstanceBehavior.ReplaceOldest)
 					{
 						if (!INTERNAL_removeOldestCue(activeCues[0].Name))
 						{
 							return false; // Just ignore us...
+						}
+						if (maxFadeInMS > 0)
+						{
+							newCue.INTERNAL_startFadeIn(maxFadeInMS);
 						}
 					}
 					else if (maxCueBehavior == MaxInstanceBehavior.ReplaceQuietest)
@@ -262,6 +276,10 @@ namespace Microsoft.Xna.Framework.Audio
 						{
 							return false; // Just ignore us...
 						}
+						if (maxFadeInMS > 0)
+						{
+							newCue.INTERNAL_startFadeIn(maxFadeInMS);
+						}
 					}
 					else if (maxCueBehavior == MaxInstanceBehavior.ReplaceLowestPriority)
 					{
@@ -270,8 +288,13 @@ namespace Microsoft.Xna.Framework.Audio
 						{
 							return false; // Just ignore us...
 						}
+						if (maxFadeInMS > 0)
+						{
+							newCue.INTERNAL_startFadeIn(maxFadeInMS);
+						}
 					}
 				}
+
 				cueInstanceCounts[newCue.Name].Add(newCue);
 				activeCues.Add(newCue);
 			}
@@ -286,7 +309,14 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					if (activeCues[i].Name.Equals(name) && !activeCues[i].JustStarted)
 					{
-						activeCues[i].Stop(AudioStopOptions.AsAuthored);
+						if (maxFadeOutMS > 0)
+						{
+							activeCues[i].INTERNAL_startFadeOut(maxFadeOutMS);
+						}
+						else
+						{
+							activeCues[i].Stop(AudioStopOptions.AsAuthored);
+						}
 						return true;
 					}
 				}
@@ -316,7 +346,14 @@ namespace Microsoft.Xna.Framework.Audio
 
 				if (lowestIndex > -1)
 				{
-					activeCues[lowestIndex].Stop(AudioStopOptions.AsAuthored);
+					if (maxFadeOutMS > 0)
+					{
+						activeCues[lowestIndex].INTERNAL_startFadeOut(maxFadeOutMS);
+					}
+					else
+					{
+						activeCues[lowestIndex].Stop(AudioStopOptions.AsAuthored);
+					}
 					return true;
 				}
 				return false;
