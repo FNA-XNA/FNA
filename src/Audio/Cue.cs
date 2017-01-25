@@ -962,6 +962,7 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_fadeStart = INTERNAL_timer.ElapsedMilliseconds;
 			INTERNAL_fadeEnd = ms;
 			INTERNAL_fadeMode = FadeMode.FadeOut;
+			INTERNAL_category.INTERNAL_moveToDying(this);
 		}
 
 		internal void INTERNAL_startReleaseRpc(ushort ms)

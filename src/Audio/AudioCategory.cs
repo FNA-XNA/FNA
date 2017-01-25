@@ -58,6 +58,7 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Private Variables
 
 		private readonly List<Cue> activeCues;
+		private readonly List<Cue> dyingCues;
 
 		private readonly Dictionary<string, List<Cue>> cueInstanceCounts;
 
@@ -83,6 +84,7 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_name = name;
 			INTERNAL_volume = new PrimitiveInstance<float>(volume);
 			activeCues = new List<Cue>();
+			dyingCues = new List<Cue>();
 			cueInstanceCounts = new Dictionary<string, List<Cue>>();
 
 			baseVolume = volume;
@@ -150,6 +152,18 @@ namespace Microsoft.Xna.Framework.Audio
 					curCue.Stop(options);
 				}
 				activeCues.Clear();
+				if (options == AudioStopOptions.Immediate)
+				{
+					lock (dyingCues)
+					{
+						while (dyingCues.Count > 0)
+						{
+							Cue curCue = dyingCues[0];
+							curCue.Stop(AudioStopOptions.Immediate);
+						}
+						dyingCues.Clear();
+					}
+				}
 				foreach (List<Cue> count in cueInstanceCounts.Values)
 				{
 					count.Clear();
@@ -209,6 +223,16 @@ namespace Microsoft.Xna.Framework.Audio
 				for (int i = 0; i < activeCues.Count; i += 1)
 				{
 					if (!activeCues[i].INTERNAL_update())
+					{
+						i -= 1;
+					}
+				}
+			}
+			lock (dyingCues)
+			{
+				for (int i = 0; i < dyingCues.Count; i += 1)
+				{
+					if (!dyingCues[i].INTERNAL_update())
 					{
 						i -= 1;
 					}
@@ -372,6 +396,16 @@ namespace Microsoft.Xna.Framework.Audio
 						activeCues.Remove(cue);
 						cueInstanceCounts[cue.Name].Remove(cue);
 					}
+					else if (dyingCues != null)
+					{
+						lock (dyingCues)
+						{
+							if (dyingCues.Contains(cue))
+							{
+								dyingCues.Remove(cue);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -383,6 +417,15 @@ namespace Microsoft.Xna.Framework.Audio
 				cueInstanceCounts.Add(name, new List<Cue>());
 			}
 			return cueInstanceCounts[name].Count;
+		}
+
+		internal void INTERNAL_moveToDying(Cue cue)
+		{
+			INTERNAL_removeActiveCue(cue);
+			lock (dyingCues)
+			{
+				dyingCues.Add(cue);
+			}
 		}
 
 		#endregion
