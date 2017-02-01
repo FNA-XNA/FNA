@@ -783,6 +783,10 @@ namespace Microsoft.Xna.Framework.Audio
 								long elapsedFromStop = INTERNAL_timer.ElapsedMilliseconds - INTERNAL_fadeStart;
 								variableValue = elapsedFromStop;
 							}
+							else
+							{
+								variableValue = 0.0f;
+							}
 						}
 						result = curRPC.CalculateRPC(variableValue);
 					}
