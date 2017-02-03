@@ -149,6 +149,8 @@ namespace Microsoft.Xna.Framework.Audio
 			private set;
 		}
 
+		public readonly bool HasSoundRpcs;
+
 		public List<uint[]> RPCCodes
 		{
 			get;
@@ -175,6 +177,9 @@ namespace Microsoft.Xna.Framework.Audio
 			// Sound Effect Flags
 			byte soundFlags = reader.ReadByte();
 			bool complex = (soundFlags & 0x01) != 0;
+			
+			// Indicates that the data contains RPC codes targeting the sound itself.
+			HasSoundRpcs = (soundFlags & 0x02) == 0x02;
 
 			// AudioCategory Index
 			Category = reader.ReadUInt16();
