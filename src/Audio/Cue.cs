@@ -765,7 +765,7 @@ namespace Microsoft.Xna.Framework.Audio
 					float result;
 					if (!INTERNAL_baseEngine.INTERNAL_isGlobalVariable(curRPC.Variable))
 					{
-						float variableValue = GetVariable(curRPC.Variable);
+						float variableValue;
 
 						if (curRPC.Variable.Equals("AttackTime"))
 						{
@@ -788,6 +788,11 @@ namespace Microsoft.Xna.Framework.Audio
 								variableValue = 0.0f;
 							}
 						}
+						else
+						{
+							variableValue = GetVariable(curRPC.Variable);
+						}
+
 						result = curRPC.CalculateRPC(variableValue);
 					}
 					else
@@ -932,7 +937,7 @@ namespace Microsoft.Xna.Framework.Audio
 				float result;
 				if (!INTERNAL_baseEngine.INTERNAL_isGlobalVariable(curRPC.Variable))
 				{
-					float variableValue = GetVariable(curRPC.Variable);
+					float variableValue;
 
 					if (curRPC.Variable.Equals("AttackTime"))
 					{
@@ -946,7 +951,16 @@ namespace Microsoft.Xna.Framework.Audio
 							long elapsedFromStop = INTERNAL_timer.ElapsedMilliseconds - INTERNAL_fadeStart;
 							variableValue = elapsedFromStop;
 						}
+						else
+						{
+							variableValue = 0.0f;
+						}
 					}
+					else
+					{
+						variableValue = GetVariable(curRPC.Variable);
+					}
+
 					result = curRPC.CalculateRPC(variableValue);
 				}
 				else
