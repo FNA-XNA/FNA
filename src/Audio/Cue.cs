@@ -741,15 +741,24 @@ namespace Microsoft.Xna.Framework.Audio
 			float lfGain = 1.0f;
 			for (int i = 0; i < INTERNAL_activeSound.Sound.RPCCodes.Count; i += 1)
 			{
-				if (i > INTERNAL_instancePool.Count)
+				// Are we processing an RPC targeting the sound itself rather than a track?
+				bool isSoundRpc = i == 0 && INTERNAL_activeSound.Sound.HasSoundRpcs;
+
+				// If there is an RPC targeting the sound instance itself, it is handled in rpcVolume/rpcPitch, and the first track is at i-1.
+				int trackRpcIndex = INTERNAL_activeSound.Sound.HasSoundRpcs ? i - 1 : i;
+
+				// If this RPC Code is for a track that is not active yet, we have nothing to do.
+				if (trackRpcIndex >= INTERNAL_instancePool.Count)
 				{
+					// FIXME: This presumes that tracks start in order, which doesn't have to be true.
 					break;
 				}
-				if (i > 0)
+				if (!isSoundRpc)
 				{
-					INTERNAL_rpcTrackVolumes[i - 1] = 0.0f;
-					INTERNAL_rpcTrackPitches[i - 1] = 0.0f;
+					INTERNAL_rpcTrackVolumes[trackRpcIndex] = 0.0f;
+					INTERNAL_rpcTrackPitches[trackRpcIndex] = 0.0f;
 				}
+
 				foreach (uint curCode in INTERNAL_activeSound.Sound.RPCCodes[i])
 				{
 					RPC curRPC = INTERNAL_baseEngine.INTERNAL_getRPC(curCode);
@@ -761,7 +770,7 @@ namespace Microsoft.Xna.Framework.Audio
 						if (curRPC.Variable.Equals("AttackTime"))
 						{
 							PlayWaveEvent playWaveEvent =
-								(PlayWaveEvent) INTERNAL_activeSound.Sound.INTERNAL_clips[i].Events[0];
+								(PlayWaveEvent) INTERNAL_activeSound.Sound.INTERNAL_clips[trackRpcIndex].Events[0];
 
 							long elapsedFromPlay = INTERNAL_timer.ElapsedMilliseconds
 								- playWaveEvent.Timestamp;
@@ -773,6 +782,10 @@ namespace Microsoft.Xna.Framework.Audio
 							{
 								long elapsedFromStop = INTERNAL_timer.ElapsedMilliseconds - INTERNAL_fadeStart;
 								variableValue = elapsedFromStop;
+							}
+							else
+							{
+								variableValue = 0.0f;
 							}
 						}
 						result = curRPC.CalculateRPC(variableValue);
@@ -788,25 +801,26 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					if (curRPC.Parameter == RPCParameter.Volume)
 					{
-						if (i == 0)
+						// If this RPC targets the sound instance itself then apply to the dedicated variable.
+						if (isSoundRpc)
 						{
 							rpcVolume += result;
 						}
 						else
 						{
-							INTERNAL_rpcTrackVolumes[i - 1] += result;
+							INTERNAL_rpcTrackVolumes[trackRpcIndex] += result;
 						}
 					}
 					else if (curRPC.Parameter == RPCParameter.Pitch)
 					{
 						float pitch = result;
-						if (i == 0)
+						if (isSoundRpc)
 						{
 							rpcPitch += pitch;
 						}
 						else
 						{
-							INTERNAL_rpcTrackPitches[i - 1] += pitch;
+							INTERNAL_rpcTrackPitches[trackRpcIndex] += pitch;
 						}
 					}
 					else if (curRPC.Parameter == RPCParameter.FilterFrequency)
@@ -814,7 +828,7 @@ namespace Microsoft.Xna.Framework.Audio
 						// FIXME: Just listening to the last RPC!
 						float hf = result / 20000.0f;
 						float lf = 1.0f - hf;
-						if (i == 0)
+						if (isSoundRpc)
 						{
 							hfGain = hf;
 							lfGain = lf;
@@ -837,24 +851,27 @@ namespace Microsoft.Xna.Framework.Audio
 			for (int i = 0; i < INTERNAL_instancePool.Count; i += 1)
 			{
 				/* The final volume should be the combination of the
-				 * authored volume, category volume, RPC Track volume, 
-				 * Event volumes, and fade.
+				 * authored volume, category volume, RPC sound/track
+				 * volumes, event volumes, and fade.
 				 */
 				INTERNAL_instancePool[i].Volume = XACTCalculator.CalculateAmplitudeRatio(
 					INTERNAL_instanceVolumes[i] +
-					(i == 0 ? rpcVolume : INTERNAL_rpcTrackVolumes[i - 1]) +
+					rpcVolume +
+					INTERNAL_rpcTrackVolumes[i] +
 					eventVolume
 				) * INTERNAL_category.INTERNAL_volume.Value * fadePerc;
 
 				/* The final pitch should be the combination of the
-				 * authored pitch, RPC Track pitch, and Event pitch.
+				 * authored pitch, RPC sound/track pitches, and event
+				 * pitch.
 				 *
 				 * XACT uses -1200 to 1200 (+/- 12 semitones),
 				 * XNA uses -1.0f to 1.0f (+/- 1 octave).
 				 */
 				INTERNAL_instancePool[i].Pitch = (
 					INTERNAL_instancePitches[i] +
-					(i == 0 ? rpcPitch : INTERNAL_rpcTrackPitches[i - 1]) +
+					rpcPitch +
+					INTERNAL_rpcTrackPitches[i] +
 					eventPitch
 				) / 1200.0f;
 
