@@ -354,16 +354,16 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("name");
 			}
+			if (name.Equals("NumCueInstances"))
+			{
+				return INTERNAL_category.INTERNAL_cueInstanceCount(Name);
+			}
 			foreach (Variable curVar in INTERNAL_variables)
 			{
 				if (name.Equals(curVar.Name))
 				{
 					return curVar.GetValue();
 				}
-			}
-			if (name.Equals("NumCueInstances"))
-			{
-				return INTERNAL_category.INTERNAL_cueInstanceCount(Name);
 			}
 			throw new ArgumentException("Instance variable not found!");
 		}
