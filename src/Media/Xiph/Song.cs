@@ -185,7 +185,7 @@ namespace Microsoft.Xna.Framework.Media
 			soundStream.INTERNAL_isXACTSource = true;
 
 			// FIXME: 60 is arbitrary for a 60Hz game -flibit
-			chunkSize = (int) (fileInfo.rate * fileInfo.channels / 60);
+			chunkSize = (int) (fileInfo.rate.ToInt64() * fileInfo.channels / 60);
 			chunkStep = chunkSize / VisualizationData.Size;
 
 			IsDisposed = false;
