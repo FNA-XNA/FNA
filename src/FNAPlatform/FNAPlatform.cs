@@ -56,6 +56,8 @@ namespace Microsoft.Xna.Framework
 			GetMouseState =			SDL2_FNAPlatform.GetMouseState;
 			SetMousePosition =		SDL2.SDL.SDL_WarpMouseInWindow;
 			OnIsMouseVisibleChanged =	SDL2_FNAPlatform.OnIsMouseVisibleChanged;
+			GetRelativeMouseMode =		SDL2_FNAPlatform.GetRelativeMouseMode;
+			SetRelativeMouseMode =		SDL2_FNAPlatform.SetRelativeMouseMode;
 			GetGamePadCapabilities =	SDL2_FNAPlatform.GetGamePadCapabilities;
 			GetGamePadState =		SDL2_FNAPlatform.GetGamePadState;
 			SetGamePadVibration =		SDL2_FNAPlatform.SetGamePadVibration;
@@ -170,6 +172,12 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void OnIsMouseVisibleChangedFunc(bool visible);
 		public static readonly OnIsMouseVisibleChangedFunc OnIsMouseVisibleChanged;
+
+		public delegate bool GetRelativeMouseModeFunc();
+		public static readonly GetRelativeMouseModeFunc GetRelativeMouseMode;
+
+		public delegate void SetRelativeMouseModeFunc(bool enable);
+		public static readonly SetRelativeMouseModeFunc SetRelativeMouseMode;
 
 		public delegate GamePadCapabilities GetGamePadCapabilitiesFunc(int index);
 		public static readonly GetGamePadCapabilitiesFunc GetGamePadCapabilities;

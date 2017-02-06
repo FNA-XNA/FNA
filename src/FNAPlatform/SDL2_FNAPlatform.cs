@@ -920,11 +920,19 @@ namespace Microsoft.Xna.Framework
 			out ButtonState x1,
 			out ButtonState x2
 		) {
-			uint flags = SDL.SDL_GetGlobalMouseState(out x, out y);
-			int wx = 0, wy = 0;
-			SDL.SDL_GetWindowPosition(window, out wx, out wy);
-			x -= wx;
-			y -= wy;
+			uint flags;
+			if (GetRelativeMouseMode())
+			{
+				flags = SDL.SDL_GetRelativeMouseState(out x, out y);
+			}
+			else
+			{
+				flags = SDL.SDL_GetGlobalMouseState(out x, out y);
+				int wx = 0, wy = 0;
+				SDL.SDL_GetWindowPosition(window, out wx, out wy);
+				x -= wx;
+				y -= wy;
+			}
 			left =		(ButtonState) (flags & SDL.SDL_BUTTON_LMASK);
 			middle =	(ButtonState) ((flags & SDL.SDL_BUTTON_MMASK) >> 1);
 			right =		(ButtonState) ((flags & SDL.SDL_BUTTON_RMASK) >> 2);
@@ -935,6 +943,20 @@ namespace Microsoft.Xna.Framework
 		public static void OnIsMouseVisibleChanged(bool visible)
 		{
 			SDL.SDL_ShowCursor(visible ? 1 : 0);
+		}
+
+		public static bool GetRelativeMouseMode()
+		{
+			return SDL.SDL_GetRelativeMouseMode() == SDL.SDL_bool.SDL_TRUE;
+		}
+
+		public static void SetRelativeMouseMode(bool enable)
+		{
+			SDL.SDL_SetRelativeMouseMode(
+				enable ?
+					SDL.SDL_bool.SDL_TRUE :
+					SDL.SDL_bool.SDL_FALSE
+			);
 		}
 
 		#endregion

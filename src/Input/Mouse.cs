@@ -26,6 +26,18 @@ namespace Microsoft.Xna.Framework.Input
 			set;
 		}
 
+		public static bool IsRelativeMouseModeEXT
+		{
+			get
+			{
+				return FNAPlatform.GetRelativeMouseMode();
+			}
+			set
+			{
+				FNAPlatform.SetRelativeMouseMode(value);
+			}
+		}
+
 		#endregion
 
 		#region Internal Variables
@@ -85,6 +97,12 @@ namespace Microsoft.Xna.Framework.Input
 		/// <param name="y">Relative vertical position of the cursor.</param>
 		public static void SetPosition(int x, int y)
 		{
+			// In relative mode, this function is meaningless
+			if (IsRelativeMouseModeEXT)
+			{
+				return;
+			}
+
 			// Scale the mouse coordinates for the faux-backbuffer
 			x = (int) ((double) x * INTERNAL_WindowWidth / INTERNAL_BackBufferWidth);
 			y = (int) ((double) y * INTERNAL_WindowHeight / INTERNAL_BackBufferHeight);
