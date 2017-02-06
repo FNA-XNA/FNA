@@ -626,10 +626,6 @@ namespace Microsoft.Xna.Framework
 					}
 
 					// Mouse Input
-					else if (evt.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
-					{
-						Mouse.INTERNAL_IsWarped = false;
-					}
 					else if (evt.type == SDL.SDL_EventType.SDL_MOUSEWHEEL)
 					{
 						// 120 units per notch. Because reasons.

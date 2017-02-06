@@ -37,11 +37,6 @@ namespace Microsoft.Xna.Framework.Input
 
 		internal static int INTERNAL_MouseWheel = 0;
 
-		// FIXME: Remove when global mouse state is accessible! -flibit
-		internal static bool INTERNAL_IsWarped = false;
-		internal static int INTERNAL_warpX = 0;
-		internal static int INTERNAL_warpY = 0;
-
 		#endregion
 
 		#region Public Interface
@@ -67,18 +62,9 @@ namespace Microsoft.Xna.Framework.Input
 				out x2
 			);
 
-			// If we warped the mouse, we've already done this in SetPosition.
-			if (INTERNAL_IsWarped)
-			{
-				x = INTERNAL_warpX;
-				y = INTERNAL_warpY;
-			}
-			else
-			{
-				// Scale the mouse coordinates for the faux-backbuffer
-				x = (int) ((double) x * INTERNAL_BackBufferWidth / INTERNAL_WindowWidth);
-				y = (int) ((double) y * INTERNAL_BackBufferHeight / INTERNAL_WindowHeight);
-			}
+			// Scale the mouse coordinates for the faux-backbuffer
+			x = (int) ((double) x * INTERNAL_BackBufferWidth / INTERNAL_WindowWidth);
+			y = (int) ((double) y * INTERNAL_BackBufferHeight / INTERNAL_WindowHeight);
 
 			return new MouseState(
 				x,
@@ -99,16 +85,11 @@ namespace Microsoft.Xna.Framework.Input
 		/// <param name="y">Relative vertical position of the cursor.</param>
 		public static void SetPosition(int x, int y)
 		{
-			// The state should appear to be what they _think_ they're setting first.
-			INTERNAL_warpX = x;
-			INTERNAL_warpY = y;
-
 			// Scale the mouse coordinates for the faux-backbuffer
 			x = (int) ((double) x * INTERNAL_WindowWidth / INTERNAL_BackBufferWidth);
 			y = (int) ((double) y * INTERNAL_WindowHeight / INTERNAL_BackBufferHeight);
 
 			FNAPlatform.SetMousePosition(WindowHandle, x, y);
-			INTERNAL_IsWarped = true;
 		}
 
 		#endregion
