@@ -1210,7 +1210,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Flip rectangle when target is not bound
 			if (!renderTargetBound)
 			{
-				scissorRect.Y = viewport.Height - scissorRect.Y - scissorRect.Height;
+				scissorRect.Y = Backbuffer.Height - scissorRect.Y - scissorRect.Height;
 			}
 
 			if (scissorRect != scissorRectangle)
