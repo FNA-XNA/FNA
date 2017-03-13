@@ -508,6 +508,7 @@ namespace Microsoft.Xna.Framework
 		public static void RunLoop(Game game)
 		{
 			SDL.SDL_ShowWindow(game.Window.Handle);
+			game.IsActive = true;
 
 			Rectangle windowBounds = game.Window.ClientBounds;
 			Mouse.INTERNAL_WindowWidth = windowBounds.Width;

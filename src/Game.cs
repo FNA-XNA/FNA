@@ -261,7 +261,6 @@ namespace Microsoft.Xna.Framework
 			drawableComponents = new List<IDrawable>();
 			currentlyDrawingComponents = new List<IDrawable>();
 
-			IsActive = true;
 			IsMouseVisible = false;
 			IsFixedTimeStep = true;
 			TargetElapsedTime = TimeSpan.FromTicks(166667); // 60fps
