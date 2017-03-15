@@ -10,6 +10,6 @@
 [submodule "lib/Vorbisfile-CS"]
 	path = lib/Vorbisfile-CS
 	url = git://github.com/flibitijibibo/Vorbisfile-CS.git
-[submodule "lib/TheoraPlay-CS"]
-	path = lib/TheoraPlay-CS
-	url = git://github.com/flibitijibibo/TheoraPlay-CS.git
+[submodule "lib/Theorafile"]
+	path = lib/Theorafile
+	url = git://github.com/flibitijibibo/Theorafile_InDev.git

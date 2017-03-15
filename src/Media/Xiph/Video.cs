@@ -62,12 +62,6 @@ namespace Microsoft.Xna.Framework.Media
 			private set;
 		}
 
-		internal bool AttachedToPlayer
-		{
-			get;
-			set;
-		}
-
 		internal GraphicsDevice GraphicsDevice
 		{
 			get;
@@ -76,17 +70,10 @@ namespace Microsoft.Xna.Framework.Media
 
 		#endregion
 
-		#region Internal Variables: TheoraPlay
+		#region Internal Variables: Theorafile
 
-		internal IntPtr theoraDecoder;
-		internal IntPtr videoStream;
+		internal IntPtr theora;
 		internal bool needsDurationHack;
-
-		#endregion
-
-		#region Private Variables
-
-		private string fileName;
 
 		#endregion
 
@@ -94,17 +81,17 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal Video(string fileName, GraphicsDevice device)
 		{
-			this.fileName = fileName;
 			GraphicsDevice = device;
 
-			// Set everything to NULL. Yes, this actually matters later.
-			theoraDecoder = IntPtr.Zero;
-			videoStream = IntPtr.Zero;
+			Theorafile.tf_fopen(fileName, out theora);
+			int width, height;
+			double fps;
+			Theorafile.tf_videoinfo(theora, out width, out height, out fps);
+			Width = width;
+			Height = height;
+			FramesPerSecond = (float) fps;
 
-			// Initialize the decoder nice and early...
-			IsDisposed = true;
-			AttachedToPlayer = false;
-			Initialize();
+			IsDisposed = false;
 
 			// FIXME: This is a part of the Duration hack!
 			Duration = TimeSpan.MaxValue;
@@ -149,70 +136,12 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal void Dispose()
 		{
-			if (AttachedToPlayer)
+			if (theora != IntPtr.Zero)
 			{
-				return; // NOPE. VideoPlayer will do the honors.
-			}
-
-			// Stop and unassign the decoder.
-			if (theoraDecoder != IntPtr.Zero)
-			{
-				TheoraPlay.THEORAPLAY_stopDecode(theoraDecoder);
-				theoraDecoder = IntPtr.Zero;
-			}
-
-			// Free and unassign the video stream.
-			if (videoStream != IntPtr.Zero)
-			{
-				TheoraPlay.THEORAPLAY_freeVideo(videoStream);
-				videoStream = IntPtr.Zero;
+				Theorafile.tf_close(ref theora);
 			}
 
 			IsDisposed = true;
-		}
-
-		#endregion
-
-		#region Internal TheoraPlay Initialization
-
-		internal void Initialize()
-		{
-			if (!IsDisposed)
-			{
-				Dispose(); // We need to start from the beginning, don't we? :P
-			}
-
-			// Initialize the decoder.
-			theoraDecoder = TheoraPlay.THEORAPLAY_startDecodeFile(
-				fileName,
-				150, // Max frames to buffer.  Arbitrarily set 5 seconds, assuming 30fps.
-				TheoraPlay.THEORAPLAY_VideoFormat.THEORAPLAY_VIDFMT_IYUV
-			);
-
-			// Wait until the decoder is ready.
-			while (TheoraPlay.THEORAPLAY_isInitialized(theoraDecoder) == 0)
-			{
-				Thread.Sleep(10);
-			}
-
-			// Initialize the video stream pointer and get our first frame.
-			if (TheoraPlay.THEORAPLAY_hasVideoStream(theoraDecoder) != 0)
-			{
-				while (videoStream == IntPtr.Zero)
-				{
-					videoStream = TheoraPlay.THEORAPLAY_getVideo(theoraDecoder);
-					Thread.Sleep(10);
-				}
-
-				TheoraPlay.THEORAPLAY_VideoFrame frame = TheoraPlay.getVideoFrame(videoStream);
-
-				// We get the FramesPerSecond from the first frame.
-				FramesPerSecond = (float) frame.fps;
-				Width = (int) frame.width;
-				Height = (int) frame.height;
-			}
-
-			IsDisposed = false;
 		}
 
 		#endregion
