@@ -472,7 +472,12 @@ namespace Microsoft.Xna.Framework.Media
 			}
 
 			// Check for the end...
-			if (Theorafile.tf_eos(Video.theora) == 1)
+			bool ended = Theorafile.tf_eos(Video.theora) == 1;
+			if (audioStream != null)
+			{
+				ended &= audioStream.PendingBufferCount == 0;
+			}
+			if (ended)
 			{
 				// FIXME: This is part of the Duration hack!
 				if (Video.needsDurationHack)
@@ -584,11 +589,7 @@ namespace Microsoft.Xna.Framework.Media
 					Video.Height
 				);
 
-				// For audioless streams this will be 0, load YUV ASAP
-				if (currentFrame == 0)
-				{
-					UpdateTexture();
-				}
+				UpdateTexture();
 			}
 
 			// The player can finally start now!
@@ -739,6 +740,9 @@ namespace Microsoft.Xna.Framework.Media
 
 		private void InitializeTheoraStream()
 		{
+			// Grab the first video frame ASAP.
+			while (Theorafile.tf_readvideo(Video.theora, yuvData) == 0);
+
 			// Grab the first bit of audio. We're trying to start the decoding ASAP.
 			if (Theorafile.tf_hasaudio(Video.theora) == 1)
 			{
@@ -762,12 +766,8 @@ namespace Microsoft.Xna.Framework.Media
 				}
 				currentFrame = -1;
 			}
-			else if (Theorafile.tf_hasvideo(Video.theora) == 1)
-			{
-				// If it's video only we can grab this ASAP.
-				while (Theorafile.tf_readvideo(Video.theora, yuvData) == 0);
-				currentFrame = 0;
-			}
+
+			currentFrame = 0;
 		}
 
 		#endregion
