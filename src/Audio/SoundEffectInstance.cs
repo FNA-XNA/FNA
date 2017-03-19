@@ -238,13 +238,8 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_positionalAudio = true;
 			}
 
-			if (INTERNAL_alSource == null)
-			{
-				return;
-			}
-
 			// Set up our final position according to orientation of listener
-			Vector3 position = Vector3.Transform(
+			position = Vector3.Transform(
 				emitter.Position - listener.Position,
 				Matrix.CreateWorld(Vector3.Zero, listener.Forward, listener.Up)
 			);
@@ -255,11 +250,15 @@ namespace Microsoft.Xna.Framework.Audio
 				position.Normalize();
 			}
 
-			// Finally.
-			AudioDevice.ALDevice.SetSourcePosition(
-				INTERNAL_alSource,
-				position
-			);
+			// This can get called before Play()...
+			if (INTERNAL_alSource != null)
+			{
+				// Finally.
+				AudioDevice.ALDevice.SetSourcePosition(
+					INTERNAL_alSource,
+					position
+				);
+			}
 		}
 
 		public void Apply3D(AudioListener[] listeners, AudioEmitter emitter)
