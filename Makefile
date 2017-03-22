@@ -327,7 +327,7 @@ SRC = \
 	lib/OpenAL-CS/src/EFX.cs \
 	lib/MojoShader-CS/MojoShader.cs \
 	lib/Vorbisfile-CS/Vorbisfile.cs \
-	lib/TheoraPlay-CS/TheoraPlay.cs
+	lib/Theorafile/csharp/Theorafile.cs
 
 RESDIR = src/Graphics/Effect/StockEffects/FXB
 RESNAME = Microsoft.Xna.Framework.Graphics.Effect.Resources
