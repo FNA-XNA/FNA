@@ -123,7 +123,7 @@ namespace Microsoft.Xna.Framework.Media
 				throw new InvalidOperationException("XNB/OGV framesPerSecond mismatch!");
 			}
 
-			// FIXME: Oh, hey! I wish we had this info in TheoraPlay!
+			// FIXME: Oh, hey! I wish we had this info in Theora!
 			Duration = TimeSpan.FromMilliseconds(durationMS);
 			needsDurationHack = false;
 
