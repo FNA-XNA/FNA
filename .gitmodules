@@ -12,4 +12,4 @@
 	url = git://github.com/flibitijibibo/Vorbisfile-CS.git
 [submodule "lib/Theorafile"]
 	path = lib/Theorafile
-	url = git://github.com/flibitijibibo/Theorafile_InDev.git
+	url = git://github.com/FNA-XNA/Theorafile.git
