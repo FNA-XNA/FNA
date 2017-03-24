@@ -456,19 +456,15 @@ namespace Microsoft.Xna.Framework.Media
 			int thisFrame = (int) (timer.Elapsed.TotalMilliseconds / (1000.0 / Video.FramesPerSecond));
 			if (thisFrame > currentFrame)
 			{
-				// Keep reading until we're caught up
-				int newFrame = 0;
-				do
-				{
-					newFrame |= Theorafile.tf_readvideo(Video.theora, yuvData);
-				} while (++currentFrame < thisFrame);
-				currentFrame = thisFrame;
-
 				// Only update the textures if we need to!
-				if (newFrame == 1)
-				{
+				if (Theorafile.tf_readvideo(
+					Video.theora,
+					yuvData,
+					thisFrame - currentFrame
+				) == 1) {
 					UpdateTexture();
 				}
+				currentFrame = thisFrame;
 			}
 
 			// Check for the end...
@@ -741,7 +737,7 @@ namespace Microsoft.Xna.Framework.Media
 		private void InitializeTheoraStream()
 		{
 			// Grab the first video frame ASAP.
-			while (Theorafile.tf_readvideo(Video.theora, yuvData) == 0);
+			while (Theorafile.tf_readvideo(Video.theora, yuvData, 1) == 0);
 
 			// Grab the first bit of audio. We're trying to start the decoding ASAP.
 			if (Theorafile.tf_hasaudio(Video.theora) == 1)

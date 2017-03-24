@@ -13,7 +13,7 @@ M: System.Void Theorafile::tf_videoinfo(System.IntPtr,System.Int32&,System.Int32
 M: System.Void Theorafile::tf_audioinfo(System.IntPtr,System.Int32&,System.Int32&)
 M: System.Int32 Theorafile::tf_eos(System.IntPtr)
 M: System.Void Theorafile::tf_reset(System.IntPtr)
-M: System.Int32 Theorafile::tf_readvideo(System.IntPtr,System.IntPtr)
+M: System.Int32 Theorafile::tf_readvideo(System.IntPtr,System.IntPtr,System.Int32)
 M: System.Int32 Theorafile::tf_readaudio(System.IntPtr,System.IntPtr,System.Int32)
 T: Theorafile/SeekWhence
 T: Theorafile/read_func
@@ -48,7 +48,7 @@ M: System.Void Theorafile::tf_videoinfo(System.IntPtr,System.Int32&,System.Int32
 M: System.Void Theorafile::tf_audioinfo(System.IntPtr,System.Int32&,System.Int32&)
 M: System.Int32 Theorafile::tf_eos(System.IntPtr)
 M: System.Void Theorafile::tf_reset(System.IntPtr)
-M: System.Int32 Theorafile::tf_readvideo(System.IntPtr,System.IntPtr)
+M: System.Int32 Theorafile::tf_readvideo(System.IntPtr,System.IntPtr,System.Int32)
 M: System.Int32 Theorafile::tf_readaudio(System.IntPtr,System.IntPtr,System.Int32)
 
 R: Gendarme.Rules.Design.MarkAssemblyWithAssemblyVersionRule
@@ -72,7 +72,7 @@ M: System.Void Theorafile::tf_videoinfo(System.IntPtr,System.Int32&,System.Int32
 M: System.Void Theorafile::tf_audioinfo(System.IntPtr,System.Int32&,System.Int32&)
 M: System.Int32 Theorafile::tf_eos(System.IntPtr)
 M: System.Void Theorafile::tf_reset(System.IntPtr)
-M: System.Int32 Theorafile::tf_readvideo(System.IntPtr,System.IntPtr)
+M: System.Int32 Theorafile::tf_readvideo(System.IntPtr,System.IntPtr,System.Int32)
 M: System.Int32 Theorafile::tf_readaudio(System.IntPtr,System.IntPtr,System.Int32)
 T: Theorafile/read_func
 T: Theorafile/seek_func
