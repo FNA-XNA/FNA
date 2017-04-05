@@ -177,7 +177,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				if (glColorBuffer != null)
 				{
-					GraphicsDevice.GLDevice.AddDisposeRenderBuffer(glColorBuffer);
+					GraphicsDevice.GLDevice.AddDisposeRenderbuffer(glColorBuffer);
 				}
 
 				if (glDepthStencilBuffer != null)
