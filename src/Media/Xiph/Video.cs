@@ -56,12 +56,6 @@ namespace Microsoft.Xna.Framework.Media
 
 		#region Internal Properties
 
-		internal bool IsDisposed
-		{
-			get;
-			private set;
-		}
-
 		internal GraphicsDevice GraphicsDevice
 		{
 			get;
@@ -90,8 +84,6 @@ namespace Microsoft.Xna.Framework.Media
 			Width = width;
 			Height = height;
 			FramesPerSecond = (float) fps;
-
-			IsDisposed = false;
 
 			// FIXME: This is a part of the Duration hack!
 			Duration = TimeSpan.MaxValue;
@@ -132,16 +124,14 @@ namespace Microsoft.Xna.Framework.Media
 
 		#endregion
 
-		#region Internal Dispose Method
+		#region Destructor
 
-		internal void Dispose()
+		~Video()
 		{
 			if (theora != IntPtr.Zero)
 			{
 				Theorafile.tf_close(ref theora);
 			}
-
-			IsDisposed = true;
 		}
 
 		#endregion
