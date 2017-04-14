@@ -106,6 +106,7 @@ namespace Microsoft.Xna.Framework.Audio
 		private AudioEngine INTERNAL_baseEngine;
 
 		// Cue information parsed from the SoundBank
+		private List<string> INTERNAL_waveBankNames;
 		private CueData INTERNAL_data;
 
 		// Current sound and its events
@@ -183,6 +184,7 @@ namespace Microsoft.Xna.Framework.Audio
 			bool managed
 		) {
 			INTERNAL_baseEngine = audioEngine;
+			INTERNAL_waveBankNames = waveBankNames;
 
 			Name = name;
 
@@ -194,14 +196,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 			foreach (XACTSound curSound in data.Sounds)
 			{
-				if (!curSound.HasLoadedTracks)
-				{
-					curSound.LoadTracks(
-						INTERNAL_baseEngine,
-						waveBankNames
-					);
-				}
-
 				/* Determine the release times per track, if any, to be used to extend
 				 * the sound when playing the release.
 				 */
@@ -294,9 +288,10 @@ namespace Microsoft.Xna.Framework.Audio
 					INTERNAL_instancePitches.Clear();
 					INTERNAL_rpcTrackVolumes.Clear();
 					INTERNAL_rpcTrackPitches.Clear();
-					INTERNAL_timer.Stop();
 				}
-				INTERNAL_category.INTERNAL_removeActiveCue(this);
+
+				KillCue();
+
 				IsDisposed = true;
 
 				// IXACTCue* no longer exists, these should all be false
@@ -509,8 +504,6 @@ namespace Microsoft.Xna.Framework.Audio
 						}
 					}
 				}
-				INTERNAL_timer.Stop();
-				INTERNAL_timer.Reset();
 				foreach (SoundEffectInstance sfi in INTERNAL_instancePool)
 				{
 					sfi.Stop();
@@ -522,7 +515,8 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_rpcTrackVolumes.Clear();
 				INTERNAL_rpcTrackPitches.Clear();
 				INTERNAL_userControlledPlaying = false;
-				INTERNAL_category.INTERNAL_removeActiveCue(this);
+
+				KillCue();
 
 				IsStopped = true;
 
@@ -720,9 +714,7 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					else
 					{
-						INTERNAL_timer.Stop();
-						INTERNAL_timer.Reset();
-						INTERNAL_category.INTERNAL_removeActiveCue(this);
+						KillCue();
 					}
 					if (INTERNAL_userControlledPlaying)
 					{
@@ -1009,7 +1001,15 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private bool INTERNAL_calculateNextSound()
 		{
-			INTERNAL_activeSound = null;
+			if (INTERNAL_activeSound != null)
+			{
+				INTERNAL_activeSound.Dispose(
+					INTERNAL_baseEngine,
+					INTERNAL_waveBankNames
+				);
+				INTERNAL_activeSound = null;
+			}
+
 			INTERNAL_playWaveEventBySound.Clear();
 
 			// Pick a sound based on a Cue instance variable
@@ -1033,7 +1033,10 @@ namespace Microsoft.Xna.Framework.Audio
 					if (	INTERNAL_controlledValue <= INTERNAL_data.Probabilities[i, 0] &&
 						INTERNAL_controlledValue >= INTERNAL_data.Probabilities[i, 1]	)
 					{
-						INTERNAL_activeSound = new XACTSoundInstance(INTERNAL_data.Sounds[i]);
+						INTERNAL_activeSound = INTERNAL_data.Sounds[i].GenInstance(
+							INTERNAL_baseEngine,
+							INTERNAL_waveBankNames
+						);
 						return true;
 					}
 				}
@@ -1060,13 +1063,31 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (next > max - (INTERNAL_data.Probabilities[i, 0] - INTERNAL_data.Probabilities[i, 1]))
 				{
-					INTERNAL_activeSound = new XACTSoundInstance(INTERNAL_data.Sounds[i]);
+					INTERNAL_activeSound = INTERNAL_data.Sounds[i].GenInstance(
+						INTERNAL_baseEngine,
+						INTERNAL_waveBankNames
+					);
 					break;
 				}
 				max -= INTERNAL_data.Probabilities[i, 0] - INTERNAL_data.Probabilities[i, 1];
 			}
 
 			return true;
+		}
+
+		private void KillCue()
+		{
+			INTERNAL_timer.Stop();
+			INTERNAL_timer.Reset();
+			if (INTERNAL_activeSound != null)
+			{
+				INTERNAL_activeSound.Dispose(
+					INTERNAL_baseEngine,
+					INTERNAL_waveBankNames
+				);
+				INTERNAL_activeSound = null;
+			}
+			INTERNAL_category.INTERNAL_removeActiveCue(this);
 		}
 
 		internal void PlayWave(
@@ -1177,6 +1198,12 @@ namespace Microsoft.Xna.Framework.Audio
 		public XACTSoundInstance(XACTSound sound)
 		{
 			Sound = sound;
+		}
+
+		public void Dispose(AudioEngine audioEngine, List<string> waveBankNames)
+		{
+			Clips.Clear();
+			Sound.DisposeInstance(this, audioEngine, waveBankNames);
 		}
 
 		internal void InitializeClips()

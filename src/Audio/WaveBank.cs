@@ -90,6 +90,8 @@ namespace Microsoft.Xna.Framework.Audio
 				private set;
 			}
 
+			private int referenceCount;
+
 			public SoundStreamEntry(
 				uint playOffset,
 				uint playLength,
@@ -110,6 +112,19 @@ namespace Microsoft.Xna.Framework.Audio
 				LoopLength = loopLength;
 				Alignment = alignment;
 				BitDepth = bitDepth;
+
+				referenceCount = 0;
+			}
+
+			public bool AddReference()
+			{
+				// Specifically 1. 2+ means it's already allocated
+				return (++referenceCount == 1);
+			}
+
+			public bool SubReference()
+			{
+				return (--referenceCount == 0);
 			}
 		}
 
@@ -259,11 +274,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Internal Method
+		#region Internal Methods
 
 		internal SoundEffect INTERNAL_getTrack(ushort track)
 		{
-			if (INTERNAL_sounds[track] == null)
+			if (INTERNAL_soundStreamEntries != null && INTERNAL_soundStreamEntries[track].AddReference())
 			{
 				LoadWaveEntry(
 					INTERNAL_soundStreamEntries[track],
@@ -272,6 +287,15 @@ namespace Microsoft.Xna.Framework.Audio
 				);
 			}
 			return INTERNAL_sounds[track];
+		}
+
+		internal void INTERNAL_dropTrack(ushort track)
+		{
+			if (INTERNAL_soundStreamEntries != null && INTERNAL_soundStreamEntries[track].SubReference())
+			{
+				INTERNAL_sounds[track].Dispose();
+				INTERNAL_sounds[track] = null;
+			}
 		}
 
 		#endregion

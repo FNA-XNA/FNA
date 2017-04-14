@@ -143,12 +143,6 @@ namespace Microsoft.Xna.Framework.Audio
 			private set;
 		}
 
-		public bool HasLoadedTracks
-		{
-			get;
-			private set;
-		}
-
 		public readonly bool HasSoundRpcs;
 
 		public List<uint[]> RPCCodes
@@ -163,17 +157,22 @@ namespace Microsoft.Xna.Framework.Audio
 			private set;
 		}
 
+		private List<XACTSoundInstance> instances;
+
 		public XACTSound(ushort track, byte waveBank)
 		{
 			INTERNAL_clips = new XACTClip[1];
 			INTERNAL_clips[0] = new XACTClip(track, waveBank);
 			Category = 0;
 			Volume = 0.0;
-			HasLoadedTracks = false;
+
+			instances = new List<XACTSoundInstance>();
 		}
 
 		public XACTSound(BinaryReader reader)
 		{
+			instances = new List<XACTSoundInstance>();
+
 			// Sound Effect Flags
 			byte soundFlags = reader.ReadByte();
 			bool complex = (soundFlags & 0x01) != 0;
@@ -291,17 +290,6 @@ namespace Microsoft.Xna.Framework.Audio
 					reader.BaseStream.Seek(curPos, SeekOrigin.Begin);
 				}
 			}
-
-			HasLoadedTracks = false;
-		}
-
-		public void LoadTracks(AudioEngine audioEngine, List<string> waveBankNames)
-		{
-			foreach (XACTClip curClip in INTERNAL_clips)
-			{
-				curClip.LoadEvents(audioEngine, waveBankNames);
-			}
-			HasLoadedTracks = true;
 		}
 
 		public void GatherEvents(List<XACTEvent> eventList)
@@ -309,6 +297,37 @@ namespace Microsoft.Xna.Framework.Audio
 			foreach (XACTClip curClip in INTERNAL_clips)
 			{
 				eventList.AddRange(curClip.Events);
+			}
+		}
+
+		public XACTSoundInstance GenInstance(
+			AudioEngine audioEngine,
+			List<string> waveBankNames
+		) {
+			XACTSoundInstance result = new XACTSoundInstance(this);
+			if (instances.Count == 0)
+			{
+				foreach (XACTClip curClip in INTERNAL_clips)
+				{
+					curClip.LoadEvents(audioEngine, waveBankNames);
+				}
+			}
+			instances.Add(result);
+			return result;
+		}
+
+		public void DisposeInstance(
+			XACTSoundInstance instance,
+			AudioEngine audioEngine,
+			List<string> waveBankNames
+		) {
+			instances.Remove(instance);
+			if (instances.Count == 0)
+			{
+				foreach (XACTClip curClip in INTERNAL_clips)
+				{
+					curClip.UnloadEvents(audioEngine, waveBankNames);
+				}
 			}
 		}
 	}
@@ -605,6 +624,20 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 			}
 		}
+
+		public void UnloadEvents(AudioEngine audioEngine, List<string> waveBankNames)
+		{
+			foreach (XACTEvent curEvent in Events)
+			{
+				if (curEvent is PlayWaveEvent)
+				{
+					((PlayWaveEvent) curEvent).UnloadWaves(
+						audioEngine,
+						waveBankNames
+					);
+				}
+			}
+		}
 	}
 
 	internal abstract class XACTEvent
@@ -783,6 +816,18 @@ namespace Microsoft.Xna.Framework.Audio
 					INTERNAL_tracks[i]
 				);
 			}
+		}
+
+		public void UnloadWaves(AudioEngine audioEngine, List<string> waveBankNames)
+		{
+			for (int i = 0; i < INTERNAL_waves.Length; i += 1)
+			{
+				audioEngine.INTERNAL_dropWaveBankTrack(
+					waveBankNames[INTERNAL_waveBanks[i]],
+					INTERNAL_tracks[i]
+				);
+			}
+			Array.Clear(INTERNAL_waves, 0, INTERNAL_waves.Length);
 		}
 
 		public SoundEffectInstance GenerateInstance(

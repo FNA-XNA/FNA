@@ -578,6 +578,11 @@ namespace Microsoft.Xna.Framework.Audio
 			return INTERNAL_waveBanks[name].INTERNAL_getTrack(track);
 		}
 
+		internal void INTERNAL_dropWaveBankTrack(string name, ushort track)
+		{
+			INTERNAL_waveBanks[name].INTERNAL_dropTrack(track);
+		}
+
 		internal string INTERNAL_getVariableName(ushort index)
 		{
 			return INTERNAL_variables[index].Name;
