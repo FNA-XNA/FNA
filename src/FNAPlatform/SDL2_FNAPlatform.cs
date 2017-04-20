@@ -752,9 +752,9 @@ namespace Microsoft.Xna.Framework
 							text = System.Text.Encoding.UTF8.GetString(bytes);
 						}
 
-						if (text.Length > 0)
+						for (var index = 0; index < text.Length; index++)
 						{
-							TextInputEXT.OnTextInput(text[0]);
+							TextInputEXT.OnTextInput(text[index]);
 						}
 					}
 
