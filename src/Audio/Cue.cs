@@ -1081,10 +1081,13 @@ namespace Microsoft.Xna.Framework.Audio
 			INTERNAL_timer.Reset();
 			if (INTERNAL_activeSound != null)
 			{
-				INTERNAL_activeSound.Dispose(
-					INTERNAL_baseEngine,
-					INTERNAL_waveBankNames
-				);
+				if (INTERNAL_waveBankNames.Count > 0) // AKA !SoundBank.IsDisposed
+				{
+					INTERNAL_activeSound.Dispose(
+						INTERNAL_baseEngine,
+						INTERNAL_waveBankNames
+					);
+				}
 				INTERNAL_activeSound = null;
 			}
 			INTERNAL_category.INTERNAL_removeActiveCue(this);

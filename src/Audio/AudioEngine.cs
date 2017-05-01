@@ -580,7 +580,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal void INTERNAL_dropWaveBankTrack(string name, ushort track)
 		{
-			INTERNAL_waveBanks[name].INTERNAL_dropTrack(track);
+			if (INTERNAL_waveBanks.ContainsKey(name)) // AKA !WaveBank.IsDisposed
+			{
+				INTERNAL_waveBanks[name].INTERNAL_dropTrack(track);
+			}
 		}
 
 		internal string INTERNAL_getVariableName(ushort index)
