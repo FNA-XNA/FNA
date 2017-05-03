@@ -169,6 +169,9 @@ namespace Microsoft.Xna.Framework.Media
 				0
 			);
 
+			// Thanks sizeof(long) -flibit
+			int fileRate = (int) (fileInfo.rate.ToInt64() & 0xFFFFFFFF);
+
 			// TODO: ov_comment() -flibit
 			Name = Path.GetFileNameWithoutExtension(fileName);
 			TrackNumber = 0;
@@ -178,14 +181,14 @@ namespace Microsoft.Xna.Framework.Media
 			);
 
 			soundStream = new DynamicSoundEffectInstance(
-				(int) fileInfo.rate,
+				fileRate,
 				(AudioChannels) fileInfo.channels
 			);
 			// FIXME: I need this to bypass XNA's gain clamp... -flibit
 			soundStream.INTERNAL_isXACTSource = true;
 
 			// FIXME: 60 is arbitrary for a 60Hz game -flibit
-			chunkSize = (int) (fileInfo.rate.ToInt64() * fileInfo.channels / 60);
+			chunkSize = (int) (fileRate * fileInfo.channels / 60);
 			chunkStep = chunkSize / VisualizationData.Size;
 
 			IsDisposed = false;
