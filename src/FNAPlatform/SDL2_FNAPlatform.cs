@@ -265,7 +265,8 @@ namespace Microsoft.Xna.Framework
 
 			// Fullscreen
 			if (	wantsFullscreen &&
-				(SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN) == 0	)
+				(SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN) == 0 &&
+				OSVersion.Equals("Mac OS X")	)
 			{
 				/* FIXME: SDL2/OSX bug!
 				 * For whatever reason, Spaces windows on OSX
