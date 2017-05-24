@@ -261,7 +261,7 @@ namespace Microsoft.Xna.Framework
 			{
 				return ContainmentType.Disjoint;
 			}
-			else if (sqDistance <= (Radius * sphere.Radius) * (Radius - sphere.Radius))
+			else if (sqDistance <= (Radius - sphere.Radius) * (Radius - sphere.Radius))
 			{
 				return ContainmentType.Contains;
 			}
