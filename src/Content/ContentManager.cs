@@ -381,6 +381,11 @@ namespace Microsoft.Xna.Framework.Content
 				{
 					// FIXME: Not using the stream! -flibit
 					result = new Video(modifiedAssetName, graphicsDeviceService.GraphicsDevice);
+					FNALoggerEXT.LogWarn(
+						"Video " +
+						modifiedAssetName +
+						"does not have an XNB file! Hacking Duration property!"
+					);
 				}
 				else
 				{
