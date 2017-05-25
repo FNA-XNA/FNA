@@ -1655,6 +1655,7 @@ namespace Microsoft.Xna.Framework
 			// An SDL_GameController _should_ always be complete...
 			INTERNAL_capabilities[which] = new GamePadCapabilities()
 			{
+				GamePadType = GamePadType.GamePad, // FIXME: SDL 2.0.6 tells us this! -flibit
 				IsConnected = true,
 				HasAButton = true,
 				HasBButton = true,
