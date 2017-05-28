@@ -384,7 +384,7 @@ namespace Microsoft.Xna.Framework.Content
 					FNALoggerEXT.LogWarn(
 						"Video " +
 						modifiedAssetName +
-						"does not have an XNB file! Hacking Duration property!"
+						" does not have an XNB file! Hacking Duration property!"
 					);
 				}
 				else
