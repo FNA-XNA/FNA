@@ -268,11 +268,21 @@ namespace Microsoft.Xna.Framework
 				(SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN) == 0 &&
 				OSVersion.Equals("Mac OS X")	)
 			{
-				/* FIXME: SDL2/OSX bug!
-				 * For whatever reason, Spaces windows on OSX
-				 * don't update the backbuffer size if you set fullscreen
-				 * while the window is hidden. But, if you just
-				 * show the window first, everything is fine.
+				/* FIXME: Cocoa bug!
+				 * For whatever reason, windows on macOS that
+				 * are still hidden don't make any updates to
+				 * the backbuffer when moving to a Space.
+				 *
+				 * Conveniently, however, if we show the window
+				 * before we start the transition, it decides
+				 * to bless us with the gift of the final VP.
+				 *
+				 * My guess is, because it's hidden and _not_
+				 * doing the transition, it doesn't know to
+				 * actually do any sort of update, even though
+				 * it probably should since it's basically just
+				 * a resize but only slightly different.
+				 *
 				 * -flibit
 				 */
 				SDL.SDL_ShowWindow(window);
