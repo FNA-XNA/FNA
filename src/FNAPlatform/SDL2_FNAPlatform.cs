@@ -270,7 +270,7 @@ namespace Microsoft.Xna.Framework
 			{
 				/* FIXME: SDL2/OSX bug!
 				 * For whatever reason, Spaces windows on OSX
-				 * like to be high-DPI if you set fullscreen
+				 * don't update the backbuffer size if you set fullscreen
 				 * while the window is hidden. But, if you just
 				 * show the window first, everything is fine.
 				 * -flibit
