@@ -775,6 +775,15 @@ namespace Microsoft.Xna.Framework
 						game.RunApplication = false;
 						break;
 					}
+
+					// Drop events.
+					else if (evt.type == SDL.SDL_EventType.SDL_DROPFILE)
+					{
+						string fileName = Marshal.PtrToStringAnsi(evt.drop.file);
+
+						game.DropFile(fileName);
+						SDL.SDL_free(evt.drop.file);
+					}
 				}
 				// Text Input Controls Key Handling
 				for (int i = 0; i < textInputCharacters.Length; i += 1)

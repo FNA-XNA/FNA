@@ -565,6 +565,8 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
+		internal void DropFile(string fileName) => OnDroppedFileEXT(fileName);
+
 		#endregion
 
 		#region Protected Methods
@@ -811,6 +813,8 @@ namespace Microsoft.Xna.Framework
 			}
 			return false;
 		}
+
+        protected virtual void OnDroppedFileEXT(string fileName) { }
 
 		#endregion
 
