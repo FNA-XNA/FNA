@@ -174,13 +174,6 @@ namespace Microsoft.Xna.Framework.Audio
 			AL10.alListenerf(AL10.AL_GAIN, 1.0f);
 
 			EFX.alGenFilters(1, out INTERNAL_alFilter);
-
-			// FIXME: Remove for FNA 16.11! -flibit
-			if (!AL10.alIsExtensionPresent("AL_SOFT_gain_clamp_ex"))
-			{
-				FNALoggerEXT.LogWarn("AL_SOFT_gain_clamp_ex not found!");
-				FNALoggerEXT.LogWarn("Update your OpenAL Soft library!");
-			}
 		}
 
 		#endregion
