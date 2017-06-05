@@ -3116,11 +3116,25 @@ namespace Microsoft.Xna.Framework.Graphics
 		private void DeleteRenderbuffer(IGLRenderbuffer renderbuffer)
 		{
 			uint handle = (renderbuffer as OpenGLRenderbuffer).Handle;
+
+			// Check color attachments
+			for (int i = 0; i < currentAttachments.Length; i += 1)
+			{
+				if (handle == currentAttachments[i])
+				{
+					// Force an attachment update, this no longer exists!
+					currentAttachments[i] = uint.MaxValue;
+				}
+			}
+
+			// Check depth/stencil attachment
 			if (handle == currentRenderbuffer)
 			{
 				// Force a renderbuffer update, this no longer exists!
 				currentRenderbuffer = uint.MaxValue;
 			}
+
+			// Finally.
 			glDeleteRenderbuffers(1, ref handle);
 		}
 
