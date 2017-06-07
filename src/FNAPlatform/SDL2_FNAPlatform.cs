@@ -263,31 +263,6 @@ namespace Microsoft.Xna.Framework
 				clientHeight /= 2;
 			}
 
-			// Fullscreen
-			if (	wantsFullscreen &&
-				(SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN) == 0 &&
-				OSVersion.Equals("Mac OS X")	)
-			{
-				/* FIXME: Cocoa bug!
-				 * For whatever reason, windows on macOS that
-				 * are still hidden don't make any updates to
-				 * the backbuffer when moving to a Space.
-				 *
-				 * Conveniently, however, if we show the window
-				 * before we start the transition, it decides
-				 * to bless us with the gift of the final VP.
-				 *
-				 * My guess is, because it's hidden and _not_
-				 * doing the transition, it doesn't know to
-				 * actually do any sort of update, even though
-				 * it probably should since it's basically just
-				 * a resize but only slightly different.
-				 *
-				 * -flibit
-				 */
-				SDL.SDL_ShowWindow(window);
-			}
-
 			// When windowed, set the size before moving
 			if (!wantsFullscreen)
 			{
@@ -347,6 +322,20 @@ namespace Microsoft.Xna.Framework
 			// Set fullscreen after we've done all the ugly stuff.
 			if (wantsFullscreen)
 			{
+				if ((SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN) == 0)
+				{
+					/* If we're still hidden, we can't actually go fullscreen yet.
+					 * But, we can at least set the hidden window size to match
+					 * what the window/drawable sizes will eventually be later.
+					 * -flibit
+					 */
+					SDL.SDL_DisplayMode mode;
+					SDL.SDL_GetCurrentDisplayMode(
+						displayIndex,
+						out mode
+					);
+					SDL.SDL_SetWindowSize(window, mode.w, mode.h);
+				}
 				SDL.SDL_SetWindowFullscreen(
 					window,
 					(uint) SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP
