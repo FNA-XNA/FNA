@@ -318,7 +318,7 @@ namespace Microsoft.Xna.Framework
 				return angle;
 			}
 			angle %= TwoPi;
-			if (angle <= Pi)
+			if (angle <= -Pi)
 			{
 				return angle + TwoPi;
 			}
