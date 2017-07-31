@@ -1333,6 +1333,19 @@ namespace Microsoft.Xna.Framework
 			}
 		};
 
+		private static readonly GamePadType[] INTERNAL_gamepadType = new GamePadType[]
+		{
+			GamePadType.Unknown,
+			GamePadType.GamePad,
+			GamePadType.Wheel,
+			GamePadType.ArcadeStick,
+			GamePadType.FlightStick,
+			GamePadType.DancePad,
+			GamePadType.Guitar,
+			GamePadType.DrumKit,
+			GamePadType.BigButtonPad
+		};
+
 		// FIXME: SDL_GameController config input inversion!
 		private static float invertAxis = Environment.GetEnvironmentVariable(
 			"FNA_WORKAROUND_INVERT_YAXIS"
@@ -1654,7 +1667,7 @@ namespace Microsoft.Xna.Framework
 			// An SDL_GameController _should_ always be complete...
 			INTERNAL_capabilities[which] = new GamePadCapabilities()
 			{
-				GamePadType = GamePadType.GamePad, // FIXME: SDL 2.0.6 tells us this! -flibit
+				GamePadType = INTERNAL_gamepadType[(int) SDL.SDL_JoystickGetType(thisJoystick)],
 				IsConnected = true,
 				HasAButton = true,
 				HasBButton = true,
@@ -1682,7 +1695,9 @@ namespace Microsoft.Xna.Framework
 				HasVoiceSupport = false
 			};
 
-			// Store the GUID string for this device
+			/* Store the GUID string for this device
+			 * FIXME: Replace this with SDL_JoystickGetVendor/Product/Version -flibit
+			 */
 			StringBuilder result = new StringBuilder();
 			byte[] resChar = new byte[33]; // FIXME: Sort of arbitrary.
 			SDL.SDL_JoystickGetGUIDString(
@@ -1690,7 +1705,20 @@ namespace Microsoft.Xna.Framework
 				resChar,
 				resChar.Length
 			);
-			if (OSVersion.Equals("Linux"))
+			bool isXInput = true;
+			foreach (byte b in resChar)
+			{
+				if (((char) b) != '0' && b != 0)
+				{
+					isXInput = false;
+					break;
+				}
+			}
+			if (isXInput)
+			{
+				result.Append("xinput");
+			}
+			else
 			{
 				result.Append((char) resChar[8]);
 				result.Append((char) resChar[9]);
@@ -1700,48 +1728,6 @@ namespace Microsoft.Xna.Framework
 				result.Append((char) resChar[17]);
 				result.Append((char) resChar[18]);
 				result.Append((char) resChar[19]);
-			}
-			else if (OSVersion.Equals("Mac OS X"))
-			{
-				result.Append((char) resChar[0]);
-				result.Append((char) resChar[1]);
-				result.Append((char) resChar[2]);
-				result.Append((char) resChar[3]);
-				result.Append((char) resChar[16]);
-				result.Append((char) resChar[17]);
-				result.Append((char) resChar[18]);
-				result.Append((char) resChar[19]);
-			}
-			else if (OSVersion.Equals("Windows"))
-			{
-				bool isXInput = true;
-				foreach (byte b in resChar)
-				{
-					if (((char) b) != '0' && b != 0)
-					{
-						isXInput = false;
-						break;
-					}
-				}
-				if (isXInput)
-				{
-					result.Append("xinput");
-				}
-				else
-				{
-					result.Append((char) resChar[0]);
-					result.Append((char) resChar[1]);
-					result.Append((char) resChar[2]);
-					result.Append((char) resChar[3]);
-					result.Append((char) resChar[4]);
-					result.Append((char) resChar[5]);
-					result.Append((char) resChar[6]);
-					result.Append((char) resChar[7]);
-				}
-			}
-			else
-			{
-				throw new NotSupportedException("Unhandled SDL2 platform!");
 			}
 			INTERNAL_guids[which] = result.ToString();
 
