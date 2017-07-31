@@ -1696,40 +1696,24 @@ namespace Microsoft.Xna.Framework
 			};
 
 			/* Store the GUID string for this device
-			 * FIXME: Replace this with SDL_JoystickGetVendor/Product/Version -flibit
+			 * FIXME: Replace GetGUIDEXT string with 3 short values -flibit
 			 */
-			StringBuilder result = new StringBuilder();
-			byte[] resChar = new byte[33]; // FIXME: Sort of arbitrary.
-			SDL.SDL_JoystickGetGUIDString(
-				SDL.SDL_JoystickGetGUID(thisJoystick),
-				resChar,
-				resChar.Length
-			);
-			bool isXInput = true;
-			foreach (byte b in resChar)
+			ushort vendor = SDL.SDL_JoystickGetVendor(thisJoystick);
+			ushort product = SDL.SDL_JoystickGetProduct(thisJoystick);
+			if (vendor == 0x00 && product == 0x00)
 			{
-				if (((char) b) != '0' && b != 0)
-				{
-					isXInput = false;
-					break;
-				}
-			}
-			if (isXInput)
-			{
-				result.Append("xinput");
+				INTERNAL_guids[which] = "xinput";
 			}
 			else
 			{
-				result.Append((char) resChar[8]);
-				result.Append((char) resChar[9]);
-				result.Append((char) resChar[10]);
-				result.Append((char) resChar[11]);
-				result.Append((char) resChar[16]);
-				result.Append((char) resChar[17]);
-				result.Append((char) resChar[18]);
-				result.Append((char) resChar[19]);
+				INTERNAL_guids[which] = string.Format(
+					"{0:x2}{1:x2}{2:x2}{3:x2}",
+					vendor & 0xFF,
+					vendor >> 8,
+					product & 0xFF,
+					product >> 8
+				);
 			}
-			INTERNAL_guids[which] = result.ToString();
 
 			// Initialize light bar
 			if (	OSVersion.Equals("Linux") &&
