@@ -381,6 +381,11 @@ namespace Microsoft.Xna.Framework
 			Rectangle size = (sender as GameWindow).ClientBounds;
 			resizedBackBufferWidth = size.Width;
 			resizedBackBufferHeight = size.Height;
+			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
+			{
+				resizedBackBufferWidth *= 2;
+				resizedBackBufferHeight *= 2;
+			}
 			useResizedBackBuffer = true;
 			ApplyChanges();
 		}
