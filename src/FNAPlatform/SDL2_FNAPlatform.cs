@@ -33,6 +33,8 @@ namespace Microsoft.Xna.Framework
 			"FNA_KEYBOARD_USE_SCANCODES"
 		) == "1";
 
+		public static bool DisableLateSwapTear = false;
+
 		#endregion
 
 		#region Init/Exit Methods
@@ -98,6 +100,13 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED
 			) == 1) {
 				INTERNAL_AddInstance(evt[0].cdevice.which);
+			}
+
+			// Some extra work for EXT_swap_control_tear VSync
+			if (	OSVersion.Equals("Mac OS X") ||
+				Environment.GetEnvironmentVariable("FNA_OPENGL_DISABLE_LATESWAPTEAR") == "1"	)
+			{
+				DisableLateSwapTear = true;
 			}
 		}
 
@@ -827,9 +836,8 @@ namespace Microsoft.Xna.Framework
 		{
 			if (interval == PresentInterval.Default || interval == PresentInterval.One)
 			{
-				if (OSVersion.Equals("Mac OS X"))
+				if (DisableLateSwapTear)
 				{
-					// Apple is a big fat liar about swap_control_tear. Use stock VSync.
 					SDL.SDL_GL_SetSwapInterval(1);
 				}
 				else
