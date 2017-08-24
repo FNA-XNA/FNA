@@ -2266,6 +2266,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementSizeInBytes,
 			int vertexStride
 		) {
+			IntPtr cpy;
+			bool useStagingBuffer = elementSizeInBytes < vertexStride;
+			if (useStagingBuffer)
+			{
+				cpy = Marshal.AllocHGlobal(elementCount * vertexStride);
+			}
+			else
+			{
+				cpy = data + (startIndex * elementSizeInBytes);
+			}
+
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
@@ -2276,12 +2287,25 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_ARRAY_BUFFER,
 				(IntPtr) offsetInBytes,
 				(IntPtr) (elementCount * vertexStride),
-				data + (startIndex * elementSizeInBytes)
+				cpy
 			);
 
 #if !DISABLE_THREADING
 			});
 #endif
+
+			if (useStagingBuffer)
+			{
+				IntPtr src = cpy;
+				IntPtr dst = data + (startIndex * elementSizeInBytes);
+				for (int i = 0; i < elementCount; i += 1)
+				{
+					memcpy(dst, src, (IntPtr) elementSizeInBytes);
+					dst += elementSizeInBytes;
+					src += vertexStride;
+				}
+				Marshal.FreeHGlobal(cpy);
+			}
 		}
 
 		public void GetIndexBufferData(
