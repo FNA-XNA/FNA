@@ -178,6 +178,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				vertexStride = elementSizeInBytes;
 			}
+			else if (vertexStride < elementSizeInBytes)
+			{
+				throw new ArgumentOutOfRangeException(
+					"vertexStride",
+					"The vertex stride is too small for the type of data requested. This is not allowed."
+				);
+			}
 			if (	elementCount > 1 &&
 				(elementCount * vertexStride) > (VertexCount * VertexDeclaration.VertexStride)	)
 			{
