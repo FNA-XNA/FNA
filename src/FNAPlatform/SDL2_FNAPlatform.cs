@@ -627,6 +627,10 @@ namespace Microsoft.Xna.Framework
 					}
 
 					// Mouse Input
+					else if (evt.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN)
+					{
+						Mouse.INTERNAL_onClicked(evt.button.button - 1);
+					}
 					else if (evt.type == SDL.SDL_EventType.SDL_MOUSEWHEEL)
 					{
 						// 120 units per notch. Because reasons.

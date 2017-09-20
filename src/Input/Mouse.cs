@@ -51,6 +51,12 @@ namespace Microsoft.Xna.Framework.Input
 
 		#endregion
 
+		#region Public Events
+
+		public static Action<int> ClickedEXT;
+
+		#endregion
+
 		#region Public Interface
 
 		/// <summary>
@@ -108,6 +114,18 @@ namespace Microsoft.Xna.Framework.Input
 			y = (int) ((double) y * INTERNAL_WindowHeight / INTERNAL_BackBufferHeight);
 
 			FNAPlatform.SetMousePosition(WindowHandle, x, y);
+		}
+
+		#endregion
+
+		#region Internal Methods
+
+		internal static void INTERNAL_onClicked(int button)
+		{
+			if (ClickedEXT != null)
+			{
+				ClickedEXT(button);
+			}
 		}
 
 		#endregion
