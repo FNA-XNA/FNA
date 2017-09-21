@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Text;
 
 using Microsoft.Xna.Framework.Design;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -28,7 +29,7 @@ namespace Microsoft.Xna.Framework
 	[Serializable]
 	[TypeConverter(typeof(ColorConverter))]
 	[DebuggerDisplay("{DebugDisplayString,nq}")]
-	public struct Color : IEquatable<Color>
+	public struct Color : IEquatable<Color>, IPackedVector, IPackedVector<uint>
 	{
 		#region Public Properties
 
@@ -1899,5 +1900,23 @@ namespace Microsoft.Xna.Framework
 		}
 
 		#endregion
+
+		#region IPackedVector Member
+
+		/// <summary>
+		/// Pack a four-component color from a vector format into the format of a color object.
+		/// </summary>
+		/// <param name="vector">A four-component color.</param>
+		void IPackedVector.PackFromVector4(Vector4 vector)
+		{
+			// Should we round here?
+			R = (byte) (vector.X * 255.0f);
+			G = (byte) (vector.Y * 255.0f);
+			B = (byte) (vector.Z * 255.0f);
+			A = (byte) (vector.W * 255.0f);
+		}
+
+		#endregion
+
 	}
 }
