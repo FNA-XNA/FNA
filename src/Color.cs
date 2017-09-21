@@ -1412,7 +1412,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Variables
 
-		// ARGB
+		// ARGB. Keep this name as it is used by XNA games in reflection!
 		private uint packedValue;
 
 		#endregion
