@@ -156,6 +156,7 @@ M: System.Int32 SDL2.SDL::SDL_VideoInit(System.String)
 M: System.Void SDL2.SDL::SDL_VideoQuit()
 M: System.Int32 SDL2.SDL::SDL_SetWindowHitTest(System.IntPtr,SDL2.SDL/SDL_HitTest,System.IntPtr)
 M: System.IntPtr SDL2.SDL::SDL_GetGrabbedWindow()
+M: SDL2.SDL/SDL_BlendMode SDL2.SDL::SDL_ComposeCustomBlendMode(SDL2.SDL/SDL_BlendFactor,SDL2.SDL/SDL_BlendFactor,SDL2.SDL/SDL_BlendOperation,SDL2.SDL/SDL_BlendFactor,SDL2.SDL/SDL_BlendFactor,SDL2.SDL/SDL_BlendOperation)
 M: System.Int32 SDL2.SDL::SDL_Vulkan_LoadLibrary(System.String)
 M: System.IntPtr SDL2.SDL::SDL_Vulkan_GetVkGetInstanceProcAddr()
 M: System.Void SDL2.SDL::SDL_Vulkan_UnloadLibrary()
@@ -302,6 +303,7 @@ M: System.Int32 SDL2.SDL::SDL_SoftStretch(System.IntPtr,SDL2.SDL/SDL_Rect&,Syste
 M: System.Void SDL2.SDL::SDL_UnlockSurface(System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_UpperBlit(System.IntPtr,SDL2.SDL/SDL_Rect&,System.IntPtr,SDL2.SDL/SDL_Rect&)
 M: System.Int32 SDL2.SDL::SDL_UpperBlitScaled(System.IntPtr,SDL2.SDL/SDL_Rect&,System.IntPtr,SDL2.SDL/SDL_Rect&)
+M: System.IntPtr SDL2.SDL::SDL_DuplicateSurface(System.IntPtr)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_HasClipboardText()
 M: System.String SDL2.SDL::SDL_GetClipboardText()
 M: System.Int32 SDL2.SDL::SDL_SetClipboardText(System.String)
@@ -519,7 +521,6 @@ T: SDL2.SDL/SDL_MessageBoxColorType
 T: SDL2.SDL/SDL_MessageBoxColorScheme
 T: SDL2.SDL/SDL_MessageBoxData
 T: SDL2.SDL/SDL_version
-T: SDL2.SDL/SDL_BlendMode
 T: SDL2.SDL/SDL_GLattr
 T: SDL2.SDL/SDL_GLprofile
 T: SDL2.SDL/SDL_GLcontext
@@ -528,6 +529,9 @@ T: SDL2.SDL/SDL_WindowFlags
 T: SDL2.SDL/SDL_HitTestResult
 T: SDL2.SDL/SDL_DisplayMode
 T: SDL2.SDL/SDL_HitTest
+T: SDL2.SDL/SDL_BlendMode
+T: SDL2.SDL/SDL_BlendOperation
+T: SDL2.SDL/SDL_BlendFactor
 T: SDL2.SDL/SDL_RendererFlags
 T: SDL2.SDL/SDL_RendererFlip
 T: SDL2.SDL/SDL_TextureAccess
@@ -863,7 +867,6 @@ T: SDL2.SDL/SDL_MessageBoxColorType
 T: SDL2.SDL/SDL_MessageBoxColorScheme
 T: SDL2.SDL/SDL_MessageBoxData
 T: SDL2.SDL/SDL_version
-T: SDL2.SDL/SDL_BlendMode
 T: SDL2.SDL/SDL_GLattr
 T: SDL2.SDL/SDL_GLprofile
 T: SDL2.SDL/SDL_GLcontext
@@ -872,6 +875,9 @@ T: SDL2.SDL/SDL_WindowFlags
 T: SDL2.SDL/SDL_HitTestResult
 T: SDL2.SDL/SDL_DisplayMode
 T: SDL2.SDL/SDL_HitTest
+T: SDL2.SDL/SDL_BlendMode
+T: SDL2.SDL/SDL_BlendOperation
+T: SDL2.SDL/SDL_BlendFactor
 T: SDL2.SDL/SDL_RendererFlags
 T: SDL2.SDL/SDL_RendererFlip
 T: SDL2.SDL/SDL_TextureAccess
@@ -1096,6 +1102,7 @@ M: System.Int32 SDL2.SDL::SDL_VideoInit(System.String)
 M: System.Void SDL2.SDL::SDL_VideoQuit()
 M: System.Int32 SDL2.SDL::SDL_SetWindowHitTest(System.IntPtr,SDL2.SDL/SDL_HitTest,System.IntPtr)
 M: System.IntPtr SDL2.SDL::SDL_GetGrabbedWindow()
+M: SDL2.SDL/SDL_BlendMode SDL2.SDL::SDL_ComposeCustomBlendMode(SDL2.SDL/SDL_BlendFactor,SDL2.SDL/SDL_BlendFactor,SDL2.SDL/SDL_BlendOperation,SDL2.SDL/SDL_BlendFactor,SDL2.SDL/SDL_BlendFactor,SDL2.SDL/SDL_BlendOperation)
 M: System.Int32 SDL2.SDL::SDL_Vulkan_LoadLibrary(System.String)
 M: System.IntPtr SDL2.SDL::SDL_Vulkan_GetVkGetInstanceProcAddr()
 M: System.Void SDL2.SDL::SDL_Vulkan_UnloadLibrary()
@@ -1230,6 +1237,7 @@ M: System.Int32 SDL2.SDL::SDL_SoftStretch(System.IntPtr,SDL2.SDL/SDL_Rect&,Syste
 M: System.Void SDL2.SDL::SDL_UnlockSurface(System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_UpperBlit(System.IntPtr,SDL2.SDL/SDL_Rect&,System.IntPtr,SDL2.SDL/SDL_Rect&)
 M: System.Int32 SDL2.SDL::SDL_UpperBlitScaled(System.IntPtr,SDL2.SDL/SDL_Rect&,System.IntPtr,SDL2.SDL/SDL_Rect&)
+M: System.IntPtr SDL2.SDL::SDL_DuplicateSurface(System.IntPtr)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_HasClipboardText()
 M: System.String SDL2.SDL::SDL_GetClipboardText()
 M: System.Int32 SDL2.SDL::SDL_SetClipboardText(System.String)
@@ -1558,6 +1566,8 @@ M: System.Int32 SDL2.SDL_ttf::SDL_GetFontKerningSize(System.IntPtr,System.Int32,
 
 R: Gendarme.Rules.Naming.DoNotPrefixValuesWithEnumNameRule
 T: SDL2.SDL/SDL_BlendMode
+T: SDL2.SDL/SDL_BlendOperation
+T: SDL2.SDL/SDL_BlendFactor
 T: SDL2.SDL/SDL_TextureAccess
 T: SDL2.SDL/SDL_TextureModulate
 T: SDL2.SDL/SDL_Scancode
