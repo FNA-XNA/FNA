@@ -1353,11 +1353,6 @@ namespace Microsoft.Xna.Framework
 			GamePadType.BigButtonPad
 		};
 
-		// FIXME: SDL_GameController config input inversion!
-		private static float invertAxis = Environment.GetEnvironmentVariable(
-			"FNA_WORKAROUND_INVERT_YAXIS"
-		) == "1" ? -1.0f : 1.0f;
-
 		public static GamePadCapabilities GetGamePadCapabilities(int index)
 		{
 			if (INTERNAL_devices[index] == IntPtr.Zero)
@@ -1387,7 +1382,7 @@ namespace Microsoft.Xna.Framework
 				(float) SDL.SDL_GameControllerGetAxis(
 					device,
 					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY
-				) / -32767.0f * invertAxis
+				) / -32767.0f
 			);
 			Vector2 stickRight = new Vector2(
 				(float) SDL.SDL_GameControllerGetAxis(
@@ -1397,7 +1392,7 @@ namespace Microsoft.Xna.Framework
 				(float) SDL.SDL_GameControllerGetAxis(
 					device,
 					SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTY
-				) / -32767.0f * invertAxis
+				) / -32767.0f
 			);
 			gc_buttonState |= READ_StickToButtons(
 				stickLeft,
