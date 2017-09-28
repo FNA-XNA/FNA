@@ -1719,15 +1719,17 @@ namespace Microsoft.Xna.Framework
 
 			// Initialize light bar
 			if (	OSVersion.Equals("Linux") &&
-				INTERNAL_guids[which].Equals("4c05c405")	)
+				(	INTERNAL_guids[which].Equals("4c05c405") ||
+					INTERNAL_guids[which].Equals("4c05cc09")	)	)
 			{
 				// Get all of the individual PS4 LED instances
 				List<string> ledList = new List<string>();
 				string[] dirs = Directory.GetDirectories("/sys/class/leds/");
 				foreach (string dir in dirs)
 				{
-					if (	dir.Contains("054C:05C4") &&
-						dir.EndsWith("blue")	)
+					if (	dir.EndsWith("blue") &&
+						(	dir.Contains("054C:05C4") ||
+							dir.Contains("054C:09CC")	)	)
 					{
 						ledList.Add(dir.Substring(0, dir.LastIndexOf(':') + 1));
 					}
