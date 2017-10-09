@@ -3589,8 +3589,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				GLenum.GL_UNSIGNED_BYTE,			// SurfaceFormat.Color
 				GLenum.GL_UNSIGNED_SHORT_5_6_5,			// SurfaceFormat.Bgr565
-				GLenum.GL_UNSIGNED_SHORT_5_5_5_1,		// SurfaceFormat.Bgra5551
-				GLenum.GL_UNSIGNED_SHORT_4_4_4_4,		// SurfaceFormat.Bgra4444
+				GLenum.GL_UNSIGNED_SHORT_5_5_5_1_REV,		// SurfaceFormat.Bgra5551
+				GLenum.GL_UNSIGNED_SHORT_4_4_4_4_REV,		// SurfaceFormat.Bgra4444
 				GLenum.GL_ZERO,					// NOPE
 				GLenum.GL_ZERO,					// NOPE
 				GLenum.GL_ZERO,					// NOPE
