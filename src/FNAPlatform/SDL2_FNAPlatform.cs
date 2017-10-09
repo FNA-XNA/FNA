@@ -27,7 +27,7 @@ namespace Microsoft.Xna.Framework
 	{
 		#region Static Constants
 
-		private static readonly string OSVersion = SDL.SDL_GetPlatform();
+		private static string OSVersion;
 
 		private static readonly bool UseScancodes = Environment.GetEnvironmentVariable(
 			"FNA_KEYBOARD_USE_SCANCODES"
@@ -39,6 +39,19 @@ namespace Microsoft.Xna.Framework
 
 		public static void ProgramInit()
 		{
+			// This is how we can weed out cases where fnalibs is missing
+			try
+			{
+				OSVersion = SDL.SDL_GetPlatform();
+			}
+			catch(Exception e)
+			{
+				FNALoggerEXT.LogError(
+					"SDL2 was not found! Do you have fnalibs?"
+				);
+				throw e;
+			}
+
 			/* SDL2 might complain if an OS that uses SDL_main has not actually
 			 * used SDL_main by the time you initialize SDL2.
 			 * The only platform that is affected is Windows, but we can skip
