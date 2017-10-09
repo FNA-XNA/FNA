@@ -3933,7 +3933,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_ZERO,					// NOPE
 				GLenum.GL_BYTE,					// SurfaceFormat.NormalizedByte2
 				GLenum.GL_BYTE,					// SurfaceFormat.NormalizedByte4
-				GLenum.GL_UNSIGNED_INT_10_10_10_2,		// SurfaceFormat.Rgba1010102
+				GLenum.GL_UNSIGNED_INT_2_10_10_10_REV,		// SurfaceFormat.Rgba1010102
 				GLenum.GL_UNSIGNED_SHORT,			// SurfaceFormat.Rg32
 				GLenum.GL_UNSIGNED_SHORT,			// SurfaceFormat.Rgba64
 				GLenum.GL_UNSIGNED_BYTE,			// SurfaceFormat.Alpha8

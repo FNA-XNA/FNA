@@ -38,7 +38,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_HALF_FLOAT =				0x140B,
 			GL_UNSIGNED_SHORT_4_4_4_4_REV =		0x8365,
 			GL_UNSIGNED_SHORT_5_5_5_1_REV =		0x8366,
-			GL_UNSIGNED_INT_10_10_10_2 =		0x8036,
+			GL_UNSIGNED_INT_2_10_10_10_REV =	0x8368,
 			GL_UNSIGNED_SHORT_5_6_5 =		0x8363,
 			GL_UNSIGNED_INT_24_8 =			0x84FA,
 			// Strings
