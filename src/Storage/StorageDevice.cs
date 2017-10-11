@@ -101,7 +101,7 @@ namespace Microsoft.Xna.Framework.Storage
 		#region Private Static Variables
 
 		private static readonly string storageRoot = FNAPlatform.GetStorageRoot();
-		private static readonly DriveInfo drive = new DriveInfo(Path.GetPathRoot(storageRoot));
+		private static readonly DriveInfo drive = new DriveInfo(MonoPathRootWorkaround());
 
 		#endregion
 
@@ -335,6 +335,63 @@ namespace Microsoft.Xna.Framework.Storage
 		public void DeleteContainer(string titleName)
 		{
 			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		#region Private Static Methods
+
+		private static string MonoPathRootWorkaround()
+		{
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+			{
+				// This is what we should be doing everywhere...
+				return Path.GetPathRoot(storageRoot);
+			}
+
+			// This is stolen from Mono's Path.cs
+			if (storageRoot == null)
+			{
+				return null;
+			}
+			if (storageRoot.Trim().Length == 0)
+			{
+				throw new ArgumentException("The specified path is not of a legal form.");
+			}
+			if (!Path.IsPathRooted(storageRoot))
+			{
+				return string.Empty;
+			}
+
+			/* FIXME: Mono bug!
+			 *
+			 * For Unix, the Mono Path.GetPathRoot is pretty lazy:
+			 * https://github.com/mono/mono/blob/master/mcs/class/corlib/System.IO/Path.cs#L443
+			 * It should actually be checking the drives and
+			 * comparing them to the provided path.
+			 * If a Mono maintainer is reading this, please steal
+			 * this code so we don't have to hack around Mono!
+			 *
+			 * -flibit
+			 */
+			int drive = -1, length = 0;
+			string[] drives = Environment.GetLogicalDrives();
+			for (int i = 0; i < drives.Length; i += 1)
+			{
+				if (	storageRoot.StartsWith(drives[i]) &&
+					drives[i].Length > length	)
+				{
+					drive = i;
+					length = drives[i].Length;
+				}
+			}
+			if (drive >= 0)
+			{
+				return drives[drive];
+			}
+
+			// Uhhhhh
+			return Path.GetPathRoot(storageRoot);
 		}
 
 		#endregion
