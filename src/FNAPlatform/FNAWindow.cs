@@ -54,7 +54,7 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				// FNA currently doesn't support orientations.
+				// TODO: return FNAPlatform.GetOrientation(window);
 				return DisplayOrientation.LandscapeLeft;
 			}
 		}

@@ -283,6 +283,13 @@ SRC = \
 	src/Input/Mouse.cs \
 	src/Input/MouseState.cs \
 	src/Input/TextInputEXT.cs \
+	src/Input/Touch/GestureSample.cs \
+	src/Input/Touch/GestureType.cs \
+	src/Input/Touch/TouchCollection.cs \
+	src/Input/Touch/TouchLocation.cs \
+	src/Input/Touch/TouchLocationState.cs \
+	src/Input/Touch/TouchPanel.cs \
+	src/Input/Touch/TouchPanelCapabilities.cs \
 	src/IUpdateable.cs \
 	src/LaunchParameters.cs \
 	src/MathHelper.cs \

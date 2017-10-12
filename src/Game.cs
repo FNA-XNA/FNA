@@ -274,6 +274,7 @@ namespace Microsoft.Xna.Framework
 
 			Window = FNAPlatform.CreateWindow();
 			Mouse.WindowHandle = Window.Handle;
+			TouchPanel.WindowHandle = Window.Handle;
 
 			FrameworkDispatcher.Update();
 
