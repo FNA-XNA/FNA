@@ -355,10 +355,24 @@ namespace Microsoft.Xna.Framework.Content
 
 				if (typeof(T) == typeof(Texture2D) || typeof(T) == typeof(Texture))
 				{
-					Texture2D texture = Texture2D.FromStream(
-						graphicsDeviceService.GraphicsDevice,
-						stream
-					);
+					Texture2D texture;
+					if (	xnbHeader[0] == 'D' &&
+						xnbHeader[1] == 'D' &&
+						xnbHeader[2] == 'S' &&
+						xnbHeader[3] == ' '	)
+					{
+						texture = Texture2D.DDSFromStreamEXT(
+							graphicsDeviceService.GraphicsDevice,
+							stream
+						);
+					}
+					else
+					{
+						texture = Texture2D.FromStream(
+							graphicsDeviceService.GraphicsDevice,
+							stream
+						);
+					}
 					texture.Name = assetName;
 					result = texture;
 				}
