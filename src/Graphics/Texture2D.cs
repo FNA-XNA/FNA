@@ -379,7 +379,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			const uint FOURCC_DXT1 = 0x31545844;
 			const uint FOURCC_DXT3 = 0x33545844;
 			const uint FOURCC_DXT5 = 0x35545844;
-			const uint FOURCC_DXT10 = 0x30315844;
+			// const uint FOURCC_DX10 = 0x30315844;
 			const uint pitchAndLinear = (
 				DDSD_PITCH | DDSD_LINEARSIZE
 			);

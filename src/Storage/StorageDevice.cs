@@ -11,7 +11,6 @@
 using System;
 using System.IO;
 using System.Threading;
-using System.Runtime.Remoting.Messaging;
 #endregion
 
 namespace Microsoft.Xna.Framework.Storage
