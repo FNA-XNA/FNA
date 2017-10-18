@@ -127,7 +127,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_RGBA =				0x1908,
 			GL_LUMINANCE =				0x1909,
 			GL_LUMINANCE8 =				0x8040,
-			GL_RGB8 =				0x8051,
 			GL_RGBA8 =				0x8058,
 			GL_RGBA4 =				0x8056,
 			GL_RGB5_A1 =				0x8057,
@@ -150,6 +149,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_COMPRESSED_RGBA_S3TC_DXT1_EXT =	0x83F1,
 			GL_COMPRESSED_RGBA_S3TC_DXT3_EXT =	0x83F2,
 			GL_COMPRESSED_RGBA_S3TC_DXT5_EXT =	0x83F3,
+			GL_RGB565 =				0x8D62,
 			// Texture Internal Formats
 			GL_DEPTH_COMPONENT =			0x1902,
 			GL_DEPTH_STENCIL =			0x84F9,
