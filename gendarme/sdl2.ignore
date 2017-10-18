@@ -1,4 +1,5 @@
 R: Gendarme.Rules.Design.Generic.AvoidDeclaringCustomDelegatesRule
+T: SDL2.SDL/SDL_WinRT_mainFunction
 T: SDL2.SDL/SDL_LogOutputFunction
 T: SDL2.SDL/SDL_HitTest
 T: SDL2.SDL/SDL_EventFilter
@@ -32,6 +33,7 @@ T: SDL2.SDL
 M: System.UInt32 SDL2.SDL::SDL_FOURCC(System.Byte,System.Byte,System.Byte,System.Byte)
 M: System.IntPtr SDL2.SDL::SDL_RWFromMem(System.Byte[],System.Int32)
 M: System.Void SDL2.SDL::SDL_SetMainReady()
+M: System.Int32 SDL2.SDL::SDL_WinRTRunApp(SDL2.SDL/SDL_WinRT_mainFunction,System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_Init(System.UInt32)
 M: System.Int32 SDL2.SDL::SDL_InitSubSystem(System.UInt32)
 M: System.Void SDL2.SDL::SDL_Quit()
@@ -510,6 +512,7 @@ M: SDL2.SDL/SDL_PowerState SDL2.SDL::SDL_GetPowerInfo(System.Int32&,System.Int32
 M: System.Int32 SDL2.SDL::SDL_GetCPUCount()
 M: System.Int32 SDL2.SDL::SDL_GetSystemRAM()
 T: SDL2.SDL/SDL_bool
+T: SDL2.SDL/SDL_WinRT_mainFunction
 T: SDL2.SDL/SDL_HintPriority
 T: SDL2.SDL/SDL_LogPriority
 T: SDL2.SDL/SDL_LogOutputFunction
@@ -856,6 +859,7 @@ T: SDL2.SDL/SDL_SysWMinfo
 
 R: Gendarme.Rules.Design.AvoidVisibleNestedTypesRule
 T: SDL2.SDL/SDL_bool
+T: SDL2.SDL/SDL_WinRT_mainFunction
 T: SDL2.SDL/SDL_HintPriority
 T: SDL2.SDL/SDL_LogPriority
 T: SDL2.SDL/SDL_LogOutputFunction
@@ -985,6 +989,7 @@ M: System.Void SDL2.SDL::SDL_free(System.IntPtr)
 M: System.IntPtr SDL2.SDL::INTERNAL_SDL_RWFromFile(System.String,System.String)
 M: System.IntPtr SDL2.SDL::SDL_RWFromMem(System.Byte[],System.Int32)
 M: System.Void SDL2.SDL::SDL_SetMainReady()
+M: System.Int32 SDL2.SDL::SDL_WinRTRunApp(SDL2.SDL/SDL_WinRT_mainFunction,System.IntPtr)
 M: System.Int32 SDL2.SDL::SDL_Init(System.UInt32)
 M: System.Int32 SDL2.SDL::SDL_InitSubSystem(System.UInt32)
 M: System.Void SDL2.SDL::SDL_Quit()
