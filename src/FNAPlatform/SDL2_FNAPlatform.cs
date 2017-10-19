@@ -61,7 +61,8 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_SetMainReady();
 
 			// Also, Windows is an idiot. -flibit
-			if (	OSVersion.Equals("Windows") &&
+			if (	(	OSVersion.Equals("Windows") ||
+					OSVersion.Equals("WinRT")	) &&
 				System.Diagnostics.Debugger.IsAttached	)
 			{
 				SDL.SDL_SetHint(
@@ -536,7 +537,9 @@ namespace Microsoft.Xna.Framework
 			 * WM_PAINT events correctly. So we get to do this!
 			 * -flibit
 			 */
-			if (OSVersion.Equals("Windows") && game.Window.AllowUserResizing)
+			if (	(	OSVersion.Equals("Windows") ||
+					OSVersion.Equals("WinRT")	) &&
+				game.Window.AllowUserResizing	)
 			{
 				quickDrawFunc = game.RedrawWindow;
 				SDL.SDL_SetEventFilter(
@@ -986,7 +989,7 @@ namespace Microsoft.Xna.Framework
 
 		public static string GetStorageRoot()
 		{
-			if (OSVersion.Equals("Windows"))
+			if (OSVersion.Equals("Windows") || OSVersion.Equals("WinRT"))
 			{
 				return Path.Combine(
 					Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),

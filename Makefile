@@ -325,7 +325,6 @@ SRC = \
 	src/Vector4.cs \
 	lib/SDL2-CS/src/SDL2.cs \
 	lib/SDL2-CS/src/SDL2_image.cs \
-	lib/SDL2-CS/src/LPUtf8StrMarshaler.cs \
 	lib/OpenAL-CS/src/ALC10.cs \
 	lib/OpenAL-CS/src/ALC11.cs \
 	lib/OpenAL-CS/src/AL10.cs \
