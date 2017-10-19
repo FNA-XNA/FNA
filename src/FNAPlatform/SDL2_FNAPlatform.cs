@@ -135,6 +135,15 @@ namespace Microsoft.Xna.Framework
 				"FNA_OPENGL_FORCE_CORE_PROFILE"
 			) == "1";
 
+			// Some platforms are GLES only
+			forceES3 |= (
+				OSVersion.Equals("WinRT") ||
+				OSVersion.Equals("iOS") ||
+				OSVersion.Equals("tvOS") ||
+				OSVersion.Equals("Android") ||
+				OSVersion.Equals("Emscripten")
+			);
+
 			// Set and initialize the SDL2 window
 			SDL.SDL_WindowFlags initFlags = (
 				SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL |
