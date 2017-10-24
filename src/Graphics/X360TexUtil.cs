@@ -16,6 +16,7 @@ namespace Microsoft.Xna.Framework.Graphics
 	internal static class X360TexUtil
 	{
 		#region Internal Static Methods
+
 		internal static byte[] SwapColor(byte[] imageData)
 		{
 			using (MemoryStream imageStream = new MemoryStream(imageData))
@@ -67,7 +68,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			return imageData;
 		}
-		#endregion
 
+		#endregion
 	}
 }

@@ -260,6 +260,7 @@ SRC = \
 	src/Graphics/Vertices/VertexPositionNormalTexture.cs \
 	src/Graphics/Vertices/VertexPositionTexture.cs \
 	src/Graphics/Viewport.cs \
+	src/Graphics/X360TexUtil.cs \
 	src/GraphicsDeviceInformation.cs \
 	src/GraphicsDeviceManager.cs \
 	src/IDrawable.cs \
@@ -351,7 +352,7 @@ RES = \
 debug: clean-debug
 	mkdir -p bin/Debug
 	cp FNA.dll.config bin/Debug
-	dmcs /unsafe -debug -define:DEBUG -out:bin/Debug/FNA.dll -target:library $(SRC) $(RES)
+	mcs /unsafe -debug -define:DEBUG -out:bin/Debug/FNA.dll -target:library $(SRC) $(RES)
 
 clean-debug:
 	rm -rf bin/Debug

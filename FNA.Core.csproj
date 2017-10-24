@@ -157,7 +157,6 @@
 		<Compile Include="src\Graphics\DirectionalLight.cs" />
 		<Compile Include="src\Graphics\DisplayMode.cs" />
 		<Compile Include="src\Graphics\DisplayModeCollection.cs" />
-		<Compile Include="src\Graphics\X360TexUtil.cs" />
 		<Compile Include="src\Graphics\DxtUtil.cs" />
 		<Compile Include="src\Graphics\Effect\Effect.cs" />
 		<Compile Include="src\Graphics\Effect\EffectAnnotation.cs" />
@@ -269,6 +268,7 @@
 		<Compile Include="src\Graphics\Vertices\VertexPositionNormalTexture.cs" />
 		<Compile Include="src\Graphics\Vertices\VertexPositionTexture.cs" />
 		<Compile Include="src\Graphics\Viewport.cs" />
+		<Compile Include="src\Graphics\X360TexUtil.cs" />
 		<Compile Include="src\GraphicsDeviceInformation.cs" />
 		<Compile Include="src\GraphicsDeviceManager.cs" />
 		<Compile Include="src\IDrawable.cs" />

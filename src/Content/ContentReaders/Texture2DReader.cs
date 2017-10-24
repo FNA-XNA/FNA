@@ -171,7 +171,7 @@ namespace Microsoft.Xna.Framework.Content
 				// Swap the image data if required.
 				if (reader.platform == 'x')
 				{
-					if (surfaceFormat == SurfaceFormat.Color ||
+					if (	surfaceFormat == SurfaceFormat.Color ||
 						surfaceFormat == SurfaceFormat.ColorBgraEXT)
 					{
 						levelData = reader.ReadBytes(levelDataSizeInBytes);
