@@ -168,99 +168,34 @@ namespace Microsoft.Xna.Framework.Content
 						);
 				}
 
-				byte[] fullData = null;
-				int fullDataStartIndex = 0;
-				if (levelData == null)
+				// Swap the image data if required.
+				if (reader.platform == 'x')
 				{
-					if (reader.BaseStream.GetType() == typeof(System.IO.MemoryStream))
+					if (surfaceFormat == SurfaceFormat.Color ||
+						surfaceFormat == SurfaceFormat.ColorBgraEXT)
 					{
-						/* If the ContentReader is backed by a
-						 * MemoryStream, we may need the complete
-						 * stream buffer sooner or later.
-						 */
-						fullData = (((System.IO.MemoryStream) (reader.BaseStream)).GetBuffer());
-						fullDataStartIndex = (int) reader.BaseStream.Position;
-						reader.BaseStream.Seek(
-							levelDataSizeInBytes,
-							System.IO.SeekOrigin.Current
+						levelData = reader.ReadBytes(levelDataSizeInBytes);
+						levelData = X360TexUtil.SwapColor(
+							levelData
 						);
 					}
-					else
+					else if (surfaceFormat == SurfaceFormat.Dxt3)
 					{
-						/* If the ContentReader is not backed by a
-						 * MemoryStream, we have to read the data in.
-						 */
 						levelData = reader.ReadBytes(levelDataSizeInBytes);
+						levelData = X360TexUtil.SwapDxt3(
+							levelData
+						);
 					}
 				}
 
-				if (reader.PlatformEXT == 'x')
+				if (	levelData == null &&
+					reader.BaseStream.GetType() != typeof(System.IO.MemoryStream)	)
 				{
-					byte[] levelDataSrc;
-					int offset;
-					int length;
-					if (levelData != null)
-					{
-						levelDataSrc = levelData;
-						offset = 0;
-						length = levelData.Length;
-					} else {
-						// We're dealing with a MemoryStream containing raw data.
-						levelDataSrc = fullData;
-						offset = fullDataStartIndex;
-						length = levelDataSizeInBytes;
-					}
-
-					// We may or may not need to fix the texture data.
-					byte[] levelDataDst = null;
-
-					unsafe
-					{
-						switch (surfaceFormat)
-						{
-							case SurfaceFormat.Color:
-							case SurfaceFormat.ColorBgraEXT:
-								levelDataDst = new byte[length];
-								for (int i = 0; i < length; i += 4)
-								{
-									levelDataDst[i + 0] = levelDataSrc[offset + i + 3];
-									levelDataDst[i + 1] = levelDataSrc[offset + i + 2];
-									levelDataDst[i + 2] = levelDataSrc[offset + i + 1];
-									levelDataDst[i + 3] = levelDataSrc[offset + i + 0];
-								}
-								break;
-
-							case SurfaceFormat.Dxt1:
-								// ???
-								break;
-
-							case SurfaceFormat.Dxt3:
-								levelDataDst = new byte[length];
-								for (int i = 0; i < length; i += 2)
-								{
-									levelDataDst[i + 0] = levelDataSrc[offset + i + 1];
-									levelDataDst[i + 1] = levelDataSrc[offset + i + 0];
-								}
-								break;
-
-							case SurfaceFormat.Dxt5:
-								// ???
-								break;
-
-							default:
-								// ???
-								break;
-						}
-
-					}
-
-					if (levelDataDst != null)
-					{
-						// We actually had to fix the data.
-						levelData = levelDataDst;
-					}
+					/* If the ContentReader is not backed by a
+					 * MemoryStream, we have to read the data in.
+					 */
+					levelData = reader.ReadBytes(levelDataSizeInBytes);
 				}
-
 				if (levelData != null)
 				{
 					/* If we had to convert the data, or get the data from a
@@ -278,9 +213,13 @@ namespace Microsoft.Xna.Framework.Content
 					texture.SetData<byte>(
 						level,
 						null,
-						fullData,
-						fullDataStartIndex,
+						(((System.IO.MemoryStream) (reader.BaseStream)).GetBuffer()),
+						(int) reader.BaseStream.Position,
 						levelDataSizeInBytes
+					);
+					reader.BaseStream.Seek(
+						levelDataSizeInBytes,
+						System.IO.SeekOrigin.Current
 					);
 				}
 

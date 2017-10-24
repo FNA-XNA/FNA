@@ -44,18 +44,6 @@ namespace Microsoft.Xna.Framework.Content
 
 		#endregion
 
-		#region Public Properties, FNA Extensions
-
-		public char PlatformEXT
-		{
-			get
-			{
-				return platform;
-			}
-		}
-
-		#endregion
-
 		#region Internal Properties
 
 		internal ContentTypeReader[] TypeReaders
