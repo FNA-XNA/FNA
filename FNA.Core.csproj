@@ -157,6 +157,7 @@
 		<Compile Include="src\Graphics\DirectionalLight.cs" />
 		<Compile Include="src\Graphics\DisplayMode.cs" />
 		<Compile Include="src\Graphics\DisplayModeCollection.cs" />
+		<Compile Include="src\Graphics\X360TexUtil.cs" />
 		<Compile Include="src\Graphics\DxtUtil.cs" />
 		<Compile Include="src\Graphics\Effect\Effect.cs" />
 		<Compile Include="src\Graphics\Effect\EffectAnnotation.cs" />
