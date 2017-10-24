@@ -68,6 +68,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		internal int version;
 		internal int sharedResourceCount;
+		internal char platform;
 
 		#endregion
 
@@ -91,6 +92,7 @@ namespace Microsoft.Xna.Framework.Content
 			GraphicsDevice graphicsDevice,
 			string assetName,
 			int version,
+			char platform,
 			Action<IDisposable> recordDisposableObject
 		) : base(stream) {
 			this.graphicsDevice = graphicsDevice;
@@ -98,6 +100,7 @@ namespace Microsoft.Xna.Framework.Content
 			this.contentManager = manager;
 			this.assetName = assetName;
 			this.version = version;
+			this.platform = platform;
 		}
 
 		#endregion

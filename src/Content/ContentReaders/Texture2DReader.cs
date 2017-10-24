@@ -168,6 +168,26 @@ namespace Microsoft.Xna.Framework.Content
 						);
 				}
 
+				// Swap the image data if required.
+				if (reader.platform == 'x')
+				{
+					if (surfaceFormat == SurfaceFormat.Color ||
+						surfaceFormat == SurfaceFormat.ColorBgraEXT)
+					{
+						levelData = reader.ReadBytes(levelDataSizeInBytes);
+						levelData = X360TexUtil.SwapColor(
+							levelData
+						);
+					}
+					else if (surfaceFormat == SurfaceFormat.Dxt3)
+					{
+						levelData = reader.ReadBytes(levelDataSizeInBytes);
+						levelData = X360TexUtil.SwapDxt3(
+							levelData
+						);
+					}
+				}
+
 				if (	levelData == null &&
 					reader.BaseStream.GetType() != typeof(System.IO.MemoryStream)	)
 				{

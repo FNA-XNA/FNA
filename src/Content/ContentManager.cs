@@ -336,7 +336,7 @@ namespace Microsoft.Xna.Framework.Content
 				targetPlatformIdentifiers.Contains((char) xnbHeader[3]) )
 			{
 				using (BinaryReader xnbReader = new BinaryReader(stream))
-				using (ContentReader reader = GetContentReaderFromXnb(assetName, ref stream, xnbReader, recordDisposableObject))
+				using (ContentReader reader = GetContentReaderFromXnb(assetName, ref stream, xnbReader, (char) xnbHeader[3], recordDisposableObject))
 				{
 					result = reader.ReadAsset<T>();
 					GraphicsResource resource = result as GraphicsResource;
@@ -456,7 +456,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		#region Private Methods
 
-		private ContentReader GetContentReaderFromXnb(string originalAssetName, ref Stream stream, BinaryReader xnbReader, Action<IDisposable> recordDisposableObject)
+		private ContentReader GetContentReaderFromXnb(string originalAssetName, ref Stream stream, BinaryReader xnbReader, char platform, Action<IDisposable> recordDisposableObject)
 		{
 			byte version = xnbReader.ReadByte();
 			byte flags = xnbReader.ReadByte();
@@ -544,6 +544,7 @@ namespace Microsoft.Xna.Framework.Content
 					graphicsDeviceService.GraphicsDevice,
 					originalAssetName,
 					version,
+					platform,
 					recordDisposableObject
 				);
 			}
@@ -555,6 +556,7 @@ namespace Microsoft.Xna.Framework.Content
 					graphicsDeviceService.GraphicsDevice,
 					originalAssetName,
 					version,
+					platform,
 					recordDisposableObject
 				);
 			}
