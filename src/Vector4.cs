@@ -249,9 +249,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The length of this <see cref="Vector4"/>.</returns>
 		public float Length()
 		{
-			float result;
-			DistanceSquared(ref this, ref zero, out result);
-			return (float) Math.Sqrt(result);
+			return (float) Math.Sqrt((X * X) + (Y * Y) + (Z * Z) + (W * W));
 		}
 
 		/// <summary>
@@ -260,9 +258,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The squared length of this <see cref="Vector4"/>.</returns>
 		public float LengthSquared()
 		{
-			float result;
-			DistanceSquared(ref this, ref zero, out result);
-			return result;
+			return (X * X) + (Y * Y) + (Z * Z) + (W * W);
 		}
 
 		/// <summary>
@@ -270,7 +266,16 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public void Normalize()
 		{
-			Normalize(ref this, out this);
+			float factor = 1.0f / (float) Math.Sqrt(
+				(X * X) +
+				(Y * Y) +
+				(Z * Z) +
+				(W * W)
+			);
+			X *= factor;
+			Y *= factor;
+			Z *= factor;
+			W *= factor;
 		}
 
 		public override string ToString()
@@ -832,8 +837,18 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Unit vector.</returns>
 		public static Vector4 Normalize(Vector4 vector)
 		{
-			Normalize(ref vector, out vector);
-			return vector;
+			float factor = 1.0f / (float) Math.Sqrt(
+				(vector.X * vector.X) +
+				(vector.Y * vector.Y) +
+				(vector.Z * vector.Z) +
+				(vector.W * vector.W)
+			);
+			return new Vector4(
+				vector.X * factor,
+				vector.Y * factor,
+				vector.Z * factor,
+				vector.W * factor
+			);
 		}
 
 		/// <summary>
@@ -843,14 +858,16 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">Unit vector as an output parameter.</param>
 		public static void Normalize(ref Vector4 vector, out Vector4 result)
 		{
-			float factor;
-			DistanceSquared(ref vector, ref zero, out factor);
-			factor = 1f / (float) Math.Sqrt(factor);
-
-			result.W = vector.W * factor;
+			float factor = 1.0f / (float) Math.Sqrt(
+				(vector.X * vector.X) +
+				(vector.Y * vector.Y) +
+				(vector.Z * vector.Z) +
+				(vector.W * vector.W)
+			);
 			result.X = vector.X * factor;
 			result.Y = vector.Y * factor;
 			result.Z = vector.Z * factor;
+			result.W = vector.W * factor;
 		}
 
 		/// <summary>
