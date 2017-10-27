@@ -352,7 +352,7 @@ RES = \
 debug: clean-debug
 	mkdir -p bin/Debug
 	cp FNA.dll.config bin/Debug
-	mcs /unsafe -debug -define:DEBUG -out:bin/Debug/FNA.dll -target:library $(SRC) $(RES)
+	dmcs /unsafe -debug -define:DEBUG -out:bin/Debug/FNA.dll -target:library $(SRC) $(RES)
 
 clean-debug:
 	rm -rf bin/Debug
