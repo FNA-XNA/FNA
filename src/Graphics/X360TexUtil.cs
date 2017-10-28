@@ -44,29 +44,164 @@ namespace Microsoft.Xna.Framework.Graphics
 			return imageData;
 		}
 
-		internal static byte[] SwapDxt3(byte[] imageData)
+		internal static byte[] SwapDxt1(byte[] imageData, int width, int height)
 		{
 			using (MemoryStream imageStream = new MemoryStream(imageData))
 			{
-				return SwapDxt3(imageStream, imageData.Length);
+				return SwapDxt1(imageStream, imageData.Length, width, height);
 			}
 		}
 
-		internal static byte[] SwapDxt3(Stream imageStream, int imageLength)
+		internal static byte[] SwapDxt1(Stream imageStream, int imageLength, int width, int height)
 		{
-			byte[] imageData = new byte[imageLength];
-
+			using (MemoryStream imageDataStream = new MemoryStream(
+				new byte[imageLength],
+				0,
+				imageLength,
+				true,
+				true
+			))
+			using (BinaryWriter imageWriter = new BinaryWriter(imageDataStream))
 			using (BinaryReader imageReader = new BinaryReader(imageStream))
 			{
-				for (int i = 0; i < imageLength; i += sizeof(ushort))
-				{
-					ushort data = imageReader.ReadUInt16();
-					imageData[i + 0] = (byte) ((data >> 8) & 0xFF);
-					imageData[i + 1] = (byte) ((data >> 0) & 0xFF);
-				}
-			}
+				int blockCountX = (width + 3) / 4;
+				int blockCountY = (height + 3) / 4;
 
-			return imageData;
+				for (int y = 0; y < blockCountY; y++)
+				{
+					for (int x = 0; x < blockCountX; x++)
+					{
+						SwapDxt1Block(imageReader, imageWriter);
+					}
+				}
+
+				return imageDataStream.GetBuffer();
+			}
+		}
+
+		internal static byte[] SwapDxt3(byte[] imageData, int width, int height)
+		{
+			using (MemoryStream imageStream = new MemoryStream(imageData))
+			{
+				return SwapDxt3(imageStream, imageData.Length, width, height);
+			}
+		}
+
+		internal static byte[] SwapDxt3(Stream imageStream, int imageLength, int width, int height)
+		{
+			using (MemoryStream imageDataStream = new MemoryStream(
+				new byte[imageLength],
+				0,
+				imageLength,
+				true,
+				true
+			))
+			using (BinaryWriter imageWriter = new BinaryWriter(imageDataStream))
+			using (BinaryReader imageReader = new BinaryReader(imageStream))
+			{
+				int blockCountX = (width + 3) / 4;
+				int blockCountY = (height + 3) / 4;
+
+				for (int y = 0; y < blockCountY; y++)
+				{
+					for (int x = 0; x < blockCountX; x++)
+					{
+						SwapDxt3Block(imageReader, imageWriter);
+					}
+				}
+
+				return imageDataStream.GetBuffer();
+			}
+		}
+
+		internal static byte[] SwapDxt5(byte[] imageData, int width, int height)
+		{
+			using (MemoryStream imageStream = new MemoryStream(imageData))
+			{
+				return SwapDxt5(imageStream, imageData.Length, width, height);
+			}
+		}
+
+		internal static byte[] SwapDxt5(Stream imageStream, int imageLength, int width, int height)
+		{
+			using (MemoryStream imageDataStream = new MemoryStream(
+				new byte[imageLength],
+				0,
+				imageLength,
+				true,
+				true
+			))
+			using (BinaryWriter imageWriter = new BinaryWriter(imageDataStream))
+			using (BinaryReader imageReader = new BinaryReader(imageStream))
+			{
+				int blockCountX = (width + 3) / 4;
+				int blockCountY = (height + 3) / 4;
+
+				for (int y = 0; y < blockCountY; y++)
+				{
+					for (int x = 0; x < blockCountX; x++)
+					{
+						SwapDxt5Block(imageReader, imageWriter);
+					}
+				}
+
+				return imageDataStream.GetBuffer();
+			}
+		}
+
+		#endregion
+
+		#region Private Static Methods
+
+		public static ushort SwapEndian(ushort data)
+		{
+			return (ushort) (
+			    ((ushort) ((data & 0xFF) << 8)) |
+			    ((ushort) ((data >> 8) & 0xFF))
+			);
+		}
+
+		private static void SwapDxt1Block(BinaryReader imageReader, BinaryWriter imageWriter)
+		{
+			// Swap 2 shorts.
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
+
+			// This seems to be two 16 bit values instead of a 32 bit table.
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
+		}
+
+		private static void SwapDxt3Block(BinaryReader imageReader, BinaryWriter imageWriter)
+		{
+			// The DXT3 alpha data is actually already correct.
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+
+			SwapDxt1Block(imageReader, imageWriter);
+		}
+
+		private static void SwapDxt5Block(BinaryReader imageReader, BinaryWriter imageWriter)
+		{
+			// Alpha minimum and maximum.
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+
+			// This actually seems to be correct already.
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+			imageWriter.Write(imageReader.ReadByte());
+
+			SwapDxt1Block(imageReader, imageWriter);
 		}
 
 		#endregion
