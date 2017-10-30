@@ -163,43 +163,36 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private static void SwapDxt1Block(BinaryReader imageReader, BinaryWriter imageWriter)
 		{
-			// Swap 2 shorts.
+			// Fix the following two big-endian words to litte-endian words.
 			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
 			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
 
-			// This seems to be two 16 bit values instead of a 32 bit table.
+			// Two words / 16 bit values instead of a 4 byte / 32 bit table.
 			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
 			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
 		}
 
 		private static void SwapDxt3Block(BinaryReader imageReader, BinaryWriter imageWriter)
 		{
-			// The DXT3 alpha data is actually already correct.
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
+			// Alpha data. 16 4-bit values, but written to / read from as 4 16-bit values.
+			// Somehow, that one test game I had worked just fine with this unchanged... -ade
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
 
 			SwapDxt1Block(imageReader, imageWriter);
 		}
 
 		private static void SwapDxt5Block(BinaryReader imageReader, BinaryWriter imageWriter)
 		{
-			// Alpha minimum and maximum.
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
+			// Alpha minimum and maximum. Two bytes, but handled internally as one word.
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
 
-			// This actually seems to be correct already.
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
-			imageWriter.Write(imageReader.ReadByte());
+			// Alpha indices. 16 3-bit values, but written to / read from as 3 16-bit values.
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
+			imageWriter.Write(SwapEndian(imageReader.ReadUInt16()));
 
 			SwapDxt1Block(imageReader, imageWriter);
 		}
