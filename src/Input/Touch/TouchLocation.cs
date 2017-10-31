@@ -51,7 +51,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			int id,
 			TouchLocationState state,
 			Vector2 position
-		) {
+		) : this() {
 			Id = id;
 			State = state;
 			Position = position;
@@ -65,7 +65,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			Vector2 position,
 			TouchLocationState previousState,
 			Vector2 previousPosition
-		) {
+		) : this() {
 			Id = id;
 			State = state;
 			Position = position;

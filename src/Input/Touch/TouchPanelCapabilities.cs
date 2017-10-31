@@ -33,7 +33,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		internal TouchPanelCapabilities(
 			bool isConnected,
 			int maximumTouchCount
-		) {
+		) : this() {
 			IsConnected = isConnected;
 			MaximumTouchCount = maximumTouchCount;
 		}

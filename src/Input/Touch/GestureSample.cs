@@ -65,7 +65,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			Vector2 position,
 			Vector2 position2,
 			TimeSpan timestamp
-		) {
+		) : this() {
 			Delta = delta;
 			Delta2 = delta2;
 			GestureType = gestureType;
