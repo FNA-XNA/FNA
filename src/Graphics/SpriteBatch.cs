@@ -349,14 +349,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				sourceX = sourceRectangle.Value.X / (float) texture.Width;
 				sourceY = sourceRectangle.Value.Y / (float) texture.Height;
-				sourceW = Math.Sign(sourceRectangle.Value.Width) * Math.Max(
-					Math.Abs(sourceRectangle.Value.Width),
-					MathHelper.MachineEpsilonFloat
-				) / (float) texture.Width;
-				sourceH = Math.Sign(sourceRectangle.Value.Height) * Math.Max(
-					Math.Abs(sourceRectangle.Value.Height),
-					MathHelper.MachineEpsilonFloat
-				) / (float) texture.Height;
+				sourceW = sourceRectangle.Value.Width / (float) texture.Width;
+				sourceH = sourceRectangle.Value.Height / (float) texture.Height;
 				destW = sourceRectangle.Value.Width;
 				destH = sourceRectangle.Value.Height;
 			}
@@ -544,14 +538,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				sourceX = sourceRectangle.Value.X / (float) texture.Width;
 				sourceY = sourceRectangle.Value.Y / (float) texture.Height;
-				sourceW = Math.Sign(sourceRectangle.Value.Width) * Math.Max(
-					Math.Abs(sourceRectangle.Value.Width),
-					MathHelper.MachineEpsilonFloat
-				) / (float) texture.Width;
-				sourceH = Math.Sign(sourceRectangle.Value.Height) * Math.Max(
-					Math.Abs(sourceRectangle.Value.Height),
-					MathHelper.MachineEpsilonFloat
-				) / (float) texture.Height;
+				sourceW = sourceRectangle.Value.Width / (float) texture.Width;
+				sourceH = sourceRectangle.Value.Height / (float) texture.Height;
 			}
 			else
 			{
