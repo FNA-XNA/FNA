@@ -61,10 +61,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			Format = format;
 
 			texture = GraphicsDevice.GLDevice.CreateTexture3D(
-				format,
-				width,
-				height,
-				depth,
+				Format,
+				Width,
+				Height,
+				Depth,
 				LevelCount
 			);
 		}

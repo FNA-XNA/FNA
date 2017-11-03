@@ -146,23 +146,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (MultiSampleCount > 0)
 			{
 				glColorBuffer = graphicsDevice.GLDevice.GenRenderbuffer(
-					width,
-					height,
+					Width,
+					Height,
 					Format,
 					MultiSampleCount
 				);
 			}
 
 			// If we don't need a depth buffer then we're done.
-			if (preferredDepthFormat == DepthFormat.None)
+			if (DepthStencilFormat == DepthFormat.None)
 			{
 				return;
 			}
 
 			glDepthStencilBuffer = graphicsDevice.GLDevice.GenRenderbuffer(
-				width,
-				height,
-				preferredDepthFormat,
+				Width,
+				Height,
+				DepthStencilFormat,
 				MultiSampleCount
 			);
 		}
