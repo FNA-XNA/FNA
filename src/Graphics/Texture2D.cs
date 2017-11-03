@@ -72,7 +72,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			Width = width;
 			Height = height;
 			LevelCount = mipMap ? CalculateMipLevels(width, height) : 1;
-			Format = format;
+
+			// Hey, guess what? You can't render to a compressed texture!
+			if (	this is IRenderTarget &&
+				(	format == SurfaceFormat.Dxt1 ||
+					format == SurfaceFormat.Dxt3 ||
+					format == SurfaceFormat.Dxt5	)	)
+			{
+				Format = SurfaceFormat.Color;
+			}
+			else
+			{
+				Format = format;
+			}
 
 			texture = GraphicsDevice.GLDevice.CreateTexture2D(
 				Format,
