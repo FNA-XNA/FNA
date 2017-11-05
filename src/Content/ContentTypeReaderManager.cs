@@ -213,7 +213,10 @@ namespace Microsoft.Xna.Framework.Content
 						}
 					}
 
-					contentReaders.Add(newReaders[i].TargetType, newReaders[i]);
+					if (newReaders[i].TargetType != null)
+					{
+						contentReaders.Add(newReaders[i].TargetType, newReaders[i]);
+					}
 
 					/* I think the next 4 bytes refer to the "Version" of the type reader,
 					 * although it always seems to be zero.
