@@ -441,12 +441,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			wiiuStream = DRC.drc_new_streamer();
 			if (wiiuStream == IntPtr.Zero)
 			{
-				FNAPlatform.Log("Failed to alloc GamePad stream!");
+				FNALoggerEXT.LogError("Failed to alloc GamePad stream!");
 				return;
 			}
 			if (DRC.drc_start_streamer(wiiuStream) < 1) // ???
 			{
-				FNAPlatform.Log("Failed to start GamePad stream!");
+				FNALoggerEXT.LogError("Failed to start GamePad stream!");
 				DRC.drc_delete_streamer(wiiuStream);
 				wiiuStream = IntPtr.Zero;
 				return;
@@ -1498,23 +1498,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			/* IntPtr refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern IntPtr drc_new_streamer();
 
 			/* self refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern void drc_delete_streamer(IntPtr self);
 
 			/* self refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern int drc_start_streamer(IntPtr self);
 
 			/* self refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern void drc_stop_streamer(IntPtr self);
 
 			/* self refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern int drc_push_vid_frame(
 				IntPtr self,
 				byte[] buffer,
@@ -1526,7 +1526,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			/* self refers to a drc_streamer* */
-			[DllImportAttribute(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 			public static extern void drc_enable_system_input_feeder(IntPtr self);
 		}
 
