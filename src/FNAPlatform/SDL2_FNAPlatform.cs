@@ -2287,8 +2287,6 @@ namespace Microsoft.Xna.Framework
 		private static SDL.SDL_EventFilter win32OnPaint = Win32OnPaint;
 		private delegate void QuickDrawFunc();
 		private static QuickDrawFunc quickDrawFunc;
-		[DllImport("user32.dll", CallingConvention = CallingConvention.StdCall)]
-		private static extern int InvalidateRect(IntPtr hwnd, IntPtr rect, int erase);
 		private static unsafe int Win32OnPaint(IntPtr func, IntPtr evtPtr)
 		{
 			SDL.SDL_Event* evt = (SDL.SDL_Event*) evtPtr;
