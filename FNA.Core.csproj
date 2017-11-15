@@ -9,6 +9,7 @@
 		<RootNamespace>Microsoft.Xna.Framework</RootNamespace>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<BaseIntermediateOutputPath>obj_core\</BaseIntermediateOutputPath>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="src\Audio\AudioCategory.cs" />
