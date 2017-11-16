@@ -1072,6 +1072,10 @@ namespace Microsoft.Xna.Framework
 			if (surface == IntPtr.Zero)
 			{
 				// File not found, supported, etc.
+				FNALoggerEXT.LogError(
+					"TextureDataFromStream: " +
+					SDL.SDL_GetError()
+				);
 				width = 0;
 				height = 0;
 				pixels = null;
