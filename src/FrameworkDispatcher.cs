@@ -18,8 +18,14 @@ namespace Microsoft.Xna.Framework
 	{
 		#region Internal Variables
 
-		internal static bool ActiveSongChanged;
-		internal static bool MediaStateChanged;
+		internal static bool ActiveSongChanged = false;
+		internal static bool MediaStateChanged = false;
+
+		#endregion
+
+		#region Private Variables
+
+		private static bool FirstFrame = true;
 
 		#endregion
 
@@ -30,11 +36,12 @@ namespace Microsoft.Xna.Framework
 			/* Updates the status of various framework components
 			 * (such as power state and media), and raises related events.
 			 */
-			if (AudioDevice.ALDevice == null)
+			if (FirstFrame)
 			{
+				FirstFrame = false;
 				AudioDevice.Initialize();
 			}
-			else
+			else if (AudioDevice.ALDevice != null)
 			{
 				/* This has to be in an 'else', otherwise we hit
 				 * NoAudioHardwareException in the wrong place.
