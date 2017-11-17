@@ -1329,6 +1329,20 @@ namespace Microsoft.Xna.Framework.Graphics
 				supportsFauxBackbuffer = false;
 			}
 
+			/* EXT_framebuffer_multisample (or ARB_framebuffer_object) is glitter */
+			supportsMultisampling = true;
+			try
+			{
+				glRenderbufferStorageMultisample = (RenderbufferStorageMultisample) Marshal.GetDelegateForFunctionPointer(
+					TryGetEPEXT("glRenderbufferStorageMultisample"),
+					typeof(RenderbufferStorageMultisample)
+				);
+			}
+			catch
+			{
+				supportsMultisampling = false;
+			}
+
 			/* ARB_instanced_arrays/ARB_draw_instanced are almost optional. */
 			SupportsHardwareInstancing = true;
 			try
@@ -1372,14 +1386,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				// FIXME: SupportsIndependentWriteMasks? -flibit
 			}
 
-			/* EXT_framebuffer_multisample/ARB_texture_multisample is glitter -flibit */
-			supportsMultisampling = true;
+			/* ARB_texture_multisample is probably used by nobody. */
 			try
 			{
-				glRenderbufferStorageMultisample = (RenderbufferStorageMultisample) Marshal.GetDelegateForFunctionPointer(
-					TryGetEPEXT("glRenderbufferStorageMultisample"),
-					typeof(RenderbufferStorageMultisample)
-				);
 				glSampleMaski = (SampleMaski) Marshal.GetDelegateForFunctionPointer(
 					SDL.SDL_GL_GetProcAddress("glSampleMaski"),
 					typeof(SampleMaski)
@@ -1387,7 +1396,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			catch
 			{
-				supportsMultisampling = false;
+				// FIXME: SupportsMultisampleMasks? -flibit
 			}
 
 			if (useCoreProfile)

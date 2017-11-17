@@ -243,7 +243,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
-				if (value != multisampleMask && supportsMultisampling)
+				if (value != multisampleMask)
 				{
 					if (value == -1)
 					{
@@ -1356,7 +1356,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			if (blendState.MultiSampleMask != multisampleMask && supportsMultisampling)
+			if (blendState.MultiSampleMask != multisampleMask)
 			{
 				if (blendState.MultiSampleMask == -1)
 				{
