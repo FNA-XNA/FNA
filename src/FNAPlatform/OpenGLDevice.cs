@@ -1564,13 +1564,18 @@ namespace Microsoft.Xna.Framework.Graphics
 				slopeScaleDepthBias = rasterizerState.SlopeScaleDepthBias;
 			}
 
-			/* FIXME: This doesn't actually work on like 99% of setups!
-			 * For whatever reason people decided that they didn't have to obey
-			 * GL_MULTISAMPLE's value when it was disabled.
+			/* If you're reading this, you have a user with broken MSAA!
+			 * Here's the deal: On all modern drivers this should work,
+			 * but there was a period of time where, for some reason,
+			 * IHVs all took a nap and decided that they didn't have to
+			 * respect GL_MULTISAMPLE toggles. A couple sources:
 			 *
-			 * If they could do it for D3D9 I fail to see why they couldn't for
-			 * OpenGL. Idiots.
+			 * https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/OpenGL-MacProgGuide/opengl_fsaa/opengl_fsaa.html
 			 *
+			 * https://www.opengl.org/discussion_boards/showthread.php/172025-glDisable(GL_MULTISAMPLE)-has-no-effect
+			 *
+			 * So yeah. Have em update their driver. If they're on Intel,
+			 * tell them to install Linux. Yes, really.
 			 * -flibit
 			 */
 			if (rasterizerState.MultiSampleAntiAlias != multiSampleEnable)
