@@ -1060,18 +1060,10 @@ namespace Microsoft.Xna.Framework
 			int reqHeight = -1,
 			bool zoom = false
 		) {
-			// Load the Stream into an SDL_RWops*
-			byte[] mem = new byte[stream.Length];
-			GCHandle handle = GCHandle.Alloc(mem, GCHandleType.Pinned);
-			stream.Read(mem, 0, mem.Length);
-			IntPtr rwops = SDL.SDL_RWFromMem(
-				handle.AddrOfPinnedObject(),
-				mem.Length
-			);
-
 			// Load the SDL_Surface* from RWops, get the image data
-			IntPtr surface = SDL_image.IMG_Load_RW(rwops, 1);
-			handle.Free();
+			FakeRWops reader = new FakeRWops(stream);
+			IntPtr surface = SDL_image.IMG_Load_RW(reader.rwops, 1);
+			reader.Free();
 			if (surface == IntPtr.Zero)
 			{
 				// File not found, supported, etc.
@@ -1220,11 +1212,65 @@ namespace Microsoft.Xna.Framework
 			int imgHeight,
 			byte[] data
 		) {
+			IntPtr surface = INTERNAL_getScaledSurface(
+				data,
+				imgWidth,
+				imgHeight,
+				width,
+				height
+			);
+			FakeRWops writer = new FakeRWops(stream);
+			SDL_image.IMG_SavePNG_RW(surface, writer.rwops, 0);
+			writer.Free();
+			SDL.SDL_FreeSurface(surface);
+		}
+
+		public static void SaveJPG(
+			Stream stream,
+			int width,
+			int height,
+			int imgWidth,
+			int imgHeight,
+			byte[] data
+		) {
+			// FIXME: What does XNA pick for this? -flibit
+			const int quality = 100;
+
+			IntPtr surface = INTERNAL_getScaledSurface(
+				data,
+				imgWidth,
+				imgHeight,
+				width,
+				height
+			);
+
+			// FIXME: Hack for Bugzilla #3972
+			IntPtr temp = SDL.SDL_ConvertSurfaceFormat(
+				surface,
+				SDL.SDL_PIXELFORMAT_RGB24,
+				0
+			);
+			SDL.SDL_FreeSurface(surface);
+			surface = temp;
+
+			FakeRWops writer = new FakeRWops(stream);
+			SDL_image.IMG_SaveJPG_RW(surface, writer.rwops, 0, quality);
+			writer.Free();
+			SDL.SDL_FreeSurface(surface);
+		}
+
+		public static IntPtr INTERNAL_getScaledSurface(
+			byte[] data,
+			int srcW,
+			int srcH,
+			int dstW,
+			int dstH
+		) {
 			// Create an SDL_Surface*, write the pixel data
 			IntPtr surface = SDL.SDL_CreateRGBSurface(
 				0,
-				imgWidth,
-				imgHeight,
+				srcW,
+				srcH,
 				32,
 				0x000000FF,
 				0x0000FF00,
@@ -1243,15 +1289,14 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 			SDL.SDL_UnlockSurface(surface);
-			data = null; // We're done with the original pixel data.
 
 			// Blit to a scaled surface of the size we want, if needed.
-			if (width != imgWidth || height != imgHeight)
+			if (srcW != dstW || srcH != dstH)
 			{
 				IntPtr scaledSurface = SDL.SDL_CreateRGBSurface(
 					0,
-					width,
-					height,
+					dstW,
+					dstH,
 					32,
 					0x000000FF,
 					0x0000FF00,
@@ -1272,57 +1317,7 @@ namespace Microsoft.Xna.Framework
 				surface = scaledSurface;
 			}
 
-			// Create an SDL_RWops*, save PNG to RWops
-			const int pngHeaderSize = 41;
-			const int pngFooterSize = 57;
-			byte[] pngOut = new byte[
-				(width * height * 4) +
-				pngHeaderSize +
-				pngFooterSize +
-				256 // FIXME: Arbitrary zlib data padding for low-res images
-			]; // Max image size
-			GCHandle handle = GCHandle.Alloc(pngOut, GCHandleType.Pinned);
-			IntPtr dst = SDL.SDL_RWFromMem(
-				handle.AddrOfPinnedObject(),
-				pngOut.Length
-			);
-			SDL_image.IMG_SavePNG_RW(surface, dst, 1);
-			handle.Free();
-			SDL.SDL_FreeSurface(surface); // We're done with the surface.
-
-			// Get PNG size, write to Stream
-			int size = (
-				(pngOut[33] << 24) |
-				(pngOut[34] << 16) |
-				(pngOut[35] << 8) |
-				(pngOut[36])
-			) + pngHeaderSize + pngFooterSize;
-			stream.Write(pngOut, 0, size);
-		}
-
-		public static void SaveJPG(
-			Stream stream,
-			int width,
-			int height,
-			int imgWidth,
-			int imgHeight,
-			byte[] data
-		) {
-			// dealwithit.png -flibit
-			throw new NotSupportedException("It's 2017. Time to move on.");
-
-			/* FIXME: But seriously though, we have IMG_SaveJPG but
-			 * it depends pretty heavily on being able to see RWops.
-			 *
-			 * In particular, we really need RWtell and RWclose,
-			 * which are just macros in SDL_rwops.h.
-			 *
-			 * After that, it's pretty easy to unify PNG/JPG saving
-			 * since it's just two different functions and two
-			 * different temp buffer size guesses.
-			 *
-			 * -flibit
-			 */
+			return surface;
 		}
 
 		private static unsafe IntPtr INTERNAL_convertSurfaceFormat(IntPtr surface)
@@ -1342,6 +1337,151 @@ namespace Microsoft.Xna.Framework
 				}
 			}
 			return result;
+		}
+
+		private class FakeRWops
+		{
+			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+			private delegate long SizeFunc(IntPtr context);
+
+			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+			private delegate long SeekFunc(
+				IntPtr context,
+				long offset,
+				int whence
+			);
+
+			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+			private delegate IntPtr ReadFunc(
+				IntPtr context,
+				IntPtr ptr,
+				IntPtr size,
+				IntPtr maxnum
+			);
+
+			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+			private delegate IntPtr WriteFunc(
+				IntPtr context,
+				IntPtr ptr,
+				IntPtr size,
+				IntPtr num
+			);
+
+			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+			private delegate int CloseFunc(IntPtr context);
+
+			[StructLayout(LayoutKind.Sequential)]
+			private struct PartialRWops
+			{
+				public IntPtr size;
+				public IntPtr seek;
+				public IntPtr read;
+				public IntPtr write;
+				public IntPtr close;
+			}
+
+			[DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
+			private static extern IntPtr SDL_AllocRW();
+
+			[DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
+			private static extern void SDL_FreeRW(IntPtr area);
+
+			public readonly IntPtr rwops;
+			private Stream stream;
+			private byte[] temp;
+
+			private SizeFunc sizeFunc;
+			private SeekFunc seekFunc;
+			private ReadFunc readFunc;
+			private WriteFunc writeFunc;
+			private CloseFunc closeFunc;
+
+			public FakeRWops(Stream stream)
+			{
+				this.stream = stream;
+				rwops = SDL_AllocRW();
+				temp = new byte[4096];
+
+				sizeFunc = size;
+				seekFunc = seek;
+				readFunc = read;
+				writeFunc = write;
+				closeFunc = close;
+				unsafe
+				{
+					PartialRWops* p = (PartialRWops*) rwops;
+					p->size = Marshal.GetFunctionPointerForDelegate(sizeFunc);
+					p->seek = Marshal.GetFunctionPointerForDelegate(seekFunc);
+					p->read = Marshal.GetFunctionPointerForDelegate(readFunc);
+					p->write = Marshal.GetFunctionPointerForDelegate(writeFunc);
+					p->close = Marshal.GetFunctionPointerForDelegate(closeFunc);
+				}
+			}
+
+			public void Free()
+			{
+				SDL_FreeRW(rwops);
+				stream = null;
+				temp = null;
+			}
+
+			private byte[] GetTemp(int len)
+			{
+				if (len > temp.Length)
+				{
+					temp = new byte[len];
+				}
+				return temp;
+			}
+
+			private long size(IntPtr context)
+			{
+				return -1;
+			}
+
+			private long seek(IntPtr context, long offset, int whence)
+			{
+				stream.Seek(offset, (SeekOrigin) whence);
+				return stream.Position;
+			}
+
+			private IntPtr read(
+				IntPtr context,
+				IntPtr ptr,
+				IntPtr size,
+				IntPtr maxnum
+			) {
+				int len = size.ToInt32() * maxnum.ToInt32();
+				len = stream.Read(
+					GetTemp(len),
+					0,
+					len
+				);
+				Marshal.Copy(temp, 0, ptr, len);
+				return (IntPtr) len;
+			}
+
+			private IntPtr write(
+				IntPtr context,
+				IntPtr ptr,
+				IntPtr size,
+				IntPtr num
+			) {
+				int len = size.ToInt32() * num.ToInt32();
+				Marshal.Copy(
+					ptr,
+					GetTemp(len),
+					0,
+					len
+				);
+				stream.Write(temp, 0, len);
+				return (IntPtr) len;
+			}
+
+			private int close(IntPtr context)
+			{
+				return 0;
+			}
 		}
 
 		#endregion
