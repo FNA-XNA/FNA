@@ -1064,7 +1064,10 @@ namespace Microsoft.Xna.Framework
 			byte[] mem = new byte[stream.Length];
 			GCHandle handle = GCHandle.Alloc(mem, GCHandleType.Pinned);
 			stream.Read(mem, 0, mem.Length);
-			IntPtr rwops = SDL.SDL_RWFromMem(mem, mem.Length);
+			IntPtr rwops = SDL.SDL_RWFromMem(
+				handle.AddrOfPinnedObject(),
+				mem.Length
+			);
 
 			// Load the SDL_Surface* from RWops, get the image data
 			IntPtr surface = SDL_image.IMG_Load_RW(rwops, 1);
@@ -1278,8 +1281,13 @@ namespace Microsoft.Xna.Framework
 				pngFooterSize +
 				256 // FIXME: Arbitrary zlib data padding for low-res images
 			]; // Max image size
-			IntPtr dst = SDL.SDL_RWFromMem(pngOut, pngOut.Length);
+			GCHandle handle = GCHandle.Alloc(pngOut, GCHandleType.Pinned);
+			IntPtr dst = SDL.SDL_RWFromMem(
+				handle.AddrOfPinnedObject(),
+				pngOut.Length
+			);
 			SDL_image.IMG_SavePNG_RW(surface, dst, 1);
+			handle.Free();
 			SDL.SDL_FreeSurface(surface); // We're done with the surface.
 
 			// Get PNG size, write to Stream
