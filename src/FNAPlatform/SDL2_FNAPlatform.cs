@@ -1062,7 +1062,7 @@ namespace Microsoft.Xna.Framework
 		) {
 			// Load the SDL_Surface* from RWops, get the image data
 			FakeRWops reader = new FakeRWops(stream);
-			IntPtr surface = SDL_image.IMG_Load_RW(reader.rwops, 1);
+			IntPtr surface = SDL_image.IMG_Load_RW(reader.rwops, 0);
 			reader.Free();
 			if (surface == IntPtr.Zero)
 			{
