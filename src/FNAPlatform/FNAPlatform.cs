@@ -67,6 +67,7 @@ namespace Microsoft.Xna.Framework
 			ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
 			TextureDataFromStream =		SDL2_FNAPlatform.TextureDataFromStream;
 			SavePNG =			SDL2_FNAPlatform.SavePNG;
+			SaveJPG =			SDL2_FNAPlatform.SaveJPG;
 
 			// Don't overwrite application log hooks!
 			if (FNALoggerEXT.LogInfo == null)
@@ -227,6 +228,16 @@ namespace Microsoft.Xna.Framework
 			byte[] data
 		);
 		public static readonly SavePNGFunc SavePNG;
+
+		public delegate void SaveJPGFunc(
+			Stream stream,
+			int width,
+			int height,
+			int imgWidth,
+			int imgHeight,
+			byte[] data
+		);
+		public static readonly SaveJPGFunc SaveJPG;
 
 		#endregion
 	}

@@ -257,8 +257,17 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SaveAsJpeg(Stream stream, int width, int height)
 		{
-			// dealwithit.png -flibit
-			throw new NotSupportedException("It's 2017. Time to move on.");
+			// Get the Texture2D pixels
+			byte[] data = new byte[Width * Height * GetFormatSize(Format)];
+			GetData(data);
+			FNAPlatform.SaveJPG(
+				stream,
+				width,
+				height,
+				Width,
+				Height,
+				data
+			);
 		}
 
 		public void SaveAsPng(Stream stream, int width, int height)

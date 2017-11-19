@@ -1300,6 +1300,31 @@ namespace Microsoft.Xna.Framework
 			stream.Write(pngOut, 0, size);
 		}
 
+		public static void SaveJPG(
+			Stream stream,
+			int width,
+			int height,
+			int imgWidth,
+			int imgHeight,
+			byte[] data
+		) {
+			// dealwithit.png -flibit
+			throw new NotSupportedException("It's 2017. Time to move on.");
+
+			/* FIXME: But seriously though, we have IMG_SaveJPG but
+			 * it depends pretty heavily on being able to see RWops.
+			 *
+			 * In particular, we really need RWtell and RWclose,
+			 * which are just macros in SDL_rwops.h.
+			 *
+			 * After that, it's pretty easy to unify PNG/JPG saving
+			 * since it's just two different functions and two
+			 * different temp buffer size guesses.
+			 *
+			 * -flibit
+			 */
+		}
+
 		private static unsafe IntPtr INTERNAL_convertSurfaceFormat(IntPtr surface)
 		{
 			IntPtr result = surface;
