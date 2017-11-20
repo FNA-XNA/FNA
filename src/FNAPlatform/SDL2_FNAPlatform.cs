@@ -1062,8 +1062,7 @@ namespace Microsoft.Xna.Framework
 		) {
 			// Load the SDL_Surface* from RWops, get the image data
 			FakeRWops reader = new FakeRWops(stream);
-			IntPtr surface = SDL_image.IMG_Load_RW(reader.rwops, 0);
-			reader.Free();
+			IntPtr surface = SDL_image.IMG_Load_RW(reader.rwops, 1);
 			if (surface == IntPtr.Zero)
 			{
 				// File not found, supported, etc.
@@ -1220,8 +1219,7 @@ namespace Microsoft.Xna.Framework
 				height
 			);
 			FakeRWops writer = new FakeRWops(stream);
-			SDL_image.IMG_SavePNG_RW(surface, writer.rwops, 0);
-			writer.Free();
+			SDL_image.IMG_SavePNG_RW(surface, writer.rwops, 1);
 			SDL.SDL_FreeSurface(surface);
 		}
 
@@ -1254,8 +1252,7 @@ namespace Microsoft.Xna.Framework
 			surface = temp;
 
 			FakeRWops writer = new FakeRWops(stream);
-			SDL_image.IMG_SaveJPG_RW(surface, writer.rwops, 0, quality);
-			writer.Free();
+			SDL_image.IMG_SaveJPG_RW(surface, writer.rwops, 1, quality);
 			SDL.SDL_FreeSurface(surface);
 		}
 
@@ -1400,7 +1397,7 @@ namespace Microsoft.Xna.Framework
 			{
 				this.stream = stream;
 				rwops = SDL_AllocRW();
-				temp = new byte[4096];
+				temp = new byte[8192]; // Based on PNG_ZBUF_SIZE default
 
 				sizeFunc = size;
 				seekFunc = seek;
@@ -1416,13 +1413,6 @@ namespace Microsoft.Xna.Framework
 					p->write = Marshal.GetFunctionPointerForDelegate(writeFunc);
 					p->close = Marshal.GetFunctionPointerForDelegate(closeFunc);
 				}
-			}
-
-			public void Free()
-			{
-				SDL_FreeRW(rwops);
-				stream = null;
-				temp = null;
 			}
 
 			private byte[] GetTemp(int len)
@@ -1480,6 +1470,9 @@ namespace Microsoft.Xna.Framework
 
 			private int close(IntPtr context)
 			{
+				SDL_FreeRW(rwops);
+				stream = null;
+				temp = null;
 				return 0;
 			}
 		}
