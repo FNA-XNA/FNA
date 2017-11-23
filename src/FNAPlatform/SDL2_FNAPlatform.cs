@@ -1392,6 +1392,11 @@ namespace Microsoft.Xna.Framework
 			private ReadFunc readFunc;
 			private WriteFunc writeFunc;
 			private CloseFunc closeFunc;
+			private GCHandle sizePin;
+			private GCHandle seekPin;
+			private GCHandle readPin;
+			private GCHandle writePin;
+			private GCHandle closePin;
 
 			public FakeRWops(Stream stream)
 			{
@@ -1399,11 +1404,16 @@ namespace Microsoft.Xna.Framework
 				rwops = SDL_AllocRW();
 				temp = new byte[8192]; // Based on PNG_ZBUF_SIZE default
 
-				sizeFunc = size;
-				seekFunc = seek;
-				readFunc = read;
-				writeFunc = write;
-				closeFunc = close;
+				sizeFunc = new SizeFunc(size);
+				seekFunc = new SeekFunc(seek);
+				readFunc = new ReadFunc(read);
+				writeFunc = new WriteFunc(write);
+				closeFunc = new CloseFunc(close);
+				sizePin = GCHandle.Alloc(sizeFunc, GCHandleType.Pinned);
+				seekPin = GCHandle.Alloc(sizeFunc, GCHandleType.Pinned);
+				readPin = GCHandle.Alloc(sizeFunc, GCHandleType.Pinned);
+				writePin = GCHandle.Alloc(sizeFunc, GCHandleType.Pinned);
+				closePin = GCHandle.Alloc(sizeFunc, GCHandleType.Pinned);
 				unsafe
 				{
 					PartialRWops* p = (PartialRWops*) rwops;
@@ -1473,6 +1483,11 @@ namespace Microsoft.Xna.Framework
 				SDL_FreeRW(rwops);
 				stream = null;
 				temp = null;
+				sizePin.Free();
+				seekPin.Free();
+				readPin.Free();
+				writePin.Free();
+				closePin.Free();
 				return 0;
 			}
 		}
