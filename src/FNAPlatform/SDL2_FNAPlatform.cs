@@ -1062,7 +1062,8 @@ namespace Microsoft.Xna.Framework
 		) {
 			// Load the SDL_Surface* from RWops, get the image data
 			FakeRWops reader = new FakeRWops(stream);
-			IntPtr surface = SDL_image.IMG_Load_RW(reader.rwops, 1);
+			IntPtr surface = SDL_image.IMG_Load_RW(reader.rwops, 0);
+			reader.Free();
 			if (surface == IntPtr.Zero)
 			{
 				// File not found, supported, etc.
@@ -1219,7 +1220,8 @@ namespace Microsoft.Xna.Framework
 				height
 			);
 			FakeRWops writer = new FakeRWops(stream);
-			SDL_image.IMG_SavePNG_RW(surface, writer.rwops, 1);
+			SDL_image.IMG_SavePNG_RW(surface, writer.rwops, 0);
+			writer.Free();
 			SDL.SDL_FreeSurface(surface);
 		}
 
@@ -1252,7 +1254,8 @@ namespace Microsoft.Xna.Framework
 			surface = temp;
 
 			FakeRWops writer = new FakeRWops(stream);
-			SDL_image.IMG_SaveJPG_RW(surface, writer.rwops, 1, quality);
+			SDL_image.IMG_SaveJPG_RW(surface, writer.rwops, 0, quality);
+			writer.Free();
 			SDL.SDL_FreeSurface(surface);
 		}
 
@@ -1364,9 +1367,6 @@ namespace Microsoft.Xna.Framework
 				IntPtr num
 			);
 
-			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-			private delegate int CloseFunc(IntPtr context);
-
 			[StructLayout(LayoutKind.Sequential)]
 			private struct PartialRWops
 			{
@@ -1374,7 +1374,6 @@ namespace Microsoft.Xna.Framework
 				public IntPtr seek;
 				public IntPtr read;
 				public IntPtr write;
-				public IntPtr close;
 			}
 
 			[DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -1391,7 +1390,6 @@ namespace Microsoft.Xna.Framework
 			private SeekFunc seekFunc;
 			private ReadFunc readFunc;
 			private WriteFunc writeFunc;
-			private CloseFunc closeFunc;
 
 			public FakeRWops(Stream stream)
 			{
@@ -1403,7 +1401,6 @@ namespace Microsoft.Xna.Framework
 				seekFunc = seek;
 				readFunc = read;
 				writeFunc = write;
-				closeFunc = close;
 				unsafe
 				{
 					PartialRWops* p = (PartialRWops*) rwops;
@@ -1411,8 +1408,14 @@ namespace Microsoft.Xna.Framework
 					p->seek = Marshal.GetFunctionPointerForDelegate(seekFunc);
 					p->read = Marshal.GetFunctionPointerForDelegate(readFunc);
 					p->write = Marshal.GetFunctionPointerForDelegate(writeFunc);
-					p->close = Marshal.GetFunctionPointerForDelegate(closeFunc);
 				}
+			}
+
+			public void Free()
+			{
+				SDL_FreeRW(rwops);
+				stream = null;
+				temp = null;
 			}
 
 			private byte[] GetTemp(int len)
@@ -1466,14 +1469,6 @@ namespace Microsoft.Xna.Framework
 				);
 				stream.Write(temp, 0, len);
 				return (IntPtr) len;
-			}
-
-			private int close(IntPtr context)
-			{
-				SDL_FreeRW(rwops);
-				stream = null;
-				temp = null;
-				return 0;
 			}
 		}
 
