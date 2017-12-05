@@ -35,14 +35,26 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public int LineSpacing
 		{
-			get;
-			set;
+			get
+			{
+				return lineSpacing;
+			}
+			set
+			{
+				lineSpacing = value;
+			}
 		}
 
 		public float Spacing
 		{
-			get;
-			set;
+			get
+			{
+				return spacing;
+			}
+			set
+			{
+				spacing = value;
+			}
 		}
 
 		#endregion
@@ -58,6 +70,17 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal List<Rectangle> croppingData;
 		internal List<Vector3> kerning;
 		internal List<char> characterMap;
+
+		/* If, by chance, you're seeing this and thinking about using
+		 * reflection to access the fields:
+		 * Don't.
+		 * To date, one (1) game is using the fields directly,
+		 * even though the properties are publicly accessible.
+		 * Not even FNA uses the fields directly.
+		 * -ade
+		 */
+		internal int lineSpacing;
+		internal float spacing;
 
 		#endregion
 
