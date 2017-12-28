@@ -1015,9 +1015,12 @@ namespace Microsoft.Xna.Framework
 				osConfigDir += "/Library/Application Support";
 				return osConfigDir;
 			}
-			if (OSVersion.Equals("Linux"))
+			if (	OSVersion.Equals("Linux") ||
+				OSVersion.Equals("FreeBSD") ||
+				OSVersion.Equals("OpenBSD") ||
+				OSVersion.Equals("NetBSD")	)
 			{
-				// Assuming a non-OSX Unix platform will follow the XDG. Which it should.
+				// Assuming a non-macOS Unix platform will follow the XDG. Which it should.
 				string osConfigDir = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
 				if (String.IsNullOrEmpty(osConfigDir))
 				{
