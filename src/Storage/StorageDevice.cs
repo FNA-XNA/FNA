@@ -377,8 +377,12 @@ namespace Microsoft.Xna.Framework.Storage
 			string[] drives = Environment.GetLogicalDrives();
 			for (int i = 0; i < drives.Length; i += 1)
 			{
-				if (	!string.IsNullOrEmpty(drives[i]) &&
-					drives[i][drives[i].Length - 1] != Path.DirectorySeparatorChar	)
+				if (string.IsNullOrEmpty(drives[i]))
+				{
+					// ... What?
+					continue;
+				}
+				if (drives[i][drives[i].Length - 1] != Path.DirectorySeparatorChar)
 				{
 					drives[i] += Path.DirectorySeparatorChar;
 				}
