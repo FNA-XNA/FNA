@@ -382,15 +382,16 @@ namespace Microsoft.Xna.Framework.Storage
 					// ... What?
 					continue;
 				}
-				if (drives[i][drives[i].Length - 1] != Path.DirectorySeparatorChar)
+				string name = drives[i];
+				if (name[name.Length - 1] != Path.DirectorySeparatorChar)
 				{
-					drives[i] += Path.DirectorySeparatorChar;
+					name += Path.DirectorySeparatorChar;
 				}
-				if (	storageRoot.StartsWith(drives[i]) &&
-					drives[i].Length > length	)
+				if (	storageRoot.StartsWith(name) &&
+					name.Length > length	)
 				{
 					drive = i;
-					length = drives[i].Length;
+					length = name.Length;
 				}
 			}
 			if (drive >= 0)
