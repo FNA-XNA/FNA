@@ -40,6 +40,16 @@ namespace Microsoft.Xna.Framework.Input
 			FNAPlatform.StopTextInput();
 		}
 
+		/// <summary>
+		/// Sets the location within the game window where the text input is located.
+		/// This is used to set the location of the IME suggestions
+		/// </summary>
+		/// <param name="rectangle">Text input location relative to GameWindow.ClientBounds</param>
+		public static void SetInputRectangle(Rectangle rectangle)
+		{
+			FNAPlatform.SetTextInputRectangle(rectangle);
+		}
+
 		#endregion
 
 		#region Internal Event Access Method

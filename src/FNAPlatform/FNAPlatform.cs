@@ -53,6 +53,7 @@ namespace Microsoft.Xna.Framework
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
 			StartTextInput =		SDL2.SDL.SDL_StartTextInput;
 			StopTextInput =			SDL2.SDL.SDL_StopTextInput;
+			SetTextInputRectangle =	SDL2_FNAPlatform.SetTextInputRectangle;
 			GetMouseState =			SDL2_FNAPlatform.GetMouseState;
 			SetMousePosition =		SDL2.SDL.SDL_WarpMouseInWindow;
 			OnIsMouseVisibleChanged =	SDL2_FNAPlatform.OnIsMouseVisibleChanged;
@@ -151,6 +152,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void StopTextInputFunc();
 		public static readonly StopTextInputFunc StopTextInput;
+
+		public delegate void SetTextInputRectangleFunc(Rectangle rectangle);
+		public static readonly SetTextInputRectangleFunc SetTextInputRectangle;
 
 		public delegate void GetMouseStateFunc(
 			IntPtr window,

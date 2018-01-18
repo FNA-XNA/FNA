@@ -524,6 +524,16 @@ namespace Microsoft.Xna.Framework
 			return fileIn;
 		}
 
+		public static void SetTextInputRectangle(Rectangle rectangle)
+		{
+			SDL.SDL_Rect rect = new SDL.SDL_Rect();
+			rect.x = rectangle.X;
+			rect.y = rectangle.Y;
+			rect.w = rectangle.Width;
+			rect.h = rectangle.Height;
+			SDL.SDL_SetTextInputRect(ref rect);
+		}
+
 		#endregion
 
 		#region Event Loop
