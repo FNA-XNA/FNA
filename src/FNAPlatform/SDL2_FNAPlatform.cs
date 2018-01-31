@@ -1053,7 +1053,13 @@ namespace Microsoft.Xna.Framework
 				OSVersion.Equals("Android") ||
 				OSVersion.Equals("Emscripten")	)
 			{
-				string org = null;
+				/* StorageContainer and SDL_GetPrefPath kind of
+				 * overlap each other. Container produces 'app'
+				 * but for SDL only 'org' is optional. So we
+				 * deal with this by sending _our_ org to SDL,
+				 * then StorageContainer appends the app name.
+				 * -flibit
+				 */
 				string app = "FNA"; /* Gotta be somethin' */
 				Assembly assembly = Assembly.GetEntryAssembly();
 				if (assembly != null)
@@ -1062,13 +1068,9 @@ namespace Microsoft.Xna.Framework
 						assembly,
 						typeof(AssemblyCompanyAttribute)
 					);
-					AssemblyProductAttribute pa = (AssemblyProductAttribute) Attribute.GetCustomAttribute(
-						assembly,
-						typeof(AssemblyProductAttribute)
-					);
 					if (ca != null && !string.IsNullOrEmpty(ca.Company))
 					{
-						org = INTERNAL_StripBadChars(ca.Company);
+						app = INTERNAL_StripBadChars(ca.Company);
 					}
 					else
 					{
@@ -1076,18 +1078,8 @@ namespace Microsoft.Xna.Framework
 							"Set AssemblyCompany in your AssemblyInfo!"
 						);
 					}
-					if (pa != null && !string.IsNullOrEmpty(pa.Product))
-					{
-						app = INTERNAL_StripBadChars(pa.Product);
-					}
-					else
-					{
-						throw new ArgumentNullException(
-							"Set AssemblyProduct in your AssemblyInfo!"
-						);
-					}
 				}
-				return SDL.SDL_GetPrefPath(org, app);
+				return SDL.SDL_GetPrefPath(null, app);
 			}
 			throw new NotSupportedException("Unhandled SDL2 platform!");
 		}
