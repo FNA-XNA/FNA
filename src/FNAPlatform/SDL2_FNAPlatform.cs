@@ -11,6 +11,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -488,40 +489,43 @@ namespace Microsoft.Xna.Framework
 			else
 			{
 				// But sometimes the title has invalid characters inside.
-
-				/* In addition to the filesystem's invalid charset, we need to
-				 * blacklist the Windows standard set too, no matter what.
-				 * -flibit
-				 */
-				char[] hardCodeBadChars = new char[]
+				string fixPath = INTERNAL_StripBadChars(title) + extension;
+				if (File.Exists(fixPath))
 				{
-					'<',
-					'>',
-					':',
-					'"',
-					'/',
-					'\\',
-					'|',
-					'?',
-					'*'
-				};
-				List<char> badChars = new List<char>();
-				badChars.AddRange(Path.GetInvalidFileNameChars());
-				badChars.AddRange(hardCodeBadChars);
-
-				string stripChars = title;
-				foreach (char c in badChars)
-				{
-					stripChars = stripChars.Replace(c.ToString(), "");
-				}
-				stripChars += extension;
-
-				if (File.Exists(stripChars))
-				{
-					fileIn = stripChars;
+					fileIn = fixPath;
 				}
 			}
 			return fileIn;
+		}
+
+		private static string INTERNAL_StripBadChars(string path)
+		{
+			/* In addition to the filesystem's invalid charset, we need to
+			 * blacklist the Windows standard set too, no matter what.
+			 * -flibit
+			 */
+			char[] hardCodeBadChars = new char[]
+			{
+				'<',
+				'>',
+				':',
+				'"',
+				'/',
+				'\\',
+				'|',
+				'?',
+				'*'
+			};
+			List<char> badChars = new List<char>();
+			badChars.AddRange(Path.GetInvalidFileNameChars());
+			badChars.AddRange(hardCodeBadChars);
+
+			string stripChars = path;
+			foreach (char c in badChars)
+			{
+				stripChars = stripChars.Replace(c.ToString(), "");
+			}
+			return stripChars;
 		}
 
 		public static void SetTextInputRectangle(Rectangle rectangle)
@@ -1008,7 +1012,7 @@ namespace Microsoft.Xna.Framework
 
 		public static string GetStorageRoot()
 		{
-			if (OSVersion.Equals("Windows") || OSVersion.Equals("WinRT"))
+			if (OSVersion.Equals("Windows"))
 			{
 				return Path.Combine(
 					Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -1042,6 +1046,48 @@ namespace Microsoft.Xna.Framework
 					osConfigDir += "/.local/share";
 				}
 				return osConfigDir;
+			}
+			if (	OSVersion.Equals("WinRT") ||
+				OSVersion.Equals("iOS") ||
+				OSVersion.Equals("tvOS") ||
+				OSVersion.Equals("Android") ||
+				OSVersion.Equals("Emscripten")	)
+			{
+				string org = null;
+				string app = "FNA"; /* Gotta be somethin' */
+				Assembly assembly = Assembly.GetEntryAssembly();
+				if (assembly != null)
+				{
+					AssemblyCompanyAttribute ca = (AssemblyCompanyAttribute) Attribute.GetCustomAttribute(
+						assembly,
+						typeof(AssemblyCompanyAttribute)
+					);
+					AssemblyProductAttribute pa = (AssemblyProductAttribute) Attribute.GetCustomAttribute(
+						assembly,
+						typeof(AssemblyProductAttribute)
+					);
+					if (ca != null && !string.IsNullOrEmpty(ca.Company))
+					{
+						org = INTERNAL_StripBadChars(ca.Company);
+					}
+					else
+					{
+						throw new ArgumentNullException(
+							"Set AssemblyCompany in your AssemblyInfo!"
+						);
+					}
+					if (pa != null && !string.IsNullOrEmpty(pa.Product))
+					{
+						app = INTERNAL_StripBadChars(pa.Product);
+					}
+					else
+					{
+						throw new ArgumentNullException(
+							"Set AssemblyProduct in your AssemblyInfo!"
+						);
+					}
+				}
+				return SDL.SDL_GetPrefPath(org, app);
 			}
 			throw new NotSupportedException("Unhandled SDL2 platform!");
 		}
