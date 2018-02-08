@@ -263,12 +263,15 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Apply3D(AudioListener[] listeners, AudioEmitter emitter)
 		{
-            if (listeners.Length == 0)
-                return;
-            if (listeners.Length == 1) {
-                Apply3D(listeners[0], emitter);
-                return;
-            }
+			if (listeners == null)
+			{
+				throw new ArgumentNullException("listeners");
+			}
+			if (listeners.Length == 1)
+			{
+				Apply3D(listeners[0], emitter);
+				return;
+			}
 			throw new NotSupportedException("Only one listener is supported.");
 		}
 
