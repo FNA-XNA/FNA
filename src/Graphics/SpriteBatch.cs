@@ -119,8 +119,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Static Variables
 
-		private static readonly short[] indexData = GenerateIndexArray();
+		/* If you use this file to make your own SpriteBatch, take the
+		 * shader source and binary and load it as a file. Find it in
+		 * src/Graphics/Effect/StockEffects/, the HLSL and FXB folders!
+		 * -flibit
+		 */
 		private static readonly byte[] spriteEffectCode = Resources.SpriteEffect;
+		private static readonly short[] indexData = GenerateIndexArray();
 		private static readonly TextureComparer TextureCompare = new TextureComparer();
 		private static readonly BackToFrontComparer BackToFrontCompare = new BackToFrontComparer();
 		private static readonly FrontToBackComparer FrontToBackCompare = new FrontToBackComparer();
@@ -702,6 +707,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			effects &= (SpriteEffects) 0x03;
 
+			/* We pull all these internal variables in at once so
+			 * anyone who wants to use this file to make their own
+			 * SpriteBatch can easily replace these with reflection.
+			 * -flibit
+			 */
+			Texture2D textureValue = spriteFont.textureValue;
+			List<Rectangle> glyphData = spriteFont.glyphData;
+			List<Rectangle> croppingData = spriteFont.croppingData;
+			List<Vector3> kerning = spriteFont.kerning;
+			List<char> characterMap = spriteFont.characterMap;
+
 			// FIXME: This needs an accuracy check! -flibit
 
 			// Calculate offset, using the string size for flipped text
@@ -735,7 +751,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				/* Get the List index from the character map, defaulting to the
 				 * DefaultCharacter if it's set.
 				 */
-				int index = spriteFont.characterMap.IndexOf(c);
+				int index = characterMap.IndexOf(c);
 				if (index == -1)
 				{
 					if (!spriteFont.DefaultCharacter.HasValue)
@@ -746,7 +762,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = spriteFont.characterMap.IndexOf(
+					index = characterMap.IndexOf(
 						spriteFont.DefaultCharacter.Value
 					);
 				}
@@ -757,59 +773,59 @@ namespace Microsoft.Xna.Framework.Graphics
 				 */
 				if (firstInLine)
 				{
-					curOffset.X += Math.Abs(spriteFont.kerning[index].X);
+					curOffset.X += Math.Abs(kerning[index].X);
 					firstInLine = false;
 				}
 				else
 				{
-					curOffset.X += spriteFont.Spacing + spriteFont.kerning[index].X;
+					curOffset.X += spriteFont.Spacing + kerning[index].X;
 				}
 
 				// Calculate the character origin
 				float offsetX = baseOffset.X + (
-					curOffset.X + spriteFont.croppingData[index].X
+					curOffset.X + croppingData[index].X
 				) * axisDirectionX[(int) effects];
 				float offsetY = baseOffset.Y + (
-					curOffset.Y + spriteFont.croppingData[index].Y
+					curOffset.Y + croppingData[index].Y
 				) * axisDirectionY[(int) effects];
 				if (effects != SpriteEffects.None)
 				{
-					offsetX += spriteFont.glyphData[index].Width * axisIsMirroredX[(int) effects];
-					offsetY += spriteFont.glyphData[index].Height * axisIsMirroredY[(int) effects];
+					offsetX += glyphData[index].Width * axisIsMirroredX[(int) effects];
+					offsetY += glyphData[index].Height * axisIsMirroredY[(int) effects];
 				}
 
 				// Draw!
-				float sourceW = Math.Sign(spriteFont.glyphData[index].Width) * Math.Max(
-					Math.Abs(spriteFont.glyphData[index].Width),
+				float sourceW = Math.Sign(glyphData[index].Width) * Math.Max(
+					Math.Abs(glyphData[index].Width),
 					MathHelper.MachineEpsilonFloat
-				) / (float) spriteFont.textureValue.Width;
-				float sourceH = Math.Sign(spriteFont.glyphData[index].Height) * Math.Max(
-					Math.Abs(spriteFont.glyphData[index].Height),
+				) / (float) textureValue.Width;
+				float sourceH = Math.Sign(glyphData[index].Height) * Math.Max(
+					Math.Abs(glyphData[index].Height),
 					MathHelper.MachineEpsilonFloat
-				) / (float) spriteFont.textureValue.Height;
+				) / (float) textureValue.Height;
 				PushSprite(
-					spriteFont.textureValue,
-					spriteFont.glyphData[index].X / (float) spriteFont.textureValue.Width,
-					spriteFont.glyphData[index].Y / (float) spriteFont.textureValue.Height,
+					textureValue,
+					glyphData[index].X / (float) textureValue.Width,
+					glyphData[index].Y / (float) textureValue.Height,
 					sourceW,
 					sourceH,
 					position.X,
 					position.Y,
-					spriteFont.glyphData[index].Width * scale.X,
-					spriteFont.glyphData[index].Height * scale.Y,
+					glyphData[index].Width * scale.X,
+					glyphData[index].Height * scale.Y,
 					color,
-					offsetX / sourceW / (float) spriteFont.textureValue.Width,
-					offsetY / sourceH / (float) spriteFont.textureValue.Height,
+					offsetX / sourceW / (float) textureValue.Width,
+					offsetY / sourceH / (float) textureValue.Height,
 					(float) Math.Sin(rotation),
 					(float) Math.Cos(rotation),
 					layerDepth,
 					(byte) effects
 				);
 
-				/* Add the character width and right-side bearing to the line
-				 * width.
+				/* Add the character width and right-side
+				 * bearing to the line width.
 				 */
-				curOffset.X += spriteFont.kerning[index].Y + spriteFont.kerning[index].Z;
+				curOffset.X += kerning[index].Y + kerning[index].Z;
 			}
 		}
 
@@ -882,6 +898,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			effects &= (SpriteEffects) 0x03;
 
+			/* We pull all these internal variables in at once so
+			 * anyone who wants to use this file to make their own
+			 * SpriteBatch can easily replace these with reflection.
+			 * -flibit
+			 */
+			Texture2D textureValue = spriteFont.textureValue;
+			List<Rectangle> glyphData = spriteFont.glyphData;
+			List<Rectangle> croppingData = spriteFont.croppingData;
+			List<Vector3> kerning = spriteFont.kerning;
+			List<char> characterMap = spriteFont.characterMap;
+
 			// FIXME: This needs an accuracy check! -flibit
 
 			// Calculate offset, using the string size for flipped text
@@ -913,7 +940,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				/* Get the List index from the character map, defaulting to the
 				 * DefaultCharacter if it's set.
 				 */
-				int index = spriteFont.characterMap.IndexOf(c);
+				int index = characterMap.IndexOf(c);
 				if (index == -1)
 				{
 					if (!spriteFont.DefaultCharacter.HasValue)
@@ -924,7 +951,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = spriteFont.characterMap.IndexOf(
+					index = characterMap.IndexOf(
 						spriteFont.DefaultCharacter.Value
 					);
 				}
@@ -935,59 +962,59 @@ namespace Microsoft.Xna.Framework.Graphics
 				 */
 				if (firstInLine)
 				{
-					curOffset.X += Math.Abs(spriteFont.kerning[index].X);
+					curOffset.X += Math.Abs(kerning[index].X);
 					firstInLine = false;
 				}
 				else
 				{
-					curOffset.X += spriteFont.Spacing + spriteFont.kerning[index].X;
+					curOffset.X += spriteFont.Spacing + kerning[index].X;
 				}
 
 				// Calculate the character origin
 				float offsetX = baseOffset.X + (
-					curOffset.X + spriteFont.croppingData[index].X
+					curOffset.X + croppingData[index].X
 				) * axisDirectionX[(int) effects];
 				float offsetY = baseOffset.Y + (
-					curOffset.Y + spriteFont.croppingData[index].Y
+					curOffset.Y + croppingData[index].Y
 				) * axisDirectionY[(int) effects];
 				if (effects != SpriteEffects.None)
 				{
-					offsetX += spriteFont.glyphData[index].Width * axisIsMirroredX[(int) effects];
-					offsetY += spriteFont.glyphData[index].Height * axisIsMirroredY[(int) effects];
+					offsetX += glyphData[index].Width * axisIsMirroredX[(int) effects];
+					offsetY += glyphData[index].Height * axisIsMirroredY[(int) effects];
 				}
 
 				// Draw!
-				float sourceW = Math.Sign(spriteFont.glyphData[index].Width) * Math.Max(
-					Math.Abs(spriteFont.glyphData[index].Width),
+				float sourceW = Math.Sign(glyphData[index].Width) * Math.Max(
+					Math.Abs(glyphData[index].Width),
 					MathHelper.MachineEpsilonFloat
-				) / (float) spriteFont.textureValue.Width;
-				float sourceH = Math.Sign(spriteFont.glyphData[index].Height) * Math.Max(
-					Math.Abs(spriteFont.glyphData[index].Height),
+				) / (float) textureValue.Width;
+				float sourceH = Math.Sign(glyphData[index].Height) * Math.Max(
+					Math.Abs(glyphData[index].Height),
 					MathHelper.MachineEpsilonFloat
-				) / (float) spriteFont.textureValue.Height;
+				) / (float) textureValue.Height;
 				PushSprite(
-					spriteFont.textureValue,
-					spriteFont.glyphData[index].X / (float) spriteFont.textureValue.Width,
-					spriteFont.glyphData[index].Y / (float) spriteFont.textureValue.Height,
+					textureValue,
+					glyphData[index].X / (float) textureValue.Width,
+					glyphData[index].Y / (float) textureValue.Height,
 					sourceW,
 					sourceH,
 					position.X,
 					position.Y,
-					spriteFont.glyphData[index].Width * scale.X,
-					spriteFont.glyphData[index].Height * scale.Y,
+					glyphData[index].Width * scale.X,
+					glyphData[index].Height * scale.Y,
 					color,
-					offsetX / sourceW / (float) spriteFont.textureValue.Width,
-					offsetY / sourceH / (float) spriteFont.textureValue.Height,
+					offsetX / sourceW / (float) textureValue.Width,
+					offsetY / sourceH / (float) textureValue.Height,
 					(float) Math.Sin(rotation),
 					(float) Math.Cos(rotation),
 					layerDepth,
 					(byte) effects
 				);
 
-				/* Add the character width and right-side bearing to the line
-				 * width.
+				/* Add the character width and right-side
+				 * bearing to the line width.
 				 */
-				curOffset.X += spriteFont.kerning[index].Y + spriteFont.kerning[index].Z;
+				curOffset.X += kerning[index].Y + kerning[index].Z;
 			}
 		}
 
