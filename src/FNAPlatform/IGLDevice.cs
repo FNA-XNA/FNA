@@ -339,12 +339,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			IGLEffect effect,
 			IntPtr technique,
 			uint pass,
-			ref MojoShader.MOJOSHADER_effectStateChanges stateChanges
+			IntPtr stateChanges
 		);
-		void BeginPassRestore(
-			IGLEffect effect,
-			ref MojoShader.MOJOSHADER_effectStateChanges changes
-		);
+		void BeginPassRestore(IGLEffect effect, IntPtr stateChanges);
 		void EndPassRestore(IGLEffect effect);
 
 		void ApplyVertexAttributes(

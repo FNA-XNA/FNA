@@ -24,7 +24,7 @@ namespace Microsoft.Xna.Framework.Media
 		#region Hardware-accelerated YUV -> RGBA
 
 		private Effect shaderProgram;
-		private MojoShader.MOJOSHADER_effectStateChanges changes = new MojoShader.MOJOSHADER_effectStateChanges();
+		private IntPtr stateChangesPtr;
 		private Texture2D[] yuvTextures = new Texture2D[3];
 		private Viewport viewport;
 
@@ -66,6 +66,12 @@ namespace Microsoft.Xna.Framework.Media
 				currentDevice,
 				Resources.YUVToRGBAEffect
 			);
+			unsafe
+			{
+				stateChangesPtr = Marshal.AllocHGlobal(
+					sizeof(MojoShader.MOJOSHADER_effectStateChanges)
+				);
+			}
 
 			// Allocate the vertex buffer
 			vertBuffer = new VertexBufferBinding(
@@ -90,6 +96,7 @@ namespace Microsoft.Xna.Framework.Media
 
 			// Delete the Effect
 			shaderProgram.Dispose();
+			Marshal.FreeHGlobal(stateChangesPtr);
 
 			// Delete the vertex buffer
 			vertBuffer.VertexBuffer.Dispose();
@@ -143,7 +150,10 @@ namespace Microsoft.Xna.Framework.Media
 		private void GL_pushState()
 		{
 			// Begin the effect, flagging to restore previous state on end
-			currentDevice.GLDevice.BeginPassRestore(shaderProgram.glEffect, ref changes);
+			currentDevice.GLDevice.BeginPassRestore(
+				shaderProgram.glEffect,
+				stateChangesPtr
+			);
 
 			// Prep our samplers
 			for (int i = 0; i < 3; i += 1)

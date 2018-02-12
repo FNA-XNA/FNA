@@ -1828,7 +1828,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IGLEffect effect,
 			IntPtr technique,
 			uint pass,
-			ref MojoShader.MOJOSHADER_effectStateChanges stateChanges
+			IntPtr stateChanges
 		) {
 			effectApplied = true;
 			IntPtr glEffectData = (effect as OpenGLEffect).GLEffectData;
@@ -1855,7 +1855,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				glEffectData,
 				out whatever,
 				0,
-				ref stateChanges
+				stateChanges
 			);
 			MojoShader.MOJOSHADER_glEffectBeginPass(
 				glEffectData,
@@ -1866,17 +1866,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			currentPass = pass;
 		}
 
-		public void BeginPassRestore(
-			IGLEffect effect,
-			ref MojoShader.MOJOSHADER_effectStateChanges changes
-		) {
+		public void BeginPassRestore(IGLEffect effect, IntPtr stateChanges)
+		{
 			IntPtr glEffectData = (effect as OpenGLEffect).GLEffectData;
 			uint whatever;
 			MojoShader.MOJOSHADER_glEffectBegin(
 				glEffectData,
 				out whatever,
 				1,
-				ref changes
+				stateChanges
 			);
 			MojoShader.MOJOSHADER_glEffectBeginPass(
 				glEffectData,
