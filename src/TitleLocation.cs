@@ -29,7 +29,7 @@ namespace Microsoft.Xna.Framework
 
 		static TitleLocation()
 		{
-			Path = AppDomain.CurrentDomain.BaseDirectory;
+			Path = FNAPlatform.GetBaseDirectory();
 		}
 
 		#endregion

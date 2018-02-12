@@ -1010,6 +1010,34 @@ namespace Microsoft.Xna.Framework
 
 		#region Storage Methods
 
+		public static string GetBaseDirectory()
+		{
+			if (	OSVersion.Equals("Windows") ||
+				OSVersion.Equals("Mac OS X") ||
+				OSVersion.Equals("Linux") ||
+				OSVersion.Equals("FreeBSD") ||
+				OSVersion.Equals("OpenBSD") ||
+				OSVersion.Equals("NetBSD")	)
+			{
+				/* This is mostly here for legacy compatibility.
+				 * For most platforms this should be the same as
+				 * SDL_GetBasePath, but some platforms (Apple's)
+				 * will have a separate Resources folder that is
+				 * the "base" directory for applications.
+				 *
+				 * TODO: Remove this and endure the breakage.
+				 * -flibit
+				 */
+				return AppDomain.CurrentDomain.BaseDirectory;
+			}
+			string result = SDL.SDL_GetBasePath();
+			if (string.IsNullOrEmpty(result))
+			{
+				result = AppDomain.CurrentDomain.BaseDirectory;
+			}
+			return result;
+		}
+
 		public static string GetStorageRoot()
 		{
 			if (OSVersion.Equals("Windows"))

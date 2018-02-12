@@ -53,7 +53,7 @@ namespace Microsoft.Xna.Framework
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
 			StartTextInput =		SDL2.SDL.SDL_StartTextInput;
 			StopTextInput =			SDL2.SDL.SDL_StopTextInput;
-			SetTextInputRectangle =	SDL2_FNAPlatform.SetTextInputRectangle;
+			SetTextInputRectangle =		SDL2_FNAPlatform.SetTextInputRectangle;
 			GetMouseState =			SDL2_FNAPlatform.GetMouseState;
 			SetMousePosition =		SDL2.SDL.SDL_WarpMouseInWindow;
 			OnIsMouseVisibleChanged =	SDL2_FNAPlatform.OnIsMouseVisibleChanged;
@@ -64,6 +64,7 @@ namespace Microsoft.Xna.Framework
 			SetGamePadVibration =		SDL2_FNAPlatform.SetGamePadVibration;
 			GetGamePadGUID =		SDL2_FNAPlatform.GetGamePadGUID;
 			SetGamePadLightBar =		SDL2_FNAPlatform.SetGamePadLightBar;
+			GetBaseDirectory =		SDL2_FNAPlatform.GetBaseDirectory;
 			GetStorageRoot =		SDL2_FNAPlatform.GetStorageRoot;
 			ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
 			TextureDataFromStream =		SDL2_FNAPlatform.TextureDataFromStream;
@@ -205,6 +206,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void SetGamePadLightBarFunc(int index, Color color);
 		public static readonly SetGamePadLightBarFunc SetGamePadLightBar;
+
+		public delegate string GetBaseDirectoryFunc();
+		public static readonly GetBaseDirectoryFunc GetBaseDirectory;
 
 		public delegate string GetStorageRootFunc();
 		public static readonly GetStorageRootFunc GetStorageRoot;
