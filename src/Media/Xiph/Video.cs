@@ -108,11 +108,18 @@ namespace Microsoft.Xna.Framework.Media
 			 */
 			if (width != Width || height != Height)
 			{
-				throw new InvalidOperationException("XNB/OGV width/height mismatch!");
+				throw new InvalidOperationException(
+					"XNB/OGV width/height mismatch!" +
+					" Width: " + Width.ToString() +
+					" Height: " + Height.ToString()
+				);
 			}
 			if (Math.Abs(FramesPerSecond - framesPerSecond) >= 1.0f)
 			{
-				throw new InvalidOperationException("XNB/OGV framesPerSecond mismatch!");
+				throw new InvalidOperationException(
+					"XNB/OGV framesPerSecond mismatch!" +
+					" FPS: " + FramesPerSecond.ToString()
+				);
 			}
 
 			// FIXME: Oh, hey! I wish we had this info in Theora!
