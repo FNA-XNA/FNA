@@ -1,5 +1,8 @@
 bin/
 obj/
+obj_core/
 *.pidb
+*.user
 *.userprefs
 *.suo
+*.vs
