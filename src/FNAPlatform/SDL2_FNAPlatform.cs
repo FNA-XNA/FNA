@@ -36,8 +36,9 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Game Object
+		#region Game Objects
 
+		/* This is needed for asynchronous window events */
 		private static List<Game> activeGames = new List<Game>();
 
 		#endregion
@@ -574,7 +575,6 @@ namespace Microsoft.Xna.Framework
 				game.Window.Handle
 			);
 
-
 			// Store this for internal event filter work
 			activeGames.Add(game);
 
@@ -828,6 +828,7 @@ namespace Microsoft.Xna.Framework
 				game.Tick();
 			}
 
+			// Okay, we don't care about the events anymore
 			activeGames.Remove(game);
 
 			// We out.
