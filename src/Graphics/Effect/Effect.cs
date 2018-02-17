@@ -291,7 +291,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
-
 			// Use native memory for changes, .NET loves moving this around
 			unsafe
 			{
