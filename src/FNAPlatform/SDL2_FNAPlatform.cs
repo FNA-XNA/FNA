@@ -36,6 +36,12 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Game Object
+
+		private static List<Game> activeGames = new List<Game>();
+
+		#endregion
+
 		#region Init/Exit Methods
 
 		public static void ProgramInit()
@@ -62,13 +68,25 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_SetMainReady();
 
 			// Also, Windows is an idiot. -flibit
-			if (	(	OSVersion.Equals("Windows") ||
-					OSVersion.Equals("WinRT")	) &&
-				System.Diagnostics.Debugger.IsAttached	)
+			if (	OSVersion.Equals("Windows") ||
+				OSVersion.Equals("WinRT")	)
 			{
-				SDL.SDL_SetHint(
-					SDL.SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING,
-					"1"
+				// Visual Studio is an idiot.
+				if (System.Diagnostics.Debugger.IsAttached)
+				{
+					SDL.SDL_SetHint(
+						SDL.SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING,
+						"1"
+					);
+				}
+
+				/* Windows has terrible event pumping and doesn't give us
+				 * WM_PAINT events correctly. So we get to do this!
+				 * -flibit
+				 */
+				SDL.SDL_SetEventFilter(
+					win32OnPaint,
+					IntPtr.Zero
 				);
 			}
 
@@ -556,20 +574,9 @@ namespace Microsoft.Xna.Framework
 				game.Window.Handle
 			);
 
-			/* Windows has terrible event pumping and doesn't give us
-			 * WM_PAINT events correctly. So we get to do this!
-			 * -flibit
-			 */
-			if (	(	OSVersion.Equals("Windows") ||
-					OSVersion.Equals("WinRT")	) &&
-				game.Window.AllowUserResizing	)
-			{
-				quickDrawFunc = game.RedrawWindow;
-				SDL.SDL_SetEventFilter(
-					win32OnPaint,
-					Marshal.GetFunctionPointerForDelegate(quickDrawFunc)
-				);
-			}
+
+			// Store this for internal event filter work
+			activeGames.Add(game);
 
 			// OSX has some fancy fullscreen features, let's use them!
 			bool osxUseSpaces;
@@ -820,6 +827,8 @@ namespace Microsoft.Xna.Framework
 				Keyboard.SetKeys(keys);
 				game.Tick();
 			}
+
+			activeGames.Remove(game);
 
 			// We out.
 			game.Exit();
@@ -2529,19 +2538,21 @@ namespace Microsoft.Xna.Framework
 		#region Private Static Win32 WM_PAINT Interop
 
 		private static SDL.SDL_EventFilter win32OnPaint = Win32OnPaint;
-		private delegate void QuickDrawFunc();
-		private static QuickDrawFunc quickDrawFunc;
 		private static unsafe int Win32OnPaint(IntPtr func, IntPtr evtPtr)
 		{
 			SDL.SDL_Event* evt = (SDL.SDL_Event*) evtPtr;
 			if (	evt->type == SDL.SDL_EventType.SDL_WINDOWEVENT &&
 				evt->window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_EXPOSED	)
 			{
-				Marshal.GetDelegateForFunctionPointer(
-					func,
-					typeof(QuickDrawFunc)
-				).DynamicInvoke(null);
-				return 0;
+				foreach (Game game in activeGames)
+				{
+					if (	game.Window != null &&
+						evt->window.windowID == SDL.SDL_GetWindowID(game.Window.Handle)	)
+					{
+						game.RedrawWindow();
+						return 0;
+					}
+				}
 			}
 			return 1;
 		}
