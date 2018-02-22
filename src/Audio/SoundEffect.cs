@@ -385,7 +385,7 @@ namespace Microsoft.Xna.Framework.Audio
 					System.Diagnostics.Debug.Assert(bitDepth == 8 || bitDepth == 16);
 					formatParameter = bitDepth;
 				}
-				else if (format == 2)
+				else if (audio_format == 2)
 				{
 					formatParameter = blockAlign;
 				}
