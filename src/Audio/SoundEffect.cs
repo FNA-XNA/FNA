@@ -326,7 +326,7 @@ namespace Microsoft.Xna.Framework.Audio
 					System.Diagnostics.Debug.Assert(bitDepth == 8 || bitDepth == 16);
 					formatParameter = (uint) (bitDepth / 16); // 1 for 16, 0 for 8
 				}
-				else if (audio_format != 2)
+				else if (audio_format == 2)
 				{
 					isADPCM = true;
 					formatParameter = (((blockAlign / numChannels) - 6) * 2);
