@@ -48,7 +48,7 @@ namespace Microsoft.Xna.Framework.Content
 			ushort channels = input.ReadUInt16();
 
 			// Sample rate
-			uint sampleRate = input.ReadUInt32();
+			int sampleRate = input.ReadInt32();
 
 			// Averate bytes per second, unused
 			input.ReadUInt32();
@@ -69,8 +69,8 @@ namespace Microsoft.Xna.Framework.Content
 			byte[] data = input.ReadBytes(input.ReadInt32());
 
 			// Loop information
-			uint loopStart = input.ReadUInt32();
-			uint loopLength = input.ReadUInt32();
+			int loopStart = input.ReadInt32();
+			int loopLength = input.ReadInt32();
 
 			// Sound duration in milliseconds, unused
 			input.ReadUInt32();
@@ -78,12 +78,16 @@ namespace Microsoft.Xna.Framework.Content
 			return new SoundEffect(
 				input.AssetName,
 				data,
+				0,
+				data.Length,
 				sampleRate,
 				channels,
 				loopStart,
 				loopLength,
-				format == 2,
-				(uint) ((format == 2) ? (((blockAlign / channels) - 6) * 2) : (bitDepth / 16))
+				format,
+				(format == 2) ?
+					blockAlign :
+					bitDepth
 			);
 		}
 

@@ -13,13 +13,11 @@
 	<ItemGroup>
 		<Compile Include="src\Audio\AudioCategory.cs" />
 		<Compile Include="src\Audio\AudioChannels.cs" />
-		<Compile Include="src\Audio\AudioDevice.cs" />
 		<Compile Include="src\Audio\AudioEmitter.cs" />
 		<Compile Include="src\Audio\AudioEngine.cs" />
 		<Compile Include="src\Audio\AudioListener.cs" />
 		<Compile Include="src\Audio\AudioStopOptions.cs" />
 		<Compile Include="src\Audio\Cue.cs" />
-		<Compile Include="src\Audio\CueData.cs" />
 		<Compile Include="src\Audio\DynamicSoundEffectInstance.cs" />
 		<Compile Include="src\Audio\InstancePlayLimitException.cs" />
 		<Compile Include="src\Audio\Microphone.cs" />
@@ -32,7 +30,6 @@
 		<Compile Include="src\Audio\SoundEffectInstance.cs" />
 		<Compile Include="src\Audio\SoundState.cs" />
 		<Compile Include="src\Audio\WaveBank.cs" />
-		<Compile Include="src\Audio\XACTInternal.cs" />
 		<Compile Include="src\BoundingBox.cs" />
 		<Compile Include="src\BoundingFrustum.cs" />
 		<Compile Include="src\BoundingSphere.cs" />
@@ -131,12 +128,9 @@
 		<Compile Include="src\FNALoggerEXT.cs" />
 		<Compile Include="src\FNAPlatform\FNAPlatform.cs" />
 		<Compile Include="src\FNAPlatform\FNAWindow.cs" />
-		<Compile Include="src\FNAPlatform\IALDevice.cs" />
 		<Compile Include="src\FNAPlatform\IGLDevice.cs" />
 		<Compile Include="src\FNAPlatform\ModernGLDevice.cs" />
 		<Compile Include="src\FNAPlatform\ModernGLDevice_GL.cs" />
-		<Compile Include="src\FNAPlatform\NullALDevice.cs" />
-		<Compile Include="src\FNAPlatform\OpenALDevice.cs" />
 		<Compile Include="src\FNAPlatform\OpenGLDevice.cs" />
 		<Compile Include="src\FNAPlatform\OpenGLDevice_GL.cs" />
 		<Compile Include="src\FNAPlatform\SDL2_FNAPlatform.cs" />
@@ -306,10 +300,10 @@
 		<Compile Include="src\Media\MediaPlayer.cs" />
 		<Compile Include="src\Media\MediaQueue.cs" />
 		<Compile Include="src\Media\MediaState.cs" />
+		<Compile Include="src\Media\Song.cs" />
 		<Compile Include="src\Media\SongCollection.cs" />
 		<Compile Include="src\Media\VideoSoundtrackType.cs" />
 		<Compile Include="src\Media\VisualizationData.cs" />
-		<Compile Include="src\Media\Xiph\Song.cs" />
 		<Compile Include="src\Media\Xiph\Video.cs" />
 		<Compile Include="src\Media\Xiph\VideoPlayer.cs" />
 		<Compile Include="src\NamespaceDocs.cs" />
@@ -334,14 +328,8 @@
 		<Compile Include="src\Vector4.cs" />
 		<Compile Include="lib\SDL2-CS\src\SDL2.cs" />
 		<Compile Include="lib\SDL2-CS\src\SDL2_image.cs" />
-		<Compile Include="lib\OpenAL-CS\src\ALC10.cs" />
-		<Compile Include="lib\OpenAL-CS\src\ALC11.cs" />
-		<Compile Include="lib\OpenAL-CS\src\AL10.cs" />
-		<Compile Include="lib\OpenAL-CS\src\AL11.cs" />
-		<Compile Include="lib\OpenAL-CS\src\ALEXT.cs" />
-		<Compile Include="lib\OpenAL-CS\src\EFX.cs" />
+		<Compile Include="lib\FAudio\csharp\FAudio.cs" />
 		<Compile Include="lib\MojoShader-CS\MojoShader.cs" />
-		<Compile Include="lib\Vorbisfile-CS\Vorbisfile.cs" />
 		<Compile Include="lib\Theorafile\csharp\Theorafile.cs" />
 	</ItemGroup>
 	<ItemGroup>

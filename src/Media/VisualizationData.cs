@@ -8,10 +8,8 @@
 #endregion
 
 #region Using Statements
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Media
@@ -65,13 +63,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal void CalculateData(Song curSong)
 		{
-			float[] samples = curSong.GetSamples();
-
-			for (int i = 0; i < Size; i += 1)
-			{
-				sampList[i] = samples[i * curSong.chunkStep];
-				freqList[i] = 0.0f; // TODO: Frequencies -flibit
-			}
+			// TODO: VisualizationData -flibit
 		}
 
 		#endregion

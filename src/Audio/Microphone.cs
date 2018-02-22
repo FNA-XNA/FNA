@@ -10,7 +10,6 @@
 #region Using Statements
 using System;
 using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Audio
@@ -93,7 +92,7 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Private Variables
 
 		private TimeSpan bufferDuration;
-		private IntPtr nativeMic;
+		// TODO: Microphone private IntPtr handle;
 
 		#endregion
 
@@ -146,14 +145,9 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentException("count");
 			}
-			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-			int read = AudioDevice.ALDevice.CaptureSamples(
-				nativeMic,
-				handle.AddrOfPinnedObject() + offset,
-				count
-			);
-			handle.Free();
-			return read;
+
+			// TODO: Microphone
+			return 0;
 		}
 
 		public TimeSpan GetSampleDuration(int sizeInBytes)
@@ -176,31 +170,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Start()
 		{
-			if (State == MicrophoneState.Stopped)
-			{
-				nativeMic = AudioDevice.ALDevice.StartDeviceCapture(
-					Name,
-					SampleRate,
-					GetSampleSizeInBytes(bufferDuration)
-				);
-				if (nativeMic == IntPtr.Zero)
-				{
-					throw new NoMicrophoneConnectedException(Name);
-				}
-				AudioDevice.ActiveMics.Add(this);
-				State = MicrophoneState.Started;
-			}
+			// TODO: Microphone
 		}
 
 		public void Stop()
 		{
-			if (State == MicrophoneState.Started)
-			{
-				AudioDevice.ActiveMics.Remove(this);
-				AudioDevice.ALDevice.StopDeviceCapture(nativeMic);
-				nativeMic = IntPtr.Zero;
-				State = MicrophoneState.Stopped;
-			}
+			// TODO: Microphone
 		}
 
 		#endregion
@@ -210,7 +185,7 @@ namespace Microsoft.Xna.Framework.Audio
 		internal void CheckBuffer()
 		{
 			if (	BufferReady != null &&
-				AudioDevice.ALDevice.CaptureHasSamples(nativeMic)	)
+				Name.Equals("TODO: Microphone") /* AudioDevice.ALDevice.CaptureHasSamples(nativeMic)*/	)
 			{
 				BufferReady(this, EventArgs.Empty);
 			}

@@ -258,8 +258,16 @@ namespace Microsoft.Xna.Framework.Media
 
 		#region Internal Static Methods
 
-		internal static void SongFinishedPlaying()
+		internal static void Update()
 		{
+			if (	Queue == null ||
+				Queue.ActiveSong == null ||
+				!Queue.ActiveSong.HasEnded()	)
+			{
+				// Nothing to do... yet...
+				return;
+			}
+
 			numSongsInQueuePlayed += 1;
 
 			if (numSongsInQueuePlayed >= Queue.Count)

@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Audio
@@ -33,14 +34,11 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				INTERNAL_looped = value;
-				if (INTERNAL_alSource != null)
+				if (hasStarted)
 				{
-					AudioDevice.ALDevice.SetSourceLooped(
-						INTERNAL_alSource,
-						value
-					);
+					throw new InvalidOperationException();
 				}
+				INTERNAL_looped = value;
 			}
 		}
 
@@ -54,17 +52,29 @@ namespace Microsoft.Xna.Framework.Audio
 			set
 			{
 				INTERNAL_pan = value;
-				if (INTERNAL_alSource != null)
+				if (is3D)
 				{
-					AudioDevice.ALDevice.SetSourcePan(
-						INTERNAL_alSource,
-						value
+					return;
+				}
+
+				SetPanMatrixCoefficients();
+				if (handle != IntPtr.Zero)
+				{
+					FAudio.FAudioVoice_SetOutputMatrix(
+						handle,
+						IntPtr.Zero,
+						isDynamic ?
+							(this as DynamicSoundEffectInstance).format.nChannels :
+							parentEffect.format.nChannels,
+						SoundEffect.Device.DeviceDetails.OutputFormat.Format.nChannels,
+						matrixCoefficients,
+						0
 					);
 				}
 			}
 		}
 
-		private float INTERNAL_pitch = 0f;
+		private float INTERNAL_pitch = 0.0f;
 		public float Pitch
 		{
 			get
@@ -73,21 +83,13 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (INTERNAL_isXACTSource)
+				INTERNAL_pitch = MathHelper.Clamp(value, -1.0f, 1.0f);
+				if (handle != IntPtr.Zero)
 				{
-					value = MathHelper.Clamp(value, -2.0f, 2.0f);
-				}
-				else
-				{
-					value = MathHelper.Clamp(value, -1.0f, 1.0f);
-				}
-				INTERNAL_pitch = value;
-				if (INTERNAL_alSource != null)
-				{
-					AudioDevice.ALDevice.SetSourcePitch(
-						INTERNAL_alSource,
-						value,
-						!INTERNAL_isXACTSource
+					FAudio.FAudioSourceVoice_SetFrequencyRatio(
+						handle,
+						(float) Math.Pow(2.0, INTERNAL_pitch),
+						0
 					);
 				}
 			}
@@ -95,22 +97,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public SoundState State
 		{
-			get
-			{
-				if (INTERNAL_alSource == null)
-				{
-					return SoundState.Stopped;
-				}
-				SoundState result = AudioDevice.ALDevice.GetSourceState(
-					INTERNAL_alSource
-				);
-				if (result == SoundState.Stopped && isDynamic)
-				{
-					// Force playing at all times for DSFI!
-					return SoundState.Playing;
-				}
-				return result;
-			}
+			get;
+			private set;
 		}
 
 		private float INTERNAL_volume = 1.0f;
@@ -122,16 +110,13 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (!INTERNAL_isXACTSource)
-				{
-					value = MathHelper.Clamp(value, 0.0f, 1.0f);
-				}
 				INTERNAL_volume = value;
-				if (INTERNAL_alSource != null)
+				if (handle != IntPtr.Zero)
 				{
-					AudioDevice.ALDevice.SetSourceVolume(
-						INTERNAL_alSource,
-						value
+					FAudio.FAudioVoice_SetVolume(
+						handle,
+						INTERNAL_volume,
+						0
 					);
 				}
 			}
@@ -139,53 +124,61 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Internal Variables: 3D Audio
+		#region Internal Variables
 
-		internal bool INTERNAL_positionalAudio = false;
-		internal Vector3 position = new Vector3(0.0f, 0.0f, 0.1f);
-
-		#endregion
-
-		#region Internal Variables: XACT Filters
-
-		internal byte FilterType;
-
-		#endregion
-
-		#region Private Variables: XNA Implementation
-
-		private SoundEffect INTERNAL_parentEffect;
-		private WeakReference selfReference;
-
+		internal IntPtr handle;
+		internal IntPtr callbacks;
 		internal bool isDynamic;
 
-		/* FNA' XACT runtime wraps around SoundEffect for audio output.
-		 * Only problem: XACT pitch has no boundaries, SoundEffect does.
-		 * So, we're going to use this to tell the pitch clamp to STFU.
-		 * -flibit
-		 */
-		internal bool INTERNAL_isXACTSource = false;
-
 		#endregion
 
-		#region Private Variables: AL Source, EffectSlot
+		#region Private Variables
 
-		internal IALSource INTERNAL_alSource;
-		private IALReverb INTERNAL_alReverb;
+		private SoundEffect parentEffect;
+		private WeakReference selfReference;
+		private bool hasStarted;
+		private bool is3D;
+		private IntPtr matrixCoefficients;
+		private FAudio.OnStreamEndFunc OnStreamEndFunc;
 
 		#endregion
 
 		#region Internal Constructor
 
-		internal SoundEffectInstance(SoundEffect parent)
-		{
-			INTERNAL_parentEffect = parent;
-			if (INTERNAL_parentEffect != null)
+		internal SoundEffectInstance(
+			SoundEffect parent = null,
+			bool fireAndForget = false
+		) {
+			parentEffect = parent;
+			if (parentEffect != null)
 			{
 				selfReference = new WeakReference(this);
-				INTERNAL_parentEffect.Instances.Add(selfReference);
 			}
 			isDynamic = false;
+			hasStarted = false;
+			is3D = false;
+			matrixCoefficients = Marshal.AllocHGlobal(
+				4 *
+				2 * /* FIXME: Could make this 1 for mono */
+				SoundEffect.Device.DeviceDetails.OutputFormat.Format.nChannels
+			);
+			Pan = 0.0f;
+			OnStreamEndFunc = OnStreamEnd;
+			unsafe
+			{
+				callbacks = Marshal.AllocHGlobal(
+					sizeof(FAudio.FAudioVoiceCallback)
+				);
+				FAudio.FAudioVoiceCallback* cb = (FAudio.FAudioVoiceCallback*) callbacks;
+				cb->OnBufferEnd = IntPtr.Zero;
+				cb->OnBufferStart = IntPtr.Zero;
+				cb->OnLoopEnd = IntPtr.Zero;
+				cb->OnStreamEnd = Marshal.GetFunctionPointerForDelegate(OnStreamEndFunc);
+				cb->OnVoiceError = IntPtr.Zero;
+				cb->OnVoiceProcessingPassEnd = IntPtr.Zero;
+				cb->OnVoiceProcessingPassStart = IntPtr.Zero;
+			}
+			State = SoundState.Stopped;
 		}
 
 		#endregion
@@ -199,64 +192,45 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Public Dispose Method
+		#region Public Methods
 
-		public virtual void Dispose()
+		public void Dispose()
 		{
-			if (!IsDisposed)
-			{
-				Stop(true);
-				if (INTERNAL_parentEffect != null)
-				{
-					INTERNAL_parentEffect.Instances.Remove(selfReference);
-					selfReference = null;
-				}
-				IsDisposed = true;
-			}
+			Dispose(true);
 		}
-
-		#endregion
-
-		#region Public 3D Audio Methods
 
 		public void Apply3D(AudioListener listener, AudioEmitter emitter)
 		{
-			// We positional now
-			if (!INTERNAL_positionalAudio)
+			if (listener == null)
 			{
-				// Do we need to convert a stereo buffer to mono?
-				if (	!isDynamic &&
-					INTERNAL_parentEffect.INTERNAL_buffer.Channels == 2 &&
-					INTERNAL_parentEffect.INTERNAL_monoBuffer == null	)
-				{
-					INTERNAL_parentEffect.INTERNAL_monoBuffer = AudioDevice.ALDevice.ConvertStereoToMono(
-						INTERNAL_parentEffect.INTERNAL_buffer
-					);
-				}
-
-				// K, we really positional now
-				INTERNAL_positionalAudio = true;
+				throw new ArgumentNullException("listener");
+			}
+			if (emitter == null)
+			{
+				throw new ArgumentNullException("emitter");
 			}
 
-			// Set up our final position according to orientation of listener
-			position = Vector3.Transform(
-				emitter.Position - listener.Position,
-				Matrix.CreateWorld(Vector3.Zero, listener.Forward, listener.Up)
+			is3D = true;
+			emitter.emitterData.CurveDistanceScaler = SoundEffect.Device.CurveDistanceScaler;
+			SoundEffect.Device.DSPSettings.pMatrixCoefficients = matrixCoefficients;
+			FAudio.F3DAudioCalculate(
+				SoundEffect.Device.Handle3D,
+				ref listener.listenerData,
+				ref emitter.emitterData,
+				0,
+				out SoundEffect.Device.DSPSettings
 			);
-
-			// XACT doesn't do automated attenuation!
-			if (INTERNAL_isXACTSource && position != Vector3.Zero)
+			if (handle != IntPtr.Zero)
 			{
-				position.Normalize();
-			}
-
-			// This can get called before Play()...
-			if (INTERNAL_alSource != null)
-			{
-				// Finally.
-				AudioDevice.ALDevice.SetSourcePosition(
-					INTERNAL_alSource,
-					position
+				FAudio.FAudioVoice_SetOutputMatrix(
+					handle,
+					IntPtr.Zero,
+					isDynamic ?
+						(this as DynamicSoundEffectInstance).format.nChannels :
+						parentEffect.format.nChannels,
+					SoundEffect.Device.DeviceDetails.OutputFormat.Format.nChannels,
+					matrixCoefficients,
+					0
 				);
 			}
 		}
@@ -275,10 +249,6 @@ namespace Microsoft.Xna.Framework.Audio
 			throw new NotSupportedException("Only one listener is supported.");
 		}
 
-		#endregion
-
-		#region Public Playback Methods
-
 		public virtual void Play()
 		{
 			if (State != SoundState.Stopped)
@@ -286,143 +256,295 @@ namespace Microsoft.Xna.Framework.Audio
 				return;
 			}
 
-			if (INTERNAL_alSource != null)
-			{
-				// The sound has stopped, but hasn't cleaned up yet...
-				AudioDevice.ALDevice.StopAndDisposeSource(INTERNAL_alSource);
-				INTERNAL_alSource = null;
-			}
-
-			IALBuffer srcBuf;
-			if (INTERNAL_positionalAudio && INTERNAL_parentEffect.INTERNAL_monoBuffer != null)
-			{
-				srcBuf = INTERNAL_parentEffect.INTERNAL_monoBuffer;
-			}
-			else
-			{
-				srcBuf = INTERNAL_parentEffect.INTERNAL_buffer;
-			}
-			INTERNAL_alSource = AudioDevice.ALDevice.GenSource(
-				srcBuf,
-				INTERNAL_isXACTSource
+			/* Create handle */
+			FAudio.FAudioWaveFormatEx fmt = isDynamic ?
+				(this as DynamicSoundEffectInstance).format :
+				parentEffect.format;
+			FAudio.FAudio_CreateSourceVoice(
+				SoundEffect.Device.Handle,
+				out handle,
+				ref fmt,
+				0,
+				FAudio.FAUDIO_DEFAULT_FREQ_RATIO,
+				callbacks,
+				IntPtr.Zero,
+				IntPtr.Zero
 			);
-			if (INTERNAL_alSource == null)
+			if (handle == IntPtr.Zero)
 			{
-				FNALoggerEXT.LogWarn("AL SOURCE WAS NOT AVAILABLE, SKIPPING.");
-				return;
+				return; /* What */
 			}
 
-			// Apply Pan/Position
-			if (INTERNAL_positionalAudio)
+			/* Apply current properties */
+			FAudio.FAudioVoice_SetVolume(handle, INTERNAL_volume, 0);
+			FAudio.FAudioSourceVoice_SetFrequencyRatio(
+				handle,
+				(float) Math.Pow(2.0, INTERNAL_pitch),
+				0
+			);
+			FAudio.FAudioVoice_SetOutputMatrix(
+				handle,
+				IntPtr.Zero,
+				isDynamic ?
+					(this as DynamicSoundEffectInstance).format.nChannels :
+					parentEffect.format.nChannels,
+				SoundEffect.Device.DeviceDetails.OutputFormat.Format.nChannels,
+				matrixCoefficients,
+				0
+			);
+
+			/* For static effects, submit the buffer now */
+			if (isDynamic)
 			{
-				AudioDevice.ALDevice.SetSourcePosition(
-					INTERNAL_alSource,
-					position
-				);
+				(this as DynamicSoundEffectInstance).QueueInitialBuffers();
 			}
 			else
 			{
-				Pan = Pan;
-			}
-
-			// Reassign Properties, in case the AL properties need to be applied.
-			Volume = Volume;
-			IsLooped = IsLooped;
-			Pitch = Pitch;
-
-			// Apply EFX
-			if (INTERNAL_alReverb != null)
-			{
-				AudioDevice.ALDevice.SetSourceReverb(
-					INTERNAL_alSource,
-					INTERNAL_alReverb
+				parentEffect.handle.LoopCount = (uint) (IsLooped ? 255 : 0);
+				FAudio.FAudioSourceVoice_SubmitSourceBuffer(
+					handle,
+					ref parentEffect.handle,
+					IntPtr.Zero
 				);
 			}
 
-			AudioDevice.ALDevice.PlaySource(INTERNAL_alSource);
+			/* Play, finally. */
+			FAudio.FAudioSourceVoice_Start(handle, 0, 0);
+			State = SoundState.Playing;
+			hasStarted = true;
 		}
 
 		public void Pause()
 		{
-			if (INTERNAL_alSource != null && State == SoundState.Playing)
+			if (handle != IntPtr.Zero && State == SoundState.Playing)
 			{
-				AudioDevice.ALDevice.PauseSource(INTERNAL_alSource);
+				FAudio.FAudioSourceVoice_Stop(handle, 0, 0);
+				State = SoundState.Paused;
 			}
 		}
 
 		public void Resume()
 		{
-			if (INTERNAL_alSource == null)
+			if (handle == IntPtr.Zero)
 			{
 				// XNA4 just plays if we've not started yet.
 				Play();
 			}
 			else if (State == SoundState.Paused)
 			{
-				AudioDevice.ALDevice.ResumeSource(INTERNAL_alSource);
+				FAudio.FAudioSourceVoice_Start(handle, 0, 0);
+				State = SoundState.Playing;
 			}
 		}
 
 		public void Stop()
 		{
-			if (INTERNAL_alSource != null)
-			{
-				// TODO: GraphicsResource-like reference management -flibit
-				if (AudioDevice.ALDevice != null)
-				{
-					AudioDevice.ALDevice.StopAndDisposeSource(INTERNAL_alSource);
-					DynamicSoundEffectInstance dsfi = this as DynamicSoundEffectInstance;
-					if (dsfi != null && AudioDevice.DynamicInstancePool.Contains(dsfi))
-					{
-						AudioDevice.DynamicInstancePool.Remove(dsfi);
-					}
-				}
-				INTERNAL_alSource = null;
-			}
+			Stop(true);
 		}
 
 		public void Stop(bool immediate)
 		{
-			Stop();
+			if (handle == IntPtr.Zero)
+			{
+				return;
+			}
+
+			if (immediate)
+			{
+				FAudio.FAudioSourceVoice_Stop(handle, 0, 0);
+				FAudio.FAudioSourceVoice_FlushSourceBuffers(handle);
+				FAudio.FAudioVoice_DestroyVoice(handle);
+				handle = IntPtr.Zero;
+				State = SoundState.Stopped;
+
+				if (isDynamic)
+				{
+					FrameworkDispatcher.Streams.Remove(
+						this as DynamicSoundEffectInstance
+					);
+					(this as DynamicSoundEffectInstance).ClearBuffers();
+				}
+			}
+			else
+			{
+				if (isDynamic)
+				{
+					throw new InvalidOperationException();
+				}
+				FAudio.FAudioSourceVoice_ExitLoop(handle, 0);
+			}
+		}
+
+		#endregion
+
+		#region Protected Methods
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!IsDisposed)
+			{
+				Stop(true);
+				if (parentEffect != null)
+				{
+					parentEffect.Instances.Remove(selfReference);
+					selfReference = null;
+				}
+				Marshal.FreeHGlobal(matrixCoefficients);
+				Marshal.FreeHGlobal(callbacks);
+				IsDisposed = true;
+			}
 		}
 
 		#endregion
 
 		#region Internal Effects Methods
 
-		internal void INTERNAL_applyReverb(IALReverb reverb)
+		internal void INTERNAL_applyReverb(float rvGain)
 		{
-			INTERNAL_alReverb = reverb;
-			if (INTERNAL_alSource != null)
-			{
-				AudioDevice.ALDevice.SetSourceReverb(
-					INTERNAL_alSource,
-					INTERNAL_alReverb
-				);
-			}
+			// TODO
 		}
 
 		internal void INTERNAL_applyLowPassFilter(float hfGain)
 		{
-			if (INTERNAL_alSource != null)
-			{
-				AudioDevice.ALDevice.SetSourceLowPassFilter(INTERNAL_alSource, hfGain);
-			}
+			// TODO
 		}
 
 		internal void INTERNAL_applyHighPassFilter(float lfGain)
 		{
-			if (INTERNAL_alSource != null)
-			{
-				AudioDevice.ALDevice.SetSourceHighPassFilter(INTERNAL_alSource, lfGain);
-			}
+			// TODO
 		}
 
 		internal void INTERNAL_applyBandPassFilter(float hfGain, float lfGain)
 		{
-			if (INTERNAL_alSource != null)
+			// TODO
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private void OnStreamEnd(IntPtr callback)
+		{
+			FAudio.FAudioSourceVoice_Stop(handle, 0, 0);
+			State = SoundState.Stopped;
+			FrameworkDispatcher.DeadSounds.Add(this);
+		}
+
+		private unsafe void SetPanMatrixCoefficients()
+		{
+			float* outputMatrix = (float*) matrixCoefficients;
+			FAudio.FAudioWaveFormatEx fmt = isDynamic ?
+				(this as DynamicSoundEffectInstance).format :
+				parentEffect.format;
+
+			float left = (INTERNAL_pan > 0.0f) ? (1.0f - INTERNAL_pan) : 1.0f;
+			float right = (INTERNAL_pan < 0.0f) ? (1.0f  + INTERNAL_pan) : 1.0f;
+
+			uint dwChannelMask = SoundEffect.Device.DeviceDetails.OutputFormat.dwChannelMask;
+			if (fmt.nChannels == 1)
 			{
-				AudioDevice.ALDevice.SetSourceBandPassFilter(INTERNAL_alSource, hfGain, lfGain);
+				if (dwChannelMask == FAudio.SPEAKER_MONO)
+				{
+					outputMatrix[0] = 1.0f;
+					return;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_FRONT_LEFT) != 0)
+				{
+					*outputMatrix++ = left;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_FRONT_RIGHT) != 0)
+				{
+					*outputMatrix++ = right;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_FRONT_CENTER) != 0)
+				{
+					outputMatrix++;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_LOW_FREQUENCY) != 0)
+				{
+					outputMatrix++;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_BACK_LEFT) != 0)
+				{
+					*outputMatrix++ = left;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_BACK_RIGHT) != 0)
+				{
+					*outputMatrix++ = right;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_FRONT_LEFT_OF_CENTER) != 0)
+				{
+					*outputMatrix++ = left;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_FRONT_RIGHT_OF_CENTER) != 0)
+				{
+					*outputMatrix++ = right;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_SIDE_LEFT) != 0)
+				{
+					*outputMatrix++ = left;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_SIDE_RIGHT) != 0)
+				{
+					*outputMatrix++ = right;
+				}
+			}
+			else
+			{
+				if (dwChannelMask == FAudio.SPEAKER_MONO)
+				{
+					outputMatrix[0] = 1.0f;
+					outputMatrix[1] = 1.0f;
+					return;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_FRONT_LEFT) != 0)
+				{
+					*outputMatrix++ = left;
+					*outputMatrix++ = 0.0f;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_FRONT_RIGHT) != 0)
+				{
+					*outputMatrix++ = 0.0f;
+					*outputMatrix++ = right;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_FRONT_CENTER) != 0)
+				{
+					outputMatrix += 2;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_LOW_FREQUENCY) != 0)
+				{
+					outputMatrix += 2;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_BACK_LEFT) != 0)
+				{
+					*outputMatrix++ = left;
+					*outputMatrix++ = 0.0f;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_BACK_RIGHT) != 0)
+				{
+					*outputMatrix++ = 0.0f;
+					*outputMatrix++ = right;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_FRONT_LEFT_OF_CENTER) != 0)
+				{
+					*outputMatrix++ = left;
+					*outputMatrix++ = 0.0f;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_FRONT_RIGHT_OF_CENTER) != 0)
+				{
+					*outputMatrix++ = 0.0f;
+					*outputMatrix++ = right;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_SIDE_LEFT) != 0)
+				{
+					*outputMatrix++ = left;
+					*outputMatrix++ = 0.0f;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_SIDE_RIGHT) != 0)
+				{
+					*outputMatrix++ = 0.0f;
+					*outputMatrix++ = right;
+				}
 			}
 		}
 

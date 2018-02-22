@@ -137,6 +137,11 @@ namespace Microsoft.Xna.Framework
 
 		public static void ProgramExit(object sender, EventArgs e)
 		{
+			if (SoundEffect.FAudioContext.Created)
+			{
+				SoundEffect.Device.Dispose();
+			}
+
 			// This _should_ be the last SDL call we make...
 			SDL.SDL_Quit();
 		}
@@ -850,26 +855,6 @@ namespace Microsoft.Xna.Framework
 				return new ModernGLDevice(presentationParameters, adapter);
 			}
 			return new OpenGLDevice(presentationParameters, adapter);
-		}
-
-		public static IALDevice CreateALDevice()
-		{
-			try
-			{
-				return new OpenALDevice();
-			}
-			catch(DllNotFoundException e)
-			{
-				FNALoggerEXT.LogError("OpenAL not found! Need FNA.dll.config?");
-				throw e;
-			}
-			catch(Exception)
-			{
-				/* We ignore device creation exceptions,
-				 * as they are handled down the line with Instance != null
-				 */
-				return null;
-			}
 		}
 
 		#endregion

@@ -18,12 +18,11 @@ namespace Microsoft.Xna.Framework.Audio
 	{
 		#region Public Properties
 
-		private float INTERNAL_dopplerScale;
 		public float DopplerScale
 		{
 			get
 			{
-				return INTERNAL_dopplerScale;
+				return emitterData.DopplerScaler;
 			}
 			set
 			{
@@ -31,34 +30,88 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					throw new ArgumentOutOfRangeException("AudioEmitter.DopplerScale must be greater than or equal to 0.0f");
 				}
-				INTERNAL_dopplerScale = value;
+				emitterData.DopplerScaler = value;
 			}
 		}
 
 		public Vector3 Forward
 		{
-			get;
-			set;
+			get
+			{
+				return new Vector3(
+					emitterData.OrientFront.x,
+					emitterData.OrientFront.y,
+					emitterData.OrientFront.z
+				);
+			}
+			set
+			{
+				emitterData.OrientFront.x = value.X;
+				emitterData.OrientFront.y = value.Y;
+				emitterData.OrientFront.z = value.Z;
+			}
 		}
 
 		public Vector3 Position
 		{
-			get;
-			set;
+			get
+			{
+				return new Vector3(
+					emitterData.Position.x,
+					emitterData.Position.y,
+					emitterData.Position.z
+				);
+			}
+			set
+			{
+				emitterData.Position.x = value.X;
+				emitterData.Position.y = value.Y;
+				emitterData.Position.z = value.Z;
+			}
 		}
 
 
 		public Vector3 Up
 		{
-			get;
-			set;
+			get
+			{
+				return new Vector3(
+					emitterData.OrientTop.x,
+					emitterData.OrientTop.y,
+					emitterData.OrientTop.z
+				);
+			}
+			set
+			{
+				emitterData.OrientTop.x = value.X;
+				emitterData.OrientTop.y = value.Y;
+				emitterData.OrientTop.z = value.Z;
+			}
 		}
 
 		public Vector3 Velocity
 		{
-			get;
-			set;
+			get
+			{
+				return new Vector3(
+					emitterData.Velocity.x,
+					emitterData.Velocity.y,
+					emitterData.Velocity.z
+				);
+			}
+			set
+			{
+				emitterData.Velocity.x = value.X;
+				emitterData.Velocity.y = value.Y;
+				emitterData.Velocity.z = value.Z;
+			}
 		}
+
+		#endregion
+
+		#region Internal Variables
+
+		internal FAudio.F3DAUDIO_EMITTER emitterData;
 
 		#endregion
 
@@ -66,11 +119,24 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public AudioEmitter()
 		{
+			emitterData = new FAudio.F3DAUDIO_EMITTER();
 			DopplerScale = 1.0f;
 			Forward = Vector3.Forward;
 			Position = Vector3.Zero;
 			Up = Vector3.Up;
 			Velocity = Vector3.Zero;
+
+			/* Unused variables, defaults based on XNA behavior */
+			emitterData.pCone = IntPtr.Zero;
+			emitterData.ChannelCount = 1;
+			emitterData.ChannelRadius = 1.0f;
+			emitterData.pChannelAzimuths = IntPtr.Zero;
+			emitterData.pVolumeCurve = IntPtr.Zero;
+			emitterData.pLFECurve = IntPtr.Zero;
+			emitterData.pLPFDirectCurve = IntPtr.Zero;
+			emitterData.pLPFReverbCurve = IntPtr.Zero;
+			emitterData.pReverbCurve = IntPtr.Zero;
+			emitterData.CurveDistanceScaler = 1.0f;
 		}
 
 		#endregion
