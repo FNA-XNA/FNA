@@ -120,6 +120,10 @@ namespace Microsoft.Xna.Framework.Media
 		internal Song(string fileName)
 		{
 			handle = FAudio.XNA_GenSong(fileName);
+			if (handle == IntPtr.Zero)
+			{
+				throw new Audio.NoAudioHardwareException();
+			}
 			IsDisposed = false;
 		}
 

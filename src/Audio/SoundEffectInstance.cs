@@ -149,6 +149,11 @@ namespace Microsoft.Xna.Framework.Audio
 			SoundEffect parent = null,
 			bool fireAndForget = false
 		) {
+			if (SoundEffect.Device.NoDevice)
+			{
+				throw new NoAudioHardwareException();
+			}
+
 			parentEffect = parent;
 			if (parentEffect != null)
 			{

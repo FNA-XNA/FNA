@@ -61,6 +61,10 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
+				if (Device.NoDevice)
+				{
+					throw new NoAudioHardwareException();
+				}
 				FAudio.FAudioVoice_SetVolume(
 					Device.MasterVoice,
 					value,
@@ -186,6 +190,11 @@ namespace Microsoft.Xna.Framework.Audio
 			ushort formatTag,
 			ushort formatParameter
 		) {
+			if (Device.NoDevice)
+			{
+				throw new NoAudioHardwareException();
+			}
+
 			Name = name;
 
 			/* Buffer format */
@@ -385,7 +394,7 @@ namespace Microsoft.Xna.Framework.Audio
 					System.Diagnostics.Debug.Assert(bitDepth == 8 || bitDepth == 16);
 					formatParameter = bitDepth;
 				}
-				else if (audio_format == 2)
+				else if (format == 2)
 				{
 					formatParameter = blockAlign;
 				}

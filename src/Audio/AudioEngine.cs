@@ -125,6 +125,11 @@ namespace Microsoft.Xna.Framework.Audio
 				handle,
 				out rendererCount
 			);
+			if (rendererCount == 0)
+			{
+				Dispose();
+				throw new NoAudioHardwareException();
+			}
 			rendererDetails = new RendererDetail[rendererCount];
 			char[] displayName = new char[0xFF];
 			char[] rendererID = new char[0xFF];

@@ -70,8 +70,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Public Constructor
 
-		public DynamicSoundEffectInstance(int sampleRate, AudioChannels channels) : base(null)
-		{
+		public DynamicSoundEffectInstance(
+			int sampleRate,
+			AudioChannels channels
+		) : base() {
 			this.sampleRate = sampleRate;
 			this.channels = channels;
 			isDynamic = true;
