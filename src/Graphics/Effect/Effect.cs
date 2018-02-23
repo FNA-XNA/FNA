@@ -307,6 +307,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Destructor
+
+		~Effect()
+		{
+			Dispose();
+		}
+
+		#endregion
+
 		#region Public Methods
 
 		public virtual Effect Clone()
