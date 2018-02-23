@@ -9,7 +9,6 @@
 
 #region Using Statements
 using System;
-using System.Diagnostics;
 #endregion
 
 namespace Microsoft.Xna.Framework.Media
@@ -49,7 +48,7 @@ namespace Microsoft.Xna.Framework.Media
 		public int PlayCount
 		{
 			get;
-			private set;
+			internal set;
 		}
 
 		public int Rating
@@ -80,38 +79,9 @@ namespace Microsoft.Xna.Framework.Media
 
 		#endregion
 
-		#region Internal Properties
+		#region Internal Variables
 
-		internal TimeSpan Position
-		{
-			get
-			{
-				return timer.Elapsed;
-			}
-		}
-
-		internal float Volume
-		{
-			set
-			{
-				FAudio.XNA_SetSongVolume(handle, value);
-			}
-		}
-
-		#endregion
-
-		#region Private Variables
-
-		/* FIXME: Ideally we'd be using the stream offset to track position,
-		 * but usually you end up with a bit of stairstepping...
-		 *
-		 * For now, just use a timer. It's not 100% accurate, but it'll at
-		 * least be consistent.
-		 * -flibit
-		 */
-		private Stopwatch timer = new Stopwatch();
-
-		private IntPtr handle;
+		internal IntPtr handle;
 
 		#endregion
 
@@ -119,11 +89,13 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal Song(string fileName)
 		{
-			handle = FAudio.XNA_GenSong(fileName);
+			float seconds;
+			handle = FAudio.XNA_GenSong(fileName, out seconds);
 			if (handle == IntPtr.Zero)
 			{
 				throw new Audio.NoAudioHardwareException();
 			}
+			Duration = TimeSpan.FromSeconds(seconds);
 			IsDisposed = false;
 		}
 
@@ -157,42 +129,6 @@ namespace Microsoft.Xna.Framework.Media
 				handle = IntPtr.Zero;
 				IsDisposed = true;
 			}
-		}
-
-		#endregion
-
-		#region Internal Playback Methods
-
-		internal void Play()
-		{
-			FAudio.XNA_PlaySong(handle);
-			timer.Start();
-			PlayCount += 1;
-		}
-
-		internal void Pause()
-		{
-			FAudio.XNA_PauseSong(handle);
-			timer.Stop();
-		}
-
-		internal void Resume()
-		{
-			FAudio.XNA_ResumeSong(handle);
-			timer.Start();
-		}
-
-		internal void Stop()
-		{
-			PlayCount = 0;
-			FAudio.XNA_StopSong(handle);
-			timer.Stop();
-			timer.Reset();
-		}
-
-		internal bool HasEnded()
-		{
-			return FAudio.XNA_GetSongEnded(handle) == 1;
 		}
 
 		#endregion

@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Diagnostics;
 #endregion
 
 namespace Microsoft.Xna.Framework.Media
@@ -39,13 +40,11 @@ namespace Microsoft.Xna.Framework.Media
 			set
 			{
 				INTERNAL_isMuted = value;
-
-				if (Queue.Count == 0)
-				{
-					return;
-				}
-
-				Queue.SetVolume(value ? 0.0f : Volume);
+				FAudio.XNA_SetSongVolume(
+					INTERNAL_isMuted ?
+						0.0f :
+						INTERNAL_volume
+				);
 			}
 		}
 
@@ -65,12 +64,7 @@ namespace Microsoft.Xna.Framework.Media
 		{
 			get
 			{
-				if (Queue.ActiveSong == null)
-				{
-					return TimeSpan.Zero;
-				}
-
-				return Queue.ActiveSong.Position;
+				return timer.Elapsed;
 			}
 		}
 
@@ -105,14 +99,16 @@ namespace Microsoft.Xna.Framework.Media
 			}
 			set
 			{
-				INTERNAL_volume = MathHelper.Clamp(value, 0.0f, 1.0f);
-
-				if (Queue.ActiveSong == null)
-				{
-					return;
-				}
-
-				Queue.SetVolume(IsMuted ? 0.0f : value);
+				INTERNAL_volume = MathHelper.Clamp(
+					value,
+					0.0f,
+					1.0f
+				);
+				FAudio.XNA_SetSongVolume(
+					IsMuted ?
+					0.0f :
+					INTERNAL_volume
+				);
 			}
 		}
 
@@ -141,6 +137,15 @@ namespace Microsoft.Xna.Framework.Media
 		 * have played when in shuffle mode.
 		 */
 		private static int numSongsInQueuePlayed = 0;
+
+		/* FIXME: Ideally we'd be using the stream offset to track position,
+		 * but usually you end up with a bit of stairstepping...
+		 *
+		 * For now, just use a timer. It's not 100% accurate, but it'll at
+		 * least be consistent.
+		 * -flibit
+		 */
+		private static Stopwatch timer = new Stopwatch();
 
 		#endregion
 
@@ -173,7 +178,8 @@ namespace Microsoft.Xna.Framework.Media
 				return;
 			}
 
-			Queue.ActiveSong.Pause();
+			FAudio.XNA_PauseSong();
+			timer.Stop();
 
 			State = MediaState.Paused;
 		}
@@ -226,7 +232,8 @@ namespace Microsoft.Xna.Framework.Media
 				return;
 			}
 
-			Queue.ActiveSong.Resume();
+			FAudio.XNA_ResumeSong();
+			timer.Start();
 			State = MediaState.Playing;
 		}
 
@@ -237,10 +244,13 @@ namespace Microsoft.Xna.Framework.Media
 				return;
 			}
 
-			// Loop through so that we reset the PlayCount as well.
+			FAudio.XNA_StopSong();
+			timer.Stop();
+			timer.Reset();
+
 			foreach (Song song in Queue.Songs)
 			{
-				song.Stop();
+				song.PlayCount = 0;
 			}
 
 			State = MediaState.Stopped;
@@ -262,7 +272,7 @@ namespace Microsoft.Xna.Framework.Media
 		{
 			if (	Queue == null ||
 				Queue.ActiveSong == null ||
-				!Queue.ActiveSong.HasEnded()	)
+				FAudio.XNA_GetSongEnded() == 0	)
 			{
 				// Nothing to do... yet...
 				return;
@@ -333,8 +343,8 @@ namespace Microsoft.Xna.Framework.Media
 
 		private static void PlaySong(Song song)
 		{
-			song.Volume = IsMuted ? 0.0f : Volume;
-			song.Play();
+			FAudio.XNA_PlaySong(song.handle);
+			timer.Start();
 			State = MediaState.Playing;
 		}
 

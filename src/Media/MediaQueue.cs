@@ -110,31 +110,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal void Clear()
 		{
-			Song song;
-			while (songs.Count > 0)
-			{
-				song = songs[0];
-				song.Stop();
-				songs.Remove(song);
-			}
-		}
-
-		internal void SetVolume(float volume)
-		{
-			int count = songs.Count;
-			for (int i = 0; i < count; i += 1)
-			{
-				songs[i].Volume = volume;
-			}
-		}
-
-		internal void Stop()
-		{
-			int count = songs.Count;
-			for (int i = 0; i < count; i += 1)
-			{
-				songs[i].Stop();
-			}
+			songs.Clear();
 		}
 
 		#endregion
