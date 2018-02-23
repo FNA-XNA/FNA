@@ -137,9 +137,9 @@ namespace Microsoft.Xna.Framework
 
 		public static void ProgramExit(object sender, EventArgs e)
 		{
-			if (SoundEffect.FAudioContext.Created)
+			if (SoundEffect.FAudioContext.Context != null)
 			{
-				SoundEffect.Device.Dispose();
+				SoundEffect.FAudioContext.Context.Dispose();
 			}
 
 			// This _should_ be the last SDL call we make...

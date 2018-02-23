@@ -54,19 +54,15 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				float result;
 				FAudio.FAudioVoice_GetVolume(
-					Device.MasterVoice,
+					Device().MasterVoice,
 					out result
 				);
 				return result;
 			}
 			set
 			{
-				if (Device.NoDevice)
-				{
-					throw new NoAudioHardwareException();
-				}
 				FAudio.FAudioVoice_SetVolume(
-					Device.MasterVoice,
+					Device().MasterVoice,
 					value,
 					0
 				);
@@ -77,7 +73,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return Device.CurveDistanceScaler;
+				return Device().CurveDistanceScaler;
 			}
 			set
 			{
@@ -85,7 +81,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					throw new ArgumentOutOfRangeException("value <= 0.0f");
 				}
-				Device.CurveDistanceScaler = value;
+				Device().CurveDistanceScaler = value;
 			}
 		}
 
@@ -93,7 +89,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return Device.DSPSettings.DopplerFactor;
+				return Device().DSPSettings.DopplerFactor;
 			}
 			set
 			{
@@ -101,7 +97,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					throw new ArgumentOutOfRangeException("value <= 0.0f");
 				}
-				Device.DSPSettings.DopplerFactor = value;
+				Device().DSPSettings.DopplerFactor = value;
 			}
 		}
 
@@ -109,15 +105,16 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return Device.SpeedOfSound;
+				return Device().SpeedOfSound;
 			}
 			set
 			{
-				Device.SpeedOfSound = value;
+				FAudioContext dev = Device();
+				dev.SpeedOfSound = value;
 				FAudio.F3DAudioInitialize(
-					Device.DeviceDetails.OutputFormat.dwChannelMask,
-					Device.SpeedOfSound,
-					Device.Handle3D
+					dev.DeviceDetails.OutputFormat.dwChannelMask,
+					dev.SpeedOfSound,
+					dev.Handle3D
 				);
 			}
 		}
@@ -190,11 +187,7 @@ namespace Microsoft.Xna.Framework.Audio
 			ushort formatTag,
 			ushort formatParameter
 		) {
-			if (Device.NoDevice)
-			{
-				throw new NoAudioHardwareException();
-			}
-
+			Device();
 			Name = name;
 
 			/* Buffer format */
@@ -445,65 +438,20 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal class FAudioContext
 		{
-			public static bool Created = false;
+			public static FAudioContext Context = null;
 
 			public readonly IntPtr Handle;
-			public readonly bool NoDevice;
+			public readonly byte[] Handle3D;
 			public readonly IntPtr MasterVoice;
-			public FAudio.F3DAUDIO_DSP_SETTINGS DSPSettings;
 			public readonly FAudio.FAudioDeviceDetails DeviceDetails;
 
+			public FAudio.F3DAUDIO_DSP_SETTINGS DSPSettings;
 			public float CurveDistanceScaler;
 			public float SpeedOfSound;
-			public byte[] Handle3D;
 
-			public FAudioContext()
+			private FAudioContext(IntPtr ctx, uint devices)
 			{
-				/* TODO: Remove the FNA variable! */
-				if (Environment.GetEnvironmentVariable(
-					"FNA_AUDIO_DISABLE_SOUND"
-				) == "1") {
-					Environment.SetEnvironmentVariable(
-						"SDL_AUDIODRIVER",
-						"dummy"
-					);
-				}
-
-				DSPSettings = new FAudio.F3DAUDIO_DSP_SETTINGS();
-				DSPSettings.DopplerFactor = 1.0f;
-				CurveDistanceScaler = 1.0f;
-				SpeedOfSound = 343.5f;
-				Handle3D = new byte[FAudio.F3DAUDIO_HANDLE_BYTESIZE];
-
-				NoDevice = false;
-				try
-				{
-					FAudio.FAudioCreate(
-						out Handle,
-						0,
-						FAudio.FAUDIO_DEFAULT_PROCESSOR
-					);
-				}
-				catch
-				{
-					/* FAudio is missing, bail! */
-					Handle = IntPtr.Zero;
-					NoDevice = true;
-					return;
-				}
-
-				uint devices;
-				FAudio.FAudio_GetDeviceCount(
-					Handle,
-					out devices
-				);
-				if (devices == 0)
-				{
-					/* No sound cards, bail! */
-					FAudio.FAudioDestroy(Handle);
-					NoDevice = true;
-					return;
-				}
+				Handle = ctx;
 
 				uint i;
 				for (i = 0; i < devices; i += 1)
@@ -527,24 +475,28 @@ namespace Microsoft.Xna.Framework.Audio
 						out DeviceDetails
 					);
 				}
-
 				FAudio.FAudio_CreateMasteringVoice(
 					Handle,
 					out MasterVoice,
 					FAudio.FAUDIO_DEFAULT_CHANNELS,
 					48000, /* Should be 0, but SDL... */
 					0,
-					0,
+					i,
 					IntPtr.Zero
 				);
 
+				DSPSettings = new FAudio.F3DAUDIO_DSP_SETTINGS();
+				DSPSettings.DopplerFactor = 1.0f;
+				CurveDistanceScaler = 1.0f;
+				SpeedOfSound = 343.5f;
+				Handle3D = new byte[FAudio.F3DAUDIO_HANDLE_BYTESIZE];
 				FAudio.F3DAudioInitialize(
 					DeviceDetails.OutputFormat.dwChannelMask,
 					SpeedOfSound,
 					Handle3D
 				);
 
-				Created = true;
+				Context = this;
 			}
 
 			public void Dispose()
@@ -552,11 +504,65 @@ namespace Microsoft.Xna.Framework.Audio
 				FAudio.FAudioVoice_DestroyVoice(MasterVoice);
 				FAudio.FAudioDestroy(Handle);
 				Marshal.FreeHGlobal(DSPSettings.pMatrixCoefficients);
-				Created = false;
+				Context = null;
+			}
+
+			public static void Create()
+			{
+				/* TODO: Remove the FNA variable! */
+				if (Environment.GetEnvironmentVariable(
+					"FNA_AUDIO_DISABLE_SOUND"
+				) == "1") {
+					Environment.SetEnvironmentVariable(
+						"SDL_AUDIODRIVER",
+						"dummy"
+					);
+				}
+
+				IntPtr ctx;
+				try
+				{
+					FAudio.FAudioCreate(
+						out ctx,
+						0,
+						FAudio.FAUDIO_DEFAULT_PROCESSOR
+					);
+				}
+				catch
+				{
+					/* FAudio is missing, bail! */
+					return;
+				}
+
+				uint devices;
+				FAudio.FAudio_GetDeviceCount(
+					ctx,
+					out devices
+				);
+				if (devices == 0)
+				{
+					/* No sound cards, bail! */
+					FAudio.FAudioDestroy(ctx);
+					return;
+				}
+
+				Context = new FAudioContext(ctx, devices);
 			}
 		}
 
-		internal static readonly FAudioContext Device = new FAudioContext();
+		internal static FAudioContext Device()
+		{
+			if (FAudioContext.Context != null)
+			{
+				return FAudioContext.Context;
+			}
+			FAudioContext.Create();
+			if (FAudioContext.Context == null)
+			{
+				throw new NoAudioHardwareException();
+			}
+			return FAudioContext.Context;
+		}
 
 		#endregion
 	}
