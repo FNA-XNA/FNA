@@ -177,23 +177,23 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			/* Float samples are the typical format received from decoders.
 			 * We currently use this for the VideoPlayer.
+			 * FIXME: Maybe support float PCM in FAudio decoders :|
 			 * -flibit
 			 */
-			if (State == SoundState.Playing && format.wBitsPerSample == 16)
+			IntPtr next = Marshal.AllocHGlobal(count * sizeof(short));
+			unsafe
 			{
-				throw new InvalidOperationException(
-					"Submit a float buffer before Playing!"
-				);
+				short* pcm = (short*) next;
+				for (int i = 0; i < count; i += 1)
+				{
+					pcm[i] = (short) (buffer[offset + i] * 32767.0f);
+				}
 			}
-			format.wBitsPerSample = 32;
-
-			IntPtr next = Marshal.AllocHGlobal(count * 4);
-			Marshal.Copy(buffer, offset, next, count);
 			queuedBuffers.Add(next);
 			if (State == SoundState.Playing)
 			{
 				FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
-				buf.AudioBytes = (uint) count * 4;
+				buf.AudioBytes = (uint) count * sizeof(short);
 				buf.pAudioData = next;
 				buf.PlayLength = (
 					buf.AudioBytes /
@@ -208,7 +208,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			else
 			{
-				queuedSizes.Add((uint) count * 4);
+				queuedSizes.Add((uint) count * sizeof(short));
 			}
 		}
 
@@ -218,7 +218,14 @@ namespace Microsoft.Xna.Framework.Audio
 
 		protected override void Dispose(bool disposing)
 		{
-			// Not much to see here...
+			// Unhook the callback, the GC gets scared of it
+			unsafe
+			{
+				FAudio.FAudioVoiceCallback* cb = (FAudio.FAudioVoiceCallback*) callbacks;
+				cb->OnBufferEnd = IntPtr.Zero;
+			}
+
+			// Other than that, not much to see here...
 			base.Dispose(disposing);
 		}
 

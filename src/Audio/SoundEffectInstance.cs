@@ -57,9 +57,9 @@ namespace Microsoft.Xna.Framework.Audio
 					return;
 				}
 
-				SetPanMatrixCoefficients();
 				if (handle != IntPtr.Zero)
 				{
+					SetPanMatrixCoefficients();
 					FAudio.FAudioVoice_SetOutputMatrix(
 						handle,
 						IntPtr.Zero,
@@ -156,7 +156,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				selfReference = new WeakReference(this);
 			}
-			isDynamic = false;
+			isDynamic = this is DynamicSoundEffectInstance;
 			hasStarted = false;
 			is3D = false;
 			matrixCoefficients = Marshal.AllocHGlobal(
@@ -164,7 +164,6 @@ namespace Microsoft.Xna.Framework.Audio
 				2 * /* FIXME: Could make this 1 for mono */
 				SoundEffect.Device().DeviceDetails.OutputFormat.Format.nChannels
 			);
-			Pan = 0.0f;
 			OnStreamEndFunc = OnStreamEnd;
 			unsafe
 			{
@@ -287,16 +286,23 @@ namespace Microsoft.Xna.Framework.Audio
 				(float) Math.Pow(2.0, INTERNAL_pitch),
 				0
 			);
-			FAudio.FAudioVoice_SetOutputMatrix(
-				handle,
-				IntPtr.Zero,
-				isDynamic ?
-					(this as DynamicSoundEffectInstance).format.nChannels :
-					parentEffect.format.nChannels,
-				dev.DeviceDetails.OutputFormat.Format.nChannels,
-				matrixCoefficients,
-				0
-			);
+			if (is3D)
+			{
+				FAudio.FAudioVoice_SetOutputMatrix(
+					handle,
+					IntPtr.Zero,
+					isDynamic ?
+						(this as DynamicSoundEffectInstance).format.nChannels :
+						parentEffect.format.nChannels,
+					dev.DeviceDetails.OutputFormat.Format.nChannels,
+					matrixCoefficients,
+					0
+				);
+			}
+			else
+			{
+				Pan = Pan;
+			}
 
 			/* For static effects, submit the buffer now */
 			if (isDynamic)
