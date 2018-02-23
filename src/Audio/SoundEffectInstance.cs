@@ -485,6 +485,10 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					*outputMatrix++ = right;
 				}
+				if ((dwChannelMask & FAudio.SPEAKER_BACK_CENTER) != 0)
+				{
+					outputMatrix++;
+				}
 				if ((dwChannelMask & FAudio.SPEAKER_SIDE_LEFT) != 0)
 				{
 					*outputMatrix++ = left;
@@ -539,6 +543,10 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					*outputMatrix++ = 0.0f;
 					*outputMatrix++ = right;
+				}
+				if ((dwChannelMask & FAudio.SPEAKER_BACK_CENTER) != 0)
+				{
+					outputMatrix += 2;
 				}
 				if ((dwChannelMask & FAudio.SPEAKER_SIDE_LEFT) != 0)
 				{
