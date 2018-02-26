@@ -415,19 +415,58 @@ namespace Microsoft.Xna.Framework.Audio
 			// TODO
 		}
 
-		internal void INTERNAL_applyLowPassFilter(float hfGain)
+		internal void INTERNAL_applyLowPassFilter(float cutoff)
 		{
-			// TODO
+			if (handle == IntPtr.Zero)
+			{
+				return;
+			}
+
+			FAudio.FAudioFilterParameters p = new FAudio.FAudioFilterParameters();
+			p.Type = FAudio.FAudioFilterType.LowPassFilter;
+			p.Frequency = cutoff;
+			p.OneOverQ = 1.0f;
+			FAudio.FAudioVoice_SetFilterParameters(
+				handle,
+				ref p,
+				0
+			);
 		}
 
-		internal void INTERNAL_applyHighPassFilter(float lfGain)
+		internal void INTERNAL_applyHighPassFilter(float cutoff)
 		{
-			// TODO
+			if (handle == IntPtr.Zero)
+			{
+				return;
+			}
+
+			FAudio.FAudioFilterParameters p = new FAudio.FAudioFilterParameters();
+			p.Type = FAudio.FAudioFilterType.HighPassFilter;
+			p.Frequency = cutoff;
+			p.OneOverQ = 1.0f;
+			FAudio.FAudioVoice_SetFilterParameters(
+				handle,
+				ref p,
+				0
+			);
 		}
 
-		internal void INTERNAL_applyBandPassFilter(float hfGain, float lfGain)
+		internal void INTERNAL_applyBandPassFilter(float center)
 		{
-			// TODO
+			if (handle == IntPtr.Zero)
+			{
+				return;
+			}
+
+			FAudio.FAudioFilterParameters p = new FAudio.FAudioFilterParameters();
+			p.Type = FAudio.FAudioFilterType.LowPassFilter;
+			p.Frequency = center;
+			p.OneOverQ = 1.0f;
+			FAudio.FAudioVoice_SetFilterParameters(
+				handle,
+				ref p,
+				0
+			);
 		}
 
 		#endregion
