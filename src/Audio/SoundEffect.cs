@@ -198,9 +198,7 @@ namespace Microsoft.Xna.Framework.Audio
 			format.nAvgBytesPerSec = 0; /* FIXME */
 
 			/* Lazily assigning formatParameter... */
-			format.nBlockAlign = (ushort) (
-				(((formatParameter / channels) - 6) / 2)
-			);
+			format.nBlockAlign = formatParameter;
 			format.wBitsPerSample = formatParameter;
 
 			/* Easy stuff */
