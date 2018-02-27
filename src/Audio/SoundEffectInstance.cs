@@ -224,6 +224,7 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 			if (handle != IntPtr.Zero)
 			{
+				/* TODO: Implement X3DAudio!
 				FAudio.FAudioVoice_SetOutputMatrix(
 					handle,
 					IntPtr.Zero,
@@ -234,6 +235,7 @@ namespace Microsoft.Xna.Framework.Audio
 					matrixCoefficients,
 					0
 				);
+				*/
 			}
 		}
 
@@ -288,6 +290,7 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 			if (is3D)
 			{
+				/* TODO: Implement X3DAudio!
 				FAudio.FAudioVoice_SetOutputMatrix(
 					handle,
 					IntPtr.Zero,
@@ -298,6 +301,7 @@ namespace Microsoft.Xna.Framework.Audio
 					matrixCoefficients,
 					0
 				);
+				*/
 			}
 			else
 			{
