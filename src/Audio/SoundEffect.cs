@@ -501,7 +501,6 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				FAudio.FAudioVoice_DestroyVoice(MasterVoice);
 				FAudio.FAudioDestroy(Handle);
-				Marshal.FreeHGlobal(DSPSettings.pMatrixCoefficients);
 				Context = null;
 			}
 
