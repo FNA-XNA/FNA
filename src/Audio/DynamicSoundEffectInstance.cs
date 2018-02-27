@@ -186,7 +186,7 @@ namespace Microsoft.Xna.Framework.Audio
 				short* pcm = (short*) next;
 				for (int i = 0; i < count; i += 1)
 				{
-					pcm[i] = (short) (buffer[offset + i] * 32767.0f);
+					pcm[i] = (short) (buffer[offset + i] * 32768.0f);
 				}
 			}
 			queuedBuffers.Add(next);
