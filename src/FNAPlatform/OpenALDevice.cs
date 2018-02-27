@@ -640,7 +640,7 @@ namespace Microsoft.Xna.Framework.Audio
 				AL10.AL_POSITION,
 				pos.X,
 				pos.Y,
-				pos.Z
+				-pos.Z /* left-handed to right-handed */
 			);
 #if VERBOSE_AL_DEBUGGING
 			CheckALError();
