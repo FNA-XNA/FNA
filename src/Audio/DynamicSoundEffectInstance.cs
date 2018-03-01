@@ -177,23 +177,24 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			/* Float samples are the typical format received from decoders.
 			 * We currently use this for the VideoPlayer.
-			 * FIXME: Maybe support float PCM in FAudio decoders :|
 			 * -flibit
 			 */
-			IntPtr next = Marshal.AllocHGlobal(count * sizeof(short));
-			unsafe
+			if (State == SoundState.Playing && format.wFormatTag == 1)
 			{
-				short* pcm = (short*) next;
-				for (int i = 0; i < count; i += 1)
-				{
-					pcm[i] = (short) (buffer[offset + i] * 32768.0f);
-				}
+				throw new InvalidOperationException(
+					"Submit a float buffer before Playing!"
+				);
 			}
+			format.wFormatTag = 3;
+			format.wBitsPerSample = 32;
+
+			IntPtr next = Marshal.AllocHGlobal(count * sizeof(float));
+			Marshal.Copy(buffer, offset, next, count);
 			queuedBuffers.Add(next);
 			if (State == SoundState.Playing)
 			{
 				FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
-				buf.AudioBytes = (uint) count * sizeof(short);
+				buf.AudioBytes = (uint) count * sizeof(float);
 				buf.pAudioData = next;
 				buf.PlayLength = (
 					buf.AudioBytes /
@@ -208,7 +209,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			else
 			{
-				queuedSizes.Add((uint) count * sizeof(short));
+				queuedSizes.Add((uint) count * sizeof(float));
 			}
 		}
 
