@@ -548,11 +548,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				for (int i = 0; i < levels; i += 1)
 				{
+                    var streamBytes = ((MemoryStream) stream).GetBuffer();
+                    var streamOffset = stream.Seek(0, SeekOrigin.Current));
 					result.SetData(
 						i,
 						null,
-						((MemoryStream) stream).GetBuffer(),
-						(int) stream.Position,
+						streamBytes,
+						(int) streamOffset,
 						levelSize
 					);
 					stream.Seek(

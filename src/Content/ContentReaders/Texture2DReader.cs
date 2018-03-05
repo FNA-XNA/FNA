@@ -13,7 +13,7 @@
 
 #region Using Statements
 using System;
-
+using System.IO;
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
@@ -251,11 +251,13 @@ namespace Microsoft.Xna.Framework.Content
 					 * unnecessary reading. Just throw the buffer directly
 					 * into SetData, skipping a redundant byte[] copy.
 					 */
+					var bufferBytes = (((System.IO.MemoryStream)(reader.BaseStream)).GetBuffer());
+					var bufferOffset = (reader.BaseStream.Seek(0, SeekOrigin.Current));
 					texture.SetData<byte>(
 						level,
 						null,
-						(((System.IO.MemoryStream) (reader.BaseStream)).GetBuffer()),
-						(int) reader.BaseStream.Position,
+						bufferBytes,
+						(int)bufferOffset,
 						levelDataSizeInBytes
 					);
 					reader.BaseStream.Seek(
