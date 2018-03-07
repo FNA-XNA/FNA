@@ -581,8 +581,23 @@ namespace Microsoft.Xna.Framework.Graphics
 				presentationParameters.DeviceWindowHandle
 			);
 
+			// Print GL information
+			LoadGLGetString();
+			string renderer = glGetString(GLenum.GL_RENDERER);
+			string version = glGetString(GLenum.GL_VERSION);
+			string vendor = glGetString(GLenum.GL_VENDOR);
+			FNALoggerEXT.LogInfo("IGLDevice: OpenGLDevice");
+			FNALoggerEXT.LogInfo("OpenGL Device: " + renderer);
+			FNALoggerEXT.LogInfo("OpenGL Driver: " + version);
+			FNALoggerEXT.LogInfo("OpenGL Vendor: " + vendor);
+
 			// Initialize entry points
-			LoadGLEntryPoints();
+			LoadGLEntryPoints(string.Format(
+				"Device: {0}\nDriver: {1}\nVendor: {2}",
+				renderer,
+				version,
+				vendor
+			));
 
 			shaderProfile = MojoShader.MOJOSHADER_glBestProfile(
 				GLGetProcAddress,
@@ -600,18 +615,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr.Zero
 			);
 			MojoShader.MOJOSHADER_glMakeContextCurrent(shaderContext);
+			FNALoggerEXT.LogInfo("MojoShader Profile: " + shaderProfile);
 
 			// Some users might want pixely upscaling...
 			backbufferScaleMode = Environment.GetEnvironmentVariable(
 				"FNA_OPENGL_BACKBUFFER_SCALE_NEAREST"
 			) == "1" ? GLenum.GL_NEAREST : GLenum.GL_LINEAR;
-
-			// Print GL information
-			FNALoggerEXT.LogInfo("IGLDevice: OpenGLDevice");
-			FNALoggerEXT.LogInfo("OpenGL Device: " + glGetString(GLenum.GL_RENDERER));
-			FNALoggerEXT.LogInfo("OpenGL Driver: " + glGetString(GLenum.GL_VERSION));
-			FNALoggerEXT.LogInfo("OpenGL Vendor: " + glGetString(GLenum.GL_VENDOR));
-			FNALoggerEXT.LogInfo("MojoShader Profile: " + shaderProfile);
 
 			// Load the extension list, initialize extension-dependent components
 			string extensions;
