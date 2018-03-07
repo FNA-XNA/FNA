@@ -265,6 +265,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Methods
 
+		[System.Diagnostics.Conditional("DEBUG")]
 		internal void ErrorCheck<T>(
 			T[] data,
 			int startIndex,
