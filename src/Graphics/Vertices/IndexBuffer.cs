@@ -241,6 +241,21 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 				}
 			}
+			else if (tType == typeof(byte))
+			{
+				byte[] d = __refvalue(__makeref(data), byte[]);
+				fixed (byte* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.GetIndexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						sizeof(byte)
+					);
+				}
+			}
 			else
 			{
 				// This is the slowest - consider a type above!
@@ -384,6 +399,22 @@ namespace Microsoft.Xna.Framework.Graphics
 						startIndex,
 						elementCount,
 						sizeof(uint),
+						options
+					);
+				}
+			}
+			else if (tType == typeof(byte))
+			{
+				byte[] d = __refvalue(__makeref(data), byte[]);
+				fixed (byte* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.SetIndexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						sizeof(byte),
 						options
 					);
 				}

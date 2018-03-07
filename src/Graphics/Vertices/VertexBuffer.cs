@@ -288,6 +288,22 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 				}
 			}
+			else if (tType == typeof(byte))
+			{
+				byte[] d = __refvalue(__makeref(data), byte[]);
+				fixed (byte* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.GetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						vertexStride
+					);
+				}
+			}
 			else
 			{
 				// This is the slowest - consider a type above!
@@ -484,6 +500,22 @@ namespace Microsoft.Xna.Framework.Graphics
 					VertexPositionNormalTexture[]
 				);
 				fixed (VertexPositionNormalTexture* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.SetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						options
+					);
+				}
+			}
+			else if (tType == typeof(byte))
+			{
+				byte[] d = __refvalue(__makeref(data), byte[]);
+				fixed (byte* p = &d[0])
 				{
 					GraphicsDevice.GLDevice.SetVertexBufferData(
 						buffer,
