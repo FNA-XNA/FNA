@@ -13,6 +13,7 @@
 
 #region Using Statements
 using System;
+using System.IO;
 
 using Microsoft.Xna.Framework.Graphics;
 #endregion
@@ -230,7 +231,7 @@ namespace Microsoft.Xna.Framework.Content
 				}
 
 				if (	levelData == null &&
-					reader.BaseStream.GetType() != typeof(System.IO.MemoryStream)	)
+					reader.BaseStream.GetType() != typeof(MemoryStream)	)
 				{
 					/* If the ContentReader is not backed by a
 					 * MemoryStream, we have to read the data in.
@@ -254,13 +255,13 @@ namespace Microsoft.Xna.Framework.Content
 					texture.SetData<byte>(
 						level,
 						null,
-						(((System.IO.MemoryStream) (reader.BaseStream)).GetBuffer()),
-						(int) reader.BaseStream.Position,
+						((MemoryStream) reader.BaseStream).GetBuffer(),
+						(int) reader.BaseStream.Seek(0, SeekOrigin.Current),
 						levelDataSizeInBytes
 					);
 					reader.BaseStream.Seek(
 						levelDataSizeInBytes,
-						System.IO.SeekOrigin.Current
+						SeekOrigin.Current
 					);
 				}
 

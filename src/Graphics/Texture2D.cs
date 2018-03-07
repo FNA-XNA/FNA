@@ -552,7 +552,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						i,
 						null,
 						((MemoryStream) stream).GetBuffer(),
-						(int) stream.Position,
+						(int) stream.Seek(0, SeekOrigin.Current),
 						levelSize
 					);
 					stream.Seek(
