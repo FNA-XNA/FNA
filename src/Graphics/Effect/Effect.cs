@@ -860,9 +860,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					MojoShader.MOJOSHADER_samplerStateType type = states[j].type;
 					if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_TEXTURE)
 					{
-						if (samplerMap.ContainsKey(registers[i].sampler_name))
+						EffectParameter texParam;
+						if (samplerMap.TryGetValue(registers[i].sampler_name, out texParam))
 						{
-							Texture texture = samplerMap[registers[i].sampler_name].texture;
+							Texture texture = texParam.texture;
 							if (texture != null)
 							{
 								textures[register] = texture;
