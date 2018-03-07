@@ -75,7 +75,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 				}
 
-				return imageDataStream.GetBuffer();
+				return imageDataStream.ToArray();
 			}
 		}
 
@@ -110,7 +110,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 				}
 
-				return imageDataStream.GetBuffer();
+                return imageDataStream.ToArray();
 			}
 		}
 
@@ -145,7 +145,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 				}
 
-				return imageDataStream.GetBuffer();
+                return imageDataStream.ToArray();
 			}
 		}
 
