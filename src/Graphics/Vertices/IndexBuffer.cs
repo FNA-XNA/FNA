@@ -179,97 +179,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			unsafe {
-			Type tType = typeof(T);
-			if (tType == typeof(short))
-			{
-				short[] d = __refvalue(__makeref(data), short[]);
-				fixed (short* p = &d[0])
-				{
-					GraphicsDevice.GLDevice.GetIndexBufferData(
-						buffer,
-						offsetInBytes,
-						(IntPtr) p,
-						startIndex,
-						elementCount,
-						sizeof(short)
-					);
-				}
-			}
-			else if (tType == typeof(ushort))
-			{
-				ushort[] d = __refvalue(__makeref(data), ushort[]);
-				fixed (ushort* p = &d[0])
-				{
-					GraphicsDevice.GLDevice.GetIndexBufferData(
-						buffer,
-						offsetInBytes,
-						(IntPtr) p,
-						startIndex,
-						elementCount,
-						sizeof(ushort)
-					);
-				}
-			}
-			else if (tType == typeof(int))
-			{
-				int[] d = __refvalue(__makeref(data), int[]);
-				fixed (int* p = &d[0])
-				{
-					GraphicsDevice.GLDevice.GetIndexBufferData(
-						buffer,
-						offsetInBytes,
-						(IntPtr) p,
-						startIndex,
-						elementCount,
-						sizeof(int)
-					);
-				}
-			}
-			else if (tType == typeof(uint))
-			{
-				uint[] d = __refvalue(__makeref(data), uint[]);
-				fixed (uint* p = &d[0])
-				{
-					GraphicsDevice.GLDevice.GetIndexBufferData(
-						buffer,
-						offsetInBytes,
-						(IntPtr) p,
-						startIndex,
-						elementCount,
-						sizeof(uint)
-					);
-				}
-			}
-			else if (tType == typeof(byte))
-			{
-				byte[] d = __refvalue(__makeref(data), byte[]);
-				fixed (byte* p = &d[0])
-				{
-					GraphicsDevice.GLDevice.GetIndexBufferData(
-						buffer,
-						offsetInBytes,
-						(IntPtr) p,
-						startIndex,
-						elementCount,
-						sizeof(byte)
-					);
-				}
-			}
-			else
-			{
-				// This is the slowest - consider a type above!
-				GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-				GraphicsDevice.GLDevice.GetIndexBufferData(
-					buffer,
-					offsetInBytes,
-					handle.AddrOfPinnedObject(),
-					startIndex,
-					elementCount,
-					Marshal.SizeOf(tType)
-				);
-				handle.Free();
-			}}
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.GetIndexBufferData(
+				buffer,
+				offsetInBytes,
+				handle.AddrOfPinnedObject(),
+				startIndex,
+				elementCount,
+				Marshal.SizeOf(typeof(T))
+			);
+			handle.Free();
 		}
 
 		#endregion
@@ -278,28 +197,33 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetData<T>(T[] data) where T : struct
 		{
-			SetDataInternal<T>(
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.SetIndexBufferData(
+				buffer,
 				0,
-				data,
-				0,
-				data.Length,
+				handle.AddrOfPinnedObject(),
+				data.Length * Marshal.SizeOf(typeof(T)),
 				SetDataOptions.None
 			);
+			handle.Free();
 		}
 
 		public void SetData<T>(
 			T[] data,
 			int startIndex,
 			int elementCount
-		) where T : struct
-		{
-			SetDataInternal<T>(
+		) where T : struct {
+			ErrorCheck(data, startIndex, elementCount);
+
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.SetIndexBufferData(
+				buffer,
 				0,
-				data,
-				startIndex,
-				elementCount,
+				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
+				elementCount * Marshal.SizeOf(typeof(T)),
 				SetDataOptions.None
 			);
+			handle.Free();
 		}
 
 		public void SetData<T>(
@@ -307,27 +231,28 @@ namespace Microsoft.Xna.Framework.Graphics
 			T[] data,
 			int startIndex,
 			int elementCount
-		) where T : struct
-		{
-			SetDataInternal<T>(
+		) where T : struct {
+			ErrorCheck(data, startIndex, elementCount);
+
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.SetIndexBufferData(
+				buffer,
 				offsetInBytes,
-				data,
-				startIndex,
-				elementCount,
+				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
+				elementCount * Marshal.SizeOf(typeof(T)),
 				SetDataOptions.None
 			);
+			handle.Free();
 		}
 
 		#endregion
 
-		#region Internal Master SetData Method
+		#region Internal Methods
 
-		protected unsafe void SetDataInternal<T>(
-			int offsetInBytes,
+		internal void ErrorCheck<T>(
 			T[] data,
 			int startIndex,
-			int elementCount,
-			SetDataOptions options
+			int elementCount
 		) where T : struct {
 			if (data == null)
 			{
@@ -336,103 +261,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (data.Length < (startIndex + elementCount))
 			{
 				throw new InvalidOperationException("The array specified in the data parameter is not the correct size for the amount of data requested.");
-			}
-
-			Type tType = typeof(T);
-			if (tType == typeof(short))
-			{
-				short[] d = __refvalue(__makeref(data), short[]);
-				fixed (short* p = &d[0])
-				{
-					GraphicsDevice.GLDevice.SetIndexBufferData(
-						buffer,
-						offsetInBytes,
-						(IntPtr) p,
-						startIndex,
-						elementCount,
-						sizeof(short),
-						options
-					);
-				}
-			}
-			else if (tType == typeof(ushort))
-			{
-				ushort[] d = __refvalue(__makeref(data), ushort[]);
-				fixed (ushort* p = &d[0])
-				{
-					GraphicsDevice.GLDevice.SetIndexBufferData(
-						buffer,
-						offsetInBytes,
-						(IntPtr) p,
-						startIndex,
-						elementCount,
-						sizeof(ushort),
-						options
-					);
-				}
-			}
-			else if (tType == typeof(int))
-			{
-				int[] d = __refvalue(__makeref(data), int[]);
-				fixed (int* p = &d[0])
-				{
-					GraphicsDevice.GLDevice.SetIndexBufferData(
-						buffer,
-						offsetInBytes,
-						(IntPtr) p,
-						startIndex,
-						elementCount,
-						sizeof(int),
-						options
-					);
-				}
-			}
-			else if (tType == typeof(uint))
-			{
-				uint[] d = __refvalue(__makeref(data), uint[]);
-				fixed (uint* p = &d[0])
-				{
-					GraphicsDevice.GLDevice.SetIndexBufferData(
-						buffer,
-						offsetInBytes,
-						(IntPtr) p,
-						startIndex,
-						elementCount,
-						sizeof(uint),
-						options
-					);
-				}
-			}
-			else if (tType == typeof(byte))
-			{
-				byte[] d = __refvalue(__makeref(data), byte[]);
-				fixed (byte* p = &d[0])
-				{
-					GraphicsDevice.GLDevice.SetIndexBufferData(
-						buffer,
-						offsetInBytes,
-						(IntPtr) p,
-						startIndex,
-						elementCount,
-						sizeof(byte),
-						options
-					);
-				}
-			}
-			else
-			{
-				// This is the slowest - consider a type above!
-				GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-				GraphicsDevice.GLDevice.SetIndexBufferData(
-					buffer,
-					offsetInBytes,
-					handle.AddrOfPinnedObject(),
-					startIndex,
-					elementCount,
-					Marshal.SizeOf(tType),
-					options
-				);
-				handle.Free();
 			}
 		}
 

@@ -79,14 +79,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexStride,
 			SetDataOptions options
 		) where T : struct {
-			base.SetDataInternal<T>(
+			ErrorCheck(data, startIndex, elementCount, vertexStride);
+
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.SetVertexBufferData(
+				buffer,
 				offsetInBytes,
-				data,
-				startIndex,
-				elementCount,
-				vertexStride,
+				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
+				elementCount * Marshal.SizeOf(typeof(T)),
 				options
 			);
+			handle.Free();
 		}
 
 		public void SetData<T>(
@@ -95,12 +98,34 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			SetDataOptions options
 		) where T : struct {
-			base.SetDataInternal<T>(
+			ErrorCheck(data, startIndex, elementCount, Marshal.SizeOf(typeof(T)));
+
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.SetVertexBufferData(
+				buffer,
 				0,
+				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
+				elementCount * Marshal.SizeOf(typeof(T)),
+				options
+			);
+			handle.Free();
+		}
+
+		#endregion
+
+		#region Public Extensions
+
+		public void SetDataPointerEXT(
+			int offsetInBytes,
+			IntPtr data,
+			int dataLength,
+			SetDataOptions options
+		) {
+			GraphicsDevice.GLDevice.SetVertexBufferData(
+				buffer,
+				offsetInBytes,
 				data,
-				startIndex,
-				elementCount,
-				Marshal.SizeOf(typeof(T)),
+				dataLength,
 				options
 			);
 		}

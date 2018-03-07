@@ -1022,7 +1022,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Methods
 
-		private void PushSprite(
+		private unsafe void PushSprite(
 			Texture2D texture,
 			float sourceX,
 			float sourceY,
@@ -1113,14 +1113,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (sortMode == SpriteSortMode.Immediate)
 			{
-				vertexBuffer.SetData(
-					0,
-					vertexInfo,
-					0,
-					1,
-					VertexPositionColorTexture4.RealStride,
-					SetDataOptions.None
-				);
+				fixed (VertexPositionColorTexture4* p = &vertexInfo[0])
+				{
+					vertexBuffer.SetDataPointerEXT(
+						0,
+						(IntPtr) p,
+						VertexPositionColorTexture4.RealStride,
+						SetDataOptions.None
+					);
+				}
 				DrawPrimitives(texture, 0, 1);
 			}
 			else
@@ -1130,7 +1131,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		private void FlushBatch()
+		private unsafe void FlushBatch()
 		{
 			int offset = 0;
 			Texture2D curTexture = null;
@@ -1175,14 +1176,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			vertexBuffer.SetData(
-				0,
-				vertexInfo,
-				0,
-				numSprites,
-				VertexPositionColorTexture4.RealStride,
-				SetDataOptions.None
-			);
+			fixed (VertexPositionColorTexture4* p = &vertexInfo[0])
+			{
+				vertexBuffer.SetDataPointerEXT(
+					0,
+					(IntPtr) p,
+					numSprites * VertexPositionColorTexture4.RealStride,
+					SetDataOptions.None
+				);
+			}
 
 			curTexture = textureInfo[0];
 			for (int i = 1; i < numSprites; i += 1)
