@@ -191,17 +191,118 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new InvalidOperationException("The array is not the correct size for the amount of data requested.");
 			}
 
-			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.GetVertexBufferData(
-				buffer,
-				offsetInBytes,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				elementSizeInBytes,
-				vertexStride
-			);
-			handle.Free();
+			unsafe {
+			Type tType = typeof(T);
+			if (tType == typeof(SpriteBatch.VertexPositionColorTexture4))
+			{
+				SpriteBatch.VertexPositionColorTexture4[] d = __refvalue(
+					__makeref(data),
+					SpriteBatch.VertexPositionColorTexture4[]
+				);
+				fixed (SpriteBatch.VertexPositionColorTexture4* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.GetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						vertexStride
+					);
+				}
+			}
+			else if (tType == typeof(VertexPositionColorTexture))
+			{
+				VertexPositionColorTexture[] d = __refvalue(
+					__makeref(data),
+					VertexPositionColorTexture[]
+				);
+				fixed (VertexPositionColorTexture* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.GetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						vertexStride
+					);
+				}
+			}
+			else if (tType == typeof(VertexPositionTexture))
+			{
+				VertexPositionTexture[] d = __refvalue(
+					__makeref(data),
+					VertexPositionTexture[]
+				);
+				fixed (VertexPositionTexture* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.GetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						vertexStride
+					);
+				}
+			}
+			else if (tType == typeof(VertexPositionColor))
+			{
+				VertexPositionColor[] d = __refvalue(
+					__makeref(data),
+					VertexPositionColor[]
+				);
+				fixed (VertexPositionColor* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.GetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						vertexStride
+					);
+				}
+			}
+			else if (tType == typeof(VertexPositionNormalTexture))
+			{
+				VertexPositionNormalTexture[] d = __refvalue(
+					__makeref(data),
+					VertexPositionNormalTexture[]
+				);
+				fixed (VertexPositionNormalTexture* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.GetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						vertexStride
+					);
+				}
+			}
+			else
+			{
+				// This is the slowest - consider a type above!
+				GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+				GraphicsDevice.GLDevice.GetVertexBufferData(
+					buffer,
+					offsetInBytes,
+					handle.AddrOfPinnedObject(),
+					startIndex,
+					elementCount,
+					elementSizeInBytes,
+					vertexStride
+				);
+				handle.Free();
+			}}
 		}
 
 		#endregion
@@ -256,7 +357,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Master SetData Methods
 
-		protected void SetDataInternal<T>(
+		protected unsafe void SetDataInternal<T>(
 			int offsetInBytes,
 			T[] data,
 			int startIndex,
@@ -299,17 +400,117 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.SetVertexBufferData(
-				buffer,
-				offsetInBytes,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				elementSizeInBytes,
-				options
-			);
-			handle.Free();
+			Type tType = typeof(T);
+			if (tType == typeof(SpriteBatch.VertexPositionColorTexture4))
+			{
+				SpriteBatch.VertexPositionColorTexture4[] d = __refvalue(
+					__makeref(data),
+					SpriteBatch.VertexPositionColorTexture4[]
+				);
+				fixed (SpriteBatch.VertexPositionColorTexture4* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.SetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						options
+					);
+				}
+			}
+			else if (tType == typeof(VertexPositionColorTexture))
+			{
+				VertexPositionColorTexture[] d = __refvalue(
+					__makeref(data),
+					VertexPositionColorTexture[]
+				);
+				fixed (VertexPositionColorTexture* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.SetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						options
+					);
+				}
+			}
+			else if (tType == typeof(VertexPositionTexture))
+			{
+				VertexPositionTexture[] d = __refvalue(
+					__makeref(data),
+					VertexPositionTexture[]
+				);
+				fixed (VertexPositionTexture* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.SetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						options
+					);
+				}
+			}
+			else if (tType == typeof(VertexPositionColor))
+			{
+				VertexPositionColor[] d = __refvalue(
+					__makeref(data),
+					VertexPositionColor[]
+				);
+				fixed (VertexPositionColor* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.SetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						options
+					);
+				}
+			}
+			else if (tType == typeof(VertexPositionNormalTexture))
+			{
+				VertexPositionNormalTexture[] d = __refvalue(
+					__makeref(data),
+					VertexPositionNormalTexture[]
+				);
+				fixed (VertexPositionNormalTexture* p = &d[0])
+				{
+					GraphicsDevice.GLDevice.SetVertexBufferData(
+						buffer,
+						offsetInBytes,
+						(IntPtr) p,
+						startIndex,
+						elementCount,
+						elementSizeInBytes,
+						options
+					);
+				}
+			}
+			else
+			{
+				// This is the slowest - consider a type above!
+				GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+				GraphicsDevice.GLDevice.SetVertexBufferData(
+					buffer,
+					offsetInBytes,
+					handle.AddrOfPinnedObject(),
+					startIndex,
+					elementCount,
+					elementSizeInBytes,
+					options
+				);
+				handle.Free();
+			}
 		}
 
 		#endregion

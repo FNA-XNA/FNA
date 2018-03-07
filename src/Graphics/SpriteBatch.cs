@@ -1308,7 +1308,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Private Sprite Data Container Class
 
 		[StructLayout(LayoutKind.Sequential, Pack = 1)]
-		private struct VertexPositionColorTexture4 : IVertexType
+		internal struct VertexPositionColorTexture4 : IVertexType
 		{
 			public const int RealStride = 96;
 
