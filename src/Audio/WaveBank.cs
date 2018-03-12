@@ -137,7 +137,7 @@ namespace Microsoft.Xna.Framework.Audio
 			FAudio.FACTStreamingParameters settings = new FAudio.FACTStreamingParameters();
 			settings.file = ioStream;
 			FAudio.FACTAudioEngine_CreateStreamingWaveBank(
-				handle,
+				audioEngine.handle,
 				ref settings,
 				out handle
 			);
