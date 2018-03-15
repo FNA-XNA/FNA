@@ -146,7 +146,10 @@ namespace Microsoft.Xna.Framework.Audio
 					Disposing.Invoke(this, null);
 				}
 
-				FAudio.FACTCue_Destroy(handle);
+				if (!bank.IsDisposed && !bank.engine.IsDisposed) // Just FYI, this is really bad
+				{
+					FAudio.FACTCue_Destroy(handle);
+				}
 				bank = null;
 
 				IsDisposed = true;

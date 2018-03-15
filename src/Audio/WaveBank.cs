@@ -142,6 +142,7 @@ namespace Microsoft.Xna.Framework.Audio
 				out handle
 			);
 
+			engine = audioEngine;
 			IsDisposed = false;
 		}
 
@@ -176,7 +177,10 @@ namespace Microsoft.Xna.Framework.Audio
 					Disposing.Invoke(this, null);
 				}
 
-				FAudio.FACTWaveBank_Destroy(handle);
+				if (!engine.IsDisposed) // Just FYI, this is really bad
+				{
+					FAudio.FACTWaveBank_Destroy(handle);
+				}
 
 				if (buffer != null)
 				{
@@ -185,7 +189,7 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 				else if (ioStream != IntPtr.Zero)
 				{
-					FAudio.FAudio_close(ioStream);
+					// FACT frees this pointer!
 					ioStream = IntPtr.Zero;
 				}
 				engine = null;

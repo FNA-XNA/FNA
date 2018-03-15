@@ -118,7 +118,10 @@ namespace Microsoft.Xna.Framework.Audio
 					Disposing.Invoke(this, null);
 				}
 
-				FAudio.FACTSoundBank_Destroy(handle);
+				if (!engine.IsDisposed) // Just FYI, this is really bad
+				{
+					FAudio.FACTSoundBank_Destroy(handle);
+				}
 				engine = null;
 
 				IsDisposed = true;
