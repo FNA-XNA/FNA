@@ -1,3 +1,6 @@
+R: Gendarme.Rules.Performance.AvoidConcatenatingCharsRule
+M: System.Byte[] MojoShader::UTF8_ToNative(System.String)
+
 R: Gendarme.Rules.Design.Generic.AvoidDeclaringCustomDelegatesRule
 T: MojoShader/MOJOSHADER_malloc
 T: MojoShader/MOJOSHADER_free
@@ -236,16 +239,16 @@ T: MojoShader/MOJOSHADER_glGetProcAddress
 R: Gendarme.Rules.Interoperability.CentralizePInvokesIntoNativeMethodsTypeRule
 M: System.Int32 MojoShader::MOJOSHADER_version()
 M: System.IntPtr MojoShader::MOJOSHADER_changeset()
-M: System.Int32 MojoShader::MOJOSHADER_maxShaderModel(System.String)
-M: System.IntPtr MojoShader::MOJOSHADER_parse(System.String,System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.Int32 MojoShader::MOJOSHADER_maxShaderModel(System.Byte[])
+M: System.IntPtr MojoShader::MOJOSHADER_parse(System.Byte[],System.Byte[],System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
 M: System.Void MojoShader::MOJOSHADER_freeParseData(System.IntPtr)
 M: System.IntPtr MojoShader::MOJOSHADER_parsePreshader(System.Byte[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
 M: System.Void MojoShader::MOJOSHADER_freePreshader(System.IntPtr)
-M: System.IntPtr MojoShader::MOJOSHADER_parseEffect(System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_parseEffect(System.Byte[],System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
 M: System.Void MojoShader::MOJOSHADER_freeEffect(System.IntPtr)
 M: System.IntPtr MojoShader::MOJOSHADER_cloneEffect(System.IntPtr)
 M: System.Void MojoShader::MOJOSHADER_effectSetRawValueHandle(System.IntPtr,System.IntPtr,System.UInt32,System.UInt32)
-M: System.Void MojoShader::MOJOSHADER_effectSetRawValueName(System.IntPtr,System.String,System.IntPtr,System.UInt32,System.UInt32)
+M: System.Void MojoShader::MOJOSHADER_effectSetRawValueName(System.IntPtr,System.Byte[],System.IntPtr,System.UInt32,System.UInt32)
 M: System.IntPtr MojoShader::MOJOSHADER_effectGetCurrentTechnique(System.IntPtr)
 M: System.Void MojoShader::MOJOSHADER_effectSetTechnique(System.IntPtr,System.IntPtr)
 M: System.IntPtr MojoShader::MOJOSHADER_effectFindNextValidTechnique(System.IntPtr,System.IntPtr)
@@ -258,7 +261,7 @@ M: System.Void MojoShader::MOJOSHADER_glEffectEndPass(System.IntPtr)
 M: System.Void MojoShader::MOJOSHADER_glEffectEnd(System.IntPtr)
 M: System.Int32 MojoShader::MOJOSHADER_glAvailableProfiles(MojoShader/MOJOSHADER_glGetProcAddress,System.IntPtr,System.IntPtr[],System.Int32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
 M: System.IntPtr MojoShader::INTERNAL_glBestProfile(MojoShader/MOJOSHADER_glGetProcAddress,System.IntPtr,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
-M: System.IntPtr MojoShader::MOJOSHADER_glCreateContext(System.String,MojoShader/MOJOSHADER_glGetProcAddress,System.IntPtr,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
+M: System.IntPtr MojoShader::MOJOSHADER_glCreateContext(System.Byte[],MojoShader/MOJOSHADER_glGetProcAddress,System.IntPtr,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
 M: System.Void MojoShader::MOJOSHADER_glMakeContextCurrent(System.IntPtr)
 M: System.IntPtr MojoShader::INTERNAL_glGetError()
 M: System.Int32 MojoShader::MOJOSHADER_glMaxUniforms(MojoShader/MOJOSHADER_shaderType)
@@ -326,6 +329,7 @@ T: MojoShader/MOJOSHADER_effectStateChanges
 T: MojoShader/MOJOSHADER_effect
 
 R: Gendarme.Rules.Naming.UseCorrectCasingRule
+M: System.IntPtr MojoShader::MOJOSHADER_parseEffect(System.Byte[],System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
 M: System.IntPtr MojoShader::MOJOSHADER_parseEffect(System.String,System.Byte[],System.UInt32,MojoShader/MOJOSHADER_swizzle[],System.UInt32,MojoShader/MOJOSHADER_samplerMap[],System.UInt32,MojoShader/MOJOSHADER_malloc,MojoShader/MOJOSHADER_free,System.IntPtr)
 
 R: Gendarme.Rules.Naming.UseCorrectSuffixRule
