@@ -11,8 +11,6 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-
-using Microsoft.Xna.Framework.Utilities;
 #endregion
 
 namespace Microsoft.Xna.Framework.Audio
@@ -122,7 +120,7 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ArgumentNullException("streamingWaveBankFilename");
 			}
 
-			string safeName = FileHelpers.NormalizeFilePathSeparators(
+			string safeName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(
 				streamingWaveBankFilename
 			);
 			if (!Path.IsPathRooted(safeName))

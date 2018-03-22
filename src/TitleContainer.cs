@@ -58,7 +58,7 @@ namespace Microsoft.Xna.Framework
 
 		public static byte[] ReadAllBytes(string name)
 		{
-			string safeName = FileHelpers.NormalizeFilePathSeparators(name);
+			string safeName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(name);
 
 #if CASE_SENSITIVITY_HACK
 			if (Path.IsPathRooted(safeName))
