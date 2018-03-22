@@ -21,8 +21,6 @@
 #region Using Statements
 using System;
 using System.IO;
-
-using Microsoft.Xna.Framework.Utilities;
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -38,7 +36,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>A open stream or null if the file is not found.</returns>
 		public static Stream OpenStream(string name)
 		{
-			string safeName = FileHelpers.NormalizeFilePathSeparators(name);
+			string safeName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(name);
 
 #if CASE_SENSITIVITY_HACK
 			if (Path.IsPathRooted(safeName))
