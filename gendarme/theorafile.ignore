@@ -1,3 +1,6 @@
+R: Gendarme.Rules.Performance.AvoidConcatenatingCharsRule
+M: System.Byte[] Theorafile::UTF8_ToNative(System.String)
+
 R: Gendarme.Rules.Design.Generic.AvoidDeclaringCustomDelegatesRule
 T: Theorafile/read_func
 T: Theorafile/seek_func
@@ -40,7 +43,7 @@ R: Gendarme.Rules.Interoperability.CentralizePInvokesIntoNativeMethodsTypeRule
 M: System.IntPtr Theorafile::malloc(System.IntPtr)
 M: System.Void Theorafile::free(System.IntPtr)
 M: System.Int32 Theorafile::INTERNAL_tf_open_callbacks(System.IntPtr,System.IntPtr,Theorafile/tf_callbacks)
-M: System.Int32 Theorafile::INTERNAL_tf_fopen(System.String,System.IntPtr)
+M: System.Int32 Theorafile::INTERNAL_tf_fopen(System.Byte[],System.IntPtr)
 M: System.Int32 Theorafile::INTERNAL_tf_close(System.IntPtr)
 M: System.Int32 Theorafile::tf_hasaudio(System.IntPtr)
 M: System.Int32 Theorafile::tf_hasvideo(System.IntPtr)
