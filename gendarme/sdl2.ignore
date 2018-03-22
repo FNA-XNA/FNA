@@ -122,6 +122,7 @@ M: System.Int32 SDL2.SDL::SDL_GL_BindTexture(System.IntPtr,System.Single&,System
 M: System.IntPtr SDL2.SDL::SDL_GL_CreateContext(System.IntPtr)
 M: System.Void SDL2.SDL::SDL_GL_DeleteContext(System.IntPtr)
 M: System.IntPtr SDL2.SDL::SDL_GL_GetProcAddress(System.String)
+M: System.IntPtr SDL2.SDL::SDL_GL_GetProcAddress(System.IntPtr)
 M: SDL2.SDL/SDL_bool SDL2.SDL::SDL_GL_ExtensionSupported(System.String)
 M: System.Void SDL2.SDL::SDL_GL_ResetAttributes()
 M: System.Int32 SDL2.SDL::SDL_GL_GetAttribute(SDL2.SDL/SDL_GLattr,System.Int32&)
@@ -579,6 +580,7 @@ T: SDL2.SDL/SDL_JoyDeviceEvent
 T: SDL2.SDL/SDL_ControllerAxisEvent
 T: SDL2.SDL/SDL_ControllerButtonEvent
 T: SDL2.SDL/SDL_ControllerDeviceEvent
+T: SDL2.SDL/SDL_AudioDeviceEvent
 T: SDL2.SDL/SDL_TouchFingerEvent
 T: SDL2.SDL/SDL_MultiGestureEvent
 T: SDL2.SDL/SDL_DollarGestureEvent
@@ -813,6 +815,7 @@ T: SDL2.SDL/SDL_JoyHatEvent
 T: SDL2.SDL/SDL_JoyButtonEvent
 T: SDL2.SDL/SDL_ControllerAxisEvent
 T: SDL2.SDL/SDL_ControllerButtonEvent
+T: SDL2.SDL/SDL_AudioDeviceEvent
 
 R: Gendarme.Rules.BadPractice.AvoidVisibleConstantFieldRule
 T: SDL2.SDL
@@ -850,6 +853,7 @@ T: SDL2.SDL/SDL_JoyDeviceEvent
 T: SDL2.SDL/SDL_ControllerAxisEvent
 T: SDL2.SDL/SDL_ControllerButtonEvent
 T: SDL2.SDL/SDL_ControllerDeviceEvent
+T: SDL2.SDL/SDL_AudioDeviceEvent
 T: SDL2.SDL/SDL_TouchFingerEvent
 T: SDL2.SDL/SDL_MultiGestureEvent
 T: SDL2.SDL/SDL_DollarGestureEvent
@@ -943,6 +947,7 @@ T: SDL2.SDL/SDL_JoyDeviceEvent
 T: SDL2.SDL/SDL_ControllerAxisEvent
 T: SDL2.SDL/SDL_ControllerButtonEvent
 T: SDL2.SDL/SDL_ControllerDeviceEvent
+T: SDL2.SDL/SDL_AudioDeviceEvent
 T: SDL2.SDL/SDL_TouchFingerEvent
 T: SDL2.SDL/SDL_MultiGestureEvent
 T: SDL2.SDL/SDL_DollarGestureEvent
@@ -1093,6 +1098,7 @@ M: System.Int32 SDL2.SDL::SDL_GL_BindTexture(System.IntPtr,System.Single&,System
 M: System.IntPtr SDL2.SDL::SDL_GL_CreateContext(System.IntPtr)
 M: System.Void SDL2.SDL::SDL_GL_DeleteContext(System.IntPtr)
 M: System.IntPtr SDL2.SDL::INTERNAL_SDL_GL_GetProcAddress(System.Byte[])
+M: System.IntPtr SDL2.SDL::SDL_GL_GetProcAddress(System.IntPtr)
 M: SDL2.SDL/SDL_bool SDL2.SDL::INTERNAL_SDL_GL_ExtensionSupported(System.Byte[])
 M: System.Void SDL2.SDL::SDL_GL_ResetAttributes()
 M: System.Int32 SDL2.SDL::SDL_GL_GetAttribute(SDL2.SDL/SDL_GLattr,System.Int32&)

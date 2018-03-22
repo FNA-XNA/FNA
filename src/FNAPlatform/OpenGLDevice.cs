@@ -520,7 +520,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private bool effectApplied = false;
 
-		private static IntPtr glGetProcAddress(string name, IntPtr d)
+		private static IntPtr glGetProcAddress(IntPtr name, IntPtr d)
 		{
 			return SDL.SDL_GL_GetProcAddress(name);
 		}
