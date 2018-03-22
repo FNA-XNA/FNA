@@ -6,5 +6,6 @@ A: FNA
 
 # Ignore everything from the lib folder
 @ sdl2.ignore
+@ faudio.ignore
 @ mojoshader.ignore
 @ theorafile.ignore
