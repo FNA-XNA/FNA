@@ -17,7 +17,6 @@ using System.Reflection;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
-using Microsoft.Xna.Framework.Utilities;
 #endregion
 
 namespace Microsoft.Xna.Framework.Content
@@ -291,7 +290,7 @@ namespace Microsoft.Xna.Framework.Content
 			{
 				// Okay, so we couldn't open it. Maybe it needs a different extension?
 				// FIXME: This only works for files on the disk, what about custom streams? -flibit
-				modifiedAssetName = FileHelpers.NormalizeFilePathSeparators(
+				modifiedAssetName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(
 					Path.Combine(RootDirectoryFullPath, assetName)
 				);
 				if (typeof(T) == typeof(Texture2D) || typeof(T) == typeof(Texture))

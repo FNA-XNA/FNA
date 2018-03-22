@@ -210,14 +210,17 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetData<T>(T[] data) where T : struct
 		{
-			SetDataInternal<T>(
+			ErrorCheck(data, 0, data.Length, Marshal.SizeOf(typeof(T)));
+
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.SetVertexBufferData(
+				buffer,
 				0,
-				data,
-				0,
-				data.Length,
-				Marshal.SizeOf(typeof(T)),
+				handle.AddrOfPinnedObject(),
+				data.Length * Marshal.SizeOf(typeof(T)),
 				SetDataOptions.None
 			);
+			handle.Free();
 		}
 
 		public void SetData<T>(
@@ -225,14 +228,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount
 		) where T : struct {
-			SetDataInternal<T>(
+			ErrorCheck(data, startIndex, elementCount, Marshal.SizeOf(typeof(T)));
+
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.SetVertexBufferData(
+				buffer,
 				0,
-				data,
-				startIndex,
-				elementCount,
-				Marshal.SizeOf(typeof(T)),
+				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
+				elementCount * Marshal.SizeOf(typeof(T)),
 				SetDataOptions.None
 			);
+			handle.Free();
 		}
 
 		public void SetData<T>(
@@ -242,27 +248,29 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int vertexStride
 		) where T : struct {
-			SetDataInternal<T>(
+			ErrorCheck(data, startIndex, elementCount, vertexStride);
+
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.SetVertexBufferData(
+				buffer,
 				offsetInBytes,
-				data,
-				startIndex,
-				elementCount,
-				vertexStride,
+				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
+				elementCount * Marshal.SizeOf(typeof(T)),
 				SetDataOptions.None
 			);
+			handle.Free();
 		}
 
 		#endregion
 
-		#region Internal Master SetData Methods
+		#region Internal Methods
 
-		protected void SetDataInternal<T>(
-			int offsetInBytes,
+		[System.Diagnostics.Conditional("DEBUG")]
+		internal void ErrorCheck<T>(
 			T[] data,
 			int startIndex,
 			int elementCount,
-			int vertexStride,
-			SetDataOptions options
+			int vertexStride
 		) where T : struct {
 			if (data == null)
 			{
@@ -276,7 +284,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					" data requested."
 				);
 			}
-
 			if (	elementCount > 1 &&
 				(elementCount * vertexStride > (int) buffer.BufferSize)	)
 			{
@@ -298,18 +305,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					elementSizeInBytes.ToString() + ")."
 				);
 			}
-
-			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.SetVertexBufferData(
-				buffer,
-				offsetInBytes,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				elementSizeInBytes,
-				options
-			);
-			handle.Free();
 		}
 
 		#endregion

@@ -197,28 +197,33 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetData<T>(T[] data) where T : struct
 		{
-			SetDataInternal<T>(
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.SetIndexBufferData(
+				buffer,
 				0,
-				data,
-				0,
-				data.Length,
+				handle.AddrOfPinnedObject(),
+				data.Length * Marshal.SizeOf(typeof(T)),
 				SetDataOptions.None
 			);
+			handle.Free();
 		}
 
 		public void SetData<T>(
 			T[] data,
 			int startIndex,
 			int elementCount
-		) where T : struct
-		{
-			SetDataInternal<T>(
+		) where T : struct {
+			ErrorCheck(data, startIndex, elementCount);
+
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.SetIndexBufferData(
+				buffer,
 				0,
-				data,
-				startIndex,
-				elementCount,
+				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
+				elementCount * Marshal.SizeOf(typeof(T)),
 				SetDataOptions.None
 			);
+			handle.Free();
 		}
 
 		public void SetData<T>(
@@ -226,27 +231,29 @@ namespace Microsoft.Xna.Framework.Graphics
 			T[] data,
 			int startIndex,
 			int elementCount
-		) where T : struct
-		{
-			SetDataInternal<T>(
+		) where T : struct {
+			ErrorCheck(data, startIndex, elementCount);
+
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			GraphicsDevice.GLDevice.SetIndexBufferData(
+				buffer,
 				offsetInBytes,
-				data,
-				startIndex,
-				elementCount,
+				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
+				elementCount * Marshal.SizeOf(typeof(T)),
 				SetDataOptions.None
 			);
+			handle.Free();
 		}
 
 		#endregion
 
-		#region Internal Master SetData Method
+		#region Internal Methods
 
-		protected void SetDataInternal<T>(
-			int offsetInBytes,
+		[System.Diagnostics.Conditional("DEBUG")]
+		internal void ErrorCheck<T>(
 			T[] data,
 			int startIndex,
-			int elementCount,
-			SetDataOptions options
+			int elementCount
 		) where T : struct {
 			if (data == null)
 			{
@@ -256,18 +263,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new InvalidOperationException("The array specified in the data parameter is not the correct size for the amount of data requested.");
 			}
-
-			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.SetIndexBufferData(
-				buffer,
-				offsetInBytes,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				Marshal.SizeOf(typeof(T)),
-				options
-			);
-			handle.Free();
 		}
 
 		#endregion

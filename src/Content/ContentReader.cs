@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.IO;
 
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Utilities;
 #endregion
 
 namespace Microsoft.Xna.Framework.Content
@@ -112,7 +111,9 @@ namespace Microsoft.Xna.Framework.Content
 			string externalReference = ReadString();
 			if (!String.IsNullOrEmpty(externalReference))
 			{
-				return contentManager.Load<T>(FileHelpers.ResolveRelativePath(assetName, externalReference));
+				return contentManager.Load<T>(
+					MonoGame.Utilities.FileHelpers.ResolveRelativePath(assetName, externalReference)
+				);
 			}
 			return default(T);
 		}

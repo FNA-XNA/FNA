@@ -222,6 +222,7 @@ namespace Microsoft.Xna.Framework
 		private TimeSpan accumulatedElapsedTime;
 		private long previousTicks = 0;
 		private int updateFrameLag;
+		private bool forceElapsedTimeToZero = false;
 
 		private static readonly TimeSpan MaxElapsedTime = TimeSpan.FromMilliseconds(500);
 
@@ -375,13 +376,14 @@ namespace Microsoft.Xna.Framework
 
 		public void ResetElapsedTime()
 		{
-			if (hasInitialized)
+			/* This only matters the next tick, and ONLY when
+			 * IsFixedTimeStep is false!
+			 * For fixed timestep, this is totally ignored.
+			 * -flibit
+			 */
+			if (!IsFixedTimeStep)
 			{
-				gameTimer.Reset();
-				gameTimer.Start();
-				accumulatedElapsedTime = TimeSpan.Zero;
-				gameTime.ElapsedGameTime = TimeSpan.Zero;
-				previousTicks = 0L;
+				forceElapsedTimeToZero = true;
 			}
 		}
 
@@ -520,10 +522,23 @@ namespace Microsoft.Xna.Framework
 			else
 			{
 				// Perform a single variable length update.
-				gameTime.ElapsedGameTime = accumulatedElapsedTime;
-				gameTime.TotalGameTime += accumulatedElapsedTime;
-				accumulatedElapsedTime = TimeSpan.Zero;
+				if (forceElapsedTimeToZero)
+				{
+					/* When ResetElapsedTime is called,
+					 * Elapsed is forced to zero and
+					 * Total is ignored entirely.
+					 * -flibit
+					 */
+					gameTime.ElapsedGameTime = TimeSpan.Zero;
+					forceElapsedTimeToZero = false;
+				}
+				else
+				{
+					gameTime.ElapsedGameTime = accumulatedElapsedTime;
+					gameTime.TotalGameTime += gameTime.ElapsedGameTime;
+				}
 
+				accumulatedElapsedTime = TimeSpan.Zero;
 				AssertNotDisposed();
 				Update(gameTime);
 			}

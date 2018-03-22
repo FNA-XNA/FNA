@@ -2123,9 +2123,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IGLBuffer buffer,
 			int offsetInBytes,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes,
+			int dataLength,
 			SetDataOptions options
 		) {
 #if !DISABLE_THREADING
@@ -2146,8 +2144,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			glNamedBufferSubData(
 				handle,
 				(IntPtr) offsetInBytes,
-				(IntPtr) (elementSizeInBytes * elementCount),
-				data + (startIndex * elementSizeInBytes)
+				(IntPtr) dataLength,
+				data
 			);
 
 #if !DISABLE_THREADING
@@ -2159,9 +2157,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IGLBuffer buffer,
 			int offsetInBytes,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes,
+			int dataLength,
 			SetDataOptions options
 		) {
 #if !DISABLE_THREADING
@@ -2183,8 +2179,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			glNamedBufferSubData(
 				handle,
 				(IntPtr) offsetInBytes,
-				(IntPtr) (elementSizeInBytes * elementCount),
-				data + (startIndex * elementSizeInBytes)
+				(IntPtr) dataLength,
+				data
 			);
 
 #if !DISABLE_THREADING

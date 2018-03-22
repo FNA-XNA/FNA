@@ -58,7 +58,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Variables
 
-		private Dictionary<string, EffectParameter> samplerMap = new Dictionary<string, EffectParameter>();
+		private Dictionary<IntPtr, EffectParameter> samplerMap = new Dictionary<IntPtr, EffectParameter>(new IntPtrBoxlessComparer());
+		private class IntPtrBoxlessComparer : IEqualityComparer<IntPtr>
+		{
+			public bool Equals(IntPtr x, IntPtr y)
+			{
+				return x == y;
+			}
+
+			public int GetHashCode(IntPtr obj)
+			{
+				return obj.GetHashCode();
+			}
+		}
+
 		private IntPtr stateChangesPtr;
 
 		#endregion
@@ -303,6 +316,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				stateChanges->sampler_state_change_count = 0;
 				stateChanges->vertex_sampler_state_change_count = 0;
 			}
+		}
+
+		#endregion
+
+		#region Destructor
+
+		~Effect()
+		{
+			Dispose();
 		}
 
 		#endregion
@@ -838,12 +860,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					MojoShader.MOJOSHADER_samplerStateType type = states[j].type;
 					if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_TEXTURE)
 					{
-						string samplerName = Marshal.PtrToStringAnsi(
-							registers[i].sampler_name
-						);
-						if (samplerMap.ContainsKey(samplerName))
+						EffectParameter texParam;
+						if (samplerMap.TryGetValue(registers[i].sampler_name, out texParam))
 						{
-							Texture texture = samplerMap[samplerName].texture;
+							Texture texture = texParam.texture;
 							if (texture != null)
 							{
 								textures[register] = texture;
@@ -1073,7 +1093,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						if (textureName.Equals(parameters[j].Name))
 						{
-							samplerMap[Marshal.PtrToStringAnsi(param.value.name)] = parameters[j];
+							samplerMap[param.value.name] = parameters[j];
 							break;
 						}
 					}

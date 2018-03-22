@@ -12,7 +12,6 @@ using System;
 using System.IO;
 
 using Microsoft.Xna.Framework.Media;
-using Microsoft.Xna.Framework.Utilities;
 #endregion
 
 namespace Microsoft.Xna.Framework.Content
@@ -38,7 +37,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		protected internal override Song Read(ContentReader input, Song existingInstance)
 		{
-			string path = FileHelpers.ResolveRelativePath(
+			string path = MonoGame.Utilities.FileHelpers.ResolveRelativePath(
 				Path.Combine(
 					input.ContentManager.RootDirectoryFullPath,
 					input.AssetName

@@ -293,9 +293,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IGLBuffer buffer,
 			int offsetInBytes,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes,
+			int dataLength,
 			SetDataOptions options
 		);
 		void GetVertexBufferData(
@@ -318,9 +316,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IGLBuffer buffer,
 			int offsetInBytes,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes,
+			int dataLength,
 			SetDataOptions options
 		);
 		void GetIndexBufferData(
