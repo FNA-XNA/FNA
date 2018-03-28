@@ -1007,7 +1007,12 @@ namespace Microsoft.Xna.Framework
 
 		public static string GetBaseDirectory()
 		{
-			if (OSVersion.Equals("Mac OS X"))
+			if (	OSVersion.Equals("Windows") ||
+				OSVersion.Equals("Mac OS X") ||
+				OSVersion.Equals("Linux") ||
+				OSVersion.Equals("FreeBSD") ||
+				OSVersion.Equals("OpenBSD") ||
+				OSVersion.Equals("NetBSD")	)
 			{
 				/* This is mostly here for legacy compatibility.
 				 * For most platforms this should be the same as
