@@ -409,7 +409,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private readonly uint[] currentAttachments;
 		private readonly GLenum[] currentAttachmentTypes;
 		private int currentDrawBuffers;
-		private readonly GLenum[] drawBuffersArray;
+		private readonly IntPtr drawBuffersArray;
 		private uint currentRenderbuffer;
 		private DepthFormat currentDepthStencilFormat;
 		private readonly uint[] attachments;
@@ -733,12 +733,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			attachmentTypes = new GLenum[numAttachments];
 			currentAttachments = new uint[numAttachments];
 			currentAttachmentTypes = new GLenum[numAttachments];
-			drawBuffersArray = new GLenum[numAttachments];
-			for (int i = 0; i < numAttachments; i += 1)
+			drawBuffersArray = Marshal.AllocHGlobal(sizeof(GLenum) * numAttachments);
+			unsafe
 			{
-				currentAttachments[i] = 0;
-				currentAttachmentTypes[i] = GLenum.GL_TEXTURE_2D;
-				drawBuffersArray[i] = GLenum.GL_COLOR_ATTACHMENT0 + i;
+				GLenum* dba = (GLenum*) drawBuffersArray;
+				for (int i = 0; i < numAttachments; i += 1)
+				{
+					currentAttachments[i] = 0;
+					currentAttachmentTypes[i] = GLenum.GL_TEXTURE_2D;
+					dba[i] = GLenum.GL_COLOR_ATTACHMENT0 + i;
+				}
 			}
 			currentDrawBuffers = 0;
 			currentRenderbuffer = 0;
@@ -777,6 +781,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				(Backbuffer as OpenGLBackbuffer).Dispose();
 			}
 			Backbuffer = null;
+			Marshal.FreeHGlobal(drawBuffersArray);
 			MojoShader.MOJOSHADER_glMakeContextCurrent(IntPtr.Zero);
 			MojoShader.MOJOSHADER_glDestroyContext(shaderContext);
 
@@ -1090,8 +1095,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void SetStringMarker(string text)
 		{
 #if DEBUG
-			byte[] chars = System.Text.Encoding.ASCII.GetBytes(text);
-			glStringMarkerGREMEDY(chars.Length, chars);
+			IntPtr chars = Marshal.StringToHGlobalAnsi(text);
+			glStringMarkerGREMEDY(text.Length, chars);
+			Marshal.FreeHGlobal(chars);
 #endif
 		}
 
