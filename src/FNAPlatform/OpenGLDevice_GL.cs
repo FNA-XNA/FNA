@@ -571,7 +571,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* BEGIN FRAMEBUFFER FUNCTIONS */
 
-		private delegate void DrawBuffers(int n, GLenum[] bufs);
+		private delegate void DrawBuffers(int n, IntPtr bufs);
 		private DrawBuffers glDrawBuffers;
 
 		private delegate void ReadPixels(
@@ -865,7 +865,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* BEGIN STRING MARKER FUNCTIONS */
 
-		private delegate void StringMarkerGREMEDY(int length, byte[] chars);
+		private delegate void StringMarkerGREMEDY(int length, IntPtr chars);
 		private StringMarkerGREMEDY glStringMarkerGREMEDY;
 
 		/* END STRING MARKER FUNCTIONS */
