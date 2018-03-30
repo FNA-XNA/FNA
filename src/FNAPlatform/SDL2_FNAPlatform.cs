@@ -1947,6 +1947,7 @@ namespace Microsoft.Xna.Framework
 
 			// An SDL_GameController _should_ always be complete...
 			GamePadCapabilities caps = new GamePadCapabilities();
+			caps.IsConnected = true;
 			caps.GamePadType = INTERNAL_gamepadType[(int) SDL.SDL_JoystickGetType(thisJoystick)];
 			caps.HasAButton = SDL.SDL_GameControllerGetBindForButton(
 				INTERNAL_devices[which],
