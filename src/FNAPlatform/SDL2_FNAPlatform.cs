@@ -1931,35 +1931,96 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// An SDL_GameController _should_ always be complete...
-			INTERNAL_capabilities[which] = new GamePadCapabilities()
-			{
-				GamePadType = INTERNAL_gamepadType[(int) SDL.SDL_JoystickGetType(thisJoystick)],
-				IsConnected = true,
-				HasAButton = true,
-				HasBButton = true,
-				HasXButton = true,
-				HasYButton = true,
-				HasBackButton = true,
-				HasStartButton = true,
-				HasDPadDownButton = true,
-				HasDPadLeftButton = true,
-				HasDPadRightButton = true,
-				HasDPadUpButton = true,
-				HasLeftShoulderButton = true,
-				HasRightShoulderButton = true,
-				HasLeftStickButton = true,
-				HasRightStickButton = true,
-				HasLeftTrigger = true,
-				HasRightTrigger = true,
-				HasLeftXThumbStick = true,
-				HasLeftYThumbStick = true,
-				HasRightXThumbStick = true,
-				HasRightYThumbStick = true,
-				HasBigButton = true,
-				HasLeftVibrationMotor = INTERNAL_haptics[which] != IntPtr.Zero,
-				HasRightVibrationMotor = INTERNAL_haptics[which] != IntPtr.Zero,
-				HasVoiceSupport = false
-			};
+			GamePadCapabilities caps = new GamePadCapabilities();
+			caps.GamePadType = INTERNAL_gamepadType[(int) SDL.SDL_JoystickGetType(thisJoystick)];
+			caps.HasAButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasBButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasXButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_X
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasYButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_Y
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasBackButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_BACK
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasBigButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasStartButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_START
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasLeftStickButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSTICK
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasRightStickButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSTICK
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasLeftShoulderButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSHOULDER
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasRightShoulderButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasDPadUpButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasDPadDownButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_DOWN
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasDPadLeftButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_LEFT
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasDPadRightButton = SDL.SDL_GameControllerGetBindForButton(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_RIGHT
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasLeftXThumbStick = SDL.SDL_GameControllerGetBindForAxis(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasLeftYThumbStick = SDL.SDL_GameControllerGetBindForAxis(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasRightXThumbStick = SDL.SDL_GameControllerGetBindForAxis(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasRightYThumbStick = SDL.SDL_GameControllerGetBindForAxis(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTY
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasLeftTrigger = SDL.SDL_GameControllerGetBindForAxis(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERLEFT
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasRightTrigger = SDL.SDL_GameControllerGetBindForAxis(
+				INTERNAL_devices[which],
+				SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERRIGHT
+			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
+			caps.HasLeftVibrationMotor = INTERNAL_haptics[which] != IntPtr.Zero;
+			caps.HasRightVibrationMotor = INTERNAL_haptics[which] != IntPtr.Zero;
+			caps.HasVoiceSupport = false;
+			INTERNAL_capabilities[which] = caps;
 
 			/* Store the GUID string for this device
 			 * FIXME: Replace GetGUIDEXT string with 3 short values -flibit

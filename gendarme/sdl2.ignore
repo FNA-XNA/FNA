@@ -603,6 +603,7 @@ T: SDL2.SDL/SDL_GameControllerBindType
 T: SDL2.SDL/SDL_GameControllerAxis
 T: SDL2.SDL/SDL_GameControllerButton
 T: SDL2.SDL/INTERNAL_GameControllerButtonBind_hat
+T: SDL2.SDL/INTERNAL_GameControllerButtonBind_union
 T: SDL2.SDL/SDL_GameControllerButtonBind
 T: SDL2.SDL/SDL_HapticDirection
 T: SDL2.SDL/SDL_HapticConstant
@@ -867,6 +868,7 @@ T: SDL2.SDL/SDL_Event
 T: SDL2.SDL/SDL_Keysym
 T: SDL2.SDL/SDL_Finger
 T: SDL2.SDL/INTERNAL_GameControllerButtonBind_hat
+T: SDL2.SDL/INTERNAL_GameControllerButtonBind_union
 T: SDL2.SDL/SDL_GameControllerButtonBind
 T: SDL2.SDL/SDL_HapticDirection
 T: SDL2.SDL/SDL_HapticConstant
@@ -972,6 +974,7 @@ T: SDL2.SDL/SDL_GameControllerBindType
 T: SDL2.SDL/SDL_GameControllerAxis
 T: SDL2.SDL/SDL_GameControllerButton
 T: SDL2.SDL/INTERNAL_GameControllerButtonBind_hat
+T: SDL2.SDL/INTERNAL_GameControllerButtonBind_union
 T: SDL2.SDL/SDL_GameControllerButtonBind
 T: SDL2.SDL/SDL_HapticDirection
 T: SDL2.SDL/SDL_HapticDirection/<dir>__FixedBuffer3
