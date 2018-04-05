@@ -46,6 +46,7 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Private Variables
 
 		private IntPtr handle;
+		private WeakReference selfReference;
 
 		#endregion
 
@@ -84,6 +85,8 @@ namespace Microsoft.Xna.Framework.Audio
 			buffer = null;
 
 			engine = audioEngine;
+			selfReference = new WeakReference(this);
+			engine.RegisterSoundBank(handle, selfReference);
 			IsDisposed = false;
 		}
 
@@ -118,13 +121,7 @@ namespace Microsoft.Xna.Framework.Audio
 					Disposing.Invoke(this, null);
 				}
 
-				if (!engine.IsDisposed) // Just FYI, this is really bad
-				{
-					FAudio.FACTSoundBank_Destroy(handle);
-				}
-				engine = null;
-
-				IsDisposed = true;
+				FAudio.FACTSoundBank_Destroy(handle);
 			}
 		}
 
@@ -237,6 +234,17 @@ namespace Microsoft.Xna.Framework.Audio
 				ref settings,
 				IntPtr.Zero
 			);
+		}
+
+		#endregion
+
+		#region Internal Methods
+
+		internal void OnSoundBankDestroyed()
+		{
+			IsDisposed = true;
+			selfReference = null;
+			engine = null;
 		}
 
 		#endregion

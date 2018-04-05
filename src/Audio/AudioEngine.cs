@@ -60,6 +60,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private RendererDetail[] rendererDetails;
 
+		private readonly Dictionary<IntPtr, WeakReference> xactPtrs;
+		private readonly FAudio.FACTNotificationCallback xactNotificationFunc;
+		private FAudio.FACTNotificationDescription notificationDesc;
+
 		#endregion
 
 		#region Disposing Event
@@ -100,6 +104,10 @@ namespace Microsoft.Xna.Framework.Audio
 			FAudio.FACTRuntimeParameters settings = new FAudio.FACTRuntimeParameters();
 			settings.pGlobalSettingsBuffer = pin.AddrOfPinnedObject();
 			settings.globalSettingsBufferSize = (uint) buffer.Length;
+			xactNotificationFunc = OnXACTNotification;
+			settings.fnNotificationCallback = Marshal.GetFunctionPointerForDelegate(
+				xactNotificationFunc
+			);
 
 			// Special parameters from constructor
 			settings.lookAheadTime = (uint) lookAheadTime.Milliseconds;
@@ -169,6 +177,10 @@ namespace Microsoft.Xna.Framework.Audio
 				out mixFormat
 			);
 			channels = mixFormat.Format.nChannels;
+
+			// All XACT references have to go in here...
+			xactPtrs = new Dictionary<IntPtr, WeakReference>();
+			notificationDesc = new FAudio.FACTNotificationDescription();
 		}
 
 		#endregion
@@ -285,6 +297,62 @@ namespace Microsoft.Xna.Framework.Audio
 		public void Update()
 		{
 			FAudio.FACTAudioEngine_DoWork(handle);
+		}
+
+		#endregion
+
+		#region Internal Methods
+
+		internal void RegisterWaveBank(
+			IntPtr ptr,
+			WeakReference reference
+		) {
+			notificationDesc.type = 0;
+			notificationDesc.pWaveBank = ptr;
+			FAudio.FACTAudioEngine_RegisterNotification(
+				handle,
+				ref notificationDesc
+			);
+			xactPtrs.Add(ptr, reference);
+		}
+
+		internal void RegisterSoundBank(
+			IntPtr ptr,
+			WeakReference reference
+		) {
+			notificationDesc.type = 0;
+			notificationDesc.pSoundBank = ptr;
+			FAudio.FACTAudioEngine_RegisterNotification(
+				handle,
+				ref notificationDesc
+			);
+			xactPtrs.Add(ptr, reference);
+		}
+
+		internal void RegisterCue(
+			IntPtr ptr,
+			WeakReference reference
+		) {
+			notificationDesc.type = 0;
+			notificationDesc.pCue = ptr;
+			FAudio.FACTAudioEngine_RegisterNotification(
+				handle,
+				ref notificationDesc
+			);
+			xactPtrs.Add(ptr, reference);
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private unsafe void OnXACTNotification(IntPtr notification)
+		{
+			FAudio.FACTNotification* not = (FAudio.FACTNotification*) notification;
+			if (not->type == 0)
+			{
+				FNALoggerEXT.LogInfo("TODO");
+			}
 		}
 
 		#endregion

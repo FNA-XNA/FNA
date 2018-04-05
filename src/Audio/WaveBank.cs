@@ -52,10 +52,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private IntPtr handle;
 
-#pragma warning disable 0414
-		// We just hold this to make the GC do the right thing
 		private AudioEngine engine;
-#pragma warning restore 0414
+		private WeakReference selfReference;
 
 		// Non-streaming WaveBanks
 		private byte[] buffer;
@@ -102,6 +100,8 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 
 			engine = audioEngine;
+			selfReference = new WeakReference(this);
+			engine.RegisterWaveBank(handle, selfReference);
 			IsDisposed = false;
 		}
 
@@ -141,6 +141,8 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 
 			engine = audioEngine;
+			selfReference = new WeakReference(this);
+			engine.RegisterWaveBank(handle, selfReference);
 			IsDisposed = false;
 		}
 
@@ -175,25 +177,29 @@ namespace Microsoft.Xna.Framework.Audio
 					Disposing.Invoke(this, null);
 				}
 
-				if (!engine.IsDisposed) // Just FYI, this is really bad
-				{
-					FAudio.FACTWaveBank_Destroy(handle);
-				}
-
-				if (buffer != null)
-				{
-					pin.Free();
-					buffer = null;
-				}
-				else if (ioStream != IntPtr.Zero)
-				{
-					// FACT frees this pointer!
-					ioStream = IntPtr.Zero;
-				}
-				engine = null;
-
-				IsDisposed = true;
+				FAudio.FACTWaveBank_Destroy(handle);
 			}
+		}
+
+		#endregion
+
+		#region Internal Methods
+
+		internal void OnWaveBankDestroyed()
+		{
+			IsDisposed = true;
+			if (buffer != null)
+			{
+				pin.Free();
+				buffer = null;
+			}
+			else if (ioStream != IntPtr.Zero)
+			{
+				// FACT frees this pointer!
+				ioStream = IntPtr.Zero;
+			}
+			selfReference = null;
+			engine = null;
 		}
 
 		#endregion
