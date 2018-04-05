@@ -193,7 +193,7 @@ namespace Microsoft.Xna.Framework.Audio
 					Disposing.Invoke(this, null);
 				}
 
-				FAudio.FACTAudioEngine_Shutdown(handle);
+				FAudio.FACTAudioEngine_ShutDown(handle);
 				pin.Free();
 				buffer = null;
 				rendererDetails = null;

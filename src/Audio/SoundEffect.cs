@@ -500,7 +500,7 @@ namespace Microsoft.Xna.Framework.Audio
 			public void Dispose()
 			{
 				FAudio.FAudioVoice_DestroyVoice(MasterVoice);
-				FAudio.FAudioDestroy(Handle);
+				FAudio.FAudio_Release(Handle);
 				Context = null;
 			}
 
@@ -539,7 +539,7 @@ namespace Microsoft.Xna.Framework.Audio
 				if (devices == 0)
 				{
 					/* No sound cards, bail! */
-					FAudio.FAudioDestroy(ctx);
+					FAudio.FAudio_Release(ctx);
 					return;
 				}
 
