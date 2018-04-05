@@ -203,7 +203,6 @@ namespace Microsoft.Xna.Framework.Audio
 				ioStream = IntPtr.Zero;
 			}
 			selfReference = null;
-			engine = null;
 		}
 
 		#endregion

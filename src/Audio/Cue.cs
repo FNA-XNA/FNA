@@ -260,7 +260,6 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			IsDisposed = true;
 			selfReference = null;
-			bank = null;
 		}
 
 		#endregion

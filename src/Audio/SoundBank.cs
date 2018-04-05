@@ -248,7 +248,6 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			IsDisposed = true;
 			selfReference = null;
-			engine = null;
 		}
 
 		#endregion
