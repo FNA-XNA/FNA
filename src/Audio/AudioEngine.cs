@@ -51,6 +51,8 @@ namespace Microsoft.Xna.Framework.Audio
 		internal readonly byte[] handle3D;
 		internal readonly ushort channels;
 
+		internal readonly object gcSync = new object();
+
 		#endregion
 
 		#region Private Variables
@@ -189,7 +191,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~AudioEngine()
 		{
-			Dispose();
+			Dispose(false);
 		}
 
 		#endregion
@@ -198,20 +200,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Dispose()
 		{
-			if (!IsDisposed)
-			{
-				if (Disposing != null)
-				{
-					Disposing.Invoke(this, null);
-				}
-
-				FAudio.FACTAudioEngine_ShutDown(handle);
-				pin.Free();
-				buffer = null;
-				rendererDetails = null;
-
-				IsDisposed = true;
-			}
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		#endregion
@@ -301,6 +291,31 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
+		#region Protected Methods
+
+		protected virtual void Dispose(bool disposing)
+		{
+			lock (gcSync)
+			{
+				if (!IsDisposed)
+				{
+					if (Disposing != null)
+					{
+						Disposing.Invoke(this, null);
+					}
+
+					FAudio.FACTAudioEngine_ShutDown(handle);
+					pin.Free();
+					buffer = null;
+					rendererDetails = null;
+
+					IsDisposed = true;
+				}
+			}
+		}
+
+		#endregion
+
 		#region Internal Methods
 
 		internal void RegisterWaveBank(
@@ -348,23 +363,39 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private unsafe void OnXACTNotification(IntPtr notification)
 		{
+			if (this == null) // Goddamn GC
+			{
+				return;
+			}
 			FAudio.FACTNotification* not = (FAudio.FACTNotification*) notification;
 			if (not->type == FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED)
 			{
 				IntPtr target = not->anon.waveBank.pWaveBank;
-				(xactPtrs[target].Target as WaveBank).OnWaveBankDestroyed();
+				WeakReference reference = xactPtrs[target];
+				if (reference.IsAlive)
+				{
+					(reference.Target as WaveBank).OnWaveBankDestroyed();
+				}
 				xactPtrs.Remove(target);
 			}
 			else if (not->type == FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED)
 			{
 				IntPtr target = not->anon.soundBank.pSoundBank;
-				(xactPtrs[target].Target as SoundBank).OnSoundBankDestroyed();
+				WeakReference reference = xactPtrs[target];
+				if (reference.IsAlive)
+				{
+					(reference.Target as SoundBank).OnSoundBankDestroyed();
+				}
 				xactPtrs.Remove(target);
 			}
 			else if (not->type == FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED)
 			{
 				IntPtr target = not->anon.cue.pCue;
-				(xactPtrs[target].Target as Cue).OnCueDestroyed();
+				WeakReference reference = xactPtrs[target];
+				if (reference.IsAlive)
+				{
+					(reference.Target as Cue).OnCueDestroyed();
+				}
 				xactPtrs.Remove(target);
 			}
 		}

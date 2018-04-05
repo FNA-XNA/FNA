@@ -152,7 +152,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~WaveBank()
 		{
-			Dispose(true);
+			Dispose(false);
 		}
 
 		#endregion
@@ -161,7 +161,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Dispose()
 		{
-			Dispose(false);
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		#endregion
@@ -170,14 +171,17 @@ namespace Microsoft.Xna.Framework.Audio
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!IsDisposed)
+			lock (engine.gcSync)
 			{
-				if (Disposing != null)
+				if (!IsDisposed && disposing)
 				{
-					Disposing.Invoke(this, null);
-				}
+					if (Disposing != null)
+					{
+						Disposing.Invoke(this, null);
+					}
 
-				FAudio.FACTWaveBank_Destroy(handle);
+					FAudio.FACTWaveBank_Destroy(handle);
+				}
 			}
 		}
 

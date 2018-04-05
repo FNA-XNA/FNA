@@ -133,7 +133,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~Cue()
 		{
-			Dispose();
+			Dispose(false);
 		}
 
 		#endregion
@@ -142,15 +142,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Dispose()
 		{
-			if (!IsDisposed)
-			{
-				if (Disposing != null)
-				{
-					Disposing.Invoke(this, null);
-				}
-
-				FAudio.FACTCue_Destroy(handle);
-			}
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		#endregion
@@ -268,6 +261,26 @@ namespace Microsoft.Xna.Framework.Audio
 			IsDisposed = true;
 			selfReference = null;
 			bank = null;
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private void Dispose(bool disposing)
+		{
+			lock (bank.engine.gcSync)
+			{
+				if (!IsDisposed)
+				{
+					if (Disposing != null)
+					{
+						Disposing.Invoke(this, null);
+					}
+
+					FAudio.FACTCue_Destroy(handle);
+				}
+			}
 		}
 
 		#endregion
