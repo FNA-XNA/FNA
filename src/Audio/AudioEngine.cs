@@ -307,7 +307,7 @@ namespace Microsoft.Xna.Framework.Audio
 			IntPtr ptr,
 			WeakReference reference
 		) {
-			notificationDesc.type = 0;
+			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED;
 			notificationDesc.pWaveBank = ptr;
 			FAudio.FACTAudioEngine_RegisterNotification(
 				handle,
@@ -320,7 +320,7 @@ namespace Microsoft.Xna.Framework.Audio
 			IntPtr ptr,
 			WeakReference reference
 		) {
-			notificationDesc.type = 0;
+			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED;
 			notificationDesc.pSoundBank = ptr;
 			FAudio.FACTAudioEngine_RegisterNotification(
 				handle,
@@ -333,7 +333,7 @@ namespace Microsoft.Xna.Framework.Audio
 			IntPtr ptr,
 			WeakReference reference
 		) {
-			notificationDesc.type = 0;
+			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED;
 			notificationDesc.pCue = ptr;
 			FAudio.FACTAudioEngine_RegisterNotification(
 				handle,
@@ -349,9 +349,23 @@ namespace Microsoft.Xna.Framework.Audio
 		private unsafe void OnXACTNotification(IntPtr notification)
 		{
 			FAudio.FACTNotification* not = (FAudio.FACTNotification*) notification;
-			if (not->type == 0)
+			if (not->type == FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED)
 			{
-				FNALoggerEXT.LogInfo("TODO");
+				IntPtr target = not->anon.waveBank.pWaveBank;
+				(xactPtrs[target].Target as WaveBank).OnWaveBankDestroyed();
+				xactPtrs.Remove(target);
+			}
+			else if (not->type == FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED)
+			{
+				IntPtr target = not->anon.soundBank.pSoundBank;
+				(xactPtrs[target].Target as SoundBank).OnSoundBankDestroyed();
+				xactPtrs.Remove(target);
+			}
+			else if (not->type == FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED)
+			{
+				IntPtr target = not->anon.cue.pCue;
+				(xactPtrs[target].Target as Cue).OnCueDestroyed();
+				xactPtrs.Remove(target);
 			}
 		}
 
