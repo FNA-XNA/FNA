@@ -62,9 +62,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private RendererDetail[] rendererDetails;
 
-		private readonly Dictionary<IntPtr, WeakReference> xactPtrs;
 		private readonly FAudio.FACTNotificationCallback xactNotificationFunc;
 		private FAudio.FACTNotificationDescription notificationDesc;
+
+		// If this isn't static, destructors gets confused like idiots
+		private static readonly Dictionary<IntPtr, WeakReference> xactPtrs = new Dictionary<IntPtr, WeakReference>();
 
 		#endregion
 
@@ -180,8 +182,7 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 			channels = mixFormat.Format.nChannels;
 
-			// All XACT references have to go in here...
-			xactPtrs = new Dictionary<IntPtr, WeakReference>();
+			// All XACT references have to go through here...
 			notificationDesc = new FAudio.FACTNotificationDescription();
 		}
 
@@ -361,12 +362,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Private Methods
 
-		private unsafe void OnXACTNotification(IntPtr notification)
+		private static unsafe void OnXACTNotification(IntPtr notification)
 		{
-			if (this == null) // Goddamn GC
-			{
-				return;
-			}
 			FAudio.FACTNotification* not = (FAudio.FACTNotification*) notification;
 			if (not->type == FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED)
 			{

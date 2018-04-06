@@ -180,7 +180,15 @@ namespace Microsoft.Xna.Framework.Audio
 						Disposing.Invoke(this, null);
 					}
 
-					FAudio.FACTWaveBank_Destroy(handle);
+					if (engine.IsDisposed)
+					{
+						// If you got here, stop leaking memory!
+						IsDisposed = true;
+					}
+					else
+					{
+						FAudio.FACTWaveBank_Destroy(handle);
+					}
 				}
 			}
 		}
