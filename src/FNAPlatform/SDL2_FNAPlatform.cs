@@ -1103,41 +1103,48 @@ namespace Microsoft.Xna.Framework
 				}
 				return osConfigDir;
 			}
+
+			bool requireAssemblyCompany = false;
 			if (	OSVersion.Equals("WinRT") ||
 				OSVersion.Equals("iOS") ||
 				OSVersion.Equals("tvOS") ||
 				OSVersion.Equals("Android") ||
 				OSVersion.Equals("Emscripten")	)
 			{
-				/* StorageContainer and SDL_GetPrefPath kind of
-				 * overlap each other. Container produces 'app'
-				 * but for SDL only 'org' is optional. So we
-				 * deal with this by sending _our_ org to SDL,
-				 * then StorageContainer appends the app name.
+				/* TODO: Remove above platforms if they
+				 * virtualize the save directory for apps.
 				 * -flibit
 				 */
-				string app = "FNA"; /* Gotta be somethin' */
-				Assembly assembly = Assembly.GetEntryAssembly();
-				if (assembly != null)
-				{
-					AssemblyCompanyAttribute ca = (AssemblyCompanyAttribute) Attribute.GetCustomAttribute(
-						assembly,
-						typeof(AssemblyCompanyAttribute)
-					);
-					if (ca != null && !string.IsNullOrEmpty(ca.Company))
-					{
-						app = INTERNAL_StripBadChars(ca.Company);
-					}
-					else
-					{
-						throw new ArgumentNullException(
-							"Set AssemblyCompany in your AssemblyInfo!"
-						);
-					}
-				}
-				return SDL.SDL_GetPrefPath(null, app);
+				requireAssemblyCompany = true;
 			}
-			throw new NotSupportedException("Unhandled SDL2 platform!");
+
+			/* StorageContainer and SDL_GetPrefPath kind of
+			 * overlap each other. Container produces 'app'
+			 * but for SDL only 'org' is optional. So we
+			 * deal with this by sending _our_ org to SDL,
+			 * then StorageContainer appends the app name.
+			 * -flibit
+			 */
+			string app = "FNA"; /* Gotta be somethin' */
+			Assembly assembly = Assembly.GetEntryAssembly();
+			if (assembly != null)
+			{
+				AssemblyCompanyAttribute ca = (AssemblyCompanyAttribute) Attribute.GetCustomAttribute(
+					assembly,
+					typeof(AssemblyCompanyAttribute)
+				);
+				if (ca != null && !string.IsNullOrEmpty(ca.Company))
+				{
+					app = INTERNAL_StripBadChars(ca.Company);
+				}
+				else if (requireAssemblyCompany)
+				{
+					throw new ArgumentNullException(
+						"Set AssemblyCompany in your AssemblyInfo!"
+					);
+				}
+			}
+			return SDL.SDL_GetPrefPath(null, app);
 		}
 
 		#endregion
