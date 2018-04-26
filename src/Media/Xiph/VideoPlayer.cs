@@ -705,9 +705,6 @@ namespace Microsoft.Xna.Framework.Media
 
 		private void UpdateTexture()
 		{
-			// Set up an environment to muck about in.
-			GL_pushState();
-
 			// Prepare YUV GL textures with our current frame data
 			currentDevice.GLDevice.SetTextureData2DPointer(
 				yuvTextures[0],
@@ -730,13 +727,12 @@ namespace Microsoft.Xna.Framework.Media
 			);
 
 			// Draw the YUV textures to the framebuffer with our shader.
+			GL_pushState();
 			currentDevice.DrawPrimitives(
 				PrimitiveType.TriangleStrip,
 				0,
 				2
 			);
-
-			// Clean up after ourselves.
 			GL_popState();
 		}
 
