@@ -159,6 +159,9 @@ namespace Microsoft.Xna.Framework
 			bool forceCoreProfile = Environment.GetEnvironmentVariable(
 				"FNA_OPENGL_FORCE_CORE_PROFILE"
 			) == "1";
+			bool forceCompatProfile = Environment.GetEnvironmentVariable(
+				"FNA_OPENGL_FORCE_COMPATIBILITY_PROFILE"
+			) == "1";
 
 			// Some platforms are GLES only
 			forceES3 |= (
@@ -225,6 +228,21 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_GL_SetAttribute(
 					SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
 					(int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE
+				);
+			}
+			else if (forceCompatProfile)
+			{
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION,
+					2
+				);
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION,
+					1
+				);
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
+					(int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_COMPATIBILITY
 				);
 			}
 #if DEBUG
@@ -505,7 +523,7 @@ namespace Microsoft.Xna.Framework
 		private static string INTERNAL_GetIconName(string title, string extension)
 		{
 			string fileIn = String.Empty;
-			if (File.Exists(title + extension))
+			if (File.Exists(Path.Combine(TitleLocation.Path, title + extension)))
 			{
 				// If the title and filename work, it just works. Fine.
 				fileIn = title + extension;
@@ -514,7 +532,7 @@ namespace Microsoft.Xna.Framework
 			{
 				// But sometimes the title has invalid characters inside.
 				string fixPath = INTERNAL_StripBadChars(title) + extension;
-				if (File.Exists(fixPath))
+				if (File.Exists(Path.Combine(TitleLocation.Path, fixPath)))
 				{
 					fileIn = fixPath;
 				}
