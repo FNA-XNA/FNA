@@ -154,6 +154,9 @@ namespace Microsoft.Xna.Framework
 			bool forceCoreProfile = Environment.GetEnvironmentVariable(
 				"FNA_OPENGL_FORCE_CORE_PROFILE"
 			) == "1";
+			bool forceCompatProfile = Environment.GetEnvironmentVariable(
+				"FNA_OPENGL_FORCE_COMPATIBILITY_PROFILE"
+			) == "1";
 
 			// Some platforms are GLES only
 			forceES3 |= (
@@ -220,6 +223,21 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_GL_SetAttribute(
 					SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
 					(int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE
+				);
+			}
+			else if (forceCompatProfile)
+			{
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION,
+					2
+				);
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION,
+					1
+				);
+				SDL.SDL_GL_SetAttribute(
+					SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
+					(int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_COMPATIBILITY
 				);
 			}
 #if DEBUG
