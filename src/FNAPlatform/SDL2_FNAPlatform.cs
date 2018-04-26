@@ -500,7 +500,7 @@ namespace Microsoft.Xna.Framework
 		private static string INTERNAL_GetIconName(string title, string extension)
 		{
 			string fileIn = String.Empty;
-			if (File.Exists(title + extension))
+			if (File.Exists(Path.Combine(TitleLocation.Path, title + extension)))
 			{
 				// If the title and filename work, it just works. Fine.
 				fileIn = title + extension;
@@ -509,7 +509,7 @@ namespace Microsoft.Xna.Framework
 			{
 				// But sometimes the title has invalid characters inside.
 				string fixPath = INTERNAL_StripBadChars(title) + extension;
-				if (File.Exists(fixPath))
+				if (File.Exists(Path.Combine(TitleLocation.Path, fixPath)))
 				{
 					fileIn = fixPath;
 				}
