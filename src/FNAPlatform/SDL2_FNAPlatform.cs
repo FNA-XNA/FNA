@@ -511,7 +511,7 @@ namespace Microsoft.Xna.Framework
 			 */
 			try
 			{
-				fileIn = INTERNAL_GetIconName(title, ".png");
+				fileIn = INTERNAL_GetIconName(title + ".png");
 				if (!String.IsNullOrEmpty(fileIn))
 				{
 					IntPtr icon = SDL_image.IMG_Load(fileIn);
@@ -525,7 +525,7 @@ namespace Microsoft.Xna.Framework
 				// Not that big a deal guys.
 			}
 
-			fileIn = INTERNAL_GetIconName(title, ".bmp");
+			fileIn = INTERNAL_GetIconName(title + ".bmp");
 			if (!String.IsNullOrEmpty(fileIn))
 			{
 				IntPtr icon = SDL.SDL_LoadBMP(fileIn);
@@ -534,24 +534,27 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		private static string INTERNAL_GetIconName(string title, string extension)
+		private static string INTERNAL_GetIconName(string title)
 		{
-			string fileIn = String.Empty;
-			if (File.Exists(Path.Combine(TitleLocation.Path, title + extension)))
+			string fileIn = Path.Combine(TitleLocation.Path, title);
+			if (File.Exists(fileIn))
 			{
 				// If the title and filename work, it just works. Fine.
-				fileIn = title + extension;
+				return fileIn;
 			}
 			else
 			{
 				// But sometimes the title has invalid characters inside.
-				string fixPath = INTERNAL_StripBadChars(title) + extension;
-				if (File.Exists(Path.Combine(TitleLocation.Path, fixPath)))
+				fileIn = Path.Combine(
+					TitleLocation.Path,
+					INTERNAL_StripBadChars(title)
+				);
+				if (File.Exists(fileIn))
 				{
-					fileIn = fixPath;
+					return fileIn;
 				}
 			}
-			return fileIn;
+			return String.Empty;
 		}
 
 		private static string INTERNAL_StripBadChars(string path)
