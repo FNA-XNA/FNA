@@ -809,7 +809,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/* BEGIN DEBUG OUTPUT FUNCTIONS */
 
 		private delegate void DebugMessageCallback(
-			DebugProc debugCallback,
+			IntPtr debugCallback,
 			IntPtr userParam
 		);
 		private DebugMessageCallback glDebugMessageCallbackARB;
@@ -1510,7 +1510,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					IntPtr.Zero,
 					false
 				);
-				glDebugMessageCallbackARB(DebugCall, IntPtr.Zero);
+				glDebugMessageCallbackARB(Marshal.GetFunctionPointerForDelegate(DebugCall), IntPtr.Zero);
 			}
 
 			/* GREMEDY_string_marker, for apitrace */
