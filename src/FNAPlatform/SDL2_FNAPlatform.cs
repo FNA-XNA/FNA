@@ -1105,8 +1105,7 @@ namespace Microsoft.Xna.Framework
 			}
 
 			bool requireAssemblyCompany = false;
-			if (	OSVersion.Equals("WinRT") ||
-				OSVersion.Equals("iOS") ||
+			if (	OSVersion.Equals("iOS") ||
 				OSVersion.Equals("tvOS") ||
 				OSVersion.Equals("Android") ||
 				OSVersion.Equals("Emscripten")	)
