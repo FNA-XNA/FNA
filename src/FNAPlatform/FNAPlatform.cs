@@ -49,6 +49,7 @@ namespace Microsoft.Xna.Framework
 			CreateGLDevice =		SDL2_FNAPlatform.CreateGLDevice;
 			SetPresentationInterval =	SDL2_FNAPlatform.SetPresentationInterval;
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
+			GetCurrentDisplayMode =		SDL2_FNAPlatform.GetCurrentDisplayMode;
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
 			StartTextInput =		SDL2.SDL.SDL_StartTextInput;
 			StopTextInput =			SDL2.SDL.SDL_StopTextInput;
@@ -140,6 +141,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate GraphicsAdapter[] GetGraphicsAdaptersFunc();
 		public static readonly GetGraphicsAdaptersFunc GetGraphicsAdapters;
+
+		public delegate DisplayMode GetCurrentDisplayModeFunc(int adapterIndex);
+		public static readonly GetCurrentDisplayModeFunc GetCurrentDisplayMode;
 
 		public delegate Keys GetKeyFromScancodeFunc(Keys scancode);
 		public static readonly GetKeyFromScancodeFunc GetKeyFromScancode;

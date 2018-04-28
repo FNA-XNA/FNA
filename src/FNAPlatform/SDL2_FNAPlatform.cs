@@ -966,19 +966,24 @@ namespace Microsoft.Xna.Framework
 						);
 					}
 				}
-				SDL.SDL_GetCurrentDisplayMode(i, out filler);
 				adapters[i] = new GraphicsAdapter(
-					new DisplayMode(
-						filler.w,
-						filler.h,
-						SurfaceFormat.Color // FIXME: Assumption!
-					),
 					new DisplayModeCollection(modes),
 					@"\\.\DISPLAY" + (i + 1).ToString(),
 					SDL.SDL_GetDisplayName(i)
 				);
 			}
 			return adapters;
+		}
+
+		public static DisplayMode GetCurrentDisplayMode(int adapterIndex)
+		{
+			SDL.SDL_DisplayMode filler = new SDL.SDL_DisplayMode();
+			SDL.SDL_GetCurrentDisplayMode(adapterIndex, out filler);
+			return new DisplayMode(
+				filler.w,
+				filler.h,
+				SurfaceFormat.Color // FIXME: Assumption!
+			);
 		}
 
 		#endregion
