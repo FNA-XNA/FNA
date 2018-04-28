@@ -20,8 +20,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public DisplayMode CurrentDisplayMode
 		{
-			get;
-			private set;
+			get
+			{
+				return FNAPlatform.GetCurrentDisplayMode(
+					Adapters.IndexOf(this)
+				);
+			}
 		}
 
 		public DisplayModeCollection SupportedDisplayModes
@@ -159,12 +163,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Internal Constructor
 
 		internal GraphicsAdapter(
-			DisplayMode currentMode,
 			DisplayModeCollection modes,
 			string name,
 			string description
 		) {
-			CurrentDisplayMode = currentMode;
 			SupportedDisplayModes = modes;
 			DeviceName = name;
 			Description = description;
@@ -193,9 +195,27 @@ namespace Microsoft.Xna.Framework.Graphics
 			int multiSampleCount,
 			out SurfaceFormat selectedFormat,
 			out DepthFormat selectedDepthFormat,
-			out int selectedMultiSampleCount)
-		{
-			throw new NotImplementedException();
+			out int selectedMultiSampleCount
+		) {
+			/* We don't have a good way to query target formats,
+			 * so just assume the HiDef guaranteed formats...
+			 * -flibit
+			 */
+			if (	format != SurfaceFormat.Color &&
+				format != SurfaceFormat.HdrBlendable	)
+			{
+				selectedFormat = SurfaceFormat.Color;
+			}
+			else
+			{
+				selectedFormat = format;
+			}
+			selectedDepthFormat = depthFormat;
+			selectedMultiSampleCount = 0; // Okay, sure, sorry.
+
+			return (	format == selectedFormat &&
+					depthFormat == selectedDepthFormat &&
+					multiSampleCount == selectedMultiSampleCount	);
 		}
 
 		public bool QueryBackBufferFormat(
@@ -207,11 +227,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			out DepthFormat selectedDepthFormat,
 			out int selectedMultiSampleCount)
 		{
-			/* FIXME: MultiSampleCount could actually be dynamic.
-			 * However, the rest is essentially what we decide when doing
-			 * the faux-backbuffer, so here's me caring.
-			 * -flibit
-			 */
 			selectedFormat = SurfaceFormat.Color; // Seriously?
 			selectedDepthFormat = depthFormat;
 			selectedMultiSampleCount = 0; // Okay, sure, sorry.
