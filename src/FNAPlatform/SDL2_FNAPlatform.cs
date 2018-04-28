@@ -759,27 +759,20 @@ namespace Microsoft.Xna.Framework
 						}
 
 						// Window Resize
-						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED)
-						{
-							Mouse.INTERNAL_WindowWidth = evt.window.data1;
-							Mouse.INTERNAL_WindowHeight = evt.window.data2;
-
-							/* This should be called on user resize only, NOT ApplyChanges!
-							 * Also ignore any other "resizes" (alt-tab, fullscreen, etc.)
-							 * -flibit
-							 */
-							if (GetWindowResizable(game.Window.Handle))
-							{
-								((FNAWindow) game.Window).INTERNAL_ClientSizeChanged();
-							}
-						}
 						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_SIZE_CHANGED)
 						{
+							// This is called on both API and WM resizes
 							Mouse.INTERNAL_WindowWidth = evt.window.data1;
 							Mouse.INTERNAL_WindowHeight = evt.window.data2;
+						}
+						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED)
+						{
+							// This is only called on WM resizes, right after SIZE_CHANGED
+							((FNAWindow) game.Window).INTERNAL_ClientSizeChanged();
 						}
 						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_EXPOSED)
 						{
+							// This is typically called when the window is made bigger
 							game.RedrawWindow();
 						}
 
