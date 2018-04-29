@@ -792,18 +792,6 @@ M: System.Void SDL2.SDL_mixer::SDL_MIXER_VERSION(SDL2.SDL/SDL_version&)
 M: System.Void SDL2.SDL_ttf::SDL_TTF_VERSION(SDL2.SDL/SDL_version&)
 M: System.Int32 SDL2.SDL_ttf::TTF_SizeUTF8(System.IntPtr,System.String,System.Int32&,System.Int32&)
 
-R: Gendarme.Rules.Performance.AvoidUncalledPrivateCodeRule
-M: System.Void SDL2.SDL::INTERNAL_SDL_SetError(System.Byte[])
-M: System.Void SDL2.SDL::INTERNAL_SDL_Log(System.Byte[])
-M: System.Void SDL2.SDL::INTERNAL_SDL_LogVerbose(System.Int32,System.Byte[])
-M: System.Void SDL2.SDL::INTERNAL_SDL_LogDebug(System.Int32,System.Byte[])
-M: System.Void SDL2.SDL::INTERNAL_SDL_LogInfo(System.Int32,System.Byte[])
-M: System.Void SDL2.SDL::INTERNAL_SDL_LogWarn(System.Int32,System.Byte[])
-M: System.Void SDL2.SDL::INTERNAL_SDL_LogError(System.Int32,System.Byte[])
-M: System.Void SDL2.SDL::INTERNAL_SDL_LogCritical(System.Int32,System.Byte[])
-M: System.Void SDL2.SDL::INTERNAL_SDL_LogMessage(System.Int32,SDL2.SDL/SDL_LogPriority,System.Byte[])
-M: System.Void SDL2.SDL::INTERNAL_SDL_LogMessageV(System.Int32,SDL2.SDL/SDL_LogPriority,System.Byte[])
-
 R: Gendarme.Rules.Performance.AvoidUnneededFieldInitializationRule
 M: System.Void SDL2.SDL::.cctor()
 
