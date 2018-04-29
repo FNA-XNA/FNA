@@ -30,8 +30,6 @@ namespace Microsoft.Xna.Framework
 
 		private static string OSVersion;
 
-		private static bool FullscreenOnly;
-
 		private static readonly bool UseScancodes = Environment.GetEnvironmentVariable(
 			"FNA_KEYBOARD_USE_SCANCODES"
 		) == "1";
@@ -92,15 +90,6 @@ namespace Microsoft.Xna.Framework
 					IntPtr.Zero
 				);
 			}
-
-			// Some platforms (console, mobile) don't have windows!
-			FullscreenOnly =  !(	OSVersion.Equals("Windows") ||
-						OSVersion.Equals("Mac OS X") ||
-						OSVersion.Equals("Linux") ||
-						OSVersion.Equals("FreeBSD") ||
-						OSVersion.Equals("OpenBSD") ||
-						OSVersion.Equals("NetBSD") ||
-						OSVersion.Equals("Emscripten")	);
 
 			// If available, load the SDL_GameControllerDB
 			string mappingsDB = Path.Combine(
@@ -185,11 +174,6 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_WindowFlags.SDL_WINDOW_INPUT_FOCUS |
 				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
 			);
-
-			if (FullscreenOnly)
-			{
-				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP;
-			}
 
 			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
 			{
@@ -339,9 +323,6 @@ namespace Microsoft.Xna.Framework
 				clientWidth /= 2;
 				clientHeight /= 2;
 			}
-
-			// On platforms without windows, force fullscreen
-			wantsFullscreen |= FullscreenOnly;
 
 			// When windowed, set the size before moving
 			if (!wantsFullscreen)
