@@ -96,28 +96,6 @@ namespace Microsoft.Xna.Framework.Storage
 			StorageDevice = device;
 			DisplayName = name;
 
-			// Generate the path of the game's savefolder
-			storagePath = Path.Combine(
-				rootPath,
-				Path.GetFileNameWithoutExtension(
-					AppDomain.CurrentDomain.FriendlyName
-				).Replace(".vshost", "")
-			);
-
-			// Create the root folder for all titles, if needed.
-			if (!Directory.Exists(storagePath))
-			{
-				Directory.CreateDirectory(storagePath);
-			}
-
-			storagePath = Path.Combine(storagePath, name);
-
-			// Create the sub-folder for this container/title's files, if needed.
-			if (!Directory.Exists(storagePath))
-			{
-				Directory.CreateDirectory(storagePath);
-			}
-
 			/* There are two types of subfolders within a StorageContainer.
 			 * The first is a PlayerX folder, X being a specified PlayerIndex.
 			 * The second is AllPlayers, when PlayerIndex is NOT specified.
@@ -125,16 +103,15 @@ namespace Microsoft.Xna.Framework.Storage
 			 * game save folder.
 			 * -flibit
 			 */
-			if (playerIndex.HasValue)
-			{
-				storagePath = Path.Combine(storagePath, "Player" + ((int) playerIndex.Value + 1).ToString());
-			}
-			else
-			{
-				storagePath = Path.Combine(storagePath, "AllPlayers");
-			}
+			storagePath = Path.Combine(
+				rootPath,		// Title folder (EXE name)...
+				name	,		// Container folder...
+				playerIndex.HasValue ?	// Player folder...
+					("Player" + ((int) playerIndex.Value + 1).ToString()) :
+					"AllPlayers"
+			);
 
-			// Create the player folder, if needed.
+			// Create the folders, if needed.
 			if (!Directory.Exists(storagePath))
 			{
 				Directory.CreateDirectory(storagePath);

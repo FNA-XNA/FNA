@@ -1054,11 +1054,18 @@ namespace Microsoft.Xna.Framework
 
 		public static string GetStorageRoot()
 		{
+			// Generate the path of the game's savefolder
+			string exeName = Path.GetFileNameWithoutExtension(
+				AppDomain.CurrentDomain.FriendlyName
+			).Replace(".vshost", "");
+
+			// Get the OS save folder, append the EXE name
 			if (OSVersion.Equals("Windows"))
 			{
 				return Path.Combine(
 					Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-					"SavedGames"
+					"SavedGames",
+					exeName
 				);
 			}
 			if (OSVersion.Equals("Mac OS X"))
@@ -1068,8 +1075,11 @@ namespace Microsoft.Xna.Framework
 				{
 					return "."; // Oh well.
 				}
-				osConfigDir += "/Library/Application Support";
-				return osConfigDir;
+				return Path.Combine(
+					osConfigDir,
+					"/Library/Application Support",
+					exeName
+				);
 			}
 			if (	OSVersion.Equals("Linux") ||
 				OSVersion.Equals("FreeBSD") ||
@@ -1087,49 +1097,17 @@ namespace Microsoft.Xna.Framework
 					}
 					osConfigDir += "/.local/share";
 				}
-				return osConfigDir;
+				return Path.Combine(osConfigDir, exeName);
 			}
 
-			bool requireAssemblyCompany = false;
-			if (	OSVersion.Equals("iOS") ||
-				OSVersion.Equals("tvOS") ||
-				OSVersion.Equals("Android") ||
-				OSVersion.Equals("Emscripten")	)
-			{
-				/* TODO: Remove above platforms if they
-				 * virtualize the save directory for apps.
-				 * -flibit
-				 */
-				requireAssemblyCompany = true;
-			}
-
-			/* StorageContainer and SDL_GetPrefPath kind of
-			 * overlap each other. Container produces 'app'
-			 * but for SDL only 'org' is optional. So we
-			 * deal with this by sending _our_ org to SDL,
-			 * then StorageContainer appends the app name.
+			/* There is a minor inaccuracy here: SDL_GetPrefPath
+			 * creates the directories right away, whereas XNA will
+			 * only create the directory upon creating a container.
+			 * So if you create a StorageDevice and hit a property,
+			 * the game folder is made early!
 			 * -flibit
 			 */
-			string app = "FNA"; /* Gotta be somethin' */
-			Assembly assembly = Assembly.GetEntryAssembly();
-			if (assembly != null)
-			{
-				AssemblyCompanyAttribute ca = (AssemblyCompanyAttribute) Attribute.GetCustomAttribute(
-					assembly,
-					typeof(AssemblyCompanyAttribute)
-				);
-				if (ca != null && !string.IsNullOrEmpty(ca.Company))
-				{
-					app = INTERNAL_StripBadChars(ca.Company);
-				}
-				else if (requireAssemblyCompany)
-				{
-					throw new ArgumentNullException(
-						"Set AssemblyCompany in your AssemblyInfo!"
-					);
-				}
-			}
-			return SDL.SDL_GetPrefPath(null, app);
+			return SDL.SDL_GetPrefPath(null, exeName);
 		}
 
 		#endregion
