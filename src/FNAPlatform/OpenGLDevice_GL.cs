@@ -126,7 +126,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_RGB =				0x1907,
 			GL_RGBA =				0x1908,
 			GL_LUMINANCE =				0x1909,
-			GL_LUMINANCE8 =				0x8040,
 			GL_RGB8 =				0x8051,
 			GL_RGBA8 =				0x8058,
 			GL_RGBA4 =				0x8056,

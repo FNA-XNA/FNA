@@ -3925,7 +3925,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_RGB10_A2_EXT,				// SurfaceFormat.Rgba1010102
 				GLenum.GL_RG16,					// SurfaceFormat.Rg32
 				GLenum.GL_RGBA16,				// SurfaceFormat.Rgba64
-				GLenum.GL_LUMINANCE8,				// SurfaceFormat.Alpha8
+				GLenum.GL_LUMINANCE,				// SurfaceFormat.Alpha8
 				GLenum.GL_R32F,					// SurfaceFormat.Single
 				GLenum.GL_RG32F,				// SurfaceFormat.Vector2
 				GLenum.GL_RGBA32F,				// SurfaceFormat.Vector4
