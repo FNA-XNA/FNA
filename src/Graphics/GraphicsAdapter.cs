@@ -197,11 +197,24 @@ namespace Microsoft.Xna.Framework.Graphics
 			out DepthFormat selectedDepthFormat,
 			out int selectedMultiSampleCount
 		) {
-			/* We don't have a good way to query target formats,
-			 * so just assume the HiDef guaranteed formats...
+			/* Per the OpenGL 3.0 Specification, section 3.9.1,
+			 * under "Required Texture Formats". These are the
+			 * formats required for renderbuffer support.
+			 *
+			 * TODO: Per the 4.5 Specification, section 8.5.1,
+			 * RGB565, RGB5_A1, RGBA4 are also supported.
 			 * -flibit
 			 */
 			if (	format != SurfaceFormat.Color &&
+				format != SurfaceFormat.Rgba1010102 &&
+				format != SurfaceFormat.Rg32 &&
+				format != SurfaceFormat.Rgba64 &&
+				format != SurfaceFormat.Single &&
+				format != SurfaceFormat.Vector2 &&
+				format != SurfaceFormat.Vector4 &&
+				format != SurfaceFormat.HalfSingle &&
+				format != SurfaceFormat.HalfVector2 &&
+				format != SurfaceFormat.HalfVector4 &&
 				format != SurfaceFormat.HdrBlendable	)
 			{
 				selectedFormat = SurfaceFormat.Color;
