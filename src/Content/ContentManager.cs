@@ -474,20 +474,35 @@ namespace Microsoft.Xna.Framework.Content
 				 */
 				int compressedSize = xnbLength - 14;
 				int decompressedSize = xnbReader.ReadInt32();
+
+				// This will replace the XNB stream at the end
 				MemoryStream decompressedStream = new MemoryStream(
 					new byte[decompressedSize],
 					0,
 					decompressedSize,
 					true,
-					true // This MUST be true! We may need GetBuffer()!
+					true // This MUST be true! Readers may need GetBuffer()!
 				);
+
+				/* Read in the whole XNB file at once, into a temp buffer.
+				 * For slow disks, the extra malloc is more than worth the
+				 * performance improvement from not constantly fread()ing!
+				 */
+				MemoryStream compressedStream = new MemoryStream(
+					new byte[compressedSize],
+					0,
+					compressedSize,
+					true,
+					true
+				);
+				stream.Read(compressedStream.GetBuffer(), 0, compressedSize);
+
 				// Default window size for XNB encoded files is 64Kb (need 16 bits to represent it)
 				LzxDecoder dec = new LzxDecoder(16);
 				int decodedBytes = 0;
-				long startPos = stream.Position;
-				long pos = startPos;
+				long pos = 0;
 
-				while (pos - startPos < compressedSize)
+				while (pos < compressedSize)
 				{
 					/* The compressed stream is separated into blocks that will
 					 * decompress into 32kB or some other size if specified.
@@ -498,18 +513,18 @@ namespace Microsoft.Xna.Framework.Content
 					 * and another for the block size. All shorts for these
 					 * cases are encoded in big endian order.
 					 */
-					int hi = stream.ReadByte();
-					int lo = stream.ReadByte();
+					int hi = compressedStream.ReadByte();
+					int lo = compressedStream.ReadByte();
 					int block_size = (hi << 8) | lo;
 					int frame_size = 0x8000; // Frame size is 32kB by default
 					// Does this block define a frame size?
 					if (hi == 0xFF)
 					{
 						hi = lo;
-						lo = (byte) stream.ReadByte();
+						lo = (byte) compressedStream.ReadByte();
 						frame_size = (hi << 8) | lo;
-						hi = (byte) stream.ReadByte();
-						lo = (byte) stream.ReadByte();
+						hi = (byte) compressedStream.ReadByte();
+						lo = (byte) compressedStream.ReadByte();
 						block_size = (hi << 8) | lo;
 						pos += 5;
 					}
@@ -522,13 +537,13 @@ namespace Microsoft.Xna.Framework.Content
 					{
 						break;
 					}
-					dec.Decompress(stream, block_size, decompressedStream, frame_size);
+					dec.Decompress(compressedStream, block_size, decompressedStream, frame_size);
 					pos += block_size;
 					decodedBytes += frame_size;
 					/* Reset the position of the input just in case the bit
 					 * buffer read in some unused bytes.
 					 */
-					stream.Seek(pos, SeekOrigin.Begin);
+					compressedStream.Seek(pos, SeekOrigin.Begin);
 				}
 				if (decompressedStream.Position != decompressedSize)
 				{
