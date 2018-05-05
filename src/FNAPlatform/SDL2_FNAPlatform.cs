@@ -34,6 +34,8 @@ namespace Microsoft.Xna.Framework
 			"FNA_KEYBOARD_USE_SCANCODES"
 		) == "1";
 
+		private static float HapticMaxWorkaround;
+
 		#endregion
 
 		#region Game Objects
@@ -89,6 +91,42 @@ namespace Microsoft.Xna.Framework
 					win32OnPaint,
 					IntPtr.Zero
 				);
+			}
+
+			/* FIXME: SDL bug!
+			 * I have a bit of a confession to make: In 2013 I wrote
+			 * SDL_HAPTIC_LEFTRIGHT, and I developed it primarily on
+			 * Linux, where the force feedback API works with u16
+			 * values. The only other platform that legitimately
+			 * supports left/right rumble is Windows, where XInput
+			 * coincidentally also takes in u16 values.
+			 *
+			 * As it turns out, both in XInput and Linux, the
+			 * existing effect code had bugs where neither platform
+			 * adjusted the input value to what SDL _actually_
+			 * expects, which is s16 > 0, to mimic DirectInput.
+			 * So when writing LEFTRIGHT, it just happened to work
+			 * exactly right on the only supported platforms.
+			 *
+			 * But then someone fixed the bug in XInput, and on
+			 * platforms that have emerged since then, our max value
+			 * finally broke. Interestingly this may also be wrong
+			 * for LeftRightMacHack, but that was someone else's
+			 * custom driver and they wrote that path so :shrug:
+			 *
+			 * For now, we're going to keep using u16 on Linux, and
+			 * s16 > 0 everywhere else. Remove this when 2.0.9 is
+			 * out, and go back to u16 when 2.1 is out and bases its
+			 * magnitudes on XInput rather than DirectInput.
+			 * -flibit
+			 */
+			if (OSVersion.Equals("Linux"))
+			{
+				HapticMaxWorkaround = 65535.0f;
+			}
+			else
+			{
+				HapticMaxWorkaround = 32767.0f;
 			}
 
 			// If available, load the SDL_GameControllerDB
@@ -1792,8 +1830,8 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (type == HapticType.LeftRight)
 			{
-				INTERNAL_leftRightEffect.leftright.large_magnitude = (ushort) (65535.0f * leftMotor);
-				INTERNAL_leftRightEffect.leftright.small_magnitude = (ushort) (65535.0f * rightMotor);
+				INTERNAL_leftRightEffect.leftright.large_magnitude = (ushort) (HapticMaxWorkaround * leftMotor);
+				INTERNAL_leftRightEffect.leftright.small_magnitude = (ushort) (HapticMaxWorkaround * rightMotor);
 				SDL.SDL_HapticUpdateEffect(
 					haptic,
 					0,
@@ -1807,8 +1845,8 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (type == HapticType.LeftRightMacHack)
 			{
-				leftRightMacHackData[0] = (ushort) (65535.0f * leftMotor);
-				leftRightMacHackData[1] = (ushort) (65535.0f * rightMotor);
+				leftRightMacHackData[0] = (ushort) (HapticMaxWorkaround * leftMotor);
+				leftRightMacHackData[1] = (ushort) (HapticMaxWorkaround * rightMotor);
 				SDL.SDL_HapticUpdateEffect(
 					haptic,
 					0,
