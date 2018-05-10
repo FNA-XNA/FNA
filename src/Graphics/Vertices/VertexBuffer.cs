@@ -263,6 +263,25 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Public Extensions
+
+		public void SetDataPointerEXT(
+			int offsetInBytes,
+			IntPtr data,
+			int dataLength,
+			SetDataOptions options
+		) {
+			GraphicsDevice.GLDevice.SetVertexBufferData(
+				buffer,
+				offsetInBytes,
+				data,
+				dataLength,
+				options
+			);
+		}
+
+		#endregion
+
 		#region Internal Methods
 
 		[System.Diagnostics.Conditional("DEBUG")]
