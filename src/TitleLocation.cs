@@ -19,17 +19,10 @@ namespace Microsoft.Xna.Framework
 
 		public static string Path
 		{
-			get;
-			private set;
-		}
-
-		#endregion
-
-		#region Static Constructor
-
-		static TitleLocation()
-		{
-			Path = FNAPlatform.GetBaseDirectory();
+			get
+			{
+				return FNAPlatform.TitleLocation;
+			}
 		}
 
 		#endregion
