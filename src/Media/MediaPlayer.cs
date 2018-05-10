@@ -333,7 +333,7 @@ namespace Microsoft.Xna.Framework.Media
 			 * and then assigns a bunch of stuff to it at Play time.
 			 * -flibit
 			 */
-			Queue.Add(new Song(song.handle));
+			Queue.Add(new Song(song.handle, song.Name));
 		}
 
 		private static void NextSong(int direction)

@@ -87,9 +87,14 @@ namespace Microsoft.Xna.Framework.Media
 
 		#region Constructors, Deconstructor, Dispose()
 
-		internal Song(string fileName)
+		internal Song(string fileName, string name = null)
 		{
+			if (!System.IO.File.Exists(fileName))
+			{
+				throw new System.IO.FileNotFoundException(fileName);
+			}
 			handle = fileName;
+			Name = name;
 			IsDisposed = false;
 		}
 
@@ -178,10 +183,7 @@ namespace Microsoft.Xna.Framework.Media
 				path = uri.ToString();
 			}
 
-			return new Song(path)
-			{
-				Name = name
-			};
+			return new Song(path, name);
 		}
 
 		#endregion
