@@ -26,7 +26,7 @@ namespace Microsoft.Xna.Framework.Media
 		public TimeSpan Duration
 		{
 			get;
-			private set;
+			internal set;
 		}
 
 		public bool IsProtected
@@ -81,7 +81,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		#region Internal Variables
 
-		internal IntPtr handle;
+		internal string handle;
 
 		#endregion
 
@@ -89,31 +89,13 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal Song(string fileName)
 		{
-			float seconds;
-			handle = FAudio.XNA_GenSong(fileName, out seconds);
-			if (handle == IntPtr.Zero)
-			{
-				throw new Audio.NoAudioHardwareException();
-			}
-			Duration = TimeSpan.FromSeconds(seconds);
+			handle = fileName;
 			IsDisposed = false;
 		}
 
 		internal Song(string fileName, int durationMS) : this(fileName)
 		{
-			/* If you got here, you've still got the XNB file! Well done!
-			 * Except if you're running FNA, you're not using the WMA anymore.
-			 * But surely it's the same song, right...?
-			 * Well, consider this a check more than anything. If this bothers
-			 * you, just remove the XNB file and we'll read the OGG straight up.
-			 *
-			 * FIXME: Guess what, durationMS isn't terribly accurate, so forget it.
-			 * -flibit
-			if (Math.Abs(Duration.Milliseconds - durationMS) > 1000)
-			{
-				throw new InvalidOperationException("XNB/OGG duration mismatch!");
-			}
-			 */
+			Duration = TimeSpan.FromMilliseconds(durationMS);
 		}
 
 		~Song()
@@ -123,12 +105,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		public void Dispose()
 		{
-			if (!IsDisposed)
-			{
-				FAudio.XNA_DisposeSong(handle);
-				handle = IntPtr.Zero;
-				IsDisposed = true;
-			}
+			IsDisposed = true;
 		}
 
 		#endregion

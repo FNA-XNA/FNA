@@ -133,6 +133,8 @@ namespace Microsoft.Xna.Framework.Media
 		private static MediaState INTERNAL_state = MediaState.Stopped;
 		private static float INTERNAL_volume = 1.0f;
 
+		private static bool initialized = false;
+
 		/* Need to hold onto this to keep track of how many songs
 		 * have played when in shuffle mode.
 		 */
@@ -194,7 +196,7 @@ namespace Microsoft.Xna.Framework.Media
 
 			Queue.Clear();
 			numSongsInQueuePlayed = 0;
-			Queue.Add(song);
+			LoadSong(song);
 			Queue.ActiveSongIndex = 0;
 
 			PlaySong(song);
@@ -217,7 +219,7 @@ namespace Microsoft.Xna.Framework.Media
 
 			foreach (Song song in songs)
 			{
-				Queue.Add(song);
+				LoadSong(song);
 			}
 
 			Queue.ActiveSongIndex = index;
@@ -296,6 +298,15 @@ namespace Microsoft.Xna.Framework.Media
 			MoveNext();
 		}
 
+		internal static void DisposeIfNecessary()
+		{
+			if (initialized)
+			{
+				FAudio.XNA_SongQuit();
+				initialized = false;
+			}
+		}
+
 		internal static void OnActiveSongChanged()
 		{
 			if (ActiveSongChanged != null)
@@ -315,6 +326,15 @@ namespace Microsoft.Xna.Framework.Media
 		#endregion
 
 		#region Private Static Methods
+
+		private static void LoadSong(Song song)
+		{
+			/* Believe it or not, XNA duplicates the Song object
+			 * and then assigns a bunch of stuff to it at Play time.
+			 * -flibit
+			 */
+			Queue.Add(new Song(song.handle));
+		}
 
 		private static void NextSong(int direction)
 		{
@@ -343,7 +363,12 @@ namespace Microsoft.Xna.Framework.Media
 
 		private static void PlaySong(Song song)
 		{
-			FAudio.XNA_PlaySong(song.handle);
+			if (!initialized)
+			{
+				FAudio.XNA_SongInit();
+				initialized =  true;
+			}
+			song.Duration = TimeSpan.FromSeconds(FAudio.XNA_PlaySong(song.handle));
 			timer.Start();
 			State = MediaState.Playing;
 		}

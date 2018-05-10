@@ -184,6 +184,7 @@ namespace Microsoft.Xna.Framework
 			{
 				SoundEffect.FAudioContext.Context.Dispose();
 			}
+			Media.MediaPlayer.DisposeIfNecessary();
 
 			// This _should_ be the last SDL call we make...
 			SDL.SDL_Quit();
