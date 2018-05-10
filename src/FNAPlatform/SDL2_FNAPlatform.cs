@@ -47,7 +47,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Init/Exit Methods
 
-		public static void ProgramInit()
+		public static string ProgramInit()
 		{
 			// This is how we can weed out cases where fnalibs is missing
 			try
@@ -129,9 +129,12 @@ namespace Microsoft.Xna.Framework
 				HapticMaxWorkaround = 32767.0f;
 			}
 
+			/* Mount TitleLocation.Path */
+			string titleLocation = GetBaseDirectory();
+
 			// If available, load the SDL_GameControllerDB
 			string mappingsDB = Path.Combine(
-				TitleLocation.Path,
+				titleLocation,
 				"gamecontrollerdb.txt"
 			);
 			if (File.Exists(mappingsDB))
@@ -171,6 +174,8 @@ namespace Microsoft.Xna.Framework
 			) == 1) {
 				INTERNAL_AddInstance(evt[0].cdevice.which);
 			}
+
+			return titleLocation;
 		}
 
 		public static void ProgramExit(object sender, EventArgs e)
@@ -1062,7 +1067,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Storage Methods
 
-		public static string GetBaseDirectory()
+		private static string GetBaseDirectory()
 		{
 			if (	OSVersion.Equals("Windows") ||
 				OSVersion.Equals("Mac OS X") ||
