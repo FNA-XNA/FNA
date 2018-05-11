@@ -73,13 +73,15 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (INTERNAL_isXACTSource)
-				{
-					value = MathHelper.Clamp(value, -2.0f, 2.0f);
-				}
-				else
-				{
-					value = MathHelper.Clamp(value, -1.0f, 1.0f);
+				if (!IsUnclampedEXT) {
+					if (INTERNAL_isXACTSource)
+					{
+						value = MathHelper.Clamp(value, -2.0f, 2.0f);
+					}
+					else
+					{
+						value = MathHelper.Clamp(value, -1.0f, 1.0f);
+					}
 				}
 				INTERNAL_pitch = value;
 				if (INTERNAL_alSource != null)
@@ -87,10 +89,19 @@ namespace Microsoft.Xna.Framework.Audio
 					AudioDevice.ALDevice.SetSourcePitch(
 						INTERNAL_alSource,
 						value,
-						!INTERNAL_isXACTSource
+						!INTERNAL_isXACTSource && !IsUnclampedEXT
 					);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Defaults to false. If set to true the Pitch property will not be clamped between -1 and +1 (or -2 and +2 for XACT sounds).
+		/// </summary>
+		public bool IsUnclampedEXT
+		{
+			get;
+			set;
 		}
 
 		public SoundState State
