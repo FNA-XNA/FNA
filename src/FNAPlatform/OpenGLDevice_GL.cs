@@ -855,7 +855,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (type == GLenum.GL_DEBUG_TYPE_ERROR_ARB)
 			{
 				FNALoggerEXT.LogError(err);
-				throw new InvalidOperationException("ARB_debug_output found an error.");
+				throw new InvalidOperationException(err);
 			}
 			FNALoggerEXT.LogWarn(err);
 		}
