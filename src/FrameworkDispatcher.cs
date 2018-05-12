@@ -22,7 +22,7 @@ namespace Microsoft.Xna.Framework
 
 		internal static bool ActiveSongChanged = false;
 		internal static bool MediaStateChanged = false;
-		internal static List<SoundEffectInstance> DeadSounds = new List<SoundEffectInstance>();
+		internal static Queue<SoundEffectInstance> DeadSounds = new Queue<SoundEffectInstance>();
 		internal static List<DynamicSoundEffectInstance> Streams = new List<DynamicSoundEffectInstance>();
 
 		#endregion
@@ -34,9 +34,9 @@ namespace Microsoft.Xna.Framework
 			/* Updates the status of various framework components
 			 * (such as power state and media), and raises related events.
 			 */
-			foreach (SoundEffectInstance sound in DeadSounds)
+			while (DeadSounds.Count > 0)
 			{
-				sound.Stop(true);
+				DeadSounds.Dequeue().Stop(true);
 			}
 			foreach (DynamicSoundEffectInstance stream in Streams)
 			{

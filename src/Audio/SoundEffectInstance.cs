@@ -481,7 +481,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			FAudio.FAudioSourceVoice_Stop(handle, 0, 0);
 			State = SoundState.Stopped;
-			FrameworkDispatcher.DeadSounds.Add(this);
+			FrameworkDispatcher.DeadSounds.Enqueue(this);
 		}
 
 		private unsafe void SetPanMatrixCoefficients()
