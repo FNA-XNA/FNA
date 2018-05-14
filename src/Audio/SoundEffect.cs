@@ -126,6 +126,8 @@ namespace Microsoft.Xna.Framework.Audio
 		internal List<WeakReference> Instances = new List<WeakReference>();
 		internal FAudio.FAudioBuffer handle;
 		internal FAudio.FAudioWaveFormatEx format;
+		internal uint loopStart;
+		internal uint loopLength;
 
 		#endregion
 
@@ -140,12 +142,14 @@ namespace Microsoft.Xna.Framework.Audio
 			buffer,
 			0,
 			buffer.Length,
-			sampleRate,
-			(ushort) channels,
-			0,
-			0,
 			1,
-			16
+			(ushort) channels,
+			(uint) sampleRate,
+			(uint) (sampleRate * ((ushort) channels * 2)),
+			(ushort) ((ushort) channels * 2),
+			16,
+			0,
+			0
 		) {
 		}
 
@@ -162,12 +166,14 @@ namespace Microsoft.Xna.Framework.Audio
 			buffer,
 			offset,
 			count,
-			sampleRate,
-			(ushort) channels,
-			loopStart,
-			loopLength,
 			1,
-			16
+			(ushort) channels,
+			(uint) sampleRate,
+			(uint) (sampleRate * ((ushort) channels * 2)),
+			(ushort) ((ushort) channels * 2),
+			16,
+			loopStart,
+			loopLength
 		) {
 		}
 
@@ -180,26 +186,29 @@ namespace Microsoft.Xna.Framework.Audio
 			byte[] buffer,
 			int offset,
 			int count,
-			int sampleRate,
-			ushort channels,
+			ushort wFormatTag,
+			ushort nChannels,
+			uint nSamplesPerSec,
+			uint nAvgBytesPerSec,
+			ushort nBlockAlign,
+			ushort wBitsPerSample,
 			int loopStart,
-			int loopLength,
-			ushort formatTag,
-			ushort formatParameter
+			int loopLength
 		) {
 			Device();
 			Name = name;
+			this.loopStart = (uint) loopStart;
+			this.loopLength = (uint) loopLength;
 
 			/* Buffer format */
 			format = new FAudio.FAudioWaveFormatEx();
-			format.wFormatTag = formatTag;
-			format.nChannels = channels;
-			format.nSamplesPerSec = (uint) sampleRate;
-			format.nAvgBytesPerSec = 0; /* FIXME */
-
-			/* Lazily assigning formatParameter... */
-			format.nBlockAlign = formatParameter;
-			format.wBitsPerSample = formatParameter;
+			format.wFormatTag = wFormatTag;
+			format.nChannels = nChannels;
+			format.nSamplesPerSec = nSamplesPerSec;
+			format.nAvgBytesPerSec = nAvgBytesPerSec;
+			format.nBlockAlign = nBlockAlign;
+			format.wBitsPerSample = wBitsPerSample;
+			format.cbSize = 0; /* May be needed for ADPCM? */
 
 			/* Easy stuff */
 			handle = new FAudio.FAudioBuffer();
@@ -218,28 +227,27 @@ namespace Microsoft.Xna.Framework.Audio
 
 			/* Play regions */
 			handle.PlayBegin = 0;
-			if (formatTag == 1)
+			if (wFormatTag == 1)
 			{
 				handle.PlayLength = (uint) (
 					count /
-					format.nChannels /
-					(format.wBitsPerSample / 8)
+					nChannels /
+					(wBitsPerSample / 8)
 				);
 			}
-			else if (formatTag == 2)
+			else if (wFormatTag == 2)
 			{
 				handle.PlayLength = (uint) (
 					count /
-					formatParameter *
-					(((formatParameter / channels) - 6) * 2)
+					nBlockAlign *
+					(((nBlockAlign / nChannels) - 6) * 2)
 				);
 			}
-			handle.LoopBegin = (uint) loopStart;
-			handle.LoopLength = (uint) loopLength;
-			handle.LoopCount = 0; /* Set by Instances! */
 
-			/* TODO: Might be needed for ADPCMWaveFormat accuracy */
-			format.cbSize = 0;
+			/* Set by Instances! */
+			handle.LoopBegin = 0;
+			handle.LoopLength = 0;
+			handle.LoopCount = 0;
 		}
 
 		#endregion
@@ -339,11 +347,17 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public static SoundEffect FromStream(Stream stream)
 		{
+			// Sample data
 			byte[] data;
-			int sampleRate = 0;
-			ushort numChannels = 0;
-			ushort format = 0;
-			ushort formatParameter = 0;
+
+			// WaveFormatEx data
+			ushort wFormatTag;
+			ushort nChannels;
+			uint nSamplesPerSec;
+			uint nAvgBytesPerSec;
+			ushort nBlockAlign;
+			ushort wBitsPerSample;
+			// ushort cbSize;
 
 			using (BinaryReader reader = new BinaryReader(stream))
 			{
@@ -372,27 +386,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 				int format_chunk_size = reader.ReadInt32();
 
-				// Header Information
-				format = reader.ReadUInt16();			// 2
-				numChannels = reader.ReadUInt16();		// 4
-				sampleRate = reader.ReadInt32();		// 8
-				reader.ReadUInt32();				// 12, Byte Rate
-				ushort blockAlign = reader.ReadUInt16();	// 14, Block Align
-				ushort bitDepth = reader.ReadUInt16();		// 16, Bits Per Sample
-
-				if (format == 1)
-				{
-					System.Diagnostics.Debug.Assert(bitDepth == 8 || bitDepth == 16);
-					formatParameter = bitDepth;
-				}
-				else if (format == 2)
-				{
-					formatParameter = blockAlign;
-				}
-				else
-				{
-					throw new NotSupportedException("Wave format is not supported.");
-				}
+				wFormatTag = reader.ReadUInt16();
+				nChannels = reader.ReadUInt16();
+				nSamplesPerSec = reader.ReadUInt32();
+				nAvgBytesPerSec = reader.ReadUInt32();
+				nBlockAlign = reader.ReadUInt16();
+				wBitsPerSample = reader.ReadUInt16();
 
 				// Reads residual bytes
 				if (format_chunk_size > 16)
@@ -421,12 +420,14 @@ namespace Microsoft.Xna.Framework.Audio
 				data,
 				0,
 				data.Length,
-				sampleRate,
-				numChannels,
+				wFormatTag,
+				nChannels,
+				nSamplesPerSec,
+				nAvgBytesPerSec,
+				nBlockAlign,
+				wBitsPerSample,
 				0,
-				0,
-				format,
-				formatParameter
+				0
 			);
 		}
 

@@ -41,26 +41,14 @@ namespace Microsoft.Xna.Framework.Content
 			// Format block length
 			uint formatLength = input.ReadUInt32();
 
-			// Wavedata format
-			ushort format = input.ReadUInt16();
-
-			// Number of channels
-			ushort channels = input.ReadUInt16();
-
-			// Sample rate
-			int sampleRate = input.ReadInt32();
-
-			// Averate bytes per second, unused
-			input.ReadUInt32();
-
-			// Block alignment, needed for MSADPCM
-			ushort blockAlign = input.ReadUInt16();
-
-			// Bit depth
-			ushort bitDepth = input.ReadUInt16();
-
-			// cbSize, unused
-			input.ReadUInt16();
+			// WaveFormatEx data
+			ushort wFormatTag = input.ReadUInt16();
+			ushort nChannels = input.ReadUInt16();
+			uint nSamplesPerSec = input.ReadUInt32();
+			uint nAvgBytesPerSec = input.ReadUInt32();
+			ushort nBlockAlign = input.ReadUInt16();
+			ushort wBitsPerSample = input.ReadUInt16();
+			/* ushort cbSize =*/ input.ReadUInt16();
 
 			// Seek past the rest of this crap (cannot seek though!)
 			input.ReadBytes((int) (formatLength - 18));
@@ -80,14 +68,14 @@ namespace Microsoft.Xna.Framework.Content
 				data,
 				0,
 				data.Length,
-				sampleRate,
-				channels,
+				wFormatTag,
+				nChannels,
+				nSamplesPerSec,
+				nAvgBytesPerSec,
+				nBlockAlign,
+				wBitsPerSample,
 				loopStart,
-				loopLength,
-				format,
-				(format == 2) ?
-					blockAlign :
-					bitDepth
+				loopLength
 			);
 		}
 

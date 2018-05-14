@@ -319,11 +319,13 @@ namespace Microsoft.Xna.Framework.Audio
 				if (IsLooped)
 				{
 					parentEffect.handle.LoopCount = 255;
-					parentEffect.handle.LoopLength = parentEffect.handle.PlayLength;
+					parentEffect.handle.LoopBegin = parentEffect.loopStart;
+					parentEffect.handle.LoopLength = parentEffect.loopLength;
 				}
 				else
 				{
 					parentEffect.handle.LoopCount = 0;
+					parentEffect.handle.LoopBegin = 0;
 					parentEffect.handle.LoopLength = 0;
 				}
 				FAudio.FAudioSourceVoice_SubmitSourceBuffer(
