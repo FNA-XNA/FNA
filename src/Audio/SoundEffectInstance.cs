@@ -270,7 +270,7 @@ namespace Microsoft.Xna.Framework.Audio
 				dev.Handle,
 				out handle,
 				ref fmt,
-				0,
+				FAudio.FAUDIO_VOICE_USEFILTER,
 				FAudio.FAUDIO_DEFAULT_FREQ_RATIO,
 				callbacks,
 				IntPtr.Zero,
@@ -315,7 +315,16 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			else
 			{
-				parentEffect.handle.LoopCount = (uint) (IsLooped ? 255 : 0);
+				if (IsLooped)
+				{
+					parentEffect.handle.LoopCount = 255;
+					parentEffect.handle.LoopLength = parentEffect.handle.PlayLength;
+				}
+				else
+				{
+					parentEffect.handle.LoopCount = 0;
+					parentEffect.handle.LoopLength = 0;
+				}
 				FAudio.FAudioSourceVoice_SubmitSourceBuffer(
 					handle,
 					ref parentEffect.handle,
