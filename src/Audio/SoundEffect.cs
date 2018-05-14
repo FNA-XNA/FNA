@@ -485,6 +485,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 				DSPSettings = new FAudio.F3DAUDIO_DSP_SETTINGS();
 				DSPSettings.DopplerFactor = 1.0f;
+				DSPSettings.DstChannelCount = DeviceDetails.OutputFormat.Format.nChannels;
 				CurveDistanceScaler = 1.0f;
 				SpeedOfSound = 343.5f;
 				Handle3D = new byte[FAudio.F3DAUDIO_HANDLE_BYTESIZE];

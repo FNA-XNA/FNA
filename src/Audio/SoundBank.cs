@@ -229,14 +229,14 @@ namespace Microsoft.Xna.Framework.Audio
 				);
 			}
 
-			FAudio.F3DAUDIO_DSP_SETTINGS settings;
+			FAudio.F3DAUDIO_DSP_SETTINGS settings = new FAudio.F3DAUDIO_DSP_SETTINGS();
 			settings.SrcChannelCount = 1;
 			settings.DstChannelCount = engine.channels;
 			FAudio.FACT3DCalculate(
 				engine.handle3D,
 				ref listener.listenerData,
 				ref emitter.emitterData,
-				out settings
+				ref settings
 			);
 			FAudio.FACTSoundBank_Play3D(
 				handle,

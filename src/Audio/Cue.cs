@@ -161,14 +161,14 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ArgumentNullException("emitter");
 			}
 
-			FAudio.F3DAUDIO_DSP_SETTINGS settings;
+			FAudio.F3DAUDIO_DSP_SETTINGS settings = new FAudio.F3DAUDIO_DSP_SETTINGS();
 			settings.SrcChannelCount = 1;
 			settings.DstChannelCount = bank.engine.channels;
 			FAudio.FACT3DCalculate(
 				bank.engine.handle3D,
 				ref listener.listenerData,
 				ref emitter.emitterData,
-				out settings
+				ref settings
 			);
 			FAudio.FACT3DApply(ref settings, handle);
 		}
