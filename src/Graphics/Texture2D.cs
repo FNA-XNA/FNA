@@ -552,14 +552,28 @@ namespace Microsoft.Xna.Framework.Graphics
 				levels > 1,
 				format
 			);
+			
+			byte[] memoryStreamBuffer = null;
 			if (stream is MemoryStream)
+			{
+				try
+				{
+					memoryStreamBuffer = ((MemoryStream) stream).GetBuffer();
+				}
+				catch (UnauthorizedAccessException)
+				{
+					// MemoryStream buffer isn't public, fall back to ReadBytes.
+					memoryStreamBuffer = null;
+				}
+			}
+			if (memoryStreamBuffer != null)
 			{
 				for (int i = 0; i < levels; i += 1)
 				{
 					result.SetData(
 						i,
 						null,
-						((MemoryStream) stream).GetBuffer(),
+						memoryStreamBuffer,
 						(int) stream.Seek(0, SeekOrigin.Current),
 						levelSize
 					);
