@@ -239,31 +239,18 @@ namespace Microsoft.Xna.Framework.Content
 
 				int levelDataByteOffset = 0;
 				if (	levelData == null &&
-					reader.BaseStream is MemoryStream)
+					reader.BaseStream is MemoryStream &&
+					((MemoryStream) reader.BaseStream).TryGetBuffer(out levelData))
 				{
 					/* Ideally, we didn't have to perform any conversion or
 					 * unnecessary reading. Just throw the buffer directly
 					 * into SetData, skipping a redundant byte[] copy.
 					 */
-					try
-					{
-						levelData = ((MemoryStream) reader.BaseStream).GetBuffer();
-					}
-					catch (UnauthorizedAccessException)
-					{
-						// MemoryStream buffer isn't public, fall back to ReadBytes.
-					}
-					if (levelData != null)
-					{
-						/* Only set the offset and seek if we were able
-						 * to obtain the MemoryStream buffer.
-						 */
-						levelDataByteOffset = (int) reader.BaseStream.Seek(0, SeekOrigin.Current);
-						reader.BaseStream.Seek(
-							levelDataSizeInBytes,
-							SeekOrigin.Current
-						);
-					}
+					levelDataByteOffset = (int) reader.BaseStream.Seek(0, SeekOrigin.Current);
+					reader.BaseStream.Seek(
+						levelDataSizeInBytes,
+						SeekOrigin.Current
+					);
 				}
 				if (	levelData == null)
 				{

@@ -553,27 +553,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				format
 			);
 			
-			byte[] memoryStreamBuffer = null;
-			if (stream is MemoryStream)
-			{
-				try
-				{
-					memoryStreamBuffer = ((MemoryStream) stream).GetBuffer();
-				}
-				catch (UnauthorizedAccessException)
-				{
-					// MemoryStream buffer isn't public, fall back to ReadBytes.
-					memoryStreamBuffer = null;
-				}
-			}
-			if (memoryStreamBuffer != null)
+			byte[] tex = null;
+			if (	stream is MemoryStream &&
+				((MemoryStream) stream).TryGetBuffer(out tex))
 			{
 				for (int i = 0; i < levels; i += 1)
 				{
 					result.SetData(
 						i,
 						null,
-						memoryStreamBuffer,
+						tex,
 						(int) stream.Seek(0, SeekOrigin.Current),
 						levelSize
 					);
@@ -591,7 +580,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				for (int i = 0; i < levels; i += 1)
 				{
-					byte[] tex = reader.ReadBytes(levelSize);
+					tex = reader.ReadBytes(levelSize);
 					result.SetData(
 						i,
 						null,
