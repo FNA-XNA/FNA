@@ -17,10 +17,9 @@ namespace Microsoft.Xna.Framework
 {
 	internal static class FNAInternalExtensions
 	{
-
 		#region MemoryStream.TryGetBuffer Extension
 
-		private readonly static FieldInfo f_MemoryStream_Public =
+		private static readonly FieldInfo f_MemoryStream_Public =
 			// .NET
 			typeof(MemoryStream).GetField("_exposable", BindingFlags.NonPublic | BindingFlags.Instance) ??
 			// Old Mono
@@ -44,11 +43,8 @@ namespace Microsoft.Xna.Framework
 					buffer = stream.GetBuffer();
 					return true;
 				}
-				else
-				{
-					buffer = null;
-					return false;
-				}
+				buffer = null;
+				return false;
 			}
 
 			// If no known field can be found, use a horribly slow try-catch instead.
@@ -65,6 +61,5 @@ namespace Microsoft.Xna.Framework
 		}
 
 		#endregion
-
 	}
 }

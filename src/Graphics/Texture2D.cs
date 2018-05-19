@@ -555,7 +555,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			
 			byte[] tex = null;
 			if (	stream is MemoryStream &&
-				((MemoryStream) stream).TryGetBuffer(out tex))
+				((MemoryStream) stream).TryGetBuffer(out tex)	)
 			{
 				for (int i = 0; i < levels; i += 1)
 				{

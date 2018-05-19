@@ -238,29 +238,37 @@ namespace Microsoft.Xna.Framework.Content
 				}
 
 				int levelDataByteOffset = 0;
-				if (	levelData == null &&
-					reader.BaseStream is MemoryStream &&
-					((MemoryStream) reader.BaseStream).TryGetBuffer(out levelData))
+				if (levelData == null)
 				{
-					/* Ideally, we didn't have to perform any conversion or
-					 * unnecessary reading. Just throw the buffer directly
-					 * into SetData, skipping a redundant byte[] copy.
-					 */
-					levelDataByteOffset = (int) reader.BaseStream.Seek(0, SeekOrigin.Current);
-					reader.BaseStream.Seek(
-						levelDataSizeInBytes,
-						SeekOrigin.Current
-					);
+					if (	reader.BaseStream is MemoryStream &&
+						((MemoryStream) reader.BaseStream).TryGetBuffer(out levelData)	)
+					{
+						/* Ideally, we didn't have to perform any conversion or
+						 * unnecessary reading. Just throw the buffer directly
+						 * into SetData, skipping a redundant byte[] copy.
+						 */
+						levelDataByteOffset = (int) reader.BaseStream.Seek(0, SeekOrigin.Current);
+						reader.BaseStream.Seek(
+							levelDataSizeInBytes,
+							SeekOrigin.Current
+						);
+					}
+					else
+					{
+						/* If we don't have to perform any conversion and
+						 * the ContentReader is not backed by a MemoryStream
+						 * with a public buffer, we have to read the data in.
+						 */
+						levelData = reader.ReadBytes(levelDataSizeInBytes);
+					}
 				}
-				if (	levelData == null)
-				{
-					/* If we don't have to perform any conversion and
-					 * the ContentReader is not backed by a MemoryStream
-					 * with a public buffer, we have to read the data in.
-					 */
-					levelData = reader.ReadBytes(levelDataSizeInBytes);
-				}
-				texture.SetData(level, null, levelData, levelDataByteOffset, levelDataSizeInBytes);
+				texture.SetData(
+					level,
+					null,
+					levelData,
+					levelDataByteOffset,
+					levelDataSizeInBytes
+				);
 
 			}
 
