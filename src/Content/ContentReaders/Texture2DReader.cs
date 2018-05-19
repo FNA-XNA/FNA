@@ -143,23 +143,15 @@ namespace Microsoft.Xna.Framework.Content
 					if (	surfaceFormat == SurfaceFormat.Color ||
 						surfaceFormat == SurfaceFormat.ColorBgraEXT	)
 					{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
 						levelData = X360TexUtil.SwapColor(
-							levelData
+							reader.ReadBytes(levelDataSizeInBytes)
 						);
 						levelDataSizeInBytes = levelData.Length;
 					}
 					else if (surfaceFormat == SurfaceFormat.Dxt1		)
 					{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
 						levelData = X360TexUtil.SwapDxt1(
-							levelData,
+							reader.ReadBytes(levelDataSizeInBytes),
 							levelWidth,
 							levelHeight
 						);
@@ -167,12 +159,8 @@ namespace Microsoft.Xna.Framework.Content
 					}
 					else if (surfaceFormat == SurfaceFormat.Dxt3		)
 					{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
 						levelData = X360TexUtil.SwapDxt3(
-							levelData,
+							reader.ReadBytes(levelDataSizeInBytes),
 							levelWidth,
 							levelHeight
 						);
@@ -180,12 +168,8 @@ namespace Microsoft.Xna.Framework.Content
 					}
 					else if (surfaceFormat == SurfaceFormat.Dxt5		)
 					{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
 						levelData = X360TexUtil.SwapDxt5(
-							levelData,
+							reader.ReadBytes(levelDataSizeInBytes),
 							levelWidth,
 							levelHeight
 						);
@@ -194,47 +178,38 @@ namespace Microsoft.Xna.Framework.Content
 				}
 
 				// Convert the image data if required
-				if (	surfaceFormat == SurfaceFormat.Dxt1 &&
-					!reader.GraphicsDevice.GLDevice.SupportsDxt1	)
+				if (convertedFormat != surfaceFormat)
 				{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
+					// May already be read in by 'x' conversion
+					if (levelData == null)
+					{
+						levelData = reader.ReadBytes(levelDataSizeInBytes);
+					}
+					if (surfaceFormat == SurfaceFormat.Dxt1)
+					{
 						levelData = DxtUtil.DecompressDxt1(
 							levelData,
 							levelWidth,
 							levelHeight
 						);
-						levelDataSizeInBytes = levelData.Length;
-				}
-				else if (	surfaceFormat == SurfaceFormat.Dxt3 &&
-						!reader.GraphicsDevice.GLDevice.SupportsS3tc	)
-				{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
+					}
+					else if (surfaceFormat == SurfaceFormat.Dxt3)
+					{
 						levelData = DxtUtil.DecompressDxt3(
 							levelData,
 							levelWidth,
 							levelHeight
 						);
-						levelDataSizeInBytes = levelData.Length;
-				}
-				else if (	surfaceFormat == SurfaceFormat.Dxt5 &&
-						!reader.GraphicsDevice.GLDevice.SupportsS3tc	)
-				{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
+					}
+					else if (surfaceFormat == SurfaceFormat.Dxt5)
+					{
 						levelData = DxtUtil.DecompressDxt5(
 							levelData,
 							levelWidth,
 							levelHeight
 						);
-						levelDataSizeInBytes = levelData.Length;
+					}
+					levelDataSizeInBytes = levelData.Length;
 				}
 
 				int levelDataByteOffset = 0;
