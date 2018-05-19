@@ -315,6 +315,7 @@ SRC = \
 	src/TitleLocation.cs \
 	src/Utilities/AssemblyHelper.cs \
 	src/Utilities/FileHelpers.cs \
+	src/Utilities/FNAInternalExtensions.cs \
 	src/Vector2.cs \
 	src/Vector3.cs \
 	src/Vector4.cs \

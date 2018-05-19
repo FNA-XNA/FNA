@@ -552,14 +552,17 @@ namespace Microsoft.Xna.Framework.Graphics
 				levels > 1,
 				format
 			);
-			if (stream is MemoryStream)
+			
+			byte[] tex = null;
+			if (	stream is MemoryStream &&
+				((MemoryStream) stream).TryGetBuffer(out tex)	)
 			{
 				for (int i = 0; i < levels; i += 1)
 				{
 					result.SetData(
 						i,
 						null,
-						((MemoryStream) stream).GetBuffer(),
+						tex,
 						(int) stream.Seek(0, SeekOrigin.Current),
 						levelSize
 					);
@@ -577,7 +580,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				for (int i = 0; i < levels; i += 1)
 				{
-					byte[] tex = reader.ReadBytes(levelSize);
+					tex = reader.ReadBytes(levelSize);
 					result.SetData(
 						i,
 						null,

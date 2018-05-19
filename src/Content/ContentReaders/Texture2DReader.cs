@@ -143,127 +143,107 @@ namespace Microsoft.Xna.Framework.Content
 					if (	surfaceFormat == SurfaceFormat.Color ||
 						surfaceFormat == SurfaceFormat.ColorBgraEXT	)
 					{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
 						levelData = X360TexUtil.SwapColor(
-							levelData
+							reader.ReadBytes(levelDataSizeInBytes)
 						);
+						levelDataSizeInBytes = levelData.Length;
 					}
 					else if (surfaceFormat == SurfaceFormat.Dxt1		)
 					{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
 						levelData = X360TexUtil.SwapDxt1(
-							levelData,
+							reader.ReadBytes(levelDataSizeInBytes),
 							levelWidth,
 							levelHeight
 						);
+						levelDataSizeInBytes = levelData.Length;
 					}
 					else if (surfaceFormat == SurfaceFormat.Dxt3		)
 					{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
 						levelData = X360TexUtil.SwapDxt3(
-							levelData,
+							reader.ReadBytes(levelDataSizeInBytes),
 							levelWidth,
 							levelHeight
 						);
+						levelDataSizeInBytes = levelData.Length;
 					}
 					else if (surfaceFormat == SurfaceFormat.Dxt5		)
 					{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
 						levelData = X360TexUtil.SwapDxt5(
-							levelData,
+							reader.ReadBytes(levelDataSizeInBytes),
 							levelWidth,
 							levelHeight
 						);
+						levelDataSizeInBytes = levelData.Length;
 					}
 				}
 
 				// Convert the image data if required
-				if (	surfaceFormat == SurfaceFormat.Dxt1 &&
-					!reader.GraphicsDevice.GLDevice.SupportsDxt1	)
+				if (convertedFormat != surfaceFormat)
 				{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
+					// May already be read in by 'x' conversion
+					if (levelData == null)
+					{
+						levelData = reader.ReadBytes(levelDataSizeInBytes);
+					}
+					if (surfaceFormat == SurfaceFormat.Dxt1)
+					{
 						levelData = DxtUtil.DecompressDxt1(
 							levelData,
 							levelWidth,
 							levelHeight
 						);
-				}
-				else if (	surfaceFormat == SurfaceFormat.Dxt3 &&
-						!reader.GraphicsDevice.GLDevice.SupportsS3tc	)
-				{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
+					}
+					else if (surfaceFormat == SurfaceFormat.Dxt3)
+					{
 						levelData = DxtUtil.DecompressDxt3(
 							levelData,
 							levelWidth,
 							levelHeight
 						);
-				}
-				else if (	surfaceFormat == SurfaceFormat.Dxt5 &&
-						!reader.GraphicsDevice.GLDevice.SupportsS3tc	)
-				{
-						if (levelData == null)
-						{
-							levelData = reader.ReadBytes(levelDataSizeInBytes);
-						}
+					}
+					else if (surfaceFormat == SurfaceFormat.Dxt5)
+					{
 						levelData = DxtUtil.DecompressDxt5(
 							levelData,
 							levelWidth,
 							levelHeight
 						);
+					}
+					levelDataSizeInBytes = levelData.Length;
 				}
 
-				if (	levelData == null &&
-					reader.BaseStream.GetType() != typeof(MemoryStream)	)
+				int levelDataByteOffset = 0;
+				if (levelData == null)
 				{
-					/* If the ContentReader is not backed by a
-					 * MemoryStream, we have to read the data in.
-					 */
-					levelData = reader.ReadBytes(levelDataSizeInBytes);
+					if (	reader.BaseStream is MemoryStream &&
+						((MemoryStream) reader.BaseStream).TryGetBuffer(out levelData)	)
+					{
+						/* Ideally, we didn't have to perform any conversion or
+						 * unnecessary reading. Just throw the buffer directly
+						 * into SetData, skipping a redundant byte[] copy.
+						 */
+						levelDataByteOffset = (int) reader.BaseStream.Seek(0, SeekOrigin.Current);
+						reader.BaseStream.Seek(
+							levelDataSizeInBytes,
+							SeekOrigin.Current
+						);
+					}
+					else
+					{
+						/* If we don't have to perform any conversion and
+						 * the ContentReader is not backed by a MemoryStream
+						 * with a public buffer, we have to read the data in.
+						 */
+						levelData = reader.ReadBytes(levelDataSizeInBytes);
+					}
 				}
-				if (levelData != null)
-				{
-					/* If we had to convert the data, or get the data from a
-					 * non-MemoryStream, we set the data with our levelData
-					 * reference.
-					 */
-					texture.SetData(level, null, levelData, 0, levelData.Length);
-				}
-				else
-				{
-					/* Ideally, we didn't have to perform any conversion or
-					 * unnecessary reading. Just throw the buffer directly
-					 * into SetData, skipping a redundant byte[] copy.
-					 */
-					texture.SetData<byte>(
-						level,
-						null,
-						((MemoryStream) reader.BaseStream).GetBuffer(),
-						(int) reader.BaseStream.Seek(0, SeekOrigin.Current),
-						levelDataSizeInBytes
-					);
-					reader.BaseStream.Seek(
-						levelDataSizeInBytes,
-						SeekOrigin.Current
-					);
-				}
+				texture.SetData(
+					level,
+					null,
+					levelData,
+					levelDataByteOffset,
+					levelDataSizeInBytes
+				);
 
 			}
 
