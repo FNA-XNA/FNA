@@ -148,7 +148,7 @@ namespace Microsoft.Xna.Framework.Content
 						);
 						levelDataSizeInBytes = levelData.Length;
 					}
-					else if (surfaceFormat == SurfaceFormat.Dxt1		)
+					else if (surfaceFormat == SurfaceFormat.Dxt1)
 					{
 						levelData = X360TexUtil.SwapDxt1(
 							reader.ReadBytes(levelDataSizeInBytes),
@@ -157,7 +157,7 @@ namespace Microsoft.Xna.Framework.Content
 						);
 						levelDataSizeInBytes = levelData.Length;
 					}
-					else if (surfaceFormat == SurfaceFormat.Dxt3		)
+					else if (surfaceFormat == SurfaceFormat.Dxt3)
 					{
 						levelData = X360TexUtil.SwapDxt3(
 							reader.ReadBytes(levelDataSizeInBytes),
@@ -166,7 +166,7 @@ namespace Microsoft.Xna.Framework.Content
 						);
 						levelDataSizeInBytes = levelData.Length;
 					}
-					else if (surfaceFormat == SurfaceFormat.Dxt5		)
+					else if (surfaceFormat == SurfaceFormat.Dxt5)
 					{
 						levelData = X360TexUtil.SwapDxt5(
 							reader.ReadBytes(levelDataSizeInBytes),
