@@ -9,7 +9,7 @@
 
 #region Using Statements
 using System.Collections.Generic;
-
+using System.Threading;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 #endregion
@@ -22,21 +22,51 @@ namespace Microsoft.Xna.Framework
 
 		internal static bool ActiveSongChanged = false;
 		internal static bool MediaStateChanged = false;
-		internal static Queue<SoundEffectInstance> DeadSounds = new Queue<SoundEffectInstance>();
+
+		static SpinLock _deadSoundsLock = new SpinLock();
+		static readonly Queue<SoundEffectInstance> DeadSounds = new Queue<SoundEffectInstance>();
 		internal static List<DynamicSoundEffectInstance> Streams = new List<DynamicSoundEffectInstance>();
 
 		#endregion
 
 		#region Public Methods
 
+		public static void EnqueueSoundEffectInstanceStop(SoundEffectInstance soundEffectInstance) {
+			var lockTaken = false;
+			_deadSoundsLock.Enter(ref lockTaken);
+			try
+            {
+				DeadSounds.Enqueue(soundEffectInstance);
+			}
+			finally
+            {
+				if (lockTaken)
+					_deadSoundsLock.Exit();
+			}
+		}
+
 		public static void Update()
 		{
 			/* Updates the status of various framework components
 			 * (such as power state and media), and raises related events.
 			 */
-			while (DeadSounds.Count > 0)
+			while (true)
 			{
-				DeadSounds.Dequeue().Stop(true);
+				SoundEffectInstance soundEffectInstance;
+				var lockTaken = false;
+				_deadSoundsLock.Enter(ref lockTaken);
+				try
+				{
+					if (DeadSounds.Count == 0)
+						break;
+					soundEffectInstance = DeadSounds.Dequeue();
+				}
+				finally
+				{
+					if (lockTaken)
+						_deadSoundsLock.Exit();
+				}
+				soundEffectInstance.Stop(true);
 			}
 			foreach (DynamicSoundEffectInstance stream in Streams)
 			{
