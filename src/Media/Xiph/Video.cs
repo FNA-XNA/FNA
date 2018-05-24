@@ -9,8 +9,6 @@
 
 #region Using Statements
 using System;
-using System.IO;
-using System.Threading;
 
 using Microsoft.Xna.Framework.Graphics;
 #endregion
