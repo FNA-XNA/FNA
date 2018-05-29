@@ -57,17 +57,15 @@ namespace Microsoft.Xna.Framework.Audio
 					return;
 				}
 
+				SetPanMatrixCoefficients();
 				if (handle != IntPtr.Zero)
 				{
-					SetPanMatrixCoefficients();
 					FAudio.FAudioVoice_SetOutputMatrix(
 						handle,
 						IntPtr.Zero,
-						isDynamic ?
-							(this as DynamicSoundEffectInstance).format.nChannels :
-							parentEffect.format.nChannels,
-						SoundEffect.Device().DeviceDetails.OutputFormat.Format.nChannels,
-						matrixCoefficients,
+						dspSettings.SrcChannelCount,
+						dspSettings.DstChannelCount,
+						dspSettings.pMatrixCoefficients,
 						0
 					);
 				}
@@ -86,11 +84,7 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_pitch = MathHelper.Clamp(value, -1.0f, 1.0f);
 				if (handle != IntPtr.Zero)
 				{
-					FAudio.FAudioSourceVoice_SetFrequencyRatio(
-						handle,
-						(float) Math.Pow(2.0, INTERNAL_pitch),
-						0
-					);
+					UpdatePitch();
 				}
 			}
 		}
@@ -138,7 +132,7 @@ namespace Microsoft.Xna.Framework.Audio
 		private WeakReference selfReference;
 		private bool hasStarted;
 		private bool is3D;
-		private IntPtr matrixCoefficients;
+		private FAudio.F3DAUDIO_DSP_SETTINGS dspSettings;
 		private FAudio.OnStreamEndFunc OnStreamEndFunc;
 
 		#endregion
@@ -159,11 +153,6 @@ namespace Microsoft.Xna.Framework.Audio
 			isDynamic = this is DynamicSoundEffectInstance;
 			hasStarted = false;
 			is3D = false;
-			matrixCoefficients = Marshal.AllocHGlobal(
-				4 *
-				2 * /* FIXME: Could make this 1 for mono */
-				SoundEffect.Device().DeviceDetails.OutputFormat.Format.nChannels
-			);
 			OnStreamEndFunc = OnStreamEnd;
 			unsafe
 			{
@@ -180,6 +169,11 @@ namespace Microsoft.Xna.Framework.Audio
 				cb->OnVoiceProcessingPassStart = IntPtr.Zero;
 			}
 			State = SoundState.Stopped;
+
+			if (!isDynamic)
+			{
+				InitDSPSettings(parentEffect.format.nChannels);
+			}
 		}
 
 		#endregion
@@ -214,26 +208,26 @@ namespace Microsoft.Xna.Framework.Audio
 			is3D = true;
 			SoundEffect.FAudioContext dev = SoundEffect.Device();
 			emitter.emitterData.CurveDistanceScaler = dev.CurveDistanceScaler;
-			dev.DSPSettings.pMatrixCoefficients = matrixCoefficients;
-			dev.DSPSettings.SrcChannelCount = isDynamic ?
-				(this as DynamicSoundEffectInstance).format.nChannels :
-				parentEffect.format.nChannels;
 			FAudio.F3DAudioCalculate(
 				dev.Handle3D,
 				ref listener.listenerData,
 				ref emitter.emitterData,
-				0,
-				ref dev.DSPSettings
+				(
+					// TODO: FAudio.F3DAUDIO_CALCULATE_MATRIX |
+					FAudio.F3DAUDIO_CALCULATE_DOPPLER
+				),
+				ref dspSettings
 			);
 			if (handle != IntPtr.Zero)
 			{
+				UpdatePitch();
 				/* TODO: Implement X3DAudio!
 				FAudio.FAudioVoice_SetOutputMatrix(
 					handle,
 					IntPtr.Zero,
-					dev.DSPSettings.SrcChannelCount,
-					dev.DSPSettings.DstChannelCount,
-					matrixCoefficients,
+					dspSettings.SrcChannelCount,
+					dspSettings.DstChannelCount,
+					dspSettings.pMatrixCoefficients,
 					0
 				);
 				*/
@@ -284,29 +278,31 @@ namespace Microsoft.Xna.Framework.Audio
 
 			/* Apply current properties */
 			FAudio.FAudioVoice_SetVolume(handle, INTERNAL_volume, 0);
-			FAudio.FAudioSourceVoice_SetFrequencyRatio(
-				handle,
-				(float) Math.Pow(2.0, INTERNAL_pitch),
-				0
-			);
+			UpdatePitch();
 			if (is3D)
 			{
 				/* TODO: Implement X3DAudio!
 				FAudio.FAudioVoice_SetOutputMatrix(
 					handle,
 					IntPtr.Zero,
-					isDynamic ?
-						(this as DynamicSoundEffectInstance).format.nChannels :
-						parentEffect.format.nChannels,
-					dev.DeviceDetails.OutputFormat.Format.nChannels,
-					matrixCoefficients,
+					dspSettings.SrcChannelCount,
+					dspSettings.DstChannelCount,
+					dspSettings.pMatrixCoefficients,
 					0
 				);
 				*/
 			}
-			else
+			else if (Pan != 0.0f)
 			{
-				Pan = Pan;
+				/* TODO: Remove this else block when 3D is done */
+				FAudio.FAudioVoice_SetOutputMatrix(
+					handle,
+					IntPtr.Zero,
+					dspSettings.SrcChannelCount,
+					dspSettings.DstChannelCount,
+					dspSettings.pMatrixCoefficients,
+					0
+				);
 			}
 
 			/* For static effects, submit the buffer now */
@@ -416,7 +412,7 @@ namespace Microsoft.Xna.Framework.Audio
 					parentEffect.Instances.Remove(selfReference);
 					selfReference = null;
 				}
-				Marshal.FreeHGlobal(matrixCoefficients);
+				Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
 				Marshal.FreeHGlobal(callbacks);
 				IsDisposed = true;
 			}
@@ -424,7 +420,20 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Internal Effects Methods
+		#region Internal Methods
+
+		internal void InitDSPSettings(uint srcChannels)
+		{
+			dspSettings = new FAudio.F3DAUDIO_DSP_SETTINGS();
+			dspSettings.DopplerFactor = 1.0f;
+			dspSettings.SrcChannelCount = srcChannels;
+			dspSettings.DstChannelCount = SoundEffect.Device().DeviceDetails.OutputFormat.Format.nChannels;
+			dspSettings.pMatrixCoefficients = Marshal.AllocHGlobal(
+				4 *
+				(int) dspSettings.SrcChannelCount *
+				(int) dspSettings.DstChannelCount
+			);
+		}
 
 		internal void INTERNAL_applyReverb(float rvGain)
 		{
@@ -496,9 +505,29 @@ namespace Microsoft.Xna.Framework.Audio
 			FrameworkDispatcher.DeadSounds.Enqueue(this);
 		}
 
+		private void UpdatePitch()
+		{
+			float doppler;
+			float dopplerScale = SoundEffect.Device().DopplerScale;
+			if (!is3D || dopplerScale == 0.0f)
+			{
+				doppler = 1.0f;
+			}
+			else
+			{
+				doppler = dspSettings.DopplerFactor * dopplerScale;
+			}
+
+			FAudio.FAudioSourceVoice_SetFrequencyRatio(
+				handle,
+				(float) Math.Pow(2.0, INTERNAL_pitch) * doppler,
+				0
+			);
+		}
+
 		private unsafe void SetPanMatrixCoefficients()
 		{
-			float* outputMatrix = (float*) matrixCoefficients;
+			float* outputMatrix = (float*) dspSettings.pMatrixCoefficients;
 			FAudio.FAudioWaveFormatEx fmt = isDynamic ?
 				(this as DynamicSoundEffectInstance).format :
 				parentEffect.format;

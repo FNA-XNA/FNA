@@ -93,6 +93,8 @@ namespace Microsoft.Xna.Framework.Audio
 				FAudio.FAudioVoiceCallback* cb = (FAudio.FAudioVoiceCallback*) callbacks;
 				cb->OnBufferEnd = Marshal.GetFunctionPointerForDelegate(OnBufferEndFunc);
 			}
+
+			InitDSPSettings(format.nChannels);
 		}
 
 		#endregion
