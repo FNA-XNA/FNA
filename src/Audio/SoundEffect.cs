@@ -478,7 +478,7 @@ namespace Microsoft.Xna.Framework.Audio
 					Handle,
 					out MasterVoice,
 					FAudio.FAUDIO_DEFAULT_CHANNELS,
-					48000, /* Should be 0, but SDL... */
+					FAudio.FAUDIO_DEFAULT_SAMPLERATE,
 					0,
 					i,
 					IntPtr.Zero
