@@ -232,6 +232,8 @@ namespace Microsoft.Xna.Framework.Audio
 			FAudio.F3DAUDIO_DSP_SETTINGS settings = new FAudio.F3DAUDIO_DSP_SETTINGS();
 			settings.SrcChannelCount = 1;
 			settings.DstChannelCount = engine.channels;
+			emitter.emitterData.ChannelCount = settings.SrcChannelCount;
+			emitter.emitterData.CurveDistanceScaler = float.MaxValue;
 			FAudio.FACT3DCalculate(
 				engine.handle3D,
 				ref listener.listenerData,

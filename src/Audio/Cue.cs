@@ -174,6 +174,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 
 			emitter.emitterData.ChannelCount = dspSettings.SrcChannelCount;
+			emitter.emitterData.CurveDistanceScaler = float.MaxValue;
 			FAudio.FACT3DCalculate(
 				bank.engine.handle3D,
 				ref listener.listenerData,
