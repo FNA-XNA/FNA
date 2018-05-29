@@ -213,7 +213,7 @@ namespace Microsoft.Xna.Framework.Audio
 				ref listener.listenerData,
 				ref emitter.emitterData,
 				(
-					// TODO: FAudio.F3DAUDIO_CALCULATE_MATRIX |
+					FAudio.F3DAUDIO_CALCULATE_MATRIX |
 					FAudio.F3DAUDIO_CALCULATE_DOPPLER
 				),
 				ref dspSettings
@@ -221,7 +221,6 @@ namespace Microsoft.Xna.Framework.Audio
 			if (handle != IntPtr.Zero)
 			{
 				UpdatePitch();
-				/* TODO: Implement X3DAudio!
 				FAudio.FAudioVoice_SetOutputMatrix(
 					handle,
 					IntPtr.Zero,
@@ -230,7 +229,6 @@ namespace Microsoft.Xna.Framework.Audio
 					dspSettings.pMatrixCoefficients,
 					0
 				);
-				*/
 			}
 		}
 
@@ -279,22 +277,8 @@ namespace Microsoft.Xna.Framework.Audio
 			/* Apply current properties */
 			FAudio.FAudioVoice_SetVolume(handle, INTERNAL_volume, 0);
 			UpdatePitch();
-			if (is3D)
+			if (is3D || Pan != 0.0f)
 			{
-				/* TODO: Implement X3DAudio!
-				FAudio.FAudioVoice_SetOutputMatrix(
-					handle,
-					IntPtr.Zero,
-					dspSettings.SrcChannelCount,
-					dspSettings.DstChannelCount,
-					dspSettings.pMatrixCoefficients,
-					0
-				);
-				*/
-			}
-			else if (Pan != 0.0f)
-			{
-				/* TODO: Remove this else block when 3D is done */
 				FAudio.FAudioVoice_SetOutputMatrix(
 					handle,
 					IntPtr.Zero,
