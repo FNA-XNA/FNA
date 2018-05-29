@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Audio
@@ -41,14 +42,14 @@ namespace Microsoft.Xna.Framework.Audio
 				return new Vector3(
 					emitterData.OrientFront.x,
 					emitterData.OrientFront.y,
-					emitterData.OrientFront.z
+					-emitterData.OrientFront.z
 				);
 			}
 			set
 			{
 				emitterData.OrientFront.x = value.X;
 				emitterData.OrientFront.y = value.Y;
-				emitterData.OrientFront.z = value.Z;
+				emitterData.OrientFront.z = -value.Z;
 			}
 		}
 
@@ -59,14 +60,14 @@ namespace Microsoft.Xna.Framework.Audio
 				return new Vector3(
 					emitterData.Position.x,
 					emitterData.Position.y,
-					emitterData.Position.z
+					-emitterData.Position.z
 				);
 			}
 			set
 			{
 				emitterData.Position.x = value.X;
 				emitterData.Position.y = value.Y;
-				emitterData.Position.z = value.Z;
+				emitterData.Position.z = -value.Z;
 			}
 		}
 
@@ -78,14 +79,14 @@ namespace Microsoft.Xna.Framework.Audio
 				return new Vector3(
 					emitterData.OrientTop.x,
 					emitterData.OrientTop.y,
-					emitterData.OrientTop.z
+					-emitterData.OrientTop.z
 				);
 			}
 			set
 			{
 				emitterData.OrientTop.x = value.X;
 				emitterData.OrientTop.y = value.Y;
-				emitterData.OrientTop.z = value.Z;
+				emitterData.OrientTop.z = -value.Z;
 			}
 		}
 
@@ -96,14 +97,14 @@ namespace Microsoft.Xna.Framework.Audio
 				return new Vector3(
 					emitterData.Velocity.x,
 					emitterData.Velocity.y,
-					emitterData.Velocity.z
+					-emitterData.Velocity.z
 				);
 			}
 			set
 			{
 				emitterData.Velocity.x = value.X;
 				emitterData.Velocity.y = value.Y;
-				emitterData.Velocity.z = value.Z;
+				emitterData.Velocity.z = -value.Z;
 			}
 		}
 
@@ -112,6 +113,19 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Internal Variables
 
 		internal FAudio.F3DAUDIO_EMITTER emitterData;
+
+		#endregion
+
+		#region Private Static Variables
+
+		private static readonly float[] stereoAzimuth = new float[]
+		{
+			0.0f, 0.0f
+		};
+		private static readonly GCHandle stereoAzimuthHandle = GCHandle.Alloc(
+			stereoAzimuth,
+			GCHandleType.Pinned
+		);
 
 		#endregion
 
@@ -130,7 +144,7 @@ namespace Microsoft.Xna.Framework.Audio
 			emitterData.pCone = IntPtr.Zero;
 			emitterData.ChannelCount = 1;
 			emitterData.ChannelRadius = 1.0f;
-			emitterData.pChannelAzimuths = IntPtr.Zero;
+			emitterData.pChannelAzimuths = stereoAzimuthHandle.AddrOfPinnedObject();
 			emitterData.pVolumeCurve = IntPtr.Zero;
 			emitterData.pLFECurve = IntPtr.Zero;
 			emitterData.pLPFDirectCurve = IntPtr.Zero;

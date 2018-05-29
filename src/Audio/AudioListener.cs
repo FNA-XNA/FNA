@@ -25,14 +25,14 @@ namespace Microsoft.Xna.Framework.Audio
 				return new Vector3(
 					listenerData.OrientFront.x,
 					listenerData.OrientFront.y,
-					listenerData.OrientFront.z
+					-listenerData.OrientFront.z
 				);
 			}
 			set
 			{
 				listenerData.OrientFront.x = value.X;
 				listenerData.OrientFront.y = value.Y;
-				listenerData.OrientFront.z = value.Z;
+				listenerData.OrientFront.z = -value.Z;
 			}
 		}
 
@@ -43,14 +43,14 @@ namespace Microsoft.Xna.Framework.Audio
 				return new Vector3(
 					listenerData.Position.x,
 					listenerData.Position.y,
-					listenerData.Position.z
+					-listenerData.Position.z
 				);
 			}
 			set
 			{
 				listenerData.Position.x = value.X;
 				listenerData.Position.y = value.Y;
-				listenerData.Position.z = value.Z;
+				listenerData.Position.z = -value.Z;
 			}
 		}
 
@@ -62,14 +62,14 @@ namespace Microsoft.Xna.Framework.Audio
 				return new Vector3(
 					listenerData.OrientTop.x,
 					listenerData.OrientTop.y,
-					listenerData.OrientTop.z
+					-listenerData.OrientTop.z
 				);
 			}
 			set
 			{
 				listenerData.OrientTop.x = value.X;
 				listenerData.OrientTop.y = value.Y;
-				listenerData.OrientTop.z = value.Z;
+				listenerData.OrientTop.z = -value.Z;
 			}
 		}
 
@@ -80,14 +80,14 @@ namespace Microsoft.Xna.Framework.Audio
 				return new Vector3(
 					listenerData.Velocity.x,
 					listenerData.Velocity.y,
-					listenerData.Velocity.z
+					-listenerData.Velocity.z
 				);
 			}
 			set
 			{
 				listenerData.Velocity.x = value.X;
 				listenerData.Velocity.y = value.Y;
-				listenerData.Velocity.z = value.Z;
+				listenerData.Velocity.z = -value.Z;
 			}
 		}
 

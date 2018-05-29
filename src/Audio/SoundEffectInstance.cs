@@ -208,6 +208,7 @@ namespace Microsoft.Xna.Framework.Audio
 			is3D = true;
 			SoundEffect.FAudioContext dev = SoundEffect.Device();
 			emitter.emitterData.CurveDistanceScaler = dev.CurveDistanceScaler;
+			emitter.emitterData.ChannelCount = dspSettings.SrcChannelCount;
 			FAudio.F3DAudioCalculate(
 				dev.Handle3D,
 				ref listener.listenerData,
