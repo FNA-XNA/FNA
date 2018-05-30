@@ -20,8 +20,16 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public static ReadOnlyCollection<Microphone> All
 		{
-			get;
-			internal set;
+			get
+			{
+				if (micList == null)
+				{
+					micList = new ReadOnlyCollection<Microphone>(
+						FNAPlatform.GetMicrophones()
+					);
+				}
+				return micList;
+			}
 		}
 
 		public static Microphone Default
@@ -92,7 +100,13 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Private Variables
 
 		private TimeSpan bufferDuration;
-		// TODO: Microphone private IntPtr handle;
+		private uint handle;
+
+		#endregion
+
+		#region Private Static Variables
+
+		private static ReadOnlyCollection<Microphone> micList;
 
 		#endregion
 
@@ -102,21 +116,22 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Private Constants
+		#region Internal Constants
 
 		/* FIXME: This is what XNA4 aims for, but it _could_ be lower.
-		 * Something work looking at is falling back to lower sample rates in
-		 * powers of two, i.e. 44100, 22050, 11025, etc.
+		 * Something worth looking at is falling back to lower sample
+		 * rates in powers of two, i.e. 44100, 22050, 11025, etc.
 		 * -flibit
 		 */
-		private const int SAMPLERATE = 44100;
+		internal const int SAMPLERATE = 44100;
 
 		#endregion
 
 		#region Internal Constructor
 
-		internal Microphone(string name)
+		internal Microphone(uint id, string name)
 		{
+			handle = id;
 			Name = name;
 			bufferDuration = TimeSpan.FromSeconds(1.0);
 			State = MicrophoneState.Stopped;
@@ -146,8 +161,12 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ArgumentException("count");
 			}
 
-			// TODO: Microphone
-			return 0;
+			return FNAPlatform.GetMicrophoneSamples(
+				handle,
+				buffer,
+				offset,
+				count
+			);
 		}
 
 		public TimeSpan GetSampleDuration(int sizeInBytes)
@@ -170,12 +189,14 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Start()
 		{
-			// TODO: Microphone
+			FNAPlatform.StartMicrophone(handle);
+			State = MicrophoneState.Started;
 		}
 
 		public void Stop()
 		{
-			// TODO: Microphone
+			FNAPlatform.StopMicrophone(handle);
+			State = MicrophoneState.Stopped;
 		}
 
 		#endregion
@@ -185,7 +206,7 @@ namespace Microsoft.Xna.Framework.Audio
 		internal void CheckBuffer()
 		{
 			if (	BufferReady != null &&
-				Name.Equals("TODO: Microphone") /* AudioDevice.ALDevice.CaptureHasSamples(nativeMic)*/	)
+				GetSampleDuration(FNAPlatform.GetMicrophoneQueuedBytes(handle)) > bufferDuration	)
 			{
 				BufferReady(this, EventArgs.Empty);
 			}

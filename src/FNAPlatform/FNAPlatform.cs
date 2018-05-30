@@ -69,6 +69,11 @@ namespace Microsoft.Xna.Framework
 			TextureDataFromStream =		SDL2_FNAPlatform.TextureDataFromStream;
 			SavePNG =			SDL2_FNAPlatform.SavePNG;
 			SaveJPG =			SDL2_FNAPlatform.SaveJPG;
+			GetMicrophones =		SDL2_FNAPlatform.GetMicrophones;
+			GetMicrophoneSamples =		SDL2_FNAPlatform.GetMicrophoneSamples;
+			GetMicrophoneQueuedBytes =	SDL2_FNAPlatform.GetMicrophoneQueuedBytes;
+			StartMicrophone =		SDL2_FNAPlatform.StartMicrophone;
+			StopMicrophone =		SDL2_FNAPlatform.StopMicrophone;
 
 			// Don't overwrite application log hooks!
 			if (FNALoggerEXT.LogInfo == null)
@@ -248,6 +253,26 @@ namespace Microsoft.Xna.Framework
 			byte[] data
 		);
 		public static readonly SaveJPGFunc SaveJPG;
+
+		public delegate Microphone[] GetMicrophonesFunc();
+		public static readonly GetMicrophonesFunc GetMicrophones;
+
+		public delegate int GetMicrophoneSamplesFunc(
+			uint handle,
+			byte[] buffer,
+			int offset,
+			int count
+		);
+		public static readonly GetMicrophoneSamplesFunc GetMicrophoneSamples;
+
+		public delegate int GetMicrophoneQueuedBytesFunc(uint handle);
+		public static readonly GetMicrophoneQueuedBytesFunc GetMicrophoneQueuedBytes;
+
+		public delegate void StartMicrophoneFunc(uint handle);
+		public static readonly StartMicrophoneFunc StartMicrophone;
+
+		public delegate void StopMicrophoneFunc(uint handle);
+		public static readonly StopMicrophoneFunc StopMicrophone;
 
 		#endregion
 	}
