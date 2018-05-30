@@ -104,9 +104,9 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Private Static Variables
+		#region Internal Static Variables
 
-		private static ReadOnlyCollection<Microphone> micList;
+		internal static ReadOnlyCollection<Microphone> micList;
 
 		#endregion
 

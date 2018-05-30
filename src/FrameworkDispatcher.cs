@@ -42,6 +42,13 @@ namespace Microsoft.Xna.Framework
 			{
 				stream.Update();
 			}
+			if (Microphone.micList != null)
+			{
+				for (int i = 0; i < Microphone.micList.Count; i += 1)
+				{
+					Microphone.micList[i].CheckBuffer();
+				}
+			}
 
 			MediaPlayer.Update();
 			if (ActiveSongChanged)
