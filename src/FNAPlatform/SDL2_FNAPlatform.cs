@@ -1597,11 +1597,24 @@ namespace Microsoft.Xna.Framework
 
 		#region Microphone Implementation
 
+		/* Microphone is almost never used, so we give this subsystem
+		 * special treatment and init only when we start calling these
+		 * functions.
+		 * -flibit
+		 */
+		private static bool micInit = false;
+
 		public static Microphone[] GetMicrophones()
 		{
-			Microphone[] result = new Microphone[
-				SDL.SDL_GetNumAudioDevices(1)
-			];
+			if (!micInit)
+			{
+				SDL.SDL_InitSubSystem(SDL.SDL_INIT_AUDIO);
+				micInit = true;
+			}
+			Microphone[] result = new Microphone[Math.Max(
+				SDL.SDL_GetNumAudioDevices(1),
+				0
+			)];
 			SDL.SDL_AudioSpec have;
 			SDL.SDL_AudioSpec want = new SDL.SDL_AudioSpec();
 			want.freq = Microphone.SAMPLERATE;
