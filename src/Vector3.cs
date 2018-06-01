@@ -1492,7 +1492,7 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Divides the components of a <see cref="Vector3"/> by a scalar.
 		/// </summary>
-		/// <param name="value1">Source <see cref="Vector3"/> on the left of the div sign.</param>
+		/// <param name="value">Source <see cref="Vector3"/> on the left of the div sign.</param>
 		/// <param name="divider">Divisor scalar on the right of the div sign.</param>
 		/// <returns>The result of dividing a vector by a scalar.</returns>
 		public static Vector3 operator /(Vector3 value, float divider)
