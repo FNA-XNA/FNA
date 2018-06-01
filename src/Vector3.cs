@@ -1411,12 +1411,12 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Inverts values in the specified <see cref="Vector3"/>.
 		/// </summary>
-		/// <param name="value">Source <see cref="Vector3"/> on the right of the sub sign.</param>
+		/// <param name="value1">Source <see cref="Vector3"/> on the right of the sub sign.</param>
 		/// <returns>Result of the inversion.</returns>
-		public static Vector3 operator -(Vector3 value)
+		public static Vector3 operator -(Vector3 value1)
 		{
-			value = new Vector3(-value.X, -value.Y, -value.Z);
-			return value;
+			value1 = new Vector3(-value1.X, -value1.Y, -value1.Z);
+			return value1;
 		}
 
 		/// <summary>
@@ -1450,15 +1450,15 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Multiplies the components of vector by a scalar.
 		/// </summary>
-		/// <param name="value">Source <see cref="Vector3"/> on the left of the mul sign.</param>
+		/// <param name="value1">Source <see cref="Vector3"/> on the left of the mul sign.</param>
 		/// <param name="scaleFactor">Scalar value on the right of the mul sign.</param>
 		/// <returns>Result of the vector multiplication with a scalar.</returns>
-		public static Vector3 operator *(Vector3 value, float scaleFactor)
+		public static Vector3 operator *(Vector3 value1, float scaleFactor)
 		{
-			value.X *= scaleFactor;
-			value.Y *= scaleFactor;
-			value.Z *= scaleFactor;
-			return value;
+			value1.X *= scaleFactor;
+			value1.Y *= scaleFactor;
+			value1.Z *= scaleFactor;
+			return value1;
 		}
 
 		/// <summary>
@@ -1467,12 +1467,12 @@ namespace Microsoft.Xna.Framework
 		/// <param name="scaleFactor">Scalar value on the left of the mul sign.</param>
 		/// <param name="value">Source <see cref="Vector3"/> on the right of the mul sign.</param>
 		/// <returns>Result of the vector multiplication with a scalar.</returns>
-		public static Vector3 operator *(float scaleFactor, Vector3 value)
+		public static Vector3 operator *(float scaleFactor, Vector3 value1)
 		{
-			value.X *= scaleFactor;
-			value.Y *= scaleFactor;
-			value.Z *= scaleFactor;
-			return value;
+			value1.X *= scaleFactor;
+			value1.Y *= scaleFactor;
+			value1.Z *= scaleFactor;
+			return value1;
 		}
 
 		/// <summary>
@@ -1495,7 +1495,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="value1">Source <see cref="Vector3"/> on the left of the div sign.</param>
 		/// <param name="divider">Divisor scalar on the right of the div sign.</param>
 		/// <returns>The result of dividing a vector by a scalar.</returns>
-		public static Vector3 operator /(Vector3 value, float divider)
+		public static Vector3 operator /(Vector3 value1, float divider)
 		{
 			float factor = 1 / divider;
 			value.X *= factor;
