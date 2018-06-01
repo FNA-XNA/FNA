@@ -301,7 +301,7 @@ namespace Microsoft.Xna.Framework
 		/// Checks whether or not this <see cref="Rectangle"/> is equivalent
 		/// to a provided <see cref="Rectangle"/>.
 		/// </summary>
-		/// <param name="obj">The <see cref="Rectangle"/> to test for equality.</param>
+		/// <param name="other">The <see cref="Rectangle"/> to test for equality.</param>
 		/// <returns>
 		/// <c>true</c> if this <see cref="Rectangle"/>'s x coordinate, y coordinate, width, and height
 		/// match the values for the provided <see cref="Rectangle"/>. <c>false</c> otherwise.
