@@ -108,7 +108,6 @@ namespace Microsoft.Xna.Framework.Audio
 		private IntPtr handle;
 		private SoundBank bank;
 		private WeakReference selfReference;
-		private FAudio.F3DAUDIO_DSP_SETTINGS dspSettings;
 
 		#endregion
 
@@ -125,15 +124,6 @@ namespace Microsoft.Xna.Framework.Audio
 			handle = cue;
 			Name = name;
 			bank = soundBank;
-
-			dspSettings = new FAudio.F3DAUDIO_DSP_SETTINGS();
-			dspSettings.SrcChannelCount = 1;
-			dspSettings.DstChannelCount = bank.engine.channels;
-			dspSettings.pMatrixCoefficients = Marshal.AllocHGlobal(
-				4 *
-				(int) dspSettings.SrcChannelCount *
-				(int) dspSettings.DstChannelCount
-			);
 
 			selfReference = new WeakReference(this);
 			bank.engine.RegisterCue(handle, selfReference);
@@ -173,15 +163,15 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ArgumentNullException("emitter");
 			}
 
-			emitter.emitterData.ChannelCount = dspSettings.SrcChannelCount;
+			emitter.emitterData.ChannelCount = bank.dspSettings.SrcChannelCount;
 			emitter.emitterData.CurveDistanceScaler = float.MaxValue;
 			FAudio.FACT3DCalculate(
 				bank.engine.handle3D,
 				ref listener.listenerData,
 				ref emitter.emitterData,
-				ref dspSettings
+				ref bank.dspSettings
 			);
-			FAudio.FACT3DApply(ref dspSettings, handle);
+			FAudio.FACT3DApply(ref bank.dspSettings, handle);
 		}
 
 		public float GetVariable(string name)
@@ -296,7 +286,6 @@ namespace Microsoft.Xna.Framework.Audio
 					else
 					{
 						FAudio.FACTCue_Destroy(handle);
-						Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
 					}
 				}
 			}

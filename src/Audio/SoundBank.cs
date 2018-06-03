@@ -40,6 +40,7 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Internal Variables
 
 		internal AudioEngine engine;
+		internal FAudio.F3DAUDIO_DSP_SETTINGS dspSettings;
 
 		#endregion
 
@@ -86,6 +87,14 @@ namespace Microsoft.Xna.Framework.Audio
 
 			engine = audioEngine;
 			selfReference = new WeakReference(this);
+			dspSettings = new FAudio.F3DAUDIO_DSP_SETTINGS();
+			dspSettings.SrcChannelCount = 1;
+			dspSettings.DstChannelCount = engine.channels;
+			dspSettings.pMatrixCoefficients = Marshal.AllocHGlobal(
+				4 *
+				(int) dspSettings.SrcChannelCount *
+				(int) dspSettings.DstChannelCount
+			);
 			engine.RegisterSoundBank(handle, selfReference);
 			IsDisposed = false;
 		}
@@ -132,6 +141,7 @@ namespace Microsoft.Xna.Framework.Audio
 					else
 					{
 						FAudio.FACTSoundBank_Destroy(handle);
+						Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
 					}
 				}
 			}
@@ -229,23 +239,20 @@ namespace Microsoft.Xna.Framework.Audio
 				);
 			}
 
-			FAudio.F3DAUDIO_DSP_SETTINGS settings = new FAudio.F3DAUDIO_DSP_SETTINGS();
-			settings.SrcChannelCount = 1;
-			settings.DstChannelCount = engine.channels;
-			emitter.emitterData.ChannelCount = settings.SrcChannelCount;
+			emitter.emitterData.ChannelCount = dspSettings.SrcChannelCount;
 			emitter.emitterData.CurveDistanceScaler = float.MaxValue;
 			FAudio.FACT3DCalculate(
 				engine.handle3D,
 				ref listener.listenerData,
 				ref emitter.emitterData,
-				ref settings
+				ref dspSettings
 			);
 			FAudio.FACTSoundBank_Play3D(
 				handle,
 				cue,
 				0,
 				0,
-				ref settings,
+				ref dspSettings,
 				IntPtr.Zero
 			);
 		}
