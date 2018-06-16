@@ -270,7 +270,7 @@ namespace Microsoft.Xna.Framework
 		/// Increments this <see cref="Rectangle"/>'s <see cref="Location"/> by the
 		/// x and y components of the provided <see cref="Point"/>.
 		/// </summary>
-		/// <param name="offset">The x and y components to add to this <see cref="Rectangle"/>'s <see cref="Position"/>.</param>
+		/// <param name="offset">The x and y components to add to this <see cref="Rectangle"/>'s <see cref="Location"/>.</param>
 		public void Offset(Point offset)
 		{
 			X += offset.X;
