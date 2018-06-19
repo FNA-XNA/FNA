@@ -4,9 +4,9 @@
 [submodule "lib/OpenAL-CS"]
 	path = lib/OpenAL-CS
 	url = git://github.com/flibitijibibo/OpenAL-CS.git
-[submodule "lib/MojoShader-CS"]
-	path = lib/MojoShader-CS
-	url = git://github.com/flibitijibibo/MojoShader-CS.git
+[submodule "lib/MojoShader"]
+	path = lib/MojoShader
+	url = git://github.com/FNA-XNA/MojoShader.git
 [submodule "lib/Vorbisfile-CS"]
 	path = lib/Vorbisfile-CS
 	url = git://github.com/flibitijibibo/Vorbisfile-CS.git

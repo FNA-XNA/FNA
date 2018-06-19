@@ -333,7 +333,7 @@ SRC = \
 	lib/OpenAL-CS/src/AL11.cs \
 	lib/OpenAL-CS/src/ALEXT.cs \
 	lib/OpenAL-CS/src/EFX.cs \
-	lib/MojoShader-CS/MojoShader.cs \
+	lib/MojoShader/csharp/MojoShader.cs \
 	lib/Vorbisfile-CS/Vorbisfile.cs \
 	lib/Theorafile/csharp/Theorafile.cs
 
