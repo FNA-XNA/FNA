@@ -409,7 +409,7 @@
     <Compile Include="lib\OpenAL-CS\src\AL11.cs" />
     <Compile Include="lib\OpenAL-CS\src\ALEXT.cs" />
     <Compile Include="lib\OpenAL-CS\src\EFX.cs" />
-    <Compile Include="lib\MojoShader-CS\MojoShader.cs" />
+    <Compile Include="lib\MojoShader\csharp\MojoShader.cs" />
     <Compile Include="lib\Vorbisfile-CS\Vorbisfile.cs" />
     <Compile Include="lib\Theorafile\csharp\Theorafile.cs" />
   </ItemGroup>
