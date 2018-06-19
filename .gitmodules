@@ -4,9 +4,9 @@
 [submodule "lib/FACT"]
 	path = lib/FAudio
 	url = git://github.com/flibitijibibo/FACT.git
-[submodule "lib/MojoShader-CS"]
-	path = lib/MojoShader-CS
-	url = git://github.com/flibitijibibo/MojoShader-CS.git
+[submodule "lib/MojoShader"]
+	path = lib/MojoShader
+	url = git://github.com/FNA-XNA/MojoShader.git
 [submodule "lib/Theorafile"]
 	path = lib/Theorafile
 	url = git://github.com/FNA-XNA/Theorafile.git
