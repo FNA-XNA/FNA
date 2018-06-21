@@ -153,6 +153,8 @@ namespace Microsoft.Xna.Framework.Media
 		 */
 		private static Stopwatch timer = new Stopwatch();
 
+		private static readonly Random random = new Random();
+
 		#endregion
 
 		#region Static Constructor
@@ -253,9 +255,9 @@ namespace Microsoft.Xna.Framework.Media
 			timer.Stop();
 			timer.Reset();
 
-			foreach (Song song in Queue.Songs)
+			for (int i = 0; i < Queue.Count; i += 1)
 			{
-				song.PlayCount = 0;
+				Queue[i].PlayCount = 0;
 			}
 
 			State = MediaState.Stopped;
@@ -355,8 +357,20 @@ namespace Microsoft.Xna.Framework.Media
 				direction = 0;
 			}
 
-			Song nextSong = Queue.GetNextSong(direction, IsShuffled);
+			if (IsShuffled)
+			{
+				Queue.ActiveSongIndex = random.Next(Queue.Count);
+			}
+			else
+			{
+				Queue.ActiveSongIndex = (int) MathHelper.Clamp(
+					Queue.ActiveSongIndex + direction,
+					0,
+					Queue.Count - 1
+				);
+			}
 
+			Song nextSong = Queue[Queue.ActiveSongIndex];
 			if (nextSong != null)
 			{
 				PlaySong(nextSong);
