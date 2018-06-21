@@ -105,17 +105,21 @@ namespace Microsoft.Xna.Framework.Media
 					1.0f
 				);
 				FAudio.XNA_SetSongVolume(
-					IsMuted ?
-					0.0f :
-					INTERNAL_volume
+					IsMuted ? 0.0f : INTERNAL_volume
 				);
 			}
 		}
 
 		public static bool IsVisualizationEnabled
 		{
-			get;
-			set;
+			get
+			{
+				return FAudio.XNA_VisualizationEnabled() == 1;
+			}
+			set
+			{
+				FAudio.XNA_EnableVisualization((uint) (value ? 1 : 0));
+			}
 		}
 
 		#endregion
@@ -156,7 +160,6 @@ namespace Microsoft.Xna.Framework.Media
 		static MediaPlayer()
 		{
 			Queue = new MediaQueue();
-			IsVisualizationEnabled = false;
 		}
 
 		#endregion
@@ -260,10 +263,11 @@ namespace Microsoft.Xna.Framework.Media
 
 		public static void GetVisualizationData(VisualizationData data)
 		{
-			if (IsVisualizationEnabled)
-			{
-				data.CalculateData(Queue.ActiveSong);
-			}
+			FAudio.XNA_GetSongVisualizationData(
+				data.freq,
+				data.samp,
+				VisualizationData.Size
+			);
 		}
 
 		#endregion
