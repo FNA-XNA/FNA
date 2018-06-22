@@ -470,7 +470,7 @@ namespace Microsoft.Xna.Framework.Media
 					Video.theora,
 					yuvData,
 					thisFrame - currentFrame
-				) == 1) {
+				) == 1 || currentFrame == -1) {
 					UpdateTexture();
 				}
 				currentFrame = thisFrame;
