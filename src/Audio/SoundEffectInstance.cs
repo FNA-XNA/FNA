@@ -149,6 +149,7 @@ namespace Microsoft.Xna.Framework.Audio
 			if (parentEffect != null)
 			{
 				selfReference = new WeakReference(this);
+				parentEffect.Instances.Add(selfReference);
 			}
 			isDynamic = this is DynamicSoundEffectInstance;
 			hasStarted = false;
