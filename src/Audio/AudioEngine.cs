@@ -358,18 +358,63 @@ namespace Microsoft.Xna.Framework.Audio
 			xactPtrs.Add(ptr, reference);
 		}
 
+		internal void UnregisterWaveBank(IntPtr ptr)
+		{
+			if (!xactPtrs.ContainsKey(ptr))
+			{
+				return;
+			}
+			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED;
+			notificationDesc.pWaveBank = ptr;
+			FAudio.FACTAudioEngine_UnRegisterNotification(
+				handle,
+				ref notificationDesc
+			);
+			xactPtrs.Remove(ptr);
+		}
+
+		internal void UnregisterSoundBank(IntPtr ptr)
+		{
+			if (!xactPtrs.ContainsKey(ptr))
+			{
+				return;
+			}
+			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED;
+			notificationDesc.pSoundBank = ptr;
+			FAudio.FACTAudioEngine_UnRegisterNotification(
+				handle,
+				ref notificationDesc
+			);
+			xactPtrs.Remove(ptr);
+		}
+
+		internal void UnregisterCue(IntPtr ptr)
+		{
+			if (!xactPtrs.ContainsKey(ptr))
+			{
+				return;
+			}
+			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED;
+			notificationDesc.pCue = ptr;
+			FAudio.FACTAudioEngine_UnRegisterNotification(
+				handle,
+				ref notificationDesc
+			);
+			xactPtrs.Remove(ptr);
+		}
+
 		#endregion
 
 		#region Private Methods
 
 		private static unsafe void OnXACTNotification(IntPtr notification)
 		{
+			WeakReference reference;
 			FAudio.FACTNotification* not = (FAudio.FACTNotification*) notification;
 			if (not->type == FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED)
 			{
 				IntPtr target = not->anon.waveBank.pWaveBank;
-				WeakReference reference = xactPtrs[target];
-				if (reference.IsAlive)
+				if (xactPtrs.TryGetValue(target, out reference) && reference.IsAlive)
 				{
 					(reference.Target as WaveBank).OnWaveBankDestroyed();
 				}
@@ -378,8 +423,7 @@ namespace Microsoft.Xna.Framework.Audio
 			else if (not->type == FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED)
 			{
 				IntPtr target = not->anon.soundBank.pSoundBank;
-				WeakReference reference = xactPtrs[target];
-				if (reference.IsAlive)
+				if (xactPtrs.TryGetValue(target, out reference) && reference.IsAlive)
 				{
 					(reference.Target as SoundBank).OnSoundBankDestroyed();
 				}
@@ -388,8 +432,7 @@ namespace Microsoft.Xna.Framework.Audio
 			else if (not->type == FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED)
 			{
 				IntPtr target = not->anon.cue.pCue;
-				WeakReference reference = xactPtrs[target];
-				if (reference.IsAlive)
+				if (xactPtrs.TryGetValue(target, out reference) && reference.IsAlive)
 				{
 					(reference.Target as Cue).OnCueDestroyed();
 				}

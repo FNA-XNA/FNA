@@ -187,7 +187,9 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					else
 					{
+						engine.UnregisterCue(handle);
 						FAudio.FACTWaveBank_Destroy(handle);
+						handle = IntPtr.Zero;
 					}
 				}
 			}
@@ -210,6 +212,7 @@ namespace Microsoft.Xna.Framework.Audio
 				// FACT frees this pointer!
 				ioStream = IntPtr.Zero;
 			}
+			handle = IntPtr.Zero;
 			selfReference = null;
 		}
 

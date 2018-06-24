@@ -260,6 +260,7 @@ namespace Microsoft.Xna.Framework.Audio
 		internal void OnCueDestroyed()
 		{
 			IsDisposed = true;
+			handle = IntPtr.Zero;
 			selfReference = null;
 		}
 
@@ -285,7 +286,9 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					else
 					{
+						bank.engine.UnregisterCue(handle);
 						FAudio.FACTCue_Destroy(handle);
+						handle = IntPtr.Zero;
 					}
 				}
 			}

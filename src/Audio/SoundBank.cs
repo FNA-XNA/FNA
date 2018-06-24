@@ -140,7 +140,9 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 					else
 					{
+						engine.UnregisterSoundBank(handle);
 						FAudio.FACTSoundBank_Destroy(handle);
+						handle = IntPtr.Zero;
 						Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
 					}
 				}
@@ -264,6 +266,7 @@ namespace Microsoft.Xna.Framework.Audio
 		internal void OnSoundBankDestroyed()
 		{
 			IsDisposed = true;
+			handle = IntPtr.Zero;
 			selfReference = null;
 		}
 
