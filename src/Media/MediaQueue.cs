@@ -55,40 +55,9 @@ namespace Microsoft.Xna.Framework.Media
 
 		#endregion
 
-		#region Internal Properties
-
-		internal IEnumerable<Song> Songs
-		{
-			get
-			{
-				return songs;
-			}
-		}
-
-		internal Song GetNextSong(int direction, bool shuffle)
-		{
-			if (shuffle)
-			{
-				ActiveSongIndex = random.Next(songs.Count);
-			}
-			else
-			{
-				ActiveSongIndex = (int) MathHelper.Clamp(
-					ActiveSongIndex + direction,
-					0,
-					songs.Count - 1
-				);
-			}
-
-			return songs[ActiveSongIndex];
-		}
-
-		#endregion
-
 		#region Private Variables
 
 		private List<Song> songs = new List<Song>();
-		private Random random = new Random();
 
 		#endregion
 
@@ -110,31 +79,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal void Clear()
 		{
-			Song song;
-			while (songs.Count > 0)
-			{
-				song = songs[0];
-				song.Stop();
-				songs.Remove(song);
-			}
-		}
-
-		internal void SetVolume(float volume)
-		{
-			int count = songs.Count;
-			for (int i = 0; i < count; i += 1)
-			{
-				songs[i].Volume = volume;
-			}
-		}
-
-		internal void Stop()
-		{
-			int count = songs.Count;
-			for (int i = 0; i < count; i += 1)
-			{
-				songs[i].Stop();
-			}
+			songs.Clear();
 		}
 
 		#endregion

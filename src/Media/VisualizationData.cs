@@ -8,10 +8,8 @@
 #endregion
 
 #region Using Statements
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Media
@@ -22,14 +20,18 @@ namespace Microsoft.Xna.Framework.Media
 
 		public ReadOnlyCollection<float> Frequencies
 		{
-			get;
-			private set;
+			get
+			{
+				return new ReadOnlyCollection<float>(freq);
+			}
 		}
 
 		public ReadOnlyCollection<float> Samples
 		{
-			get;
-			private set;
+			get
+			{
+				return new ReadOnlyCollection<float>(samp);
+			}
 		}
 
 		#endregion
@@ -40,10 +42,10 @@ namespace Microsoft.Xna.Framework.Media
 
 		#endregion
 
-		#region Private Variables
+		#region Internal Variables
 
-		private List<float> freqList;
-		private List<float> sampList;
+		internal float[] freq;
+		internal float[] samp;
 
 		#endregion
 
@@ -51,27 +53,8 @@ namespace Microsoft.Xna.Framework.Media
 
 		public VisualizationData()
 		{
-			freqList = new List<float>(Size);
-			sampList = new List<float>(Size);
-			freqList.AddRange(new float[Size]);
-			sampList.AddRange(new float[Size]);
-			Frequencies = new ReadOnlyCollection<float>(freqList);
-			Samples = new ReadOnlyCollection<float>(sampList);
-		}
-
-		#endregion
-
-		#region Internal Methods
-
-		internal void CalculateData(Song curSong)
-		{
-			float[] samples = curSong.GetSamples();
-
-			for (int i = 0; i < Size; i += 1)
-			{
-				sampList[i] = samples[i * curSong.chunkStep];
-				freqList[i] = 0.0f; // TODO: Frequencies -flibit
-			}
+			freq = new float[Size];
+			samp = new float[Size];
 		}
 
 		#endregion

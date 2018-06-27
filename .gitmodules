@@ -1,15 +1,12 @@
 [submodule "lib/SDL2-CS"]
 	path = lib/SDL2-CS
 	url = git://github.com/flibitijibibo/SDL2-CS.git
-[submodule "lib/OpenAL-CS"]
-	path = lib/OpenAL-CS
-	url = git://github.com/flibitijibibo/OpenAL-CS.git
+[submodule "lib/FACT"]
+	path = lib/FAudio
+	url = git://github.com/flibitijibibo/FACT.git
 [submodule "lib/MojoShader"]
 	path = lib/MojoShader
 	url = git://github.com/FNA-XNA/MojoShader.git
-[submodule "lib/Vorbisfile-CS"]
-	path = lib/Vorbisfile-CS
-	url = git://github.com/flibitijibibo/Vorbisfile-CS.git
 [submodule "lib/Theorafile"]
 	path = lib/Theorafile
 	url = git://github.com/FNA-XNA/Theorafile.git

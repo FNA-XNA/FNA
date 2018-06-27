@@ -8,9 +8,6 @@ The way FNA platforms are written is by implementing the following interfaces:
 2. IGLDevice
 	- Implement the interfaces listed in IGLDevice.cs
 	- When implementing FNAPlatform.CreateGLDevice, use your new GLDevice
-3. IALDevice
-	- Implement the interfaces listed in IALDevice.cs
-	- When implementing FNAPlatform.CreateALDevice, use your new ALDevice
 
 Determining platform backends at runtime allows us to have portability across
 all targets with a single binary, which is convenient for targeting multiple

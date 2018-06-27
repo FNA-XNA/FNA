@@ -11,6 +11,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Audio
@@ -24,7 +25,10 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return INTERNAL_buffer.Duration;
+				return TimeSpan.FromSeconds(
+					(double) handle.PlayLength /
+					(double) format.nSamplesPerSec
+				);
 			}
 		}
 
@@ -48,11 +52,20 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return AudioDevice.MasterVolume;
+				float result;
+				FAudio.FAudioVoice_GetVolume(
+					Device().MasterVoice,
+					out result
+				);
+				return result;
 			}
 			set
 			{
-				AudioDevice.MasterVolume = value;
+				FAudio.FAudioVoice_SetVolume(
+					Device().MasterVoice,
+					value,
+					0
+				);
 			}
 		}
 
@@ -60,7 +73,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return AudioDevice.DistanceScale;
+				return Device().CurveDistanceScaler;
 			}
 			set
 			{
@@ -68,7 +81,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					throw new ArgumentOutOfRangeException("value <= 0.0f");
 				}
-				AudioDevice.DistanceScale = value;
+				Device().CurveDistanceScaler = value;
 			}
 		}
 
@@ -76,7 +89,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return AudioDevice.DopplerScale;
+				return Device().DopplerScale;
 			}
 			set
 			{
@@ -84,7 +97,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					throw new ArgumentOutOfRangeException("value <= 0.0f");
 				}
-				AudioDevice.DopplerScale = value;
+				Device().DopplerScale = value;
 			}
 		}
 
@@ -92,11 +105,17 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return AudioDevice.SpeedOfSound;
+				return Device().SpeedOfSound;
 			}
 			set
 			{
-				AudioDevice.SpeedOfSound = value;
+				FAudioContext dev = Device();
+				dev.SpeedOfSound = value;
+				FAudio.F3DAudioInitialize(
+					dev.DeviceDetails.OutputFormat.dwChannelMask,
+					dev.SpeedOfSound,
+					dev.Handle3D
+				);
 			}
 		}
 
@@ -105,8 +124,10 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Internal Variables
 
 		internal List<WeakReference> Instances = new List<WeakReference>();
-		internal IALBuffer INTERNAL_buffer;
-		internal IALBuffer INTERNAL_monoBuffer;
+		internal FAudio.FAudioBuffer handle;
+		internal FAudio.FAudioWaveFormatEx format;
+		internal uint loopStart;
+		internal uint loopLength;
 
 		#endregion
 
@@ -116,16 +137,20 @@ namespace Microsoft.Xna.Framework.Audio
 			byte[] buffer,
 			int sampleRate,
 			AudioChannels channels
+		) : this(
+			null,
+			buffer,
+			0,
+			buffer.Length,
+			1,
+			(ushort) channels,
+			(uint) sampleRate,
+			(uint) (sampleRate * ((ushort) channels * 2)),
+			(ushort) ((ushort) channels * 2),
+			16,
+			0,
+			0
 		) {
-			INTERNAL_buffer = AudioDevice.GenBuffer(
-				buffer,
-				(uint) sampleRate,
-				(uint) channels,
-				0,
-				0,
-				false,
-				1
-			);
 		}
 
 		public SoundEffect(
@@ -136,59 +161,93 @@ namespace Microsoft.Xna.Framework.Audio
 			AudioChannels channels,
 			int loopStart,
 			int loopLength
+		) : this(
+			null,
+			buffer,
+			offset,
+			count,
+			1,
+			(ushort) channels,
+			(uint) sampleRate,
+			(uint) (sampleRate * ((ushort) channels * 2)),
+			(ushort) ((ushort) channels * 2),
+			16,
+			loopStart,
+			loopLength
 		) {
-			byte[] sendBuf;
-			if (offset != 0 || count != buffer.Length)
-			{
-				// I kind of hate this. -flibit
-				sendBuf = new byte[count];
-				Array.Copy(buffer, offset, sendBuf, 0, count);
-			}
-			else
-			{
-				sendBuf = buffer;
-			}
-
-			INTERNAL_buffer = AudioDevice.GenBuffer(
-				sendBuf,
-				(uint) sampleRate,
-				(uint) channels,
-				(uint) loopStart,
-				(uint) (loopStart + loopLength),
-				false,
-				1
-			);
 		}
 
 		#endregion
 
-		#region Internal Constructors
-
-		internal SoundEffect(Stream s)
-		{
-			INTERNAL_loadAudioStream(s);
-		}
+		#region Internal Constructor
 
 		internal SoundEffect(
 			string name,
 			byte[] buffer,
-			uint sampleRate,
-			uint channels,
-			uint loopStart,
-			uint loopLength,
-			bool isADPCM,
-			uint formatParameter
+			int offset,
+			int count,
+			ushort wFormatTag,
+			ushort nChannels,
+			uint nSamplesPerSec,
+			uint nAvgBytesPerSec,
+			ushort nBlockAlign,
+			ushort wBitsPerSample,
+			int loopStart,
+			int loopLength
 		) {
+			Device();
 			Name = name;
-			INTERNAL_buffer = AudioDevice.GenBuffer(
+			this.loopStart = (uint) loopStart;
+			this.loopLength = (uint) loopLength;
+
+			/* Buffer format */
+			format = new FAudio.FAudioWaveFormatEx();
+			format.wFormatTag = wFormatTag;
+			format.nChannels = nChannels;
+			format.nSamplesPerSec = nSamplesPerSec;
+			format.nAvgBytesPerSec = nAvgBytesPerSec;
+			format.nBlockAlign = nBlockAlign;
+			format.wBitsPerSample = wBitsPerSample;
+			format.cbSize = 0; /* May be needed for ADPCM? */
+
+			/* Easy stuff */
+			handle = new FAudio.FAudioBuffer();
+			handle.Flags = FAudio.FAUDIO_END_OF_STREAM;
+			handle.pContext = IntPtr.Zero;
+
+			/* Buffer data */
+			handle.AudioBytes = (uint) count;
+			handle.pAudioData = Marshal.AllocHGlobal(count);
+			Marshal.Copy(
 				buffer,
-				sampleRate,
-				channels,
-				loopStart,
-				loopStart + loopLength,
-				isADPCM,
-				formatParameter
+				offset,
+				handle.pAudioData,
+				count
 			);
+
+			/* Play regions */
+			handle.PlayBegin = 0;
+			if (wFormatTag == 1)
+			{
+				handle.PlayLength = (uint) (
+					count /
+					nChannels /
+					(wBitsPerSample / 8)
+				);
+			}
+			else if (wFormatTag == 2)
+			{
+				handle.PlayLength = (uint) (
+					count /
+					nBlockAlign *
+					(((nBlockAlign / nChannels) - 6) * 2)
+				);
+			}
+
+			/* Set by Instances! */
+			handle.LoopBegin = 0;
+			handle.LoopLength = 0;
+			handle.LoopCount = 0;
 		}
 
 		#endregion
@@ -202,7 +261,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Public Dispose Method
+		#region Public Methods
 
 		public void Dispose()
 		{
@@ -222,35 +281,10 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 				}
 				Instances.Clear();
-				if (INTERNAL_buffer != null)
-				{
-					AudioDevice.ALDevice.DeleteBuffer(INTERNAL_buffer);
-				}
-				if (INTERNAL_monoBuffer != null)
-				{
-					AudioDevice.ALDevice.DeleteBuffer(INTERNAL_monoBuffer);
-				}
+				Marshal.FreeHGlobal(handle.pAudioData);
 				IsDisposed = true;
 			}
 		}
-
-		#endregion
-
-		#region Additional SoundEffect/SoundEffectInstance Creation Methods
-
-		public SoundEffectInstance CreateInstance()
-		{
-			return new SoundEffectInstance(this);
-		}
-
-		public static SoundEffect FromStream(Stream stream)
-		{
-			return new SoundEffect(stream);
-		}
-
-		#endregion
-
-		#region Public Play Methods
 
 		public bool Play()
 		{
@@ -259,7 +293,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public bool Play(float volume, float pitch, float pan)
 		{
-			SoundEffectInstance instance = CreateInstance();
+			SoundEffectInstance instance = new SoundEffectInstance(
+				this,
+				true
+			);
 			instance.Volume = volume;
 			instance.Pitch = pitch;
 			instance.Pan = pan;
@@ -270,103 +307,12 @@ namespace Microsoft.Xna.Framework.Audio
 				instance.Dispose();
 				return false;
 			}
-			AudioDevice.InstancePool.Add(instance);
 			return true;
 		}
 
-		#endregion
-
-		#region Private WAV Loading Method
-
-		private void INTERNAL_loadAudioStream(Stream s)
+		public SoundEffectInstance CreateInstance()
 		{
-			byte[] data;
-			uint sampleRate = 0;
-			uint numChannels = 0;
-			bool isADPCM = false;
-			uint formatParameter = 0;
-
-			using (BinaryReader reader = new BinaryReader(s))
-			{
-				// RIFF Signature
-				string signature = new string(reader.ReadChars(4));
-				if (signature != "RIFF")
-				{
-					throw new NotSupportedException("Specified stream is not a wave file.");
-				}
-
-				reader.ReadUInt32(); // Riff Chunk Size
-
-				string wformat = new string(reader.ReadChars(4));
-				if (wformat != "WAVE")
-				{
-					throw new NotSupportedException("Specified stream is not a wave file.");
-				}
-
-				// WAVE Header
-				string format_signature = new string(reader.ReadChars(4));
-				while (format_signature != "fmt ")
-				{
-					reader.ReadBytes(reader.ReadInt32());
-					format_signature = new string(reader.ReadChars(4));
-				}
-
-				int format_chunk_size = reader.ReadInt32();
-
-				// Header Information
-				uint audio_format = reader.ReadUInt16();	// 2
-				numChannels = reader.ReadUInt16();		// 4
-				sampleRate = reader.ReadUInt32();		// 8
-				reader.ReadUInt32();				// 12, Byte Rate
-				ushort blockAlign = reader.ReadUInt16();	// 14, Block Align
-				ushort bitDepth = reader.ReadUInt16();		// 16, Bits Per Sample
-
-				if (audio_format == 1)
-				{
-					System.Diagnostics.Debug.Assert(bitDepth == 8 || bitDepth == 16);
-					formatParameter = (uint) (bitDepth / 16); // 1 for 16, 0 for 8
-				}
-				else if (audio_format == 2)
-				{
-					isADPCM = true;
-					formatParameter = (((blockAlign / numChannels) - 6) * 2);
-				}
-				else
-				{
-					throw new NotSupportedException("Wave format is not supported.");
-				}
-
-				// Reads residual bytes
-				if (format_chunk_size > 16)
-				{
-					reader.ReadBytes(format_chunk_size - 16);
-				}
-
-				// data Signature
-				string data_signature = new string(reader.ReadChars(4));
-				while (data_signature.ToLowerInvariant() != "data")
-				{
-					reader.ReadBytes(reader.ReadInt32());
-					data_signature = new string(reader.ReadChars(4));
-				}
-				if (data_signature != "data")
-				{
-					throw new NotSupportedException("Specified wave file is not supported.");
-				}
-
-				int waveDataLength = reader.ReadInt32();
-				data = reader.ReadBytes(waveDataLength);
-			}
-
-			INTERNAL_buffer = AudioDevice.GenBuffer(
-				data,
-				sampleRate,
-				numChannels,
-				0,
-				0,
-				isADPCM,
-				formatParameter
-			);
+			return new SoundEffectInstance(this);
 		}
 
 		#endregion
@@ -397,6 +343,222 @@ namespace Microsoft.Xna.Framework.Audio
 				(int) channels *
 				2 // 16-bit PCM!
 			);
+		}
+
+		public static SoundEffect FromStream(Stream stream)
+		{
+			// Sample data
+			byte[] data;
+
+			// WaveFormatEx data
+			ushort wFormatTag;
+			ushort nChannels;
+			uint nSamplesPerSec;
+			uint nAvgBytesPerSec;
+			ushort nBlockAlign;
+			ushort wBitsPerSample;
+			// ushort cbSize;
+
+			using (BinaryReader reader = new BinaryReader(stream))
+			{
+				// RIFF Signature
+				string signature = new string(reader.ReadChars(4));
+				if (signature != "RIFF")
+				{
+					throw new NotSupportedException("Specified stream is not a wave file.");
+				}
+
+				reader.ReadUInt32(); // Riff Chunk Size
+
+				string wformat = new string(reader.ReadChars(4));
+				if (wformat != "WAVE")
+				{
+					throw new NotSupportedException("Specified stream is not a wave file.");
+				}
+
+				// WAVE Header
+				string format_signature = new string(reader.ReadChars(4));
+				while (format_signature != "fmt ")
+				{
+					reader.ReadBytes(reader.ReadInt32());
+					format_signature = new string(reader.ReadChars(4));
+				}
+
+				int format_chunk_size = reader.ReadInt32();
+
+				wFormatTag = reader.ReadUInt16();
+				nChannels = reader.ReadUInt16();
+				nSamplesPerSec = reader.ReadUInt32();
+				nAvgBytesPerSec = reader.ReadUInt32();
+				nBlockAlign = reader.ReadUInt16();
+				wBitsPerSample = reader.ReadUInt16();
+
+				// Reads residual bytes
+				if (format_chunk_size > 16)
+				{
+					reader.ReadBytes(format_chunk_size - 16);
+				}
+
+				// data Signature
+				string data_signature = new string(reader.ReadChars(4));
+				while (data_signature.ToLowerInvariant() != "data")
+				{
+					reader.ReadBytes(reader.ReadInt32());
+					data_signature = new string(reader.ReadChars(4));
+				}
+				if (data_signature != "data")
+				{
+					throw new NotSupportedException("Specified wave file is not supported.");
+				}
+
+				int waveDataLength = reader.ReadInt32();
+				data = reader.ReadBytes(waveDataLength);
+			}
+
+			return new SoundEffect(
+				null,
+				data,
+				0,
+				data.Length,
+				wFormatTag,
+				nChannels,
+				nSamplesPerSec,
+				nAvgBytesPerSec,
+				nBlockAlign,
+				wBitsPerSample,
+				0,
+				0
+			);
+		}
+
+		#endregion
+
+		#region FAudio Context
+
+		internal class FAudioContext
+		{
+			public static FAudioContext Context = null;
+
+			public readonly IntPtr Handle;
+			public readonly byte[] Handle3D;
+			public readonly IntPtr MasterVoice;
+			public readonly FAudio.FAudioDeviceDetails DeviceDetails;
+
+			public float CurveDistanceScaler;
+			public float DopplerScale;
+			public float SpeedOfSound;
+
+			private FAudioContext(IntPtr ctx, uint devices)
+			{
+				Handle = ctx;
+
+				uint i;
+				for (i = 0; i < devices; i += 1)
+				{
+					FAudio.FAudio_GetDeviceDetails(
+						Handle,
+						i,
+						out DeviceDetails
+					);
+					if ((DeviceDetails.Role & FAudio.FAudioDeviceRole.DefaultGameDevice) == FAudio.FAudioDeviceRole.DefaultGameDevice)
+					{
+						break;
+					}
+				}
+				if (i == devices)
+				{
+					i = 0; /* Oh well. */
+					FAudio.FAudio_GetDeviceDetails(
+						Handle,
+						i,
+						out DeviceDetails
+					);
+				}
+				FAudio.FAudio_CreateMasteringVoice(
+					Handle,
+					out MasterVoice,
+					FAudio.FAUDIO_DEFAULT_CHANNELS,
+					FAudio.FAUDIO_DEFAULT_SAMPLERATE,
+					0,
+					i,
+					IntPtr.Zero
+				);
+
+				CurveDistanceScaler = 1.0f;
+				DopplerScale = 1.0f;
+				SpeedOfSound = 343.5f;
+				Handle3D = new byte[FAudio.F3DAUDIO_HANDLE_BYTESIZE];
+				FAudio.F3DAudioInitialize(
+					DeviceDetails.OutputFormat.dwChannelMask,
+					SpeedOfSound,
+					Handle3D
+				);
+
+				Context = this;
+			}
+
+			public void Dispose()
+			{
+				FAudio.FAudioVoice_DestroyVoice(MasterVoice);
+				FAudio.FAudio_Release(Handle);
+				Context = null;
+			}
+
+			public static void Create()
+			{
+				/* TODO: Remove the FNA variable! */
+				if (Environment.GetEnvironmentVariable(
+					"FNA_AUDIO_DISABLE_SOUND"
+				) == "1") {
+					Environment.SetEnvironmentVariable(
+						"SDL_AUDIODRIVER",
+						"dummy"
+					);
+				}
+
+				IntPtr ctx;
+				try
+				{
+					FAudio.FAudioCreate(
+						out ctx,
+						0,
+						FAudio.FAUDIO_DEFAULT_PROCESSOR
+					);
+				}
+				catch
+				{
+					/* FAudio is missing, bail! */
+					return;
+				}
+
+				uint devices;
+				FAudio.FAudio_GetDeviceCount(
+					ctx,
+					out devices
+				);
+				if (devices == 0)
+				{
+					/* No sound cards, bail! */
+					FAudio.FAudio_Release(ctx);
+					return;
+				}
+
+				Context = new FAudioContext(ctx, devices);
+			}
+		}
+
+		internal static FAudioContext Device()
+		{
+			if (FAudioContext.Context != null)
+			{
+				return FAudioContext.Context;
+			}
+			FAudioContext.Create();
+			if (FAudioContext.Context == null)
+			{
+				throw new NoAudioHardwareException();
+			}
+			return FAudioContext.Context;
 		}
 
 		#endregion

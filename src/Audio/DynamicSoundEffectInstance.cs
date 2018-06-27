@@ -22,8 +22,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public int PendingBufferCount
 		{
-			get;
-			private set;
+			get
+			{
+				return queuedBuffers.Count;
+			}
 		}
 
 		public override bool IsLooped
@@ -40,20 +42,23 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Private XNA Variables
+		#region Internal Variables
+
+		internal FAudio.FAudioWaveFormatEx format;
+
+		#endregion
+
+		#region Private Variables
 
 		private int sampleRate;
 		private AudioChannels channels;
 
+		private List<IntPtr> queuedBuffers;
+		private List<uint> queuedSizes;
+
+		private FAudio.OnBufferEndFunc OnBufferEndFunc;
+
 		private const int MINIMUM_BUFFER_CHECK = 3;
-
-		#endregion
-
-		#region Private AL Variables
-
-		private Queue<IALBuffer> queuedBuffers;
-		private Queue<IALBuffer> buffersToQueue;
-		private Queue<IALBuffer> availableBuffers;
 
 		#endregion
 
@@ -65,17 +70,31 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Public Constructor
 
-		public DynamicSoundEffectInstance(int sampleRate, AudioChannels channels) : base(null)
-		{
+		public DynamicSoundEffectInstance(
+			int sampleRate,
+			AudioChannels channels
+		) : base() {
 			this.sampleRate = sampleRate;
 			this.channels = channels;
-
-			PendingBufferCount = 0;
-
 			isDynamic = true;
-			queuedBuffers = new Queue<IALBuffer>();
-			buffersToQueue = new Queue<IALBuffer>();
-			availableBuffers = new Queue<IALBuffer>();
+
+			format = new FAudio.FAudioWaveFormatEx();
+			format.wFormatTag = 1;
+			format.nChannels = (ushort) channels;
+			format.nSamplesPerSec = (uint) sampleRate;
+			format.wBitsPerSample = 16;
+
+			queuedBuffers = new List<IntPtr>();
+			queuedSizes = new List<uint>();
+
+			OnBufferEndFunc = OnBufferEnd;
+			unsafe
+			{
+				FAudio.FAudioVoiceCallback* cb = (FAudio.FAudioVoiceCallback*) callbacks;
+				cb->OnBufferEnd = Marshal.GetFunctionPointerForDelegate(OnBufferEndFunc);
+			}
+
+			InitDSPSettings(format.nChannels);
 		}
 
 		#endregion
@@ -89,38 +108,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Public Dispose Method
-
-		public override void Dispose()
-		{
-			if (!IsDisposed)
-			{
-				base.Dispose(); // Will call Stop(true);
-
-				// Delete all known buffer objects
-				while (queuedBuffers.Count > 0)
-				{
-					AudioDevice.ALDevice.DeleteBuffer(queuedBuffers.Dequeue());
-				}
-				queuedBuffers = null;
-				while (availableBuffers.Count > 0)
-				{
-					AudioDevice.ALDevice.DeleteBuffer(availableBuffers.Dequeue());
-				}
-				availableBuffers = null;
-				while (buffersToQueue.Count > 0)
-				{
-					AudioDevice.ALDevice.DeleteBuffer(buffersToQueue.Dequeue());
-				}
-				buffersToQueue = null;
-
-				IsDisposed = true;
-			}
-		}
-
-		#endregion
-
-		#region Public Time/Sample Information Methods
+		#region Public Methods
 
 		public TimeSpan GetSampleDuration(int sizeInBytes)
 		{
@@ -140,9 +128,15 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 		}
 
-		#endregion
+		public override void Play()
+		{
+			// Wait! What if we need moar buffers?
+			Update();
 
-		#region Public SubmitBuffer Methods
+			// Okay we're good
+			base.Play();
+			FrameworkDispatcher.Streams.Add(this);
+		}
 
 		public void SubmitBuffer(byte[] buffer)
 		{
@@ -151,214 +145,30 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SubmitBuffer(byte[] buffer, int offset, int count)
 		{
-			// Generate a buffer if we don't have any to use.
-			if (availableBuffers.Count == 0)
+			IntPtr next = Marshal.AllocHGlobal(count);
+			Marshal.Copy(buffer, offset, next, count);
+			queuedBuffers.Add(next);
+			if (State == SoundState.Playing)
 			{
-				availableBuffers.Enqueue(
-					AudioDevice.ALDevice.GenBuffer(sampleRate, channels)
+				FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
+				buf.AudioBytes = (uint) count;
+				buf.pAudioData = next;
+				buf.PlayLength = (
+					buf.AudioBytes /
+					(uint) channels /
+					(uint) (format.wBitsPerSample / 8)
 				);
-			}
-
-			// Push buffer to the AL.
-			IALBuffer newBuf = availableBuffers.Dequeue();
-			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-			AudioDevice.ALDevice.SetBufferData(
-				newBuf,
-				handle.AddrOfPinnedObject(),
-				offset,
-				count
-			);
-			handle.Free();
-
-			// If we're already playing, queue immediately.
-			if (INTERNAL_alSource != null)
-			{
-				AudioDevice.ALDevice.QueueSourceBuffer(
-					INTERNAL_alSource,
-					newBuf
-				);
-				queuedBuffers.Enqueue(newBuf);
-
-				// If the source stopped, reboot it now.
-				if (AudioDevice.ALDevice.GetSourceState(INTERNAL_alSource) == SoundState.Stopped)
-				{
-					AudioDevice.ALDevice.PlaySource(INTERNAL_alSource);
-				}
-			}
-			else
-			{
-				buffersToQueue.Enqueue(newBuf);
-			}
-
-			PendingBufferCount += 1;
-		}
-
-		#endregion
-
-		#region Public Play Method
-
-		public override void Play()
-		{
-			Play(true);
-		}
-
-		#endregion
-
-		#region Internal Play Method
-
-		internal void Play(bool isManaged)
-		{
-			// No-op if we're already playing.
-			if (State != SoundState.Stopped)
-			{
-				if (State == SoundState.Paused)
-				{
-					// ... but be sure pause/resume still works
-					Resume();
-				}
-				return;
-			}
-
-			if (INTERNAL_alSource != null)
-			{
-				// The sound has stopped, but hasn't cleaned up yet...
-				AudioDevice.ALDevice.StopAndDisposeSource(INTERNAL_alSource);
-				INTERNAL_alSource = null;
-			}
-			while (queuedBuffers.Count > 0)
-			{
-				availableBuffers.Enqueue(queuedBuffers.Dequeue());
-				PendingBufferCount -= 1;
-			}
-
-			if (AudioDevice.ALDevice == null)
-			{
-				throw new NoAudioHardwareException();
-			}
-
-			INTERNAL_alSource = AudioDevice.ALDevice.GenSource();
-			if (INTERNAL_alSource == null)
-			{
-				FNALoggerEXT.LogWarn("AL SOURCE WAS NOT AVAILABLE, SKIPPING.");
-				return;
-			}
-
-			// Queue the buffers to this source
-			while (buffersToQueue.Count > 0)
-			{
-				IALBuffer nextBuf = buffersToQueue.Dequeue();
-				queuedBuffers.Enqueue(nextBuf);
-				AudioDevice.ALDevice.QueueSourceBuffer(INTERNAL_alSource, nextBuf);
-			}
-
-			// Apply Pan/Position
-			if (INTERNAL_positionalAudio)
-			{
-				INTERNAL_positionalAudio = false;
-				AudioDevice.ALDevice.SetSourcePosition(
-					INTERNAL_alSource,
-					position
+				FAudio.FAudioSourceVoice_SubmitSourceBuffer(
+					handle,
+					ref buf,
+					IntPtr.Zero
 				);
 			}
 			else
 			{
-				Pan = Pan;
-			}
-
-			// Reassign Properties, in case the AL properties need to be applied.
-			Volume = Volume;
-			Pitch = Pitch;
-
-			// ... but wait! What if we need moar buffers?
-			for (
-				int i = MINIMUM_BUFFER_CHECK - PendingBufferCount;
-				(i > 0) && BufferNeeded != null;
-				i -= 1
-			) {
-				BufferNeeded(this, null);
-			}
-
-			// Finally.
-			AudioDevice.ALDevice.PlaySource(INTERNAL_alSource);
-			if (isManaged)
-			{
-				AudioDevice.DynamicInstancePool.Add(this);
+				queuedSizes.Add((uint) count);
 			}
 		}
-
-		#endregion
-
-		#region Internal Update Method
-
-		internal void Update()
-		{
-			// Get the number of processed buffers.
-			int finishedBuffers = AudioDevice.ALDevice.CheckProcessedBuffers(
-				INTERNAL_alSource
-			);
-			if (finishedBuffers == 0)
-			{
-				// Nothing to do... yet.
-				return;
-			}
-
-			// Dequeue the processed buffers, error checking as needed.
-			AudioDevice.ALDevice.DequeueSourceBuffers(
-				INTERNAL_alSource,
-				finishedBuffers,
-				queuedBuffers
-			);
-
-			// The processed buffers are now available.
-			for (int i = 0; i < finishedBuffers; i += 1)
-			{
-				availableBuffers.Enqueue(queuedBuffers.Dequeue());
-			}
-
-			// PendingBufferCount changed during playback, trigger now!
-			PendingBufferCount -= finishedBuffers;
-			if (BufferNeeded != null)
-			{
-				BufferNeeded(this, null);
-			}
-
-			// Do we need even moar buffers?
-			for (
-				int i = MINIMUM_BUFFER_CHECK - PendingBufferCount;
-				(i > 0) && BufferNeeded != null;
-				i -= 1
-			) {
-				BufferNeeded(this, null);
-			}
-		}
-
-		#endregion
-
-		#region Internal Sample Data Retrieval Method
-
-		internal void GetSamples(float[] samples)
-		{
-			if (INTERNAL_alSource != null && queuedBuffers.Count > 0)
-			{
-				GCHandle handle = GCHandle.Alloc(samples, GCHandleType.Pinned);
-				AudioDevice.ALDevice.GetBufferData(
-					INTERNAL_alSource,
-					queuedBuffers.ToArray(), // FIXME: Blech -flibit
-					handle.AddrOfPinnedObject(),
-					samples.Length,
-					channels
-				);
-				handle.Free();
-			}
-			else
-			{
-				Array.Clear(samples, 0, samples.Length);
-			}
-		}
-
-		#endregion
-
-		#region Public FNA Extension Methods
 
 		public void SubmitFloatBufferEXT(float[] buffer)
 		{
@@ -371,45 +181,112 @@ namespace Microsoft.Xna.Framework.Audio
 			 * We currently use this for the VideoPlayer.
 			 * -flibit
 			 */
-
-			// Generate a buffer if we don't have any to use.
-			if (availableBuffers.Count == 0)
+			if (State == SoundState.Playing && format.wFormatTag == 1)
 			{
-				availableBuffers.Enqueue(AudioDevice.ALDevice.GenBuffer(sampleRate, channels));
-			}
-
-			// Push buffer to the AL.
-			IALBuffer newBuf = availableBuffers.Dequeue();
-			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-			AudioDevice.ALDevice.SetBufferFloatData(
-				newBuf,
-				handle.AddrOfPinnedObject(),
-				offset,
-				count
-			);
-			handle.Free();
-
-			// If we're already playing, queue immediately.
-			if (INTERNAL_alSource != null)
-			{
-				AudioDevice.ALDevice.QueueSourceBuffer(
-					INTERNAL_alSource,
-					newBuf
+				throw new InvalidOperationException(
+					"Submit a float buffer before Playing!"
 				);
-				queuedBuffers.Enqueue(newBuf);
+			}
+			format.wFormatTag = 3;
+			format.wBitsPerSample = 32;
 
-				// If the source stopped, reboot it now.
-				if (AudioDevice.ALDevice.GetSourceState(INTERNAL_alSource) == SoundState.Stopped)
-				{
-					AudioDevice.ALDevice.PlaySource(INTERNAL_alSource);
-				}
+			IntPtr next = Marshal.AllocHGlobal(count * sizeof(float));
+			Marshal.Copy(buffer, offset, next, count);
+			queuedBuffers.Add(next);
+			if (State == SoundState.Playing)
+			{
+				FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
+				buf.AudioBytes = (uint) count * sizeof(float);
+				buf.pAudioData = next;
+				buf.PlayLength = (
+					buf.AudioBytes /
+					(uint) channels /
+					(uint) (format.wBitsPerSample / 8)
+				);
+				FAudio.FAudioSourceVoice_SubmitSourceBuffer(
+					handle,
+					ref buf,
+					IntPtr.Zero
+				);
 			}
 			else
 			{
-				buffersToQueue.Enqueue(newBuf);
+				queuedSizes.Add((uint) count * sizeof(float));
+			}
+		}
+
+		#endregion
+
+		#region Protected Methods
+
+		protected override void Dispose(bool disposing)
+		{
+			// Unhook the callback, the GC gets scared of it
+			unsafe
+			{
+				FAudio.FAudioVoiceCallback* cb = (FAudio.FAudioVoiceCallback*) callbacks;
+				cb->OnBufferEnd = IntPtr.Zero;
 			}
 
-			PendingBufferCount += 1;
+			// Other than that, not much to see here...
+			base.Dispose(disposing);
+		}
+
+		#endregion
+
+		#region Internal Methods
+
+		internal void QueueInitialBuffers()
+		{
+			FAudio.FAudioBuffer buffer = new FAudio.FAudioBuffer();
+			for (int i = 0; i < queuedBuffers.Count; i += 1)
+			{
+				buffer.AudioBytes = queuedSizes[i];
+				buffer.pAudioData = queuedBuffers[i];
+				buffer.PlayLength = (
+					buffer.AudioBytes /
+					(uint) channels /
+					(uint) (format.wBitsPerSample / 8)
+				);
+				FAudio.FAudioSourceVoice_SubmitSourceBuffer(
+					handle,
+					ref buffer,
+					IntPtr.Zero
+				);
+			}
+			queuedSizes.Clear();
+		}
+
+		internal void ClearBuffers()
+		{
+			foreach (IntPtr buf in queuedBuffers)
+			{
+				Marshal.FreeHGlobal(buf);
+			}
+			queuedBuffers.Clear();
+			queuedSizes.Clear();
+		}
+
+		internal void Update()
+		{
+			// Do we need even moar buffers?
+			for (
+				int i = MINIMUM_BUFFER_CHECK - PendingBufferCount;
+				(i > 0) && BufferNeeded != null;
+				i -= 1
+			) {
+				BufferNeeded(this, null);
+			}
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private void OnBufferEnd(IntPtr callback, IntPtr pBufferContext)
+		{
+			Marshal.FreeHGlobal(queuedBuffers[0]);
+			queuedBuffers.RemoveAt(0);
 		}
 
 		#endregion

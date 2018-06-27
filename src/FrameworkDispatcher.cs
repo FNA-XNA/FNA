@@ -8,6 +8,8 @@
 #endregion
 
 #region Using Statements
+using System.Collections.Generic;
+
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 #endregion
@@ -20,12 +22,8 @@ namespace Microsoft.Xna.Framework
 
 		internal static bool ActiveSongChanged = false;
 		internal static bool MediaStateChanged = false;
-
-		#endregion
-
-		#region Private Variables
-
-		private static bool FirstFrame = true;
+		internal static Queue<SoundEffectInstance> DeadSounds = new Queue<SoundEffectInstance>();
+		internal static List<DynamicSoundEffectInstance> Streams = new List<DynamicSoundEffectInstance>();
 
 		#endregion
 
@@ -36,21 +34,23 @@ namespace Microsoft.Xna.Framework
 			/* Updates the status of various framework components
 			 * (such as power state and media), and raises related events.
 			 */
-			if (FirstFrame)
+			while (DeadSounds.Count > 0)
 			{
-				FirstFrame = false;
-				AudioDevice.Initialize();
+				DeadSounds.Dequeue().Stop(true);
 			}
-			else if (AudioDevice.ALDevice != null)
+			foreach (DynamicSoundEffectInstance stream in Streams)
 			{
-				/* This has to be in an 'else', otherwise we hit
-				 * NoAudioHardwareException in the wrong place.
-				 * -flibit
-				 */
+				stream.Update();
+			}
+			if (Microphone.micList != null)
+			{
+				for (int i = 0; i < Microphone.micList.Count; i += 1)
+				{
+					Microphone.micList[i].CheckBuffer();
+				}
+			}
 
-				// Checks and cleans instances, fires events accordingly
-				AudioDevice.Update();
-			}
+			MediaPlayer.Update();
 			if (ActiveSongChanged)
 			{
 				MediaPlayer.OnActiveSongChanged();

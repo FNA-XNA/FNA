@@ -41,16 +41,37 @@ namespace Microsoft.Xna.Framework
 #if CASE_SENSITIVITY_HACK
 			if (Path.IsPathRooted(safeName))
 			{
-				return OpenStreamCase(safeName);
+				safeName = GetCaseName(safeName);
 			}
-			return OpenStreamCase(Path.Combine(TitleLocation.Path, safeName));
-#else
+			safeName = GetCaseName(Path.Combine(TitleLocation.Path, safeName));
+#endif
 			if (Path.IsPathRooted(safeName))
 			{
 				return File.OpenRead(safeName);
 			}
 			return File.OpenRead(Path.Combine(TitleLocation.Path, safeName));
+		}
+
+		#endregion
+
+		#region Internal Static Methods
+
+		public static byte[] ReadAllBytes(string name)
+		{
+			string safeName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(name);
+
+#if CASE_SENSITIVITY_HACK
+			if (Path.IsPathRooted(safeName))
+			{
+				safeName = GetCaseName(safeName);
+			}
+			safeName = GetCaseName(Path.Combine(TitleLocation.Path, safeName));
 #endif
+			if (Path.IsPathRooted(safeName))
+			{
+				return File.ReadAllBytes(safeName);
+			}
+			return File.ReadAllBytes(Path.Combine(TitleLocation.Path, safeName));
 		}
 
 		#endregion
@@ -58,11 +79,11 @@ namespace Microsoft.Xna.Framework
 		#region Private Static fcaseopen Method
 
 #if CASE_SENSITIVITY_HACK
-		private static Stream OpenStreamCase(string name)
+		private static string GetCaseName(string name)
 		{
 			if (File.Exists(name))
 			{
-				return File.OpenRead(name);
+				return name;
 			}
 
 			string[] splits = name.Split(Path.DirectorySeparatorChar);
@@ -91,7 +112,7 @@ namespace Microsoft.Xna.Framework
 				name.Substring(TitleLocation.Path.Length) + "\n\t" +
 				splits[0].Substring(TitleLocation.Path.Length)
 			);
-			return File.OpenRead(splits[0]);
+			return splits[0];
 		}
 
 		private static string SearchCase(string name, string[] list)

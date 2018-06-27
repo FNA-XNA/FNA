@@ -40,7 +40,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Properties
 
-		internal IGLBuffer buffer;
+		internal GLBuffer buffer;
 
 		#endregion
 
