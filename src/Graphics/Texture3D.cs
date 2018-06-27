@@ -118,6 +118,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentNullException("data");
 			}
 
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.SetTextureData3D(
 				texture,
@@ -129,10 +130,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				bottom,
 				front,
 				back,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				Marshal.SizeOf(typeof(T))
+				handle.AddrOfPinnedObject() + startIndex * elementSizeInBytes,
+				elementCount * elementSizeInBytes
 			);
 			handle.Free();
 		}
@@ -146,9 +145,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int front,
 			int back,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		) {
 			if (data == null) {
 				throw new ArgumentNullException("data");
@@ -165,9 +162,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				front,
 				back,
 				data,
-				startIndex,
-				elementCount,
-				elementSizeInBytes
+				dataLength
 			);
 		}
 
@@ -276,61 +271,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				Marshal.SizeOf(typeof(T))
 			);
 			handle.Free();
-		}
-
-
-		/// <summary>
-		/// Gets a copy of 3D texture data, specifying a mipmap level, source box, start index, and number of elements.
-		/// </summary>
-		/// <typeparam name="T">The type of the elements in the array.</typeparam>
-		/// <param name="level">Mipmap level.</param>
-		/// <param name="left">Position of the left side of the box on the x-axis.</param>
-		/// <param name="top">Position of the top of the box on the y-axis.</param>
-		/// <param name="right">Position of the right side of the box on the x-axis.</param>
-		/// <param name="bottom">Position of the bottom of the box on the y-axis.</param>
-		/// <param name="front">Position of the front of the box on the z-axis.</param>
-		/// <param name="back">Position of the back of the box on the z-axis.</param>
-		/// <param name="data">Array of data.</param>
-		/// <param name="startIndex">Index of the first element to get.</param>
-		/// <param name="elementCount">Number of elements to get.</param>
-		/// <param name="elementSize">Size of element in bytes.</param>
-		public void GetDataPointerEXT(
-			int level,
-			int left,
-			int top,
-			int right,
-			int bottom,
-			int front,
-			int back,
-			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
-		) {
-			if (data == IntPtr.Zero) {
-				throw new ArgumentException("data cannot be null");
-			}
-			if ((left < 0 || left >= right) ||
-				(top < 0 || top >= bottom) ||
-				(front < 0 || front >= back)) {
-				throw new ArgumentException("Neither box size nor box position can be negative");
-			}
-
-			GraphicsDevice.GLDevice.GetTextureData3D(
-				texture,
-				Format,
-				left,
-				top,
-				front,
-				right,
-				bottom,
-				back,
-				level,
-				data,
-				startIndex,
-				elementCount,
-				elementSizeInBytes
-			);
 		}
 
 		#endregion

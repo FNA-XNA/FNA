@@ -202,9 +202,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int front,
 			int back,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		);
 		void SetTextureDataCube(
 			IGLTexture texture,
@@ -216,9 +214,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			CubeMapFace cubeMapFace,
 			int level,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		);
 		void SetTextureData2DPointer(Texture2D texture, IntPtr ptr);
 		void GetTextureData2D(

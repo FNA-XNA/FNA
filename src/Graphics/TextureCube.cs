@@ -138,6 +138,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				height = Math.Max(1, Size >> level);
 			}
 
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.SetTextureDataCube(
 				texture,
@@ -148,10 +149,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				height,
 				cubeMapFace,
 				level,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				Marshal.SizeOf(typeof(T))
+				handle.AddrOfPinnedObject() + startIndex * elementSizeInBytes,
+				elementCount * elementSizeInBytes
 			);
 			handle.Free();
 		}
@@ -161,9 +160,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int level,
 			Rectangle? rect,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		) {
 			if (data == IntPtr.Zero)
 			{
@@ -196,9 +193,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				cubeMapFace,
 				level,
 				data,
-				startIndex,
-				elementCount,
-				elementSizeInBytes
+				dataLength
 			);
 		}
 		#endregion
@@ -288,50 +283,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				Marshal.SizeOf(typeof(T))
 			);
 			handle.Free();
-		}
-
-		public void GetDataPointerEXT(
-			CubeMapFace cubeMapFace,
-			int level,
-			Rectangle? rect,
-			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
-		) {
-			if (data == IntPtr.Zero) {
-				throw new ArgumentException("data cannot be null");
-			}
-
-			int subX, subY, subW, subH;
-			if (rect == null) {
-				subX = 0;
-				subY = 0;
-				subW = Size >> level;
-				subH = Size >> level;
-			}
-			else {
-				subX = rect.Value.X;
-				subY = rect.Value.Y;
-				subW = rect.Value.Width;
-				subH = rect.Value.Height;
-			}
-
-			GraphicsDevice.GLDevice.GetTextureDataCube(
-				texture,
-				Format,
-				Size >> level,
-				cubeMapFace,
-				level,
-				subX,
-				subY,
-				subW,
-				subH,
-				data,
-				startIndex,
-				elementCount,
-				elementSizeInBytes
-			);
 		}
 
 		#endregion

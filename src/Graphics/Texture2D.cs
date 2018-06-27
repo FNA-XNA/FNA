@@ -297,52 +297,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			handle.Free();
 		}
 
-		public void GetDataPointerEXT(
-			int level,
-			Rectangle? rect,
-			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
-		) {
-			if (data == IntPtr.Zero)
-			{
-				throw new ArgumentException("data cannot be null");
-			}
-
-			int subX, subY, subW, subH;
-			if (rect == null)
-			{
-				subX = 0;
-				subY = 0;
-				subW = Width >> level;
-				subH = Height >> level;
-			}
-			else
-			{
-				subX = rect.Value.X;
-				subY = rect.Value.Y;
-				subW = rect.Value.Width;
-				subH = rect.Value.Height;
-			}
-
-			GraphicsDevice.GLDevice.GetTextureData2D(
-				texture,
-				Format,
-				Width >> level,
-				Height >> level,
-				level,
-				subX,
-				subY,
-				subW,
-				subH,
-				data,
-				startIndex,
-				elementCount,
-				elementSizeInBytes
-			);
-		}
-
 		#endregion
 
 		#region Public Texture2D Save Methods
