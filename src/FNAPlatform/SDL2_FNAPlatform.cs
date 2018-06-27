@@ -722,7 +722,8 @@ namespace Microsoft.Xna.Framework
 					else if (evt.type == SDL.SDL_EventType.SDL_KEYUP)
 					{
 						Keys key = ToXNAKey(ref evt.key.keysym);
-						if (keys.Remove(key)) {
+						if (keys.Remove(key))
+						{
 							int value;
 							if (textInputBindings.TryGetValue(key, out value))
 							{
@@ -854,13 +855,14 @@ namespace Microsoft.Xna.Framework
 								while (*endPtr != 0)
 								{
 									endPtr++;
-									bytes++;
+									bytes += 1;
 								}
-								// utf8 will never encode more characters than bytes in a string so bytes is a suitable upper estimate of buffersize needed
+								// utf8 will never encode more characters than bytes in a string 
+								// so bytes is a suitable upper estimate of buffersize needed
 								char* charsBuffer = stackalloc char[bytes];
 								int chars = Encoding.UTF8.GetChars(evt.text.text, bytes, charsBuffer, bytes);
 
-								for (int i = 0; i<chars; ++i)
+								for (int i = 0; i < chars; ++i)
 								{
 								   TextInputEXT.OnTextInput(charsBuffer[i]);
 								}
