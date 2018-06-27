@@ -11,6 +11,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
+
 #endregion
 
 namespace Microsoft.Xna.Framework.Audio
@@ -219,7 +221,8 @@ namespace Microsoft.Xna.Framework.Audio
 		}
 
 		public static IALBuffer GenBuffer(
-			byte[] data,
+			IntPtr data,
+			int dataLength,
 			uint sampleRate,
 			uint channels,
 			uint loopStart,
@@ -233,6 +236,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			return ALDevice.GenBuffer(
 				data,
+				dataLength,
 				sampleRate,
 				channels,
 				loopStart,

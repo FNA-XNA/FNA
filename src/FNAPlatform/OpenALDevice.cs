@@ -245,7 +245,8 @@ namespace Microsoft.Xna.Framework.Audio
 		}
 
 		public IALBuffer GenBuffer(
-			byte[] data,
+			IntPtr data,
+			int dataLength,
 			uint sampleRate,
 			uint channels,
 			uint loopStart,
@@ -262,7 +263,6 @@ namespace Microsoft.Xna.Framework.Audio
 #endif
 
 			int format;
-			int length = data.Length;
 			if (isADPCM)
 			{
 				format = (channels == 2) ?
@@ -288,7 +288,7 @@ namespace Microsoft.Xna.Framework.Audio
 					 * alBufferData and throw an AL_INVALID_VALUE.
 					 * -flibit
 					 */
-					length &= 0x7FFFFFFE;
+					dataLength &= 0x7FFFFFFE;
 				}
 				else
 				{
@@ -303,7 +303,7 @@ namespace Microsoft.Xna.Framework.Audio
 				result,
 				format,
 				data,
-				length,
+				dataLength,
 				(int) sampleRate
 			);
 #if VERBOSE_AL_DEBUGGING
@@ -459,17 +459,17 @@ namespace Microsoft.Xna.Framework.Audio
 						src += 2;
 					}
 				}
+				return GenBuffer(
+					(IntPtr)monoPtr,
+					monoData.Length,
+					(uint)buf.SampleRate,
+					1,
+					0,
+					0,
+					false,
+					(uint)bits - 1
+				);
 			}
-
-			return GenBuffer(
-				monoData,
-				(uint) buf.SampleRate,
-				1,
-				0,
-				0,
-				false,
-				(uint) bits - 1
-			);
 		}
 
 		#endregion
