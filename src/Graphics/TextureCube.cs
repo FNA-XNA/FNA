@@ -156,6 +156,51 @@ namespace Microsoft.Xna.Framework.Graphics
 			handle.Free();
 		}
 
+		public void SetDataPointerEXT(
+			CubeMapFace cubeMapFace,
+			int level,
+			Rectangle? rect,
+			IntPtr data,
+			int startIndex,
+			int elementCount,
+			int elementSizeInBytes
+		) {
+			if (data == IntPtr.Zero)
+			{
+				throw new ArgumentNullException("data");
+			}
+
+			int xOffset, yOffset, width, height;
+			if (rect.HasValue)
+			{
+				xOffset = rect.Value.X;
+				yOffset = rect.Value.Y;
+				width = rect.Value.Width;
+				height = rect.Value.Height;
+			}
+			else
+			{
+				xOffset = 0;
+				yOffset = 0;
+				width = Math.Max(1, Size >> level);
+				height = Math.Max(1, Size >> level);
+			}
+
+			GraphicsDevice.GLDevice.SetTextureDataCube(
+				texture,
+				Format,
+				xOffset,
+				yOffset,
+				width,
+				height,
+				cubeMapFace,
+				level,
+				data,
+				startIndex,
+				elementCount,
+				elementSizeInBytes
+			);
+		}
 		#endregion
 
 		#region Public GetData Method
@@ -243,6 +288,50 @@ namespace Microsoft.Xna.Framework.Graphics
 				Marshal.SizeOf(typeof(T))
 			);
 			handle.Free();
+		}
+
+		public void GetDataPointerEXT(
+			CubeMapFace cubeMapFace,
+			int level,
+			Rectangle? rect,
+			IntPtr data,
+			int startIndex,
+			int elementCount,
+			int elementSizeInBytes
+		) {
+			if (data == IntPtr.Zero) {
+				throw new ArgumentException("data cannot be null");
+			}
+
+			int subX, subY, subW, subH;
+			if (rect == null) {
+				subX = 0;
+				subY = 0;
+				subW = Size >> level;
+				subH = Size >> level;
+			}
+			else {
+				subX = rect.Value.X;
+				subY = rect.Value.Y;
+				subW = rect.Value.Width;
+				subH = rect.Value.Height;
+			}
+
+			GraphicsDevice.GLDevice.GetTextureDataCube(
+				texture,
+				Format,
+				Size >> level,
+				cubeMapFace,
+				level,
+				subX,
+				subY,
+				subW,
+				subH,
+				data,
+				startIndex,
+				elementCount,
+				elementSizeInBytes
+			);
 		}
 
 		#endregion
