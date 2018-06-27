@@ -189,9 +189,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int h,
 			int level,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		);
 		void SetTextureData3D(
 			IGLTexture texture,

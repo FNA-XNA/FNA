@@ -158,7 +158,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				w = Math.Max(Width >> level, 1);
 				h = Math.Max(Height >> level, 1);
 			}
-
+			var elementSize = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.SetTextureData2D(
 				texture,
@@ -168,12 +168,50 @@ namespace Microsoft.Xna.Framework.Graphics
 				w,
 				h,
 				level,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				Marshal.SizeOf(typeof(T))
+				handle.AddrOfPinnedObject() + startIndex * elementSize,
+				elementCount * elementSize
 			);
 			handle.Free();
+		}
+
+		public void SetDataPointerEXT(
+			int level,
+			Rectangle? rect,
+			IntPtr data,
+			int dataLength
+		) {
+			if (data == null)
+			{
+				throw new ArgumentNullException("data");
+			}
+
+			int x, y, w, h;
+			if (rect.HasValue)
+			{
+				x = rect.Value.X;
+				y = rect.Value.Y;
+				w = rect.Value.Width;
+				h = rect.Value.Height;
+			}
+			else
+			{
+				x = 0;
+				y = 0;
+				w = Math.Max(Width >> level, 1);
+				h = Math.Max(Height >> level, 1);
+			}
+
+			GraphicsDevice.GLDevice.SetTextureData2D(
+				texture,
+				Format,
+				x,
+				y,
+				w,
+				h,
+				level,
+				data,
+				dataLength
+			);
 		}
 
 		#endregion
