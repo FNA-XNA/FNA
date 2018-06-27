@@ -857,12 +857,20 @@ namespace Microsoft.Xna.Framework
 									endPtr++;
 									bytes += 1;
 								}
-								// utf8 will never encode more characters than bytes in a string 
-								// so bytes is a suitable upper estimate of buffersize needed
-								char* charsBuffer = stackalloc char[bytes];
-								int chars = Encoding.UTF8.GetChars(evt.text.text, bytes, charsBuffer, bytes);
 
-								for (int i = 0; i < chars; ++i)
+								/* UTF8 will never encode more characters
+								 * than bytes in a string, so bytes is a
+								 * suitable upper estimate of size needed
+								 */
+								char* charsBuffer = stackalloc char[bytes];
+								int chars = Encoding.UTF8.GetChars(
+									evt.text.text,
+									bytes,
+									charsBuffer,
+									bytes
+								);
+
+								for (int i = 0; i < chars; i += 1)
 								{
 								   TextInputEXT.OnTextInput(charsBuffer[i]);
 								}
