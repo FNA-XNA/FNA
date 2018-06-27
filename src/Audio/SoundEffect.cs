@@ -124,6 +124,7 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Internal Variables
 
 		internal List<WeakReference> Instances = new List<WeakReference>();
+		internal List<SoundEffectInstance> FireAndForgetInstances = new List<SoundEffectInstance>();
 		internal FAudio.FAudioBuffer handle;
 		internal FAudio.FAudioWaveFormatEx format;
 		internal uint loopStart;

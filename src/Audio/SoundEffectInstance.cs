@@ -148,8 +148,16 @@ namespace Microsoft.Xna.Framework.Audio
 			parentEffect = parent;
 			if (parentEffect != null)
 			{
-				selfReference = new WeakReference(this);
-				parentEffect.Instances.Add(selfReference);
+				if (fireAndForget)
+				{
+					selfReference = null;
+					parentEffect.FireAndForgetInstances.Add(this);
+				}
+				else
+				{
+					selfReference = new WeakReference(this);
+					parentEffect.Instances.Add(selfReference);
+				}
 			}
 			isDynamic = this is DynamicSoundEffectInstance;
 			hasStarted = false;
@@ -373,6 +381,13 @@ namespace Microsoft.Xna.Framework.Audio
 					);
 					(this as DynamicSoundEffectInstance).ClearBuffers();
 				}
+				if (parentEffect != null && selfReference == null)
+				{
+					Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
+					Marshal.FreeHGlobal(callbacks);
+					IsDisposed = true;
+					parentEffect.FireAndForgetInstances.Remove(this);
+				}
 			}
 			else
 			{
@@ -393,7 +408,7 @@ namespace Microsoft.Xna.Framework.Audio
 			if (!IsDisposed)
 			{
 				Stop(true);
-				if (parentEffect != null)
+				if (parentEffect != null && selfReference != null)
 				{
 					parentEffect.Instances.Remove(selfReference);
 					selfReference = null;
