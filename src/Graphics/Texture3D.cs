@@ -147,7 +147,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			int dataLength
 		) {
-			if (data == null) {
+			if (data == null) 
+			{
 				throw new ArgumentNullException("data");
 			}
 
