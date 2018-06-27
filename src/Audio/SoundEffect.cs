@@ -11,6 +11,8 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+
 #endregion
 
 namespace Microsoft.Xna.Framework.Audio
@@ -117,8 +119,10 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) {
+			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 			INTERNAL_buffer = AudioDevice.GenBuffer(
-				buffer,
+				handle.AddrOfPinnedObject(),
+				buffer.Length,
 				(uint) sampleRate,
 				(uint) channels,
 				0,
@@ -126,6 +130,7 @@ namespace Microsoft.Xna.Framework.Audio
 				false,
 				1
 			);
+			handle.Free();
 		}
 
 		public SoundEffect(
@@ -137,20 +142,19 @@ namespace Microsoft.Xna.Framework.Audio
 			int loopStart,
 			int loopLength
 		) {
-			byte[] sendBuf;
-			if (offset != 0 || count != buffer.Length)
+			if ((offset < 0) || (offset > buffer.Length))
 			{
-				// I kind of hate this. -flibit
-				sendBuf = new byte[count];
-				Array.Copy(buffer, offset, sendBuf, 0, count);
+				throw new ArgumentOutOfRangeException("offset");
 			}
-			else
+			if ((count < 0) || (count + offset > buffer.Length))
 			{
-				sendBuf = buffer;
+				throw new ArgumentOutOfRangeException("count");
 			}
 
+			GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 			INTERNAL_buffer = AudioDevice.GenBuffer(
-				sendBuf,
+				handle.AddrOfPinnedObject() + offset,
+				count,
 				(uint) sampleRate,
 				(uint) channels,
 				(uint) loopStart,
@@ -158,6 +162,38 @@ namespace Microsoft.Xna.Framework.Audio
 				false,
 				1
 			);
+			handle.Free();
+		}
+
+		private SoundEffect(
+			IntPtr buffer,
+			int bufferSize,
+			int sampleRate,
+			AudioChannels channels,
+			int loopStart,
+			int loopLength
+		) {
+			INTERNAL_buffer = AudioDevice.GenBuffer(
+				buffer,
+				bufferSize,
+				(uint) sampleRate,
+				(uint) channels,
+				(uint) loopStart,
+				(uint) (loopStart + loopLength),
+				false,
+				1
+			);
+		}
+
+		public static SoundEffect NewSoundEffectPointerEXT(
+			IntPtr buffer,
+			int bufferSize,
+			int sampleRate,
+			AudioChannels channels,
+			int loopStart,
+			int loopLength
+		) {
+			return new SoundEffect(buffer, bufferSize, sampleRate, channels, loopStart, loopLength);
 		}
 
 		#endregion
@@ -171,7 +207,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal SoundEffect(
 			string name,
-			byte[] buffer,
+			IntPtr buffer,
+			int bufferLength,
 			uint sampleRate,
 			uint channels,
 			uint loopStart,
@@ -182,6 +219,7 @@ namespace Microsoft.Xna.Framework.Audio
 			Name = name;
 			INTERNAL_buffer = AudioDevice.GenBuffer(
 				buffer,
+				bufferLength,
 				sampleRate,
 				channels,
 				loopStart,
@@ -358,8 +396,10 @@ namespace Microsoft.Xna.Framework.Audio
 				data = reader.ReadBytes(waveDataLength);
 			}
 
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			INTERNAL_buffer = AudioDevice.GenBuffer(
-				data,
+				handle.AddrOfPinnedObject(),
+				data.Length,
 				sampleRate,
 				numChannels,
 				0,
@@ -367,6 +407,7 @@ namespace Microsoft.Xna.Framework.Audio
 				isADPCM,
 				formatParameter
 			);
+			handle.Free();
 		}
 
 		#endregion

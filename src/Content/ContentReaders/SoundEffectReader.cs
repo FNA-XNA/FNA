@@ -9,7 +9,7 @@
 
 #region Using Statements
 using System.IO;
-
+using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Audio;
 #endregion
 
@@ -75,9 +75,11 @@ namespace Microsoft.Xna.Framework.Content
 			// Sound duration in milliseconds, unused
 			input.ReadUInt32();
 
-			return new SoundEffect(
+			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+			var result = new SoundEffect(
 				input.AssetName,
-				data,
+				handle.AddrOfPinnedObject(),
+				data.Length,
 				sampleRate,
 				channels,
 				loopStart,
@@ -85,6 +87,8 @@ namespace Microsoft.Xna.Framework.Content
 				format == 2,
 				(uint) ((format == 2) ? (((blockAlign / channels) - 6) * 2) : (bitDepth / 16))
 			);
+			handle.Free();
+			return result;
 		}
 
 		#endregion

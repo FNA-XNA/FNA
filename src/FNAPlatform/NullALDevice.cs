@@ -102,7 +102,8 @@ namespace Microsoft.Xna.Framework.Audio
 		}
 
 		public IALBuffer GenBuffer(
-			byte[] data,
+			IntPtr data,
+			int dataLength,
 			uint sampleRate,
 			uint channels,
 			uint loopStart,

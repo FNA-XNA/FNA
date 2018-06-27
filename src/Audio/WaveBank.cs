@@ -24,6 +24,8 @@
 #region Using Statements
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
+
 #endregion
 
 namespace Microsoft.Xna.Framework.Audio
@@ -518,9 +520,11 @@ namespace Microsoft.Xna.Framework.Audio
 			// Load SoundEffect based on codec
 			if (entry.Codec == 0x0) // PCM
 			{
+				GCHandle handle = GCHandle.Alloc(entryData, GCHandleType.Pinned);
 				INTERNAL_sounds[track] = new SoundEffect(
 					"WaveBank Sound",
-					entryData,
+					handle.AddrOfPinnedObject(),
+					entryData.Length,
 					entry.Frequency,
 					entry.Channels,
 					entry.LoopOffset,
@@ -528,12 +532,15 @@ namespace Microsoft.Xna.Framework.Audio
 					false,
 					entry.BitDepth
 				);
+				handle.Free();
 			}
 			else if (entry.Codec == 0x2) // ADPCM
 			{
+				GCHandle handle = GCHandle.Alloc(entryData, GCHandleType.Pinned);
 				INTERNAL_sounds[track] = new SoundEffect(
 					"WaveBank Sound",
-					entryData,
+					handle.AddrOfPinnedObject(),
+					entryData.Length,
 					entry.Frequency,
 					entry.Channels,
 					entry.LoopOffset,
@@ -541,6 +548,7 @@ namespace Microsoft.Xna.Framework.Audio
 					true,
 					(entry.Alignment + 16) * 2
 				);
+				handle.Free();
 			}
 			else // Includes 0x1 - XMA, 0x3 - WMA
 			{
