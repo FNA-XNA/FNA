@@ -2634,9 +2634,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int h,
 			int level,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
@@ -2660,8 +2658,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					w,
 					h,
 					XNAToGL.TextureInternalFormat[(int) format],
-					elementCount * elementSizeInBytes,
-					data + (startIndex * elementSizeInBytes)
+					dataLength,
+					data
 				);
 			}
 			else
@@ -2685,7 +2683,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					h,
 					glFormat,
 					XNAToGL.TextureDataType[(int) format],
-					data + (startIndex * elementSizeInBytes)
+					data
 				);
 
 				// Keep this state sane -flibit
@@ -2714,9 +2712,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int front,
 			int back,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
@@ -2734,7 +2730,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				back - front,
 				XNAToGL.TextureFormat[(int) format],
 				XNAToGL.TextureDataType[(int) format],
-				data + (startIndex * elementSizeInBytes)
+				data
 			);
 
 #if !DISABLE_THREADING
@@ -2752,9 +2748,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			CubeMapFace cubeMapFace,
 			int level,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
@@ -2778,8 +2772,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					width,
 					height,
 					XNAToGL.TextureInternalFormat[(int) format],
-					elementCount * elementSizeInBytes,
-					data + (startIndex * elementSizeInBytes)
+					dataLength,
+					data
 				);
 			}
 			else
@@ -2793,7 +2787,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					height,
 					glFormat,
 					XNAToGL.TextureDataType[(int) format],
-					data + (startIndex * elementSizeInBytes)
+					data
 				);
 			}
 
