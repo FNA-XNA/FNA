@@ -118,6 +118,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentNullException("data");
 			}
 
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GraphicsDevice.GLDevice.SetTextureData3D(
 				texture,
@@ -129,12 +130,41 @@ namespace Microsoft.Xna.Framework.Graphics
 				bottom,
 				front,
 				back,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				Marshal.SizeOf(typeof(T))
+				handle.AddrOfPinnedObject() + startIndex * elementSizeInBytes,
+				elementCount * elementSizeInBytes
 			);
 			handle.Free();
+		}
+
+		public void SetDataPointerEXT(
+			int level,
+			int left,
+			int top,
+			int right,
+			int bottom,
+			int front,
+			int back,
+			IntPtr data,
+			int dataLength
+		) {
+			if (data == IntPtr.Zero)
+			{
+				throw new ArgumentNullException("data");
+			}
+
+			GraphicsDevice.GLDevice.SetTextureData3D(
+				texture,
+				Format,
+				level,
+				left,
+				top,
+				right,
+				bottom,
+				front,
+				back,
+				data,
+				dataLength
+			);
 		}
 
 		#endregion

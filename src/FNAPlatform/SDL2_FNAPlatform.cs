@@ -709,9 +709,9 @@ namespace Microsoft.Xna.Framework
 						if (!keys.Contains(key))
 						{
 							keys.Add(key);
-							if (textInputBindings.ContainsKey(key))
+							int textIndex;
+							if (textInputBindings.TryGetValue(key, out textIndex))
 							{
-								int textIndex = textInputBindings[key];
 								textInputControlDown[textIndex] = true;
 								textInputControlRepeat[textIndex] = Environment.TickCount + 400;
 								TextInputEXT.OnTextInput(textInputCharacters[textIndex]);
@@ -730,9 +730,10 @@ namespace Microsoft.Xna.Framework
 						Keys key = ToXNAKey(ref evt.key.keysym);
 						if (keys.Remove(key))
 						{
-							if (textInputBindings.ContainsKey(key))
+							int value;
+							if (textInputBindings.TryGetValue(key, out value))
 							{
-								textInputControlDown[textInputBindings[key]] = false;
+								textInputControlDown[value] = false;
 							}
 							else if ((!keys.Contains(Keys.LeftControl) && textInputControlDown[3]) || key == Keys.V)
 							{
@@ -850,24 +851,36 @@ namespace Microsoft.Xna.Framework
 					// Text Input
 					else if (evt.type == SDL.SDL_EventType.SDL_TEXTINPUT && !textInputSuppress)
 					{
-						string text;
-
 						// Based on the SDL2# LPUtf8StrMarshaler
 						unsafe
 						{
 							byte* endPtr = evt.text.text;
-							while (*endPtr != 0)
+							if (*endPtr != 0)
 							{
-								endPtr++;
-							}
-							byte[] bytes = new byte[endPtr - evt.text.text];
-							Marshal.Copy((IntPtr) evt.text.text, bytes, 0, bytes.Length);
-							text = System.Text.Encoding.UTF8.GetString(bytes);
-						}
+								int bytes = 0;
+								while (*endPtr != 0)
+								{
+									endPtr++;
+									bytes += 1;
+								}
 
-						foreach (char c in text)
-						{
-							TextInputEXT.OnTextInput(c);
+								/* UTF8 will never encode more characters
+								 * than bytes in a string, so bytes is a
+								 * suitable upper estimate of size needed
+								 */
+								char* charsBuffer = stackalloc char[bytes];
+								int chars = Encoding.UTF8.GetChars(
+									evt.text.text,
+									bytes,
+									charsBuffer,
+									bytes
+								);
+
+								for (int i = 0; i < chars; i += 1)
+								{
+								   TextInputEXT.OnTextInput(charsBuffer[i]);
+								}
+							}
 						}
 					}
 
