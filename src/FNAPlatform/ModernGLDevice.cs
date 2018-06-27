@@ -2511,7 +2511,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int front,
 			int back,
 			IntPtr data,
-            int dataLength
+			int dataLength
 		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
@@ -2545,7 +2545,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			CubeMapFace cubeMapFace,
 			int level,
 			IntPtr data,
-            int dataLength
+			int dataLength
 		) {
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
@@ -2569,7 +2569,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					height,
 					1,
 					XNAToGL.TextureInternalFormat[(int) format],
-                    dataLength,
+					dataLength,
 					data
 				);
 			}

@@ -2772,7 +2772,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					width,
 					height,
 					XNAToGL.TextureInternalFormat[(int) format],
-                    dataLength,
+					dataLength,
 					data
 				);
 			}
