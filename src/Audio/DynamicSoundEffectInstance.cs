@@ -56,9 +56,13 @@ namespace Microsoft.Xna.Framework.Audio
 		private List<IntPtr> queuedBuffers;
 		private List<uint> queuedSizes;
 
-		private FAudio.OnBufferEndFunc OnBufferEndFunc;
+		#endregion
+
+		#region Private Static Varaibles
 
 		private const int MINIMUM_BUFFER_CHECK = 3;
+
+		private static readonly FAudio.OnBufferEndFunc OnBufferEndFunc = OnBufferEnd;
 
 		#endregion
 
@@ -87,7 +91,6 @@ namespace Microsoft.Xna.Framework.Audio
 			queuedBuffers = new List<IntPtr>();
 			queuedSizes = new List<uint>();
 
-			OnBufferEndFunc = OnBufferEnd;
 			unsafe
 			{
 				FAudio.FAudioVoiceCallback* cb = (FAudio.FAudioVoiceCallback*) callbacks;
@@ -281,12 +284,17 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Private Methods
+		#region Private Static Methods
 
-		private void OnBufferEnd(IntPtr callback, IntPtr pBufferContext)
+		private static void OnBufferEnd(IntPtr callback, IntPtr pBufferContext)
 		{
-			Marshal.FreeHGlobal(queuedBuffers[0]);
-			queuedBuffers.RemoveAt(0);
+			WeakReference obj;
+			if (hashDic.TryGetValue(callback, out obj) && obj.IsAlive)
+			{
+				DynamicSoundEffectInstance sfi = (DynamicSoundEffectInstance) obj.Target;
+				Marshal.FreeHGlobal(sfi.queuedBuffers[0]);
+				sfi.queuedBuffers.RemoveAt(0);
+			}
 		}
 
 		#endregion

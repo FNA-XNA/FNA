@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 #endregion
 
@@ -130,10 +131,29 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private SoundEffect parentEffect;
 		private WeakReference selfReference;
+		private bool fireAndForget;
 		private bool hasStarted;
 		private bool is3D;
 		private FAudio.F3DAUDIO_DSP_SETTINGS dspSettings;
-		private FAudio.OnStreamEndFunc OnStreamEndFunc;
+
+		#endregion
+
+		#region Internal Static Variables
+
+		/* FIXME: This solely exists to make BRUTE happy. It's not really their
+		 * fault though... we can't send instance methods as function pointers
+		 * because wrapping that dynamically is a HUGE pain in the ass, so for
+		 * now we just use static functions instead. Weird, but it works!
+		 * -flibit
+		 */
+		internal static readonly Dictionary<IntPtr, WeakReference> hashDic =
+			new Dictionary<IntPtr, WeakReference>();
+
+		#endregion
+
+		#region Private Static Variables
+
+		private static readonly FAudio.OnStreamEndFunc OnStreamEndFunc = OnStreamEnd;
 
 		#endregion
 
@@ -145,24 +165,23 @@ namespace Microsoft.Xna.Framework.Audio
 		) {
 			SoundEffect.Device();
 
+			this.fireAndForget = fireAndForget;
+			selfReference = new WeakReference(this);
 			parentEffect = parent;
 			if (parentEffect != null)
 			{
 				if (fireAndForget)
 				{
-					selfReference = null;
 					parentEffect.FireAndForgetInstances.Add(this);
 				}
 				else
 				{
-					selfReference = new WeakReference(this);
 					parentEffect.Instances.Add(selfReference);
 				}
 			}
 			isDynamic = this is DynamicSoundEffectInstance;
 			hasStarted = false;
 			is3D = false;
-			OnStreamEndFunc = OnStreamEnd;
 			unsafe
 			{
 				callbacks = Marshal.AllocHGlobal(
@@ -266,6 +285,7 @@ namespace Microsoft.Xna.Framework.Audio
 			SoundEffect.FAudioContext dev = SoundEffect.Device();
 
 			/* Create handle */
+			hashDic.Add(callbacks, selfReference);
 			FAudio.FAudioWaveFormatEx fmt = isDynamic ?
 				(this as DynamicSoundEffectInstance).format :
 				parentEffect.format;
@@ -368,6 +388,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (immediate)
 			{
+				hashDic.Remove(callbacks);
 				FAudio.FAudioSourceVoice_Stop(handle, 0, 0);
 				FAudio.FAudioSourceVoice_FlushSourceBuffers(handle);
 				FAudio.FAudioVoice_DestroyVoice(handle);
@@ -381,7 +402,7 @@ namespace Microsoft.Xna.Framework.Audio
 					);
 					(this as DynamicSoundEffectInstance).ClearBuffers();
 				}
-				if (parentEffect != null && selfReference == null)
+				if (fireAndForget)
 				{
 					Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
 					Marshal.FreeHGlobal(callbacks);
@@ -408,11 +429,11 @@ namespace Microsoft.Xna.Framework.Audio
 			if (!IsDisposed)
 			{
 				Stop(true);
-				if (parentEffect != null && selfReference != null)
+				if (parentEffect != null)
 				{
 					parentEffect.Instances.Remove(selfReference);
-					selfReference = null;
 				}
+				selfReference = null;
 				Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
 				Marshal.FreeHGlobal(callbacks);
 				IsDisposed = true;
@@ -498,13 +519,6 @@ namespace Microsoft.Xna.Framework.Audio
 		#endregion
 
 		#region Private Methods
-
-		private void OnStreamEnd(IntPtr callback)
-		{
-			FAudio.FAudioSourceVoice_Stop(handle, 0, 0);
-			State = SoundState.Stopped;
-			FrameworkDispatcher.DeadSounds.Enqueue(this);
-		}
 
 		private void UpdatePitch()
 		{
@@ -649,6 +663,22 @@ namespace Microsoft.Xna.Framework.Audio
 					*outputMatrix++ = 0.0f;
 					*outputMatrix++ = right;
 				}
+			}
+		}
+
+		#endregion
+
+		#region Private Static Methods
+
+		private static void OnStreamEnd(IntPtr callback)
+		{
+			WeakReference obj;
+			if (hashDic.TryGetValue(callback, out obj) && obj.IsAlive)
+			{
+				SoundEffectInstance sfi = (SoundEffectInstance) obj.Target;
+				FAudio.FAudioSourceVoice_Stop(sfi.handle, 0, 0);
+				sfi.State = SoundState.Stopped;
+				FrameworkDispatcher.DeadSounds.Enqueue(sfi);
 			}
 		}
 
