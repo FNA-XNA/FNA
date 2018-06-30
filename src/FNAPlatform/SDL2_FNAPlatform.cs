@@ -1619,25 +1619,45 @@ namespace Microsoft.Xna.Framework
 
 		public static Microphone[] GetMicrophones()
 		{
+			// Init subsystem if needed
 			if (!micInit)
 			{
 				SDL.SDL_InitSubSystem(SDL.SDL_INIT_AUDIO);
 				micInit = true;
 			}
-			Microphone[] result = new Microphone[Math.Max(
-				SDL.SDL_GetNumAudioDevices(1),
-				0
-			)];
+
+			// How many devices do we have...?
+			int numDev = SDL.SDL_GetNumAudioDevices(1);
+			if (numDev < 1)
+			{
+				// Blech
+				return new Microphone[0];
+			}
+			Microphone[] result = new Microphone[numDev + 1];
+
+			// Default input format
 			SDL.SDL_AudioSpec have;
 			SDL.SDL_AudioSpec want = new SDL.SDL_AudioSpec();
 			want.freq = Microphone.SAMPLERATE;
 			want.format = SDL.AUDIO_S16;
 			want.channels = 1;
 			want.samples = 4096; /* FIXME: Anything specific? */
-			for (int i = 0; i < result.Length; i += 1)
+
+			// First mic is always OS default
+			result[0] = new Microphone(
+				SDL.SDL_OpenAudioDevice(
+					null,
+					1,
+					ref want,
+					out have,
+					0
+				),
+				"Default Device"
+			);
+			for (int i = 0; i < numDev; i += 1)
 			{
 				string name = SDL.SDL_GetAudioDeviceName(i, 1);
-				result[i] = new Microphone(
+				result[i + 1] = new Microphone(
 					SDL.SDL_OpenAudioDevice(
 						name,
 						1,
