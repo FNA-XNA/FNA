@@ -58,7 +58,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Private Static Varaibles
+		#region Private Static Variables
 
 		private const int MINIMUM_BUFFER_CHECK = 3;
 
