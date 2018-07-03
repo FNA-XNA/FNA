@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 #endregion
 
@@ -42,12 +43,13 @@ namespace Microsoft.Xna.Framework.Audio
 		internal AudioEngine engine;
 		internal FAudio.F3DAUDIO_DSP_SETTINGS dspSettings;
 
+		internal readonly List<Cue> cueList;
+
 		#endregion
 
 		#region Private Variables
 
 		private IntPtr handle;
-		private WeakReference selfReference;
 
 		#endregion
 
@@ -86,7 +88,6 @@ namespace Microsoft.Xna.Framework.Audio
 			buffer = null;
 
 			engine = audioEngine;
-			selfReference = new WeakReference(this);
 			dspSettings = new FAudio.F3DAUDIO_DSP_SETTINGS();
 			dspSettings.SrcChannelCount = 1;
 			dspSettings.DstChannelCount = engine.channels;
@@ -95,8 +96,13 @@ namespace Microsoft.Xna.Framework.Audio
 				(int) dspSettings.SrcChannelCount *
 				(int) dspSettings.DstChannelCount
 			);
-			engine.RegisterSoundBank(handle, selfReference);
 			IsDisposed = false;
+
+			/* We have to manage our XACT resources, lest we get the GC and the
+			 * API thread fighting with one another... hoo boy.
+			 */
+			cueList = new List<Cue>();
+			engine.sbList.Add(this);
 		}
 
 		#endregion
@@ -133,14 +139,20 @@ namespace Microsoft.Xna.Framework.Audio
 						Disposing.Invoke(this, null);
 					}
 
+					while (cueList.Count > 0)
+					{
+						cueList[0].Dispose();
+					}
+
 					// If this is disposed, stop leaking memory!
 					if (!engine.IsDisposed)
 					{
-						engine.UnregisterSoundBank(handle);
+						engine.sbList.Remove(this);
 						FAudio.FACTSoundBank_Destroy(handle);
 						Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
 					}
-					OnSoundBankDestroyed();
+					IsDisposed = true;
+					handle = IntPtr.Zero;
 				}
 			}
 		}
@@ -253,17 +265,6 @@ namespace Microsoft.Xna.Framework.Audio
 				ref dspSettings,
 				IntPtr.Zero
 			);
-		}
-
-		#endregion
-
-		#region Internal Methods
-
-		internal void OnSoundBankDestroyed()
-		{
-			IsDisposed = true;
-			handle = IntPtr.Zero;
-			selfReference = null;
 		}
 
 		#endregion

@@ -53,7 +53,6 @@ namespace Microsoft.Xna.Framework.Audio
 		private IntPtr handle;
 
 		private AudioEngine engine;
-		private WeakReference selfReference;
 
 		// Non-streaming WaveBanks
 		private byte[] buffer;
@@ -100,9 +99,8 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 
 			engine = audioEngine;
-			selfReference = new WeakReference(this);
-			engine.RegisterWaveBank(handle, selfReference);
 			IsDisposed = false;
+			engine.wbList.Add(this);
 		}
 
 		public WaveBank(
@@ -141,9 +139,8 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 
 			engine = audioEngine;
-			selfReference = new WeakReference(this);
-			engine.RegisterWaveBank(handle, selfReference);
 			IsDisposed = false;
+			engine.wbList.Add(this);
 		}
 
 		#endregion
@@ -183,33 +180,23 @@ namespace Microsoft.Xna.Framework.Audio
 					// If this is disposed, stop leaking memory!
 					if (!engine.IsDisposed)
 					{
-						engine.UnregisterWaveBank(handle);
+						engine.wbList.Remove(this);
 						FAudio.FACTWaveBank_Destroy(handle);
 					}
-					OnWaveBankDestroyed();
+					IsDisposed = true;
+					if (buffer != null)
+					{
+						pin.Free();
+						buffer = null;
+					}
+					else if (ioStream != IntPtr.Zero)
+					{
+						// FACT frees this pointer!
+						ioStream = IntPtr.Zero;
+					}
+					handle = IntPtr.Zero;
 				}
 			}
-		}
-
-		#endregion
-
-		#region Internal Methods
-
-		internal void OnWaveBankDestroyed()
-		{
-			IsDisposed = true;
-			if (buffer != null)
-			{
-				pin.Free();
-				buffer = null;
-			}
-			else if (ioStream != IntPtr.Zero)
-			{
-				// FACT frees this pointer!
-				ioStream = IntPtr.Zero;
-			}
-			handle = IntPtr.Zero;
-			selfReference = null;
 		}
 
 		#endregion

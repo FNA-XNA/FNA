@@ -107,7 +107,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private IntPtr handle;
 		private SoundBank bank;
-		private WeakReference selfReference;
 
 		#endregion
 
@@ -125,8 +124,7 @@ namespace Microsoft.Xna.Framework.Audio
 			Name = name;
 			bank = soundBank;
 
-			selfReference = new WeakReference(this);
-			bank.engine.RegisterCue(handle, selfReference);
+			bank.cueList.Add(this);
 		}
 
 		#endregion
@@ -255,17 +253,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Internal Methods
-
-		internal void OnCueDestroyed()
-		{
-			IsDisposed = true;
-			handle = IntPtr.Zero;
-			selfReference = null;
-		}
-
-		#endregion
-
 		#region Private Methods
 
 		private void Dispose(bool disposing)
@@ -282,10 +269,11 @@ namespace Microsoft.Xna.Framework.Audio
 					// If this is Disposed, stop leaking memory!
 					if (!bank.engine.IsDisposed)
 					{
-						bank.engine.UnregisterCue(handle);
+						bank.cueList.Remove(this);
 						FAudio.FACTCue_Destroy(handle);
 					}
-					OnCueDestroyed();
+					IsDisposed = true;
+					handle = IntPtr.Zero;
 				}
 			}
 		}

@@ -53,6 +53,9 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal readonly object gcSync = new object();
 
+		internal readonly List<SoundBank> sbList;
+		internal readonly List<WaveBank> wbList;
+
 		#endregion
 
 		#region Private Variables
@@ -61,12 +64,6 @@ namespace Microsoft.Xna.Framework.Audio
 		private GCHandle pin;
 
 		private RendererDetail[] rendererDetails;
-
-		private readonly FAudio.FACTNotificationCallback xactNotificationFunc;
-		private FAudio.FACTNotificationDescription notificationDesc;
-
-		// If this isn't static, destructors gets confused like idiots
-		private static readonly Dictionary<IntPtr, WeakReference> xactPtrs = new Dictionary<IntPtr, WeakReference>();
 
 		#endregion
 
@@ -108,10 +105,6 @@ namespace Microsoft.Xna.Framework.Audio
 			FAudio.FACTRuntimeParameters settings = new FAudio.FACTRuntimeParameters();
 			settings.pGlobalSettingsBuffer = pin.AddrOfPinnedObject();
 			settings.globalSettingsBufferSize = (uint) buffer.Length;
-			xactNotificationFunc = OnXACTNotification;
-			settings.fnNotificationCallback = Marshal.GetFunctionPointerForDelegate(
-				xactNotificationFunc
-			);
 
 			// Special parameters from constructor
 			settings.lookAheadTime = (uint) lookAheadTime.Milliseconds;
@@ -182,8 +175,11 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 			channels = mixFormat.Format.nChannels;
 
-			// All XACT references have to go through here...
-			notificationDesc = new FAudio.FACTNotificationDescription();
+			/* We have to manage our XACT resources, lest we get the GC and the
+			 * API thread fighting with one another... hoo boy.
+			 */
+			 sbList = new List<SoundBank>();
+			 wbList = new List<WaveBank>();
 		}
 
 		#endregion
@@ -305,6 +301,21 @@ namespace Microsoft.Xna.Framework.Audio
 						Disposing.Invoke(this, null);
 					}
 
+					/* Deleting in this order, for safety:
+					 * 1. Waves (deleted by Cues in native code)
+					 * 2. Cues (deleted by SoundBank.Dispose)
+					 * 3. SoundBanks, which should have no Cues now
+					 * 4. WaveBanks, which should have no references now
+					 */
+					while (sbList.Count > 0)
+					{
+						sbList[0].Dispose();
+					}
+					while (wbList.Count > 0)
+					{
+						wbList[0].Dispose();
+					}
+
 					FAudio.FACTAudioEngine_ShutDown(handle);
 					pin.Free();
 					buffer = null;
@@ -312,131 +323,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 					IsDisposed = true;
 				}
-			}
-		}
-
-		#endregion
-
-		#region Internal Methods
-
-		internal void RegisterWaveBank(
-			IntPtr ptr,
-			WeakReference reference
-		) {
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED;
-			notificationDesc.pWaveBank = ptr;
-			FAudio.FACTAudioEngine_RegisterNotification(
-				handle,
-				ref notificationDesc
-			);
-			xactPtrs.Add(ptr, reference);
-		}
-
-		internal void RegisterSoundBank(
-			IntPtr ptr,
-			WeakReference reference
-		) {
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED;
-			notificationDesc.pSoundBank = ptr;
-			FAudio.FACTAudioEngine_RegisterNotification(
-				handle,
-				ref notificationDesc
-			);
-			xactPtrs.Add(ptr, reference);
-		}
-
-		internal void RegisterCue(
-			IntPtr ptr,
-			WeakReference reference
-		) {
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED;
-			notificationDesc.pCue = ptr;
-			FAudio.FACTAudioEngine_RegisterNotification(
-				handle,
-				ref notificationDesc
-			);
-			xactPtrs.Add(ptr, reference);
-		}
-
-		internal void UnregisterWaveBank(IntPtr ptr)
-		{
-			if (!xactPtrs.ContainsKey(ptr))
-			{
-				return;
-			}
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED;
-			notificationDesc.pWaveBank = ptr;
-			FAudio.FACTAudioEngine_UnRegisterNotification(
-				handle,
-				ref notificationDesc
-			);
-			xactPtrs.Remove(ptr);
-		}
-
-		internal void UnregisterSoundBank(IntPtr ptr)
-		{
-			if (!xactPtrs.ContainsKey(ptr))
-			{
-				return;
-			}
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED;
-			notificationDesc.pSoundBank = ptr;
-			FAudio.FACTAudioEngine_UnRegisterNotification(
-				handle,
-				ref notificationDesc
-			);
-			xactPtrs.Remove(ptr);
-		}
-
-		internal void UnregisterCue(IntPtr ptr)
-		{
-			if (!xactPtrs.ContainsKey(ptr))
-			{
-				return;
-			}
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED;
-			notificationDesc.pCue = ptr;
-			FAudio.FACTAudioEngine_UnRegisterNotification(
-				handle,
-				ref notificationDesc
-			);
-			xactPtrs.Remove(ptr);
-		}
-
-		#endregion
-
-		#region Private Methods
-
-		private static unsafe void OnXACTNotification(IntPtr notification)
-		{
-			WeakReference reference;
-			FAudio.FACTNotification* not = (FAudio.FACTNotification*) notification;
-			if (not->type == FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED)
-			{
-				IntPtr target = not->anon.waveBank.pWaveBank;
-				if (xactPtrs.TryGetValue(target, out reference) && reference.IsAlive)
-				{
-					(reference.Target as WaveBank).OnWaveBankDestroyed();
-				}
-				xactPtrs.Remove(target);
-			}
-			else if (not->type == FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED)
-			{
-				IntPtr target = not->anon.soundBank.pSoundBank;
-				if (xactPtrs.TryGetValue(target, out reference) && reference.IsAlive)
-				{
-					(reference.Target as SoundBank).OnSoundBankDestroyed();
-				}
-				xactPtrs.Remove(target);
-			}
-			else if (not->type == FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED)
-			{
-				IntPtr target = not->anon.cue.pCue;
-				if (xactPtrs.TryGetValue(target, out reference) && reference.IsAlive)
-				{
-					(reference.Target as Cue).OnCueDestroyed();
-				}
-				xactPtrs.Remove(target);
 			}
 		}
 

@@ -90,10 +90,27 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 		}
 
+		private SoundState INTERNAL_state = SoundState.Stopped;
 		public SoundState State
 		{
-			get;
-			private set;
+			get
+			{
+				if (	!isDynamic &&
+					handle != IntPtr.Zero &&
+					INTERNAL_state == SoundState.Playing	)
+				{
+					FAudio.FAudioVoiceState state;
+					FAudio.FAudioSourceVoice_GetState(
+						handle,
+						out state
+					);
+					if (state.BuffersQueued == 0)
+					{
+						Stop(true);
+					}
+				}
+				return INTERNAL_state;
+			}
 		}
 
 		private float INTERNAL_volume = 1.0f;
@@ -122,7 +139,6 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Internal Variables
 
 		internal IntPtr handle;
-		internal IntPtr callbacks;
 		internal bool isDynamic;
 
 		#endregion
@@ -131,76 +147,32 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private SoundEffect parentEffect;
 		private WeakReference selfReference;
-		private bool fireAndForget;
 		private bool hasStarted;
 		private bool is3D;
 		private FAudio.F3DAUDIO_DSP_SETTINGS dspSettings;
 
 		#endregion
 
-		#region Internal Static Variables
-
-		/* FIXME: This solely exists to make BRUTE happy. It's not really their
-		 * fault though... we can't send instance methods as function pointers
-		 * because wrapping that dynamically is a HUGE pain in the ass, so for
-		 * now we just use static functions instead. Weird, but it works!
-		 * -flibit
-		 */
-		internal static readonly Dictionary<IntPtr, WeakReference> hashDic =
-			new Dictionary<IntPtr, WeakReference>();
-
-		#endregion
-
-		#region Private Static Variables
-
-		private static readonly FAudio.OnStreamEndFunc OnStreamEndFunc = OnStreamEnd;
-
-		#endregion
-
 		#region Internal Constructor
 
-		internal SoundEffectInstance(
-			SoundEffect parent = null,
-			bool fireAndForget = false
-		) {
+		internal SoundEffectInstance(SoundEffect parent = null)
+		{
 			SoundEffect.Device();
 
-			this.fireAndForget = fireAndForget;
 			selfReference = new WeakReference(this);
 			parentEffect = parent;
-			if (parentEffect != null)
-			{
-				if (fireAndForget)
-				{
-					parentEffect.FireAndForgetInstances.Add(this);
-				}
-				else
-				{
-					parentEffect.Instances.Add(selfReference);
-				}
-			}
 			isDynamic = this is DynamicSoundEffectInstance;
 			hasStarted = false;
 			is3D = false;
-			unsafe
-			{
-				callbacks = Marshal.AllocHGlobal(
-					sizeof(FAudio.FAudioVoiceCallback)
-				);
-				FAudio.FAudioVoiceCallback* cb = (FAudio.FAudioVoiceCallback*) callbacks;
-				cb->OnBufferEnd = IntPtr.Zero;
-				cb->OnBufferStart = IntPtr.Zero;
-				cb->OnLoopEnd = IntPtr.Zero;
-				cb->OnStreamEnd = Marshal.GetFunctionPointerForDelegate(OnStreamEndFunc);
-				cb->OnVoiceError = IntPtr.Zero;
-				cb->OnVoiceProcessingPassEnd = IntPtr.Zero;
-				cb->OnVoiceProcessingPassStart = IntPtr.Zero;
-			}
-			State = SoundState.Stopped;
+			INTERNAL_state = SoundState.Stopped;
 
 			if (!isDynamic)
 			{
 				InitDSPSettings(parentEffect.format.nChannels);
+			}
+			if (parentEffect != null)
+			{
+				parentEffect.Instances.Add(selfReference);
 			}
 		}
 
@@ -285,7 +257,6 @@ namespace Microsoft.Xna.Framework.Audio
 			SoundEffect.FAudioContext dev = SoundEffect.Device();
 
 			/* Create handle */
-			hashDic.Add(callbacks, selfReference);
 			FAudio.FAudioWaveFormatEx fmt = isDynamic ?
 				(this as DynamicSoundEffectInstance).format :
 				parentEffect.format;
@@ -295,7 +266,7 @@ namespace Microsoft.Xna.Framework.Audio
 				ref fmt,
 				FAudio.FAUDIO_VOICE_USEFILTER,
 				FAudio.FAUDIO_DEFAULT_FREQ_RATIO,
-				callbacks,
+				IntPtr.Zero,
 				IntPtr.Zero,
 				IntPtr.Zero
 			);
@@ -347,7 +318,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			/* Play, finally. */
 			FAudio.FAudioSourceVoice_Start(handle, 0, 0);
-			State = SoundState.Playing;
+			INTERNAL_state = SoundState.Playing;
 			hasStarted = true;
 		}
 
@@ -356,7 +327,7 @@ namespace Microsoft.Xna.Framework.Audio
 			if (handle != IntPtr.Zero && State == SoundState.Playing)
 			{
 				FAudio.FAudioSourceVoice_Stop(handle, 0, 0);
-				State = SoundState.Paused;
+				INTERNAL_state = SoundState.Paused;
 			}
 		}
 
@@ -370,7 +341,7 @@ namespace Microsoft.Xna.Framework.Audio
 			else if (State == SoundState.Paused)
 			{
 				FAudio.FAudioSourceVoice_Start(handle, 0, 0);
-				State = SoundState.Playing;
+				INTERNAL_state = SoundState.Playing;
 			}
 		}
 
@@ -388,12 +359,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (immediate)
 			{
-				hashDic.Remove(callbacks);
 				FAudio.FAudioSourceVoice_Stop(handle, 0, 0);
 				FAudio.FAudioSourceVoice_FlushSourceBuffers(handle);
 				FAudio.FAudioVoice_DestroyVoice(handle);
 				handle = IntPtr.Zero;
-				State = SoundState.Stopped;
+				INTERNAL_state = SoundState.Stopped;
 
 				if (isDynamic)
 				{
@@ -401,13 +371,6 @@ namespace Microsoft.Xna.Framework.Audio
 						this as DynamicSoundEffectInstance
 					);
 					(this as DynamicSoundEffectInstance).ClearBuffers();
-				}
-				if (fireAndForget)
-				{
-					Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
-					Marshal.FreeHGlobal(callbacks);
-					IsDisposed = true;
-					parentEffect.FireAndForgetInstances.Remove(this);
 				}
 			}
 			else
@@ -435,7 +398,6 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 				selfReference = null;
 				Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
-				Marshal.FreeHGlobal(callbacks);
 				IsDisposed = true;
 			}
 		}
@@ -663,22 +625,6 @@ namespace Microsoft.Xna.Framework.Audio
 					*outputMatrix++ = 0.0f;
 					*outputMatrix++ = right;
 				}
-			}
-		}
-
-		#endregion
-
-		#region Private Static Methods
-
-		private static void OnStreamEnd(IntPtr callback)
-		{
-			WeakReference obj;
-			if (hashDic.TryGetValue(callback, out obj) && obj.IsAlive)
-			{
-				SoundEffectInstance sfi = (SoundEffectInstance) obj.Target;
-				FAudio.FAudioSourceVoice_Stop(sfi.handle, 0, 0);
-				sfi.State = SoundState.Stopped;
-				FrameworkDispatcher.DeadSounds.Enqueue(sfi);
 			}
 		}
 

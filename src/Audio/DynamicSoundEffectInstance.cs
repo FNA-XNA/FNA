@@ -58,11 +58,9 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Private Static Variables
+		#region Private Constants
 
 		private const int MINIMUM_BUFFER_CHECK = 3;
-
-		private static readonly FAudio.OnBufferEndFunc OnBufferEndFunc = OnBufferEnd;
 
 		#endregion
 
@@ -90,12 +88,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 			queuedBuffers = new List<IntPtr>();
 			queuedSizes = new List<uint>();
-
-			unsafe
-			{
-				FAudio.FAudioVoiceCallback* cb = (FAudio.FAudioVoiceCallback*) callbacks;
-				cb->OnBufferEnd = Marshal.GetFunctionPointerForDelegate(OnBufferEndFunc);
-			}
 
 			InitDSPSettings(format.nChannels);
 		}
@@ -224,14 +216,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		protected override void Dispose(bool disposing)
 		{
-			// Unhook the callback, the GC gets scared of it
-			unsafe
-			{
-				FAudio.FAudioVoiceCallback* cb = (FAudio.FAudioVoiceCallback*) callbacks;
-				cb->OnBufferEnd = IntPtr.Zero;
-			}
-
-			// Other than that, not much to see here...
+			// Not much to see here...
 			base.Dispose(disposing);
 		}
 
@@ -272,6 +257,17 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal void Update()
 		{
+			if (handle != IntPtr.Zero)
+			{
+				FAudio.FAudioVoiceState state;
+				FAudio.FAudioSourceVoice_GetState(handle, out state);
+				while (PendingBufferCount > state.BuffersQueued)
+				{
+					Marshal.FreeHGlobal(queuedBuffers[0]);
+					queuedBuffers.RemoveAt(0);
+				}
+			}
+
 			// Do we need even moar buffers?
 			for (
 				int i = MINIMUM_BUFFER_CHECK - PendingBufferCount;
@@ -279,21 +275,6 @@ namespace Microsoft.Xna.Framework.Audio
 				i -= 1
 			) {
 				BufferNeeded(this, null);
-			}
-		}
-
-		#endregion
-
-		#region Private Static Methods
-
-		private static void OnBufferEnd(IntPtr callback, IntPtr pBufferContext)
-		{
-			WeakReference obj;
-			if (hashDic.TryGetValue(callback, out obj) && obj.IsAlive)
-			{
-				DynamicSoundEffectInstance sfi = (DynamicSoundEffectInstance) obj.Target;
-				Marshal.FreeHGlobal(sfi.queuedBuffers[0]);
-				sfi.queuedBuffers.RemoveAt(0);
 			}
 		}
 

@@ -124,7 +124,6 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Internal Variables
 
 		internal List<WeakReference> Instances = new List<WeakReference>();
-		internal List<SoundEffectInstance> FireAndForgetInstances = new List<SoundEffectInstance>();
 		internal FAudio.FAudioBuffer handle;
 		internal FAudio.FAudioWaveFormatEx format;
 		internal uint loopStart;
@@ -294,10 +293,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public bool Play(float volume, float pitch, float pan)
 		{
-			SoundEffectInstance instance = new SoundEffectInstance(
-				this,
-				true
-			);
+			SoundEffectInstance instance = new SoundEffectInstance(this);
 			instance.Volume = volume;
 			instance.Pitch = pitch;
 			instance.Pan = pan;
@@ -308,6 +304,7 @@ namespace Microsoft.Xna.Framework.Audio
 				instance.Dispose();
 				return false;
 			}
+			FrameworkDispatcher.FireAndForgetInstances.Add(instance);
 			return true;
 		}
 
