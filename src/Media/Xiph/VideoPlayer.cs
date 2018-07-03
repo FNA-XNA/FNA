@@ -426,6 +426,11 @@ namespace Microsoft.Xna.Framework.Media
 
 		public void Dispose()
 		{
+			if (IsDisposed)
+			{
+				return;
+			}
+
 			// Stop the VideoPlayer. This gets almost everything...
 			Stop();
 
