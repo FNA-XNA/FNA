@@ -31,7 +31,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Private Variables
 
-		private IntPtr handle;
+		private AudioEngine parent;
 		private ushort index;
 
 		#endregion
@@ -39,11 +39,11 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Internal Constructor
 
 		internal AudioCategory(
-			IntPtr engine,
+			AudioEngine engine,
 			ushort category,
 			string name
 		) {
-			handle = engine;
+			parent = engine;
 			index = category;
 			INTERNAL_name = name;
 		}
@@ -54,28 +54,56 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Pause()
 		{
-			FAudio.FACTAudioEngine_Pause(handle, index, 1);
+			lock (parent.gcSync)
+			{
+				if (parent.IsDisposed)
+				{
+					return;
+				}
+				FAudio.FACTAudioEngine_Pause(parent.handle, index, 1);
+			}
 		}
 
 		public void Resume()
 		{
-			FAudio.FACTAudioEngine_Pause(handle, index, 0);
+			lock (parent.gcSync)
+			{
+				if (parent.IsDisposed)
+				{
+					return;
+				}
+				FAudio.FACTAudioEngine_Pause(parent.handle, index, 0);
+			}
 		}
 
 		public void SetVolume(float volume)
 		{
-			FAudio.FACTAudioEngine_SetVolume(handle, index, volume);
+			lock (parent.gcSync)
+			{
+				if (parent.IsDisposed)
+				{
+					return;
+				}
+				FAudio.FACTAudioEngine_SetVolume(parent.handle, index, volume);
+			}
 		}
 
 		public void Stop(AudioStopOptions options)
 		{
-			FAudio.FACTAudioEngine_Stop(
-				handle,
-				index,
-				(options == AudioStopOptions.Immediate) ?
-					FAudio.FACT_FLAG_STOP_IMMEDIATE :
-					FAudio.FACT_FLAG_STOP_RELEASE
-			);
+			lock (parent.gcSync)
+			{
+				if (parent.IsDisposed)
+				{
+					return;
+				}
+				FAudio.FACTAudioEngine_Stop(
+					parent.handle,
+					index,
+					(options == AudioStopOptions.Immediate) ?
+						FAudio.FACT_FLAG_STOP_IMMEDIATE :
+						FAudio.FACT_FLAG_STOP_RELEASE
+				);
+			}
 		}
 
 		public override int GetHashCode()

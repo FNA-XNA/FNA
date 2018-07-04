@@ -224,7 +224,7 @@ namespace Microsoft.Xna.Framework.Audio
 				);
 			}
 
-			return new AudioCategory(handle, category, name);
+			return new AudioCategory(this, category, name);
 		}
 
 		public float GetGlobalVariable(string name)
