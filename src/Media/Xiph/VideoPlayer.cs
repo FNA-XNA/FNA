@@ -94,11 +94,20 @@ namespace Microsoft.Xna.Framework.Media
 			currentDevice = null;
 
 			// Delete the Effect
-			shaderProgram.Dispose();
-			Marshal.FreeHGlobal(stateChangesPtr);
+			if (shaderProgram != null)
+			{
+				shaderProgram.Dispose();
+			}
+			if (stateChangesPtr != IntPtr.Zero)
+			{
+				Marshal.FreeHGlobal(stateChangesPtr);
+			}
 
 			// Delete the vertex buffer
-			vertBuffer.VertexBuffer.Dispose();
+			if (vertBuffer.VertexBuffer != null)
+			{
+				vertBuffer.VertexBuffer.Dispose();
+			}
 
 			// Delete the textures if they exist
 			for (int i = 0; i < 3; i += 1)
@@ -417,6 +426,11 @@ namespace Microsoft.Xna.Framework.Media
 
 		public void Dispose()
 		{
+			if (IsDisposed)
+			{
+				return;
+			}
+
 			// Stop the VideoPlayer. This gets almost everything...
 			Stop();
 
@@ -431,7 +445,10 @@ namespace Microsoft.Xna.Framework.Media
 			}
 
 			// Dispose the Texture.
-			videoTexture[0].RenderTarget.Dispose();
+			if (videoTexture[0].RenderTarget != null)
+			{
+				videoTexture[0].RenderTarget.Dispose();
+			}
 
 			// Free the YUV buffer
 			if (yuvData != IntPtr.Zero)
