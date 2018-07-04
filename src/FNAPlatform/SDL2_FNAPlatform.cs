@@ -878,7 +878,7 @@ namespace Microsoft.Xna.Framework
 
 								for (int i = 0; i < chars; i += 1)
 								{
-								   TextInputEXT.OnTextInput(charsBuffer[i]);
+									TextInputEXT.OnTextInput(charsBuffer[i]);
 								}
 							}
 						}
