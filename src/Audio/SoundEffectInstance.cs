@@ -63,7 +63,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					FAudio.FAudioVoice_SetOutputMatrix(
 						handle,
-						IntPtr.Zero,
+						SoundEffect.Device().MasterVoice,
 						dspSettings.SrcChannelCount,
 						dspSettings.DstChannelCount,
 						dspSettings.pMatrixCoefficients,
@@ -149,6 +149,7 @@ namespace Microsoft.Xna.Framework.Audio
 		private WeakReference selfReference;
 		private bool hasStarted;
 		private bool is3D;
+		private bool usingReverb;
 		private FAudio.F3DAUDIO_DSP_SETTINGS dspSettings;
 
 		#endregion
@@ -164,6 +165,7 @@ namespace Microsoft.Xna.Framework.Audio
 			isDynamic = this is DynamicSoundEffectInstance;
 			hasStarted = false;
 			is3D = false;
+			usingReverb = false;
 			INTERNAL_state = SoundState.Stopped;
 
 			if (!isDynamic)
@@ -224,7 +226,7 @@ namespace Microsoft.Xna.Framework.Audio
 				UpdatePitch();
 				FAudio.FAudioVoice_SetOutputMatrix(
 					handle,
-					IntPtr.Zero,
+					SoundEffect.Device().MasterVoice,
 					dspSettings.SrcChannelCount,
 					dspSettings.DstChannelCount,
 					dspSettings.pMatrixCoefficients,
@@ -282,7 +284,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				FAudio.FAudioVoice_SetOutputMatrix(
 					handle,
-					IntPtr.Zero,
+					SoundEffect.Device().MasterVoice,
 					dspSettings.SrcChannelCount,
 					dspSettings.DstChannelCount,
 					dspSettings.pMatrixCoefficients,
@@ -363,6 +365,7 @@ namespace Microsoft.Xna.Framework.Audio
 				FAudio.FAudioSourceVoice_FlushSourceBuffers(handle);
 				FAudio.FAudioVoice_DestroyVoice(handle);
 				handle = IntPtr.Zero;
+				usingReverb = false;
 				INTERNAL_state = SoundState.Stopped;
 
 				if (isDynamic)
@@ -419,9 +422,31 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 		}
 
-		internal void INTERNAL_applyReverb(float rvGain)
+		internal unsafe void INTERNAL_applyReverb(float rvGain)
 		{
-			// TODO
+			if (handle == IntPtr.Zero)
+			{
+				return;
+			}
+
+			if (!usingReverb)
+			{
+				SoundEffect.Device().AttachReverb(handle);
+				usingReverb = true;
+			}
+
+			// Re-using this float array...
+			float* outputMatrix = (float*) dspSettings.pMatrixCoefficients;
+			outputMatrix[0] = rvGain;
+			outputMatrix[1] = rvGain;
+			FAudio.FAudioVoice_SetOutputMatrix(
+				handle,
+				SoundEffect.Device().ReverbVoice,
+				dspSettings.SrcChannelCount,
+				1,
+				dspSettings.pMatrixCoefficients,
+				0
+			);
 		}
 
 		internal void INTERNAL_applyLowPassFilter(float cutoff)

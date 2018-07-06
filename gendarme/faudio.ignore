@@ -27,6 +27,7 @@ T: FAudio/FAudioWaveFormatExtensible
 T: FAudio/FAudioDeviceDetails
 T: FAudio/FAudioBuffer
 T: FAudio/FAudioPerformanceData
+T: FAudio/FAudioFXReverbParameters
 T: FAudio/FACTRuntimeParameters
 T: FAudio/FACTWaveBankData
 T: FAudio/FACTSoundVariationProperties
@@ -83,6 +84,7 @@ M: System.Void FAudio::FAudioSourceVoice_GetState(System.IntPtr,FAudio/FAudioVoi
 M: System.UInt32 FAudio::FAudioSourceVoice_SetFrequencyRatio(System.IntPtr,System.Single,System.UInt32)
 M: System.Void FAudio::FAudioSourceVoice_GetFrequencyRatio(System.IntPtr,System.Single&)
 M: System.UInt32 FAudio::FAudioSourceVoice_SetSourceSampleRate(System.IntPtr,System.UInt32)
+M: System.UInt32 FAudio::FAPOBase_Release(System.IntPtr)
 M: System.UInt32 FAudio::FACTAudioEngine_AddRef(System.IntPtr)
 M: System.UInt32 FAudio::FACTAudioEngine_Release(System.IntPtr)
 M: System.UInt32 FAudio::FACTAudioEngine_GetRendererCount(System.IntPtr,System.UInt16&)
@@ -153,6 +155,9 @@ M: System.Void FAudio::XNA_ResumeSong()
 M: System.Void FAudio::XNA_StopSong()
 M: System.Void FAudio::XNA_SetSongVolume(System.Single)
 M: System.UInt32 FAudio::XNA_GetSongEnded()
+M: System.Void FAudio::XNA_EnableVisualization(System.UInt32)
+M: System.UInt32 FAudio::XNA_VisualizationEnabled()
+M: System.Void FAudio::XNA_GetSongVisualizationData(System.Single[],System.Single[],System.UInt32)
 M: System.IntPtr FAudio::FAudio_fopen(System.String)
 M: System.IntPtr FAudio::FAudio_memopen(System.IntPtr,System.Int32)
 M: System.IntPtr FAudio::FAudio_memptr(System.IntPtr,System.IntPtr)
@@ -199,6 +204,7 @@ T: FAudio/FAudioPerformanceData
 T: FAudio/FAudioDebugConfiguration
 T: FAudio/FAudioEngineCallback
 T: FAudio/FAudioVoiceCallback
+T: FAudio/FAudioFXReverbParameters
 T: FAudio/FACTRendererDetails
 T: FAudio/FACTOverlapped
 T: FAudio/FACTFileIOCallbacks
@@ -271,6 +277,7 @@ T: FAudio/OnVoiceErrorFunc
 T: FAudio/OnVoiceProcessingPassEndFunc
 T: FAudio/OnVoiceProcessingPassStartFunc
 T: FAudio/FAudioVoiceCallback
+T: FAudio/FAudioFXReverbParameters
 T: FAudio/FACTReadFileCallback
 T: FAudio/FACTGetOverlappedResultCallback
 T: FAudio/FACTNotificationCallback
@@ -366,6 +373,8 @@ M: System.Void FAudio::FAudioSourceVoice_GetState(System.IntPtr,FAudio/FAudioVoi
 M: System.UInt32 FAudio::FAudioSourceVoice_SetFrequencyRatio(System.IntPtr,System.Single,System.UInt32)
 M: System.Void FAudio::FAudioSourceVoice_GetFrequencyRatio(System.IntPtr,System.Single&)
 M: System.UInt32 FAudio::FAudioSourceVoice_SetSourceSampleRate(System.IntPtr,System.UInt32)
+M: System.UInt32 FAudio::FAudioCreateReverb(System.IntPtr&,System.UInt32)
+M: System.UInt32 FAudio::FAPOBase_Release(System.IntPtr)
 M: System.UInt32 FAudio::FACTCreateEngine(System.UInt32,System.IntPtr&)
 M: System.UInt32 FAudio::FACTAudioEngine_AddRef(System.IntPtr)
 M: System.UInt32 FAudio::FACTAudioEngine_Release(System.IntPtr)
@@ -442,6 +451,9 @@ M: System.Void FAudio::XNA_ResumeSong()
 M: System.Void FAudio::XNA_StopSong()
 M: System.Void FAudio::XNA_SetSongVolume(System.Single)
 M: System.UInt32 FAudio::XNA_GetSongEnded()
+M: System.Void FAudio::XNA_EnableVisualization(System.UInt32)
+M: System.UInt32 FAudio::XNA_VisualizationEnabled()
+M: System.Void FAudio::XNA_GetSongVisualizationData(System.Single[],System.Single[],System.UInt32)
 M: System.IntPtr FAudio::FAudio_fopen(System.Byte[])
 M: System.IntPtr FAudio::FAudio_memopen(System.IntPtr,System.Int32)
 M: System.IntPtr FAudio::FAudio_memptr(System.IntPtr,System.IntPtr)
@@ -511,6 +523,7 @@ M: System.UInt32 FAudio::FAudioSourceVoice_Stop(System.IntPtr,System.UInt32,Syst
 M: System.UInt32 FAudio::FAudioSourceVoice_ExitLoop(System.IntPtr,System.UInt32)
 M: System.UInt32 FAudio::FAudioSourceVoice_SetFrequencyRatio(System.IntPtr,System.Single,System.UInt32)
 M: System.UInt32 FAudio::FAudioSourceVoice_SetSourceSampleRate(System.IntPtr,System.UInt32)
+M: System.UInt32 FAudio::FAudioCreateReverb(System.IntPtr&,System.UInt32)
 M: System.UInt32 FAudio::FACTCue_SetOutputVoiceMatrix(System.IntPtr,System.IntPtr,System.UInt32,System.UInt32,System.Single[])
 M: System.Void FAudio::F3DAudioInitialize(System.UInt32,System.Single,System.Byte[])
 M: System.Void FAudio::F3DAudioCalculate(System.Byte[],FAudio/F3DAUDIO_LISTENER&,FAudio/F3DAUDIO_EMITTER&,System.UInt32,FAudio/F3DAUDIO_DSP_SETTINGS&)
