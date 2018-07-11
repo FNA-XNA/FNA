@@ -43,13 +43,14 @@ namespace Microsoft.Xna.Framework.Audio
 		internal AudioEngine engine;
 		internal FAudio.F3DAUDIO_DSP_SETTINGS dspSettings;
 
-		internal readonly List<Cue> cueList;
+		internal readonly List<WeakReference> cueList;
 
 		#endregion
 
 		#region Private Variables
 
 		private IntPtr handle;
+		private WeakReference selfReference;
 
 		#endregion
 
@@ -101,8 +102,9 @@ namespace Microsoft.Xna.Framework.Audio
 			/* We have to manage our XACT resources, lest we get the GC and the
 			 * API thread fighting with one another... hoo boy.
 			 */
-			cueList = new List<Cue>();
-			engine.sbList.Add(this);
+			cueList = new List<WeakReference>();
+			selfReference = new WeakReference(this);
+			engine.sbList.Add(selfReference);
 		}
 
 		#endregion
@@ -141,13 +143,20 @@ namespace Microsoft.Xna.Framework.Audio
 
 					while (cueList.Count > 0)
 					{
-						cueList[0].Dispose();
+						if (cueList[0].Target != null)
+						{
+							((Cue) cueList[0].Target).Dispose();
+						}
+						else
+						{
+							cueList.RemoveAt(0);
+						}
 					}
 
 					// If this is disposed, stop leaking memory!
 					if (!engine.IsDisposed)
 					{
-						engine.sbList.Remove(this);
+						engine.sbList.Remove(selfReference);
 						FAudio.FACTSoundBank_Destroy(handle);
 						Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
 					}

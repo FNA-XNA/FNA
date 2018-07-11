@@ -53,8 +53,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal readonly object gcSync = new object();
 
-		internal readonly List<SoundBank> sbList;
-		internal readonly List<WaveBank> wbList;
+		internal readonly List<WeakReference> sbList;
+		internal readonly List<WeakReference> wbList;
 
 		#endregion
 
@@ -178,8 +178,8 @@ namespace Microsoft.Xna.Framework.Audio
 			/* We have to manage our XACT resources, lest we get the GC and the
 			 * API thread fighting with one another... hoo boy.
 			 */
-			 sbList = new List<SoundBank>();
-			 wbList = new List<WaveBank>();
+			 sbList = new List<WeakReference>();
+			 wbList = new List<WeakReference>();
 		}
 
 		#endregion
@@ -309,11 +309,25 @@ namespace Microsoft.Xna.Framework.Audio
 					 */
 					while (sbList.Count > 0)
 					{
-						sbList[0].Dispose();
+						if (sbList[0].Target != null)
+						{
+							((SoundBank) sbList[0].Target).Dispose();
+						}
+						else
+						{
+							sbList.RemoveAt(0);
+						}
 					}
 					while (wbList.Count > 0)
 					{
-						wbList[0].Dispose();
+						if (wbList[0].Target != null)
+						{
+							((WaveBank) wbList[0].Target).Dispose();
+						}
+						else
+						{
+							wbList.RemoveAt(0);
+						}
 					}
 
 					FAudio.FACTAudioEngine_ShutDown(handle);

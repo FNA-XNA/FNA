@@ -53,6 +53,7 @@ namespace Microsoft.Xna.Framework.Audio
 		private IntPtr handle;
 
 		private AudioEngine engine;
+		private WeakReference selfReference;
 
 		// Non-streaming WaveBanks
 		private byte[] buffer;
@@ -99,8 +100,9 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 
 			engine = audioEngine;
+			selfReference = new WeakReference(this);
 			IsDisposed = false;
-			engine.wbList.Add(this);
+			engine.wbList.Add(selfReference);
 		}
 
 		public WaveBank(
@@ -139,8 +141,9 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 
 			engine = audioEngine;
+			selfReference = new WeakReference(this);
 			IsDisposed = false;
-			engine.wbList.Add(this);
+			engine.wbList.Add(selfReference);
 		}
 
 		#endregion
@@ -180,7 +183,7 @@ namespace Microsoft.Xna.Framework.Audio
 					// If this is disposed, stop leaking memory!
 					if (!engine.IsDisposed)
 					{
-						engine.wbList.Remove(this);
+						engine.wbList.Remove(selfReference);
 						FAudio.FACTWaveBank_Destroy(handle);
 					}
 					IsDisposed = true;
