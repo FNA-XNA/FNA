@@ -172,27 +172,29 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * rightward, even if the kerning pushes the character to the
 				 * left.
 				 */
+				Vector3 cKern = kerning[index];
 				if (firstInLine)
 				{
-					curLineWidth += Math.Abs(kerning[index].X);
+					curLineWidth += Math.Abs(cKern.X);
 					firstInLine = false;
 				}
 				else
 				{
-					curLineWidth += Spacing + kerning[index].X;
+					curLineWidth += Spacing + cKern.X;
 				}
 
 				/* Add the character width and right-side bearing to the line
 				 * width.
 				 */
-				curLineWidth += kerning[index].Y + kerning[index].Z;
+				curLineWidth += cKern.Y + cKern.Z;
 
 				/* If a character is taller than the default line height,
 				 * increase the height to that of the line's tallest character.
 				 */
-				if (croppingData[index].Height > finalLineHeight)
+				int cCropHeight = croppingData[index].Height;
+				if (cCropHeight > finalLineHeight)
 				{
-					finalLineHeight = croppingData[index].Height;
+					finalLineHeight = cCropHeight;
 				}
 			}
 
@@ -266,27 +268,29 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * rightward, even if the kerning pushes the character to the
 				 * left.
 				 */
+				Vector3 cKern = kerning[index];
 				if (firstInLine)
 				{
-					curLineWidth += Math.Abs(kerning[index].X);
+					curLineWidth += Math.Abs(cKern.X);
 					firstInLine = false;
 				}
 				else
 				{
-					curLineWidth += Spacing + kerning[index].X;
+					curLineWidth += Spacing + cKern.X;
 				}
 
 				/* Add the character width and right-side bearing to the line
 				 * width.
 				 */
-				curLineWidth += kerning[index].Y + kerning[index].Z;
+				curLineWidth += cKern.Y + cKern.Z;
 
 				/* If a character is taller than the default line height,
 				 * increase the height to that of the line's tallest character.
 				 */
-				if (croppingData[index].Height > finalLineHeight)
+				int cCropHeight = croppingData[index].Height;
+				if (cCropHeight > finalLineHeight)
 				{
-					finalLineHeight = croppingData[index].Height;
+					finalLineHeight = cCropHeight;
 				}
 			}
 
