@@ -200,6 +200,7 @@ namespace Microsoft.Xna.Framework.Audio
 		public void Dispose()
 		{
 			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		public void Apply3D(AudioListener listener, AudioEmitter emitter)
