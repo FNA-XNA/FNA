@@ -184,6 +184,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~SoundEffectInstance()
 		{
+			if (State == SoundState.Playing)
+			{
+				// STOP LEAKING YOUR INSTANCES, ARGH
+				GC.ReRegisterForFinalize(this);
+				return;
+			}
 			Dispose();
 		}
 

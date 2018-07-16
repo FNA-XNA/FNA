@@ -98,6 +98,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~DynamicSoundEffectInstance()
 		{
+			// FIXME: ReRegisterForFinalize? -flibit
 			Dispose();
 		}
 

@@ -304,7 +304,6 @@ namespace Microsoft.Xna.Framework.Audio
 				instance.Dispose();
 				return false;
 			}
-			FrameworkDispatcher.FireAndForgetInstances.Add(instance);
 			return true;
 		}
 

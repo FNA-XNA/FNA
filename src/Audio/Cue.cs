@@ -135,6 +135,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~Cue()
 		{
+			if (IsPlaying)
+			{
+				// STOP LEAKING YOUR CUES, ARGH
+				GC.ReRegisterForFinalize(this);
+				return;
+			}
 			Dispose(false);
 		}
 

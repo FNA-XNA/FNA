@@ -22,7 +22,6 @@ namespace Microsoft.Xna.Framework
 
 		internal static bool ActiveSongChanged = false;
 		internal static bool MediaStateChanged = false;
-		internal static List<SoundEffectInstance> FireAndForgetInstances = new List<SoundEffectInstance>();
 		internal static List<DynamicSoundEffectInstance> Streams = new List<DynamicSoundEffectInstance>();
 
 		#endregion
@@ -34,16 +33,6 @@ namespace Microsoft.Xna.Framework
 			/* Updates the status of various framework components
 			 * (such as power state and media), and raises related events.
 			 */
-			for (int i = 0; i < FireAndForgetInstances.Count; i += 1)
-			{
-				SoundEffectInstance sfi = FireAndForgetInstances[i];
-				if (sfi.State == SoundState.Stopped)
-				{
-					sfi.Dispose();
-					FireAndForgetInstances.RemoveAt(i);
-					i -= 1;
-				}
-			}
 			foreach (DynamicSoundEffectInstance stream in Streams)
 			{
 				stream.Update();
