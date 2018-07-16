@@ -135,7 +135,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~Cue()
 		{
-			if (IsPlaying)
+			if (!IsDisposed && IsPlaying)
 			{
 				// STOP LEAKING YOUR CUES, ARGH
 				GC.ReRegisterForFinalize(this);
