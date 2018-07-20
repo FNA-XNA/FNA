@@ -9,7 +9,6 @@
 
 #region Using Statements
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 #endregion
 
@@ -42,8 +41,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal AudioEngine engine;
 		internal FAudio.F3DAUDIO_DSP_SETTINGS dspSettings;
-
-		internal readonly List<WeakReference> cueList;
 
 		#endregion
 
@@ -89,6 +86,7 @@ namespace Microsoft.Xna.Framework.Audio
 			buffer = null;
 
 			engine = audioEngine;
+			selfReference = new WeakReference(this, true);
 			dspSettings = new FAudio.F3DAUDIO_DSP_SETTINGS();
 			dspSettings.SrcChannelCount = 1;
 			dspSettings.DstChannelCount = engine.channels;
@@ -97,14 +95,8 @@ namespace Microsoft.Xna.Framework.Audio
 				(int) dspSettings.SrcChannelCount *
 				(int) dspSettings.DstChannelCount
 			);
+			engine.RegisterSoundBank(handle, selfReference);
 			IsDisposed = false;
-
-			/* We have to manage our XACT resources, lest we get the GC and the
-			 * API thread fighting with one another... hoo boy.
-			 */
-			cueList = new List<WeakReference>();
-			selfReference = new WeakReference(this, true);
-			engine.sbList.Add(selfReference);
 		}
 
 		#endregion
@@ -147,27 +139,14 @@ namespace Microsoft.Xna.Framework.Audio
 						Disposing.Invoke(this, null);
 					}
 
-					while (cueList.Count > 0)
-					{
-						if (cueList[0].Target != null)
-						{
-							((Cue) cueList[0].Target).Dispose();
-						}
-						else
-						{
-							cueList.RemoveAt(0);
-						}
-					}
-
 					// If this is disposed, stop leaking memory!
 					if (!engine.IsDisposed)
 					{
-						engine.sbList.Remove(selfReference);
+						engine.UnregisterSoundBank(handle);
 						FAudio.FACTSoundBank_Destroy(handle);
 						Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
 					}
-					IsDisposed = true;
-					handle = IntPtr.Zero;
+					OnSoundBankDestroyed();
 				}
 			}
 		}
@@ -280,6 +259,17 @@ namespace Microsoft.Xna.Framework.Audio
 				ref dspSettings,
 				IntPtr.Zero
 			);
+		}
+
+		#endregion
+
+		#region Internal Methods
+
+		internal void OnSoundBankDestroyed()
+		{
+			IsDisposed = true;
+			handle = IntPtr.Zero;
+			selfReference = null;
 		}
 
 		#endregion
