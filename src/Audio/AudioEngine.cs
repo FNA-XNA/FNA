@@ -336,7 +336,10 @@ namespace Microsoft.Xna.Framework.Audio
 				handle,
 				ref notificationDesc
 			);
-			xactPtrs.Add(ptr, reference);
+			lock (xactPtrs)
+			{
+				xactPtrs.Add(ptr, reference);
+			}
 		}
 
 		internal void RegisterSoundBank(
@@ -349,7 +352,10 @@ namespace Microsoft.Xna.Framework.Audio
 				handle,
 				ref notificationDesc
 			);
-			xactPtrs.Add(ptr, reference);
+			lock (xactPtrs)
+			{
+				xactPtrs.Add(ptr, reference);
+			}
 		}
 
 		internal void RegisterCue(
@@ -362,52 +368,64 @@ namespace Microsoft.Xna.Framework.Audio
 				handle,
 				ref notificationDesc
 			);
-			xactPtrs.Add(ptr, reference);
+			lock (xactPtrs)
+			{
+				xactPtrs.Add(ptr, reference);
+			}
 		}
 
 		internal void UnregisterWaveBank(IntPtr ptr)
 		{
-			if (!xactPtrs.ContainsKey(ptr))
+			lock (xactPtrs)
 			{
-				return;
+				if (!xactPtrs.ContainsKey(ptr))
+				{
+					return;
+				}
+				notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED;
+				notificationDesc.pWaveBank = ptr;
+				FAudio.FACTAudioEngine_UnRegisterNotification(
+					handle,
+					ref notificationDesc
+				);
+				xactPtrs.Remove(ptr);
 			}
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED;
-			notificationDesc.pWaveBank = ptr;
-			FAudio.FACTAudioEngine_UnRegisterNotification(
-				handle,
-				ref notificationDesc
-			);
-			xactPtrs.Remove(ptr);
 		}
 
 		internal void UnregisterSoundBank(IntPtr ptr)
 		{
-			if (!xactPtrs.ContainsKey(ptr))
+			lock (xactPtrs)
 			{
-				return;
+				if (!xactPtrs.ContainsKey(ptr))
+				{
+					return;
+				}
+				notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED;
+				notificationDesc.pSoundBank = ptr;
+				FAudio.FACTAudioEngine_UnRegisterNotification(
+					handle,
+					ref notificationDesc
+				);
+				xactPtrs.Remove(ptr);
 			}
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED;
-			notificationDesc.pSoundBank = ptr;
-			FAudio.FACTAudioEngine_UnRegisterNotification(
-				handle,
-				ref notificationDesc
-			);
-			xactPtrs.Remove(ptr);
 		}
 
 		internal void UnregisterCue(IntPtr ptr)
 		{
-			if (!xactPtrs.ContainsKey(ptr))
+			lock (xactPtrs)
 			{
-				return;
+				if (!xactPtrs.ContainsKey(ptr))
+				{
+					return;
+				}
+				notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED;
+				notificationDesc.pCue = ptr;
+				FAudio.FACTAudioEngine_UnRegisterNotification(
+					handle,
+					ref notificationDesc
+				);
+				xactPtrs.Remove(ptr);
 			}
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED;
-			notificationDesc.pCue = ptr;
-			FAudio.FACTAudioEngine_UnRegisterNotification(
-				handle,
-				ref notificationDesc
-			);
-			xactPtrs.Remove(ptr);
 		}
 
 		#endregion
@@ -421,29 +439,47 @@ namespace Microsoft.Xna.Framework.Audio
 			if (not->type == FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED)
 			{
 				IntPtr target = not->anon.waveBank.pWaveBank;
-				if (xactPtrs.TryGetValue(target, out reference) && reference.IsAlive)
+				lock (xactPtrs)
 				{
-					(reference.Target as WaveBank).OnWaveBankDestroyed();
+					if (xactPtrs.TryGetValue(target, out reference))
+					{
+						if (reference.IsAlive)
+						{
+							(reference.Target as WaveBank).OnWaveBankDestroyed();
+						}
+					}
+					xactPtrs.Remove(target);
 				}
-				xactPtrs.Remove(target);
 			}
 			else if (not->type == FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED)
 			{
 				IntPtr target = not->anon.soundBank.pSoundBank;
-				if (xactPtrs.TryGetValue(target, out reference) && reference.IsAlive)
+				lock (xactPtrs)
 				{
-					(reference.Target as SoundBank).OnSoundBankDestroyed();
+					if (xactPtrs.TryGetValue(target, out reference))
+					{
+						if (reference.IsAlive)
+						{
+							(reference.Target as SoundBank).OnSoundBankDestroyed();
+						}
+					}
+					xactPtrs.Remove(target);
 				}
-				xactPtrs.Remove(target);
 			}
 			else if (not->type == FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED)
 			{
 				IntPtr target = not->anon.cue.pCue;
-				if (xactPtrs.TryGetValue(target, out reference) && reference.IsAlive)
+				lock (xactPtrs)
 				{
-					(reference.Target as Cue).OnCueDestroyed();
+					if (xactPtrs.TryGetValue(target, out reference))
+					{
+						if (reference.IsAlive)
+						{
+							(reference.Target as Cue).OnCueDestroyed();
+						}
+					}
+					xactPtrs.Remove(target);
 				}
-				xactPtrs.Remove(target);
 			}
 		}
 
