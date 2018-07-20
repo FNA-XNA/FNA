@@ -180,6 +180,8 @@ namespace Microsoft.Xna.Framework
 
 		public static void ProgramExit(object sender, EventArgs e)
 		{
+			AudioEngine.ProgramExiting = true;
+
 			if (SoundEffect.FAudioContext.Context != null)
 			{
 				SoundEffect.FAudioContext.Context.Dispose();

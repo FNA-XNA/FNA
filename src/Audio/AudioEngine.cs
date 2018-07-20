@@ -70,6 +70,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
+		#region Public Static Variables
+
+		// STOP LEAKING YOUR XACT DATA, GOOD GRIEF PEOPLE
+		public static bool ProgramExiting = false;
+
+		#endregion
+
 		#region Disposing Event
 
 		public event EventHandler<EventArgs> Disposing;

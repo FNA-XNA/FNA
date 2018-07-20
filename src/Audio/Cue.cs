@@ -135,6 +135,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~Cue()
 		{
+			if (AudioEngine.ProgramExiting)
+			{
+				return;
+			}
+
 			if (!IsDisposed && IsPlaying)
 			{
 				// STOP LEAKING YOUR CUES, ARGH

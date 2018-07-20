@@ -105,6 +105,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~SoundBank()
 		{
+			if (AudioEngine.ProgramExiting)
+			{
+				return;
+			}
+
 			if (!IsDisposed && IsInUse)
 			{
 				// STOP LEAKING YOUR BANKS, ARGH
