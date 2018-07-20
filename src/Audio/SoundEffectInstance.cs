@@ -160,7 +160,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			SoundEffect.Device();
 
-			selfReference = new WeakReference(this);
+			selfReference = new WeakReference(this, true);
 			parentEffect = parent;
 			isDynamic = this is DynamicSoundEffectInstance;
 			hasStarted = false;

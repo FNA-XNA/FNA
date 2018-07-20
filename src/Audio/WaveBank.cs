@@ -100,7 +100,7 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 
 			engine = audioEngine;
-			selfReference = new WeakReference(this);
+			selfReference = new WeakReference(this, true);
 			IsDisposed = false;
 			engine.wbList.Add(selfReference);
 		}
@@ -141,7 +141,7 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 
 			engine = audioEngine;
-			selfReference = new WeakReference(this);
+			selfReference = new WeakReference(this, true);
 			IsDisposed = false;
 			engine.wbList.Add(selfReference);
 		}
@@ -173,7 +173,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			lock (engine.gcSync)
 			{
-				if (!IsDisposed && disposing)
+				if (!IsDisposed)
 				{
 					if (Disposing != null)
 					{

@@ -125,7 +125,7 @@ namespace Microsoft.Xna.Framework.Audio
 			Name = name;
 			bank = soundBank;
 
-			selfReference = new WeakReference(this);
+			selfReference = new WeakReference(this, true);
 			bank.cueList.Add(selfReference);
 		}
 

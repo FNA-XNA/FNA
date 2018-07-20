@@ -103,7 +103,7 @@ namespace Microsoft.Xna.Framework.Audio
 			 * API thread fighting with one another... hoo boy.
 			 */
 			cueList = new List<WeakReference>();
-			selfReference = new WeakReference(this);
+			selfReference = new WeakReference(this, true);
 			engine.sbList.Add(selfReference);
 		}
 
@@ -134,7 +134,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			lock (engine.gcSync)
 			{
-				if (!IsDisposed && disposing)
+				if (!IsDisposed)
 				{
 					if (Disposing != null)
 					{
