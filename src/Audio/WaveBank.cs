@@ -152,6 +152,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~WaveBank()
 		{
+			if (!IsDisposed && IsInUse)
+			{
+				// STOP LEAKING YOUR BANKS, ARGH
+				GC.ReRegisterForFinalize(this);
+				return;
+			}
 			Dispose(false);
 		}
 

@@ -113,6 +113,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~SoundBank()
 		{
+			if (!IsDisposed && IsInUse)
+			{
+				// STOP LEAKING YOUR BANKS, ARGH
+				GC.ReRegisterForFinalize(this);
+				return;
+			}
 			Dispose(false);
 		}
 
