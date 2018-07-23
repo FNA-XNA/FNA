@@ -85,6 +85,9 @@ namespace Microsoft.Xna.Framework.Audio
 			format.nChannels = (ushort) channels;
 			format.nSamplesPerSec = (uint) sampleRate;
 			format.wBitsPerSample = 16;
+			format.nBlockAlign = (ushort) (2 * format.nChannels);
+			format.nAvgBytesPerSec = format.nBlockAlign * format.nSamplesPerSec;
+			format.cbSize = 0;
 
 			queuedBuffers = new List<IntPtr>();
 			queuedSizes = new List<uint>();
@@ -185,6 +188,8 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			format.wFormatTag = 3;
 			format.wBitsPerSample = 32;
+			format.nBlockAlign = (ushort) (4 * format.nChannels);
+			format.nAvgBytesPerSec = format.nBlockAlign * format.nSamplesPerSec;
 
 			IntPtr next = Marshal.AllocHGlobal(count * sizeof(float));
 			Marshal.Copy(buffer, offset, next, count);
