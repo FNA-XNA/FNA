@@ -1136,7 +1136,7 @@ namespace Microsoft.Xna.Framework
 				}
 				return Path.Combine(
 					osConfigDir,
-					"/Library/Application Support",
+					"Library/Application Support",
 					exeName
 				);
 			}
