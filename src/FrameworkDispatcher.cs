@@ -33,9 +33,14 @@ namespace Microsoft.Xna.Framework
 			/* Updates the status of various framework components
 			 * (such as power state and media), and raises related events.
 			 */
-			foreach (DynamicSoundEffectInstance stream in Streams)
+			for (int i = 0; i < Streams.Count; i += 1)
 			{
-				stream.Update();
+				DynamicSoundEffectInstance dsfi = Streams[i];
+				dsfi.Update();
+				if (dsfi.IsDisposed)
+				{
+					i -= 1;
+				}
 			}
 			if (Microphone.micList != null)
 			{
