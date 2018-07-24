@@ -119,7 +119,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		public bool Equals(Song song) 
 		{
-			return (((object) song) != null) && (Name == song.Name);
+			return (((object) song) != null) && (handle == song.handle);
 		}
 
 		public override bool Equals(Object obj)
