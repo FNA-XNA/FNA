@@ -280,6 +280,7 @@ namespace Microsoft.Xna.Framework.Media
 		{
 			if (	Queue == null ||
 				Queue.ActiveSong == null ||
+				State != MediaState.Playing ||
 				FAudio.XNA_GetSongEnded() == 0	)
 			{
 				// Nothing to do... yet...
