@@ -574,7 +574,7 @@ namespace Microsoft.Xna.Framework.Audio
 					rvbParams->RoomFilterMain = -10f;
 					rvbParams->RoomFilterHF = -1f;
 					rvbParams->ReflectionsGain = -26.0200005f;
-					rvbParams->ReverbGain = 5.0f;
+					rvbParams->ReverbGain = 10.0f;
 					rvbParams->DecayTime = 1.49000001f;
 					rvbParams->Density = 100.0f;
 					rvbParams->RoomSize = FAudio.FAUDIOFX_REVERB_DEFAULT_ROOM_SIZE;
