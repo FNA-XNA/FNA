@@ -460,7 +460,7 @@ namespace Microsoft.Xna.Framework.Audio
 						i,
 						out DeviceDetails
 					);
-					if ((DeviceDetails.Role & FAudio.FAudioDeviceRole.DefaultGameDevice) == FAudio.FAudioDeviceRole.DefaultGameDevice)
+					if ((DeviceDetails.Role & FAudio.FAudioDeviceRole.FAudioDefaultGameDevice) == FAudio.FAudioDeviceRole.FAudioDefaultGameDevice)
 					{
 						break;
 					}
@@ -574,7 +574,7 @@ namespace Microsoft.Xna.Framework.Audio
 					rvbParams->RoomFilterMain = -10f;
 					rvbParams->RoomFilterHF = -1f;
 					rvbParams->ReflectionsGain = -26.0200005f;
-					rvbParams->ReverbGain = 2.0f;
+					rvbParams->ReverbGain = 10.0f;
 					rvbParams->DecayTime = 1.49000001f;
 					rvbParams->Density = 100.0f;
 					rvbParams->RoomSize = FAudio.FAUDIOFX_REVERB_DEFAULT_ROOM_SIZE;

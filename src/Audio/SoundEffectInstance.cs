@@ -464,7 +464,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 
 			FAudio.FAudioFilterParameters p = new FAudio.FAudioFilterParameters();
-			p.Type = FAudio.FAudioFilterType.LowPassFilter;
+			p.Type = FAudio.FAudioFilterType.FAudioLowPassFilter;
 			p.Frequency = cutoff;
 			p.OneOverQ = 1.0f;
 			FAudio.FAudioVoice_SetFilterParameters(
@@ -482,7 +482,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 
 			FAudio.FAudioFilterParameters p = new FAudio.FAudioFilterParameters();
-			p.Type = FAudio.FAudioFilterType.HighPassFilter;
+			p.Type = FAudio.FAudioFilterType.FAudioHighPassFilter;
 			p.Frequency = cutoff;
 			p.OneOverQ = 1.0f;
 			FAudio.FAudioVoice_SetFilterParameters(
@@ -500,7 +500,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 
 			FAudio.FAudioFilterParameters p = new FAudio.FAudioFilterParameters();
-			p.Type = FAudio.FAudioFilterType.LowPassFilter;
+			p.Type = FAudio.FAudioFilterType.FAudioLowPassFilter;
 			p.Frequency = center;
 			p.OneOverQ = 1.0f;
 			FAudio.FAudioVoice_SetFilterParameters(
