@@ -1340,7 +1340,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (blendState.ColorWriteChannels1 != colorWriteEnable1)
 			{
 				colorWriteEnable1 = blendState.ColorWriteChannels1;
-				glColorMaskIndexedEXT(
+				glColorMaski(
 					1,
 					(colorWriteEnable1 & ColorWriteChannels.Red) != 0,
 					(colorWriteEnable1 & ColorWriteChannels.Green) != 0,
@@ -1351,7 +1351,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (blendState.ColorWriteChannels2 != colorWriteEnable2)
 			{
 				colorWriteEnable2 = blendState.ColorWriteChannels2;
-				glColorMaskIndexedEXT(
+				glColorMaski(
 					2,
 					(colorWriteEnable2 & ColorWriteChannels.Red) != 0,
 					(colorWriteEnable2 & ColorWriteChannels.Green) != 0,
@@ -1362,7 +1362,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (blendState.ColorWriteChannels3 != colorWriteEnable3)
 			{
 				colorWriteEnable3 = blendState.ColorWriteChannels3;
-				glColorMaskIndexedEXT(
+				glColorMaski(
 					3,
 					(colorWriteEnable3 & ColorWriteChannels.Red) != 0,
 					(colorWriteEnable3 & ColorWriteChannels.Green) != 0,

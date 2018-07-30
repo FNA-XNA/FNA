@@ -309,14 +309,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private ColorMask glColorMask;
 
-		private delegate void ColorMaskIndexedEXT(
+		private delegate void ColorMaski(
 			uint buf,
 			bool red,
 			bool green,
 			bool blue,
 			bool alpha
 		);
-		private ColorMaskIndexedEXT glColorMaskIndexedEXT;
+		private ColorMaski glColorMaski;
 
 		private delegate void SampleMaski(uint maskNumber, uint mask);
 		private SampleMaski glSampleMaski;
@@ -1414,12 +1414,33 @@ namespace Microsoft.Xna.Framework.Graphics
 				SupportsHardwareInstancing = false;
 			}
 
-			/* EXT_draw_buffers2 is probably used by nobody. */
+			/* Indexed color mask is a weird thing.
+			 * IndexedEXT was introduced in EXT_draw_buffers2, then
+			 * it was introduced in GL 3.0 as "ColorMaski" with no
+			 * extension at all, and OpenGL ES introduced it as
+			 * ColorMaskiEXT via EXT_draw_buffers_indexed and AGAIN
+			 * as ColorMaskiOES via OES_draw_buffers_indexed at the
+			 * exact same time. WTF.
+			 * -flibit
+			 */
+			IntPtr cm = SDL.SDL_GL_GetProcAddress("glColorMaski");
+			if (cm == IntPtr.Zero)
+			{
+				cm = SDL.SDL_GL_GetProcAddress("glColorMaskIndexedEXT");
+			}
+			if (cm == IntPtr.Zero)
+			{
+				cm = SDL.SDL_GL_GetProcAddress("glColorMaskiOES");
+			}
+			if (cm == IntPtr.Zero)
+			{
+				cm = SDL.SDL_GL_GetProcAddress("glColorMaskiEXT");
+			}
 			try
 			{
-				glColorMaskIndexedEXT = (ColorMaskIndexedEXT) GetProcAddress(
-					"glColorMaskIndexedEXT",
-					typeof(ColorMaskIndexedEXT)
+				glColorMaski = (ColorMaski) Marshal.GetDelegateForFunctionPointer(
+					cm,
+					typeof(ColorMaski)
 				);
 			}
 			catch
