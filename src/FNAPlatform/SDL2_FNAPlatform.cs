@@ -1155,6 +1155,33 @@ namespace Microsoft.Xna.Framework
 			{
 				result = AppDomain.CurrentDomain.BaseDirectory;
 			}
+			if (string.IsNullOrEmpty(result))
+			{
+				/* In the chance that there is no base directory,
+				 * return the working directory and hope for the best.
+				 *
+				 * If we've reached this, the game has either been
+				 * started from its directory, or a wrapper has set up
+				 * the working directory to the game dir for us.
+				 *
+				 * Note about Android:
+				 *
+				 * There is no way from the C# side of things to cleanly
+				 * obtain where the game is located without looking at an
+				 * instance of System.Diagnostics.StackTrace or without
+				 * some interop between the Java and C# side of things.
+				 * We're assuming that either the environment itself is
+				 * setting one of the possible base paths to point to the
+				 * game dir, or that the Java side has called into the C#
+				 * side to set Environment.CurrentDirectory.
+				 *
+				 * In the best case, nothing would be set and the game
+				 * wouldn't use the title location in the first place, as
+				 * the assets would be read directly from the .apk / .obb
+				 * -ade
+				 */
+				result = Environment.CurrentDirectory;
+			}
 			return result;
 		}
 
