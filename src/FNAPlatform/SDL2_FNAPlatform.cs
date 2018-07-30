@@ -298,6 +298,16 @@ namespace Microsoft.Xna.Framework
 				GraphicsDeviceManager.DefaultBackBufferHeight,
 				initFlags
 			);
+			if (window == IntPtr.Zero)
+			{
+				/* If this happens, the GL attributes were
+				 * rejected by the platform. This is EXTREMELY
+				 * rare (unless you're on Android, of course).
+				 */
+				throw new NoSuitableGraphicsDeviceException(
+					SDL.SDL_GetError()
+				);
+			}
 			INTERNAL_SetIcon(window, title);
 
 			// Disable the screensaver.
