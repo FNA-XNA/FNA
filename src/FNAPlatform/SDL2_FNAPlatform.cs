@@ -34,6 +34,8 @@ namespace Microsoft.Xna.Framework
 			"FNA_KEYBOARD_USE_SCANCODES"
 		) == "1";
 
+		private static bool SupportsGlobalMouse;
+
 		private static float HapticMaxWorkaround;
 
 		#endregion
@@ -69,6 +71,24 @@ namespace Microsoft.Xna.Framework
 			 * -flibit
 			 */
 			SDL.SDL_SetMainReady();
+
+			/* A number of platforms don't support global mouse, but
+			 * this really only matters on desktop where the game
+			 * screen may not be covering the whole display.
+			 */
+                        if (    OSVersion.Equals("Windows") ||
+                                OSVersion.Equals("Mac OS X") ||
+                                OSVersion.Equals("Linux") ||
+                                OSVersion.Equals("FreeBSD") ||
+                                OSVersion.Equals("OpenBSD") ||
+                                OSVersion.Equals("NetBSD")      )
+			{
+				SupportsGlobalMouse = true;
+			}
+			else
+			{
+				SupportsGlobalMouse = false;
+			}
 
 			// Also, Windows is an idiot. -flibit
 			if (	OSVersion.Equals("Windows") ||
@@ -306,6 +326,16 @@ namespace Microsoft.Xna.Framework
 				GraphicsDeviceManager.DefaultBackBufferHeight,
 				initFlags
 			);
+			if (window == IntPtr.Zero)
+			{
+				/* If this happens, the GL attributes were
+				 * rejected by the platform. This is EXTREMELY
+				 * rare (unless you're on Android, of course).
+				 */
+				throw new NoSuitableGraphicsDeviceException(
+					SDL.SDL_GetError()
+				);
+			}
 			INTERNAL_SetIcon(window, title);
 
 			// Disable the screensaver.
@@ -1045,13 +1075,18 @@ namespace Microsoft.Xna.Framework
 			{
 				flags = SDL.SDL_GetRelativeMouseState(out x, out y);
 			}
-			else
+			else if (SupportsGlobalMouse)
 			{
 				flags = SDL.SDL_GetGlobalMouseState(out x, out y);
 				int wx = 0, wy = 0;
 				SDL.SDL_GetWindowPosition(window, out wx, out wy);
 				x -= wx;
 				y -= wy;
+			}
+			else
+			{
+				/* This is inaccurate, but what can you do... */
+				flags = SDL.SDL_GetMouseState(out x, out y);
 			}
 			left =		(ButtonState) (flags & SDL.SDL_BUTTON_LMASK);
 			middle =	(ButtonState) ((flags & SDL.SDL_BUTTON_MMASK) >> 1);
@@ -1107,6 +1142,33 @@ namespace Microsoft.Xna.Framework
 			if (string.IsNullOrEmpty(result))
 			{
 				result = AppDomain.CurrentDomain.BaseDirectory;
+			}
+			if (string.IsNullOrEmpty(result))
+			{
+				/* In the chance that there is no base directory,
+				 * return the working directory and hope for the best.
+				 *
+				 * If we've reached this, the game has either been
+				 * started from its directory, or a wrapper has set up
+				 * the working directory to the game dir for us.
+				 *
+				 * Note about Android:
+				 *
+				 * There is no way from the C# side of things to cleanly
+				 * obtain where the game is located without looking at an
+				 * instance of System.Diagnostics.StackTrace or without
+				 * some interop between the Java and C# side of things.
+				 * We're assuming that either the environment itself is
+				 * setting one of the possible base paths to point to the
+				 * game dir, or that the Java side has called into the C#
+				 * side to set Environment.CurrentDirectory.
+				 *
+				 * In the best case, nothing would be set and the game
+				 * wouldn't use the title location in the first place, as
+				 * the assets would be read directly from the .apk / .obb
+				 * -ade
+				 */
+				result = Environment.CurrentDirectory;
 			}
 			return result;
 		}

@@ -196,24 +196,24 @@ namespace Microsoft.Xna.Framework.Graphics
 			// 3.2 Core Profile
 			GL_NUM_EXTENSIONS =			0x821D,
 			// Source Enum Values
-			GL_DEBUG_SOURCE_API_ARB =		0x8246,
-			GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB =	0x8247,
-			GL_DEBUG_SOURCE_SHADER_COMPILER_ARB =	0x8248,
-			GL_DEBUG_SOURCE_THIRD_PARTY_ARB =	0x8249,
-			GL_DEBUG_SOURCE_APPLICATION_ARB =	0x824A,
-			GL_DEBUG_SOURCE_OTHER_ARB =		0x824B,
+			GL_DEBUG_SOURCE_API =			0x8246,
+			GL_DEBUG_SOURCE_WINDOW_SYSTEM =		0x8247,
+			GL_DEBUG_SOURCE_SHADER_COMPILER =	0x8248,
+			GL_DEBUG_SOURCE_THIRD_PARTY =		0x8249,
+			GL_DEBUG_SOURCE_APPLICATION =		0x824A,
+			GL_DEBUG_SOURCE_OTHER =			0x824B,
 			// Type Enum Values
-			GL_DEBUG_TYPE_ERROR_ARB =		0x824C,
-			GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB =	0x824D,
-			GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB =	0x824E,
-			GL_DEBUG_TYPE_PORTABILITY_ARB =		0x824F,
-			GL_DEBUG_TYPE_PERFORMANCE_ARB =		0x8250,
-			GL_DEBUG_TYPE_OTHER_ARB =		0x8251,
+			GL_DEBUG_TYPE_ERROR =			0x824C,
+			GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR =	0x824D,
+			GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR =	0x824E,
+			GL_DEBUG_TYPE_PORTABILITY =		0x824F,
+			GL_DEBUG_TYPE_PERFORMANCE =		0x8250,
+			GL_DEBUG_TYPE_OTHER =			0x8251,
 			// Severity Enum Values
-			GL_DEBUG_SEVERITY_HIGH_ARB =		0x9146,
-			GL_DEBUG_SEVERITY_MEDIUM_ARB =		0x9147,
-			GL_DEBUG_SEVERITY_LOW_ARB =		0x9148,
-			GL_DEBUG_SEVERITY_NOTIFICATION_ARB =	0x826B
+			GL_DEBUG_SEVERITY_HIGH =		0x9146,
+			GL_DEBUG_SEVERITY_MEDIUM =		0x9147,
+			GL_DEBUG_SEVERITY_LOW =			0x9148,
+			GL_DEBUG_SEVERITY_NOTIFICATION =	0x826B
 		}
 
 		// Entry Points
@@ -309,14 +309,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private ColorMask glColorMask;
 
-		private delegate void ColorMaskIndexedEXT(
+		private delegate void ColorMaski(
 			uint buf,
 			bool red,
 			bool green,
 			bool blue,
 			bool alpha
 		);
-		private ColorMaskIndexedEXT glColorMaskIndexedEXT;
+		private ColorMaski glColorMaski;
 
 		private delegate void SampleMaski(uint maskNumber, uint mask);
 		private SampleMaski glSampleMaski;
@@ -811,7 +811,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr debugCallback,
 			IntPtr userParam
 		);
-		private DebugMessageCallback glDebugMessageCallbackARB;
+		private DebugMessageCallback glDebugMessageCallback;
 
 		private delegate void DebugMessageControl(
 			GLenum source,
@@ -821,9 +821,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr ids, // const GLuint*
 			bool enabled
 		);
-		private DebugMessageControl glDebugMessageControlARB;
+		private DebugMessageControl glDebugMessageControl;
 
-		// ARB_debug_output callback
+		// ARB_debug_output/KHR_debug callback
 		private delegate void DebugProc(
 			GLenum source,
 			GLenum type,
@@ -852,7 +852,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				"\n\tSeverity: " +
 				severity.ToString()
 			);
-			if (type == GLenum.GL_DEBUG_TYPE_ERROR_ARB)
+			if (type == GLenum.GL_DEBUG_TYPE_ERROR)
 			{
 				FNALoggerEXT.LogError(err);
 				throw new InvalidOperationException(err);
@@ -1084,6 +1084,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			/* ARB_draw_elements_base_vertex is ideal! */
 			IntPtr ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElementsBaseVertex");
+			if (ep == IntPtr.Zero)
+			{
+				ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElementsBaseVertexOES");
+			}
 			supportsBaseVertex = ep != IntPtr.Zero;
 			if (supportsBaseVertex)
 			{
@@ -1098,7 +1102,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else
 			{
-				/* DrawRangeElements is better, but some ES3 targets don't have it. */
+				/* DrawRangeElements is better, and ES3+ should have this */
 				ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElements");
 				if (ep != IntPtr.Zero)
 				{
@@ -1414,12 +1418,33 @@ namespace Microsoft.Xna.Framework.Graphics
 				SupportsHardwareInstancing = false;
 			}
 
-			/* EXT_draw_buffers2 is probably used by nobody. */
+			/* Indexed color mask is a weird thing.
+			 * IndexedEXT was introduced in EXT_draw_buffers2, then
+			 * it was introduced in GL 3.0 as "ColorMaski" with no
+			 * extension at all, and OpenGL ES introduced it as
+			 * ColorMaskiEXT via EXT_draw_buffers_indexed and AGAIN
+			 * as ColorMaskiOES via OES_draw_buffers_indexed at the
+			 * exact same time. WTF.
+			 * -flibit
+			 */
+			IntPtr cm = SDL.SDL_GL_GetProcAddress("glColorMaski");
+			if (cm == IntPtr.Zero)
+			{
+				cm = SDL.SDL_GL_GetProcAddress("glColorMaskIndexedEXT");
+			}
+			if (cm == IntPtr.Zero)
+			{
+				cm = SDL.SDL_GL_GetProcAddress("glColorMaskiOES");
+			}
+			if (cm == IntPtr.Zero)
+			{
+				cm = SDL.SDL_GL_GetProcAddress("glColorMaskiEXT");
+			}
 			try
 			{
-				glColorMaskIndexedEXT = (ColorMaskIndexedEXT) GetProcAddress(
-					"glColorMaskIndexedEXT",
-					typeof(ColorMaskIndexedEXT)
+				glColorMaski = (ColorMaski) Marshal.GetDelegateForFunctionPointer(
+					cm,
+					typeof(ColorMaski)
 				);
 			}
 			catch
@@ -1468,24 +1493,65 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 #if DEBUG
-			/* ARB_debug_output, for debug contexts */
-			IntPtr messageCallback = SDL.SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
-			IntPtr messageControl = SDL.SDL_GL_GetProcAddress("glDebugMessageControlARB");
-			if (messageCallback == IntPtr.Zero || messageControl == IntPtr.Zero)
+			/* ARB_debug_output/KHR_debug, for debug contexts */
+			bool supportsDebug = true;
+			IntPtr messageCallback;
+			IntPtr messageControl;
+
+			/* Try KHR_debug first...
+			 *
+			 * "NOTE: when implemented in an OpenGL ES context, all entry points defined
+			 * by this extension must have a "KHR" suffix. When implemented in an
+			 * OpenGL context, all entry points must have NO suffix, as shown below."
+			 * https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_debug.txt
+			 */
+			if (useES3)
 			{
-				FNALoggerEXT.LogWarn("ARB_debug_output not supported!");
+				messageCallback = SDL.SDL_GL_GetProcAddress("glDebugMessageCallbackKHR");
+				messageControl = SDL.SDL_GL_GetProcAddress("glDebugMessageControlKHR");
 			}
 			else
 			{
-				glDebugMessageCallbackARB = (DebugMessageCallback) Marshal.GetDelegateForFunctionPointer(
+				messageCallback = SDL.SDL_GL_GetProcAddress("glDebugMessageCallback");
+				messageControl = SDL.SDL_GL_GetProcAddress("glDebugMessageControl");
+			}
+			if (messageCallback == IntPtr.Zero || messageControl == IntPtr.Zero)
+			{
+				/* ... then try ARB_debug_output. */
+				messageCallback = SDL.SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
+				messageControl = SDL.SDL_GL_GetProcAddress("glDebugMessageControlARB");
+			}
+			if (messageCallback == IntPtr.Zero || messageControl == IntPtr.Zero)
+			{
+				supportsDebug = false;
+			}
+
+			/* Android developers are incredibly stupid and export stub functions */
+			if (useES3)
+			{
+				if (	SDL.SDL_GL_ExtensionSupported("KHR_debug") == SDL.SDL_bool.SDL_FALSE &&
+					SDL.SDL_GL_ExtensionSupported("ARB_debug_output") == SDL.SDL_bool.SDL_FALSE	)
+				{
+					supportsDebug = false;
+				}
+			}
+
+			/* Set the callback, finally. */
+			if (!supportsDebug)
+			{
+				FNALoggerEXT.LogWarn("ARB_debug_output/KHR_debug not supported!");
+			}
+			else
+			{
+				glDebugMessageCallback = (DebugMessageCallback) Marshal.GetDelegateForFunctionPointer(
 					messageCallback,
 					typeof(DebugMessageCallback)
 				);
-				glDebugMessageControlARB = (DebugMessageControl) Marshal.GetDelegateForFunctionPointer(
+				glDebugMessageControl = (DebugMessageControl) Marshal.GetDelegateForFunctionPointer(
 					messageControl,
 					typeof(DebugMessageControl)
 				);
-				glDebugMessageControlARB(
+				glDebugMessageControl(
 					GLenum.GL_DONT_CARE,
 					GLenum.GL_DONT_CARE,
 					GLenum.GL_DONT_CARE,
@@ -1493,23 +1559,23 @@ namespace Microsoft.Xna.Framework.Graphics
 					IntPtr.Zero,
 					true
 				);
-				glDebugMessageControlARB(
+				glDebugMessageControl(
 					GLenum.GL_DONT_CARE,
-					GLenum.GL_DEBUG_TYPE_OTHER_ARB,
-					GLenum.GL_DEBUG_SEVERITY_LOW_ARB,
+					GLenum.GL_DEBUG_TYPE_OTHER,
+					GLenum.GL_DEBUG_SEVERITY_LOW,
 					0,
 					IntPtr.Zero,
 					false
 				);
-				glDebugMessageControlARB(
+				glDebugMessageControl(
 					GLenum.GL_DONT_CARE,
-					GLenum.GL_DEBUG_TYPE_OTHER_ARB,
-					GLenum.GL_DEBUG_SEVERITY_NOTIFICATION_ARB,
+					GLenum.GL_DEBUG_TYPE_OTHER,
+					GLenum.GL_DEBUG_SEVERITY_NOTIFICATION,
 					0,
 					IntPtr.Zero,
 					false
 				);
-				glDebugMessageCallbackARB(Marshal.GetFunctionPointerForDelegate(DebugCall), IntPtr.Zero);
+				glDebugMessageCallback(Marshal.GetFunctionPointerForDelegate(DebugCall), IntPtr.Zero);
 			}
 
 			/* GREMEDY_string_marker, for apitrace */
