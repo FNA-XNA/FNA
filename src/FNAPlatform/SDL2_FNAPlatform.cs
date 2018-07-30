@@ -34,6 +34,8 @@ namespace Microsoft.Xna.Framework
 			"FNA_KEYBOARD_USE_SCANCODES"
 		) == "1";
 
+		private static bool SupportsGlobalMouse;
+
 		private static float HapticMaxWorkaround;
 
 		#endregion
@@ -69,6 +71,24 @@ namespace Microsoft.Xna.Framework
 			 * -flibit
 			 */
 			SDL.SDL_SetMainReady();
+
+			/* A number of platforms don't support global mouse, but
+			 * this really only matters on desktop where the game
+			 * screen may not be covering the whole display.
+			 */
+                        if (    OSVersion.Equals("Windows") ||
+                                OSVersion.Equals("Mac OS X") ||
+                                OSVersion.Equals("Linux") ||
+                                OSVersion.Equals("FreeBSD") ||
+                                OSVersion.Equals("OpenBSD") ||
+                                OSVersion.Equals("NetBSD")      )
+			{
+				SupportsGlobalMouse = true;
+			}
+			else
+			{
+				SupportsGlobalMouse = false;
+			}
 
 			// Also, Windows is an idiot. -flibit
 			if (	OSVersion.Equals("Windows") ||
@@ -1067,13 +1087,18 @@ namespace Microsoft.Xna.Framework
 			{
 				flags = SDL.SDL_GetRelativeMouseState(out x, out y);
 			}
-			else
+			else if (SupportsGlobalMouse)
 			{
 				flags = SDL.SDL_GetGlobalMouseState(out x, out y);
 				int wx = 0, wy = 0;
 				SDL.SDL_GetWindowPosition(window, out wx, out wy);
 				x -= wx;
 				y -= wy;
+			}
+			else
+			{
+				/* This is inaccurate, but what can you do... */
+				flags = SDL.SDL_GetMouseState(out x, out y);
 			}
 			left =		(ButtonState) (flags & SDL.SDL_BUTTON_LMASK);
 			middle =	(ButtonState) ((flags & SDL.SDL_BUTTON_MMASK) >> 1);
