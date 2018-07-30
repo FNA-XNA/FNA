@@ -1716,9 +1716,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					tex.MaxMipmapLevel
 				);
 			}
-			if (sampler.MipMapLevelOfDetailBias != tex.LODBias)
+			if (sampler.MipMapLevelOfDetailBias != tex.LODBias && !useES3)
 			{
-				System.Diagnostics.Debug.Assert(!useES3);
 				tex.LODBias = sampler.MipMapLevelOfDetailBias;
 				glTexParameterf(
 					tex.Target,
