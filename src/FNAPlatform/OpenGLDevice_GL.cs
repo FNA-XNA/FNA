@@ -1083,7 +1083,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			/* ARB_draw_elements_base_vertex is ideal! */
-			IntPtr ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElementsBaseVertex");
+			IntPtr ep;
+			if (	useES3 &&
+				SDL.SDL_GL_ExtensionSupported("OES_draw_elements_base_vertex") == SDL.SDL_bool.SDL_TRUE	)
+			{
+				/* Android developers are incredibly stupid and export stub functions */
+				ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElementsBaseVertexOES");
+			}
+			else
+			{
+				ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElementsBaseVertex");
+			}
 			supportsBaseVertex = ep != IntPtr.Zero;
 			if (supportsBaseVertex)
 			{
