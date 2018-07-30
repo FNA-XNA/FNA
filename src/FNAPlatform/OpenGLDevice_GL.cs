@@ -1102,7 +1102,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else
 			{
-				/* DrawRangeElements is better, but some ES3 targets don't have it. */
+				/* DrawRangeElements is better, and ES3+ should have this */
 				ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElements");
 				if (ep != IntPtr.Zero)
 				{
