@@ -543,6 +543,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private bool useES3;
 		private bool useCoreProfile;
+		private DepthFormat windowDepthFormat;
 		private uint vao;
 
 		#endregion
@@ -575,6 +576,31 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Check for a possible Core context
 			int coreFlag = (int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE;
 			useCoreProfile = (flags & coreFlag) == coreFlag;
+
+			// Check the window's depth/stencil format
+			int depthSize, stencilSize;
+			SDL.SDL_GL_GetAttribute(SDL.SDL_GLattr.SDL_GL_DEPTH_SIZE, out depthSize);
+			SDL.SDL_GL_GetAttribute(SDL.SDL_GLattr.SDL_GL_STENCIL_SIZE, out stencilSize);
+			if (depthSize == 0 && stencilSize == 0)
+			{
+				windowDepthFormat = DepthFormat.None;
+			}
+			else if (depthSize == 16 && stencilSize == 0)
+			{
+				windowDepthFormat = DepthFormat.Depth16;
+			}
+			else if (depthSize == 24 && stencilSize == 0)
+			{
+				windowDepthFormat = DepthFormat.Depth24;
+			}
+			else if (depthSize == 24 && stencilSize == 8)
+			{
+				windowDepthFormat = DepthFormat.Depth24Stencil8;
+			}
+			else
+			{
+				throw new NotSupportedException("Unrecognized window depth/stencil format!");
+			}
 
 			// Init threaded GL crap where applicable
 			InitThreadedGL(
@@ -683,7 +709,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				Backbuffer = new NullBackbuffer(
 					presentationParameters.BackBufferWidth,
-					presentationParameters.BackBufferHeight
+					presentationParameters.BackBufferHeight,
+					windowDepthFormat
 				);
 			}
 
@@ -834,7 +861,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					(Backbuffer as OpenGLBackbuffer).Dispose();
 					Backbuffer = new NullBackbuffer(
 						presentationParameters.BackBufferWidth,
-						presentationParameters.BackBufferHeight
+						presentationParameters.BackBufferHeight,
+						windowDepthFormat
 					);
 				}
 				else
@@ -4537,11 +4565,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public DepthFormat DepthFormat
 			{
-				get
-				{
-					// Constant, per SDL2_GameWindow
-					return DepthFormat.Depth24Stencil8;
-				}
+				get;
+				private set;
 			}
 
 			public int MultiSampleCount
@@ -4553,10 +4578,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
-			public NullBackbuffer(int width, int height)
+			public NullBackbuffer(int width, int height, DepthFormat depthFormat)
 			{
 				Width = width;
 				Height = height;
+				DepthFormat = depthFormat;
 			}
 
 			public void ResetFramebuffer(

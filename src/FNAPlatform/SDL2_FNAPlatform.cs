@@ -251,12 +251,42 @@ namespace Microsoft.Xna.Framework
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI;
 			}
 
+			int depthSize = 24;
+			int stencilSize = 8;
+			DepthFormat windowDepthFormat;
+			if (Enum.TryParse(
+				Environment.GetEnvironmentVariable("FNA_OPENGL_WINDOW_DEPTHSTENCILFORMAT"),
+				true,
+				out windowDepthFormat
+			)) {
+				if (windowDepthFormat == DepthFormat.None)
+				{
+					depthSize = 0;
+					stencilSize = 0;
+				}
+				else if (windowDepthFormat == DepthFormat.Depth16)
+				{
+					depthSize = 16;
+					stencilSize = 0;
+				}
+				else if (windowDepthFormat == DepthFormat.Depth24)
+				{
+					depthSize = 24;
+					stencilSize = 0;
+				}
+				else if (windowDepthFormat == DepthFormat.Depth24Stencil8)
+				{
+					depthSize = 24;
+					stencilSize = 8;
+				}
+			}
+
 			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_RED_SIZE, 8);
 			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_GREEN_SIZE, 8);
 			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_BLUE_SIZE, 8);
 			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_ALPHA_SIZE, 8);
-			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_DEPTH_SIZE, 24);
-			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_STENCIL_SIZE, 8);
+			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_DEPTH_SIZE, depthSize);
+			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_STENCIL_SIZE, stencilSize);
 			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_DOUBLEBUFFER, 1);
 			if (forceES3)
 			{
