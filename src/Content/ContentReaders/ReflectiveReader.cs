@@ -80,18 +80,19 @@ namespace Microsoft.Xna.Framework.Content
 			 * its get method with that of its base class. If they're the same
 			 * Then it's an overridden property.
 			 */
-			// FIXME: Holy moly does this alloc a lot -flibit
-			PropertyInfo[] properties = new List<PropertyInfo>(
-				TargetType.GetProperties(attrs)
-			).FindAll(
-				p => p.GetGetMethod(true) != null && p.GetGetMethod(true) == p.GetGetMethod(true).GetBaseDefinition()
-			).ToArray();
+			PropertyInfo[] properties = TargetType.GetProperties(attrs);
 			FieldInfo[] fields = TargetType.GetFields(attrs);
 			readers = new List<ReadElement>(fields.Length + properties.Length);
 
 			// Gather the properties.
 			foreach (PropertyInfo property in properties)
 			{
+				MethodInfo pm = property.GetGetMethod(true);
+				if (pm == null || pm != pm.GetBaseDefinition())
+				{
+					continue;
+				}
+
 				ReadElement read = GetElementReader(manager, property);
 				if (read != null)
 				{
@@ -159,10 +160,8 @@ namespace Microsoft.Xna.Framework.Content
 			PropertyInfo property = member as PropertyInfo;
 			FieldInfo field = member as FieldInfo;
 
-			// Properties must have public get and set
-			if (	property != null &&
-				(	property.CanWrite == false ||
-					property.CanRead == false	)	)
+			// Properties must have public get
+			if (property != null && !property.CanRead)
 			{
 				return null;
 			}

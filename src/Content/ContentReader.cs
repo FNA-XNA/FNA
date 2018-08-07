@@ -66,7 +66,6 @@ namespace Microsoft.Xna.Framework.Content
 		#region Internal Variables
 
 		internal int version;
-		internal int sharedResourceCount;
 		internal char platform;
 
 		#endregion
@@ -76,10 +75,20 @@ namespace Microsoft.Xna.Framework.Content
 		private ContentManager contentManager;
 		private Action<IDisposable> recordDisposableObject;
 		private ContentTypeReaderManager typeReaderManager;
+		private ContentTypeReader[] typeReaders;
 		private GraphicsDevice graphicsDevice;
 		private string assetName;
-		private List<KeyValuePair<int, Action<object>>> sharedResourceFixups;
-		private ContentTypeReader[] typeReaders;
+
+		/* From what I can tell, shared resources work like this:
+		 * A list of shared resources is stored at the end of the file,
+		 * and while we're reading the whole object, the parts that ask
+		 * for "shared" objects store the 1-based index of the shared
+		 * resource in the list. For example, if there are two shared
+		 * resources, a ReadSharedResource function will ask for either
+		 * 1 or 2. For null references, the index will be 0.
+		 */
+		private int sharedResourceCount;
+		private List<Action<object>>[] sharedResourceFixups;
 
 		#endregion
 
@@ -211,23 +220,20 @@ namespace Microsoft.Xna.Framework.Content
 			int index = Read7BitEncodedInt();
 			if (index > 0)
 			{
-				sharedResourceFixups.Add(
-					new KeyValuePair<int, Action<object>> (
-						index - 1,
-						delegate(object v)
+				sharedResourceFixups[index - 1].Add(
+					delegate(object v)
+					{
+						if (!(v is T))
 						{
-							if (!(v is T))
-							{
-								throw new ContentLoadException(
-									String.Format(
-										"Error loading shared resource. Expected type {0}, received type {1}",
-										typeof(T).Name, v.GetType().Name
-									)
-								);
-							}
-							fixup((T) v);
+							throw new ContentLoadException(
+								String.Format(
+									"Error loading shared resource. Expected type {0}, received type {1}",
+									typeof(T).Name, v.GetType().Name
+								)
+							);
 						}
-					)
+						fixup((T) v);
+					}
 				);
 			}
 		}
@@ -288,25 +294,25 @@ namespace Microsoft.Xna.Framework.Content
 			typeReaderManager = new ContentTypeReaderManager();
 			typeReaders = typeReaderManager.LoadAssetReaders(this);
 			sharedResourceCount = Read7BitEncodedInt();
-			sharedResourceFixups = new List<KeyValuePair<int, Action<object>>>();
+			sharedResourceFixups = new List<Action<object>>[sharedResourceCount];
+			for (int i = 0; i < sharedResourceCount; i += 1)
+			{
+				sharedResourceFixups[i] = new List<Action<object>>();
+			}
 		}
 
 		internal void ReadSharedResources()
 		{
-			if (sharedResourceCount <= 0)
-			{
-				return;
-			}
-
-			object[] sharedResources = new object[sharedResourceCount];
 			for (int i = 0; i < sharedResourceCount; i += 1)
 			{
-				sharedResources[i] = InnerReadObject<object>(null);
-			}
-			// Fixup shared resources by calling each registered action
-			foreach (KeyValuePair<int, Action<object>> fixup in sharedResourceFixups)
-			{
-				fixup.Value(sharedResources[fixup.Key]);
+				// Load all the shared resource...
+				object sharedResource = InnerReadObject<object>(null);
+
+				// ... then send it to each ReadSharedResource caller
+				foreach (Action<object> fixup in sharedResourceFixups[i])
+				{
+					fixup(sharedResource);
+				}
 			}
 		}
 
