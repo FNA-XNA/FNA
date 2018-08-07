@@ -160,12 +160,6 @@ namespace Microsoft.Xna.Framework.Content
 			PropertyInfo property = member as PropertyInfo;
 			FieldInfo field = member as FieldInfo;
 
-			// Properties must have public get
-			if (property != null && !property.CanRead)
-			{
-				return null;
-			}
-
 			if (property != null)
 			{
 				// Properties must have at least a getter.
