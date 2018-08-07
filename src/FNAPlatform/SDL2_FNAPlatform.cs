@@ -1012,6 +1012,7 @@ namespace Microsoft.Xna.Framework
 			{
 				bool disableLateSwapTear = (
 					OSVersion.Equals("Mac OS X") ||
+					OSVersion.Equals("WinRT") ||
 					Environment.GetEnvironmentVariable("FNA_OPENGL_DISABLE_LATESWAPTEAR") == "1"
 				);
 				if (disableLateSwapTear)
