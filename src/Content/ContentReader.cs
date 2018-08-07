@@ -305,7 +305,7 @@ namespace Microsoft.Xna.Framework.Content
 		{
 			for (int i = 0; i < sharedResourceCount; i += 1)
 			{
-				// Load all the shared resource...
+				// Load the shared object...
 				object sharedResource = InnerReadObject<object>(null);
 
 				// ... then send it to each ReadSharedResource caller
