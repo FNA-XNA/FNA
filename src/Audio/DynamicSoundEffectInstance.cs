@@ -266,7 +266,11 @@ namespace Microsoft.Xna.Framework.Audio
 			if (handle != IntPtr.Zero)
 			{
 				FAudio.FAudioVoiceState state;
-				FAudio.FAudioSourceVoice_GetState(handle, out state);
+				FAudio.FAudioSourceVoice_GetState(
+					handle,
+					out state,
+					FAudio.FAUDIO_VOICE_NOSAMPLESPLAYED
+				);
 				while (PendingBufferCount > state.BuffersQueued)
 				{
 					Marshal.FreeHGlobal(queuedBuffers[0]);

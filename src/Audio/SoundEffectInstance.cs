@@ -102,7 +102,8 @@ namespace Microsoft.Xna.Framework.Audio
 					FAudio.FAudioVoiceState state;
 					FAudio.FAudioSourceVoice_GetState(
 						handle,
-						out state
+						out state,
+						FAudio.FAUDIO_VOICE_NOSAMPLESPLAYED
 					);
 					if (state.BuffersQueued == 0)
 					{
