@@ -860,8 +860,15 @@ namespace Microsoft.Xna.Framework
 						}
 						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED)
 						{
-							// This is only called on WM resizes, right after SIZE_CHANGED
-							((FNAWindow) game.Window).INTERNAL_ClientSizeChanged();
+							/* This should be called on user resize only, NOT ApplyChanges!
+							 * Sadly some window managers are idiots and fire events anyway.
+							 * Also ignore any other "resizes" (alt-tab, fullscreen, etc.)
+							 * -flibit
+							 */
+							if (GetWindowResizable(game.Window.Handle))
+							{
+								((FNAWindow) game.Window).INTERNAL_ClientSizeChanged();
+							}
 						}
 						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_EXPOSED)
 						{
