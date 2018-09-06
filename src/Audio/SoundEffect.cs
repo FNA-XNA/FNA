@@ -608,16 +608,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 			public static void Create()
 			{
-				/* TODO: Remove the FNA variable! */
-				if (Environment.GetEnvironmentVariable(
-					"FNA_AUDIO_DISABLE_SOUND"
-				) == "1") {
-					Environment.SetEnvironmentVariable(
-						"SDL_AUDIODRIVER",
-						"dummy"
-					);
-				}
-
 				IntPtr ctx;
 				try
 				{
