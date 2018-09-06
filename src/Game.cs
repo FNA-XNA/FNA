@@ -7,27 +7,6 @@
  */
 #endregion
 
-#region BASIC_PROFILER Option
-// #define BASIC_PROFILER
-/* Sometimes you need a really quick way to determine if performance is either
- * CPU- or GPU-bound. For XNA games, the fastest generic way is to just time the
- * Update() and Draw() functions, respectively. This is not to say that each
- * function can only have problems for either the CPU or GPU, but the graph can
- * say a lot about one of the two processes if either is notably slower than the
- * other one.
- *
- * This option will draw a rectangle on the right side of the screen. The two
- * colors indicate a rough percentage of time spent in both Update() and Draw().
- * Blue is Update(), Red is Draw(). There may be time spent in other parts of
- * the frame (usually GraphicsDevice.Present if you're faster than the display's
- * refresh rate), but compared to these two functions, the time spent is likely
- * marginal in comparison.
- *
- * If you want _real_ profile data, use a _real_ profiler!
- * -flibit
- */
-#endregion
-
 #region Using Statements
 using System;
 using System.Collections.Generic;
@@ -225,16 +204,6 @@ namespace Microsoft.Xna.Framework
 		private bool forceElapsedTimeToZero = false;
 
 		private static readonly TimeSpan MaxElapsedTime = TimeSpan.FromMilliseconds(500);
-
-#if BASIC_PROFILER
-		private long drawStart;
-		private long drawTime;
-		private long updateStart;
-		private long updateTime;
-		private BasicEffect profileEffect;
-		private Matrix projection;
-		private VertexPositionColor[] profilePrimitives;
-#endif
 
 		#endregion
 
@@ -588,57 +557,11 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual bool BeginDraw()
 		{
-#if BASIC_PROFILER
-			drawStart = gameTimer.ElapsedTicks;
-#endif
 			return true;
 		}
 
 		protected virtual void EndDraw()
 		{
-#if BASIC_PROFILER
-			drawTime = gameTimer.ElapsedTicks - drawStart;
-			Viewport viewport = GraphicsDevice.Viewport;
-			float top = 50;
-			float bottom = viewport.Height - 50;
-			float middle = 50 + (bottom - top) * (updateTime / (float) (updateTime + drawTime));
-			float left = viewport.Width - 100;
-			float right = left + 50;
-			profilePrimitives[0].Position.X = left;
-			profilePrimitives[0].Position.Y = top;
-			profilePrimitives[1].Position.X = right;
-			profilePrimitives[1].Position.Y = top;
-			profilePrimitives[2].Position.X = left;
-			profilePrimitives[2].Position.Y = middle;
-			profilePrimitives[3].Position.X = right;
-			profilePrimitives[3].Position.Y = middle;
-			profilePrimitives[4].Position.X = left;
-			profilePrimitives[4].Position.Y = middle;
-			profilePrimitives[5].Position.X = right;
-			profilePrimitives[5].Position.Y = top;
-			profilePrimitives[6].Position.X = left;
-			profilePrimitives[6].Position.Y = middle;
-			profilePrimitives[7].Position.X = right;
-			profilePrimitives[7].Position.Y = middle;
-			profilePrimitives[8].Position.X = left;
-			profilePrimitives[8].Position.Y = bottom;
-			profilePrimitives[9].Position.X = right;
-			profilePrimitives[9].Position.Y = bottom;
-			profilePrimitives[10].Position.X = left;
-			profilePrimitives[10].Position.Y = bottom;
-			profilePrimitives[11].Position.X = right;
-			profilePrimitives[11].Position.Y = middle;
-			projection.M11 = (float) (2.0 / (double) viewport.Width);
-			projection.M22 = (float) (-2.0 / (double) viewport.Height);
-			profileEffect.Projection = projection;
-			profileEffect.CurrentTechnique.Passes[0].Apply();
-			GraphicsDevice.DrawUserPrimitives(
-				PrimitiveType.TriangleList,
-				profilePrimitives,
-				0,
-				12
-			);
-#endif
 			if (GraphicsDevice != null)
 			{
 				GraphicsDevice.Present();
@@ -647,50 +570,10 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual void BeginRun()
 		{
-#if BASIC_PROFILER
-			profileEffect = new BasicEffect(GraphicsDevice);
-			profileEffect.FogEnabled = false;
-			profileEffect.LightingEnabled = false;
-			profileEffect.TextureEnabled = false;
-			profileEffect.VertexColorEnabled = true;
-			projection = new Matrix(
-				1337.0f,
-				0.0f,
-				0.0f,
-				0.0f,
-				0.0f,
-				-1337.0f,
-				0.0f,
-				0.0f,
-				0.0f,
-				0.0f,
-				1.0f,
-				0.0f,
-				-1.0f,
-				1.0f,
-				0.0f,
-				1.0f
-			);
-			profilePrimitives = new VertexPositionColor[12];
-			int i = 0;
-			do
-			{
-				profilePrimitives[i].Position = Vector3.Zero;
-				profilePrimitives[i].Color = Color.Blue;
-			} while (++i < 6);
-			do
-			{
-				profilePrimitives[i].Position = Vector3.Zero;
-				profilePrimitives[i].Color = Color.Red;
-			} while (++i < 12);
-#endif
 		}
 
 		protected virtual void EndRun()
 		{
-#if BASIC_PROFILER
-			profileEffect.Dispose();
-#endif
 		}
 
 		protected virtual void LoadContent()
@@ -753,9 +636,6 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual void Update(GameTime gameTime)
 		{
-#if BASIC_PROFILER
-			updateStart = gameTimer.ElapsedTicks;
-#endif
 			lock (updateableComponents)
 			{
 				for (int i = 0; i < updateableComponents.Count; i += 1)
@@ -773,9 +653,6 @@ namespace Microsoft.Xna.Framework
 			currentlyUpdatingComponents.Clear();
 
 			FrameworkDispatcher.Update();
-#if BASIC_PROFILER
-			updateTime = gameTimer.ElapsedTicks - updateStart;
-#endif
 		}
 
 		protected virtual void OnExiting(object sender, EventArgs args)
