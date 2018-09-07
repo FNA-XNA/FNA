@@ -432,6 +432,7 @@ namespace Microsoft.Xna.Framework.Audio
 				(int) dspSettings.SrcChannelCount *
 				(int) dspSettings.DstChannelCount
 			);
+			SetPanMatrixCoefficients();
 		}
 
 		internal unsafe void INTERNAL_applyReverb(float rvGain)
@@ -544,12 +545,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private unsafe void SetPanMatrixCoefficients()
 		{
-			float* outputMatrix = (float*) dspSettings.pMatrixCoefficients;
-			FAudio.FAudioWaveFormatEx fmt = isDynamic ?
-				(this as DynamicSoundEffectInstance).format :
-				parentEffect.format;
-			uint dwChannelMask = SoundEffect.Device().DeviceDetails.OutputFormat.dwChannelMask;
-
 			/* Two major things to notice:
 			 * 1. The spec assumes any speaker count >= 2 has Front Left/Right.
 			 * 2. Stereo panning is WAY more complicated than you think.
@@ -558,14 +553,15 @@ namespace Microsoft.Xna.Framework.Audio
 			 * Aside from that, XNA is pretty naive about the output matrix.
 			 * -flibit
 			 */
+			float* outputMatrix = (float*) dspSettings.pMatrixCoefficients;
 			memset(
 				dspSettings.pMatrixCoefficients,
 				'\0',
 				(IntPtr) (4 * dspSettings.SrcChannelCount * dspSettings.DstChannelCount)
 			);
-			if (fmt.nChannels == 1)
+			if (dspSettings.SrcChannelCount == 1)
 			{
-				if (dwChannelMask == FAudio.SPEAKER_MONO)
+				if (dspSettings.DstChannelCount == 1)
 				{
 					outputMatrix[0] = 1.0f;
 				}
@@ -577,7 +573,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			else
 			{
-				if (dwChannelMask == FAudio.SPEAKER_MONO)
+				if (dspSettings.DstChannelCount == 1)
 				{
 					outputMatrix[0] = 1.0f;
 					outputMatrix[1] = 1.0f;
