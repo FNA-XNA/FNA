@@ -52,6 +52,10 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
+				if (value > 1.0f || value < -1.0f)
+				{
+					throw new ArgumentOutOfRangeException("value");
+				}
 				INTERNAL_pan = value;
 				if (is3D)
 				{
@@ -580,7 +584,7 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 				else
 				{
-					if (INTERNAL_pan >= -1.0f && INTERNAL_pan <= 0.0f)
+					if (INTERNAL_pan <= 0.0f)
 					{
 						// Left speaker blends left/right channels
 						outputMatrix[0] = 0.5f * INTERNAL_pan + 1.0f;
