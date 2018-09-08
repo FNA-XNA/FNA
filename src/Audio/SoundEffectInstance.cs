@@ -159,6 +159,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
+		#region memset Entry Point
+
+		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+		private static extern IntPtr memset(IntPtr ptr, int value, IntPtr num);
+
+		#endregion
+
 		#region Internal Constructor
 
 		internal SoundEffectInstance(SoundEffect parent = null)
@@ -432,6 +439,11 @@ namespace Microsoft.Xna.Framework.Audio
 				(int) dspSettings.SrcChannelCount *
 				(int) dspSettings.DstChannelCount
 			);
+			memset(
+				dspSettings.pMatrixCoefficients,
+				'\0',
+				(IntPtr) (4 * dspSettings.SrcChannelCount * dspSettings.DstChannelCount)
+			);
 			SetPanMatrixCoefficients();
 		}
 
@@ -451,7 +463,10 @@ namespace Microsoft.Xna.Framework.Audio
 			// Re-using this float array...
 			float* outputMatrix = (float*) dspSettings.pMatrixCoefficients;
 			outputMatrix[0] = rvGain;
-			outputMatrix[1] = rvGain;
+			if (dspSettings.SrcChannelCount == 2)
+			{
+				outputMatrix[1] = rvGain;
+			}
 			FAudio.FAudioVoice_SetOutputMatrix(
 				handle,
 				SoundEffect.Device().ReverbVoice,
@@ -540,9 +555,6 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 		}
 
-		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-		private static extern IntPtr memset(IntPtr ptr, int value, IntPtr num);
-
 		private unsafe void SetPanMatrixCoefficients()
 		{
 			/* Two major things to notice:
@@ -554,11 +566,6 @@ namespace Microsoft.Xna.Framework.Audio
 			 * -flibit
 			 */
 			float* outputMatrix = (float*) dspSettings.pMatrixCoefficients;
-			memset(
-				dspSettings.pMatrixCoefficients,
-				'\0',
-				(IntPtr) (4 * dspSettings.SrcChannelCount * dspSettings.DstChannelCount)
-			);
 			if (dspSettings.SrcChannelCount == 1)
 			{
 				if (dspSettings.DstChannelCount == 1)
