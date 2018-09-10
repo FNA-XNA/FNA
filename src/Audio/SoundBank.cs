@@ -9,8 +9,7 @@
 
 #region Using Statements
 using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Audio
@@ -30,18 +29,25 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				throw new NotImplementedException("Bank Cue instance count tracking!");
+				uint state;
+				FAudio.FACTSoundBank_GetState(handle, out state);
+				return (state & FAudio.FACT_STATE_INUSE) != 0;
 			}
 		}
 
 		#endregion
 
+		#region Internal Variables
+
+		internal AudioEngine engine;
+		internal FAudio.F3DAUDIO_DSP_SETTINGS dspSettings;
+
+		#endregion
+
 		#region Private Variables
 
-		private AudioEngine INTERNAL_baseEngine;
-
-		private List<string> INTERNAL_waveBankNames;
-		private Dictionary<string, CueData> INTERNAL_cueData;
+		private IntPtr handle;
+		private WeakReference selfReference;
 
 		#endregion
 
@@ -64,318 +70,32 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ArgumentNullException("filename");
 			}
 
-			INTERNAL_baseEngine = audioEngine;
-
-			using (Stream soundBankStream = TitleContainer.OpenStream(filename))
-			using (BinaryReader reader = new BinaryReader(soundBankStream))
-			{
-				// Check the file header. Should be 'SDBK'
-				if (reader.ReadUInt32() != 0x4B424453)
-				{
-					throw new ArgumentException("SDBK format not recognized!");
-				}
-
-				// Check the content version. Assuming XNA4 Refresh.
-				if (reader.ReadUInt16() != AudioEngine.ContentVersion)
-				{
-					throw new ArgumentException("SDBK Content version!");
-				}
-
-				// Check the tool version. Assuming XNA4 Refresh.
-				if (reader.ReadUInt16() != 43)
-				{
-					throw new ArgumentException("SDBK Tool version!");
-				}
-
-				// CRC, unused
-				reader.ReadUInt16();
-
-				// Last modified, unused
-				reader.ReadUInt64();
-
-				// Unknown value, Internet suggests platform
-				reader.ReadByte();
-
-				// Cue Counts
-				ushort numCueSimple = reader.ReadUInt16();
-				ushort numCueComplex = reader.ReadUInt16();
-
-				// Unknown value
-				reader.ReadUInt16();
-
-				// Total Cues, unused
-				reader.ReadUInt16();
-
-				// Number of associated WaveBanks
-				byte numWaveBanks = reader.ReadByte();
-
-				// Unknown, Internet suggest number of "sounds"
-				reader.ReadUInt16();
-
-				// Cue Name Table Length
-				ushort cueNameTableLength = reader.ReadUInt16();
-
-				// Unknown value
-				reader.ReadUInt16();
-
-				// Cue Offsets
-				uint cueSimpleOffset = reader.ReadUInt32();
-				uint cueComplexOffset = reader.ReadUInt32();
-
-				// Cue Name Table Offset
-				uint cueNameTableOffset = reader.ReadUInt32();
-
-				// Unknown value
-				reader.ReadUInt32();
-
-				// Variable Tables Offset, unused
-				reader.ReadUInt32();
-
-				// Unknown value
-				reader.ReadUInt32();
-
-				// WaveBank Name Table Offset
-				uint waveBankNameTableOffset = reader.ReadUInt32();
-
-				// Cue Name Hash Offsets, unused
-				reader.ReadUInt32();
-				reader.ReadUInt32();
-
-				// Unknown value, Internet suggest "sounds" offset
-				reader.ReadUInt32();
-
-				// SoundBank Name, unused
-				reader.ReadBytes(64);
-
-				// Parse WaveBank names
-				soundBankStream.Seek(waveBankNameTableOffset, SeekOrigin.Begin);
-				INTERNAL_waveBankNames = new List<string>();
-				for (byte i = 0; i < numWaveBanks; i += 1)
-				{
-					INTERNAL_waveBankNames.Add(
-						System.Text.Encoding.UTF8.GetString(
-							reader.ReadBytes(64), 0, 64
-						).Replace("\0", "")
-					);
-				}
-
-				// Parse Cue name list
-				soundBankStream.Seek(cueNameTableOffset, SeekOrigin.Begin);
-				string[] cueNames = System.Text.Encoding.UTF8.GetString(
-					reader.ReadBytes(cueNameTableLength),
-					0,
-					cueNameTableLength
-				).Split('\0');
-
-				// Create our CueData Dictionary
-				INTERNAL_cueData = new Dictionary<string, CueData>();
-
-				// Parse Simple Cues
-				soundBankStream.Seek(cueSimpleOffset, SeekOrigin.Begin);
-				for (ushort i = 0; i < numCueSimple; i += 1)
-				{
-					// Cue flags, unused
-					reader.ReadByte();
-
-					// Cue Sound Offset
-					uint offset = reader.ReadUInt32();
-
-					// Store this for when we're done reading the sound.
-					long curPos = reader.BaseStream.Position;
-
-					// Go to the sound in the Bank.
-					reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-
-					// Parse the Sound
-					INTERNAL_cueData.Add(
-						cueNames[i],
-						new CueData(new XACTSound(reader))
-					);
-
-					// Back to where we were...
-					reader.BaseStream.Seek(curPos, SeekOrigin.Begin);
-				}
-
-				// Parse Complex Cues
-				soundBankStream.Seek(cueComplexOffset, SeekOrigin.Begin);
-				for (ushort i = 0; i < numCueComplex; i += 1)
-				{
-					// Cue flags
-					byte cueFlags = reader.ReadByte();
-
-					if ((cueFlags & 0x04) != 0) // FIXME: ???
-					{
-						// Cue Sound Offset
-						uint offset = reader.ReadUInt32();
-
-						// Unknown value
-						reader.ReadUInt32();
-
-						// Store this for when we're done reading the sound.
-						long curPos = reader.BaseStream.Position;
-
-						// Go to the sound in the bank
-						reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-
-						// Parse the Sound
-						INTERNAL_cueData.Add(
-							cueNames[numCueSimple + i],
-							new CueData(new XACTSound(reader))
-						);
-
-						// Back to where we were...
-						reader.BaseStream.Seek(curPos, SeekOrigin.Begin);
-					}
-					else
-					{
-						// Variation Table Offset for this Cue
-						uint offset = reader.ReadUInt32();
-
-						// Transition Table Offset for this Cue, unused
-						reader.ReadUInt32();
-
-						// Store this for when we're done reading the Variation Table
-						long curPos = reader.BaseStream.Position;
-
-						// Seek to the Variation Table in the file
-						reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-
-						// Number of Variations in the Table
-						ushort numVariations = reader.ReadUInt16();
-
-						// Variation Table Flags
-						ushort varTableFlags = reader.ReadUInt16();
-
-						// Unknown value
-						reader.ReadUInt16();
-
-						// Probability Control Variable, if applicable
-						ushort variable = reader.ReadUInt16();
-
-						// Create data for the CueData
-						XACTSound[] cueSounds = new XACTSound[numVariations];
-						float[,] cueProbs = new float[numVariations, 2];
-
-						// Used to determine Variation storage format
-						int varTableType = (varTableFlags >> 3) & 0x0007;
-
-						for (ushort j = 0; j < numVariations; j += 1)
-						{
-							if (varTableType == 0)
-							{
-								// Wave with byte min/max
-								ushort track = reader.ReadUInt16();
-								byte waveBank = reader.ReadByte();
-								byte wMin = reader.ReadByte();
-								byte wMax = reader.ReadByte();
-
-								// Create the Sound
-								cueSounds[j] = new XACTSound(track, waveBank);
-
-								// Calculate probability based on weight
-								cueProbs[j, 0] = wMax / 255.0f;
-								cueProbs[j, 1] = wMin / 255.0f;
-							}
-							else if (varTableType == 1)
-							{
-								// Complex with byte min/max
-								uint varOffset = reader.ReadUInt32();
-								byte wMin = reader.ReadByte();
-								byte wMax = reader.ReadByte();
-
-								// Store for sound read
-								long varPos = reader.BaseStream.Position;
-
-								// Seek to the sound in the Bank
-								reader.BaseStream.Seek(varOffset, SeekOrigin.Begin);
-
-								// Read the sound
-								cueSounds[j] = new XACTSound(reader);
-
-								// Back to where we were...
-								reader.BaseStream.Seek(varPos, SeekOrigin.Begin);
-
-								// Calculate probability based on weight
-								cueProbs[j, 0] = wMax / 255.0f;
-								cueProbs[j, 1] = wMin / 255.0f;
-							}
-							else if (varTableType == 3)
-							{
-								// Complex with float min/max
-								uint varOffset = reader.ReadUInt32();
-								float wMin = reader.ReadSingle();
-								float wMax = reader.ReadSingle();
-
-								// Unknown value
-								reader.ReadUInt32();
-
-								// Store for sound read
-								long varPos = reader.BaseStream.Position;
-
-								// Seek to the sound in the Bank
-								reader.BaseStream.Seek(varOffset, SeekOrigin.Begin);
-
-								// Read the sound
-								cueSounds[j] = new XACTSound(reader);
-
-								// Back to where we were...
-								reader.BaseStream.Seek(varPos, SeekOrigin.Begin);
-
-								// Calculate probability based on weight
-								cueProbs[j, 0] = wMax;
-								cueProbs[j, 1] = wMin;
-							}
-							else if (varTableType == 4)
-							{
-								// Compact Wave
-								ushort track = reader.ReadUInt16();
-								byte waveBank = reader.ReadByte();
-
-								// Create the Sound
-								cueSounds[j] = new XACTSound(track, waveBank);
-
-								// FIXME: Assume Sound weight is 100%
-								cueProbs[j, 0] = 1.0f;
-								cueProbs[j, 1] = 0.0f;
-							}
-							else
-							{
-								throw new NotSupportedException();
-							}
-						}
-
-						// Back to where we were...
-						reader.BaseStream.Seek(curPos, SeekOrigin.Begin);
-
-						// Add Built CueData to Dictionary
-						INTERNAL_cueData.Add(
-							cueNames[numCueSimple + i],
-							new CueData(
-								cueSounds,
-								cueProbs,
-								(varTableType == 3) ? INTERNAL_baseEngine.INTERNAL_getVariableName(variable) : String.Empty
-							)
-						);
-					}
-
-					// Cue instance limit
-					byte instanceLimit = reader.ReadByte();
-
-					// Fade In/Out
-					ushort fadeIn = reader.ReadUInt16();
-					ushort fadeOut = reader.ReadUInt16();
-
-					// Cue max instance behavior
-					byte behavior = reader.ReadByte();
-
-					INTERNAL_cueData[cueNames[numCueSimple + i]].SetLimit(
-						instanceLimit,
-						behavior,
-						fadeIn,
-						fadeOut
-					);
-				}
-			}
+			byte[] buffer = TitleContainer.ReadAllBytes(filename);
+			GCHandle pin = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+
+			FAudio.FACTAudioEngine_CreateSoundBank(
+				audioEngine.handle,
+				pin.AddrOfPinnedObject(),
+				(uint) buffer.Length,
+				0,
+				0,
+				out handle
+			);
+
+			pin.Free();
+			buffer = null;
+
+			engine = audioEngine;
+			selfReference = new WeakReference(this, true);
+			dspSettings = new FAudio.F3DAUDIO_DSP_SETTINGS();
+			dspSettings.SrcChannelCount = 1;
+			dspSettings.DstChannelCount = engine.channels;
+			dspSettings.pMatrixCoefficients = Marshal.AllocHGlobal(
+				4 *
+				(int) dspSettings.SrcChannelCount *
+				(int) dspSettings.DstChannelCount
+			);
+			engine.RegisterSoundBank(handle, selfReference);
 			IsDisposed = false;
 		}
 
@@ -385,7 +105,18 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~SoundBank()
 		{
-			Dispose(true);
+			if (AudioEngine.ProgramExiting)
+			{
+				return;
+			}
+
+			if (!IsDisposed && IsInUse)
+			{
+				// STOP LEAKING YOUR BANKS, ARGH
+				GC.ReRegisterForFinalize(this);
+				return;
+			}
+			Dispose(false);
 		}
 
 		#endregion
@@ -394,7 +125,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Dispose()
 		{
-			Dispose(false);
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		#endregion
@@ -403,15 +135,24 @@ namespace Microsoft.Xna.Framework.Audio
 
 		protected void Dispose(bool disposing)
 		{
-			if (!IsDisposed)
+			lock (engine.gcSync)
 			{
-				if (Disposing != null)
+				if (!IsDisposed)
 				{
-					Disposing.Invoke(this, null);
+					if (Disposing != null)
+					{
+						Disposing.Invoke(this, null);
+					}
+
+					// If this is disposed, stop leaking memory!
+					if (!engine.IsDisposed)
+					{
+						engine.UnregisterSoundBank(handle);
+						FAudio.FACTSoundBank_Destroy(handle);
+						Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
+					}
+					OnSoundBankDestroyed();
 				}
-				INTERNAL_waveBankNames.Clear();
-				INTERNAL_cueData.Clear();
-				IsDisposed = true;
 			}
 		}
 
@@ -425,17 +166,28 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("name");
 			}
-			if (!INTERNAL_cueData.ContainsKey(name))
-			{
-				throw new ArgumentException("Cue name not found: " + name);
-			}
-			return new Cue(
-				INTERNAL_baseEngine,
-				INTERNAL_waveBankNames,
-				name,
-				INTERNAL_cueData[name],
-				false
+
+			ushort cue = FAudio.FACTSoundBank_GetCueIndex(
+				handle,
+				name
 			);
+
+			if (cue == FAudio.FACTINDEX_INVALID)
+			{
+				throw new InvalidOperationException(
+					"Invalid cue name!"
+				);
+			}
+
+			IntPtr result;
+			FAudio.FACTSoundBank_Prepare(
+				handle,
+				cue,
+				0,
+				0,
+				out result
+			);
+			return new Cue(result, name, this);
 		}
 
 		public void PlayCue(string name)
@@ -444,18 +196,26 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("name");
 			}
-			if (!INTERNAL_cueData.ContainsKey(name))
-			{
-				throw new InvalidOperationException("name not found!");
-			}
-			Cue newCue = new Cue(
-				INTERNAL_baseEngine,
-				INTERNAL_waveBankNames,
-				name,
-				INTERNAL_cueData[name],
-				true
+
+			ushort cue = FAudio.FACTSoundBank_GetCueIndex(
+				handle,
+				name
 			);
-			newCue.Play();
+
+			if (cue == FAudio.FACTINDEX_INVALID)
+			{
+				throw new InvalidOperationException(
+					"Invalid cue name!"
+				);
+			}
+
+			FAudio.FACTSoundBank_Play(
+				handle,
+				cue,
+				0,
+				0,
+				IntPtr.Zero
+			);
 		}
 
 		public void PlayCue(
@@ -467,19 +227,54 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("name");
 			}
-			if (!INTERNAL_cueData.ContainsKey(name))
+			if (listener == null)
 			{
-				throw new InvalidOperationException("name not found!");
+				throw new ArgumentNullException("listener");
 			}
-			Cue newCue = new Cue(
-				INTERNAL_baseEngine,
-				INTERNAL_waveBankNames,
-				name,
-				INTERNAL_cueData[name],
-				true
+			if (emitter == null)
+			{
+				throw new ArgumentNullException("emitter");
+			}
+
+			ushort cue = FAudio.FACTSoundBank_GetCueIndex(
+				handle,
+				name
 			);
-			newCue.Apply3D(listener, emitter);
-			newCue.Play();
+
+			if (cue == FAudio.FACTINDEX_INVALID)
+			{
+				throw new InvalidOperationException(
+					"Invalid cue name!"
+				);
+			}
+
+			emitter.emitterData.ChannelCount = dspSettings.SrcChannelCount;
+			emitter.emitterData.CurveDistanceScaler = float.MaxValue;
+			FAudio.FACT3DCalculate(
+				engine.handle3D,
+				ref listener.listenerData,
+				ref emitter.emitterData,
+				ref dspSettings
+			);
+			FAudio.FACTSoundBank_Play3D(
+				handle,
+				cue,
+				0,
+				0,
+				ref dspSettings,
+				IntPtr.Zero
+			);
+		}
+
+		#endregion
+
+		#region Internal Methods
+
+		internal void OnSoundBankDestroyed()
+		{
+			IsDisposed = true;
+			handle = IntPtr.Zero;
+			selfReference = null;
 		}
 
 		#endregion

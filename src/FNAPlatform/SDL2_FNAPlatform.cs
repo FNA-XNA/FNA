@@ -200,6 +200,14 @@ namespace Microsoft.Xna.Framework
 
 		public static void ProgramExit(object sender, EventArgs e)
 		{
+			AudioEngine.ProgramExiting = true;
+
+			if (SoundEffect.FAudioContext.Context != null)
+			{
+				SoundEffect.FAudioContext.Context.Dispose();
+			}
+			Media.MediaPlayer.DisposeIfNecessary();
+
 			// This _should_ be the last SDL call we make...
 			SDL.SDL_Quit();
 		}
@@ -989,26 +997,6 @@ namespace Microsoft.Xna.Framework
 			return new OpenGLDevice(presentationParameters, adapter);
 		}
 
-		public static IALDevice CreateALDevice()
-		{
-			try
-			{
-				return new OpenALDevice();
-			}
-			catch(DllNotFoundException e)
-			{
-				FNALoggerEXT.LogError("OpenAL not found! Need FNA.dll.config?");
-				throw e;
-			}
-			catch(Exception)
-			{
-				/* We ignore device creation exceptions,
-				 * as they are handled down the line with Instance != null
-				 */
-				return null;
-			}
-		}
-
 		#endregion
 
 		#region Graphics Methods
@@ -1718,6 +1706,102 @@ namespace Microsoft.Xna.Framework
 				stream.Write(temp, 0, len);
 				return (IntPtr) len;
 			}
+		}
+
+		#endregion
+
+		#region Microphone Implementation
+
+		/* Microphone is almost never used, so we give this subsystem
+		 * special treatment and init only when we start calling these
+		 * functions.
+		 * -flibit
+		 */
+		private static bool micInit = false;
+
+		public static Microphone[] GetMicrophones()
+		{
+			// Init subsystem if needed
+			if (!micInit)
+			{
+				SDL.SDL_InitSubSystem(SDL.SDL_INIT_AUDIO);
+				micInit = true;
+			}
+
+			// How many devices do we have...?
+			int numDev = SDL.SDL_GetNumAudioDevices(1);
+			if (numDev < 1)
+			{
+				// Blech
+				return new Microphone[0];
+			}
+			Microphone[] result = new Microphone[numDev + 1];
+
+			// Default input format
+			SDL.SDL_AudioSpec have;
+			SDL.SDL_AudioSpec want = new SDL.SDL_AudioSpec();
+			want.freq = Microphone.SAMPLERATE;
+			want.format = SDL.AUDIO_S16;
+			want.channels = 1;
+			want.samples = 4096; /* FIXME: Anything specific? */
+
+			// First mic is always OS default
+			result[0] = new Microphone(
+				SDL.SDL_OpenAudioDevice(
+					null,
+					1,
+					ref want,
+					out have,
+					0
+				),
+				"Default Device"
+			);
+			for (int i = 0; i < numDev; i += 1)
+			{
+				string name = SDL.SDL_GetAudioDeviceName(i, 1);
+				result[i + 1] = new Microphone(
+					SDL.SDL_OpenAudioDevice(
+						name,
+						1,
+						ref want,
+						out have,
+						0
+					),
+					name
+				);
+			}
+			return result;
+		}
+
+		public static unsafe int GetMicrophoneSamples(
+			uint handle,
+			byte[] buffer,
+			int offset,
+			int count
+		) {
+			fixed (byte* ptr = &buffer[offset])
+			{
+				return (int) SDL.SDL_DequeueAudio(
+					handle,
+					(IntPtr) ptr,
+					(uint) count
+				);
+			}
+		}
+
+		public static int GetMicrophoneQueuedBytes(uint handle)
+		{
+			return (int) SDL.SDL_GetQueuedAudioSize(handle);
+		}
+
+		public static void StartMicrophone(uint handle)
+		{
+			SDL.SDL_PauseAudioDevice(handle, 0);
+		}
+
+		public static void StopMicrophone(uint handle)
+		{
+			SDL.SDL_PauseAudioDevice(handle, 1);
 		}
 
 		#endregion

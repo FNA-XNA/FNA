@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Diagnostics;
 #endregion
 
 namespace Microsoft.Xna.Framework.Media
@@ -39,13 +40,11 @@ namespace Microsoft.Xna.Framework.Media
 			set
 			{
 				INTERNAL_isMuted = value;
-
-				if (Queue.Count == 0)
-				{
-					return;
-				}
-
-				Queue.SetVolume(value ? 0.0f : Volume);
+				FAudio.XNA_SetSongVolume(
+					INTERNAL_isMuted ?
+						0.0f :
+						INTERNAL_volume
+				);
 			}
 		}
 
@@ -65,12 +64,7 @@ namespace Microsoft.Xna.Framework.Media
 		{
 			get
 			{
-				if (Queue.ActiveSong == null)
-				{
-					return TimeSpan.Zero;
-				}
-
-				return Queue.ActiveSong.Position;
+				return timer.Elapsed;
 			}
 		}
 
@@ -105,21 +99,27 @@ namespace Microsoft.Xna.Framework.Media
 			}
 			set
 			{
-				INTERNAL_volume = MathHelper.Clamp(value, 0.0f, 1.0f);
-
-				if (Queue.ActiveSong == null)
-				{
-					return;
-				}
-
-				Queue.SetVolume(IsMuted ? 0.0f : value);
+				INTERNAL_volume = MathHelper.Clamp(
+					value,
+					0.0f,
+					1.0f
+				);
+				FAudio.XNA_SetSongVolume(
+					IsMuted ? 0.0f : INTERNAL_volume
+				);
 			}
 		}
 
 		public static bool IsVisualizationEnabled
 		{
-			get;
-			set;
+			get
+			{
+				return FAudio.XNA_VisualizationEnabled() == 1;
+			}
+			set
+			{
+				FAudio.XNA_EnableVisualization((uint) (value ? 1 : 0));
+			}
 		}
 
 		#endregion
@@ -137,10 +137,23 @@ namespace Microsoft.Xna.Framework.Media
 		private static MediaState INTERNAL_state = MediaState.Stopped;
 		private static float INTERNAL_volume = 1.0f;
 
+		private static bool initialized = false;
+
 		/* Need to hold onto this to keep track of how many songs
 		 * have played when in shuffle mode.
 		 */
 		private static int numSongsInQueuePlayed = 0;
+
+		/* FIXME: Ideally we'd be using the stream offset to track position,
+		 * but usually you end up with a bit of stairstepping...
+		 *
+		 * For now, just use a timer. It's not 100% accurate, but it'll at
+		 * least be consistent.
+		 * -flibit
+		 */
+		private static Stopwatch timer = new Stopwatch();
+
+		private static readonly Random random = new Random();
 
 		#endregion
 
@@ -149,7 +162,6 @@ namespace Microsoft.Xna.Framework.Media
 		static MediaPlayer()
 		{
 			Queue = new MediaQueue();
-			IsVisualizationEnabled = false;
 		}
 
 		#endregion
@@ -173,7 +185,8 @@ namespace Microsoft.Xna.Framework.Media
 				return;
 			}
 
-			Queue.ActiveSong.Pause();
+			FAudio.XNA_PauseSong();
+			timer.Stop();
 
 			State = MediaState.Paused;
 		}
@@ -188,7 +201,7 @@ namespace Microsoft.Xna.Framework.Media
 
 			Queue.Clear();
 			numSongsInQueuePlayed = 0;
-			Queue.Add(song);
+			LoadSong(song);
 			Queue.ActiveSongIndex = 0;
 
 			PlaySong(song);
@@ -211,7 +224,7 @@ namespace Microsoft.Xna.Framework.Media
 
 			foreach (Song song in songs)
 			{
-				Queue.Add(song);
+				LoadSong(song);
 			}
 
 			Queue.ActiveSongIndex = index;
@@ -226,7 +239,8 @@ namespace Microsoft.Xna.Framework.Media
 				return;
 			}
 
-			Queue.ActiveSong.Resume();
+			FAudio.XNA_ResumeSong();
+			timer.Start();
 			State = MediaState.Playing;
 		}
 
@@ -237,10 +251,13 @@ namespace Microsoft.Xna.Framework.Media
 				return;
 			}
 
-			// Loop through so that we reset the PlayCount as well.
-			foreach (Song song in Queue.Songs)
+			FAudio.XNA_StopSong();
+			timer.Stop();
+			timer.Reset();
+
+			for (int i = 0; i < Queue.Count; i += 1)
 			{
-				song.Stop();
+				Queue[i].PlayCount = 0;
 			}
 
 			State = MediaState.Stopped;
@@ -248,18 +265,28 @@ namespace Microsoft.Xna.Framework.Media
 
 		public static void GetVisualizationData(VisualizationData data)
 		{
-			if (IsVisualizationEnabled)
-			{
-				data.CalculateData(Queue.ActiveSong);
-			}
+			FAudio.XNA_GetSongVisualizationData(
+				data.freq,
+				data.samp,
+				VisualizationData.Size
+			);
 		}
 
 		#endregion
 
 		#region Internal Static Methods
 
-		internal static void SongFinishedPlaying()
+		internal static void Update()
 		{
+			if (	Queue == null ||
+				Queue.ActiveSong == null ||
+				State != MediaState.Playing ||
+				FAudio.XNA_GetSongEnded() == 0	)
+			{
+				// Nothing to do... yet...
+				return;
+			}
+
 			numSongsInQueuePlayed += 1;
 
 			if (numSongsInQueuePlayed >= Queue.Count)
@@ -276,6 +303,15 @@ namespace Microsoft.Xna.Framework.Media
 			}
 
 			MoveNext();
+		}
+
+		internal static void DisposeIfNecessary()
+		{
+			if (initialized)
+			{
+				FAudio.XNA_SongQuit();
+				initialized = false;
+			}
 		}
 
 		internal static void OnActiveSongChanged()
@@ -298,6 +334,15 @@ namespace Microsoft.Xna.Framework.Media
 
 		#region Private Static Methods
 
+		private static void LoadSong(Song song)
+		{
+			/* Believe it or not, XNA duplicates the Song object
+			 * and then assigns a bunch of stuff to it at Play time.
+			 * -flibit
+			 */
+			Queue.Add(new Song(song.handle, song.Name));
+		}
+
 		private static void NextSong(int direction)
 		{
 			Stop();
@@ -313,8 +358,20 @@ namespace Microsoft.Xna.Framework.Media
 				direction = 0;
 			}
 
-			Song nextSong = Queue.GetNextSong(direction, IsShuffled);
+			if (IsShuffled)
+			{
+				Queue.ActiveSongIndex = random.Next(Queue.Count);
+			}
+			else
+			{
+				Queue.ActiveSongIndex = (int) MathHelper.Clamp(
+					Queue.ActiveSongIndex + direction,
+					0,
+					Queue.Count - 1
+				);
+			}
 
+			Song nextSong = Queue[Queue.ActiveSongIndex];
 			if (nextSong != null)
 			{
 				PlaySong(nextSong);
@@ -325,8 +382,13 @@ namespace Microsoft.Xna.Framework.Media
 
 		private static void PlaySong(Song song)
 		{
-			song.Volume = IsMuted ? 0.0f : Volume;
-			song.Play();
+			if (!initialized)
+			{
+				FAudio.XNA_SongInit();
+				initialized =  true;
+			}
+			song.Duration = TimeSpan.FromSeconds(FAudio.XNA_PlaySong(song.handle));
+			timer.Start();
 			State = MediaState.Playing;
 		}
 
