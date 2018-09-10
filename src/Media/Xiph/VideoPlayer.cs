@@ -364,10 +364,10 @@ namespace Microsoft.Xna.Framework.Media
 
 		// Yes, we're seriously using these. -flibit
 
-		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
 		private static extern IntPtr malloc(IntPtr size);
 
-		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void free(IntPtr memblock);
 
 		#endregion

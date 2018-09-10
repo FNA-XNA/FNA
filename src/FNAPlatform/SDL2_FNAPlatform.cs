@@ -1612,10 +1612,10 @@ namespace Microsoft.Xna.Framework
 				public IntPtr write;
 			}
 
-			[DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
 			private static extern IntPtr SDL_AllocRW();
 
-			[DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
+			[DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
 			private static extern void SDL_FreeRW(IntPtr area);
 
 			public readonly IntPtr rwops;

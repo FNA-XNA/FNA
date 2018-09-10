@@ -539,7 +539,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region memcpy Export
 
 		/* This is used a lot for GetData/Read calls... -flibit */
-		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void memcpy(IntPtr dst, IntPtr src, IntPtr len);
 
 		#endregion

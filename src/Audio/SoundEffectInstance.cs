@@ -161,7 +161,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region memset Entry Point
 
-		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
 		private static extern IntPtr memset(IntPtr ptr, int value, IntPtr num);
 
 		#endregion
