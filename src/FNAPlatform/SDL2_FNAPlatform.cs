@@ -1297,9 +1297,9 @@ namespace Microsoft.Xna.Framework
 			bool zoom = false
 		) {
 			// Load the SDL_Surface* from RWops, get the image data
-			FakeRWops reader = new FakeRWops(stream);
-			IntPtr surface = SDL_image.IMG_Load_RW(reader.rwops, 0);
-			reader.Free();
+			IntPtr rwops = FakeRWops.Alloc(stream);
+			IntPtr surface = SDL_image.IMG_Load_RW(rwops, 0);
+			FakeRWops.Free(rwops);
 			if (surface == IntPtr.Zero)
 			{
 				// File not found, supported, etc.
@@ -1455,9 +1455,9 @@ namespace Microsoft.Xna.Framework
 				width,
 				height
 			);
-			FakeRWops writer = new FakeRWops(stream);
-			SDL_image.IMG_SavePNG_RW(surface, writer.rwops, 0);
-			writer.Free();
+			IntPtr rwops = FakeRWops.Alloc(stream);
+			SDL_image.IMG_SavePNG_RW(surface, rwops, 0);
+			FakeRWops.Free(rwops);
 			SDL.SDL_FreeSurface(surface);
 		}
 
@@ -1489,9 +1489,9 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_FreeSurface(surface);
 			surface = temp;
 
-			FakeRWops writer = new FakeRWops(stream);
-			SDL_image.IMG_SaveJPG_RW(surface, writer.rwops, 0, quality);
-			writer.Free();
+			IntPtr rwops = FakeRWops.Alloc(stream);
+			SDL_image.IMG_SaveJPG_RW(surface, rwops, 0, quality);
+			FakeRWops.Free(rwops);
 			SDL.SDL_FreeSurface(surface);
 		}
 
@@ -1575,7 +1575,7 @@ namespace Microsoft.Xna.Framework
 			return result;
 		}
 
-		private class FakeRWops
+		private static class FakeRWops
 		{
 			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 			private delegate long SizeFunc(IntPtr context);
@@ -1618,25 +1618,20 @@ namespace Microsoft.Xna.Framework
 			[DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
 			private static extern void SDL_FreeRW(IntPtr area);
 
-			public readonly IntPtr rwops;
-			private Stream stream;
-			private byte[] temp;
+			private static Dictionary<IntPtr, Stream> streamMap =
+				new Dictionary<IntPtr, Stream>();
 
-			private SizeFunc sizeFunc;
-			private SeekFunc seekFunc;
-			private ReadFunc readFunc;
-			private WriteFunc writeFunc;
+			// Based on PNG_ZBUF_SIZE default
+			private static byte[] temp = new byte[8192];
 
-			public FakeRWops(Stream stream)
+			private static SizeFunc sizeFunc = size;
+			private static SeekFunc seekFunc = seek;
+			private static ReadFunc readFunc = read;
+			private static WriteFunc writeFunc = write;
+
+			public static IntPtr Alloc(Stream stream)
 			{
-				this.stream = stream;
-				rwops = SDL_AllocRW();
-				temp = new byte[8192]; // Based on PNG_ZBUF_SIZE default
-
-				sizeFunc = size;
-				seekFunc = seek;
-				readFunc = read;
-				writeFunc = write;
+				IntPtr rwops = SDL_AllocRW();
 				unsafe
 				{
 					PartialRWops* p = (PartialRWops*) rwops;
@@ -1645,16 +1640,23 @@ namespace Microsoft.Xna.Framework
 					p->read = Marshal.GetFunctionPointerForDelegate(readFunc);
 					p->write = Marshal.GetFunctionPointerForDelegate(writeFunc);
 				}
+				lock (streamMap)
+				{
+					streamMap.Add(rwops, stream);
+				}
+				return rwops;
 			}
 
-			public void Free()
+			public static void Free(IntPtr rwops)
 			{
+				lock (streamMap)
+				{
+					streamMap.Remove(rwops);
+				}
 				SDL_FreeRW(rwops);
-				stream = null;
-				temp = null;
 			}
 
-			private byte[] GetTemp(int len)
+			private static byte[] GetTemp(int len)
 			{
 				if (len > temp.Length)
 				{
@@ -1663,47 +1665,66 @@ namespace Microsoft.Xna.Framework
 				return temp;
 			}
 
-			private long size(IntPtr context)
+			private static long size(IntPtr context)
 			{
 				return -1;
 			}
 
-			private long seek(IntPtr context, long offset, int whence)
+			private static long seek(IntPtr context, long offset, int whence)
 			{
+				Stream stream;
+				lock (streamMap)
+				{
+					stream = streamMap[context];
+				}
 				stream.Seek(offset, (SeekOrigin) whence);
 				return stream.Position;
 			}
 
-			private IntPtr read(
+			private static IntPtr read(
 				IntPtr context,
 				IntPtr ptr,
 				IntPtr size,
 				IntPtr maxnum
 			) {
+				Stream stream;
 				int len = size.ToInt32() * maxnum.ToInt32();
-				len = stream.Read(
-					GetTemp(len),
-					0,
-					len
-				);
-				Marshal.Copy(temp, 0, ptr, len);
+				lock (streamMap)
+				{
+					stream = streamMap[context];
+
+					// Other streams may contend for temp!
+					len = stream.Read(
+						GetTemp(len),
+						0,
+						len
+					);
+					Marshal.Copy(temp, 0, ptr, len);
+				}
 				return (IntPtr) len;
 			}
 
-			private IntPtr write(
+			private static IntPtr write(
 				IntPtr context,
 				IntPtr ptr,
 				IntPtr size,
 				IntPtr num
 			) {
+				Stream stream;
 				int len = size.ToInt32() * num.ToInt32();
-				Marshal.Copy(
-					ptr,
-					GetTemp(len),
-					0,
-					len
-				);
-				stream.Write(temp, 0, len);
+				lock (streamMap)
+				{
+					stream = streamMap[context];
+
+					// Other streams may contend for temp!
+					Marshal.Copy(
+						ptr,
+						GetTemp(len),
+						0,
+						len
+					);
+					stream.Write(temp, 0, len);
+				}
 				return (IntPtr) len;
 			}
 		}
