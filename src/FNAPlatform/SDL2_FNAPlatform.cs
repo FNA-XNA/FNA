@@ -1297,9 +1297,10 @@ namespace Microsoft.Xna.Framework
 			bool zoom = false
 		) {
 			// Load the SDL_Surface* from RWops, get the image data
-			IntPtr rwops = FakeRWops.Alloc(stream);
-			IntPtr surface = SDL_image.IMG_Load_RW(rwops, 0);
-			FakeRWops.Free(rwops);
+			IntPtr surface = SDL_image.IMG_Load_RW(
+				FakeRWops.Alloc(stream),
+				1
+			);
 			if (surface == IntPtr.Zero)
 			{
 				// File not found, supported, etc.
@@ -1455,9 +1456,11 @@ namespace Microsoft.Xna.Framework
 				width,
 				height
 			);
-			IntPtr rwops = FakeRWops.Alloc(stream);
-			SDL_image.IMG_SavePNG_RW(surface, rwops, 0);
-			FakeRWops.Free(rwops);
+			SDL_image.IMG_SavePNG_RW(
+				surface,
+				FakeRWops.Alloc(stream),
+				1
+			);
 			SDL.SDL_FreeSurface(surface);
 		}
 
@@ -1489,9 +1492,12 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_FreeSurface(surface);
 			surface = temp;
 
-			IntPtr rwops = FakeRWops.Alloc(stream);
-			SDL_image.IMG_SaveJPG_RW(surface, rwops, 0, quality);
-			FakeRWops.Free(rwops);
+			SDL_image.IMG_SaveJPG_RW(
+				surface,
+				FakeRWops.Alloc(stream),
+				1,
+				quality
+			);
 			SDL.SDL_FreeSurface(surface);
 		}
 
@@ -1603,6 +1609,9 @@ namespace Microsoft.Xna.Framework
 				IntPtr num
 			);
 
+			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+			private delegate int CloseFunc(IntPtr context);
+
 			[StructLayout(LayoutKind.Sequential)]
 			private struct PartialRWops
 			{
@@ -1610,6 +1619,7 @@ namespace Microsoft.Xna.Framework
 				public IntPtr seek;
 				public IntPtr read;
 				public IntPtr write;
+				public IntPtr close;
 			}
 
 			[DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
@@ -1618,16 +1628,17 @@ namespace Microsoft.Xna.Framework
 			[DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
 			private static extern void SDL_FreeRW(IntPtr area);
 
-			private static Dictionary<IntPtr, Stream> streamMap =
+			private static readonly Dictionary<IntPtr, Stream> streamMap =
 				new Dictionary<IntPtr, Stream>();
 
 			// Based on PNG_ZBUF_SIZE default
 			private static byte[] temp = new byte[8192];
 
-			private static SizeFunc sizeFunc = size;
-			private static SeekFunc seekFunc = seek;
-			private static ReadFunc readFunc = read;
-			private static WriteFunc writeFunc = write;
+			private static readonly SizeFunc sizeFunc = size;
+			private static readonly SeekFunc seekFunc = seek;
+			private static readonly ReadFunc readFunc = read;
+			private static readonly WriteFunc writeFunc = write;
+			private static readonly CloseFunc closeFunc = close;
 
 			public static IntPtr Alloc(Stream stream)
 			{
@@ -1639,21 +1650,13 @@ namespace Microsoft.Xna.Framework
 					p->seek = Marshal.GetFunctionPointerForDelegate(seekFunc);
 					p->read = Marshal.GetFunctionPointerForDelegate(readFunc);
 					p->write = Marshal.GetFunctionPointerForDelegate(writeFunc);
+					p->close = Marshal.GetFunctionPointerForDelegate(closeFunc);
 				}
 				lock (streamMap)
 				{
 					streamMap.Add(rwops, stream);
 				}
 				return rwops;
-			}
-
-			public static void Free(IntPtr rwops)
-			{
-				lock (streamMap)
-				{
-					streamMap.Remove(rwops);
-				}
-				SDL_FreeRW(rwops);
 			}
 
 			private static byte[] GetTemp(int len)
@@ -1726,6 +1729,16 @@ namespace Microsoft.Xna.Framework
 					stream.Write(temp, 0, len);
 				}
 				return (IntPtr) len;
+			}
+
+			public static int close(IntPtr context)
+			{
+				lock (streamMap)
+				{
+					streamMap.Remove(context);
+				}
+				SDL_FreeRW(context);
+				return 0;
 			}
 		}
 
