@@ -147,7 +147,7 @@ namespace Microsoft.Xna.Framework.Audio
 			IntPtr next = Marshal.AllocHGlobal(count);
 			Marshal.Copy(buffer, offset, next, count);
 			queuedBuffers.Add(next);
-			if (State == SoundState.Playing)
+			if (State != SoundState.Stopped)
 			{
 				FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
 				buf.AudioBytes = (uint) count;
@@ -180,7 +180,7 @@ namespace Microsoft.Xna.Framework.Audio
 			 * We currently use this for the VideoPlayer.
 			 * -flibit
 			 */
-			if (State == SoundState.Playing && format.wFormatTag == 1)
+			if (State != SoundState.Stopped && format.wFormatTag == 1)
 			{
 				throw new InvalidOperationException(
 					"Submit a float buffer before Playing!"
@@ -194,7 +194,7 @@ namespace Microsoft.Xna.Framework.Audio
 			IntPtr next = Marshal.AllocHGlobal(count * sizeof(float));
 			Marshal.Copy(buffer, offset, next, count);
 			queuedBuffers.Add(next);
-			if (State == SoundState.Playing)
+			if (State != SoundState.Stopped)
 			{
 				FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
 				buf.AudioBytes = (uint) count * sizeof(float);
@@ -263,11 +263,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal void Update()
 		{
-			if (State == SoundState.Paused)
+			if (State != SoundState.Playing)
 			{
 				// Shh, we don't need you right now...
 				return;
 			}
+
 			if (handle != IntPtr.Zero)
 			{
 				FAudio.FAudioVoiceState state;
