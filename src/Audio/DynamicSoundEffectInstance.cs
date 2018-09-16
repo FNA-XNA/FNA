@@ -263,6 +263,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal void Update()
 		{
+			if (State == SoundState.Paused)
+			{
+				// Shh, we don't need you right now...
+				return;
+			}
 			if (handle != IntPtr.Zero)
 			{
 				FAudio.FAudioVoiceState state;
