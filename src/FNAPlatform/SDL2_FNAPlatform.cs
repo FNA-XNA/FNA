@@ -76,12 +76,12 @@ namespace Microsoft.Xna.Framework
 			 * this really only matters on desktop where the game
 			 * screen may not be covering the whole display.
 			 */
-                        if (    OSVersion.Equals("Windows") ||
-                                OSVersion.Equals("Mac OS X") ||
-                                OSVersion.Equals("Linux") ||
-                                OSVersion.Equals("FreeBSD") ||
-                                OSVersion.Equals("OpenBSD") ||
-                                OSVersion.Equals("NetBSD")      )
+			if (	OSVersion.Equals("Windows") ||
+				OSVersion.Equals("Mac OS X") ||
+				OSVersion.Equals("Linux") ||
+				OSVersion.Equals("FreeBSD") ||
+				OSVersion.Equals("OpenBSD") ||
+				OSVersion.Equals("NetBSD")	)
 			{
 				SupportsGlobalMouse = true;
 			}
