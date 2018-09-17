@@ -23,7 +23,7 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader reader,
 			Texture3D existingInstance
 		) {
-			Texture3D texture = null;
+			Texture3D texture;
 
 			SurfaceFormat format = (SurfaceFormat) reader.ReadInt32();
 			int width = reader.ReadInt32();

@@ -133,7 +133,7 @@ namespace Microsoft.Xna.Framework.Content
 						bitbuf.InitBitStream();
 					}
 					
-					m_state.block_type = (LzxConstants.BLOCKTYPE)bitbuf.ReadBits(3);;
+					m_state.block_type = (LzxConstants.BLOCKTYPE)bitbuf.ReadBits(3);
 					i = bitbuf.ReadBits(16);
 					j = bitbuf.ReadBits(8);
 					m_state.block_remaining = m_state.block_length = (uint)((i << 8) | j);

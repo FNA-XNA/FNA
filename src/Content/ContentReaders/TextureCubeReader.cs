@@ -21,7 +21,7 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader reader,
 			TextureCube existingInstance
 		) {
-			TextureCube textureCube = null;
+			TextureCube textureCube;
 
 			SurfaceFormat surfaceFormat = (SurfaceFormat) reader.ReadInt32();
 			int size = reader.ReadInt32();

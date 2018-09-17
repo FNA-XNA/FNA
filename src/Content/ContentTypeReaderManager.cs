@@ -37,6 +37,8 @@ namespace Microsoft.Xna.Framework.Content
 
 		private static readonly Dictionary<Type, ContentTypeReader> contentReadersCache;
 
+		private static readonly string[] nestedMark = { "[[" };
+
 		// Trick to prevent the linker removing the code, but not actually execute the code
 		private static bool falseflag = false;
 
@@ -298,7 +300,7 @@ namespace Microsoft.Xna.Framework.Content
 		{
 			// Needed to support nested types
 			int count = type.Split(
-				new[] {"[["},
+				nestedMark,
 				StringSplitOptions.None
 			).Length - 1;
 			string preparedType = type;

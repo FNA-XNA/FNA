@@ -68,7 +68,7 @@ namespace Microsoft.Xna.Framework.Content
 				char? defaultCharacter = null;
 				if (input.ReadBoolean())
 				{
-					defaultCharacter = new char?(input.ReadChar());
+					defaultCharacter = input.ReadChar();
 				}
 				return new SpriteFont(
 					texture,
