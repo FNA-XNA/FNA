@@ -1639,6 +1639,16 @@ namespace Microsoft.Xna.Framework
 			private static readonly ReadFunc readFunc = read;
 			private static readonly WriteFunc writeFunc = write;
 			private static readonly CloseFunc closeFunc = close;
+			private static readonly IntPtr sizePtr =
+				Marshal.GetFunctionPointerForDelegate(sizeFunc);
+			private static readonly IntPtr seekPtr =
+				Marshal.GetFunctionPointerForDelegate(seekFunc);
+			private static readonly IntPtr readPtr =
+				Marshal.GetFunctionPointerForDelegate(readFunc);
+			private static readonly IntPtr writePtr =
+				Marshal.GetFunctionPointerForDelegate(writeFunc);
+			private static readonly IntPtr closePtr =
+				Marshal.GetFunctionPointerForDelegate(closeFunc);
 
 			public static IntPtr Alloc(Stream stream)
 			{
@@ -1646,11 +1656,11 @@ namespace Microsoft.Xna.Framework
 				unsafe
 				{
 					PartialRWops* p = (PartialRWops*) rwops;
-					p->size = Marshal.GetFunctionPointerForDelegate(sizeFunc);
-					p->seek = Marshal.GetFunctionPointerForDelegate(seekFunc);
-					p->read = Marshal.GetFunctionPointerForDelegate(readFunc);
-					p->write = Marshal.GetFunctionPointerForDelegate(writeFunc);
-					p->close = Marshal.GetFunctionPointerForDelegate(closeFunc);
+					p->size = sizePtr;
+					p->seek = seekPtr;
+					p->read = readPtr;
+					p->write = writePtr;
+					p->close = closePtr;
 				}
 				lock (streamMap)
 				{
