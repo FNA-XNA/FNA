@@ -1269,6 +1269,90 @@ namespace Microsoft.Xna.Framework
 			return SDL.SDL_GetPrefPath(null, exeName);
 		}
 
+		public static DriveInfo GetDriveInfo(string storageRoot)
+		{
+			if (OSVersion.Equals("WinRT"))
+			{
+				// WinRT DriveInfo is a bunch of crap -flibit
+				return null;
+			}
+
+			DriveInfo result;
+			try
+			{
+				result = new DriveInfo(MonoPathRootWorkaround(storageRoot));
+			}
+			catch(Exception e)
+			{
+				FNALoggerEXT.LogError("Failed to get DriveInfo: " + e.ToString());
+				result = null;
+			}
+			return result;
+		}
+
+		private static string MonoPathRootWorkaround(string storageRoot)
+		{
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+			{
+				// This is what we should be doing everywhere...
+				return Path.GetPathRoot(storageRoot);
+			}
+
+			// This is stolen from Mono's Path.cs
+			if (storageRoot == null)
+			{
+				return null;
+			}
+			if (storageRoot.Trim().Length == 0)
+			{
+				throw new ArgumentException("The specified path is not of a legal form.");
+			}
+			if (!Path.IsPathRooted(storageRoot))
+			{
+				return string.Empty;
+			}
+
+			/* FIXME: Mono bug!
+			 *
+			 * For Unix, the Mono Path.GetPathRoot is pretty lazy:
+			 * https://github.com/mono/mono/blob/master/mcs/class/corlib/System.IO/Path.cs#L443
+			 * It should actually be checking the drives and
+			 * comparing them to the provided path.
+			 * If a Mono maintainer is reading this, please steal
+			 * this code so we don't have to hack around Mono!
+			 *
+			 * -flibit
+			 */
+			int drive = -1, length = 0;
+			string[] drives = Environment.GetLogicalDrives();
+			for (int i = 0; i < drives.Length; i += 1)
+			{
+				if (string.IsNullOrEmpty(drives[i]))
+				{
+					// ... What?
+					continue;
+				}
+				string name = drives[i];
+				if (name[name.Length - 1] != Path.DirectorySeparatorChar)
+				{
+					name += Path.DirectorySeparatorChar;
+				}
+				if (	storageRoot.StartsWith(name) &&
+					name.Length > length	)
+				{
+					drive = i;
+					length = name.Length;
+				}
+			}
+			if (drive >= 0)
+			{
+				return drives[drive];
+			}
+
+			// Uhhhhh
+			return Path.GetPathRoot(storageRoot);
+		}
+
 		#endregion
 
 		#region Logging/Messaging Methods
@@ -1639,16 +1723,6 @@ namespace Microsoft.Xna.Framework
 			private static readonly ReadFunc readFunc = read;
 			private static readonly WriteFunc writeFunc = write;
 			private static readonly CloseFunc closeFunc = close;
-			private static readonly IntPtr sizePtr =
-				Marshal.GetFunctionPointerForDelegate(sizeFunc);
-			private static readonly IntPtr seekPtr =
-				Marshal.GetFunctionPointerForDelegate(seekFunc);
-			private static readonly IntPtr readPtr =
-				Marshal.GetFunctionPointerForDelegate(readFunc);
-			private static readonly IntPtr writePtr =
-				Marshal.GetFunctionPointerForDelegate(writeFunc);
-			private static readonly IntPtr closePtr =
-				Marshal.GetFunctionPointerForDelegate(closeFunc);
 
 			public static IntPtr Alloc(Stream stream)
 			{
@@ -1656,11 +1730,11 @@ namespace Microsoft.Xna.Framework
 				unsafe
 				{
 					PartialRWops* p = (PartialRWops*) rwops;
-					p->size = sizePtr;
-					p->seek = seekPtr;
-					p->read = readPtr;
-					p->write = writePtr;
-					p->close = closePtr;
+					p->size = Marshal.GetFunctionPointerForDelegate(sizeFunc);
+					p->seek = Marshal.GetFunctionPointerForDelegate(seekFunc);
+					p->read = Marshal.GetFunctionPointerForDelegate(readFunc);
+					p->write = Marshal.GetFunctionPointerForDelegate(writeFunc);
+					p->close = Marshal.GetFunctionPointerForDelegate(closeFunc);
 				}
 				lock (streamMap)
 				{

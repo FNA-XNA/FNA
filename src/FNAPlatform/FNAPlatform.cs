@@ -65,6 +65,7 @@ namespace Microsoft.Xna.Framework
 			GetGamePadGUID =		SDL2_FNAPlatform.GetGamePadGUID;
 			SetGamePadLightBar =		SDL2_FNAPlatform.SetGamePadLightBar;
 			GetStorageRoot =		SDL2_FNAPlatform.GetStorageRoot;
+			GetDriveInfo =			SDL2_FNAPlatform.GetDriveInfo;
 			ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
 			TextureDataFromStream =		SDL2_FNAPlatform.TextureDataFromStream;
 			SavePNG =			SDL2_FNAPlatform.SavePNG;
@@ -219,6 +220,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate string GetStorageRootFunc();
 		public static readonly GetStorageRootFunc GetStorageRoot;
+
+		public delegate DriveInfo GetDriveInfoFunc(string storageRoot);
+		public static readonly GetDriveInfoFunc GetDriveInfo;
 
 		public delegate void ShowRuntimeErrorFunc(string title, string message);
 		public static readonly ShowRuntimeErrorFunc ShowRuntimeError;
