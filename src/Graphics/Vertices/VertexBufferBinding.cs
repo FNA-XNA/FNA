@@ -48,21 +48,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Internal Static Properties
-
-		/// <summary>
-		/// A null vertex buffer binding for unused vertex buffer slots.
-		/// </summary>
-		internal static VertexBufferBinding None
-		{
-			get
-			{
-				return none;
-			}
-		}
-
-		#endregion
-
 		#region Private Variables
 
 		private VertexBuffer vertexBuffer;
@@ -71,9 +56,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Private Static Variables
+		#region Internal Static Variables
 
-		private static VertexBufferBinding none = new VertexBufferBinding(null);
+		/// <summary>
+		/// A null vertex buffer binding for unused vertex buffer slots.
+		/// </summary>
+		internal static readonly VertexBufferBinding None = new VertexBufferBinding(null);
 
 		#endregion
 
