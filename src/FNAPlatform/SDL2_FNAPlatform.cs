@@ -20,6 +20,7 @@ using SDL2;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -2527,6 +2528,19 @@ namespace Microsoft.Xna.Framework
 				result[i] = String.Empty;
 			}
 			return result;
+		}
+
+		#endregion
+
+		#region Touch Methods
+
+		public static TouchPanelCapabilities GetTouchCapabilities()
+		{
+			return new TouchPanelCapabilities
+			{
+				IsConnected = SDL.SDL_GetNumTouchDevices() > 0,
+				MaximumTouchCount = 4
+			};
 		}
 
 		#endregion
