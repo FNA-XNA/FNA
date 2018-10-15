@@ -413,6 +413,11 @@ namespace Microsoft.Xna.Framework
 				Mouse.WindowHandle = IntPtr.Zero;
 			}
 
+			if (TouchPanel.WindowHandle == window.Handle)
+			{
+				TouchPanel.WindowHandle = IntPtr.Zero;
+			}
+
 			SDL.SDL_DestroyWindow(window.Handle);
 		}
 
@@ -702,6 +707,8 @@ namespace Microsoft.Xna.Framework
 			Rectangle windowBounds = game.Window.ClientBounds;
 			Mouse.INTERNAL_WindowWidth = windowBounds.Width;
 			Mouse.INTERNAL_WindowHeight = windowBounds.Height;
+			TouchPanel.DisplayWidth = windowBounds.Width;
+			TouchPanel.DisplayHeight = windowBounds.Height;
 
 			// Which display did we end up on?
 			int displayIndex = SDL.SDL_GetWindowDisplayIndex(
@@ -817,6 +824,34 @@ namespace Microsoft.Xna.Framework
 						Mouse.INTERNAL_MouseWheel += evt.wheel.y * 120;
 					}
 
+					// Touch Input
+					else if (evt.type == SDL.SDL_EventType.SDL_FINGERDOWN)
+					{
+						TouchPanel.INTERNAL_onFingerDown(
+							evt.tfinger.x,
+							evt.tfinger.y,
+							evt.tfinger.timestamp
+						);
+					}
+					else if (evt.type == SDL.SDL_EventType.SDL_FINGERUP)
+					{
+						TouchPanel.INTERNAL_onFingerUp(
+							evt.tfinger.x,
+							evt.tfinger.y,
+							evt.tfinger.timestamp
+						);
+					}
+					else if (evt.type == SDL.SDL_EventType.SDL_FINGERMOTION)
+					{
+						TouchPanel.INTERNAL_onFingerMotion(
+							evt.tfinger.x,
+							evt.tfinger.y,
+							evt.tfinger.dx,
+							evt.tfinger.dy,
+							evt.tfinger.timestamp
+						);
+					}
+
 					// Various Window Events...
 					else if (evt.type == SDL.SDL_EventType.SDL_WINDOWEVENT)
 					{
@@ -858,6 +893,8 @@ namespace Microsoft.Xna.Framework
 							// This is called on both API and WM resizes
 							Mouse.INTERNAL_WindowWidth = evt.window.data1;
 							Mouse.INTERNAL_WindowHeight = evt.window.data2;
+							TouchPanel.DisplayWidth = evt.window.data1;
+							TouchPanel.DisplayHeight = evt.window.data2;
 						}
 						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED)
 						{

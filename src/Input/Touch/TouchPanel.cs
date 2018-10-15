@@ -89,5 +89,35 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		}
 
 		#endregion
+
+		#region Internal Methods
+
+		internal static void INTERNAL_onFingerDown(
+			float x,
+			float y,
+			uint timestamp
+		) {
+			
+		}
+
+		internal static void INTERNAL_onFingerUp(
+			float x,
+			float y,
+			uint timestamp
+		) {
+
+		}
+
+		internal static void INTERNAL_onFingerMotion(
+			float x,
+			float y,
+			float dx,
+			float dy,
+			uint timestamp
+		) {
+
+		}
+
+		#endregion
 	}
 }
