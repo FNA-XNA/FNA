@@ -55,8 +55,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			Id = id;
 			State = state;
 			Position = position;
-			prevPosition = Vector2.Zero;
 			prevState = TouchLocationState.Invalid;
+			prevPosition = Vector2.Zero;
 		}
 
 		public TouchLocation(
