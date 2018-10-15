@@ -147,6 +147,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		internal static void UpdateTouches()
 		{
+			// Only bother with this if there's actually a touch device
+			if (!GetCapabilities().IsConnected)
+				return;
+
 			// Update all previously Pressed touches to become Moved
 			for (int i = 0; i < touches.Count; i += 1)
 			{
