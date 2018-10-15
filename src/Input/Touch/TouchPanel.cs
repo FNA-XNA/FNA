@@ -70,8 +70,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public static TouchPanelCapabilities GetCapabilities()
 		{
-			// TODO: return FNAPlatform.GetTouchCapabilities();
-			return new TouchPanelCapabilities(false, 0);
+			return FNAPlatform.GetTouchCapabilities();
 		}
 
 		public static TouchCollection GetState()
@@ -83,7 +82,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			if (gestures.Count == 0)
 			{
-				// FIXME: Is this right...?
 				throw new InvalidOperationException();
 			}
 
