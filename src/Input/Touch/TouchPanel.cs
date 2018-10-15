@@ -113,7 +113,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			detectedTouches.Enqueue(new TouchLocation(
 				fingerId,
 				TouchLocationState.Pressed,
-				new Vector2(x, y)
+				new Vector2(
+					x * DisplayWidth,
+					y * DisplayHeight
+				)
 			));
 		}
 
@@ -126,7 +129,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			detectedTouches.Enqueue(new TouchLocation(
 				fingerId,
 				TouchLocationState.Released,
-				new Vector2(x, y)
+				new Vector2(
+					x * DisplayWidth,
+					y * DisplayHeight
+				)
 			));
 		}
 
@@ -141,7 +147,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			detectedTouches.Enqueue(new TouchLocation(
 				fingerId,
 				TouchLocationState.Moved,
-				new Vector2(x, y)
+				new Vector2(
+					x * DisplayWidth,
+					y * DisplayHeight
+				)
 			));
 		}
 
