@@ -1011,7 +1011,10 @@ namespace Microsoft.Xna.Framework
 				}
 
 				Keyboard.SetKeys(keys);
-				TouchPanel.UpdateTouches();
+				if (GetTouchCapabilities().IsConnected)
+				{
+					TouchPanel.UpdateTouches();
+				}
 				game.Tick();
 			}
 
