@@ -61,10 +61,14 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Internal Static Variables
 
-		const int MAX_TOUCHES = 8;
 		internal static List<TouchLocation> touches = new List<TouchLocation>(MAX_TOUCHES);
-
 		internal static Queue<GestureSample> gestures = new Queue<GestureSample>();
+
+		#endregion
+
+		#region Private Constants
+
+		private const int MAX_TOUCHES = 8;
 
 		#endregion
 
