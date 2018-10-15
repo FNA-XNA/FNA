@@ -93,7 +93,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public override int GetHashCode()
 		{
-			return Id; // FIXME: What is this really...?
+			return Id.GetHashCode() + Position.GetHashCode();
 		}
 
 		public override string ToString()
