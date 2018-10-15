@@ -61,7 +61,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Internal Static Variables
 
-		internal static List<TouchLocation> touches = new List<TouchLocation>();
+		const int MAX_TOUCHES = 8;
+		internal static List<TouchLocation> touches = new List<TouchLocation>(MAX_TOUCHES);
+
 		internal static Queue<GestureSample> gestures = new Queue<GestureSample>();
 
 		#endregion
@@ -93,6 +95,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		#region Internal Methods
 
 		internal static void INTERNAL_onFingerDown(
+			int fingerId,
 			float x,
 			float y,
 			uint timestamp
@@ -101,14 +104,16 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		}
 
 		internal static void INTERNAL_onFingerUp(
+			int fingerId,
 			float x,
 			float y,
 			uint timestamp
 		) {
-
+			
 		}
 
 		internal static void INTERNAL_onFingerMotion(
+			int fingerId,
 			float x,
 			float y,
 			float dx,

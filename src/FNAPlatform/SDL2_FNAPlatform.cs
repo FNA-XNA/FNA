@@ -828,6 +828,7 @@ namespace Microsoft.Xna.Framework
 					else if (evt.type == SDL.SDL_EventType.SDL_FINGERDOWN)
 					{
 						TouchPanel.INTERNAL_onFingerDown(
+							(int)evt.tfinger.fingerId,
 							evt.tfinger.x,
 							evt.tfinger.y,
 							evt.tfinger.timestamp
@@ -836,6 +837,7 @@ namespace Microsoft.Xna.Framework
 					else if (evt.type == SDL.SDL_EventType.SDL_FINGERUP)
 					{
 						TouchPanel.INTERNAL_onFingerUp(
+							(int)evt.tfinger.fingerId,
 							evt.tfinger.x,
 							evt.tfinger.y,
 							evt.tfinger.timestamp
@@ -844,6 +846,7 @@ namespace Microsoft.Xna.Framework
 					else if (evt.type == SDL.SDL_EventType.SDL_FINGERMOTION)
 					{
 						TouchPanel.INTERNAL_onFingerMotion(
+							(int)evt.tfinger.fingerId,
 							evt.tfinger.x,
 							evt.tfinger.y,
 							evt.tfinger.dx,
