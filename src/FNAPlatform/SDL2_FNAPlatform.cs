@@ -1011,6 +1011,7 @@ namespace Microsoft.Xna.Framework
 				}
 
 				Keyboard.SetKeys(keys);
+				TouchPanel.UpdateTouches();
 				game.Tick();
 			}
 

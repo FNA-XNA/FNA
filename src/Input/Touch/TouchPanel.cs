@@ -66,6 +66,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#endregion
 
+		#region Private Static Variables
+
+		internal static Queue<TouchLocation> detectedTouches = new Queue<TouchLocation>();
+
+		#endregion
+
 		#region Private Constants
 
 		private const int MAX_TOUCHES = 8;
@@ -104,7 +110,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			float y,
 			uint timestamp
 		) {
-			
+			detectedTouches.Enqueue(new TouchLocation(
+				fingerId,
+				TouchLocationState.Pressed,
+				new Vector2(x, y)
+			));
 		}
 
 		internal static void INTERNAL_onFingerUp(
@@ -113,7 +123,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			float y,
 			uint timestamp
 		) {
-			
+			detectedTouches.Enqueue(new TouchLocation(
+				fingerId,
+				TouchLocationState.Released,
+				new Vector2(x, y)
+			));
 		}
 
 		internal static void INTERNAL_onFingerMotion(
@@ -124,7 +138,72 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			float dy,
 			uint timestamp
 		) {
+			detectedTouches.Enqueue(new TouchLocation(
+				fingerId,
+				TouchLocationState.Moved,
+				new Vector2(x, y)
+			));
+		}
 
+		internal static void UpdateTouches()
+		{
+			// Update all previously Pressed touches to become Moved
+			for (int i = 0; i < touches.Count; i += 1)
+			{
+				if (touches[i].State == TouchLocationState.Pressed)
+				{
+					touches[i] = new TouchLocation(
+						touches[i].Id,
+						TouchLocationState.Moved,
+						touches[i].Position,
+						TouchLocationState.Pressed,
+						touches[i].Position
+					);
+				}
+			}
+
+			// Remove all previously Released touches
+			touches.RemoveAll(touch => touch.State == TouchLocationState.Released);
+
+			// Process new touches
+			while (detectedTouches.Count > 0)
+			{
+				// Get the next available detected touch location
+				TouchLocation dtouch = detectedTouches.Dequeue();
+
+				/* If it's a new touch (has the Pressed state)
+				 * and we have room for it, add it to the list.
+				 */
+				if (dtouch.State == TouchLocationState.Pressed
+					&& touches.Count < MAX_TOUCHES)
+				{
+					touches.Add(dtouch);
+				}
+				else
+				{
+					// Update existing touches
+					for (int i = 0; i < touches.Count; i += 1)
+					{
+						if (dtouch.Id == touches[i].Id)
+						{
+							/* Don't change states from Pressed to Moved unless we do it manually.
+							 * Otherwise the touch will never be registered as Pressed.
+							 */
+							if (!(touches[i].State == TouchLocationState.Pressed
+								   && dtouch.State == TouchLocationState.Moved))
+							{
+								touches[i] = new TouchLocation(
+									dtouch.Id,
+									dtouch.State,
+									dtouch.Position,
+									touches[i].State,
+									touches[i].Position
+								);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		#endregion
