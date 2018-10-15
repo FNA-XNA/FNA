@@ -98,7 +98,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public override string ToString()
 		{
-			return Id.ToString(); // FIXME: What is this really...?
+			return "{Position:" + Position.ToString() + "}";
 		}
 
 		public bool TryGetPreviousLocation(
