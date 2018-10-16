@@ -68,7 +68,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Static Variables
 
-		internal static Queue<TouchLocation> detectedTouches = new Queue<TouchLocation>();
+		private static Queue<TouchLocation> detectedTouches = new Queue<TouchLocation>();
 
 		#endregion
 
