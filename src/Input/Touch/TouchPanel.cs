@@ -156,7 +156,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		internal static void UpdateTouches()
 		{
-			// Update all previously Pressed touches to become Moved
+			// Update all previously Pressed touches to become Moved.
 			for (int i = 0; i < touches.Count; i += 1)
 			{
 				if (touches[i].State == TouchLocationState.Pressed)
@@ -195,20 +195,24 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					{
 						if (dtouch.Id == touches[i].Id)
 						{
-							/* Don't change states from Pressed to Moved unless we do it manually.
-							 * Otherwise the touch will never be registered as Pressed.
+							/* Ignore Pressed-->Moved state changes.
+							 * We will update the state manually at the
+							 * start of the next frame. This guarantees
+							 * that each touch will register as Pressed
+							 * for at least one frame.
 							 */
-							if (!(touches[i].State == TouchLocationState.Pressed
-								   && dtouch.State == TouchLocationState.Moved))
-							{
-								touches[i] = new TouchLocation(
-									dtouch.Id,
-									dtouch.State,
-									dtouch.Position,
-									touches[i].State,
-									touches[i].Position
-								);
-							}
+							bool ignoreStateChange = (
+								touches[i].State == TouchLocationState.Pressed
+								&& dtouch.State == TouchLocationState.Moved
+							);
+
+							touches[i] = new TouchLocation(
+								dtouch.Id,
+								ignoreStateChange ? touches[i].State : dtouch.State,
+								dtouch.Position,
+								ignoreStateChange ? TouchLocationState.Invalid : touches[i].State,
+								ignoreStateChange ? Vector2.Zero : touches[i].Position
+							);
 						}
 					}
 				}
