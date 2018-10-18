@@ -68,7 +68,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Static Variables
 
-		private static Queue<TouchLocation> detectedTouches = new Queue<TouchLocation>();
+		private static Queue<TouchLocation> toProcess = new Queue<TouchLocation>();
+		private static List<TouchLocation> toReleaseNextFrame = new List<TouchLocation>();
 
 		#endregion
 
@@ -110,7 +111,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			float y,
 			uint timestamp
 		) {
-			detectedTouches.Enqueue(new TouchLocation(
+			toProcess.Enqueue(new TouchLocation(
 				fingerId,
 				TouchLocationState.Pressed,
 				new Vector2(
@@ -126,7 +127,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			float y,
 			uint timestamp
 		) {
-			detectedTouches.Enqueue(new TouchLocation(
+			toProcess.Enqueue(new TouchLocation(
 				fingerId,
 				TouchLocationState.Released,
 				new Vector2(
@@ -144,7 +145,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			float dy,
 			uint timestamp
 		) {
-			detectedTouches.Enqueue(new TouchLocation(
+			toProcess.Enqueue(new TouchLocation(
 				fingerId,
 				TouchLocationState.Moved,
 				new Vector2(
@@ -156,7 +157,13 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		internal static void UpdateTouches()
 		{
-			// Update all previously Pressed touches to become Moved.
+			// Remove all touches that were released last frame
+			touches.RemoveAll(touch => touch.State == TouchLocationState.Released);
+
+			// Save touch states and positions for future reference
+			List<TouchLocation> prevTouches = new List<TouchLocation>(touches);
+
+			// Change formerly Pressed touches to Moved
 			for (int i = 0; i < touches.Count; i += 1)
 			{
 				if (touches[i].State == TouchLocationState.Pressed)
@@ -165,54 +172,75 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						touches[i].Id,
 						TouchLocationState.Moved,
 						touches[i].Position,
-						TouchLocationState.Pressed,
-						touches[i].Position
+						prevTouches[i].State,
+						prevTouches[i].Position
 					);
 				}
 			}
 
-			// Remove all previously Released touches
-			touches.RemoveAll(touch => touch.State == TouchLocationState.Released);
-
-			// Process new touches
-			while (detectedTouches.Count > 0)
+			// Change formerly Pressed touches to Released if needed
+			foreach (TouchLocation rtouch in toReleaseNextFrame)
 			{
-				// Get the next available detected touch location
-				TouchLocation dtouch = detectedTouches.Dequeue();
+				for (int i = 0; i < touches.Count; i += 1)
+				{
+					if (touches[i].Id == rtouch.Id)
+					{
+						touches[i] = new TouchLocation(
+							touches[i].Id,
+							TouchLocationState.Released,
+							touches[i].Position,
+							prevTouches[i].State,
+							prevTouches[i].Position
+						);
+					}
+				}
+			}
+			toReleaseNextFrame.Clear();
 
-				/* If it's a new touch (has the Pressed state)
-				 * and we have room for it, add it to the list.
-				 */
-				if (dtouch.State == TouchLocationState.Pressed
+			// Process all new touch events
+			while (toProcess.Count > 0)
+			{
+				TouchLocation touch = toProcess.Dequeue();
+
+				// Add a new (Pressed) touch if we have room
+				if (touch.State == TouchLocationState.Pressed
 					&& touches.Count < MAX_TOUCHES)
 				{
-					touches.Add(dtouch);
+					touches.Add(touch);
 				}
 				else
 				{
-					// Update existing touches
+					// Update touches that were already registered
 					for (int i = 0; i < touches.Count; i += 1)
 					{
-						if (dtouch.Id == touches[i].Id)
+						if (touches[i].Id == touch.Id)
 						{
-							/* Ignore Pressed-->Moved state changes.
-							 * We will update the state manually at the
-							 * start of the next frame. This guarantees
-							 * that each touch will register as Pressed
-							 * for at least one frame.
-							 */
-							bool ignoreStateChange = (
-								touches[i].State == TouchLocationState.Pressed
-								&& dtouch.State == TouchLocationState.Moved
-							);
+							// If this is a newly Pressed touch
+							if (touches[i].State == TouchLocationState.Pressed)
+							{
+								if (touch.State == TouchLocationState.Released)
+								{
+									// Mark it for a Released state next frame
+									if (!toReleaseNextFrame.Contains(touches[i]))
+									{
+										toReleaseNextFrame.Add(touches[i]);
+									}
+								}
+							}
+							else
+							{
+								// Update the existing touch with new data
+								touches[i] = new TouchLocation(
+									touches[i].Id,
+									touch.State,
+									touch.Position,
+									prevTouches[i].State,
+									prevTouches[i].Position
+								);
+							}
 
-							touches[i] = new TouchLocation(
-								dtouch.Id,
-								ignoreStateChange ? touches[i].State : dtouch.State,
-								dtouch.Position,
-								ignoreStateChange ? TouchLocationState.Invalid : touches[i].State,
-								ignoreStateChange ? Vector2.Zero : touches[i].Position
-							);
+							// We found the touch we were looking for...
+							break;
 						}
 					}
 				}
