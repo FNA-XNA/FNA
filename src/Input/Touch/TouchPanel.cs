@@ -108,8 +108,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		internal static void INTERNAL_onFingerDown(
 			int fingerId,
 			float x,
-			float y,
-			uint timestamp
+			float y
 		) {
 			toProcess.Enqueue(new TouchLocation(
 				fingerId,
@@ -124,8 +123,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		internal static void INTERNAL_onFingerUp(
 			int fingerId,
 			float x,
-			float y,
-			uint timestamp
+			float y
 		) {
 			toProcess.Enqueue(new TouchLocation(
 				fingerId,
@@ -142,8 +140,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			float x,
 			float y,
 			float dx,
-			float dy,
-			uint timestamp
+			float dy
 		) {
 			toProcess.Enqueue(new TouchLocation(
 				fingerId,

@@ -830,8 +830,7 @@ namespace Microsoft.Xna.Framework
 						TouchPanel.INTERNAL_onFingerDown(
 							(int)evt.tfinger.fingerId,
 							evt.tfinger.x,
-							evt.tfinger.y,
-							evt.tfinger.timestamp
+							evt.tfinger.y
 						);
 					}
 					else if (evt.type == SDL.SDL_EventType.SDL_FINGERUP)
@@ -839,8 +838,7 @@ namespace Microsoft.Xna.Framework
 						TouchPanel.INTERNAL_onFingerUp(
 							(int)evt.tfinger.fingerId,
 							evt.tfinger.x,
-							evt.tfinger.y,
-							evt.tfinger.timestamp
+							evt.tfinger.y
 						);
 					}
 					else if (evt.type == SDL.SDL_EventType.SDL_FINGERMOTION)
@@ -850,8 +848,7 @@ namespace Microsoft.Xna.Framework
 							evt.tfinger.x,
 							evt.tfinger.y,
 							evt.tfinger.dx,
-							evt.tfinger.dy,
-							evt.tfinger.timestamp
+							evt.tfinger.dy
 						);
 					}
 
