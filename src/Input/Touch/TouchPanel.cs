@@ -71,11 +71,20 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static Queue<TouchLocation> toProcess = new Queue<TouchLocation>();
 		private static List<TouchLocation> toReleaseNextFrame = new List<TouchLocation>();
 
+		private static DateTime touchDownTime;
+		private static DateTime touchUpTime;
+		private static Vector2 touchDownPosition;
+
+		private static bool anticipatingHold = false;
+		private static bool anticipatingDoubleTap = false;
+		private static bool justDoubleTapped = false;
+
 		#endregion
 
 		#region Private Constants
 
 		private const int MAX_TOUCHES = 8;
+		private const int JITTER_THRESHOLD = 50;
 
 		#endregion
 
@@ -118,6 +127,37 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					(float) Math.Round(y * DisplayHeight)
 				)
 			));
+
+			/* Calculate Gestures */
+
+			// Is this the first finger on the screen?
+			if (FNAPlatform.GetNumTouchFingers() <= 1)
+			{
+				Vector2 pos = new Vector2(
+					(float)Math.Round(x * DisplayWidth),
+					(float)Math.Round(y * DisplayHeight)
+				);
+				touchDownTime = DateTime.Now;
+
+				anticipatingHold = true;
+
+				if (anticipatingDoubleTap)
+				{
+					if (touchDownTime.Subtract(touchUpTime) <= TimeSpan.FromMilliseconds(300))
+					{
+						if ((pos - touchDownPosition).Length() <= JITTER_THRESHOLD)
+						{
+							Console.WriteLine("DOUBLE TAP");
+							justDoubleTapped = true;
+							anticipatingHold = false;
+						}
+					}
+
+					anticipatingDoubleTap = false;
+				}
+
+				touchDownPosition = pos;
+			}
 		}
 
 		internal static void INTERNAL_onFingerUp(
@@ -133,6 +173,41 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					(float) Math.Round(y * DisplayHeight)
 				)
 			));
+
+			/* Calculate Gestures */
+
+			// Was this the last finger to lift?
+			if (FNAPlatform.GetNumTouchFingers() == 0)
+			{
+				bool didTap = false;
+
+				touchUpTime = DateTime.Now;
+
+				if (touchUpTime.Subtract(touchDownTime) <= TimeSpan.FromMilliseconds(1000))
+				{
+					Vector2 touchUpPosition = new Vector2(
+						(float)Math.Round(x * DisplayWidth),
+						(float)Math.Round(y * DisplayHeight)
+					);
+
+					if ((touchDownPosition - touchUpPosition).Length() <= JITTER_THRESHOLD)
+					{
+						if (!justDoubleTapped)
+						{
+							Console.WriteLine("TAP");
+							didTap = true;
+						}
+					}
+				}
+
+				anticipatingHold = false;
+				justDoubleTapped = false;
+
+				if (didTap)
+				{
+					anticipatingDoubleTap = true;
+				}
+			}
 		}
 
 		internal static void INTERNAL_onFingerMotion(
@@ -156,6 +231,20 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			// Remove all touches that were released last frame
 			touches.RemoveAll(touch => touch.State == TouchLocationState.Released);
+
+			// Check for Hold gesture
+			if (anticipatingHold && touches.Count > 0)
+			{
+				if (DateTime.Now.Subtract(touchDownTime) >= TimeSpan.FromMilliseconds(1000))
+				{
+					if ((touchDownPosition - touches[0].Position).Length() <= JITTER_THRESHOLD)
+					{
+						Console.WriteLine("HOLD");
+					}
+
+					anticipatingHold = false;
+				}
+			}
 
 			// Save touch states and positions for future reference
 			List<TouchLocation> prevTouches = new List<TouchLocation>(touches);
