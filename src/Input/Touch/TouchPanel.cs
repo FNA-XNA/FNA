@@ -237,9 +237,31 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				float distanceMoved = (touchPosition - gTouchDownPosition).Length();
 				if (distanceMoved > MOVE_THRESHOLD)
 				{
-					// Moved too far away
-					Console.WriteLine("OH NO");
-					gState = GestureState.NONE;
+					// Moved too far away to be a Hold...is it a drag?
+
+					bool hdrag = (EnabledGestures & GestureType.HorizontalDrag) != 0;
+					bool vdrag = (EnabledGestures & GestureType.VerticalDrag) != 0;
+					bool fdrag = (EnabledGestures & GestureType.FreeDrag) != 0;
+
+					if (hdrag && Math.Abs(delta.X) > Math.Abs(delta.Y))
+					{
+						gState = GestureState.DRAGGING_H;
+						Console.WriteLine("DRAGGING HORIZONTALLY");
+					}
+					else if (vdrag && Math.Abs(delta.Y) > Math.Abs(delta.X))
+					{
+						gState = GestureState.DRAGGING_V;
+						Console.WriteLine("DRAGGING VERTICALLY");
+					}
+					else
+					{
+						gState = GestureState.DRAGGING;
+
+						if (fdrag)
+						{
+							Console.WriteLine("DRAGGING FREE");
+						}
+					}
 				}
 			}
 		}
