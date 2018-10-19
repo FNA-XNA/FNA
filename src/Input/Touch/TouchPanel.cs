@@ -75,8 +75,14 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static DateTime touchUpTime;
 		private static Vector2 touchDownPosition;
 
-		private static bool anticipatingHold = false;
-		private static bool anticipatingDoubleTap = false;
+		private enum GestureState
+		{
+			NONE,
+			DOUBLETAP,
+			HOLD
+		};
+		private static GestureState anticipatedGesture = GestureState.NONE;
+
 		private static bool justDoubleTapped = false;
 
 		#endregion
@@ -139,9 +145,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				);
 				touchDownTime = DateTime.Now;
 
-				anticipatingHold = true;
-
-				if (anticipatingDoubleTap)
+				if (anticipatedGesture == GestureState.DOUBLETAP)
 				{
 					if (touchDownTime.Subtract(touchUpTime) <= TimeSpan.FromMilliseconds(300))
 					{
@@ -149,11 +153,14 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						{
 							Console.WriteLine("DOUBLE TAP");
 							justDoubleTapped = true;
-							anticipatingHold = false;
 						}
 					}
 
-					anticipatingDoubleTap = false;
+					anticipatedGesture = GestureState.NONE;
+				}
+				else
+				{
+					anticipatedGesture = GestureState.HOLD;
 				}
 
 				touchDownPosition = pos;
@@ -200,12 +207,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					}
 				}
 
-				anticipatingHold = false;
+				anticipatedGesture = GestureState.NONE;
 				justDoubleTapped = false;
 
 				if (didTap)
 				{
-					anticipatingDoubleTap = true;
+					anticipatedGesture = GestureState.DOUBLETAP;
 				}
 			}
 		}
@@ -233,7 +240,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			touches.RemoveAll(touch => touch.State == TouchLocationState.Released);
 
 			// Check for Hold gesture
-			if (anticipatingHold && touches.Count > 0)
+			if (anticipatedGesture == GestureState.HOLD && touches.Count > 0)
 			{
 				if (DateTime.Now.Subtract(touchDownTime) >= TimeSpan.FromMilliseconds(1000))
 				{
@@ -242,7 +249,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						Console.WriteLine("HOLD");
 					}
 
-					anticipatingHold = false;
+					anticipatedGesture = GestureState.NONE;
 				}
 			}
 
