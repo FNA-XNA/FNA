@@ -135,8 +135,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		) {
 			// Get the touch position
 			Vector2 touchPos = new Vector2(
-				(float)Math.Round(x * DisplayWidth),
-				(float)Math.Round(y * DisplayHeight)
+				(float) Math.Round(x * DisplayWidth),
+				(float) Math.Round(y * DisplayHeight)
 			);
 
 			// Process the touch on the next frame
@@ -154,7 +154,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					break;
 
 				case TouchLocationState.Moved:
-					Vector2 delta = new Vector2(dx, dy);
+					Vector2 delta = new Vector2(
+						(float) Math.Round(dx * DisplayWidth),
+						(float) Math.Round(dy * DisplayHeight)
+					);
 					CalculateGesture_FingerMoved(touchPos, delta);
 					break;
 
