@@ -114,8 +114,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				fingerId,
 				TouchLocationState.Pressed,
 				new Vector2(
-					x * DisplayWidth,
-					y * DisplayHeight
+					(float) Math.Round(x * DisplayWidth),
+					(float) Math.Round(y * DisplayHeight)
 				)
 			));
 		}
@@ -129,8 +129,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				fingerId,
 				TouchLocationState.Released,
 				new Vector2(
-					x * DisplayWidth,
-					y * DisplayHeight
+					(float) Math.Round(x * DisplayWidth),
+					(float) Math.Round(y * DisplayHeight)
 				)
 			));
 		}
@@ -146,8 +146,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				fingerId,
 				TouchLocationState.Moved,
 				new Vector2(
-					x * DisplayWidth,
-					y * DisplayHeight
+					(float) Math.Round(x * DisplayWidth),
+					(float) Math.Round(y * DisplayHeight)
 				)
 			));
 		}
