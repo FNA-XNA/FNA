@@ -77,6 +77,7 @@ namespace Microsoft.Xna.Framework
 			StartMicrophone =		SDL2_FNAPlatform.StartMicrophone;
 			StopMicrophone =		SDL2_FNAPlatform.StopMicrophone;
 			GetTouchCapabilities =	SDL2_FNAPlatform.GetTouchCapabilities;
+			GetNumTouchFingers =	SDL2_FNAPlatform.GetNumTouchFingers;
 
 			// Don't overwrite application log hooks!
 			if (FNALoggerEXT.LogInfo == null)
@@ -282,6 +283,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate TouchPanelCapabilities GetTouchCapabilitiesFunc();
 		public static readonly GetTouchCapabilitiesFunc GetTouchCapabilities;
+
+		public delegate int GetNumTouchFingersFunc();
+		public static readonly GetNumTouchFingersFunc GetNumTouchFingers;
 
 		#endregion
 	}

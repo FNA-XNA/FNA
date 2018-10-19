@@ -2589,6 +2589,13 @@ namespace Microsoft.Xna.Framework
 			};
 		}
 
+		public static int GetNumTouchFingers()
+		{
+			return SDL.SDL_GetNumTouchFingers(
+				SDL.SDL_GetTouchDevice(0)
+			);
+		}
+
 		#endregion
 
 		#region SDL2<->XNA Key Conversion Methods
