@@ -68,29 +68,30 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Static Variables
 
+		/* Touch Variables */
 		private static Queue<TouchLocation> toProcess = new Queue<TouchLocation>();
 		private static List<TouchLocation> toReleaseNextFrame = new List<TouchLocation>();
 
-		private static DateTime touchDownTime;
-		private static DateTime touchUpTime;
-		private static Vector2 touchDownPosition;
-
-		private enum GestureState
-		{
-			NONE,
-			DOUBLETAP,
-			HOLD
-		};
-		private static GestureState anticipatedGesture = GestureState.NONE;
-
-		private static bool justDoubleTapped = false;
-
+		/* Gesture Variables */
+		private static DateTime gTouchDownTime;
+		private static DateTime gReleaseTime;
+		private static Vector2 gTouchDownPosition;
+		private static GestureState gState = GestureState.NONE;
+		
 		#endregion
 
 		#region Private Constants
 
 		private const int MAX_TOUCHES = 8;
 		private const int JITTER_THRESHOLD = 50;
+
+		private enum GestureState
+		{
+			NONE,
+			HOLDING,
+			JUST_TAPPED,
+			JUST_DOUBLETAPPED
+		};
 
 		#endregion
 
@@ -120,118 +121,132 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Internal Methods
 
-		internal static void INTERNAL_onFingerDown(
+		internal static void INTERNAL_onTouchEvent(
 			int fingerId,
-			float x,
-			float y
-		) {
-			toProcess.Enqueue(new TouchLocation(
-				fingerId,
-				TouchLocationState.Pressed,
-				new Vector2(
-					(float) Math.Round(x * DisplayWidth),
-					(float) Math.Round(y * DisplayHeight)
-				)
-			));
-
-			/* Calculate Gestures */
-
-			// Is this the first finger on the screen?
-			if (FNAPlatform.GetNumTouchFingers() <= 1)
-			{
-				Vector2 pos = new Vector2(
-					(float)Math.Round(x * DisplayWidth),
-					(float)Math.Round(y * DisplayHeight)
-				);
-				touchDownTime = DateTime.Now;
-
-				if (anticipatedGesture == GestureState.DOUBLETAP)
-				{
-					if (touchDownTime.Subtract(touchUpTime) <= TimeSpan.FromMilliseconds(300))
-					{
-						if ((pos - touchDownPosition).Length() <= JITTER_THRESHOLD)
-						{
-							Console.WriteLine("DOUBLE TAP");
-							justDoubleTapped = true;
-						}
-					}
-
-					anticipatedGesture = GestureState.NONE;
-				}
-				else
-				{
-					anticipatedGesture = GestureState.HOLD;
-				}
-
-				touchDownPosition = pos;
-			}
-		}
-
-		internal static void INTERNAL_onFingerUp(
-			int fingerId,
-			float x,
-			float y
-		) {
-			toProcess.Enqueue(new TouchLocation(
-				fingerId,
-				TouchLocationState.Released,
-				new Vector2(
-					(float) Math.Round(x * DisplayWidth),
-					(float) Math.Round(y * DisplayHeight)
-				)
-			));
-
-			/* Calculate Gestures */
-
-			// Was this the last finger to lift?
-			if (FNAPlatform.GetNumTouchFingers() == 0)
-			{
-				bool didTap = false;
-
-				touchUpTime = DateTime.Now;
-
-				if (touchUpTime.Subtract(touchDownTime) <= TimeSpan.FromMilliseconds(1000))
-				{
-					Vector2 touchUpPosition = new Vector2(
-						(float)Math.Round(x * DisplayWidth),
-						(float)Math.Round(y * DisplayHeight)
-					);
-
-					if ((touchDownPosition - touchUpPosition).Length() <= JITTER_THRESHOLD)
-					{
-						if (!justDoubleTapped)
-						{
-							Console.WriteLine("TAP");
-							didTap = true;
-						}
-					}
-				}
-
-				anticipatedGesture = GestureState.NONE;
-				justDoubleTapped = false;
-
-				if (didTap)
-				{
-					anticipatedGesture = GestureState.DOUBLETAP;
-				}
-			}
-		}
-
-		internal static void INTERNAL_onFingerMotion(
-			int fingerId,
+			TouchLocationState state,
 			float x,
 			float y,
 			float dx,
 			float dy
 		) {
+			// Get the touch position
+			Vector2 touchPos = new Vector2(
+				(float)Math.Round(x * DisplayWidth),
+				(float)Math.Round(y * DisplayHeight)
+			);
+
+			// Process the touch on the next frame
 			toProcess.Enqueue(new TouchLocation(
 				fingerId,
-				TouchLocationState.Moved,
-				new Vector2(
-					(float) Math.Round(x * DisplayWidth),
-					(float) Math.Round(y * DisplayHeight)
-				)
+				state,
+				touchPos
 			));
+
+			// Use it for gesture detection
+			switch (state)
+			{
+				case TouchLocationState.Pressed:
+					CalculateGesture_FingerDown(touchPos);
+					break;
+
+				case TouchLocationState.Moved:
+					Vector2 delta = new Vector2(dx, dy);
+					CalculateGesture_FingerMoved(touchPos, delta);
+					break;
+
+				case TouchLocationState.Released:
+					CalculateGesture_FingerUp(touchPos);
+					break;
+			}
+			
+		}
+
+		internal static void CalculateGesture_FingerDown(Vector2 touchPosition)
+		{
+			// Is this the first finger on the screen?
+			if (FNAPlatform.GetNumTouchFingers() <= 1)
+			{
+				if (gState == GestureState.JUST_TAPPED)
+				{
+					// Handle Double Taps
+					TimeSpan timeBetweenTaps = DateTime.Now.Subtract(gReleaseTime);
+					if (timeBetweenTaps <= TimeSpan.FromMilliseconds(300))
+					{
+						float distance = (touchPosition - gTouchDownPosition).Length();
+						if (distance <= JITTER_THRESHOLD)
+						{
+							Console.WriteLine("DOUBLE TAP");
+							gState = GestureState.JUST_DOUBLETAPPED;
+						}
+					}
+				}
+
+				if (gState != GestureState.JUST_DOUBLETAPPED)
+				{
+					gState = GestureState.HOLDING;
+				}
+
+				// Store the time and position the user touched down
+				gTouchDownTime = DateTime.Now;
+				gTouchDownPosition = touchPosition;
+			}
+		}
+
+		internal static void CalculateGesture_FingerUp(Vector2 touchPosition)
+		{
+			// Was this the last finger to lift?
+			if (FNAPlatform.GetNumTouchFingers() == 0)
+			{
+				if (gState == GestureState.HOLDING)
+				{
+					TimeSpan timeHeld = DateTime.Now.Subtract(gTouchDownTime);
+					if (timeHeld < TimeSpan.FromMilliseconds(1000))
+					{
+						// Don't register a Tap immediately after a Double Tap
+						if (gState != GestureState.JUST_DOUBLETAPPED)
+						{
+							Console.WriteLine("TAP");
+							gState = GestureState.JUST_TAPPED;
+						}
+					}
+				}
+
+				if (gState != GestureState.JUST_TAPPED)
+				{
+					gState = GestureState.NONE;
+				}
+
+				// Store the time the finger was released
+				gReleaseTime = DateTime.Now;
+			}
+		}
+
+		internal static void CalculateGesture_FingerMoved(
+			Vector2 touchPosition,
+			Vector2 delta
+		) {
+			if (gState == GestureState.HOLDING)
+			{
+				if ((touchPosition - gTouchDownPosition).Length() > JITTER_THRESHOLD)
+				{
+					// Moved too far away
+					Console.WriteLine("OH NO");
+					gState = GestureState.NONE;
+				}
+			}
+		}
+
+		internal static void CalculateGesture_OnUpdate(Vector2 touchPosition)
+		{
+			if (gState == GestureState.HOLDING)
+			{
+				TimeSpan timeSinceTouchDown = DateTime.Now.Subtract(gTouchDownTime);
+				if (timeSinceTouchDown >= TimeSpan.FromMilliseconds(1000))
+				{
+					Console.WriteLine("HOLD");
+					gState = GestureState.NONE;
+				}
+			}
 		}
 
 		internal static void UpdateTouches()
@@ -240,17 +255,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			touches.RemoveAll(touch => touch.State == TouchLocationState.Released);
 
 			// Check for Hold gesture
-			if (anticipatedGesture == GestureState.HOLD && touches.Count > 0)
+			if (touches.Count > 0)
 			{
-				if (DateTime.Now.Subtract(touchDownTime) >= TimeSpan.FromMilliseconds(1000))
-				{
-					if ((touchDownPosition - touches[0].Position).Length() <= JITTER_THRESHOLD)
-					{
-						Console.WriteLine("HOLD");
-					}
-
-					anticipatedGesture = GestureState.NONE;
-				}
+				CalculateGesture_OnUpdate(touches[0].Position);
 			}
 
 			// Save touch states and positions for future reference

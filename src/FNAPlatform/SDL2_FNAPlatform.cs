@@ -827,28 +827,35 @@ namespace Microsoft.Xna.Framework
 					// Touch Input
 					else if (evt.type == SDL.SDL_EventType.SDL_FINGERDOWN)
 					{
-						TouchPanel.INTERNAL_onFingerDown(
+						TouchPanel.INTERNAL_onTouchEvent(
 							(int)evt.tfinger.fingerId,
+							TouchLocationState.Pressed,
 							evt.tfinger.x,
-							evt.tfinger.y
-						);
-					}
-					else if (evt.type == SDL.SDL_EventType.SDL_FINGERUP)
-					{
-						TouchPanel.INTERNAL_onFingerUp(
-							(int)evt.tfinger.fingerId,
-							evt.tfinger.x,
-							evt.tfinger.y
+							evt.tfinger.y,
+							0,
+							0
 						);
 					}
 					else if (evt.type == SDL.SDL_EventType.SDL_FINGERMOTION)
 					{
-						TouchPanel.INTERNAL_onFingerMotion(
+						TouchPanel.INTERNAL_onTouchEvent(
 							(int)evt.tfinger.fingerId,
+							TouchLocationState.Moved,
 							evt.tfinger.x,
 							evt.tfinger.y,
 							evt.tfinger.dx,
 							evt.tfinger.dy
+						);
+					}
+					else if (evt.type == SDL.SDL_EventType.SDL_FINGERUP)
+					{
+						TouchPanel.INTERNAL_onTouchEvent(
+							(int)evt.tfinger.fingerId,
+							TouchLocationState.Released,
+							evt.tfinger.x,
+							evt.tfinger.y,
+							0,
+							0
 						);
 					}
 
