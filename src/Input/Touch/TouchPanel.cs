@@ -83,7 +83,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		#region Private Constants
 
 		private const int MAX_TOUCHES = 8;
-		private const int JITTER_THRESHOLD = 50;
+		private const int MOVE_THRESHOLD = 35;
 
 		private enum GestureState
 		{
@@ -177,7 +177,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					if (timeBetweenTaps <= TimeSpan.FromMilliseconds(300))
 					{
 						float distance = (touchPosition - gTouchDownPosition).Length();
-						if (distance <= JITTER_THRESHOLD)
+						if (distance <= MOVE_THRESHOLD)
 						{
 							Console.WriteLine("DOUBLE TAP");
 							gState = GestureState.JUST_DOUBLETAPPED;
@@ -231,7 +231,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		) {
 			if (gState == GestureState.HOLDING)
 			{
-				if ((touchPosition - gTouchDownPosition).Length() > JITTER_THRESHOLD)
+				float distanceMoved = (touchPosition - gTouchDownPosition).Length();
+				if (distanceMoved > MOVE_THRESHOLD)
 				{
 					// Moved too far away
 					Console.WriteLine("OH NO");
