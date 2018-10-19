@@ -175,15 +175,18 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				if (gState == GestureState.JUST_TAPPED)
 				{
-					// Handle Double Taps
-					TimeSpan timeBetweenTaps = DateTime.Now.Subtract(gReleaseTime);
-					if (timeBetweenTaps <= TimeSpan.FromMilliseconds(300))
+					// Handle Double Tap gestures (if they're enabled)
+					if ((EnabledGestures & GestureType.DoubleTap) != 0)
 					{
-						float distance = (touchPosition - gTouchDownPosition).Length();
-						if (distance <= MOVE_THRESHOLD)
+						TimeSpan timeBetweenTaps = DateTime.Now.Subtract(gReleaseTime);
+						if (timeBetweenTaps <= TimeSpan.FromMilliseconds(300))
 						{
-							Console.WriteLine("DOUBLE TAP");
-							gState = GestureState.JUST_DOUBLETAPPED;
+							float distance = (touchPosition - gTouchDownPosition).Length();
+							if (distance <= MOVE_THRESHOLD)
+							{
+								Console.WriteLine("DOUBLE TAP");
+								gState = GestureState.JUST_DOUBLETAPPED;
+							}
 						}
 					}
 				}
@@ -206,14 +209,28 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				if (gState == GestureState.HOLDING)
 				{
-					TimeSpan timeHeld = DateTime.Now.Subtract(gTouchDownTime);
-					if (timeHeld < TimeSpan.FromMilliseconds(1000))
+					// Handle Tap gestures
+					bool tapEnabled = (EnabledGestures & GestureType.Tap) != 0;
+					bool dtapEnabled = (EnabledGestures & GestureType.DoubleTap) != 0;
+
+					if (tapEnabled || dtapEnabled)
 					{
-						// Don't register a Tap immediately after a Double Tap
-						if (gState != GestureState.JUST_DOUBLETAPPED)
+						TimeSpan timeHeld = DateTime.Now.Subtract(gTouchDownTime);
+						if (timeHeld < TimeSpan.FromMilliseconds(1000))
 						{
-							Console.WriteLine("TAP");
-							gState = GestureState.JUST_TAPPED;
+							// Don't register a Tap immediately after a Double Tap
+							if (gState != GestureState.JUST_DOUBLETAPPED)
+							{
+								if (tapEnabled)
+								{
+									Console.WriteLine("TAP");
+								}
+
+								/* Even if Tap isn't enabled, we still
+								 * need this for Double Tap detection.
+								 */
+								gState = GestureState.JUST_TAPPED;
+							}
 						}
 					}
 				}
@@ -256,8 +273,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					else
 					{
 						gState = GestureState.DRAGGING;
-
-						if (fdrag)
+						
+						if (fdrag) //TODO: Is this right?
 						{
 							Console.WriteLine("DRAGGING FREE");
 						}
@@ -270,11 +287,15 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			if (gState == GestureState.HOLDING)
 			{
-				TimeSpan timeSinceTouchDown = DateTime.Now.Subtract(gTouchDownTime);
-				if (timeSinceTouchDown >= TimeSpan.FromMilliseconds(1000))
+				// Handle Hold gestures (if they're enabled)
+				if ((EnabledGestures & GestureType.Hold) != 0)
 				{
-					Console.WriteLine("HOLD");
-					gState = GestureState.NONE;
+					TimeSpan timeSinceTouchDown = DateTime.Now.Subtract(gTouchDownTime);
+					if (timeSinceTouchDown >= TimeSpan.FromMilliseconds(1000))
+					{
+						Console.WriteLine("HOLD");
+						gState = GestureState.NONE;
+					}
 				}
 			}
 		}
