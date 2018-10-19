@@ -90,7 +90,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			NONE,
 			HOLDING,
 			JUST_TAPPED,
-			JUST_DOUBLETAPPED
+			JUST_DOUBLETAPPED,
+			DRAGGING,
+			DRAGGING_H,
+			DRAGGING_V,
+			PINCHING
 		};
 
 		#endregion
