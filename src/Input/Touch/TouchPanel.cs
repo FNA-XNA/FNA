@@ -77,6 +77,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static DateTime gReleaseTime;
 		private static Vector2 gTouchDownPosition;
 		private static int activeFingerId = -1;
+		private static bool justDoubleTapped = false;
 		private static GestureState gState = GestureState.NONE;
 		
 		#endregion
@@ -92,7 +93,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			HOLDING,
 			HELD,
 			JUST_TAPPED,
-			JUST_DOUBLETAPPED,
 			DRAGGING_FREE,
 			DRAGGING_H,
 			DRAGGING_V,
@@ -312,17 +312,14 @@ namespace Microsoft.Xna.Framework.Input.Touch
 								TimeSpan.FromTicks(DateTime.Now.Ticks)
 							));
 
-							gState = GestureState.JUST_DOUBLETAPPED;
+							justDoubleTapped = true;
 						}
 					}
 				}
 			}
 
-			if (gState != GestureState.JUST_DOUBLETAPPED)
-			{
-				// Prepare for a potential Tap or Hold gesture
-				gState = GestureState.HOLDING;
-			}
+			// Prepare for a potential Tap or Hold gesture
+			gState = GestureState.HOLDING;
 
 			// Store the time and position the user touched down
 			gTouchDownTime = DateTime.Now;
@@ -361,7 +358,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					if (timeHeld < TimeSpan.FromMilliseconds(1000))
 					{
 						// Don't register a Tap immediately after a Double Tap
-						if (gState != GestureState.JUST_DOUBLETAPPED)
+						if (!justDoubleTapped)
 						{
 							if (tapEnabled)
 							{
@@ -407,6 +404,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				gState = GestureState.NONE;
 			}
+
+			// Reset double tap flag so we can register taps again
+			justDoubleTapped = false;
 
 			// Store the time the finger was released
 			gReleaseTime = DateTime.Now;
@@ -512,7 +512,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		 */
 		private static void CalculateGesture_OnUpdate(Vector2 touchPosition)
 		{
-			// We only care about Hold gestures here
+			// Make sure the user is holding their finger still
 			if (gState != GestureState.HOLDING)
 			{
 				return;
