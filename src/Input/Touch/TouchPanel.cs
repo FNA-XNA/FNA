@@ -416,7 +416,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					{
 						// Horizontal Drag!
 						gestures.Enqueue(new GestureSample(
-							delta,
+							new Vector2(delta.X, 0),
 							Vector2.Zero,
 							GestureType.HorizontalDrag,
 							touchPosition,
@@ -430,7 +430,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					{
 						// Vertical Drag!
 						gestures.Enqueue(new GestureSample(
-							delta,
+							new Vector2(0, delta.Y),
 							Vector2.Zero,
 							GestureType.VerticalDrag,
 							touchPosition,
@@ -465,7 +465,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				// More Horizontal Dragging!
 				gestures.Enqueue(new GestureSample(
-					delta,
+					new Vector2(delta.X, 0),
 					Vector2.Zero,
 					GestureType.HorizontalDrag,
 					touchPosition,
@@ -477,7 +477,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				// More Vertical Dragging!
 				gestures.Enqueue(new GestureSample(
-					delta,
+					new Vector2(0, delta.Y),
 					Vector2.Zero,
 					GestureType.VerticalDrag,
 					touchPosition,
