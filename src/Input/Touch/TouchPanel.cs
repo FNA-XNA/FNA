@@ -127,7 +127,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				touchPos
 			));
 
-			// Use the event for gesture detection
+			// Notify the Gesture Detector
 			switch (state)
 			{
 				case TouchLocationState.Pressed:
@@ -146,18 +146,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureDetector.OnReleased(fingerId, touchPos);
 					break;
 			}
-			
-		}
-
-		internal static bool IsGestureEnabled(GestureType gestureType)
-		{
-			return (EnabledGestures & gestureType) != 0;
 		}
 
 		/* This runs at the beginning of each game frame
 		 * to assemble and update the list of active touches.
 		 */
-		internal static void UpdateTouches()
+		internal static void INTERNAL_updateTouches()
 		{
 			// Remove all touches that were released last frame
 			touches.RemoveAll(touch => touch.State == TouchLocationState.Released);
@@ -208,25 +202,25 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			// Process all new touch events
 			while (touchEvents.Count > 0)
 			{
-				TouchLocation touch = touchEvents.Dequeue();
+				TouchLocation touchEvent = touchEvents.Dequeue();
 
-				// Add a new (Pressed) touch if we have room
-				if (touch.State == TouchLocationState.Pressed
+				// Add a new touch to the list if we have room
+				if (touchEvent.State == TouchLocationState.Pressed
 					&& touches.Count < MAX_TOUCHES)
 				{
-					touches.Add(touch);
+					touches.Add(touchEvent);
 				}
 				else
 				{
 					// Update touches that were already registered
 					for (int i = 0; i < touches.Count; i += 1)
 					{
-						if (touches[i].Id == touch.Id)
+						if (touches[i].Id == touchEvent.Id)
 						{
 							// If this is a newly Pressed touch
 							if (touches[i].State == TouchLocationState.Pressed)
 							{
-								if (touch.State == TouchLocationState.Released)
+								if (touchEvent.State == TouchLocationState.Released)
 								{
 									// Mark it for a Released state next frame
 									if (!touchesToRelease.Contains(touches[i]))
@@ -240,19 +234,25 @@ namespace Microsoft.Xna.Framework.Input.Touch
 								// Update the existing touch with new data
 								touches[i] = new TouchLocation(
 									touches[i].Id,
-									touch.State,
-									touch.Position,
+									touchEvent.State,
+									touchEvent.Position,
 									prevTouches[i].State,
 									prevTouches[i].Position
 								);
 							}
 
-							// We found the touch we were looking for...
+							// We found the touch we were looking for.
 							break;
 						}
 					}
 				}
 			}
+		}
+
+		// Is the specified gesture enabled?
+		internal static bool IsGestureEnabled(GestureType gestureType)
+		{
+			return (EnabledGestures & gestureType) != 0;
 		}
 
 		#endregion

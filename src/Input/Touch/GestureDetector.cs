@@ -6,16 +6,31 @@ namespace Microsoft.Xna.Framework.Input.Touch
 {
 	internal static class GestureDetector
 	{
-		#region Private Variables
+		#region Private Static Variables
 
+		// The ID of the active finger (usually the first finger)
 		private static int activeFingerId = -1;
-		private static Vector2 flickVelocity;
+
+		// The position where the user first touched the screen
 		private static Vector2 pressPosition;
-		private static DateTime releaseTimestamp;
+
+		// The time when the user first touched the screen
 		private static DateTime pressTimestamp;
+
+		// The time when the user released all fingers from the screen
+		private static DateTime releaseTimestamp;
+
+		// The most recent time when the user moved the active finger
 		private static DateTime moveTimestamp;
+
+		// The current state of gesture detection
 		private static GestureState state = GestureState.NONE;
+
+		// A flag to cancel Taps if a double tap has just occurred
 		private static bool justDoubleTapped = false;
+
+		// The current velocity of the active finger
+		private static Vector2 velocity;
 
 		#endregion
 
@@ -27,7 +42,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		 */
 		private const int MOVE_THRESHOLD = 35;
 
-		/* All possible states of Gesture detection. */
+		#endregion
+
+		#region Private Enums
+
+		// All possible states of Gesture detection.
 		private enum GestureState
 		{
 			NONE,
@@ -190,9 +209,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				//TODO: If distance from original touch > MAX_THRESHOLD
 				//TODO: And if length of flick is long enough
-				Console.WriteLine(flickVelocity);
+				Console.WriteLine(velocity);
 				TouchPanel.gestures.Enqueue(new GestureSample(
-					flickVelocity,
+					velocity,
 					Vector2.Zero,
 					GestureType.Flick,
 					Vector2.Zero,
@@ -202,7 +221,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 
 			// Cancel out any accumulated flick velocity
-			flickVelocity = Vector2.Zero;
+			velocity = Vector2.Zero;
 		}
 
 		/* This is called whenever SDL detects a FingerMotion event.

@@ -1013,7 +1013,7 @@ namespace Microsoft.Xna.Framework
 				Keyboard.SetKeys(keys);
 				if (GetTouchCapabilities().IsConnected)
 				{
-					TouchPanel.UpdateTouches();
+					TouchPanel.INTERNAL_updateTouches();
 				}
 				game.Tick();
 			}
