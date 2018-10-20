@@ -76,6 +76,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static DateTime gTouchDownTime;
 		private static DateTime gReleaseTime;
 		private static Vector2 gTouchDownPosition;
+		private static int activeFingerId = -1;
 		private static GestureState gState = GestureState.NONE;
 		
 		#endregion
@@ -151,7 +152,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			switch (state)
 			{
 				case TouchLocationState.Pressed:
-					CalculateGesture_FingerDown(touchPos);
+					CalculateGesture_FingerDown(fingerId, touchPos);
 					break;
 
 				case TouchLocationState.Moved:
@@ -159,11 +160,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						(float) Math.Round(dx * DisplayWidth),
 						(float) Math.Round(dy * DisplayHeight)
 					);
-					CalculateGesture_FingerMoved(touchPos, delta);
+					CalculateGesture_FingerMoved(fingerId, touchPos, delta);
 					break;
 
 				case TouchLocationState.Released:
-					CalculateGesture_FingerUp(touchPos);
+					CalculateGesture_FingerUp(fingerId, touchPos);
 					break;
 			}
 			
@@ -271,11 +272,16 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Methods
 
-		private static void CalculateGesture_FingerDown(Vector2 touchPosition)
+		private static void CalculateGesture_FingerDown(int fingerId, Vector2 touchPosition)
 		{
-			// We only care about the first finger on the screen
-			if (FNAPlatform.GetNumTouchFingers() > 1)
+			// Set the active finger if there isn't one already
+			if (activeFingerId == -1)
 			{
+				activeFingerId = fingerId;
+			}
+			else if (fingerId != activeFingerId)
+			{
+				// Ignore the new finger for now
 				return;
 			}
 
@@ -319,10 +325,16 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			gTouchDownPosition = touchPosition;
 		}
 
-		private static void CalculateGesture_FingerUp(Vector2 touchPosition)
+		private static void CalculateGesture_FingerUp(int fingerId, Vector2 touchPosition)
 		{
-			// We only care about the last finger to leave the screen
-			if (FNAPlatform.GetNumTouchFingers() != 0)
+			// Reset the active finger if the user lifted it
+			if (fingerId == activeFingerId)
+			{
+				activeFingerId = -1;
+			}
+
+			// We're only interested in the very last finger to leave
+			if (FNAPlatform.GetNumTouchFingers() > 0)
 			{
 				return;
 			}
@@ -396,8 +408,19 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		 * Its primary purpose is to notice Drag gestures and cancel
 		 * Hold/Tap gestures if the user moves their finger too much.
 		 */
-		private static void CalculateGesture_FingerMoved(Vector2 touchPosition, Vector2 delta)
+		private static void CalculateGesture_FingerMoved(int fingerId, Vector2 touchPosition, Vector2 delta)
 		{
+			// Replace the active finger with this one if needed
+			if (activeFingerId == -1)
+			{
+				activeFingerId = fingerId;
+			}
+			else if (fingerId != activeFingerId)
+			{
+				// Ignore any other finger
+				return;
+			}
+
 			// Determine which drag gestures are enabled
 			bool hdrag = (EnabledGestures & GestureType.HorizontalDrag) != 0;
 			bool vdrag = (EnabledGestures & GestureType.VerticalDrag) != 0;
@@ -411,7 +434,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				if (distanceMoved > MOVE_THRESHOLD)
 				{
 					// All right, which drag are we going with?
-
 					if (hdrag && (Math.Abs(delta.X) > Math.Abs(delta.Y)))
 					{
 						// Horizontal Drag!
