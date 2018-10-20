@@ -73,13 +73,13 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static List<TouchLocation> toReleaseNextFrame = new List<TouchLocation>();
 
 		/* Gesture Variables */
-		private static int activeFingerId = -1;
+		private static int gActiveFingerId = -1;
 		private static Vector2 gFlickVelocity;
 		private static DateTime gReleaseTime;
 		private static Vector2 gTouchDownPosition;
 		private static DateTime gTouchDownTime;
 		private static GestureState gState = GestureState.NONE;
-		private static bool justDoubleTapped = false;
+		private static bool gJustDoubleTapped = false;
 		
 		#endregion
 
@@ -287,11 +287,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static void CalculateGesture_FingerDown(int fingerId, Vector2 touchPosition)
 		{
 			// Set the active finger if there isn't one already
-			if (activeFingerId == -1)
+			if (gActiveFingerId == -1)
 			{
-				activeFingerId = fingerId;
+				gActiveFingerId = fingerId;
 			}
-			else if (fingerId != activeFingerId)
+			else if (fingerId != gActiveFingerId)
 			{
 				// Ignore the new finger for now
 				return;
@@ -320,7 +320,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 								TimeSpan.FromTicks(DateTime.Now.Ticks)
 							));
 
-							justDoubleTapped = true;
+							gJustDoubleTapped = true;
 						}
 					}
 				}
@@ -341,9 +341,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static void CalculateGesture_FingerUp(int fingerId, Vector2 touchPosition)
 		{
 			// Reset the active finger if the user lifted it
-			if (fingerId == activeFingerId)
+			if (fingerId == gActiveFingerId)
 			{
-				activeFingerId = -1;
+				gActiveFingerId = -1;
 			}
 
 			// We're only interested in the very last finger to leave
@@ -366,7 +366,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					if (timeHeld < TimeSpan.FromMilliseconds(1000))
 					{
 						// Don't register a Tap immediately after a Double Tap
-						if (!justDoubleTapped)
+						if (!gJustDoubleTapped)
 						{
 							if (tapEnabled)
 							{
@@ -414,7 +414,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 
 			// Reset double tap flag so we can register taps again
-			justDoubleTapped = false;
+			gJustDoubleTapped = false;
 
 			// Store the time the finger was released
 			gReleaseTime = DateTime.Now;
@@ -427,11 +427,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static void CalculateGesture_FingerMoved(int fingerId, Vector2 touchPosition, Vector2 delta)
 		{
 			// Replace the active finger with this one if needed
-			if (activeFingerId == -1)
+			if (gActiveFingerId == -1)
 			{
-				activeFingerId = fingerId;
+				gActiveFingerId = fingerId;
 			}
-			else if (fingerId != activeFingerId)
+			else if (fingerId != gActiveFingerId)
 			{
 				// Ignore any other finger
 				return;
@@ -445,11 +445,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			// Check for drag initialization
 			if (gState == GestureState.HOLDING || gState == GestureState.HELD)
 			{
-				// If the finger moved outside the threshold distance
+				// Did the finger move far enough away from the original touch?
 				float distanceMoved = (touchPosition - gTouchDownPosition).Length();
 				if (distanceMoved > MOVE_THRESHOLD)
 				{
-					// All right, which drag are we going with?
+					// Which drag are we going with?
+
 					if (hdrag && (Math.Abs(delta.X) > Math.Abs(delta.Y)))
 					{
 						// Horizontal Drag!
