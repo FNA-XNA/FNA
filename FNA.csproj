@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -354,6 +354,7 @@
     <Compile Include="src\Input\Mouse.cs" />
     <Compile Include="src\Input\MouseState.cs" />
     <Compile Include="src\Input\TextInputEXT.cs" />
+    <Compile Include="src\Input\Touch\GestureDetector.cs" />
     <Compile Include="src\Input\Touch\GestureSample.cs" />
     <Compile Include="src\Input\Touch\GestureType.cs" />
     <Compile Include="src\Input\Touch\TouchCollection.cs" />

@@ -68,44 +68,15 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Static Variables
 
-		/* Touch Variables */
-		private static Queue<TouchLocation> toProcess = new Queue<TouchLocation>();
-		private static List<TouchLocation> toReleaseNextFrame = new List<TouchLocation>();
+		private static Queue<TouchLocation> touchEvents = new Queue<TouchLocation>();
+		private static List<TouchLocation> touchesToRelease = new List<TouchLocation>();
 
-		/* Gesture Variables */
-		private static int gActiveFingerId = -1;
-		private static Vector2 gFlickVelocity;
-		private static DateTime gReleaseTime;
-		private static Vector2 gTouchDownPosition;
-		private static DateTime gTouchDownTime;
-		private static GestureState gState = GestureState.NONE;
-		private static bool gJustDoubleTapped = false;
-		
 		#endregion
 
 		#region Private Constants
 
-		/* The maximum number of simultaneous touches allowed by XNA. */
+		// The maximum number of simultaneous touches allowed by XNA.
 		private const int MAX_TOUCHES = 8;
-
-		/* How far (in pixels) the user can move their finger in a gesture
-		 * before it counts as "moved". This prevents small, accidental
-		 * finger movements from interfering with Hold and Tap gestures.
-		 */
-		private const int MOVE_THRESHOLD = 35;
-
-		/* All possible states of Gesture detection. */
-		private enum GestureState
-		{
-			NONE,
-			HOLDING,
-			HELD,			/* Same as HOLDING, but after a Hold gesture has fired */
-			JUST_TAPPED,
-			DRAGGING_FREE,
-			DRAGGING_H,
-			DRAGGING_V,
-			PINCHING
-		};
 
 		#endregion
 
@@ -133,7 +104,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#endregion
 
-		#region Internal Methods
+		#region Internal Static Methods
 
 		internal static void INTERNAL_onTouchEvent(
 			int fingerId,
@@ -149,18 +120,18 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				(float) Math.Round(y * DisplayHeight)
 			);
 
-			// Process the touch on the next frame
-			toProcess.Enqueue(new TouchLocation(
+			// Add the event to the queue
+			touchEvents.Enqueue(new TouchLocation(
 				fingerId,
 				state,
 				touchPos
 			));
 
-			// Use it for gesture detection
+			// Use the event for gesture detection
 			switch (state)
 			{
 				case TouchLocationState.Pressed:
-					CalculateGesture_FingerDown(fingerId, touchPos);
+					GestureDetector.OnPressed(fingerId, touchPos);
 					break;
 
 				case TouchLocationState.Moved:
@@ -168,16 +139,24 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						(float) Math.Round(dx * DisplayWidth),
 						(float) Math.Round(dy * DisplayHeight)
 					);
-					CalculateGesture_FingerMoved(fingerId, touchPos, delta);
+					GestureDetector.OnMoved(fingerId, touchPos, delta);
 					break;
 
 				case TouchLocationState.Released:
-					CalculateGesture_FingerUp(fingerId, touchPos);
+					GestureDetector.OnReleased(fingerId, touchPos);
 					break;
 			}
 			
 		}
 
+		internal static bool IsGestureEnabled(GestureType gestureType)
+		{
+			return (EnabledGestures & gestureType) != 0;
+		}
+
+		/* This runs at the beginning of each game frame
+		 * to assemble and update the list of active touches.
+		 */
 		internal static void UpdateTouches()
 		{
 			// Remove all touches that were released last frame
@@ -186,7 +165,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			// Check for Hold gesture
 			if (touches.Count > 0)
 			{
-				CalculateGesture_OnUpdate(touches[0].Position);
+				GestureDetector.OnUpdate(touches[0].Position);
 			}
 
 			// Save touch states and positions for future reference
@@ -208,7 +187,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 
 			// Change formerly Pressed touches to Released if needed
-			foreach (TouchLocation rtouch in toReleaseNextFrame)
+			foreach (TouchLocation rtouch in touchesToRelease)
 			{
 				for (int i = 0; i < touches.Count; i += 1)
 				{
@@ -224,12 +203,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					}
 				}
 			}
-			toReleaseNextFrame.Clear();
+			touchesToRelease.Clear();
 
 			// Process all new touch events
-			while (toProcess.Count > 0)
+			while (touchEvents.Count > 0)
 			{
-				TouchLocation touch = toProcess.Dequeue();
+				TouchLocation touch = touchEvents.Dequeue();
 
 				// Add a new (Pressed) touch if we have room
 				if (touch.State == TouchLocationState.Pressed
@@ -250,9 +229,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 								if (touch.State == TouchLocationState.Released)
 								{
 									// Mark it for a Released state next frame
-									if (!toReleaseNextFrame.Contains(touches[i]))
+									if (!touchesToRelease.Contains(touches[i]))
 									{
-										toReleaseNextFrame.Add(touches[i]);
+										touchesToRelease.Add(touches[i]);
 									}
 								}
 							}
@@ -272,278 +251,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 							break;
 						}
 					}
-				}
-			}
-		}
-
-		#endregion
-
-		#region Private Methods
-
-		/* Called when SDL detects a FingerDown event.
-		 * This detects the first active finger, prepares for
-		 * Taps and Holds, and triggers Double Tap gestures.
-		 */
-		private static void CalculateGesture_FingerDown(int fingerId, Vector2 touchPosition)
-		{
-			// Set the active finger if there isn't one already
-			if (gActiveFingerId == -1)
-			{
-				gActiveFingerId = fingerId;
-			}
-			else if (fingerId != gActiveFingerId)
-			{
-				// Ignore the new finger for now
-				return;
-			}
-
-			// Handle Double Tap gestures
-			if (gState == GestureState.JUST_TAPPED)
-			{
-				if ((EnabledGestures & GestureType.DoubleTap) != 0)
-				{
-					// Must tap again within 300ms of original tap
-					TimeSpan timeBetweenTaps = DateTime.Now.Subtract(gReleaseTime);
-					if (timeBetweenTaps <= TimeSpan.FromMilliseconds(300))
-					{
-						// If the new tap is close to the original tap
-						float distance = (touchPosition - gTouchDownPosition).Length();
-						if (distance <= MOVE_THRESHOLD)
-						{
-							// Double Tap!
-							gestures.Enqueue(new GestureSample(
-								Vector2.Zero,
-								Vector2.Zero,
-								GestureType.DoubleTap,
-								touchPosition,
-								Vector2.Zero,
-								TimeSpan.FromTicks(DateTime.Now.Ticks)
-							));
-
-							gJustDoubleTapped = true;
-						}
-					}
-				}
-			}
-
-			// Prepare for a potential Tap or Hold gesture
-			gState = GestureState.HOLDING;
-
-			// Store the time and position the user touched down
-			gTouchDownTime = DateTime.Now;
-			gTouchDownPosition = touchPosition;
-		}
-
-		/* This is called when SDL detects a FingerUp event.
-		 * It's responsible for resetting the active finger
-		 * and firing Tap and Drag Complete gestures.
-		 */
-		private static void CalculateGesture_FingerUp(int fingerId, Vector2 touchPosition)
-		{
-			// Reset the active finger if the user lifted it
-			if (fingerId == gActiveFingerId)
-			{
-				gActiveFingerId = -1;
-			}
-
-			// We're only interested in the very last finger to leave
-			if (FNAPlatform.GetNumTouchFingers() > 0)
-			{
-				return;
-			}
-
-			// Check for Tap gesture
-			if (gState == GestureState.HOLDING)
-			{
-				// Which Taps are enabled?
-				bool tapEnabled = (EnabledGestures & GestureType.Tap) != 0;
-				bool dtapEnabled = (EnabledGestures & GestureType.DoubleTap) != 0;
-
-				if (tapEnabled || dtapEnabled)
-				{
-					// Must lift finger within 1 second of touching down to tap
-					TimeSpan timeHeld = DateTime.Now.Subtract(gTouchDownTime);
-					if (timeHeld < TimeSpan.FromMilliseconds(1000))
-					{
-						// Don't register a Tap immediately after a Double Tap
-						if (!gJustDoubleTapped)
-						{
-							if (tapEnabled)
-							{
-								// Tap!
-								gestures.Enqueue(new GestureSample(
-									Vector2.Zero,
-									Vector2.Zero,
-									GestureType.Tap,
-									touchPosition,
-									Vector2.Zero,
-									TimeSpan.FromTicks(DateTime.Now.Ticks)
-								));
-							}
-
-							/* Even if Tap isn't enabled, we still
-							* need this for Double Tap detection.
-							*/
-							gState = GestureState.JUST_TAPPED;
-						}
-					}
-				}
-			}
-			else if (gState == GestureState.DRAGGING_H ||
-					 gState == GestureState.DRAGGING_V ||
-					 gState == GestureState.DRAGGING_FREE
-			) {
-				if ((EnabledGestures & GestureType.DragComplete) != 0)
-				{
-					// Drag Complete!
-					gestures.Enqueue(new GestureSample(
-						Vector2.Zero,
-						Vector2.Zero,
-						GestureType.DragComplete,
-						Vector2.Zero,
-						Vector2.Zero,
-						TimeSpan.FromTicks(DateTime.Now.Ticks)
-					));
-				}
-			}
-
-			// Reset the state if the user didn't just tap
-			if (gState != GestureState.JUST_TAPPED)
-			{
-				gState = GestureState.NONE;
-			}
-
-			// Reset double tap flag so we can register taps again
-			gJustDoubleTapped = false;
-
-			// Store the time the finger was released
-			gReleaseTime = DateTime.Now;
-		}
-
-		/* This is called whenever SDL detects a FingerMotion event.
-		 * Its primary purpose is to notice Drag gestures and cancel
-		 * Hold/Tap gestures if the user moves their finger too much.
-		 */
-		private static void CalculateGesture_FingerMoved(int fingerId, Vector2 touchPosition, Vector2 delta)
-		{
-			// Replace the active finger with this one if needed
-			if (gActiveFingerId == -1)
-			{
-				gActiveFingerId = fingerId;
-			}
-			else if (fingerId != gActiveFingerId)
-			{
-				// Ignore any other finger
-				return;
-			}
-
-			// Determine which drag gestures are enabled
-			bool hdrag = (EnabledGestures & GestureType.HorizontalDrag) != 0;
-			bool vdrag = (EnabledGestures & GestureType.VerticalDrag) != 0;
-			bool fdrag = (EnabledGestures & GestureType.FreeDrag) != 0;
-
-			// Check for drag initialization
-			if (gState == GestureState.HOLDING || gState == GestureState.HELD)
-			{
-				// Did the finger move far enough away from the original touch?
-				float distanceMoved = (touchPosition - gTouchDownPosition).Length();
-				if (distanceMoved > MOVE_THRESHOLD)
-				{
-					// Which drag are we going with?
-
-					if (hdrag && (Math.Abs(delta.X) > Math.Abs(delta.Y)))
-					{
-						// Horizontal Drag!
-						gState = GestureState.DRAGGING_H;
-					}
-					else if (vdrag && (Math.Abs(delta.Y) > Math.Abs(delta.X)))
-					{
-						// Vertical Drag!
-						gState = GestureState.DRAGGING_V;
-					}
-					else if (fdrag)
-					{
-						// Free Drag!
-						gState = GestureState.DRAGGING_FREE;
-					}
-					else
-					{
-						// No drag...
-						gState = GestureState.NONE;
-					}
-				}
-			}
-
-			// Handle Dragging
-			if (gState == GestureState.DRAGGING_H && hdrag)
-			{
-				// Horizontal Dragging!
-				gestures.Enqueue(new GestureSample(
-					new Vector2(delta.X, 0),
-					Vector2.Zero,
-					GestureType.HorizontalDrag,
-					touchPosition,
-					Vector2.Zero,
-					TimeSpan.FromTicks(DateTime.Now.Ticks)
-				));
-			}
-			else if (gState == GestureState.DRAGGING_V && vdrag)
-			{
-				// Vertical Dragging!
-				gestures.Enqueue(new GestureSample(
-					new Vector2(0, delta.Y),
-					Vector2.Zero,
-					GestureType.VerticalDrag,
-					touchPosition,
-					Vector2.Zero,
-					TimeSpan.FromTicks(DateTime.Now.Ticks)
-				));
-			}
-			else if (gState == GestureState.DRAGGING_FREE && fdrag)
-			{
-				// Free Dragging!
-				gestures.Enqueue(new GestureSample(
-					delta,
-					Vector2.Zero,
-					GestureType.FreeDrag,
-					touchPosition,
-					Vector2.Zero,
-					TimeSpan.FromTicks(DateTime.Now.Ticks)
-				));
-			}
-
-			//TODO: Calculate touch velocity for flicking
-		}
-
-		/* This is called at the beginning of each game frame to check for
-		 * Hold gestures. Since SDL doesn't fire events for stationary touches,
-		 * this is the only way to be sure we notice when one second has passed.
-		 */
-		private static void CalculateGesture_OnUpdate(Vector2 touchPosition)
-		{
-			// Only proceed if the user is holding their finger still
-			if (gState != GestureState.HOLDING)
-			{
-				return;
-			}
-
-			// Are Hold gestures enabled?
-			if ((EnabledGestures & GestureType.Hold) != 0)
-			{
-				TimeSpan timeSinceTouchDown = DateTime.Now.Subtract(gTouchDownTime);
-				if (timeSinceTouchDown >= TimeSpan.FromMilliseconds(1000))
-				{
-					// Hold!
-					gestures.Enqueue(new GestureSample(
-						Vector2.Zero,
-						Vector2.Zero,
-						GestureType.Hold,
-						touchPosition,
-						Vector2.Zero,
-						TimeSpan.FromTicks(DateTime.Now.Ticks)
-					));
-
-					gState = GestureState.HELD;
 				}
 			}
 		}
