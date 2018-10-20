@@ -707,8 +707,6 @@ namespace Microsoft.Xna.Framework
 			Rectangle windowBounds = game.Window.ClientBounds;
 			Mouse.INTERNAL_WindowWidth = windowBounds.Width;
 			Mouse.INTERNAL_WindowHeight = windowBounds.Height;
-			TouchPanel.DisplayWidth = windowBounds.Width;
-			TouchPanel.DisplayHeight = windowBounds.Height;
 
 			// Which display did we end up on?
 			int displayIndex = SDL.SDL_GetWindowDisplayIndex(
@@ -900,8 +898,6 @@ namespace Microsoft.Xna.Framework
 							// This is called on both API and WM resizes
 							Mouse.INTERNAL_WindowWidth = evt.window.data1;
 							Mouse.INTERNAL_WindowHeight = evt.window.data2;
-							TouchPanel.DisplayWidth = evt.window.data1;
-							TouchPanel.DisplayHeight = evt.window.data2;
 						}
 						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED)
 						{

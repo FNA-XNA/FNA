@@ -403,6 +403,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			Input.Mouse.INTERNAL_BackBufferWidth = PresentationParameters.BackBufferWidth;
 			Input.Mouse.INTERNAL_BackBufferHeight = PresentationParameters.BackBufferHeight;
 
+			// The Touch Panel needs this too, for the same reason.
+			Input.Touch.TouchPanel.DisplayWidth = PresentationParameters.BackBufferWidth;
+			Input.Touch.TouchPanel.DisplayHeight = PresentationParameters.BackBufferHeight;
+
 			// Force set the default render states.
 			BlendState = BlendState.Opaque;
 			DepthStencilState = DepthStencilState.Default;
@@ -664,6 +668,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			// The mouse needs to know this for faux-backbuffer mouse scaling.
 			Input.Mouse.INTERNAL_BackBufferWidth = PresentationParameters.BackBufferWidth;
 			Input.Mouse.INTERNAL_BackBufferHeight = PresentationParameters.BackBufferHeight;
+
+			// The Touch Panel needs this too, for the same reason.
+			Input.Touch.TouchPanel.DisplayWidth = PresentationParameters.BackBufferWidth;
+			Input.Touch.TouchPanel.DisplayHeight = PresentationParameters.BackBufferHeight;
 
 #if WIIU_GAMEPAD
 			wiiuPixelData = new byte[
