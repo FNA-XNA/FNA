@@ -74,10 +74,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				activeFingerId = fingerId;
 			}
-
-			// If the new finger isn't the active finger, just ignore it...
-			if (fingerId != activeFingerId)
+			else
 			{
+				// We don't care about other fingers
 				return;
 			}
 
@@ -121,7 +120,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		 */
 		internal static void OnReleased(int fingerId, Vector2 touchPosition)
 		{
-			// Reset the active finger if the user lifted it
+			// Did the user lift the active finger?
 			if (fingerId == activeFingerId)
 			{
 				activeFingerId = -1;
@@ -230,19 +229,18 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		 */
 		internal static void OnMoved(int fingerId, Vector2 touchPosition, Vector2 delta)
 		{
-			// Is this the finger we were expecting?
-			if (fingerId != activeFingerId)
+			// If we lost the active finger
+			if (activeFingerId == -1)
 			{
-				// Set the active finger to this one if needed
-				if (activeFingerId == -1)
-				{
-					activeFingerId = fingerId;
-				}
-				else
-				{
-					// Ignore any other finger
-					return;
-				}
+				// This is our new active finger!
+				activeFingerId = fingerId;
+			}
+			// If this finger is not the active one
+			else if (fingerId != activeFingerId)
+			{
+				// Ignore the imposter!
+				//TODO: Pinching goes here I think
+				return;
 			}
 
 			// Determine which drag gestures are enabled
@@ -323,7 +321,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			DateTime now = DateTime.Now;
 			TimeSpan dt = now - moveTimestamp;
 
-			//TODO Stuff
+			//TODO Flicking calculation
 
 			moveTimestamp = now;
 		}
