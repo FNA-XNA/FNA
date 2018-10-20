@@ -73,25 +73,33 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static List<TouchLocation> toReleaseNextFrame = new List<TouchLocation>();
 
 		/* Gesture Variables */
-		private static DateTime gTouchDownTime;
+		private static int activeFingerId = -1;
+		private static Vector2 gFlickVelocity;
 		private static DateTime gReleaseTime;
 		private static Vector2 gTouchDownPosition;
-		private static int activeFingerId = -1;
-		private static bool justDoubleTapped = false;
+		private static DateTime gTouchDownTime;
 		private static GestureState gState = GestureState.NONE;
+		private static bool justDoubleTapped = false;
 		
 		#endregion
 
 		#region Private Constants
 
+		/* The maximum number of simultaneous touches allowed by XNA. */
 		private const int MAX_TOUCHES = 8;
+
+		/* How far (in pixels) the user can move their finger in a gesture
+		 * before it counts as "moved". This prevents small, accidental
+		 * finger movements from interfering with Hold and Tap gestures.
+		 */
 		private const int MOVE_THRESHOLD = 35;
 
+		/* All possible states of Gesture detection. */
 		private enum GestureState
 		{
 			NONE,
 			HOLDING,
-			HELD,
+			HELD,			/* Same as HOLDING, but after a Hold gesture has fired */
 			JUST_TAPPED,
 			DRAGGING_FREE,
 			DRAGGING_H,
