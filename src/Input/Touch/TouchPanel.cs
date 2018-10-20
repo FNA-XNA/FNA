@@ -512,7 +512,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		 */
 		private static void CalculateGesture_OnUpdate(Vector2 touchPosition)
 		{
-			// Is the user holding their finger still?
+			// Only proceed if the user is holding their finger still
 			if (gState != GestureState.HOLDING)
 			{
 				return;
