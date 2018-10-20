@@ -168,138 +168,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			
 		}
 
-		internal static void CalculateGesture_FingerDown(Vector2 touchPosition)
-		{
-			// Is this the first finger on the screen?
-			if (FNAPlatform.GetNumTouchFingers() <= 1)
-			{
-				if (gState == GestureState.JUST_TAPPED)
-				{
-					// Handle Double Tap gestures (if they're enabled)
-					if ((EnabledGestures & GestureType.DoubleTap) != 0)
-					{
-						TimeSpan timeBetweenTaps = DateTime.Now.Subtract(gReleaseTime);
-						if (timeBetweenTaps <= TimeSpan.FromMilliseconds(300))
-						{
-							float distance = (touchPosition - gTouchDownPosition).Length();
-							if (distance <= MOVE_THRESHOLD)
-							{
-								Console.WriteLine("DOUBLE TAP");
-								gState = GestureState.JUST_DOUBLETAPPED;
-							}
-						}
-					}
-				}
-
-				if (gState != GestureState.JUST_DOUBLETAPPED)
-				{
-					gState = GestureState.HOLDING;
-				}
-
-				// Store the time and position the user touched down
-				gTouchDownTime = DateTime.Now;
-				gTouchDownPosition = touchPosition;
-			}
-		}
-
-		internal static void CalculateGesture_FingerUp(Vector2 touchPosition)
-		{
-			// Was this the last finger to lift?
-			if (FNAPlatform.GetNumTouchFingers() == 0)
-			{
-				if (gState == GestureState.HOLDING)
-				{
-					// Handle Tap gestures
-					bool tapEnabled = (EnabledGestures & GestureType.Tap) != 0;
-					bool dtapEnabled = (EnabledGestures & GestureType.DoubleTap) != 0;
-
-					if (tapEnabled || dtapEnabled)
-					{
-						TimeSpan timeHeld = DateTime.Now.Subtract(gTouchDownTime);
-						if (timeHeld < TimeSpan.FromMilliseconds(1000))
-						{
-							// Don't register a Tap immediately after a Double Tap
-							if (gState != GestureState.JUST_DOUBLETAPPED)
-							{
-								if (tapEnabled)
-								{
-									Console.WriteLine("TAP");
-								}
-
-								/* Even if Tap isn't enabled, we still
-								 * need this for Double Tap detection.
-								 */
-								gState = GestureState.JUST_TAPPED;
-							}
-						}
-					}
-				}
-
-				if (gState != GestureState.JUST_TAPPED)
-				{
-					gState = GestureState.NONE;
-				}
-
-				// Store the time the finger was released
-				gReleaseTime = DateTime.Now;
-			}
-		}
-
-		internal static void CalculateGesture_FingerMoved(
-			Vector2 touchPosition,
-			Vector2 delta
-		) {
-			if (gState == GestureState.HOLDING)
-			{
-				float distanceMoved = (touchPosition - gTouchDownPosition).Length();
-				if (distanceMoved > MOVE_THRESHOLD)
-				{
-					// Moved too far away to be a Hold...is it a drag?
-
-					bool hdrag = (EnabledGestures & GestureType.HorizontalDrag) != 0;
-					bool vdrag = (EnabledGestures & GestureType.VerticalDrag) != 0;
-					bool fdrag = (EnabledGestures & GestureType.FreeDrag) != 0;
-
-					if (hdrag && Math.Abs(delta.X) > Math.Abs(delta.Y))
-					{
-						gState = GestureState.DRAGGING_H;
-						Console.WriteLine("DRAGGING HORIZONTALLY");
-					}
-					else if (vdrag && Math.Abs(delta.Y) > Math.Abs(delta.X))
-					{
-						gState = GestureState.DRAGGING_V;
-						Console.WriteLine("DRAGGING VERTICALLY");
-					}
-					else
-					{
-						gState = GestureState.DRAGGING;
-						
-						if (fdrag) //TODO: Is this right?
-						{
-							Console.WriteLine("DRAGGING FREE");
-						}
-					}
-				}
-			}
-		}
-
-		internal static void CalculateGesture_OnUpdate(Vector2 touchPosition)
-		{
-			if (gState == GestureState.HOLDING)
-			{
-				// Handle Hold gestures (if they're enabled)
-				if ((EnabledGestures & GestureType.Hold) != 0)
-				{
-					TimeSpan timeSinceTouchDown = DateTime.Now.Subtract(gTouchDownTime);
-					if (timeSinceTouchDown >= TimeSpan.FromMilliseconds(1000))
-					{
-						Console.WriteLine("HOLD");
-						gState = GestureState.NONE;
-					}
-				}
-			}
-		}
-
 		internal static void UpdateTouches()
 		{
 			// Remove all touches that were released last frame
@@ -393,6 +261,233 @@ namespace Microsoft.Xna.Framework.Input.Touch
 							// We found the touch we were looking for...
 							break;
 						}
+					}
+				}
+			}
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private static void CalculateGesture_FingerDown(Vector2 touchPosition)
+		{
+			// Is this the first finger on the screen?
+			if (FNAPlatform.GetNumTouchFingers() <= 1)
+			{
+				if (gState == GestureState.JUST_TAPPED)
+				{
+					// Handle Double Tap gestures (if they're enabled)
+					if ((EnabledGestures & GestureType.DoubleTap) != 0)
+					{
+						TimeSpan timeBetweenTaps = DateTime.Now.Subtract(gReleaseTime);
+						if (timeBetweenTaps <= TimeSpan.FromMilliseconds(300))
+						{
+							float distance = (touchPosition - gTouchDownPosition).Length();
+							if (distance <= MOVE_THRESHOLD)
+							{
+								gestures.Enqueue(new GestureSample(
+									Vector2.Zero,
+									Vector2.Zero,
+									GestureType.DoubleTap,
+									touchPosition,
+									Vector2.Zero,
+									TimeSpan.FromTicks(DateTime.Now.Ticks)
+								));
+
+								gState = GestureState.JUST_DOUBLETAPPED;
+							}
+						}
+					}
+				}
+
+				if (gState != GestureState.JUST_DOUBLETAPPED)
+				{
+					gState = GestureState.HOLDING;
+				}
+
+				// Store the time and position the user touched down
+				gTouchDownTime = DateTime.Now;
+				gTouchDownPosition = touchPosition;
+			}
+		}
+
+		private static void CalculateGesture_FingerUp(Vector2 touchPosition)
+		{
+			// Was this the last finger to lift?
+			if (FNAPlatform.GetNumTouchFingers() == 0)
+			{
+				if (gState == GestureState.HOLDING)
+				{
+					// Handle Tap gestures
+					bool tapEnabled = (EnabledGestures & GestureType.Tap) != 0;
+					bool dtapEnabled = (EnabledGestures & GestureType.DoubleTap) != 0;
+
+					if (tapEnabled || dtapEnabled)
+					{
+						TimeSpan timeHeld = DateTime.Now.Subtract(gTouchDownTime);
+						if (timeHeld < TimeSpan.FromMilliseconds(1000))
+						{
+							// Don't register a Tap immediately after a Double Tap
+							if (gState != GestureState.JUST_DOUBLETAPPED)
+							{
+								if (tapEnabled)
+								{
+									gestures.Enqueue(new GestureSample(
+										Vector2.Zero,
+										Vector2.Zero,
+										GestureType.Tap,
+										touchPosition,
+										Vector2.Zero,
+										TimeSpan.FromTicks(DateTime.Now.Ticks)
+									));
+								}
+
+								/* Even if Tap isn't enabled, we still
+								 * need this for Double Tap detection.
+								 */
+								gState = GestureState.JUST_TAPPED;
+							}
+						}
+					}
+				}
+
+				if (gState != GestureState.JUST_TAPPED)
+				{
+					gState = GestureState.NONE;
+				}
+
+				// Store the time the finger was released
+				gReleaseTime = DateTime.Now;
+			}
+		}
+
+		private static void CalculateGesture_FingerMoved(
+			Vector2 touchPosition,
+			Vector2 delta
+		) {
+			// Determine which drag gestures are enabled
+			bool hdrag = (EnabledGestures & GestureType.HorizontalDrag) != 0;
+			bool vdrag = (EnabledGestures & GestureType.VerticalDrag) != 0;
+			bool fdrag = (EnabledGestures & GestureType.FreeDrag) != 0;
+
+			// Check for finger movement beyond the threshold
+			if (gState == GestureState.HOLDING)
+			{
+				float distanceMoved = (touchPosition - gTouchDownPosition).Length();
+				if (distanceMoved > MOVE_THRESHOLD)
+				{
+					// Moved too far away to be a Hold... must be a Drag
+					if (hdrag && Math.Abs(delta.X) > Math.Abs(delta.Y))
+					{
+						// Start Horizontal Drag
+						gestures.Enqueue(new GestureSample(
+							delta,
+							Vector2.Zero,
+							GestureType.HorizontalDrag,
+							touchPosition,
+							Vector2.Zero,
+							TimeSpan.FromTicks(DateTime.Now.Ticks)
+						));
+
+						gState = GestureState.DRAGGING_H;
+					}
+					else if (vdrag && Math.Abs(delta.Y) > Math.Abs(delta.X))
+					{
+						// Start Vertical Drag
+						gestures.Enqueue(new GestureSample(
+							delta,
+							Vector2.Zero,
+							GestureType.VerticalDrag,
+							touchPosition,
+							Vector2.Zero,
+							TimeSpan.FromTicks(DateTime.Now.Ticks)
+						));
+
+						gState = GestureState.DRAGGING_V;
+					}
+					else
+					{
+						gState = GestureState.DRAGGING;
+
+						if (fdrag) //TODO: Is this right?
+						{
+							// Start Free Drag
+							gestures.Enqueue(new GestureSample(
+								delta,
+								Vector2.Zero,
+								GestureType.FreeDrag,
+								touchPosition,
+								Vector2.Zero,
+								TimeSpan.FromTicks(DateTime.Now.Ticks)
+							));
+						}
+					}
+				}
+			}
+			else if (gState == GestureState.DRAGGING_H && hdrag)
+			{
+				// Update with the latest horizontal drag data
+				gestures.Enqueue(new GestureSample(
+					delta,
+					Vector2.Zero,
+					GestureType.HorizontalDrag,
+					touchPosition,
+					Vector2.Zero,
+					TimeSpan.FromTicks(DateTime.Now.Ticks)
+				));
+			}
+			else if (gState == GestureState.DRAGGING_V && vdrag)
+			{
+				// Update with the latest vertical drag data
+				gestures.Enqueue(new GestureSample(
+					delta,
+					Vector2.Zero,
+					GestureType.VerticalDrag,
+					touchPosition,
+					Vector2.Zero,
+					TimeSpan.FromTicks(DateTime.Now.Ticks)
+				));
+			}
+			else if (gState == GestureState.DRAGGING)
+			{
+				if (fdrag)
+				{
+					// Update with the latest free drag data
+					gestures.Enqueue(new GestureSample(
+						delta,
+						Vector2.Zero,
+						GestureType.FreeDrag,
+						touchPosition,
+						Vector2.Zero,
+						TimeSpan.FromTicks(DateTime.Now.Ticks)
+					));
+				}
+
+				//TODO: Flicking
+			}
+		}
+
+		private static void CalculateGesture_OnUpdate(Vector2 touchPosition)
+		{
+			if (gState == GestureState.HOLDING)
+			{
+				// Handle Hold gestures (if they're enabled)
+				if ((EnabledGestures & GestureType.Hold) != 0)
+				{
+					TimeSpan timeSinceTouchDown = DateTime.Now.Subtract(gTouchDownTime);
+					if (timeSinceTouchDown >= TimeSpan.FromMilliseconds(1000))
+					{
+						gestures.Enqueue(new GestureSample(
+							Vector2.Zero,
+							Vector2.Zero,
+							GestureType.Hold,
+							touchPosition,
+							Vector2.Zero,
+							TimeSpan.FromTicks(DateTime.Now.Ticks)
+						));
+
+						gState = GestureState.NONE;
 					}
 				}
 			}
