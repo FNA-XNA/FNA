@@ -89,6 +89,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			NONE,
 			HOLDING,
+			HELD,
 			JUST_TAPPED,
 			JUST_DOUBLETAPPED,
 			DRAGGING_FREE,
@@ -403,7 +404,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			bool fdrag = (EnabledGestures & GestureType.FreeDrag) != 0;
 
 			// Check for drag initialization
-			if (gState == GestureState.HOLDING)
+			if (gState == GestureState.HOLDING || gState == GestureState.HELD)
 			{
 				// If the finger moved outside the threshold distance
 				float distanceMoved = (touchPosition - gTouchDownPosition).Length();
@@ -528,8 +529,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						TimeSpan.FromTicks(DateTime.Now.Ticks)
 					));
 
-					// Reset the state since nothing can follow a Hold
-					gState = GestureState.NONE;
+					gState = GestureState.HELD;
 				}
 			}
 		}
