@@ -272,6 +272,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Methods
 
+		/* Called when SDL detects a FingerDown event.
+		 * This detects the first active finger, prepares for
+		 * Taps and Holds, and triggers Double Tap gestures.
+		 */
 		private static void CalculateGesture_FingerDown(int fingerId, Vector2 touchPosition)
 		{
 			// Set the active finger if there isn't one already
@@ -325,6 +329,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			gTouchDownPosition = touchPosition;
 		}
 
+		/* This is called when SDL detects a FingerUp event.
+		 * It's responsible for resetting the active finger
+		 * and firing Tap and Drag Complete gestures.
+		 */
 		private static void CalculateGesture_FingerUp(int fingerId, Vector2 touchPosition)
 		{
 			// Reset the active finger if the user lifted it
@@ -437,43 +445,16 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					if (hdrag && (Math.Abs(delta.X) > Math.Abs(delta.Y)))
 					{
 						// Horizontal Drag!
-						gestures.Enqueue(new GestureSample(
-							new Vector2(delta.X, 0),
-							Vector2.Zero,
-							GestureType.HorizontalDrag,
-							touchPosition,
-							Vector2.Zero,
-							TimeSpan.FromTicks(DateTime.Now.Ticks)
-						));
-
 						gState = GestureState.DRAGGING_H;
 					}
 					else if (vdrag && (Math.Abs(delta.Y) > Math.Abs(delta.X)))
 					{
 						// Vertical Drag!
-						gestures.Enqueue(new GestureSample(
-							new Vector2(0, delta.Y),
-							Vector2.Zero,
-							GestureType.VerticalDrag,
-							touchPosition,
-							Vector2.Zero,
-							TimeSpan.FromTicks(DateTime.Now.Ticks)
-						));
-
 						gState = GestureState.DRAGGING_V;
 					}
 					else if (fdrag)
 					{
 						// Free Drag!
-						gestures.Enqueue(new GestureSample(
-							delta,
-							Vector2.Zero,
-							GestureType.FreeDrag,
-							touchPosition,
-							Vector2.Zero,
-							TimeSpan.FromTicks(DateTime.Now.Ticks)
-						));
-
 						gState = GestureState.DRAGGING_FREE;
 					}
 					else
@@ -483,9 +464,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					}
 				}
 			}
-			else if (gState == GestureState.DRAGGING_H && hdrag)
+
+			// Handle Dragging
+			if (gState == GestureState.DRAGGING_H && hdrag)
 			{
-				// More Horizontal Dragging!
+				// Horizontal Dragging!
 				gestures.Enqueue(new GestureSample(
 					new Vector2(delta.X, 0),
 					Vector2.Zero,
@@ -497,7 +480,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 			else if (gState == GestureState.DRAGGING_V && vdrag)
 			{
-				// More Vertical Dragging!
+				// Vertical Dragging!
 				gestures.Enqueue(new GestureSample(
 					new Vector2(0, delta.Y),
 					Vector2.Zero,
@@ -509,7 +492,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 			else if (gState == GestureState.DRAGGING_FREE && fdrag)
 			{
-				// More Free Dragging!
+				// Free Dragging!
 				gestures.Enqueue(new GestureSample(
 					delta,
 					Vector2.Zero,
