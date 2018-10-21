@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input.Touch;
 
@@ -124,9 +125,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				return;
 			}
 
-			// Set the timestamp
-			releaseTimestamp = DateTime.Now;
-
 			// Check for Tap gesture
 			if (state == GestureState.HOLDING)
 			{
@@ -169,13 +167,13 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			justDoubleTapped = false;
 
 			// Check for Drag Complete gesture
-			bool wasDragging = (state == GestureState.DRAGGING_H ||
+			if (TouchPanel.IsGestureEnabled(GestureType.DragComplete))
+			{
+				bool wasDragging = (state == GestureState.DRAGGING_H ||
 								state == GestureState.DRAGGING_V ||
 								state == GestureState.DRAGGING_FREE);
 
-			if (wasDragging)
-			{
-				if (TouchPanel.IsGestureEnabled(GestureType.DragComplete))
+				if (wasDragging)
 				{
 					// Drag Complete!
 					TouchPanel.gestures.Enqueue(new GestureSample(
@@ -195,7 +193,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				state = GestureState.NONE;
 			}
 
-			// Handle Flicks
+			// Set the timestamp
+			releaseTimestamp = DateTime.Now;
 		}
 
 		internal static void OnMoved(int fingerId, Vector2 touchPosition, Vector2 delta)
@@ -289,16 +288,27 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 		}
 
-		internal static void OnUpdate(Vector2 touchPosition)
+		internal static void OnTick()
 		{
-			// Only proceed if the user is holding their finger still
+			// Only proceed if the user has at least one finger on the screen
+			if (TouchPanel.touches.Count == 0)
+			{
+				return;
+			}
+
+			// Only proceed if the user is holding the finger in place
 			if (state != GestureState.HOLDING)
 			{
 				return;
 			}
 
+			// Get the first available touch
+			TouchLocation touch = TouchPanel.touches[0];
+
+			// Handle Hold gestures
 			if (TouchPanel.IsGestureEnabled(GestureType.Hold))
 			{
+				// Has the user held the finger long enough?
 				TimeSpan timeSincePress = DateTime.Now - pressTimestamp;
 				if (timeSincePress >= TimeSpan.FromSeconds(1))
 				{
@@ -307,7 +317,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						Vector2.Zero,
 						Vector2.Zero,
 						GestureType.Hold,
-						touchPosition,
+						touch.Position,
 						Vector2.Zero,
 						TimeSpan.FromTicks(DateTime.Now.Ticks)
 					));

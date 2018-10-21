@@ -69,7 +69,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		#region Private Static Variables
 
 		private static Queue<TouchLocation> touchEvents = new Queue<TouchLocation>();
-		private static List<TouchLocation> touchesToRelease = new List<TouchLocation>();
+		private static List<int> touchIDsToRelease = new List<int>();
 
 		#endregion
 
@@ -127,7 +127,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				touchPos
 			));
 
-			// Notify the Gesture Detector
+			// Notify the Gesture Detector about the event
 			switch (state)
 			{
 				case TouchLocationState.Pressed:
@@ -148,45 +148,26 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 		}
 
-		/* This runs at the beginning of each game frame
-		 * to assemble and update the list of active touches.
-		 */
 		internal static void INTERNAL_updateTouches()
 		{
 			// Remove all touches that were released last frame
 			touches.RemoveAll(touch => touch.State == TouchLocationState.Released);
 
-			// Check for Hold gesture
-			if (touches.Count > 0)
-			{
-				GestureDetector.OnUpdate(touches[0].Position);
-			}
+			// Update Gesture Detector for time-sensitive gestures
+			GestureDetector.OnTick();
 
 			// Save touch states and positions for future reference
 			List<TouchLocation> prevTouches = new List<TouchLocation>(touches);
 
-			// Change formerly Pressed touches to Moved
+			// Process Pressed touch events from last frame
 			for (int i = 0; i < touches.Count; i += 1)
 			{
 				if (touches[i].State == TouchLocationState.Pressed)
 				{
-					touches[i] = new TouchLocation(
-						touches[i].Id,
-						TouchLocationState.Moved,
-						touches[i].Position,
-						prevTouches[i].State,
-						prevTouches[i].Position
-					);
-				}
-			}
-
-			// Change formerly Pressed touches to Released if needed
-			foreach (TouchLocation rtouch in touchesToRelease)
-			{
-				for (int i = 0; i < touches.Count; i += 1)
-				{
-					if (touches[i].Id == rtouch.Id)
+					// If this press was marked for release
+					if (touchIDsToRelease.Contains(touches[i].Id))
 					{
+						// Change its state to Released
 						touches[i] = new TouchLocation(
 							touches[i].Id,
 							TouchLocationState.Released,
@@ -195,11 +176,22 @@ namespace Microsoft.Xna.Framework.Input.Touch
 							prevTouches[i].Position
 						);
 					}
+					else
+					{
+						// Change its state to Moved
+						touches[i] = new TouchLocation(
+							touches[i].Id,
+							TouchLocationState.Moved,
+							touches[i].Position,
+							prevTouches[i].State,
+							prevTouches[i].Position
+						);
+					}
 				}
 			}
-			touchesToRelease.Clear();
+			touchIDsToRelease.Clear();
 
-			// Process all new touch events
+			// Process new touch events
 			while (touchEvents.Count > 0)
 			{
 				TouchLocation touchEvent = touchEvents.Dequeue();
@@ -217,15 +209,16 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					{
 						if (touches[i].Id == touchEvent.Id)
 						{
-							// If this is a newly Pressed touch
+							// If this is a newly Pressed touch...
 							if (touches[i].State == TouchLocationState.Pressed)
 							{
+								// ...and it was released in the same frame...
 								if (touchEvent.State == TouchLocationState.Released)
 								{
-									// Mark it for a Released state next frame
-									if (!touchesToRelease.Contains(touches[i]))
+									// ...mark it for a Released state next frame.
+									if (!touchIDsToRelease.Contains(touches[i].Id))
 									{
-										touchesToRelease.Add(touches[i]);
+										touchIDsToRelease.Add(touches[i].Id);
 									}
 								}
 							}
