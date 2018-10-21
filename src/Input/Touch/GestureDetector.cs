@@ -63,10 +63,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Internal Methods
 
-		/* Called when SDL detects a FingerDown event.
-		 * This detects the first active finger, prepares for
-		 * Taps and Holds, and triggers Double Tap gestures.
-		 */
 		internal static void OnPressed(int fingerId, Vector2 touchPosition)
 		{
 			// Set the active finger if there isn't one already
@@ -114,10 +110,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			pressTimestamp = DateTime.Now;
 		}
 
-		/* This is called when SDL detects a FingerUp event.
-		 * It's responsible for resetting the active finger
-		 * and firing Tap and Drag Complete gestures.
-		 */
 		internal static void OnReleased(int fingerId, Vector2 touchPosition)
 		{
 			// Did the user lift the active finger?
@@ -204,29 +196,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 
 			// Handle Flicks
-			if (TouchPanel.IsGestureEnabled(GestureType.Flick))
-			{
-				//TODO: If distance from original touch > MAX_THRESHOLD
-				//TODO: And if length of flick is long enough
-				Console.WriteLine(velocity);
-				TouchPanel.gestures.Enqueue(new GestureSample(
-					velocity,
-					Vector2.Zero,
-					GestureType.Flick,
-					Vector2.Zero,
-					Vector2.Zero,
-					TimeSpan.FromTicks(DateTime.Now.Ticks)
-				));
-			}
-
-			// Cancel out any accumulated flick velocity
-			velocity = Vector2.Zero;
 		}
 
-		/* This is called whenever SDL detects a FingerMotion event.
-		 * Its primary purpose is to notice Drag gestures and cancel
-		 * Hold/Tap gestures if the user moves their finger too much.
-		 */
 		internal static void OnMoved(int fingerId, Vector2 touchPosition, Vector2 delta)
 		{
 			// If we lost the active finger
@@ -316,20 +287,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					TimeSpan.FromTicks(DateTime.Now.Ticks)
 				));
 			}
-
-			// Update the flick velocity
-			DateTime now = DateTime.Now;
-			TimeSpan dt = now - moveTimestamp;
-
-			//TODO Flicking calculation
-
-			moveTimestamp = now;
 		}
 
-		/* This is called at the beginning of each game frame to check for
-		 * Hold gestures. Since SDL doesn't fire events for stationary touches,
-		 * this is the only way to be sure we notice when one second has passed.
-		 */
 		internal static void OnUpdate(Vector2 touchPosition)
 		{
 			// Only proceed if the user is holding their finger still
