@@ -197,6 +197,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 			if (IsGestureEnabled(GestureType.Flick))
 			{
+				// Only flick if the finger is outside the threshold and moving fast
 				float distanceFromPress = (touchPosition - pressPosition).Length();
 				if (distanceFromPress > MOVE_THRESHOLD &&
 					velocity.Length() >= MIN_FLICK_VELOCITY)
@@ -348,6 +349,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			#endregion
 		}
 
+		// This is used to detect time-sensitive gestures (Flick and Hold)
 		internal static void OnTick()
 		{
 			// Only proceed if the user has a finger on the screen
