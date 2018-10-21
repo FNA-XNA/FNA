@@ -275,12 +275,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			bool vdrag = IsGestureEnabled(GestureType.VerticalDrag);
 			bool fdrag = IsGestureEnabled(GestureType.FreeDrag);
 
-			// Get the distance of the finger from its original position
-			float distanceMoved = (touchPosition - pressPosition).Length();
-
 			if (state == GestureState.HOLDING || state == GestureState.HELD)
 			{
-				if (distanceMoved > MOVE_THRESHOLD)
+				// Prevent accidental drags
+				float distanceFromPress = (touchPosition - pressPosition).Length();
+				if (distanceFromPress > MOVE_THRESHOLD)
 				{
 					if (hdrag && (Math.Abs(delta.X) > Math.Abs(delta.Y)))
 					{
