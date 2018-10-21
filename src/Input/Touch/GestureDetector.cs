@@ -18,6 +18,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		// The time when the most recent active Press/Release occurred
 		private static DateTime eventTimestamp;
 
+		// The position of the active finger at the last Update tick
+		private static Vector2 lastUpdatePosition;
+
 		// The time of the most recent Update tick
 		private static DateTime updateTimestamp;
 
@@ -30,9 +33,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		// The current velocity of the active finger
 		private static Vector2 velocity;
 
-		// The position of the active finger at the last Update tick
-		private static Vector2 lastUpdatePosition;
-
 		#endregion
 
 		#region Private Constants
@@ -42,6 +42,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		 * finger movements from interfering with Hold and Tap gestures.
 		 */
 		private const int MOVE_THRESHOLD = 35;
+
+		/* How fast the finger velocity must be to register as a Flick.
+		 * This helps prevent accidental flicks when a drag or tap was
+		 * intended.
+		 */
+		private const int MIN_FLICK_VELOCITY = 100;
 
 		#endregion
 
@@ -166,13 +172,36 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			// Reset this flag so we can catch Taps in the future
 			justDoubleTapped = false;
 
-			// Check for Drag Complete gesture
+			// Handle Flick gestures
+			if (TouchPanel.IsGestureEnabled(GestureType.Flick))
+			{
+				float distanceFromPress = (touchPosition - pressPosition).Length();
+				if (distanceFromPress > MOVE_THRESHOLD &&
+					velocity.Length() >= MIN_FLICK_VELOCITY)
+				{
+					// Flick!
+					TouchPanel.gestures.Enqueue(new GestureSample(
+						velocity,
+						Vector2.Zero,
+						GestureType.Flick,
+						Vector2.Zero,
+						Vector2.Zero,
+						TimeSpan.FromTicks(Environment.TickCount)
+					));
+				}
+
+				// Reset velocity calculation variables
+				velocity = Vector2.Zero;
+				lastUpdatePosition = Vector2.Zero;
+				updateTimestamp = DateTime.MinValue;
+			}
+
+			// Handle Drag Complete gestures
 			if (TouchPanel.IsGestureEnabled(GestureType.DragComplete))
 			{
 				bool wasDragging = (state == GestureState.DRAGGING_H ||
 									state == GestureState.DRAGGING_V ||
 									state == GestureState.DRAGGING_FREE);
-
 				if (wasDragging)
 				{
 					// Drag Complete!
@@ -193,34 +222,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				state = GestureState.NONE;
 			}
 
-			/* ------------- */
-
-			// Handle Flick gestures
-			if (TouchPanel.IsGestureEnabled(GestureType.Flick))
-			{
-				if ((touchPosition - pressPosition).Length() > MOVE_THRESHOLD && velocity.Length() >= 100.0f)
-				{
-					// Flick!
-					TouchPanel.gestures.Enqueue(new GestureSample(
-						velocity,
-						Vector2.Zero,
-						GestureType.Flick,
-						Vector2.Zero,
-						Vector2.Zero,
-						TimeSpan.FromTicks(Environment.TickCount)
-					));
-				}
-			}
-
-			/* ------------- */
-
-			// Set the timestamp
 			eventTimestamp = DateTime.Now;
-
-			// Reset velocity-related stuff
-			velocity = Vector2.Zero;
-			lastUpdatePosition = Vector2.Zero;
-			updateTimestamp = DateTime.MinValue;
 		}
 
 		internal static void OnMoved(int fingerId, Vector2 touchPosition, Vector2 delta)
@@ -323,38 +325,41 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			// Get the first available touch
 			TouchLocation touch = TouchPanel.touches[0];
 
-			if (touch.State == TouchLocationState.Released)
+			// Calculate flicking velocity
+			if (TouchPanel.IsGestureEnabled(GestureType.Flick))
 			{
-				return;
-			}
+				// We need one frame to pass so we can calculate delta time
+				if (updateTimestamp != DateTime.MinValue)
+				{
+					/* The calculation below is mostly taken from MonoGame.
+					 * It accumulates velocity after running it through
+					 * a low-pass filter to mitigate the effect of
+					 * acceleration spikes. This works pretty well,
+					 * but on rare occasions the velocity will still
+					 * spike severely.
+					 * 
+					 * In practice this tends to be a non-issue, but
+					 * if you *really* need to avoid any spikes, you
+					 * may want to consider normalizing the delta
+					 * reported in the GestureSample and then scaling it
+					 * to min(actualVectorLength, preferredMaxLength).
+					 * 
+					 * -caleb
+					 */
 
-			/* FLICK --------- */
+					float dt = (float)(DateTime.Now - updateTimestamp).TotalSeconds;
+					Vector2 delta = touch.Position - lastUpdatePosition;
+					Vector2 instVelocity = delta / (0.001f + dt);
+					velocity += (instVelocity - velocity) * 0.45f;
+				}
 
-			DateTime now = DateTime.Now;
-			if (updateTimestamp != DateTime.MinValue)
-			{
-				float dt = (float) (now - updateTimestamp).TotalSeconds;
-				Console.WriteLine("DT: " + dt);
-				Vector2 delta = touch.Position - lastUpdatePosition;
-				Vector2 instVelocity = delta / (0.001f + dt);
-				velocity += (instVelocity - velocity) * 0.45f;
-			}
-			Console.WriteLine(velocity);
-			lastUpdatePosition = touch.Position;
-			updateTimestamp = now;
-
-			/* --------- */
-
-			// Only proceed if the user is holding the finger in place
-			if (state != GestureState.HOLDING)
-			{
-				return;
+				lastUpdatePosition = touch.Position;
+				updateTimestamp = DateTime.Now;
 			}
 
 			// Handle Hold gestures
-			if (TouchPanel.IsGestureEnabled(GestureType.Hold))
+			if (TouchPanel.IsGestureEnabled(GestureType.Hold) && state == GestureState.HOLDING)
 			{
-				// Has the user held the finger long enough?
 				TimeSpan timeSincePress = DateTime.Now - eventTimestamp;
 				if (timeSincePress >= TimeSpan.FromSeconds(1))
 				{
