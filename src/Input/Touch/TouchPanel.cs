@@ -236,11 +236,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 		}
 
-		internal static bool IsGestureEnabled(GestureType gestureType)
-		{
-			return (EnabledGestures & gestureType) != 0;
-		}
-
 		#endregion
 	}
 }
