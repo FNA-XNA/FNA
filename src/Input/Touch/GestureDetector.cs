@@ -113,7 +113,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						if (distance <= MOVE_THRESHOLD)
 						{
 							// Double Tap!
-							TouchPanel.gestures.Enqueue(new GestureSample(
+							TouchPanel.EnqueueGesture(new GestureSample(
 								Vector2.Zero,
 								Vector2.Zero,
 								GestureType.DoubleTap,
@@ -169,7 +169,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 							if (tapEnabled)
 							{
 								// Tap!
-								TouchPanel.gestures.Enqueue(new GestureSample(
+								TouchPanel.EnqueueGesture(new GestureSample(
 									Vector2.Zero,
 									Vector2.Zero,
 									GestureType.Tap,
@@ -202,7 +202,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					velocity.Length() >= MIN_FLICK_VELOCITY)
 				{
 					// Flick!
-					TouchPanel.gestures.Enqueue(new GestureSample(
+					TouchPanel.EnqueueGesture(new GestureSample(
 						velocity,
 						Vector2.Zero,
 						GestureType.Flick,
@@ -230,7 +230,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				if (wasDragging)
 				{
 					// Drag Complete!
-					TouchPanel.gestures.Enqueue(new GestureSample(
+					TouchPanel.EnqueueGesture(new GestureSample(
 						Vector2.Zero,
 						Vector2.Zero,
 						GestureType.DragComplete,
@@ -312,7 +312,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			if (state == GestureState.DRAGGING_H && hdrag)
 			{
 				// Horizontal Dragging!
-				TouchPanel.gestures.Enqueue(new GestureSample(
+				TouchPanel.EnqueueGesture(new GestureSample(
 					new Vector2(delta.X, 0),
 					Vector2.Zero,
 					GestureType.HorizontalDrag,
@@ -324,7 +324,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			else if (state == GestureState.DRAGGING_V && vdrag)
 			{
 				// Vertical Dragging!
-				TouchPanel.gestures.Enqueue(new GestureSample(
+				TouchPanel.EnqueueGesture(new GestureSample(
 					new Vector2(0, delta.Y),
 					Vector2.Zero,
 					GestureType.VerticalDrag,
@@ -336,7 +336,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			else if (state == GestureState.DRAGGING_FREE && fdrag)
 			{
 				// Free Dragging!
-				TouchPanel.gestures.Enqueue(new GestureSample(
+				TouchPanel.EnqueueGesture(new GestureSample(
 					delta,
 					Vector2.Zero,
 					GestureType.FreeDrag,
@@ -401,7 +401,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				if (timeSincePress >= TimeSpan.FromSeconds(1))
 				{
 					// Hold!
-					TouchPanel.gestures.Enqueue(new GestureSample(
+					TouchPanel.EnqueueGesture(new GestureSample(
 						Vector2.Zero,
 						Vector2.Zero,
 						GestureType.Hold,

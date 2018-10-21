@@ -59,15 +59,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#endregion
 
-		#region Internal Static Variables
-
-		internal static List<TouchLocation> touches = new List<TouchLocation>(MAX_TOUCHES);
-		internal static Queue<GestureSample> gestures = new Queue<GestureSample>();
-
-		#endregion
-
 		#region Private Static Variables
 
+		private static Queue<GestureSample> gestures = new Queue<GestureSample>();
+		private static List<TouchLocation> touches = new List<TouchLocation>(MAX_TOUCHES);
 		private static Queue<TouchLocation> touchEvents = new Queue<TouchLocation>();
 		private static HashSet<int> touchIDsToRelease = new HashSet<int>();
 
@@ -105,6 +100,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		#endregion
 
 		#region Internal Static Methods
+
+		internal static void EnqueueGesture(GestureSample gesture)
+		{
+			gestures.Enqueue(gesture);
+		}
 
 		internal static void INTERNAL_onTouchEvent(
 			int fingerId,
