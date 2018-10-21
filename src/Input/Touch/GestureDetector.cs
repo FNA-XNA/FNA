@@ -9,20 +9,17 @@ namespace Microsoft.Xna.Framework.Input.Touch
 	{
 		#region Private Static Variables
 
-		// The ID of the active finger (usually the first finger)
+		// The ID of the active finger
 		private static int activeFingerId = -1;
 
 		// The position where the user first touched the screen
 		private static Vector2 pressPosition;
 
-		// The time when the user first touched the screen
-		private static DateTime pressTimestamp;
+		// The time when the most recent active Press/Release occurred
+		private static DateTime eventTimestamp;
 
-		// The time when the user released all fingers from the screen
-		private static DateTime releaseTimestamp;
-
-		// The most recent time when the user moved the active finger
-		private static DateTime moveTimestamp;
+		// The time of the most recent Update tick
+		private static DateTime updateTimestamp;
 
 		// The current state of gesture detection
 		private static GestureState state = GestureState.NONE;
@@ -83,7 +80,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				if (TouchPanel.IsGestureEnabled(GestureType.DoubleTap))
 				{
 					// Must tap again within 300ms of original tap's release
-					TimeSpan timeSinceRelease = DateTime.Now - releaseTimestamp;
+					TimeSpan timeSinceRelease = DateTime.Now - eventTimestamp;
 					if (timeSinceRelease <= TimeSpan.FromMilliseconds(300))
 					{
 						// If the new tap is close to the original tap
@@ -108,7 +105,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 			state = GestureState.HOLDING;
 			pressPosition = touchPosition;
-			pressTimestamp = DateTime.Now;
+			eventTimestamp = DateTime.Now;
 		}
 
 		internal static void OnReleased(int fingerId, Vector2 touchPosition)
@@ -135,7 +132,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				if (tapEnabled || dtapEnabled)
 				{
 					// How long did the user hold the touch?
-					TimeSpan timeHeld = DateTime.Now - pressTimestamp;
+					TimeSpan timeHeld = DateTime.Now - eventTimestamp;
 					if (timeHeld < TimeSpan.FromSeconds(1))
 					{
 						// Don't register a Tap immediately after a Double Tap
@@ -170,8 +167,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			if (TouchPanel.IsGestureEnabled(GestureType.DragComplete))
 			{
 				bool wasDragging = (state == GestureState.DRAGGING_H ||
-								state == GestureState.DRAGGING_V ||
-								state == GestureState.DRAGGING_FREE);
+									state == GestureState.DRAGGING_V ||
+									state == GestureState.DRAGGING_FREE);
 
 				if (wasDragging)
 				{
@@ -194,18 +191,16 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 
 			// Set the timestamp
-			releaseTimestamp = DateTime.Now;
+			eventTimestamp = DateTime.Now;
 		}
 
 		internal static void OnMoved(int fingerId, Vector2 touchPosition, Vector2 delta)
 		{
-			// If we lost the active finger
+			// Replace the active finger if we lost it
 			if (activeFingerId == -1)
 			{
-				// This is our new active finger!
 				activeFingerId = fingerId;
 			}
-			// If this finger is not the active one
 			else if (fingerId != activeFingerId)
 			{
 				// Ignore the imposter!
@@ -296,6 +291,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				return;
 			}
 
+			if (updateTimestamp != DateTime.MinValue)
+			{
+				Console.WriteLine(DateTime.Now - updateTimestamp);
+			}
+			updateTimestamp = DateTime.Now;
+
 			// Only proceed if the user is holding the finger in place
 			if (state != GestureState.HOLDING)
 			{
@@ -309,7 +310,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			if (TouchPanel.IsGestureEnabled(GestureType.Hold))
 			{
 				// Has the user held the finger long enough?
-				TimeSpan timeSincePress = DateTime.Now - pressTimestamp;
+				TimeSpan timeSincePress = DateTime.Now - eventTimestamp;
 				if (timeSincePress >= TimeSpan.FromSeconds(1))
 				{
 					// Hold!
