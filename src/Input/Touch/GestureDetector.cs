@@ -21,6 +21,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		// The current position of the second finger (used only for Pinching)
 		private static Vector2 secondFingerPosition;
 
+		// The IDs of all fingers currently on the screen
+		private static List<int> fingerIds = new List<int>();
+
 		// The position where the user first touched the screen
 		private static Vector2 pressPosition;
 
@@ -86,6 +89,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		internal static void OnPressed(int fingerId, Vector2 touchPosition)
 		{
+			fingerIds.Add(fingerId);
+
 			// Set the active finger if there isn't one already
 			if (activeFingerId == -1)
 			{
@@ -137,6 +142,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		internal static void OnReleased(int fingerId, Vector2 touchPosition)
 		{
+			fingerIds.Remove(fingerId);
+
 			// Did the user lift the active finger?
 			if (fingerId == activeFingerId)
 			{
@@ -352,7 +359,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		// This is used to detect time-sensitive gestures (Flick and Hold)
 		internal static void OnTick()
 		{
-			// Only proceed if the user has a finger on the screen
+			// Only proceed if the user has an active finger on the screen
 			if (activeFingerId == -1)
 			{
 				return;
