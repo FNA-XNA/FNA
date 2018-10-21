@@ -69,7 +69,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		#region Private Static Variables
 
 		private static Queue<TouchLocation> touchEvents = new Queue<TouchLocation>();
-		private static List<int> touchIDsToRelease = new List<int>();
+		private static HashSet<int> touchIDsToRelease = new HashSet<int>();
 
 		#endregion
 
@@ -114,18 +114,14 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			float dx,
 			float dy
 		) {
-			// Get the touch position
+			// Calculate the scaled touch position
 			Vector2 touchPos = new Vector2(
 				(float) Math.Round(x * DisplayWidth),
 				(float) Math.Round(y * DisplayHeight)
 			);
 
 			// Add the event to the queue
-			touchEvents.Enqueue(new TouchLocation(
-				fingerId,
-				state,
-				touchPos
-			));
+			touchEvents.Enqueue(new TouchLocation(fingerId, state, touchPos));
 
 			// Notify the Gesture Detector about the event
 			switch (state)
@@ -135,11 +131,14 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					break;
 
 				case TouchLocationState.Moved:
+
 					Vector2 delta = new Vector2(
 						(float) Math.Round(dx * DisplayWidth),
 						(float) Math.Round(dy * DisplayHeight)
 					);
+
 					GestureDetector.OnMoved(fingerId, touchPos, delta);
+
 					break;
 
 				case TouchLocationState.Released:
@@ -167,7 +166,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					// If this press was marked for release
 					if (touchIDsToRelease.Contains(touches[i].Id))
 					{
-						// Change its state to Released
 						touches[i] = new TouchLocation(
 							touches[i].Id,
 							TouchLocationState.Released,
@@ -197,8 +195,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				TouchLocation touchEvent = touchEvents.Dequeue();
 
 				// Add a new touch to the list if we have room
-				if (touchEvent.State == TouchLocationState.Pressed
-					&& touches.Count < MAX_TOUCHES)
+				if (touchEvent.State == TouchLocationState.Pressed &&
+					touches.Count < MAX_TOUCHES)
 				{
 					touches.Add(touchEvent);
 				}
@@ -209,17 +207,13 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					{
 						if (touches[i].Id == touchEvent.Id)
 						{
-							// If this is a newly Pressed touch...
 							if (touches[i].State == TouchLocationState.Pressed)
 							{
-								// ...and it was released in the same frame...
+								// If the touch was pressed and released in the same frame
 								if (touchEvent.State == TouchLocationState.Released)
 								{
-									// ...mark it for a Released state next frame.
-									if (!touchIDsToRelease.Contains(touches[i].Id))
-									{
-										touchIDsToRelease.Add(touches[i].Id);
-									}
+									// Mark it for release on the next frame
+									touchIDsToRelease.Add(touches[i].Id);
 								}
 							}
 							else
@@ -242,7 +236,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 		}
 
-		// Is the specified gesture enabled?
 		internal static bool IsGestureEnabled(GestureType gestureType)
 		{
 			return (EnabledGestures & gestureType) != 0;
