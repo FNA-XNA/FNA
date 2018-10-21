@@ -88,7 +88,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				return;
 			}
 
-			// Handle Double Tap gestures
+			#region Double Tap Detection
+
 			if (state == GestureState.JUST_TAPPED)
 			{
 				if (IsGestureEnabled(GestureType.DoubleTap))
@@ -117,6 +118,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				}
 			}
 
+			#endregion
+
 			state = GestureState.HOLDING;
 			pressPosition = touchPosition;
 			eventTimestamp = DateTime.Now;
@@ -136,7 +139,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				return;
 			}
 
-			// Check for Tap gesture
+			#region Tap Detection
+
 			if (state == GestureState.HOLDING)
 			{
 				// Which Tap gestures are enabled?
@@ -177,7 +181,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			// Reset this flag so we can catch Taps in the future
 			justDoubleTapped = false;
 
-			// Handle Flick gestures
+			#endregion
+
+			#region Flick Detection
+
 			if (IsGestureEnabled(GestureType.Flick))
 			{
 				float distanceFromPress = (touchPosition - pressPosition).Length();
@@ -201,7 +208,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				updateTimestamp = DateTime.MinValue;
 			}
 
-			// Handle Drag Complete gestures
+			#endregion
+
+			#region Drag Complete Detection
+
 			if (IsGestureEnabled(GestureType.DragComplete))
 			{
 				bool wasDragging = (state == GestureState.DRAGGING_H ||
@@ -220,6 +230,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					));
 				}
 			}
+
+			#endregion
 
 			// Reset the state if we're not anticipating a Double Tap
 			if (state != GestureState.JUST_TAPPED)
@@ -244,6 +256,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				return;
 			}
 
+			#region Prepare for Dragging
+
 			// Determine which drag gestures are enabled
 			bool hdrag = IsGestureEnabled(GestureType.HorizontalDrag);
 			bool vdrag = IsGestureEnabled(GestureType.VerticalDrag);
@@ -252,7 +266,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			// Get the distance of the finger from its original position
 			float distanceMoved = (touchPosition - pressPosition).Length();
 
-			// Initialize Drags
 			if (state == GestureState.HOLDING || state == GestureState.HELD)
 			{
 				if (distanceMoved > MOVE_THRESHOLD)
@@ -280,7 +293,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				}
 			}
 
-			// Handle Dragging
+			#endregion
+
+			#region Drag Detection
+
 			if (state == GestureState.DRAGGING_H && hdrag)
 			{
 				// Horizontal Dragging!
@@ -317,6 +333,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					TimeSpan.FromTicks(Environment.TickCount)
 				));
 			}
+
+			#endregion
 		}
 
 		internal static void OnTick()
@@ -327,10 +345,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				return;
 			}
 
-			// Get the active finger as a TouchLocation
 			TouchLocation touch = TouchPanel.touches[0];
 
-			// Calculate flicking velocity
+			#region Flick Velocity Calculation
+
 			if (IsGestureEnabled(GestureType.Flick))
 			{
 				// We need one frame to pass so we can calculate delta time
@@ -362,7 +380,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				updateTimestamp = DateTime.Now;
 			}
 
-			// Handle Hold gestures
+			#endregion
+
+			#region Hold Detection
+
 			if (IsGestureEnabled(GestureType.Hold) && state == GestureState.HOLDING)
 			{
 				TimeSpan timeSincePress = DateTime.Now - eventTimestamp;
@@ -381,6 +402,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					state = GestureState.HELD;
 				}
 			}
+
+			#endregion
 		}
 
 		#endregion
