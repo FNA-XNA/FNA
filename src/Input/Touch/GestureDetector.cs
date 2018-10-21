@@ -385,7 +385,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					Vector2 instVelocity = delta / (0.001f + dt);
 					velocity += (instVelocity - velocity) * 0.45f;
 				}
-				Console.WriteLine(velocity);
 
 				lastUpdatePosition = activeFingerPosition;
 				updateTimestamp = DateTime.Now;
