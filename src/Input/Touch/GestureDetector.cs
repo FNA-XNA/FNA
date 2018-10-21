@@ -12,6 +12,15 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		// The ID of the active finger
 		private static int activeFingerId = -1;
 
+		// The current position of the active finger
+		private static Vector2 activeFingerPosition;
+
+		// The ID of the second finger (used only for Pinching)
+		private static int secondFingerId = -1;
+
+		// The current position of the second finger (used only for Pinching)
+		private static Vector2 secondFingerPosition;
+
 		// The position where the user first touched the screen
 		private static Vector2 pressPosition;
 
@@ -81,6 +90,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			if (activeFingerId == -1)
 			{
 				activeFingerId = fingerId;
+				activeFingerPosition = touchPosition;
 			}
 			else
 			{
@@ -252,9 +262,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			else if (fingerId != activeFingerId)
 			{
 				// Ignore the imposter!
-				//TODO: Pinching goes here I think
 				return;
 			}
+
+			// Update the position
+			activeFingerPosition = touchPosition;
 
 			#region Prepare for Dragging
 
@@ -339,13 +351,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		internal static void OnTick()
 		{
-			// Only proceed if the user has at least one finger on the screen
-			if (TouchPanel.touches.Count == 0)
+			// Only proceed if the user has a finger on the screen
+			if (activeFingerId == -1)
 			{
 				return;
 			}
-
-			TouchLocation touch = TouchPanel.touches[0];
 
 			#region Flick Velocity Calculation
 
@@ -371,12 +381,13 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					 */
 
 					float dt = (float)(DateTime.Now - updateTimestamp).TotalSeconds;
-					Vector2 delta = touch.Position - lastUpdatePosition;
+					Vector2 delta = activeFingerPosition - lastUpdatePosition;
 					Vector2 instVelocity = delta / (0.001f + dt);
 					velocity += (instVelocity - velocity) * 0.45f;
 				}
+				Console.WriteLine(velocity);
 
-				lastUpdatePosition = touch.Position;
+				lastUpdatePosition = activeFingerPosition;
 				updateTimestamp = DateTime.Now;
 			}
 
@@ -394,7 +405,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						Vector2.Zero,
 						Vector2.Zero,
 						GestureType.Hold,
-						touch.Position,
+						activeFingerPosition,
 						Vector2.Zero,
 						TimeSpan.FromTicks(Environment.TickCount)
 					));
