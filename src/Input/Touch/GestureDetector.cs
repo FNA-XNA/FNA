@@ -30,6 +30,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		// The current velocity of the active finger
 		private static Vector2 velocity;
 
+		// The position of the active finger at the last Update tick
+		private static Vector2 lastUpdatePosition;
+
 		#endregion
 
 		#region Private Constants
@@ -94,7 +97,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 								GestureType.DoubleTap,
 								touchPosition,
 								Vector2.Zero,
-								TimeSpan.FromTicks(DateTime.Now.Ticks)
+								TimeSpan.FromTicks(Environment.TickCount)
 							));
 
 							justDoubleTapped = true;
@@ -147,7 +150,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 									GestureType.Tap,
 									touchPosition,
 									Vector2.Zero,
-									TimeSpan.FromTicks(DateTime.Now.Ticks)
+									TimeSpan.FromTicks(Environment.TickCount)
 								));
 							}
 
@@ -179,7 +182,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						GestureType.DragComplete,
 						Vector2.Zero,
 						Vector2.Zero,
-						TimeSpan.FromTicks(DateTime.Now.Ticks)
+						TimeSpan.FromTicks(Environment.TickCount)
 					));
 				}
 			}
@@ -190,8 +193,34 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				state = GestureState.NONE;
 			}
 
+			/* ------------- */
+
+			// Handle Flick gestures
+			if (TouchPanel.IsGestureEnabled(GestureType.Flick))
+			{
+				if ((touchPosition - pressPosition).Length() > MOVE_THRESHOLD && velocity.Length() >= 100.0f)
+				{
+					// Flick!
+					TouchPanel.gestures.Enqueue(new GestureSample(
+						velocity,
+						Vector2.Zero,
+						GestureType.Flick,
+						Vector2.Zero,
+						Vector2.Zero,
+						TimeSpan.FromTicks(Environment.TickCount)
+					));
+				}
+			}
+
+			/* ------------- */
+
 			// Set the timestamp
 			eventTimestamp = DateTime.Now;
+
+			// Reset velocity-related stuff
+			velocity = Vector2.Zero;
+			lastUpdatePosition = Vector2.Zero;
+			updateTimestamp = DateTime.MinValue;
 		}
 
 		internal static void OnMoved(int fingerId, Vector2 touchPosition, Vector2 delta)
@@ -254,7 +283,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.HorizontalDrag,
 					touchPosition,
 					Vector2.Zero,
-					TimeSpan.FromTicks(DateTime.Now.Ticks)
+					TimeSpan.FromTicks(Environment.TickCount)
 				));
 			}
 			else if (state == GestureState.DRAGGING_V && vdrag)
@@ -266,7 +295,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.VerticalDrag,
 					touchPosition,
 					Vector2.Zero,
-					TimeSpan.FromTicks(DateTime.Now.Ticks)
+					TimeSpan.FromTicks(Environment.TickCount)
 				));
 			}
 			else if (state == GestureState.DRAGGING_FREE && fdrag)
@@ -278,7 +307,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.FreeDrag,
 					touchPosition,
 					Vector2.Zero,
-					TimeSpan.FromTicks(DateTime.Now.Ticks)
+					TimeSpan.FromTicks(Environment.TickCount)
 				));
 			}
 		}
@@ -291,20 +320,36 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				return;
 			}
 
+			// Get the first available touch
+			TouchLocation touch = TouchPanel.touches[0];
+
+			if (touch.State == TouchLocationState.Released)
+			{
+				return;
+			}
+
+			/* FLICK --------- */
+
+			DateTime now = DateTime.Now;
 			if (updateTimestamp != DateTime.MinValue)
 			{
-				Console.WriteLine(DateTime.Now - updateTimestamp);
+				float dt = (float) (now - updateTimestamp).TotalSeconds;
+				Console.WriteLine("DT: " + dt);
+				Vector2 delta = touch.Position - lastUpdatePosition;
+				Vector2 instVelocity = delta / (0.001f + dt);
+				velocity += (instVelocity - velocity) * 0.45f;
 			}
-			updateTimestamp = DateTime.Now;
+			Console.WriteLine(velocity);
+			lastUpdatePosition = touch.Position;
+			updateTimestamp = now;
+
+			/* --------- */
 
 			// Only proceed if the user is holding the finger in place
 			if (state != GestureState.HOLDING)
 			{
 				return;
 			}
-
-			// Get the first available touch
-			TouchLocation touch = TouchPanel.touches[0];
 
 			// Handle Hold gestures
 			if (TouchPanel.IsGestureEnabled(GestureType.Hold))
@@ -320,7 +365,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						GestureType.Hold,
 						touch.Position,
 						Vector2.Zero,
-						TimeSpan.FromTicks(DateTime.Now.Ticks)
+						TimeSpan.FromTicks(Environment.TickCount)
 					));
 
 					state = GestureState.HELD;
