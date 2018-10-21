@@ -27,7 +27,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		// The current state of gesture detection
 		private static GestureState state = GestureState.NONE;
 
-		// A flag to cancel Taps if a double tap has just occurred
+		// A flag to cancel Taps if a Double Tap has just occurred
 		private static bool justDoubleTapped = false;
 
 		// The current velocity of the active finger
