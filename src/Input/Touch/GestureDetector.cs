@@ -15,32 +15,41 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		// The current position of the active finger
 		private static Vector2 activeFingerPosition;
 
+		/* In XNA, if the Pinch gesture was disabled mid-pinch,
+		 * it would still dispatch a PinchComplete gesture once *all*
+		 * fingers were off the screen. (Not just the ones involved
+		 * in the pinch.) Kinda weird, right?
+		 * 
+		 * This flag is used to mimic that behavior.
+		 */
+		private static bool callBelatedPinchComplete = false;
+
+		// The time when the most recent active Press/Release occurred
+		private static DateTime eventTimestamp;
+
+		// The IDs of all fingers currently on the screen
+		private static List<int> fingerIds = new List<int>();
+
+		// A flag to cancel Taps if a Double Tap has just occurred
+		private static bool justDoubleTapped = false;
+
+		// The position of the active finger at the last Update tick
+		private static Vector2 lastUpdatePosition;
+
+		// The position where the user first touched the screen
+		private static Vector2 pressPosition;
+
 		// The ID of the second finger (used only for Pinching)
 		private static int secondFingerId = -1;
 
 		// The current position of the second finger (used only for Pinching)
 		private static Vector2 secondFingerPosition;
 
-		// The IDs of all fingers currently on the screen
-		private static List<int> fingerIds = new List<int>();
-
-		// The position where the user first touched the screen
-		private static Vector2 pressPosition;
-
-		// The time when the most recent active Press/Release occurred
-		private static DateTime eventTimestamp;
-
-		// The position of the active finger at the last Update tick
-		private static Vector2 lastUpdatePosition;
-
-		// The time of the most recent Update tick
-		private static DateTime updateTimestamp;
-
 		// The current state of gesture detection
 		private static GestureState state = GestureState.NONE;
 
-		// A flag to cancel Taps if a Double Tap has just occurred
-		private static bool justDoubleTapped = false;
+		// The time of the most recent Update tick
+		private static DateTime updateTimestamp;
 
 		// The current velocity of the active finger
 		private static Vector2 velocity;
@@ -272,6 +281,23 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 			#endregion
 
+			#region Belated Pinch Complete Detection
+
+			if (callBelatedPinchComplete && IsGestureEnabled(GestureType.PinchComplete))
+			{
+				TouchPanel.EnqueueGesture(new GestureSample(
+					Vector2.Zero,
+					Vector2.Zero,
+					GestureType.PinchComplete,
+					Vector2.Zero,
+					Vector2.Zero,
+					GetGestureTimestamp()
+				));
+			}
+			callBelatedPinchComplete = false;
+
+			#endregion
+
 			// Reset the state if we're not anticipating a Double Tap
 			if (state != GestureState.JUST_TAPPED)
 			{
@@ -296,7 +322,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				activeFingerId = fingerId;
 			}
 
-			// If this isn't the active finger
+			// If this finger isn't the active finger
 			if (fingerId != activeFingerId)
 			{
 				// We don't care about it
@@ -412,7 +438,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				{
 					state = GestureState.HELD;
 					secondFingerId = -1;
-					//TODO: Set a flag to call PinchComplete when all fingers are lifted
+
+					// Still might need to trigger a PinchComplete
+					callBelatedPinchComplete = true;
 				}
 
 				// No pinches allowed in the rest of this method!
@@ -437,7 +465,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					 * a low-pass filter to mitigate the effect of
 					 * acceleration spikes. This works pretty well,
 					 * but on rare occasions the velocity will still
-					 * spike severely.
+					 * spike by an order of magnitude.
 					 * 
 					 * In practice this tends to be a non-issue, but
 					 * if you *really* need to avoid any spikes, you
@@ -490,6 +518,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		private static TimeSpan GetGestureTimestamp()
 		{
+			/* XNA calculates gesture timestamps from
+			 * how long the device has been turned on.
+			 */
 			return TimeSpan.FromTicks(Environment.TickCount);
 		}
 
