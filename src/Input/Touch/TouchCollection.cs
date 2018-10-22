@@ -76,8 +76,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Public Methods
 
-		/* Since the collection is always readonly, using any method that attempts
-		 * to modify touches will result in a System.NotSupportedException at runtime.
+		/* Since the collection is always readonly, using any
+		 * method that attempts to modify touches will result
+		 * in a System.NotSupportedException at runtime.
 		 */
 
 		public void Add(TouchLocation item)
