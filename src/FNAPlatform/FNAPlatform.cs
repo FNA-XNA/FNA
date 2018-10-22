@@ -76,8 +76,8 @@ namespace Microsoft.Xna.Framework
 			GetMicrophoneQueuedBytes =	SDL2_FNAPlatform.GetMicrophoneQueuedBytes;
 			StartMicrophone =		SDL2_FNAPlatform.StartMicrophone;
 			StopMicrophone =		SDL2_FNAPlatform.StopMicrophone;
-			GetTouchCapabilities =	SDL2_FNAPlatform.GetTouchCapabilities;
-			GetNumTouchFingers =	SDL2_FNAPlatform.GetNumTouchFingers;
+			GetTouchCapabilities =		SDL2_FNAPlatform.GetTouchCapabilities;
+			GetNumTouchFingers =		SDL2_FNAPlatform.GetNumTouchFingers;
 
 			// Don't overwrite application log hooks!
 			if (FNALoggerEXT.LogInfo == null)

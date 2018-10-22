@@ -1,7 +1,16 @@
-﻿using System;
+﻿#region License
+/* FNA - XNA4 Reimplementation for Desktop Platforms
+ * Copyright 2009-2018 Ethan Lee and the MonoGame Team
+ *
+ * Released under the Microsoft Public License.
+ * See LICENSE for details.
+ */
+#endregion
+
+#region Using Statements
+using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input.Touch;
+#endregion
 
 namespace Microsoft.Xna.Framework.Input.Touch
 {
