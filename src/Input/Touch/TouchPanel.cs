@@ -166,6 +166,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					// If this press was marked for release
 					if (touchIDsToRelease.Contains(touches[i].Id))
 					{
+						// Change the touch's state to Released
 						touches[i] = new TouchLocation(
 							touches[i].Id,
 							TouchLocationState.Released,
@@ -176,7 +177,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					}
 					else
 					{
-						// Change its state to Moved
+						// Change the touch's state to Moved
 						touches[i] = new TouchLocation(
 							touches[i].Id,
 							TouchLocationState.Moved,
