@@ -217,11 +217,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_DEBUG_SEVERITY_NOTIFICATION_ARB =	0x826B
 		}
 
-		// Entry Points
+        // Entry Points
 
-		/* BEGIN GET FUNCTIONS */
+        /* BEGIN GET FUNCTIONS */
 
-		private delegate IntPtr GetString(GLenum pname);
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate IntPtr GetString(GLenum pname);
 		private GetString INTERNAL_glGetString;
 		private string glGetString(GLenum pname)
 		{
@@ -231,24 +231,24 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		private delegate void GetIntegerv(GLenum pname, out int param);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void GetIntegerv(GLenum pname, out int param);
 		private GetIntegerv glGetIntegerv;
 
 		/* END GET FUNCTIONS */
 
 		/* BEGIN ENABLE/DISABLE FUNCTIONS */
 
-		private delegate void Enable(GLenum cap);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void Enable(GLenum cap);
 		private Enable glEnable;
 
-		private delegate void Disable(GLenum cap);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void Disable(GLenum cap);
 		private Disable glDisable;
 
 		/* END ENABLE/DISABLE FUNCTIONS */
 
 		/* BEGIN VIEWPORT/SCISSOR FUNCTIONS */
 
-		private delegate void G_Viewport(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void G_Viewport(
 			int x,
 			int y,
 			int width,
@@ -256,13 +256,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private G_Viewport glViewport;
 
-		private delegate void DepthRange(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DepthRange(
 			double near_val,
 			double far_val
 		);
 		private DepthRange glDepthRange;
 
-		private delegate void Scissor(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void Scissor(
 			int x,
 			int y,
 			int width,
@@ -274,7 +274,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* BEGIN BLEND STATE FUNCTIONS */
 
-		private delegate void BlendColor(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void BlendColor(
 			float red,
 			float green,
 			float blue,
@@ -282,7 +282,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private BlendColor glBlendColor;
 
-		private delegate void BlendFuncSeparate(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void BlendFuncSeparate(
 			GLenum srcRGB,
 			GLenum dstRGB,
 			GLenum srcAlpha,
@@ -290,13 +290,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private BlendFuncSeparate glBlendFuncSeparate;
 
-		private delegate void BlendEquationSeparate(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void BlendEquationSeparate(
 			GLenum modeRGB,
 			GLenum modeAlpha
 		);
 		private BlendEquationSeparate glBlendEquationSeparate;
 
-		private delegate void ColorMask(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void ColorMask(
 			bool red,
 			bool green,
 			bool blue,
@@ -304,7 +304,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private ColorMask glColorMask;
 
-		private delegate void ColorMaski(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void ColorMaski(
 			uint buf,
 			bool red,
 			bool green,
@@ -313,23 +313,23 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private ColorMaski glColorMaski;
 
-		private delegate void SampleMaski(uint maskNumber, uint mask);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void SampleMaski(uint maskNumber, uint mask);
 		private SampleMaski glSampleMaski;
 
 		/* END BLEND STATE FUNCTIONS */
 
 		/* BEGIN DEPTH/STENCIL STATE FUNCTIONS */
 
-		private delegate void DepthMask(bool flag);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DepthMask(bool flag);
 		private DepthMask glDepthMask;
 
-		private delegate void DepthFunc(GLenum func);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DepthFunc(GLenum func);
 		private DepthFunc glDepthFunc;
 
-		private delegate void StencilMask(int mask);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void StencilMask(int mask);
 		private StencilMask glStencilMask;
 
-		private delegate void StencilFuncSeparate(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void StencilFuncSeparate(
 			GLenum face,
 			GLenum func,
 			int reference,
@@ -337,7 +337,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private StencilFuncSeparate glStencilFuncSeparate;
 
-		private delegate void StencilOpSeparate(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void StencilOpSeparate(
 			GLenum face,
 			GLenum sfail,
 			GLenum dpfail,
@@ -345,14 +345,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private StencilOpSeparate glStencilOpSeparate;
 
-		private delegate void StencilFunc(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void StencilFunc(
 			GLenum fail,
 			int reference,
 			int mask
 		);
 		private StencilFunc glStencilFunc;
 
-		private delegate void StencilOp(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void StencilOp(
 			GLenum fail,
 			GLenum zfail,
 			GLenum zpass
@@ -363,36 +363,36 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* BEGIN RASTERIZER STATE FUNCTIONS */
 
-		private delegate void FrontFace(GLenum mode);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void FrontFace(GLenum mode);
 		private FrontFace glFrontFace;
 
-		private delegate void PolygonMode(GLenum face, GLenum mode);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void PolygonMode(GLenum face, GLenum mode);
 		private PolygonMode glPolygonMode;
 
-		private delegate void PolygonOffset(float factor, float units);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void PolygonOffset(float factor, float units);
 		private PolygonOffset glPolygonOffset;
 
 		/* END RASTERIZER STATE FUNCTIONS */
 
 		/* BEGIN TEXTURE FUNCTIONS */
 
-		private delegate void CreateTextures(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void CreateTextures(
 			GLenum target,
 			int n,
 			out uint textures
 		);
 		private CreateTextures glCreateTextures;
 
-		private delegate void DeleteTextures(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DeleteTextures(
 			int n,
 			ref uint textures
 		);
 		private DeleteTextures glDeleteTextures;
 
-		private delegate void BindTextureUnit(int unit, uint texture);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void BindTextureUnit(int unit, uint texture);
 		private BindTextureUnit glBindTextureUnit;
 
-		private delegate void TextureStorage2D(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void TextureStorage2D(
 			uint texture,
 			int levels,
 			GLenum internalformat,
@@ -401,7 +401,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private TextureStorage2D glTextureStorage2D;
 
-		private delegate void TextureSubImage2D(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void TextureSubImage2D(
 			uint texture,
 			int level,
 			int xoffset,
@@ -414,7 +414,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private TextureSubImage2D glTextureSubImage2D;
 
-		private delegate void CompressedTextureSubImage2D(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void CompressedTextureSubImage2D(
 			uint texture,
 			int level,
 			int xoffset,
@@ -427,7 +427,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private CompressedTextureSubImage2D glCompressedTextureSubImage2D;
 
-		private delegate void TextureStorage3D(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void TextureStorage3D(
 			uint texture,
 			int levels,
 			GLenum internalFormat,
@@ -437,7 +437,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private TextureStorage3D glTextureStorage3D;
 
-		private delegate void TextureSubImage3D(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void TextureSubImage3D(
 			uint texture,
 			int level,
 			int xoffset,
@@ -452,7 +452,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private TextureSubImage3D glTextureSubImage3D;
 
-		private delegate void CompressedTextureSubImage3D(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void CompressedTextureSubImage3D(
 			uint texture,
 			int level,
 			int xoffset,
@@ -467,7 +467,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private CompressedTextureSubImage3D glCompressedTextureSubImage3D;
 
-		private delegate void GetTextureSubImage(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void GetTextureSubImage(
 			uint texture,
 			int level,
 			int xoffset,
@@ -483,52 +483,52 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private GetTextureSubImage glGetTextureSubImage;
 
-		private delegate void CreateSamplers(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void CreateSamplers(
 			int n,
 			IntPtr samplers
 		);
 		private CreateSamplers glCreateSamplers;
 
-		private delegate void BindSampler(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void BindSampler(
 			int unit,
 			uint sampler
 		);
 		private BindSampler glBindSampler;
 
-		private delegate void SamplerParameteri(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void SamplerParameteri(
 			uint sampler,
 			GLenum pname,
 			int param
 		);
 		private SamplerParameteri glSamplerParameteri;
 
-		private delegate void SamplerParameterf(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void SamplerParameterf(
 			uint sampler,
 			GLenum pname,
 			float param
 		);
 		private SamplerParameterf glSamplerParameterf;
 
-		private delegate void PixelStorei(GLenum pname, int param);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void PixelStorei(GLenum pname, int param);
 		private PixelStorei glPixelStorei;
 
 		/* END TEXTURE FUNCTIONS */
 
 		/* BEGIN BUFFER FUNCTIONS */
 
-		private delegate void CreateBuffers(int n, out uint buffers);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void CreateBuffers(int n, out uint buffers);
 		private CreateBuffers glCreateBuffers;
 
-		private delegate void DeleteBuffers(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DeleteBuffers(
 			int n,
 			ref uint buffers
 		);
 		private DeleteBuffers glDeleteBuffers;
 
-		private delegate void BindBuffer(GLenum target, uint buffer);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void BindBuffer(GLenum target, uint buffer);
 		private BindBuffer glBindBuffer;
 
-		private delegate void NamedBufferData(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void NamedBufferData(
 			uint buffer,
 			IntPtr size,
 			IntPtr data,
@@ -536,7 +536,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private NamedBufferData glNamedBufferData;
 
-		private delegate void NamedBufferSubData(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void NamedBufferSubData(
 			uint buffer,
 			IntPtr offset,
 			IntPtr size,
@@ -544,7 +544,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private NamedBufferSubData glNamedBufferSubData;
 
-		private delegate void GetNamedBufferSubData(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void GetNamedBufferSubData(
 			uint buffer,
 			IntPtr offset,
 			IntPtr size,
@@ -556,7 +556,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* BEGIN CLEAR FUNCTIONS */
 
-		private delegate void ClearColor(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void ClearColor(
 			float red,
 			float green,
 			float blue,
@@ -564,20 +564,20 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private ClearColor glClearColor;
 
-		private delegate void ClearDepth(double depth);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void ClearDepth(double depth);
 		private ClearDepth glClearDepth;
 
-		private delegate void ClearStencil(int s);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void ClearStencil(int s);
 		private ClearStencil glClearStencil;
 
-		private delegate void G_Clear(GLenum mask);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void G_Clear(GLenum mask);
 		private G_Clear glClear;
 
 		/* END CLEAR FUNCTIONS */
 
 		/* BEGIN FRAMEBUFFER FUNCTIONS */
 
-		private delegate void ReadPixels(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void ReadPixels(
 			int x,
 			int y,
 			int width,
@@ -588,28 +588,28 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private ReadPixels glReadPixels;
 
-		private delegate void GenerateTextureMipmap(uint texture);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void GenerateTextureMipmap(uint texture);
 		private GenerateTextureMipmap glGenerateTextureMipmap;
 
-		private delegate void CreateFramebuffers(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void CreateFramebuffers(
 			int n,
 			out uint framebuffers
 		);
 		private CreateFramebuffers glCreateFramebuffers;
 
-		private delegate void DeleteFramebuffers(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DeleteFramebuffers(
 			int n,
 			ref uint framebuffers
 		);
 		private DeleteFramebuffers glDeleteFramebuffers;
 
-		private delegate void G_BindFramebuffer(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void G_BindFramebuffer(
 			GLenum target,
 			uint framebuffer
 		);
 		private G_BindFramebuffer glBindFramebuffer;
 
-		private delegate void NamedFramebufferTexture(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void NamedFramebufferTexture(
 			uint framebuffer,
 			GLenum attachment,
 			uint texture,
@@ -617,7 +617,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private NamedFramebufferTexture glNamedFramebufferTexture;
 
-		private delegate void NamedFramebufferTextureLayer(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void NamedFramebufferTextureLayer(
 			uint framebuffer,
 			GLenum attachment,
 			uint texture,
@@ -626,7 +626,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private NamedFramebufferTextureLayer glNamedFramebufferTextureLayer;
 
-		private delegate void NamedFramebufferRenderbuffer(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void NamedFramebufferRenderbuffer(
 			uint framebuffer,
 			GLenum attachment,
 			GLenum renderbuffertarget,
@@ -634,14 +634,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private NamedFramebufferRenderbuffer glNamedFramebufferRenderbuffer;
 
-		private delegate void NamedFramebufferDrawBuffers(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void NamedFramebufferDrawBuffers(
 			uint framebuffer,
 			int n,
 			IntPtr bufs
 		);
 		private NamedFramebufferDrawBuffers glNamedFramebufferDrawBuffers;
 
-		private delegate void BlitNamedFramebuffer(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void BlitNamedFramebuffer(
 			uint readFramebuffer,
 			uint drawFramebuffer,
 			int srcX0,
@@ -657,19 +657,19 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private BlitNamedFramebuffer glBlitNamedFramebuffer;
 
-		private delegate void CreateRenderbuffers(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void CreateRenderbuffers(
 			int n,
 			out uint renderbuffers
 		);
 		private CreateRenderbuffers glCreateRenderbuffers;
 
-		private delegate void DeleteRenderbuffers(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DeleteRenderbuffers(
 			int n,
 			ref uint renderbuffers
 		);
 		private DeleteRenderbuffers glDeleteRenderbuffers;
 
-		private delegate void NamedRenderbufferStorage(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void NamedRenderbufferStorage(
 			uint renderbuffer,
 			GLenum internalformat,
 			int width,
@@ -677,7 +677,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private NamedRenderbufferStorage glNamedRenderbufferStorage;
 
-		private delegate void NamedRenderbufferStorageMultisample(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void NamedRenderbufferStorageMultisample(
 			uint renderbuffer,
 			int samples,
 			GLenum internalformat,
@@ -690,7 +690,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* BEGIN VERTEX ATTRIBUTE FUNCTIONS */
 
-		private delegate void VertexAttribPointer(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void VertexAttribPointer(
 			int index,
 			int size,
 			GLenum type,
@@ -700,23 +700,23 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private VertexAttribPointer glVertexAttribPointer;
 
-		private delegate void VertexAttribDivisor(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void VertexAttribDivisor(
 			int index,
 			int divisor
 		);
 		private VertexAttribDivisor glVertexAttribDivisor;
 
-		private delegate void EnableVertexAttribArray(int index);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void EnableVertexAttribArray(int index);
 		private EnableVertexAttribArray glEnableVertexAttribArray;
 
-		private delegate void DisableVertexAttribArray(int index);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DisableVertexAttribArray(int index);
 		private DisableVertexAttribArray glDisableVertexAttribArray;
 
 		/* END VERTEX ATTRIBUTE FUNCTIONS */
 
 		/* BEGIN DRAWING FUNCTIONS */
 
-		private delegate void DrawRangeElements(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DrawRangeElements(
 			GLenum mode,
 			int start,
 			int end,
@@ -726,7 +726,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private DrawRangeElements glDrawRangeElements;
 
-		private delegate void DrawElementsInstancedBaseVertex(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DrawElementsInstancedBaseVertex(
 			GLenum mode,
 			int count,
 			GLenum type,
@@ -736,7 +736,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private DrawElementsInstancedBaseVertex glDrawElementsInstancedBaseVertex;
 
-		private delegate void DrawRangeElementsBaseVertex(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DrawRangeElementsBaseVertex(
 			GLenum mode,
 			int start,
 			int end,
@@ -747,7 +747,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 		private DrawRangeElementsBaseVertex glDrawRangeElementsBaseVertex;
 
-		private delegate void DrawArrays(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DrawArrays(
 			GLenum mode,
 			int first,
 			int count
@@ -758,19 +758,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* BEGIN QUERY FUNCTIONS */
 
-		private delegate void GenQueries(int n, out uint ids);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void GenQueries(int n, out uint ids);
 		private GenQueries glGenQueries;
 
-		private delegate void DeleteQueries(int n, ref uint ids);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DeleteQueries(int n, ref uint ids);
 		private DeleteQueries glDeleteQueries;
 
-		private delegate void BeginQuery(GLenum target, uint id);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void BeginQuery(GLenum target, uint id);
 		private BeginQuery glBeginQuery;
 
-		private delegate void EndQuery(GLenum target);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void EndQuery(GLenum target);
 		private EndQuery glEndQuery;
 
-		private delegate void GetQueryObjectuiv(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void GetQueryObjectuiv(
 			uint id,
 			GLenum pname,
 			out uint param
@@ -781,7 +781,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* BEGIN 3.2 CORE PROFILE FUNCTIONS */
 
-		private delegate IntPtr GetStringi(GLenum pname, uint index);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate IntPtr GetStringi(GLenum pname, uint index);
 		private GetStringi INTERNAL_glGetStringi;
 		private string glGetStringi(GLenum pname, uint index)
 		{
@@ -791,13 +791,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		private delegate void GenVertexArrays(int n, out uint arrays);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void GenVertexArrays(int n, out uint arrays);
 		private GenVertexArrays glGenVertexArrays;
 
-		private delegate void DeleteVertexArrays(int n, ref uint arrays);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DeleteVertexArrays(int n, ref uint arrays);
 		private DeleteVertexArrays glDeleteVertexArrays;
 
-		private delegate void BindVertexArray(uint array);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void BindVertexArray(uint array);
 		private BindVertexArray glBindVertexArray;
 
 		/* END 3.2 CORE PROFILE FUNCTIONS */
@@ -805,13 +805,13 @@ namespace Microsoft.Xna.Framework.Graphics
 #if DEBUG
 		/* BEGIN DEBUG OUTPUT FUNCTIONS */
 
-		private delegate void DebugMessageCallback(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DebugMessageCallback(
 			IntPtr debugCallback,
 			IntPtr userParam
 		);
 		private DebugMessageCallback glDebugMessageCallbackARB;
 
-		private delegate void DebugMessageControl(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DebugMessageControl(
 			GLenum source,
 			GLenum type,
 			GLenum severity,
@@ -822,7 +822,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private DebugMessageControl glDebugMessageControlARB;
 
 		// ARB_debug_output callback
-		private delegate void DebugProc(
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void DebugProc(
 			GLenum source,
 			GLenum type,
 			uint id,
@@ -862,7 +862,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* BEGIN STRING MARKER FUNCTIONS */
 
-		private delegate void StringMarkerGREMEDY(int length, IntPtr chars);
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]private delegate void StringMarkerGREMEDY(int length, IntPtr chars);
 		private StringMarkerGREMEDY glStringMarkerGREMEDY;
 
 		/* END STRING MARKER FUNCTIONS */

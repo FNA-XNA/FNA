@@ -1,0 +1,12 @@
+<Directives>  
+   <Application>  
+      <Assembly Name="FNA">
+         <Type Name="Microsoft.Xna.Framework.Content.EffectReader" Dynamic="Required All" />
+         <Type Name="Microsoft.Xna.Framework.Content.SpriteFontReader" Dynamic="Required All" />
+         <Type Name="Microsoft.Xna.Framework.Content.Texture2DReader" Dynamic="Required All" />
+         <Type Name="Microsoft.Xna.Framework.Content.RectangleReader" Dynamic="Required All" />
+         <Type Name="Microsoft.Xna.Framework.Content.ListReader`1[[System.Char,mscorlib]]" Dynamic="Required All" />
+     </Assembly>
+     <Assembly Name="mscorlib" />
+   </Application>
+</Directives>  
