@@ -37,6 +37,8 @@ namespace Microsoft.Xna.Framework
 
 		private static bool SupportsGlobalMouse;
 
+		private static bool TouchDeviceExists;
+
 		private static float HapticMaxWorkaround;
 
 		#endregion
@@ -728,6 +730,9 @@ namespace Microsoft.Xna.Framework
 				osxUseSpaces = false;
 			}
 
+			// Perform initial check for a touch device
+			TouchDeviceExists = GetTouchCapabilities().IsConnected;
+
 			// Do we want to read keycodes or scancodes?
 			if (UseScancodes)
 			{
@@ -825,6 +830,9 @@ namespace Microsoft.Xna.Framework
 					// Touch Input
 					else if (evt.type == SDL.SDL_EventType.SDL_FINGERDOWN)
 					{
+						// Windows only notices a touch screen once it's touched
+						TouchDeviceExists = true;
+
 						TouchPanel.INTERNAL_onTouchEvent(
 							(int)evt.tfinger.fingerId,
 							TouchLocationState.Pressed,
@@ -1011,7 +1019,7 @@ namespace Microsoft.Xna.Framework
 				}
 
 				Keyboard.SetKeys(keys);
-				if (GetTouchCapabilities().IsConnected)
+				if (TouchDeviceExists)
 				{
 					TouchPanel.INTERNAL_updateTouches();
 				}
