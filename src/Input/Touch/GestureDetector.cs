@@ -543,15 +543,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				return;
 			}
 
-			// If the Pinch gesture has been disabled, the state should reset
-			if (!IsGestureEnabled(GestureType.Pinch))
-			{
-				state = GestureState.HELD;
-				secondFingerId = -1;
-				//TODO: Set a flag to call PinchComplete when all fingers are lifted
-				return;
-			}
-
 			if (IsGestureEnabled(GestureType.PinchComplete))
 			{
 				// Pinch Complete!
