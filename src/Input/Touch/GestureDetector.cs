@@ -82,14 +82,15 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Internal Methods
 
-		internal static bool IsGestureEnabled(GestureType gestureType)
-		{
-			return (TouchPanel.EnabledGestures & gestureType) != 0;
-		}
-
 		internal static void OnPressed(int fingerId, Vector2 touchPosition)
 		{
 			fingerIds.Add(fingerId);
+
+			if (state == GestureState.PINCHING)
+			{
+				// None of this method applies to active pinches
+				return;
+			}
 
 			// Set the active finger if there isn't one already
 			if (activeFingerId == -1)
@@ -99,7 +100,20 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 			else
 			{
-				// We don't care about other fingers
+				#region Pinch Initialization
+
+				if (IsGestureEnabled(GestureType.Pinch))
+				{
+					// Initialize a Pinch
+					secondFingerId = fingerId;
+					secondFingerPosition = touchPosition;
+
+					state = GestureState.PINCHING;
+				}
+
+				#endregion
+
+				// No need to do anything more
 				return;
 			}
 
@@ -124,7 +138,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 								GestureType.DoubleTap,
 								touchPosition,
 								Vector2.Zero,
-								TimeSpan.FromTicks(Environment.TickCount)
+								GetGestureTimestamp()
 							));
 
 							justDoubleTapped = true;
@@ -143,6 +157,13 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		internal static void OnReleased(int fingerId, Vector2 touchPosition)
 		{
 			fingerIds.Remove(fingerId);
+
+			// Handle release events seperately for Pinch gestures
+			if (state == GestureState.PINCHING)
+			{
+				OnReleased_Pinch(fingerId, touchPosition);
+				return;
+			}
 
 			// Did the user lift the active finger?
 			if (fingerId == activeFingerId)
@@ -182,7 +203,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 									GestureType.Tap,
 									touchPosition,
 									Vector2.Zero,
-									TimeSpan.FromTicks(Environment.TickCount)
+									GetGestureTimestamp()
 								));
 							}
 
@@ -216,7 +237,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						GestureType.Flick,
 						Vector2.Zero,
 						Vector2.Zero,
-						TimeSpan.FromTicks(Environment.TickCount)
+						GetGestureTimestamp()
 					));
 				}
 
@@ -244,7 +265,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						GestureType.DragComplete,
 						Vector2.Zero,
 						Vector2.Zero,
-						TimeSpan.FromTicks(Environment.TickCount)
+						GetGestureTimestamp()
 					));
 				}
 			}
@@ -262,14 +283,23 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		internal static void OnMoved(int fingerId, Vector2 touchPosition, Vector2 delta)
 		{
+			// Handle move events separately for Pinch gestures
+			if (state == GestureState.PINCHING)
+			{
+				OnMoved_Pinch(fingerId, touchPosition, delta);
+				return;
+			}
+
 			// Replace the active finger if we lost it
 			if (activeFingerId == -1)
 			{
 				activeFingerId = fingerId;
 			}
-			else if (fingerId != activeFingerId)
+
+			// If this isn't the active finger
+			if (fingerId != activeFingerId)
 			{
-				// Ignore the imposter!
+				// We don't care about it
 				return;
 			}
 
@@ -325,7 +355,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.HorizontalDrag,
 					touchPosition,
 					Vector2.Zero,
-					TimeSpan.FromTicks(Environment.TickCount)
+					GetGestureTimestamp()
 				));
 			}
 			else if (state == GestureState.DRAGGING_V && vdrag)
@@ -337,7 +367,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.VerticalDrag,
 					touchPosition,
 					Vector2.Zero,
-					TimeSpan.FromTicks(Environment.TickCount)
+					GetGestureTimestamp()
 				));
 			}
 			else if (state == GestureState.DRAGGING_FREE && fdrag)
@@ -349,17 +379,47 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.FreeDrag,
 					touchPosition,
 					Vector2.Zero,
-					TimeSpan.FromTicks(Environment.TickCount)
+					GetGestureTimestamp()
 				));
+			}
+
+			#endregion
+
+			#region Handle Disabled Drags
+
+			/* Handle the case where the current drag type
+			 * was disabled *while* the user was dragging.
+			 */
+			if ((state == GestureState.DRAGGING_H && !hdrag) ||
+				(state == GestureState.DRAGGING_V && !vdrag) ||
+				(state == GestureState.DRAGGING_FREE && !fdrag))
+			{
+				// Reset the state
+				state = GestureState.HELD;
 			}
 
 			#endregion
 		}
 
-		// This is used to detect time-sensitive gestures (Flick and Hold)
 		internal static void OnTick()
 		{
-			// Only proceed if the user has an active finger on the screen
+			if (state == GestureState.PINCHING)
+			{
+				/* Handle the case where the Pinch gesture
+				 * was disabled *while* the user was pinching.
+				 */
+				if (!IsGestureEnabled(GestureType.Pinch))
+				{
+					state = GestureState.HELD;
+					secondFingerId = -1;
+					//TODO: Set a flag to call PinchComplete when all fingers are lifted
+				}
+
+				// No pinches allowed in the rest of this method!
+				return;
+			}
+
+			// Must have an active finger to proceed
 			if (activeFingerId == -1)
 			{
 				return;
@@ -414,7 +474,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						GestureType.Hold,
 						activeFingerPosition,
 						Vector2.Zero,
-						TimeSpan.FromTicks(Environment.TickCount)
+						GetGestureTimestamp()
 					));
 
 					state = GestureState.HELD;
@@ -422,6 +482,135 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 
 			#endregion
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private static TimeSpan GetGestureTimestamp()
+		{
+			return TimeSpan.FromTicks(Environment.TickCount);
+		}
+
+		private static bool IsGestureEnabled(GestureType gestureType)
+		{
+			return (TouchPanel.EnabledGestures & gestureType) != 0;
+		}
+
+		/* The *_Pinch methods are separate from the standard event methods
+		 * because they have to deal with multiple touches. It gets really
+		 * messy and ugly if single-touch and multi-touch detection is all
+		 * intermingled in the same methods.
+		 */
+
+		private static void OnReleased_Pinch(int fingerId, Vector2 touchPosition)
+		{
+			// We don't care about fingers that aren't part of the pinch
+			if (fingerId != activeFingerId && fingerId != secondFingerId)
+			{
+				return;
+			}
+
+			// If the Pinch gesture has been disabled, the state should reset
+			if (!IsGestureEnabled(GestureType.Pinch))
+			{
+				state = GestureState.HELD;
+				secondFingerId = -1;
+				//TODO: Set a flag to call PinchComplete when all fingers are lifted
+				return;
+			}
+
+			if (IsGestureEnabled(GestureType.PinchComplete))
+			{
+				// Pinch Complete!
+				TouchPanel.EnqueueGesture(new GestureSample(
+					Vector2.Zero,
+					Vector2.Zero,
+					GestureType.PinchComplete,
+					Vector2.Zero,
+					Vector2.Zero,
+					GetGestureTimestamp()
+				));
+			}
+
+			// If we lost the active finger
+			if (fingerId == activeFingerId)
+			{
+				// Then the second finger becomes the active finger
+				activeFingerId = secondFingerId;
+				activeFingerPosition = secondFingerPosition;
+			}
+
+			// Regardless, we no longer have a second finger
+			secondFingerId = -1;
+
+			// Attempt to replace our fallen comrade
+			bool replacedSecondFinger = false;
+			foreach (int id in fingerIds)
+			{
+				// Find a finger that's not already spoken for
+				if (id != activeFingerId)
+				{
+					secondFingerId = id;
+					replacedSecondFinger = true;
+					break;
+				}
+			}
+
+			if (!replacedSecondFinger)
+			{
+				// Aaaand we're back to a single touch
+				state = GestureState.HELD;
+			}
+		}
+
+		private static void OnMoved_Pinch(int fingerId, Vector2 touchPosition, Vector2 delta)
+		{
+			// We only care if the finger moved is involved in the pinch
+			if (fingerId != activeFingerId && fingerId != secondFingerId)
+			{
+				return;
+			}
+
+			/* In XNA, each Pinch gesture sample contained a delta
+			 * for both fingers. It was somehow able to detect
+			 * simultaneous deltas at an OS level. We don't have that
+			 * luxury, so instead, each Pinch gesture will contain the
+			 * delta information for just _one_ of the fingers.
+			 * 
+			 * In practice what this means is that you'll get twice as
+			 * many Pinch gestures added to the queue (one sample for
+			 * each finger). This doesn't matter too much, though,
+			 * since the resulting behavior is identical to XNA.
+			 * 
+			 * -caleb
+			 */
+
+			if (fingerId == activeFingerId)
+			{
+				activeFingerPosition = touchPosition;
+				TouchPanel.EnqueueGesture(new GestureSample(
+					delta,
+					Vector2.Zero,
+					GestureType.Pinch,
+					activeFingerPosition,
+					secondFingerPosition,
+					GetGestureTimestamp()
+				));
+			}
+			else
+			{
+				secondFingerPosition = touchPosition;
+				TouchPanel.EnqueueGesture(new GestureSample(
+					Vector2.Zero,
+					delta,
+					GestureType.Pinch,
+					activeFingerPosition,
+					secondFingerPosition,
+					GetGestureTimestamp()
+				));
+			}
 		}
 
 		#endregion
