@@ -11,6 +11,7 @@
 using System.Collections.Generic;
 
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Media;
 #endregion
 
@@ -60,6 +61,11 @@ namespace Microsoft.Xna.Framework
 			{
 				MediaPlayer.OnMediaStateChanged();
 				MediaStateChanged = false;
+			}
+
+			if (TouchPanel.TouchDeviceExists)
+			{
+				TouchPanel.Update();
 			}
 		}
 

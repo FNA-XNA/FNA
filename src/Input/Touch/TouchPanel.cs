@@ -59,6 +59,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#endregion
 
+		#region Internal Static Variables
+
+		internal static bool TouchDeviceExists;
+
+		#endregion
+
 		#region Private Static Variables
 
 		private static Queue<GestureSample> gestures = new Queue<GestureSample>();
@@ -147,7 +153,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 		}
 
-		internal static void INTERNAL_updateTouches()
+		internal static void Update()
 		{
 			// Remove all touches that were released last frame
 			touches.RemoveAll(touch => touch.State == TouchLocationState.Released);

@@ -32,7 +32,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			get
 			{
-				return TouchPanel.GetCapabilities().IsConnected;
+				return TouchPanel.TouchDeviceExists;
 			}
 		}
 
