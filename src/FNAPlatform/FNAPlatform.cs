@@ -14,6 +14,7 @@ using System.IO;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -75,6 +76,8 @@ namespace Microsoft.Xna.Framework
 			GetMicrophoneQueuedBytes =	SDL2_FNAPlatform.GetMicrophoneQueuedBytes;
 			StartMicrophone =		SDL2_FNAPlatform.StartMicrophone;
 			StopMicrophone =		SDL2_FNAPlatform.StopMicrophone;
+			GetTouchCapabilities =		SDL2_FNAPlatform.GetTouchCapabilities;
+			GetNumTouchFingers =		SDL2_FNAPlatform.GetNumTouchFingers;
 
 			// Don't overwrite application log hooks!
 			if (FNALoggerEXT.LogInfo == null)
@@ -277,6 +280,12 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void StopMicrophoneFunc(uint handle);
 		public static readonly StopMicrophoneFunc StopMicrophone;
+
+		public delegate TouchPanelCapabilities GetTouchCapabilitiesFunc();
+		public static readonly GetTouchCapabilitiesFunc GetTouchCapabilities;
+
+		public delegate int GetNumTouchFingersFunc();
+		public static readonly GetNumTouchFingersFunc GetNumTouchFingers;
 
 		#endregion
 	}

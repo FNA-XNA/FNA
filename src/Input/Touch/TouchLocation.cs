@@ -55,8 +55,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			Id = id;
 			State = state;
 			Position = position;
-			prevPosition = Vector2.Zero;
 			prevState = TouchLocationState.Invalid;
+			prevPosition = Vector2.Zero;
 		}
 
 		public TouchLocation(
@@ -93,12 +93,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public override int GetHashCode()
 		{
-			return Id; // FIXME: What is this really...?
+			return Id.GetHashCode() + Position.GetHashCode();
 		}
 
 		public override string ToString()
 		{
-			return Id.ToString(); // FIXME: What is this really...?
+			return "{Position:" + Position.ToString() + "}";
 		}
 
 		public bool TryGetPreviousLocation(

@@ -17,7 +17,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 	[Flags]
 	public enum GestureType
 	{
-		// FIXME: Check the real XNA enum values!
 		None =			0x000,
 		Tap =			0x001,
 		DoubleTap =		0x002,

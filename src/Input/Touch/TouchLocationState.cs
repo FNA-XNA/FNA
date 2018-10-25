@@ -12,10 +12,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 	// https://msdn.microsoft.com/en-us/library/microsoft.xna.framework.input.touch.touchlocationstate.aspx
 	public enum TouchLocationState
 	{
-		// FIXME: Check the real XNA enum values!
 		Invalid,
-		Moved,
+		Released,
 		Pressed,
-		Released
+		Moved
 	}
 }

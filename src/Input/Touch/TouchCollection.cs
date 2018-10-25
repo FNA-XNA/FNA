@@ -32,8 +32,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			get
 			{
-				// TODO
-				return false;
+				return TouchPanel.TouchDeviceExists;
 			}
 		}
 
@@ -41,8 +40,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			get
 			{
-				// TODO
-				return false;
+				return true;
 			}
 		}
 
@@ -54,6 +52,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 			set
 			{
+				// This will cause a runtime exception
 				touches[index] = value;
 			}
 		}
@@ -62,7 +61,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Variables
 
-		private List<TouchLocation> touches;
+		private readonly List<TouchLocation> touches;
 
 		#endregion
 
@@ -76,6 +75,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		#endregion
 
 		#region Public Methods
+
+		/* Since the collection is always readonly, using any
+		 * method that attempts to modify touches will result
+		 * in a System.NotSupportedException at runtime.
+		 */
 
 		public void Add(TouchLocation item)
 		{

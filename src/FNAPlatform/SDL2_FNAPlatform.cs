@@ -20,6 +20,7 @@ using SDL2;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -412,6 +413,11 @@ namespace Microsoft.Xna.Framework
 				Mouse.WindowHandle = IntPtr.Zero;
 			}
 
+			if (TouchPanel.WindowHandle == window.Handle)
+			{
+				TouchPanel.WindowHandle = IntPtr.Zero;
+			}
+
 			SDL.SDL_DestroyWindow(window.Handle);
 		}
 
@@ -722,6 +728,9 @@ namespace Microsoft.Xna.Framework
 				osxUseSpaces = false;
 			}
 
+			// Perform initial check for a touch device
+			TouchPanel.TouchDeviceExists = GetTouchCapabilities().IsConnected;
+
 			// Do we want to read keycodes or scancodes?
 			if (UseScancodes)
 			{
@@ -814,6 +823,44 @@ namespace Microsoft.Xna.Framework
 					{
 						// 120 units per notch. Because reasons.
 						Mouse.INTERNAL_MouseWheel += evt.wheel.y * 120;
+					}
+
+					// Touch Input
+					else if (evt.type == SDL.SDL_EventType.SDL_FINGERDOWN)
+					{
+						// Windows only notices a touch screen once it's touched
+						TouchPanel.TouchDeviceExists = true;
+
+						TouchPanel.INTERNAL_onTouchEvent(
+							(int)evt.tfinger.fingerId,
+							TouchLocationState.Pressed,
+							evt.tfinger.x,
+							evt.tfinger.y,
+							0,
+							0
+						);
+					}
+					else if (evt.type == SDL.SDL_EventType.SDL_FINGERMOTION)
+					{
+						TouchPanel.INTERNAL_onTouchEvent(
+							(int)evt.tfinger.fingerId,
+							TouchLocationState.Moved,
+							evt.tfinger.x,
+							evt.tfinger.y,
+							evt.tfinger.dx,
+							evt.tfinger.dy
+						);
+					}
+					else if (evt.type == SDL.SDL_EventType.SDL_FINGERUP)
+					{
+						TouchPanel.INTERNAL_onTouchEvent(
+							(int)evt.tfinger.fingerId,
+							TouchLocationState.Released,
+							evt.tfinger.x,
+							evt.tfinger.y,
+							0,
+							0
+						);
 					}
 
 					// Various Window Events...
@@ -2527,6 +2574,34 @@ namespace Microsoft.Xna.Framework
 				result[i] = String.Empty;
 			}
 			return result;
+		}
+
+		#endregion
+
+		#region Touch Methods
+
+		public static TouchPanelCapabilities GetTouchCapabilities()
+		{
+			bool touchDeviceExists = SDL.SDL_GetNumTouchDevices() > 0;
+			return new TouchPanelCapabilities
+			{
+				/* Take these reported capabilities with a grain of salt.
+				 * On Windows, touch devices won't be detected until they
+				 * are interacted with. Also, MaximumTouchCount is completely
+				 * bogus. For any touch device, XNA always reports 4.
+				 * 
+				 * -caleb
+				 */
+				IsConnected = touchDeviceExists,
+				MaximumTouchCount = touchDeviceExists ? 4 : 0
+			};
+		}
+
+		public static int GetNumTouchFingers()
+		{
+			return SDL.SDL_GetNumTouchFingers(
+				SDL.SDL_GetTouchDevice(0)
+			);
 		}
 
 		#endregion

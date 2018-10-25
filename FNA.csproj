@@ -354,6 +354,7 @@
     <Compile Include="src\Input\Mouse.cs" />
     <Compile Include="src\Input\MouseState.cs" />
     <Compile Include="src\Input\TextInputEXT.cs" />
+    <Compile Include="src\Input\Touch\GestureDetector.cs" />
     <Compile Include="src\Input\Touch\GestureSample.cs" />
     <Compile Include="src\Input\Touch\GestureType.cs" />
     <Compile Include="src\Input\Touch\TouchCollection.cs" />
