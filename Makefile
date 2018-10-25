@@ -278,6 +278,7 @@ SRC = \
 	src/Input/Mouse.cs \
 	src/Input/MouseState.cs \
 	src/Input/TextInputEXT.cs \
+	src/Input/Touch/GestureDetector.cs \
 	src/Input/Touch/GestureSample.cs \
 	src/Input/Touch/GestureType.cs \
 	src/Input/Touch/TouchCollection.cs \
