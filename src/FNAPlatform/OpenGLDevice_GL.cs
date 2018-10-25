@@ -1680,8 +1680,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 		}
 
-		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
-		private delegate GetProcAddress(string name, Type type)
+		private Delegate GetProcAddress(string name, Type type)
 		{
 			IntPtr addr = SDL.SDL_GL_GetProcAddress(name);
 			if (addr == IntPtr.Zero)
@@ -1691,8 +1690,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			return Marshal.GetDelegateForFunctionPointer(addr, type);
 		}
 
-		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
-		private delegate GetProcAddressEXT(string name, Type type, string ext = "EXT")
+		private Delegate GetProcAddressEXT(string name, Type type, string ext = "EXT")
 		{
 			IntPtr addr = SDL.SDL_GL_GetProcAddress(name);
 			if (addr == IntPtr.Zero)
