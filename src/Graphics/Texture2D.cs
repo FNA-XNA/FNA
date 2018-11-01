@@ -337,6 +337,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public static Texture2D FromStream(GraphicsDevice graphicsDevice, Stream stream)
 		{
+			if (stream.CanSeek)
+			{
+				stream.Seek(0, SeekOrigin.Begin);
+			}
+
 			// Read the image data from the stream
 			int width, height;
 			byte[] pixels;
