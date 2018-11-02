@@ -337,7 +337,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public static Texture2D FromStream(GraphicsDevice graphicsDevice, Stream stream)
 		{
-			if (stream.CanSeek)
+			if (stream.CanSeek && stream.Position == stream.Length)
 			{
 				stream.Seek(0, SeekOrigin.Begin);
 			}
