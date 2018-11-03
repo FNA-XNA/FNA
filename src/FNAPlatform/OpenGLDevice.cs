@@ -441,6 +441,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private GLenum backbufferScaleMode;
 
+		private uint realBackbufferFBO;
+		private uint realBackbufferRBO;
+
 		#endregion
 
 		#region OpenGL Device Capabilities
@@ -600,6 +603,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			else
 			{
 				throw new NotSupportedException("Unrecognized window depth/stencil format!");
+			}
+
+			// UIKit needs special treatment for backbuffer behavior
+			SDL.SDL_SysWMinfo wmInfo = new SDL.SDL_SysWMinfo();
+			SDL.SDL_GetWindowWMInfo(
+				presentationParameters.DeviceWindowHandle,
+				ref wmInfo
+			);
+			if (wmInfo.subsystem == SDL.SDL_SYSWM_TYPE.SDL_SYSWM_UIKIT)
+			{
+				realBackbufferFBO = wmInfo.info.uikit.framebuffer;
+				realBackbufferRBO = wmInfo.info.uikit.colorbuffer;
+			}
+			else
+			{
+				realBackbufferFBO = 0;
+				realBackbufferRBO = 0;
 			}
 
 			// Init threaded GL crap where applicable
@@ -976,7 +996,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					BindReadFramebuffer((Backbuffer as OpenGLBackbuffer).Handle);
 				}
-				BindDrawFramebuffer(0);
+				BindDrawFramebuffer(realBackbufferFBO);
 
 				glBlitFramebuffer(
 					srcX, srcY, srcW, srcH,
@@ -985,7 +1005,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					backbufferScaleMode
 				);
 
-				BindFramebuffer(0);
+				BindFramebuffer(realBackbufferFBO);
 
 				if (scissorTestEnable)
 				{
@@ -3454,7 +3474,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			glBindRenderbuffer(
 				GLenum.GL_RENDERBUFFER,
-				0
+				realBackbufferRBO
 			);
 
 #if !DISABLE_THREADING
@@ -3502,7 +3522,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			glBindRenderbuffer(
 				GLenum.GL_RENDERBUFFER,
-				0
+				realBackbufferRBO
 			);
 
 #if !DISABLE_THREADING
@@ -3664,7 +3684,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				BindFramebuffer(
 					(Backbuffer is OpenGLBackbuffer) ?
 						(Backbuffer as OpenGLBackbuffer).Handle :
-						0
+						realBackbufferFBO
 				);
 				flipViewport = 1;
 				return;
@@ -4322,7 +4342,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					depthStencilAttachment = 0;
 
 					// Keep this state sane.
-					glDevice.glBindRenderbuffer(GLenum.GL_RENDERBUFFER, 0);
+					glDevice.glBindRenderbuffer(
+						GLenum.GL_RENDERBUFFER,
+						glDevice.realBackbufferRBO
+					);
 
 					return;
 				}
@@ -4366,13 +4389,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Keep this state sane.
-				glDevice.glBindRenderbuffer(GLenum.GL_RENDERBUFFER, 0);
+				glDevice.glBindRenderbuffer(
+					GLenum.GL_RENDERBUFFER,
+					glDevice.realBackbufferRBO
+				);
 			}
 
 			public void Dispose()
 			{
 				uint handle = Handle;
-				glDevice.BindFramebuffer(0);
+				glDevice.BindFramebuffer(glDevice.realBackbufferFBO);
 				glDevice.glDeleteFramebuffers(1, ref handle);
 				glDevice.glDeleteRenderbuffers(1, ref colorAttachment);
 				if (depthStencilAttachment != 0)
@@ -4541,7 +4567,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Keep this state sane.
-				glDevice.glBindRenderbuffer(GLenum.GL_RENDERBUFFER, 0);
+				glDevice.glBindRenderbuffer(
+					GLenum.GL_RENDERBUFFER,
+					glDevice.realBackbufferRBO
+				);
 			}
 		}
 
