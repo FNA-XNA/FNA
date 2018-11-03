@@ -12,7 +12,6 @@ using System.Collections.Generic;
 
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input.Touch;
-using Microsoft.Xna.Framework.Media;
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -51,15 +50,15 @@ namespace Microsoft.Xna.Framework
 				}
 			}
 
-			MediaPlayer.Update();
+			Media.MediaPlayer.Update();
 			if (ActiveSongChanged)
 			{
-				MediaPlayer.OnActiveSongChanged();
+				Media.MediaPlayer.OnActiveSongChanged();
 				ActiveSongChanged = false;
 			}
 			if (MediaStateChanged)
 			{
-				MediaPlayer.OnMediaStateChanged();
+				Media.MediaPlayer.OnMediaStateChanged();
 				MediaStateChanged = false;
 			}
 
