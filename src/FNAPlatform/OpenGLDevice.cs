@@ -523,6 +523,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private bool effectApplied = false;
 
+#if (__IOS__ || __TVOS__)
+		[ObjCRuntime.MonoPInvokeCallback(typeof(MojoShader.MOJOSHADER_glGetProcAddress))]
+#endif
 		private static IntPtr glGetProcAddress(IntPtr name, IntPtr d)
 		{
 			return SDL.SDL_GL_GetProcAddress(name);
