@@ -4722,16 +4722,3 @@ namespace Microsoft.Xna.Framework.Graphics
 		#endregion
 	}
 }
-
-// This is a dummy class for iOS/tvOS AOT compilation
-namespace ObjCRuntime
-{
-	[AttributeUsage(AttributeTargets.Method)]
-	class MonoPInvokeCallbackAttribute : Attribute
-	{
-		public MonoPInvokeCallbackAttribute(Type t)
-		{
-
-		}
-	}
-}
