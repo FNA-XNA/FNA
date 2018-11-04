@@ -523,9 +523,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private bool effectApplied = false;
 
-#if (__IOS__ || __TVOS__)
 		[ObjCRuntime.MonoPInvokeCallback(typeof(MojoShader.MOJOSHADER_glGetProcAddress))]
-#endif
 		private static IntPtr glGetProcAddress(IntPtr name, IntPtr d)
 		{
 			return SDL.SDL_GL_GetProcAddress(name);
@@ -4722,5 +4720,18 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif // !DISABLE_THREADING
 
 		#endregion
+	}
+}
+
+// This is a dummy class for iOS/tvOS AOT compilation
+namespace ObjCRuntime
+{
+	[AttributeUsage(AttributeTargets.Method)]
+	class MonoPInvokeCallbackAttribute : Attribute
+	{
+		public MonoPInvokeCallbackAttribute(Type t)
+		{
+
+		}
 	}
 }
