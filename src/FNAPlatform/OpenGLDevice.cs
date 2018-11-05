@@ -441,8 +441,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private GLenum backbufferScaleMode;
 
-		private uint realBackbufferFBO = 0;
-		private uint realBackbufferRBO = 0;
+		private uint realBackbufferFBO;
+		private uint realBackbufferRBO;
 
 		#endregion
 
@@ -606,6 +606,24 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new NotSupportedException("Unrecognized window depth/stencil format!");
 			}
 
+			// UIKit needs special treatment for backbuffer behavior
+			SDL.SDL_SysWMinfo wmInfo = new SDL.SDL_SysWMinfo();
+			SDL.SDL_VERSION(out wmInfo.version);
+			SDL.SDL_GetWindowWMInfo(
+				presentationParameters.DeviceWindowHandle,
+				ref wmInfo
+			);
+			if (wmInfo.subsystem == SDL.SDL_SYSWM_TYPE.SDL_SYSWM_UIKIT)
+			{
+				realBackbufferFBO = wmInfo.info.uikit.framebuffer;
+				realBackbufferRBO = wmInfo.info.uikit.colorbuffer;
+			}
+			else
+			{
+				realBackbufferFBO = 0;
+				realBackbufferRBO = 0;
+			}
+
 			// Init threaded GL crap where applicable
 			InitThreadedGL(
 				presentationParameters.DeviceWindowHandle
@@ -646,17 +664,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			MojoShader.MOJOSHADER_glMakeContextCurrent(shaderContext);
 			FNALoggerEXT.LogInfo("MojoShader Profile: " + shaderProfile);
-
-			// UIKit needs special treatment for backbuffer behavior
-			if (SDL.SDL_GetPlatform() == "iOS" || SDL.SDL_GetPlatform() == "tvOS")
-			{
-				int fbo, rbo;
-				glGetIntegerv(GLenum.GL_RENDERBUFFER_BINDING, out fbo);
-				glGetIntegerv(GLenum.GL_FRAMEBUFFER_BINDING, out rbo);
-
-				realBackbufferFBO = (uint)fbo;
-				realBackbufferRBO = (uint)rbo;
-			}
 
 			// Some users might want pixely upscaling...
 			backbufferScaleMode = Environment.GetEnvironmentVariable(
