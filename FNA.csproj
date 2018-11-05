@@ -393,6 +393,7 @@
     <Compile Include="src\Utilities\AssemblyHelper.cs" />
     <Compile Include="src\Utilities\FileHelpers.cs" />
     <Compile Include="src\Utilities\FNAInternalExtensions.cs" />
+    <Compile Include="src\Utilities\XamarinHelper.cs" />
     <Compile Include="src\Vector2.cs" />
     <Compile Include="src\Vector3.cs" />
     <Compile Include="src\Vector4.cs" />
