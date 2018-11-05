@@ -607,6 +607,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// UIKit needs special treatment for backbuffer behavior
 			SDL.SDL_SysWMinfo wmInfo = new SDL.SDL_SysWMinfo();
+			SDL.SDL_VERSION(out wmInfo.version);
 			SDL.SDL_GetWindowWMInfo(
 				presentationParameters.DeviceWindowHandle,
 				ref wmInfo
