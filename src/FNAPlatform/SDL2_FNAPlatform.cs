@@ -1809,11 +1809,13 @@ namespace Microsoft.Xna.Framework
 				return temp;
 			}
 
+			[ObjCRuntime.MonoPInvokeCallback(typeof(SizeFunc))]
 			private static long size(IntPtr context)
 			{
 				return -1;
 			}
 
+			[ObjCRuntime.MonoPInvokeCallback(typeof(SeekFunc))]
 			private static long seek(IntPtr context, long offset, int whence)
 			{
 				Stream stream;
@@ -1825,6 +1827,7 @@ namespace Microsoft.Xna.Framework
 				return stream.Position;
 			}
 
+			[ObjCRuntime.MonoPInvokeCallback(typeof(ReadFunc))]
 			private static IntPtr read(
 				IntPtr context,
 				IntPtr ptr,
@@ -1848,6 +1851,7 @@ namespace Microsoft.Xna.Framework
 				return (IntPtr) len;
 			}
 
+			[ObjCRuntime.MonoPInvokeCallback(typeof(WriteFunc))]
 			private static IntPtr write(
 				IntPtr context,
 				IntPtr ptr,
@@ -1872,6 +1876,7 @@ namespace Microsoft.Xna.Framework
 				return (IntPtr) len;
 			}
 
+			[ObjCRuntime.MonoPInvokeCallback(typeof(CloseFunc))]
 			public static int close(IntPtr context)
 			{
 				lock (streamMap)
