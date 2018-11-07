@@ -49,7 +49,7 @@ using SDL2;
 
 namespace Microsoft.Xna.Framework.Graphics
 {
-	internal partial class OpenGLDevice : IGLDevice
+	internal class OpenGLDevice : BaseOpenGLDevice, IGLDevice
 	{
 		#region OpenGL Texture Container Class
 
@@ -457,12 +457,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
-		public bool SupportsHardwareInstancing
-		{
-			get;
-			private set;
-		}
-
 		public int MaxTextureSlots
 		{
 			get;
@@ -474,10 +468,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			get;
 			private set;
 		}
-
-		private bool supportsMultisampling;
-		private bool supportsFauxBackbuffer;
-		private bool supportsBaseVertex;
 
 		#endregion
 
@@ -541,8 +531,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Profile-specific Variables
 
-		private bool useES3;
-		private bool useCoreProfile;
 		private DepthFormat windowDepthFormat;
 		private uint vao;
 
