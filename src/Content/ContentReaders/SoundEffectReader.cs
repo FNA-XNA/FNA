@@ -88,14 +88,16 @@ namespace Microsoft.Xna.Framework.Content
 
 		#region Internal Static Swapping Methods
 
-		internal static ushort Swap(bool swap, ushort x) {
+		internal static ushort Swap(bool swap, ushort x)
+		{
 			return !swap ? x : (ushort) (
 				((x >> 8)	& 0x00FF) |
 				((x << 8)	& 0xFF00)
 			);
 		}
 
-		internal static uint Swap(bool swap, uint x) {
+		internal static uint Swap(bool swap, uint x)
+		{
 			return !swap ? x : (
 				((x >> 24)	& 0x000000FF) |
 				((x >> 8)	& 0x0000FF00) |
