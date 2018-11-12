@@ -38,16 +38,21 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader input,
 			SoundEffect existingInstance
 		) {
+			/* Swap endian - this is one of the very few places requiring this!
+			 * Note: This only affects the fmt chunk that's glued into the file.
+			 */
+			bool se = input.platform == 'x';
+
 			// Format block length
 			uint formatLength = input.ReadUInt32();
 
 			// WaveFormatEx data
-			ushort wFormatTag = input.ReadUInt16();
-			ushort nChannels = input.ReadUInt16();
-			uint nSamplesPerSec = input.ReadUInt32();
-			uint nAvgBytesPerSec = input.ReadUInt32();
-			ushort nBlockAlign = input.ReadUInt16();
-			ushort wBitsPerSample = input.ReadUInt16();
+			ushort wFormatTag = Swap(se, input.ReadUInt16());
+			ushort nChannels = Swap(se, input.ReadUInt16());
+			uint nSamplesPerSec = Swap(se, input.ReadUInt32());
+			uint nAvgBytesPerSec = Swap(se, input.ReadUInt32());
+			ushort nBlockAlign = Swap(se, input.ReadUInt16());
+			ushort wBitsPerSample = Swap(se, input.ReadUInt16());
 			/* ushort cbSize =*/ input.ReadUInt16();
 
 			// Seek past the rest of this crap (cannot seek though!)
@@ -80,5 +85,26 @@ namespace Microsoft.Xna.Framework.Content
 		}
 
 		#endregion
+
+		#region Internal Static Swapping Methods
+
+		internal static ushort Swap(bool swap, ushort x) {
+			return !swap ? x : (ushort) (
+				((x >> 8)	& 0x00FF) |
+				((x << 8)	& 0xFF00)
+			);
+		}
+
+		internal static uint Swap(bool swap, uint x) {
+			return !swap ? x : (
+				((x >> 24)	& 0x000000FF) |
+				((x >> 8)	& 0x0000FF00) |
+				((x << 8)	& 0x00FF0000) |
+				((x << 24)	& 0xFF000000)
+			);
+		}
+
+		#endregion
+
 	}
 }
