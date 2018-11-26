@@ -35,6 +35,7 @@ namespace Microsoft.Xna.Framework
 		public abstract DisplayOrientation CurrentOrientation
 		{
 			get;
+			internal set;
 		}
 
 		public abstract IntPtr Handle
@@ -163,10 +164,6 @@ namespace Microsoft.Xna.Framework
 				ScreenDeviceNameChanged(this, EventArgs.Empty);
 			}
 		}
-
-		protected internal abstract void SetSupportedOrientations(
-			DisplayOrientation orientations
-		);
 
 		protected abstract void SetTitle(string title);
 

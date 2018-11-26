@@ -52,11 +52,8 @@ namespace Microsoft.Xna.Framework
 
 		public override DisplayOrientation CurrentOrientation
 		{
-			get
-			{
-				// TODO: return FNAPlatform.GetOrientation(window);
-				return DisplayOrientation.LandscapeLeft;
-			}
+			get;
+			internal set;
 		}
 
 		public override IntPtr Handle
@@ -149,14 +146,14 @@ namespace Microsoft.Xna.Framework
 			OnScreenDeviceNameChanged();
 		}
 
+		internal void INTERNAL_OnOrientationChanged()
+		{
+			OnOrientationChanged();
+		}
+
 		#endregion
 
 		#region Protected GameWindow Methods
-
-		protected internal override void SetSupportedOrientations(DisplayOrientation orientations)
-		{
-			// FNA currently doesn't support orientations.
-		}
 
 		protected override void SetTitle(string title)
 		{
