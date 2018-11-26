@@ -1022,12 +1022,12 @@ namespace Microsoft.Xna.Framework
 						// Orientation Change
 						if (evt.display.displayEvent == SDL.SDL_DisplayEventID.SDL_DISPLAYEVENT_ORIENTATION)
 						{
-							DisplayOrientation fnaOrientation = INTERNAL_ConvertOrientation(
+							DisplayOrientation orientation = INTERNAL_ConvertOrientation(
 								(SDL.SDL_DisplayOrientation) evt.display.data1
 							);
 
 							INTERNAL_HandleOrientationChange(
-								fnaOrientation,
+								orientation,
 								game.GraphicsDevice,
 								(FNAWindow) game.Window
 							);
