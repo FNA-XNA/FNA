@@ -722,7 +722,7 @@ namespace Microsoft.Xna.Framework
 					return DisplayOrientation.Portrait;
 
 				default:
-					throw new InvalidOperationException("FNA does not support this device orientation.");
+					throw new NotSupportedException("FNA does not support this device orientation.");
 			}
 		}
 
