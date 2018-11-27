@@ -85,7 +85,6 @@ namespace Microsoft.Xna.Framework
 			set;
 		}
 
-		[Obsolete("Set the supported orientations in Info.plist or AndroidManifest.xml instead.")]
 		public DisplayOrientation SupportedOrientations
 		{
 			/* XNA on Windows Phone had the ability to change
@@ -100,8 +99,16 @@ namespace Microsoft.Xna.Framework
 			 * -caleb
 			 */
 
-			get;
-			set;
+			get
+			{
+				return supportedOrientations;
+			}
+
+			set
+			{
+				FNALoggerEXT.LogWarn("Setting SupportedOrientations has no effect!");
+				supportedOrientations = value;
+			}
 		}
 
 		#endregion
@@ -110,6 +117,7 @@ namespace Microsoft.Xna.Framework
 
 		private Game game;
 		private GraphicsDevice graphicsDevice;
+		private DisplayOrientation supportedOrientations;
 		private bool drawBegun;
 		private bool disposed;
 		private bool useResizedBackBuffer;
@@ -152,7 +160,7 @@ namespace Microsoft.Xna.Framework
 
 			this.game = game;
 
-			SupportedOrientations = DisplayOrientation.Default;
+			supportedOrientations = DisplayOrientation.Default;
 
 			PreferredBackBufferHeight = DefaultBackBufferHeight;
 			PreferredBackBufferWidth = DefaultBackBufferWidth;
