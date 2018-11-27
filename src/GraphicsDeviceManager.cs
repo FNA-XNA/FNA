@@ -103,7 +103,6 @@ namespace Microsoft.Xna.Framework
 			{
 				return supportedOrientations;
 			}
-
 			set
 			{
 				FNALoggerEXT.LogWarn("Setting SupportedOrientations has no effect!");
