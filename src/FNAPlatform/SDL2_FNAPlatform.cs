@@ -183,14 +183,10 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
-			hint = SDL.SDL_GetHint(SDL.SDL_HINT_ORIENTATIONS);
-			if (String.IsNullOrEmpty(hint))
-			{
-				SDL.SDL_SetHint(
-					SDL.SDL_HINT_ORIENTATIONS,
-					"LandscapeLeft LandscapeRight Portrait"
-				);
-			}
+			SDL.SDL_SetHint(
+				SDL.SDL_HINT_ORIENTATIONS,
+				"LandscapeLeft LandscapeRight Portrait"
+			);
 
 			// We want to initialize the controllers ASAP!
 			SDL.SDL_Event[] evt = new SDL.SDL_Event[1];
