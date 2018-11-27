@@ -749,11 +749,10 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// Update the graphics device and window
-			//FIXME: In which order should these be called?
 			graphicsDevice.PresentationParameters.DisplayOrientation = orientation;
-			graphicsDevice.Reset();
-
 			window.CurrentOrientation = orientation;
+
+			graphicsDevice.Reset();
 			window.INTERNAL_OnOrientationChanged();
 		}
 
