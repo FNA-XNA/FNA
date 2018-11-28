@@ -145,6 +145,11 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
+			SDL.SDL_SetHint(
+				SDL.SDL_HINT_ORIENTATIONS,
+				"LandscapeLeft LandscapeRight Portrait"
+			);
+
 			// We want to initialize the controllers ASAP!
 			SDL.SDL_Event[] evt = new SDL.SDL_Event[1];
 			SDL.SDL_PumpEvents();
@@ -659,6 +664,58 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Display Methods
+
+		private static DisplayOrientation INTERNAL_ConvertOrientation(SDL.SDL_DisplayOrientation orientation)
+		{
+			switch (orientation)
+			{
+				case SDL.SDL_DisplayOrientation.SDL_ORIENTATION_LANDSCAPE:
+					return DisplayOrientation.LandscapeLeft;
+
+				case SDL.SDL_DisplayOrientation.SDL_ORIENTATION_LANDSCAPE_FLIPPED:
+					return DisplayOrientation.LandscapeRight;
+
+				case SDL.SDL_DisplayOrientation.SDL_ORIENTATION_PORTRAIT:
+					return DisplayOrientation.Portrait;
+
+				default:
+					throw new NotSupportedException("FNA does not support this device orientation.");
+			}
+		}
+
+		private static void INTERNAL_HandleOrientationChange(
+			DisplayOrientation orientation,
+			GraphicsDevice graphicsDevice,
+			FNAWindow window
+		) {
+			// Flip the backbuffer dimensions if needed
+			int width = graphicsDevice.PresentationParameters.BackBufferWidth;
+			int height = graphicsDevice.PresentationParameters.BackBufferHeight;
+			int min = Math.Min(width, height);
+			int max = Math.Max(width, height);
+
+			if (orientation == DisplayOrientation.Portrait)
+			{
+				graphicsDevice.PresentationParameters.BackBufferWidth = min;
+				graphicsDevice.PresentationParameters.BackBufferHeight = max;
+			}
+			else
+			{
+				graphicsDevice.PresentationParameters.BackBufferWidth = max;
+				graphicsDevice.PresentationParameters.BackBufferHeight = min;
+			}
+
+			// Update the graphics device and window
+			graphicsDevice.PresentationParameters.DisplayOrientation = orientation;
+			window.CurrentOrientation = orientation;
+
+			graphicsDevice.Reset();
+			window.INTERNAL_OnOrientationChanged();
+		}
+
+		#endregion
+
 		#region Event Loop
 
 		public static void RunLoop(Game game)
@@ -913,6 +970,24 @@ namespace Microsoft.Xna.Framework
 						else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_LEAVE)
 						{
 							SDL.SDL_EnableScreenSaver();
+						}
+					}
+
+					// Display Events
+					else if (evt.type == SDL.SDL_EventType.SDL_DISPLAYEVENT)
+					{
+						// Orientation Change
+						if (evt.display.displayEvent == SDL.SDL_DisplayEventID.SDL_DISPLAYEVENT_ORIENTATION)
+						{
+							DisplayOrientation orientation = INTERNAL_ConvertOrientation(
+								(SDL.SDL_DisplayOrientation) evt.display.data1
+							);
+
+							INTERNAL_HandleOrientationChange(
+								orientation,
+								game.GraphicsDevice,
+								(FNAWindow) game.Window
+							);
 						}
 					}
 
