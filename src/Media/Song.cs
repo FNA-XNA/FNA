@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.IO;
 #endregion
 
 namespace Microsoft.Xna.Framework.Media
@@ -89,9 +90,9 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal Song(string fileName, string name = null)
 		{
-			if (!System.IO.File.Exists(fileName))
+			if (!File.Exists(fileName))
 			{
-				throw new System.IO.FileNotFoundException(fileName);
+				throw new FileNotFoundException(fileName);
 			}
 			handle = fileName;
 			Name = name;
@@ -180,7 +181,10 @@ namespace Microsoft.Xna.Framework.Media
 			}
 			else
 			{
-				path = uri.ToString();
+				path = Path.Combine(
+					TitleLocation.Path,
+					uri.ToString()
+				);
 			}
 
 			return new Song(path, name);
