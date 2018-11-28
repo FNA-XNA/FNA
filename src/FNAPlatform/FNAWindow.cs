@@ -155,6 +155,23 @@ namespace Microsoft.Xna.Framework
 
 		#region Protected GameWindow Methods
 
+		protected internal override void SetSupportedOrientations(DisplayOrientation orientations)
+		{
+			/* XNA on Windows Phone had the ability to change
+			 * the list of supported device orientations at runtime.
+			 * Unfortunately, we can't support that reliably across
+			 * multiple mobile platforms. Therefore this method is
+			 * essentially a no-op.
+			 *
+			 * Instead, you should set your supported orientations
+			 * in Info.plist (iOS) or AndroidManifest.xml (Android).
+			 *
+			 * -caleb
+			 */
+
+			FNALoggerEXT.LogWarn("Setting SupportedOrientations has no effect!");
+		}
+
 		protected override void SetTitle(string title)
 		{
 			FNAPlatform.SetWindowTitle(window, title);

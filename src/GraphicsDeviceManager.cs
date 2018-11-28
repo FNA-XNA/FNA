@@ -87,26 +87,17 @@ namespace Microsoft.Xna.Framework
 
 		public DisplayOrientation SupportedOrientations
 		{
-			/* XNA on Windows Phone had the ability to change
-			 * the list of supported device orientations at runtime.
-			 * Unfortunately, we can't support that reliably across
-			 * multiple mobile platforms. Therefore this property is
-			 * essentially a no-op.
-			 * 
-			 * Instead, you should set your supported orientations in
-			 * Info.plist (iOS) or AndroidManifest.xml (Android).
-			 * 
-			 * -caleb
-			 */
-
 			get
 			{
 				return supportedOrientations;
 			}
 			set
 			{
-				FNALoggerEXT.LogWarn("Setting SupportedOrientations has no effect!");
 				supportedOrientations = value;
+				if (game.Window != null)
+				{
+					game.Window.SetSupportedOrientations(supportedOrientations);
+				}
 			}
 		}
 
