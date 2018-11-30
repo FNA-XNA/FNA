@@ -247,10 +247,32 @@ namespace Microsoft.Xna.Framework
 			}
 			else
 			{
-				gdi.PresentationParameters.BackBufferWidth =
-					PreferredBackBufferWidth;
-				gdi.PresentationParameters.BackBufferHeight =
-					PreferredBackBufferHeight;
+				if (!FNAPlatform.SupportsOrientationChanges())
+				{
+					gdi.PresentationParameters.BackBufferWidth =
+						PreferredBackBufferWidth;
+					gdi.PresentationParameters.BackBufferHeight =
+						PreferredBackBufferHeight;
+				}
+				else
+				{
+					/* Flip the backbuffer dimensions to scale
+					 * appropriately to the current orientation.
+					 */
+					int min = Math.Min(PreferredBackBufferWidth, PreferredBackBufferHeight);
+					int max = Math.Max(PreferredBackBufferWidth, PreferredBackBufferHeight);
+
+					if (gdi.PresentationParameters.DisplayOrientation == DisplayOrientation.Portrait)
+					{
+						gdi.PresentationParameters.BackBufferWidth = min;
+						gdi.PresentationParameters.BackBufferHeight = max;
+					}
+					else
+					{
+						gdi.PresentationParameters.BackBufferWidth = max;
+						gdi.PresentationParameters.BackBufferHeight = min;
+					}
+				}
 			}
 			gdi.PresentationParameters.DepthStencilFormat =
 				PreferredDepthStencilFormat;

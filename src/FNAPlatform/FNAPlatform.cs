@@ -78,6 +78,7 @@ namespace Microsoft.Xna.Framework
 			StopMicrophone =		SDL2_FNAPlatform.StopMicrophone;
 			GetTouchCapabilities =		SDL2_FNAPlatform.GetTouchCapabilities;
 			GetNumTouchFingers =		SDL2_FNAPlatform.GetNumTouchFingers;
+			SupportsOrientationChanges =	SDL2_FNAPlatform.SupportsOrientationChanges;
 
 			// Don't overwrite application log hooks!
 			if (FNALoggerEXT.LogInfo == null)
@@ -286,6 +287,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate int GetNumTouchFingersFunc();
 		public static readonly GetNumTouchFingersFunc GetNumTouchFingers;
+
+		public delegate bool SupportsOrientationChangesFunc();
+		public static readonly SupportsOrientationChangesFunc SupportsOrientationChanges;
 
 		#endregion
 	}
