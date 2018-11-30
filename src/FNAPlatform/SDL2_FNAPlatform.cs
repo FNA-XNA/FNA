@@ -37,8 +37,8 @@ namespace Microsoft.Xna.Framework
 
 		private static bool SupportsGlobalMouse;
 
+		// For iOS high dpi support
 		private static int RetinaWidth;
-
 		private static int RetinaHeight;
 
 		#endregion
@@ -346,31 +346,39 @@ namespace Microsoft.Xna.Framework
 			// We hide the mouse cursor by default.
 			SDL.SDL_ShowCursor(0);
 
+			/* iOS requires a GL context to get the drawable size
+			 * of the screen, so we create a temporary one here.
+			 * -caleb
+			 */
+			IntPtr tempGLContext = IntPtr.Zero;
+			if (OSVersion.Equals("iOS"))
+			{
+				tempGLContext = SDL.SDL_GL_CreateContext(window);
+			}
+
 			/* If high DPI is not found, unset the HIGHDPI var.
 			 * This is our way to communicate that it failed...
 			 * -flibit
 			 */
 			int drawX, drawY;
-			IntPtr ctx = IntPtr.Zero;
-
-			if (OSVersion.Equals("iOS"))
-			{
-				ctx = SDL.SDL_GL_CreateContext(window);
-			}
-
 			SDL.SDL_GL_GetDrawableSize(window, out drawX, out drawY);
-
-			if (OSVersion.Equals("iOS"))
-			{
-				SDL.SDL_GL_DeleteContext(ctx);
-				RetinaWidth = drawX;
-				RetinaHeight = drawY;
-			}
-
 			if (	drawX == GraphicsDeviceManager.DefaultBackBufferWidth &&
 				drawY == GraphicsDeviceManager.DefaultBackBufferHeight	)
 			{
 				Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "0");
+			}
+
+			// We're done with that temporary GL context.
+			if (OSVersion.Equals("iOS"))
+			{
+				SDL.SDL_GL_DeleteContext(tempGLContext);
+
+				if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
+				{
+					// Store the full retina resolution of the display
+					RetinaWidth = drawX;
+					RetinaHeight = drawY;
+				}
 			}
 
 			return new FNAWindow(
@@ -1191,11 +1199,12 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_DisplayMode filler = new SDL.SDL_DisplayMode();
 			SDL.SDL_GetCurrentDisplayMode(adapterIndex, out filler);
 
-			if (OSVersion.Equals("iOS") && Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
+			if (OSVersion.Equals("iOS")
+				&& Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
 			{
+				// Provide the actual resolution in pixels, not points.
 				filler.w = RetinaWidth;
 				filler.h = RetinaHeight;
-				FNALoggerEXT.LogInfo("w/h: " + filler.w + "/" + filler.h);
 			}
 
 			return new DisplayMode(
