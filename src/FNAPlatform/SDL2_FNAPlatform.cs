@@ -397,7 +397,8 @@ namespace Microsoft.Xna.Framework
 			ref string resultDeviceName
 		) {
 			bool center = false;
-			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
+			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1"
+				&& OSVersion.Equals("Mac OS X"))
 			{
 				/* For high-DPI windows, halve the size!
 				 * The drawable size is now the primary width/height, so
