@@ -714,6 +714,11 @@ namespace Microsoft.Xna.Framework
 			window.INTERNAL_OnOrientationChanged();
 		}
 
+		public static bool SupportsOrientationChanges()
+		{
+			return OSVersion.Equals("iOS") || OSVersion.Equals("Android");
+		}
+
 		#endregion
 
 		#region Event Loop
