@@ -259,7 +259,6 @@ namespace Microsoft.Xna.Framework
 					/* Flip the backbuffer dimensions to scale
 					 * appropriately to the current orientation.
 					 */
-
 					int min = Math.Min(PreferredBackBufferWidth, PreferredBackBufferHeight);
 					int max = Math.Max(PreferredBackBufferWidth, PreferredBackBufferHeight);
 
