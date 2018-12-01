@@ -424,8 +424,8 @@ namespace Microsoft.Xna.Framework
 			ref string resultDeviceName
 		) {
 			bool center = false;
-			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1"
-				&& OSVersion.Equals("Mac OS X"))
+			if (	Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1" &&
+				OSVersion.Equals("Mac OS X")	)
 			{
 				/* For high-DPI windows, halve the size!
 				 * The drawable size is now the primary width/height, so
@@ -1205,8 +1205,8 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_DisplayMode filler = new SDL.SDL_DisplayMode();
 			SDL.SDL_GetCurrentDisplayMode(adapterIndex, out filler);
 
-			if (OSVersion.Equals("iOS")
-				&& Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
+			if (	OSVersion.Equals("iOS") &&
+				Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1"	)
 			{
 				// Provide the actual resolution in pixels, not points.
 				filler.w = RetinaWidth;
