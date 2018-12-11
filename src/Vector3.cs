@@ -276,7 +276,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Hash code of this <see cref="Vector3"/>.</returns>
 		public override int GetHashCode()
 		{
-			return (int) (this.X + this.Y + this.Z);
+			return X.GetHashCode() + Y.GetHashCode() + Z.GetHashCode();
 		}
 
 		/// <summary>
