@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 #endregion
@@ -87,6 +88,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		// Local data stored before buffering to GPU
 		private VertexPositionColorTexture4[] vertexInfo;
+		private int[] sortedIndexes;
+		private VertexPositionColorTexture4[] sortedVertexInfo;
 		private Texture2D[] textureInfo;
 
 		// Default SpriteBatch Effect
@@ -126,9 +129,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		 */
 		private static readonly byte[] spriteEffectCode = Resources.SpriteEffect;
 		private static readonly short[] indexData = GenerateIndexArray();
-		private static readonly TextureComparer TextureCompare = new TextureComparer();
-		private static readonly BackToFrontComparer BackToFrontCompare = new BackToFrontComparer();
-		private static readonly FrontToBackComparer FrontToBackCompare = new FrontToBackComparer();
+		private readonly TextureByIndexComparer textureByIndexComparer;
+		private readonly BackToFrontByIndexComparer backToFrontByIndexComparer;
+		private readonly FrontToBackByIndexComparer frontToBackByIndexComparer;
 
 		#endregion
 
@@ -143,6 +146,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			GraphicsDevice = graphicsDevice;
 
 			vertexInfo = new VertexPositionColorTexture4[MAX_SPRITES];
+			sortedVertexInfo = new VertexPositionColorTexture4[MAX_SPRITES];
+			sortedIndexes = new int[MAX_SPRITES];
 			textureInfo = new Texture2D[MAX_SPRITES];
 			vertexBuffer = new DynamicVertexBuffer(
 				graphicsDevice,
@@ -164,6 +169,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			spriteMatrixTransform = spriteEffect.Parameters["MatrixTransform"].values;
 			spriteEffectPass = spriteEffect.CurrentTechnique.Passes[0];
+
+			textureByIndexComparer = new TextureByIndexComparer(vertexInfo);
+			backToFrontByIndexComparer = new BackToFrontByIndexComparer(vertexInfo);
+			frontToBackByIndexComparer = new FrontToBackByIndexComparer(vertexInfo);
 
 			beginCalled = false;
 			numSprites = 0;
@@ -1168,58 +1177,80 @@ namespace Microsoft.Xna.Framework.Graphics
 				return;
 			}
 
-			// FIXME: OPTIMIZATION POINT: Speed up sprite sorting! -flibit
-			if (sortMode == SpriteSortMode.Texture)
+			Debug.Assert(sortMode != SpriteSortMode.Immediate);
+			if (sortMode == SpriteSortMode.Deferred)
 			{
-				Array.Sort(
-					textureInfo,
-					vertexInfo,
-					0,
-					numSprites,
-					TextureCompare
-				);
+				// Use the original (unsorted) vertex info.
+				fixed (VertexPositionColorTexture4* p = &vertexInfo[0])
+				{
+					vertexBuffer.SetDataPointerEXT(
+						0,
+						(IntPtr)p,
+						numSprites * VertexPositionColorTexture4.RealStride,
+						SetDataOptions.None
+					);
+				}
 			}
-			else if (sortMode == SpriteSortMode.BackToFront)
+			else
 			{
+				// Put all the indexes to sprite VertexPositionColorTexture4 structs into an array for sorting.
+				for (int i = 0; i < numSprites; ++i)
+				{
+					sortedIndexes[i] = i;
+				}
+
+				// Choose a suitable compare function and sort.
+				IComparer<int> comparer;
+				if (sortMode == SpriteSortMode.Texture)
+				{
+					comparer = textureByIndexComparer;
+				}
+				else if (sortMode == SpriteSortMode.BackToFront)
+				{
+					comparer = backToFrontByIndexComparer;
+				}
+				else
+				{
+					Debug.Assert(sortMode == SpriteSortMode.FrontToBack);
+					comparer = frontToBackByIndexComparer;
+				}
 				Array.Sort(
-					vertexInfo,
-					textureInfo,
+					sortedIndexes,
 					0,
 					numSprites,
-					BackToFrontCompare
+					comparer
 				);
-			}
-			else if (sortMode == SpriteSortMode.FrontToBack)
-			{
-				Array.Sort(
-					vertexInfo,
-					textureInfo,
-					0,
-					numSprites,
-					FrontToBackCompare
-				);
+
+				// Copy the vertex info (once) in sorted order to an alternate buffer.
+				for (int i = 0; i < numSprites; ++i)
+				{
+					sortedVertexInfo[i] = vertexInfo[sortedIndexes[i]];
+				}
+
+				// Use the sorted vertex info.
+				fixed (VertexPositionColorTexture4* p = &sortedVertexInfo[0])
+				{
+					vertexBuffer.SetDataPointerEXT(
+						0,
+						(IntPtr)p,
+						numSprites * VertexPositionColorTexture4.RealStride,
+						SetDataOptions.None
+					);
+				}
 			}
 
-			fixed (VertexPositionColorTexture4* p = &vertexInfo[0])
-			{
-				vertexBuffer.SetDataPointerEXT(
-					0,
-					(IntPtr) p,
-					numSprites * VertexPositionColorTexture4.RealStride,
-					SetDataOptions.None
-				);
-			}
-
-			curTexture = textureInfo[0];
+			curTexture = textureInfo[sortedIndexes[0]];
 			for (int i = 1; i < numSprites; i += 1)
 			{
-				if (textureInfo[i] != curTexture)
+				Texture2D nextTexture = textureInfo[sortedIndexes[i]];
+				if (nextTexture != curTexture)
 				{
 					DrawPrimitives(curTexture, offset, i - offset);
-					curTexture = textureInfo[i];
+					curTexture = nextTexture;
 					offset = i;
 				}
 			}
+
 			DrawPrimitives(curTexture, offset, numSprites - offset);
 
 			numSprites = 0;
@@ -1364,30 +1395,51 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Sprite Comparison Classes
 
-		private class TextureComparer : IComparer<Texture2D>
+		private class TextureByIndexComparer : IComparer<int>
 		{
-			public int Compare(Texture2D x, Texture2D y)
+			private readonly VertexPositionColorTexture4[] vertexInfo;
+
+			public TextureByIndexComparer(VertexPositionColorTexture4[] vertexInfo)
 			{
-				return x.GetHashCode().CompareTo(y.GetHashCode());
+				this.vertexInfo = vertexInfo;
+			}
+
+			public int Compare(int x, int y)
+			{
+				return vertexInfo[y].Position0.Z.CompareTo(vertexInfo[x].Position0.Z);
 			}
 		}
 
-		private class BackToFrontComparer : IComparer<VertexPositionColorTexture4>
+		private class BackToFrontByIndexComparer : IComparer<int>
 		{
-			public int Compare(VertexPositionColorTexture4 x, VertexPositionColorTexture4 y)
+			private readonly VertexPositionColorTexture4[] vertexInfo;
+
+			public BackToFrontByIndexComparer(VertexPositionColorTexture4[] vertexInfo)
 			{
-				return y.Position0.Z.CompareTo(x.Position0.Z);
+				this.vertexInfo = vertexInfo;
+			}
+
+			public int Compare(int x, int y)
+			{
+				return vertexInfo[y].Position0.Z.CompareTo(vertexInfo[x].Position0.Z);
 			}
 		}
 
-		private class FrontToBackComparer : IComparer<VertexPositionColorTexture4>
+		private class FrontToBackByIndexComparer : IComparer<int>
 		{
-			public int Compare(VertexPositionColorTexture4 x, VertexPositionColorTexture4 y)
+			private readonly VertexPositionColorTexture4[] vertexInfo;
+
+			public FrontToBackByIndexComparer(VertexPositionColorTexture4[] vertexInfo)
 			{
-				return x.Position0.Z.CompareTo(y.Position0.Z);
+				this.vertexInfo = vertexInfo;
+			}
+
+			public int Compare(int x, int y)
+			{
+				return vertexInfo[y].Position0.Z.CompareTo(vertexInfo[x].Position0.Z);
 			}
 		}
-
+		
 		#endregion
 	}
 }
