@@ -1033,6 +1033,25 @@ namespace Microsoft.Xna.Framework
 					{
 						INTERNAL_RemoveInstance(evt.cdevice.which);
 					}
+					else if (evt.type == SDL.SDL_EventType.SDL_CONTROLLERBUTTONDOWN)
+					{
+						/* FIXME: SDL2 bug!
+						 *
+						 * iOS and tvOS need this to work around the weird way
+						 * that SDL handles the Guide button on MFi controllers.
+						 * See: https://bugzilla.libsdl.org/show_bug.cgi?id=4463
+						 *
+						 * -caleb
+						 */
+
+						if (OSVersion.Equals("iOS") || OSVersion.Equals("tvOS"))
+						{
+							if (evt.cbutton.button == (byte)SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE)
+							{
+								guideButtonPresses += 1;
+							}
+						}
+					}
 
 					// Text Input
 					else if (evt.type == SDL.SDL_EventType.SDL_TEXTINPUT && !textInputSuppress)
@@ -2079,6 +2098,9 @@ namespace Microsoft.Xna.Framework
 		private static GamePadState[] INTERNAL_states = new GamePadState[GamePad.GAMEPAD_COUNT];
 		private static GamePadCapabilities[] INTERNAL_capabilities = new GamePadCapabilities[GamePad.GAMEPAD_COUNT];
 
+		// Detects Guide button presses on iOS/tvOS MFi controllers
+		private static int guideButtonPresses = 0;
+
 		private static readonly GamePadType[] INTERNAL_gamepadType = new GamePadType[]
 		{
 			GamePadType.Unknown,
@@ -2228,6 +2250,16 @@ namespace Microsoft.Xna.Framework
 			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_RIGHT) != 0)
 			{
 				gc_buttonState |= Buttons.DPadRight;
+			}
+
+			// FIXME: Part 2 of the SDL2 MFi gamepad Guide button bug
+			if (OSVersion.Equals("iOS") || OSVersion.Equals("tvOS"))
+			{
+				if (guideButtonPresses > 0)
+				{
+					gc_buttonState |= Buttons.BigButton;
+					guideButtonPresses -= 1;
+				}
 			}
 
 			// Build the GamePadState, increment PacketNumber if state changed.
