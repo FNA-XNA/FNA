@@ -93,9 +93,9 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (value <= 0.0f)
+				if (value < 0.0f)
 				{
-					throw new ArgumentOutOfRangeException("value <= 0.0f");
+					throw new ArgumentOutOfRangeException("value < 0.0f");
 				}
 				Device().DopplerScale = value;
 			}
