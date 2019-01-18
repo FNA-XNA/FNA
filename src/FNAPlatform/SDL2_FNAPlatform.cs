@@ -131,6 +131,12 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
+			// Disable SDL2's default accelerometer setting
+			SDL.SDL_SetHint(
+				SDL.SDL_HINT_ACCELEROMETER_AS_JOYSTICK,
+				"0"
+			);
+
 			// This _should_ be the first real SDL call we make...
 			SDL.SDL_Init(
 				SDL.SDL_INIT_VIDEO |
@@ -1048,7 +1054,14 @@ namespace Microsoft.Xna.Framework
 						{
 							if (evt.cbutton.button == (byte)SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE)
 							{
-								guideButtonPresses += 1;
+								if (!guideButtonPresses.ContainsKey(evt.cbutton.which))
+								{
+									guideButtonPresses.Add(evt.cbutton.which, 1);
+								}
+								else
+								{
+									guideButtonPresses[evt.cbutton.which] += 1;
+								}
 							}
 						}
 					}
@@ -2099,7 +2112,7 @@ namespace Microsoft.Xna.Framework
 		private static GamePadCapabilities[] INTERNAL_capabilities = new GamePadCapabilities[GamePad.GAMEPAD_COUNT];
 
 		// Detects Guide button presses on iOS/tvOS MFi controllers
-		private static int guideButtonPresses = 0;
+		private static Dictionary<int, int> guideButtonPresses = new Dictionary<int, int>();
 
 		private static readonly GamePadType[] INTERNAL_gamepadType = new GamePadType[]
 		{
@@ -2252,13 +2265,16 @@ namespace Microsoft.Xna.Framework
 				gc_buttonState |= Buttons.DPadRight;
 			}
 
-			// FIXME: Part 2 of the SDL2 MFi gamepad Guide button bug
+			// FIXME: Part 2 of the SDL2 MFi gamepad Guide button workaround
 			if (OSVersion.Equals("iOS") || OSVersion.Equals("tvOS"))
 			{
-				if (guideButtonPresses > 0)
+				if (guideButtonPresses.ContainsKey(index))
 				{
-					gc_buttonState |= Buttons.BigButton;
-					guideButtonPresses -= 1;
+					if (guideButtonPresses[index] > 0)
+					{
+						gc_buttonState |= Buttons.BigButton;
+						guideButtonPresses[index] -= 1;
+					}
 				}
 			}
 
