@@ -1,0 +1,22 @@
+using System.Reflection;
+using System.Runtime.CompilerServices;
+[assembly: AssemblyVersion("4.0.0.0")]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.IGameComponent))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.IUpdateable))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GameComponent))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.IDrawable))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.DrawableGameComponent))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.PreparingDeviceSettingsEventArgs))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Game))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GameComponentCollectionEventArgs))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GameComponentCollection))]
+#if TODO_NETSTUB
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.GamerServicesComponent))]
+#endif
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GameServiceContainer))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GameTime))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GameWindow))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GraphicsDeviceInformation))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.IGraphicsDeviceManager))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GraphicsDeviceManager))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.LaunchParameters))]

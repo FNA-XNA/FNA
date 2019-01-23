@@ -1,0 +1,10 @@
+using System.Reflection;
+using System.Runtime.CompilerServices;
+[assembly: AssemblyVersion("4.0.0.0")]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Input.Touch.GestureType))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Input.Touch.GestureSample))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Input.Touch.TouchCollection))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Input.Touch.TouchLocationState))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Input.Touch.TouchPanelCapabilities))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Input.Touch.TouchLocation))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Input.Touch.TouchPanel))]

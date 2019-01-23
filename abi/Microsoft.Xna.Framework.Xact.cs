@@ -1,0 +1,10 @@
+using System.Reflection;
+using System.Runtime.CompilerServices;
+[assembly: AssemblyVersion("4.0.0.0")]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Audio.RendererDetail))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Audio.Cue))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Audio.AudioStopOptions))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Audio.SoundBank))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Audio.WaveBank))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Audio.AudioCategory))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Audio.AudioEngine))]
