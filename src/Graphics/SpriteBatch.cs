@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 #endregion
@@ -1225,6 +1226,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		[MethodImpl(256)]
 		private static unsafe void GenerateVertexInfo(
 			VertexPositionColorTexture4* sprite,
 			float sourceX,
