@@ -148,8 +148,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			GraphicsDevice = graphicsDevice;
 
 			spriteQueue = new SpriteInfo[MAX_SPRITES];
-			for (int i = 0; i < MAX_SPRITES; ++i)
+			for (int i = 0; i < MAX_SPRITES; i += 1)
+			{
 				spriteQueue[i] = new SpriteInfo();
+			}
 			vertexInfo = new VertexPositionColorTexture4[MAX_SPRITES];
 			textureInfo = new Texture2D[MAX_SPRITES];
 			vertexBuffer = new DynamicVertexBuffer(
@@ -1178,7 +1180,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			float rotationSin,
 			float rotationCos,
 			float depth,
-			byte effects)
+			byte effects
+		)
 		{
 			float cornerX = -originX * destinationW;
 			float cornerY = -originY * destinationH;
@@ -1347,7 +1350,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					vertexBuffer.SetDataPointerEXT(
 						0,
-						(IntPtr)p,
+						(IntPtr) p,
 						numSprites * VertexPositionColorTexture4.RealStride,
 						SetDataOptions.None
 					);
@@ -1558,7 +1561,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				return i1.depth.CompareTo(i2.depth);
 			}
 		}
-		
+
 		#endregion
 	}
 }
