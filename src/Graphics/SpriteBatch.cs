@@ -1318,31 +1318,31 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 
 				// Create vertex info in sorted order.
-				for (int i = 0; i < numSprites; ++i)
+				fixed (VertexPositionColorTexture4* sprites = &vertexInfo[0])
 				{
-					SpriteInfo spriteInfo = this.spriteQueue[i];
-					fixed (VertexPositionColorTexture4* sprite = &vertexInfo[i])
+					for (int i = 0; i < numSprites; ++i)
 					{
+						SpriteInfo spriteInfo = this.spriteQueue[i];
 						UpdateVertexInfo(
-							sprite, 
+							&sprites[i], 
 							spriteInfo.sourceX,
 							spriteInfo.sourceY,
-							spriteInfo.sourceW,
+							spriteInfo.sourceW, 
 							spriteInfo.sourceH,
-							spriteInfo.destinationX,
-							spriteInfo.destinationY,
-							spriteInfo.destinationW,
+							spriteInfo.destinationX, 
+							spriteInfo.destinationY, 
+							spriteInfo.destinationW, 
 							spriteInfo.destinationH,
-							spriteInfo.color,
+							spriteInfo.color, 
 							spriteInfo.originX,
-							spriteInfo.originY,
+							spriteInfo.originY, 
 							spriteInfo.rotationSin,
-							spriteInfo.rotationCos,
+							spriteInfo.rotationCos, 
 							spriteInfo.depth,
 							spriteInfo.effects);
-					}
 
-					textureInfo[i] = spriteInfo.texture;
+						textureInfo[i] = spriteInfo.texture;
+					}
 				}
 
 				// Use the sorted vertex info.
