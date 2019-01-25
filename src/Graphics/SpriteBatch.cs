@@ -88,7 +88,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		// Local data stored before buffering to GPU
 		private SpriteInfo[] spriteInfos;
-		private IntPtr[] sortedSprites; /* SpriteInfo* */
+		private IntPtr[] sortedSprites; // SpriteInfo*
 		private VertexPositionColorTexture4[] vertexInfo;
 		private Texture2D[] textureInfo;
 
@@ -1073,15 +1073,30 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				fixed (VertexPositionColorTexture4* sprite = &vertexInfo[0])
 				{
-					GenerateVertexInfo(sprite, sourceX, sourceY, sourceW, sourceH, destinationX, destinationY, destinationW,
-						destinationH, color, originX, originY, rotationSin, rotationCos, depth, effects);
+					GenerateVertexInfo(
+						sprite,
+						sourceX,
+						sourceY,
+						sourceW,
+						sourceH,
+						destinationX,
+						destinationY,
+						destinationW,
+						destinationH,
+						color,
+						originX,
+						originY,
+						rotationSin,
+						rotationCos,
+						depth,
+						effects);
 				}
 
 				fixed (VertexPositionColorTexture4* p = &vertexInfo[0])
 				{
 					vertexBuffer.SetDataPointerEXT(
 						0,
-						(IntPtr)p,
+						(IntPtr) p,
 						VertexPositionColorTexture4.RealStride,
 						SetDataOptions.None
 					);
@@ -1092,8 +1107,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				fixed (VertexPositionColorTexture4* sprite = &vertexInfo[numSprites])
 				{
-					GenerateVertexInfo(sprite, sourceX, sourceY, sourceW, sourceH, destinationX, destinationY, destinationW,
-						destinationH, color, originX, originY, rotationSin, rotationCos, depth, effects);
+					GenerateVertexInfo(
+						sprite,
+						sourceX,
+						sourceY,
+						sourceW,
+						sourceH,
+						destinationX,
+						destinationY,
+						destinationW,
+						destinationH,
+						color,
+						originX,
+						originY,
+						rotationSin,
+						rotationCos,
+						depth,
+						effects);
 				}
 
 				textureInfo[numSprites] = texture;
@@ -1121,11 +1151,11 @@ namespace Microsoft.Xna.Framework.Graphics
 					spriteInfo->depth = depth;
 					spriteInfo->effects = effects;
 
-					/* Store a pointer that we will sort when flushing the batch. */
-					sortedSprites[numSprites] = (IntPtr)spriteInfo;
+					// Store a pointer that we will sort when flushing the batch.
+					sortedSprites[numSprites] = (IntPtr) spriteInfo;
 				}
 
-				/* Have to keep Texture2D out of SpriteInfo for it to stay an unmanaged type. */
+				// Have to keep Texture2D out of SpriteInfo for it to stay an unmanaged type.
 				textureInfo[numSprites] = texture;
 
 				numSprites += 1;
@@ -1175,7 +1205,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				vertexBuffer.SetDataPointerEXT(
 					0,
-					(IntPtr)p,
+					(IntPtr) p,
 					numSprites * VertexPositionColorTexture4.RealStride,
 					SetDataOptions.None
 				);
@@ -1241,7 +1271,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			float rotationSin,
 			float rotationCos,
 			float depth,
-			byte effects)
+			byte effects
+		)
 		{
 			float cornerX = -originX * destinationW;
 			float cornerY = -originY * destinationH;
