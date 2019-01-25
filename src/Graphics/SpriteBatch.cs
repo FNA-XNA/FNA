@@ -1234,7 +1234,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					for (int i = 0; i < numSprites; i += 1)
 					{
-						SpriteInfo* info = (SpriteInfo*)infos[i];
+						SpriteInfo* info = (SpriteInfo*) infos[i];
 						GenerateVertexInfo(
 							&sprites[i],
 							info->sourceX,
@@ -1479,8 +1479,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			public unsafe int Compare(IntPtr i1, IntPtr i2)
 			{
-				SpriteInfo* p1 = (SpriteInfo*)i1;
-				SpriteInfo* p2 = (SpriteInfo*)i2;
+				SpriteInfo* p1 = (SpriteInfo*) i1;
+				SpriteInfo* p2 = (SpriteInfo*) i2;
 				return p1->textureHash.CompareTo(p2->textureHash);
 			}
 		}
@@ -1489,8 +1489,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			public unsafe int Compare(IntPtr i1, IntPtr i2)
 			{
-				SpriteInfo* p1 = (SpriteInfo*)i1;
-				SpriteInfo* p2 = (SpriteInfo*)i2;
+				SpriteInfo* p1 = (SpriteInfo*) i1;
+				SpriteInfo* p2 = (SpriteInfo*) i2;
 				return p2->depth.CompareTo(p1->depth);
 			}
 		}
@@ -1499,8 +1499,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			public unsafe int Compare(IntPtr i1, IntPtr i2)
 			{
-				SpriteInfo* p1 = (SpriteInfo*)i1;
-				SpriteInfo* p2 = (SpriteInfo*)i2;
+				SpriteInfo* p1 = (SpriteInfo*) i1;
+				SpriteInfo* p2 = (SpriteInfo*) i2;
 				return p1->depth.CompareTo(p2->depth);
 			}
 		}
