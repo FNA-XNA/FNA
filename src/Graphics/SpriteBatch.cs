@@ -1134,25 +1134,28 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				fixed (SpriteInfo* spriteInfo = &spriteInfos[numSprites])
 				{
-					spriteInfo->textureHash = texture.GetHashCode();
-					spriteInfo->sourceX = sourceX;
-					spriteInfo->sourceY = sourceY;
-					spriteInfo->sourceW = sourceW;
-					spriteInfo->sourceH = sourceH;
-					spriteInfo->destinationX = destinationX;
-					spriteInfo->destinationY = destinationY;
-					spriteInfo->destinationW = destinationW;
-					spriteInfo->destinationH = destinationH;
-					spriteInfo->color = color;
-					spriteInfo->originX = originX;
-					spriteInfo->originY = originY;
-					spriteInfo->rotationSin = rotationSin;
-					spriteInfo->rotationCos = rotationCos;
-					spriteInfo->depth = depth;
-					spriteInfo->effects = effects;
+					fixed (IntPtr* sortedSpritesPtr = &sortedSprites[0])
+					{
+						spriteInfo->textureHash = texture.GetHashCode();
+						spriteInfo->sourceX = sourceX;
+						spriteInfo->sourceY = sourceY;
+						spriteInfo->sourceW = sourceW;
+						spriteInfo->sourceH = sourceH;
+						spriteInfo->destinationX = destinationX;
+						spriteInfo->destinationY = destinationY;
+						spriteInfo->destinationW = destinationW;
+						spriteInfo->destinationH = destinationH;
+						spriteInfo->color = color;
+						spriteInfo->originX = originX;
+						spriteInfo->originY = originY;
+						spriteInfo->rotationSin = rotationSin;
+						spriteInfo->rotationCos = rotationCos;
+						spriteInfo->depth = depth;
+						spriteInfo->effects = effects;
 
-					// Store a pointer that we will sort when flushing the batch.
-					sortedSprites[numSprites] = (IntPtr) spriteInfo;
+						// Store a pointer that we will sort when flushing the batch.
+						sortedSpritesPtr[numSprites] = (IntPtr) spriteInfo;
+					}
 				}
 
 				// Have to keep Texture2D out of SpriteInfo for it to stay an unmanaged type.
