@@ -88,7 +88,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		// Local data stored before buffering to GPU
 		private SpriteInfo[] spriteInfos;
-		private IntPtr[] sortedSprites; // SpriteInfo*
+		private IntPtr[] sortedSpriteInfos; // Actually holds SpriteInfo*'s
 		private VertexPositionColorTexture4[] vertexInfo;
 		private Texture2D[] textureInfo;
 
@@ -148,7 +148,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			vertexInfo = new VertexPositionColorTexture4[MAX_SPRITES];
 			textureInfo = new Texture2D[MAX_SPRITES];
 			spriteInfos = new SpriteInfo[MAX_SPRITES];
-			sortedSprites = new IntPtr[MAX_SPRITES];
+			sortedSpriteInfos = new IntPtr[MAX_SPRITES];
 			vertexBuffer = new DynamicVertexBuffer(
 				graphicsDevice,
 				typeof(VertexPositionColorTexture),
@@ -1134,28 +1134,22 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				fixed (SpriteInfo* spriteInfo = &spriteInfos[numSprites])
 				{
-					fixed (IntPtr* sortedSpritesPtr = &sortedSprites[0])
-					{
-						spriteInfo->textureHash = texture.GetHashCode();
-						spriteInfo->sourceX = sourceX;
-						spriteInfo->sourceY = sourceY;
-						spriteInfo->sourceW = sourceW;
-						spriteInfo->sourceH = sourceH;
-						spriteInfo->destinationX = destinationX;
-						spriteInfo->destinationY = destinationY;
-						spriteInfo->destinationW = destinationW;
-						spriteInfo->destinationH = destinationH;
-						spriteInfo->color = color;
-						spriteInfo->originX = originX;
-						spriteInfo->originY = originY;
-						spriteInfo->rotationSin = rotationSin;
-						spriteInfo->rotationCos = rotationCos;
-						spriteInfo->depth = depth;
-						spriteInfo->effects = effects;
-
-						// Store a pointer that we will sort when flushing the batch.
-						sortedSpritesPtr[numSprites] = (IntPtr) spriteInfo;
-					}
+					spriteInfo->textureHash = texture.GetHashCode();
+					spriteInfo->sourceX = sourceX;
+					spriteInfo->sourceY = sourceY;
+					spriteInfo->sourceW = sourceW;
+					spriteInfo->sourceH = sourceH;
+					spriteInfo->destinationX = destinationX;
+					spriteInfo->destinationY = destinationY;
+					spriteInfo->destinationW = destinationW;
+					spriteInfo->destinationH = destinationH;
+					spriteInfo->color = color;
+					spriteInfo->originX = originX;
+					spriteInfo->originY = originY;
+					spriteInfo->rotationSin = rotationSin;
+					spriteInfo->rotationCos = rotationCos;
+					spriteInfo->depth = depth;
+					spriteInfo->effects = effects;
 				}
 
 				// Have to keep Texture2D out of SpriteInfo for it to stay an unmanaged type.
@@ -1194,14 +1188,47 @@ namespace Microsoft.Xna.Framework.Graphics
 					Debug.Assert(sortMode == SpriteSortMode.FrontToBack);
 					comparer = FrontToBackCompare;
 				}
-				Array.Sort(
-					sortedSprites,
-					textureInfo,
-					0,
-					numSprites,
-					comparer
-				);
-				GenerateAllVertexInfo();
+				fixed(SpriteInfo* spriteInfo = &spriteInfos[0])
+				{
+					fixed (IntPtr* sortedSpriteInfo = &sortedSpriteInfos[0])
+					{
+						for (int i = 0; i < numSprites; i += 1)
+						{
+							sortedSpriteInfo[i] = (IntPtr) (&spriteInfo[i]);
+						}
+						Array.Sort(
+							sortedSpriteInfos, 
+							textureInfo,
+							0,
+							numSprites,
+							comparer
+						);
+						fixed (VertexPositionColorTexture4* sprites = &vertexInfo[0])
+						{
+							for (int i = 0; i < numSprites; i += 1)
+							{
+								SpriteInfo* info = (SpriteInfo*) sortedSpriteInfo[i];
+								GenerateVertexInfo(
+									&sprites[i], 
+									info->sourceX, 
+									info->sourceY, 
+									info->sourceW, 
+									info->sourceH,
+									info->destinationX,
+									info->destinationY,
+									info->destinationW, 
+									info->destinationH, 
+									info->color,
+									info->originX, 
+									info->originY,
+									info->rotationSin,
+									info->rotationCos, 
+									info->depth, 
+									info->effects);
+							}
+						}
+					}
+				}
 			}
 
 			fixed (VertexPositionColorTexture4* p = &vertexInfo[0])
@@ -1227,35 +1254,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			DrawPrimitives(curTexture, offset, numSprites - offset);
 
 			numSprites = 0;
-		}
-
-		private unsafe void GenerateAllVertexInfo()
-		{
-			fixed (VertexPositionColorTexture4* sprites = &vertexInfo[0])
-			{
-				fixed (IntPtr* infos = &sortedSprites[0])
-				{
-					for (int i = 0; i < numSprites; i += 1)
-					{
-						SpriteInfo* info = (SpriteInfo*) infos[i];
-						GenerateVertexInfo(
-							&sprites[i],
-							info->sourceX,
-							info->sourceY,
-							info->sourceW,
-							info->sourceH,
-							info->destinationX,
-							info->destinationY,
-							info->destinationW,
-							info->destinationH, info->color,
-							info->originX,
-							info->originY,
-							info->rotationSin,
-							info->rotationCos,
-							info->depth, info->effects);
-					}
-				}
-			}
 		}
 
 		private static unsafe void GenerateVertexInfo(
