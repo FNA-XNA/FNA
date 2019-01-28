@@ -1191,7 +1191,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						sortedSpriteInfo[i] = (IntPtr) (&spriteInfo[i]);
 					}
 					Array.Sort(
-						sortedSpriteInfos, 
+						sortedSpriteInfos,
 						textureInfo,
 						0,
 						numSprites,
@@ -1201,21 +1201,21 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						SpriteInfo* info = (SpriteInfo*) sortedSpriteInfo[i];
 						GenerateVertexInfo(
-							&sprites[i], 
-							info->sourceX, 
-							info->sourceY, 
-							info->sourceW, 
+							&sprites[i],
+							info->sourceX,
+							info->sourceY,
+							info->sourceW,
 							info->sourceH,
 							info->destinationX,
 							info->destinationY,
-							info->destinationW, 
-							info->destinationH, 
+							info->destinationW,
+							info->destinationH,
 							info->color,
-							info->originX, 
+							info->originX,
 							info->originY,
 							info->rotationSin,
-							info->rotationCos, 
-							info->depth, 
+							info->rotationCos,
+							info->depth,
 							info->effects
 						);
 					}
