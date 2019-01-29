@@ -10,7 +10,6 @@
 #region Using Statements
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 #endregion
@@ -88,7 +87,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		// Local data stored before buffering to GPU
 		private SpriteInfo[] spriteInfos;
-		private IntPtr[] sortedSpriteInfos; // Actually holds SpriteInfo*'s
+		private IntPtr[] sortedSpriteInfos; // SpriteInfo*[]
 		private VertexPositionColorTexture4[] vertexInfo;
 		private Texture2D[] textureInfo;
 
@@ -1089,14 +1088,12 @@ namespace Microsoft.Xna.Framework.Graphics
 						rotationSin,
 						rotationCos,
 						depth,
-						effects);
-				}
+						effects
+					);
 
-				fixed (VertexPositionColorTexture4* p = &vertexInfo[0])
-				{
 					vertexBuffer.SetDataPointerEXT(
 						0,
-						(IntPtr) p,
+						(IntPtr) sprite,
 						VertexPositionColorTexture4.RealStride,
 						SetDataOptions.None
 					);
@@ -1123,11 +1120,11 @@ namespace Microsoft.Xna.Framework.Graphics
 						rotationSin,
 						rotationCos,
 						depth,
-						effects);
+						effects
+					);
 				}
 
 				textureInfo[numSprites] = texture;
-
 				numSprites += 1;
 			}
 			else
@@ -1152,9 +1149,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					spriteInfo->effects = effects;
 				}
 
-				// Have to keep Texture2D out of SpriteInfo for it to stay an unmanaged type.
 				textureInfo[numSprites] = texture;
-
 				numSprites += 1;
 			}
 		}
@@ -1185,50 +1180,46 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				else
 				{
-					Debug.Assert(sortMode == SpriteSortMode.FrontToBack);
 					comparer = FrontToBackCompare;
 				}
-				fixed(SpriteInfo* spriteInfo = &spriteInfos[0])
+				fixed (SpriteInfo* spriteInfo = &spriteInfos[0]) {
+				fixed (IntPtr* sortedSpriteInfo = &sortedSpriteInfos[0]) {
+				fixed (VertexPositionColorTexture4* sprites = &vertexInfo[0])
 				{
-					fixed (IntPtr* sortedSpriteInfo = &sortedSpriteInfos[0])
+					for (int i = 0; i < numSprites; i += 1)
 					{
-						for (int i = 0; i < numSprites; i += 1)
-						{
-							sortedSpriteInfo[i] = (IntPtr) (&spriteInfo[i]);
-						}
-						Array.Sort(
-							sortedSpriteInfos, 
-							textureInfo,
-							0,
-							numSprites,
-							comparer
-						);
-						fixed (VertexPositionColorTexture4* sprites = &vertexInfo[0])
-						{
-							for (int i = 0; i < numSprites; i += 1)
-							{
-								SpriteInfo* info = (SpriteInfo*) sortedSpriteInfo[i];
-								GenerateVertexInfo(
-									&sprites[i], 
-									info->sourceX, 
-									info->sourceY, 
-									info->sourceW, 
-									info->sourceH,
-									info->destinationX,
-									info->destinationY,
-									info->destinationW, 
-									info->destinationH, 
-									info->color,
-									info->originX, 
-									info->originY,
-									info->rotationSin,
-									info->rotationCos, 
-									info->depth, 
-									info->effects);
-							}
-						}
+						sortedSpriteInfo[i] = (IntPtr) (&spriteInfo[i]);
 					}
-				}
+					Array.Sort(
+						sortedSpriteInfos,
+						textureInfo,
+						0,
+						numSprites,
+						comparer
+					);
+					for (int i = 0; i < numSprites; i += 1)
+					{
+						SpriteInfo* info = (SpriteInfo*) sortedSpriteInfo[i];
+						GenerateVertexInfo(
+							&sprites[i],
+							info->sourceX,
+							info->sourceY,
+							info->sourceW,
+							info->sourceH,
+							info->destinationX,
+							info->destinationY,
+							info->destinationW,
+							info->destinationH,
+							info->color,
+							info->originX,
+							info->originY,
+							info->rotationSin,
+							info->rotationCos,
+							info->depth,
+							info->effects
+						);
+					}
+				}}}
 			}
 
 			fixed (VertexPositionColorTexture4* p = &vertexInfo[0])
@@ -1273,34 +1264,66 @@ namespace Microsoft.Xna.Framework.Graphics
 			float rotationCos,
 			float depth,
 			byte effects
-		)
-		{
+		) {
 			float cornerX = -originX * destinationW;
 			float cornerY = -originY * destinationH;
-			sprite->Position0.X = -rotationSin * cornerY + rotationCos * cornerX + destinationX;
-			sprite->Position0.Y = rotationCos * cornerY + rotationSin * cornerX + destinationY;
+			sprite->Position0.X = (
+				(-rotationSin * cornerY) +
+				(rotationCos * cornerX) +
+				destinationX
+			);
+			sprite->Position0.Y = (
+				(rotationCos * cornerY) +
+				(rotationSin * cornerX) +
+				destinationY
+			);
 			cornerX = (1.0f - originX) * destinationW;
 			cornerY = -originY * destinationH;
-			sprite->Position1.X = -rotationSin * cornerY + rotationCos * cornerX + destinationX;
-			sprite->Position1.Y = rotationCos * cornerY + rotationSin * cornerX + destinationY;
+			sprite->Position1.X = (
+				(-rotationSin * cornerY) +
+				(rotationCos * cornerX) +
+				destinationX
+			);
+			sprite->Position1.Y = (
+				(rotationCos * cornerY) +
+				(rotationSin * cornerX) +
+				destinationY
+			);
 			cornerX = -originX * destinationW;
 			cornerY = (1.0f - originY) * destinationH;
-			sprite->Position2.X = -rotationSin * cornerY + rotationCos * cornerX + destinationX;
-			sprite->Position2.Y = rotationCos * cornerY + rotationSin * cornerX + destinationY;
+			sprite->Position2.X = (
+				(-rotationSin * cornerY) +
+				(rotationCos * cornerX) +
+				destinationX
+			);
+			sprite->Position2.Y = (
+				(rotationCos * cornerY) +
+				(rotationSin * cornerX) +
+				destinationY
+			);
 			cornerX = (1.0f - originX) * destinationW;
 			cornerY = (1.0f - originY) * destinationH;
-			sprite->Position3.X = -rotationSin * cornerY + rotationCos * cornerX + destinationX;
-			sprite->Position3.Y = rotationCos * cornerY + rotationSin * cornerX + destinationY;
-			fixed (float* flipX = &CornerOffsetX[0])  {
-			fixed (float* flipY = &CornerOffsetY[0]) {
-			sprite->TextureCoordinate0.X = flipX[0 ^ effects] * sourceW + sourceX;
-			sprite->TextureCoordinate0.Y = flipY[0 ^ effects] * sourceH + sourceY;
-			sprite->TextureCoordinate1.X = flipX[1 ^ effects] * sourceW + sourceX;
-			sprite->TextureCoordinate1.Y = flipY[1 ^ effects] * sourceH + sourceY;
-			sprite->TextureCoordinate2.X = flipX[2 ^ effects] * sourceW + sourceX;
-			sprite->TextureCoordinate2.Y = flipY[2 ^ effects] * sourceH + sourceY;
-			sprite->TextureCoordinate3.X = flipX[3 ^ effects] * sourceW + sourceX;
-			sprite->TextureCoordinate3.Y = flipY[3 ^ effects] * sourceH + sourceY;
+			sprite->Position3.X = (
+				(-rotationSin * cornerY) +
+				(rotationCos * cornerX) +
+				destinationX
+			);
+			sprite->Position3.Y = (
+				(rotationCos * cornerY) +
+				(rotationSin * cornerX) +
+				destinationY
+			);
+			fixed (float* flipX = &CornerOffsetX[0]) {
+			fixed (float* flipY = &CornerOffsetY[0])
+			{
+				sprite->TextureCoordinate0.X = (flipX[0 ^ effects] * sourceW) + sourceX;
+				sprite->TextureCoordinate0.Y = (flipY[0 ^ effects] * sourceH) + sourceY;
+				sprite->TextureCoordinate1.X = (flipX[1 ^ effects] * sourceW) + sourceX;
+				sprite->TextureCoordinate1.Y = (flipY[1 ^ effects] * sourceH) + sourceY;
+				sprite->TextureCoordinate2.X = (flipX[2 ^ effects] * sourceW) + sourceX;
+				sprite->TextureCoordinate2.Y = (flipY[2 ^ effects] * sourceH) + sourceY;
+				sprite->TextureCoordinate3.X = (flipX[3 ^ effects] * sourceW) + sourceX;
+				sprite->TextureCoordinate3.Y = (flipY[3 ^ effects] * sourceH) + sourceY;
 			}}
 			sprite->Position0.Z = depth;
 			sprite->Position1.Z = depth;
@@ -1454,6 +1477,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		[StructLayout(LayoutKind.Sequential, Pack = 1)]
 		private struct SpriteInfo
 		{
+			/* We store the hash instead of the Texture2D because
+			 * it allows this to stay an unmanaged type and prevents
+			 * us from constantly calling GetHashCode during sorts.
+			 */
 			public int textureHash;
 			public float sourceX;
 			public float sourceY;
