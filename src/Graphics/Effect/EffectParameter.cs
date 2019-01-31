@@ -97,6 +97,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			EffectAnnotationCollection annotations,
 			IntPtr data
 		) {
+            if (data == IntPtr.Zero)
+                throw new ArgumentNullException("data");
+
 			Name = name;
 			Semantic = semantic;
 			RowCount = rowCount;

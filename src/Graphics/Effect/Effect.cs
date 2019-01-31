@@ -1120,7 +1120,7 @@ namespace Microsoft.Xna.Framework.Graphics
 								XNAType[(int) mem[j].info.parameter_type],
 								null, // FIXME: Nested structs! -flibit
 								null,
-								curOffset
+								param.value.values + curOffset.ToInt32()
 							));
 							uint memSize = mem[j].info.rows + mem[j].info.columns;
 							if (mem[j].info.elements > 0)
