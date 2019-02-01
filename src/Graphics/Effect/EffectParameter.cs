@@ -80,7 +80,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal Texture texture;
 
 		internal IntPtr values;
-		internal uint   valuesSizeBytes;
+		internal uint valuesSizeBytes;
 
 		#endregion
 
@@ -99,8 +99,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			uint dataSizeBytes
 		) {
-			if (data == IntPtr.Zero)
+			if (data == IntPtr.Zero) {
 				throw new ArgumentNullException("data");
+			}
 
 			Name = name;
 			Semantic = semantic;
@@ -139,7 +140,7 @@ namespace Microsoft.Xna.Framework.Graphics
 								null, // FIXME: Nested structs! -flibit
 								structureMembers[j].Annotations,
 								new IntPtr(data.ToInt64() + curOffset),
-								(uint)memSize * 4
+								(uint) memSize * 4
 							));
 							curOffset += memSize * 4;
 						}
@@ -1061,10 +1062,5 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		#endregion
-
-		public void GetDataPointerEXT (out IntPtr pointer, out uint sizeBytes) {
-			pointer = values;
-			sizeBytes = valuesSizeBytes;
-		}
 	}
 }

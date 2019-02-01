@@ -1134,10 +1134,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					structMembers = new EffectParameterCollection(memList);
 				}
 
-				var name = Marshal.PtrToStringAnsi(param.value.name);
-				var semantic = Marshal.PtrToStringAnsi(param.value.semantic);
 				parameters.Add(new EffectParameter(
-					name, semantic,
+					Marshal.PtrToStringAnsi(param.value.name),
+					Marshal.PtrToStringAnsi(param.value.semantic),
 					(int) param.value.type.rows,
 					(int) param.value.type.columns,
 					(int) param.value.type.elements,
