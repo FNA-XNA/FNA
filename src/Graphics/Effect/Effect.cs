@@ -1126,7 +1126,7 @@ namespace Microsoft.Xna.Framework.Graphics
 								null, // FIXME: Nested structs! -flibit
 								null,
 								param.value.values + curOffset.ToInt32(),
-								(uint)memSize * 4
+								memSize * 4
 							));
 							curOffset += (int) memSize * 4;
 						}
