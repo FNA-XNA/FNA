@@ -1110,6 +1110,11 @@ namespace Microsoft.Xna.Framework.Graphics
 						IntPtr curOffset = IntPtr.Zero;
 						for (int j = 0; j < param.value.type.member_count; j += 1)
 						{
+							uint memSize = mem[j].info.rows + mem[j].info.columns;
+							if (mem[j].info.elements > 0)
+							{
+								memSize *= mem[j].info.elements;
+							}
 							memList.Add(new EffectParameter(
 								Marshal.PtrToStringAnsi(mem[j].name),
 								null,
@@ -1120,22 +1125,19 @@ namespace Microsoft.Xna.Framework.Graphics
 								XNAType[(int) mem[j].info.parameter_type],
 								null, // FIXME: Nested structs! -flibit
 								null,
-								param.value.values + curOffset.ToInt32()
+								param.value.values + curOffset.ToInt32(),
+								(uint)memSize * 4
 							));
-							uint memSize = mem[j].info.rows + mem[j].info.columns;
-							if (mem[j].info.elements > 0)
-							{
-								memSize *= mem[j].info.elements;
-							}
 							curOffset += (int) memSize * 4;
 						}
 					}
 					structMembers = new EffectParameterCollection(memList);
 				}
 
+				var name = Marshal.PtrToStringAnsi(param.value.name);
+				var semantic = Marshal.PtrToStringAnsi(param.value.semantic);
 				parameters.Add(new EffectParameter(
-					Marshal.PtrToStringAnsi(param.value.name),
-					Marshal.PtrToStringAnsi(param.value.semantic),
+					name, semantic,
 					(int) param.value.type.rows,
 					(int) param.value.type.columns,
 					(int) param.value.type.elements,
@@ -1146,7 +1148,8 @@ namespace Microsoft.Xna.Framework.Graphics
 						param.annotations,
 						param.annotation_count
 					),
-					param.value.values
+					param.value.values,
+                    param.value.value_count * sizeof(float)
 				));
 			}
 			Parameters = new EffectParameterCollection(parameters);
