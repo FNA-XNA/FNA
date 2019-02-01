@@ -99,7 +99,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			uint dataSizeBytes
 		) {
-			if (data == IntPtr.Zero) {
+			if (data == IntPtr.Zero)
+			{
 				throw new ArgumentNullException("data");
 			}
 
