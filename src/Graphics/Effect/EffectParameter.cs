@@ -1062,9 +1062,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-        public void GetDataPointerEXT (out IntPtr pointer, out uint sizeBytes) {
-            pointer = values;
-            sizeBytes = valuesSizeBytes;
-        }
+		public void GetDataPointerEXT (out IntPtr pointer, out uint sizeBytes) {
+			pointer = values;
+			sizeBytes = valuesSizeBytes;
+		}
 	}
 }
