@@ -80,6 +80,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal Texture texture;
 
 		internal IntPtr values;
+		internal uint valuesSizeBytes;
 
 		#endregion
 
@@ -95,8 +96,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			EffectParameterType parameterType,
 			EffectParameterCollection structureMembers,
 			EffectAnnotationCollection annotations,
-			IntPtr data
+			IntPtr data,
+			uint dataSizeBytes
 		) {
+			if (data == IntPtr.Zero) {
+				throw new ArgumentNullException("data");
+			}
+
 			Name = name;
 			Semantic = semantic;
 			RowCount = rowCount;
@@ -118,6 +124,11 @@ namespace Microsoft.Xna.Framework.Graphics
 							{
 								memElems = structureMembers[j].Elements.Count;
 							}
+							int memSize = structureMembers[j].RowCount * 4;
+							if (memElems > 0)
+							{
+								memSize *= memElems;
+							}
 							memList.Add(new EffectParameter(
 								structureMembers[j].Name,
 								structureMembers[j].Semantic,
@@ -128,13 +139,9 @@ namespace Microsoft.Xna.Framework.Graphics
 								structureMembers[j].ParameterType,
 								null, // FIXME: Nested structs! -flibit
 								structureMembers[j].Annotations,
-								new IntPtr(data.ToInt64() + curOffset)
+								new IntPtr(data.ToInt64() + curOffset),
+								(uint) memSize * 4
 							));
-							int memSize = structureMembers[j].RowCount * 4;
-							if (memElems > 0)
-							{
-								memSize *= memElems;
-							}
 							curOffset += memSize * 4;
 						}
 						elementMembers = new EffectParameterCollection(memList);
@@ -152,7 +159,9 @@ namespace Microsoft.Xna.Framework.Graphics
 						null,
 						new IntPtr(
 							data.ToInt64() + (i * rowCount * 16)
-						)
+						),
+						// FIXME: Not obvious to me how to compute this -kg
+						0
 					));
 				}
 				Elements = new EffectParameterCollection(elements);
@@ -162,6 +171,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			StructureMembers = structureMembers;
 			Annotations = annotations;
 			values = data;
+			valuesSizeBytes = dataSizeBytes;
 		}
 
 		#endregion
