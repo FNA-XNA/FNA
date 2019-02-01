@@ -1110,7 +1110,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						IntPtr curOffset = IntPtr.Zero;
 						for (int j = 0; j < param.value.type.member_count; j += 1)
 						{
-							uint memSize = mem[j].info.rows + mem[j].info.columns;
+							uint memSize = mem[j].info.rows * mem[j].info.columns;
 							if (mem[j].info.elements > 0)
 							{
 								memSize *= mem[j].info.elements;
