@@ -97,6 +97,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		internal static int GetPixelStoreAlignment(SurfaceFormat format) 
+		{
+			/*
+			 * https://github.com/FNA-XNA/FNA/pull/238
+			 * https://www.khronos.org/registry/OpenGL/specs/gl/glspec21.pdf
+			 * OpenGL 2.1 Specification, section 3.6.1, table 3.1 specifies that the pixelstorei alignment cannot exceed 8
+			 */
+			return Math.Min(8, GetFormatSize(format));
+		}
+
 		#endregion
 
 		#region Static Mipmap Level Calculator
