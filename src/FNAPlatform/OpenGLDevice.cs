@@ -2713,8 +2713,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else
 			{
-				// Set pixel alignment to match texel size in bytes
-				int packSize = Texture.GetFormatSize(format);
+				// Set pixel alignment to match texel size in bytes. Maximum allowed value is 8
+                // https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glPixelStorei.xml
+				int packSize = Math.Min(Texture.GetFormatSize(format), 8);
 				if (packSize != 4)
 				{
 					glPixelStorei(
