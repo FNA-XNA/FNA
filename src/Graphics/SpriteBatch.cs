@@ -1096,7 +1096,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					 * whole buffer just for one sprite.
 					 *
 					 * Unless you're using this to blit a
-					 * target, stop using Immedate ya donut
+					 * target, stop using Immediate ya donut
 					 * -flibit
 					 */
 					vertexBuffer.SetDataPointerEXT(
