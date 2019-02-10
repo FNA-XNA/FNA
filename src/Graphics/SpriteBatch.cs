@@ -1091,6 +1091,14 @@ namespace Microsoft.Xna.Framework.Graphics
 						effects
 					);
 
+					/* We do NOT use Discard here because
+					 * it would be stupid to reallocate the
+					 * whole buffer just for one sprite.
+					 *
+					 * Unless you're using this to blit a
+					 * target, stop using Immedate ya donut
+					 * -flibit
+					 */
 					vertexBuffer.SetDataPointerEXT(
 						0,
 						(IntPtr) sprite,
@@ -1224,11 +1232,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			fixed (VertexPositionColorTexture4* p = &vertexInfo[0])
 			{
+				/* We use Discard here because the last batch
+				 * may still be executing, and we can't always
+				 * trust the driver to use a staging buffer for
+				 * buffer uploads that overlap between commands.
+				 *
+				 * If you aren't using the whole vertex buffer,
+				 * that's your own fault. Use the whole buffer!
+				 * -flibit
+				 */
 				vertexBuffer.SetDataPointerEXT(
 					0,
 					(IntPtr) p,
 					numSprites * VertexPositionColorTexture4.RealStride,
-					SetDataOptions.None
+					SetDataOptions.Discard
 				);
 			}
 
