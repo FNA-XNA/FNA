@@ -1,0 +1,5 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+[*.cs]
+indent_style = tab
+indent_size = 2
