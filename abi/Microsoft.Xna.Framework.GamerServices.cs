@@ -1,7 +1,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 [assembly: AssemblyVersion("4.0.0.0")]
-#if TODO_NETSTUB
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.SignedInEventArgs))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.SignedOutEventArgs))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.InviteAcceptedEventArgs))]
@@ -39,4 +38,3 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.SignedInGamer))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.Achievement))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.LeaderboardWriter))]
-#endif

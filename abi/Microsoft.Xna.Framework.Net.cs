@@ -1,7 +1,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 [assembly: AssemblyVersion("4.0.0.0")]
-#if TODO_NETSTUB
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Net.NetworkSessionEndedEventArgs))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Net.GamerJoinedEventArgs))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Net.GamerLeftEventArgs))]
@@ -25,4 +24,3 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Net.NetworkSessionProperties))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Net.NetworkSessionJoinError))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Net.NetworkSessionJoinException))]
-#endif
