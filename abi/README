@@ -1,0 +1,16 @@
+These are XNA ABI compatibility files for FNA.
+
+Note that these files are only important if you are working on XNA games without
+source code access. If you have the source, build against FNA directly!
+
+To build, you need FNA as well as FNA.NetStub, for the Xbox Live namespaces.
+
+There are two ways to build:
+
+1. Microsoft.Xna.Framework.sln. This is the recommended path, since FNA and
+   FNA.NetStub will be built for you.
+2. Makefile. You need to build FNA and FNA.NetStub first. Then, type `make`!
+
+Regardless of which path you choose, be sure that the FNA and FNA.NetStub repos
+are sitting next to each other! For example, the Makefile in this folder will
+look for FNA.NetStub in `../../FNA.NetStub/bin/Debug/FNA.NetStub.dll`.
