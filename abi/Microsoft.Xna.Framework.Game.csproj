@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{78E3C95E-BF6F-4606-AA84-A101CFCD4899}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Microsoft.Xna.Framework.Game</RootNamespace>
+    <AssemblyName>Microsoft.Xna.Framework.Game</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Compile Include="Microsoft.Xna.Framework.Game.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FNA.csproj">
+      <Project>{35253CE1-C864-4CD3-8249-4D1319748E8F}</Project>
+      <Name>FNA</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\FNA.NetStub\FNA.NetStub.csproj">
+      <Project>{F5328B35-F276-4157-9B69-E06D527C689B}</Project>
+      <Name>FNA.NetStub</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
