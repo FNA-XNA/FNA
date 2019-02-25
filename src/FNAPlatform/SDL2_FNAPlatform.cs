@@ -1487,8 +1487,8 @@ namespace Microsoft.Xna.Framework
 		{
 			SDL.SDL_ShowSimpleMessageBox(
 				SDL.SDL_MessageBoxFlags.SDL_MESSAGEBOX_ERROR,
-				title,
-				message,
+				title ?? "",
+				message ?? "",
 				IntPtr.Zero
 			);
 		}
