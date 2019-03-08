@@ -77,6 +77,7 @@ namespace Microsoft.Xna.Framework
 			StartMicrophone =		SDL2_FNAPlatform.StartMicrophone;
 			StopMicrophone =		SDL2_FNAPlatform.StopMicrophone;
 			GetTouchCapabilities =		SDL2_FNAPlatform.GetTouchCapabilities;
+			UpdateTouchPanelState =		SDL2_FNAPlatform.UpdateTouchPanelState;
 			GetNumTouchFingers =		SDL2_FNAPlatform.GetNumTouchFingers;
 			SupportsOrientationChanges =	SDL2_FNAPlatform.SupportsOrientationChanges;
 
@@ -284,6 +285,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate TouchPanelCapabilities GetTouchCapabilitiesFunc();
 		public static readonly GetTouchCapabilitiesFunc GetTouchCapabilities;
+
+		public delegate void UpdateTouchPanelStateFunc();
+		public static readonly UpdateTouchPanelStateFunc UpdateTouchPanelState;
 
 		public delegate int GetNumTouchFingersFunc();
 		public static readonly GetNumTouchFingersFunc GetNumTouchFingers;

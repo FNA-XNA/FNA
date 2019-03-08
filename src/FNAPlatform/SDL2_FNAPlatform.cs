@@ -884,7 +884,7 @@ namespace Microsoft.Xna.Framework
 						TouchPanel.TouchDeviceExists = true;
 
 						TouchPanel.INTERNAL_onTouchEvent(
-							(int)evt.tfinger.fingerId,
+							(int) evt.tfinger.fingerId,
 							TouchLocationState.Pressed,
 							evt.tfinger.x,
 							evt.tfinger.y,
@@ -895,7 +895,7 @@ namespace Microsoft.Xna.Framework
 					else if (evt.type == SDL.SDL_EventType.SDL_FINGERMOTION)
 					{
 						TouchPanel.INTERNAL_onTouchEvent(
-							(int)evt.tfinger.fingerId,
+							(int) evt.tfinger.fingerId,
 							TouchLocationState.Moved,
 							evt.tfinger.x,
 							evt.tfinger.y,
@@ -906,7 +906,7 @@ namespace Microsoft.Xna.Framework
 					else if (evt.type == SDL.SDL_EventType.SDL_FINGERUP)
 					{
 						TouchPanel.INTERNAL_onTouchEvent(
-							(int)evt.tfinger.fingerId,
+							(int) evt.tfinger.fingerId,
 							TouchLocationState.Released,
 							evt.tfinger.x,
 							evt.tfinger.y,
@@ -2565,6 +2565,37 @@ namespace Microsoft.Xna.Framework
 				IsConnected = touchDeviceExists,
 				MaximumTouchCount = touchDeviceExists ? 4 : 0
 			};
+		}
+
+		public static void UpdateTouchPanelState()
+		{
+			// Poll the touch device for all active fingers
+			long touchDevice = SDL.SDL_GetTouchDevice(0);
+			for (int i = 0; i < TouchPanel.MAX_TOUCHES; i += 1)
+			{
+				IntPtr fingerPtr = SDL.SDL_GetTouchFinger(touchDevice, i);
+				if (fingerPtr == IntPtr.Zero)
+				{
+					TouchPanel.SetFinger(i, -1, Vector2.Zero);
+					continue;
+				}
+
+				// Get finger info
+				SDL.SDL_Finger finger = (SDL.SDL_Finger) Marshal.PtrToStructure(
+					fingerPtr,
+					typeof(SDL.SDL_Finger)
+				);
+
+				// Hand over the finger data to the TouchPanel
+				TouchPanel.SetFinger(
+					i,
+					(int) finger.id,
+					new Vector2(
+						(float) Math.Round(finger.x * TouchPanel.DisplayWidth),
+						(float) Math.Round(finger.y * TouchPanel.DisplayHeight)
+					)
+				);
+			}
 		}
 
 		public static int GetNumTouchFingers()
