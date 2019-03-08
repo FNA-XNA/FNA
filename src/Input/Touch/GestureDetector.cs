@@ -436,7 +436,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			#endregion
 		}
 
-		internal static void OnTick()
+		internal static void OnUpdate()
 		{
 			if (state == GestureState.PINCHING)
 			{

@@ -17,6 +17,13 @@ namespace Microsoft.Xna.Framework.Input.Touch
 	// https://msdn.microsoft.com/en-us/library/microsoft.xna.framework.input.touch.touchpanel.aspx
 	public static class TouchPanel
 	{
+		#region Internal Constants
+
+		// The maximum number of simultaneous touches allowed by XNA.
+		internal const int MAX_TOUCHES = 8;
+
+		#endregion
+
 		#region Public Static Properties
 
 		public static int DisplayWidth
@@ -68,16 +75,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		#region Private Static Variables
 
 		private static Queue<GestureSample> gestures = new Queue<GestureSample>();
-		private static List<TouchLocation> touches = new List<TouchLocation>(MAX_TOUCHES);
-		private static Queue<TouchLocation> touchEvents = new Queue<TouchLocation>();
-		private static HashSet<int> touchIDsToRelease = new HashSet<int>();
-
-		#endregion
-
-		#region Private Constants
-
-		// The maximum number of simultaneous touches allowed by XNA.
-		private const int MAX_TOUCHES = 8;
+		private static TouchLocation[] touches = new TouchLocation[MAX_TOUCHES];
+		private static TouchLocation[] prevTouches = new TouchLocation[MAX_TOUCHES];
 
 		#endregion
 
@@ -90,7 +89,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public static TouchCollection GetState()
 		{
-			return new TouchCollection(touches.ToArray());
+			return new TouchCollection(
+				Array.FindAll(touches, t => t.State != TouchLocationState.Invalid)
+			);
 		}
 
 		public static GestureSample ReadGesture()
@@ -119,15 +120,13 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			float y,
 			float dx,
 			float dy
-		) {
+		)
+		{
 			// Calculate the scaled touch position
 			Vector2 touchPos = new Vector2(
 				(float) Math.Round(x * DisplayWidth),
 				(float) Math.Round(y * DisplayHeight)
 			);
-
-			// Add the event to the queue
-			touchEvents.Enqueue(new TouchLocation(fingerId, state, touchPos));
 
 			// Notify the Gesture Detector about the event
 			switch (state)
@@ -138,6 +137,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 				case TouchLocationState.Moved:
 
+					// TODO: Calculate actual (non-rounded) delta if possible
 					Vector2 delta = new Vector2(
 						(float) Math.Round(dx * DisplayWidth),
 						(float) Math.Round(dy * DisplayHeight)
@@ -153,94 +153,70 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 		}
 
-		internal static void Update()
+		internal static void SetFinger(int index, int fingerId, Vector2 fingerPos)
 		{
-			// Remove all touches that were released last frame
-			touches.RemoveAll(touch => touch.State == TouchLocationState.Released);
-
-			// Update Gesture Detector for time-sensitive gestures
-			GestureDetector.OnTick();
-
-			// Save touch states and positions for future reference
-			List<TouchLocation> prevTouches = new List<TouchLocation>(touches);
-
-			// Process Pressed touch events from last frame
-			for (int i = 0; i < touches.Count; i += 1)
+			if (fingerId == -1)
 			{
-				if (touches[i].State == TouchLocationState.Pressed)
+				// Was there a finger here before and the user just released it?
+				if (prevTouches[index].State != TouchLocationState.Invalid
+					&& prevTouches[index].State != TouchLocationState.Released)
 				{
-					// If this press was marked for release
-					if (touchIDsToRelease.Contains(touches[i].Id))
-					{
-						// Change the touch's state to Released
-						touches[i] = new TouchLocation(
-							touches[i].Id,
-							TouchLocationState.Released,
-							touches[i].Position,
-							prevTouches[i].State,
-							prevTouches[i].Position
-						);
-					}
-					else
-					{
-						// Change the touch's state to Moved
-						touches[i] = new TouchLocation(
-							touches[i].Id,
-							TouchLocationState.Moved,
-							touches[i].Position,
-							prevTouches[i].State,
-							prevTouches[i].Position
-						);
-					}
-				}
-			}
-			touchIDsToRelease.Clear();
-
-			// Process new touch events
-			while (touchEvents.Count > 0)
-			{
-				TouchLocation touchEvent = touchEvents.Dequeue();
-
-				// Add a new touch to the list if we have room
-				if (touchEvent.State == TouchLocationState.Pressed &&
-					touches.Count < MAX_TOUCHES)
-				{
-					touches.Add(touchEvent);
+					touches[index] = new TouchLocation(
+						prevTouches[index].Id,
+						TouchLocationState.Released,
+						prevTouches[index].Position,
+						prevTouches[index].State,
+						prevTouches[index].Position
+					);
 				}
 				else
 				{
-					// Update touches that were already registered
-					for (int i = 0; i < touches.Count; i += 1)
-					{
-						if (touches[i].Id == touchEvent.Id)
-						{
-							if (touches[i].State == TouchLocationState.Pressed)
-							{
-								// If the touch was pressed and released in the same frame
-								if (touchEvent.State == TouchLocationState.Released)
-								{
-									// Mark it for release on the next frame
-									touchIDsToRelease.Add(touches[i].Id);
-								}
-							}
-							else
-							{
-								// Update the existing touch with new data
-								touches[i] = new TouchLocation(
-									touches[i].Id,
-									touchEvent.State,
-									touchEvent.Position,
-									prevTouches[i].State,
-									prevTouches[i].Position
-								);
-							}
-
-							// We found the touch we were looking for.
-							break;
-						}
-					}
+					/* Nothing interesting here at all.
+					 * Insert invalid data so this element
+					 * is not included in GetState().
+					 */
+					touches[index] = new TouchLocation(
+						-1,
+						TouchLocationState.Invalid,
+						Vector2.Zero
+					);
 				}
+
+				return;
 			}
+
+			// Is this a newly pressed finger?
+			if (prevTouches[index].State == TouchLocationState.Invalid)
+			{
+				touches[index] = new TouchLocation(
+					fingerId,
+					TouchLocationState.Pressed,
+					fingerPos
+				);
+			}
+			else
+			{
+				// This finger was already down, so it's "moved"
+				touches[index] = new TouchLocation(
+					fingerId,
+					TouchLocationState.Moved,
+					fingerPos,
+					prevTouches[index].State,
+					prevTouches[index].Position
+				);
+			}
+		}
+
+		internal static void Update()
+		{
+			// Update Gesture Detector for time-sensitive gestures
+			GestureDetector.OnUpdate();
+
+			// Remember the last frame's touches
+			touches.CopyTo(prevTouches, 0);
+
+			// Get the latest finger data
+			FNAPlatform.UpdateTouchPanelState();
 		}
 
 		#endregion
