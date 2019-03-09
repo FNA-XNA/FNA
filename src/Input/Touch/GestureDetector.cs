@@ -156,7 +156,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 								GestureType.DoubleTap,
 								touchPosition,
 								Vector2.Zero,
-								GetGestureTimestamp()
+								GetGestureTimestamp(),
+								-1,
+								-1
 							));
 
 							justDoubleTapped = true;
@@ -221,7 +223,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 									GestureType.Tap,
 									touchPosition,
 									Vector2.Zero,
-									GetGestureTimestamp()
+									GetGestureTimestamp(),
+									-1,
+									-1
 								));
 							}
 
@@ -255,7 +259,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						GestureType.Flick,
 						Vector2.Zero,
 						Vector2.Zero,
-						GetGestureTimestamp()
+						GetGestureTimestamp(),
+						fingerId,
+						-1
 					));
 				}
 
@@ -283,7 +289,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						GestureType.DragComplete,
 						Vector2.Zero,
 						Vector2.Zero,
-						GetGestureTimestamp()
+						GetGestureTimestamp(),
+						fingerId,
+						-1
 					));
 				}
 			}
@@ -300,7 +308,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.PinchComplete,
 					Vector2.Zero,
 					Vector2.Zero,
-					GetGestureTimestamp()
+					GetGestureTimestamp(),
+					-1,
+					-1
 				));
 			}
 			callBelatedPinchComplete = false;
@@ -390,7 +400,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.HorizontalDrag,
 					touchPosition,
 					Vector2.Zero,
-					GetGestureTimestamp()
+					GetGestureTimestamp(),
+					fingerId,
+					-1
 				));
 			}
 			else if (state == GestureState.DRAGGING_V && vdrag)
@@ -402,7 +414,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.VerticalDrag,
 					touchPosition,
 					Vector2.Zero,
-					GetGestureTimestamp()
+					GetGestureTimestamp(),
+					fingerId,
+					-1
 				));
 			}
 			else if (state == GestureState.DRAGGING_FREE && fdrag)
@@ -414,7 +428,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.FreeDrag,
 					touchPosition,
 					Vector2.Zero,
-					GetGestureTimestamp()
+					GetGestureTimestamp(),
+					fingerId,
+					-1
 				));
 			}
 
@@ -511,7 +527,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						GestureType.Hold,
 						activeFingerPosition,
 						Vector2.Zero,
-						GetGestureTimestamp()
+						GetGestureTimestamp(),
+						activeFingerId,
+						-1
 					));
 
 					state = GestureState.HELD;
@@ -561,7 +579,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.PinchComplete,
 					Vector2.Zero,
 					Vector2.Zero,
-					GetGestureTimestamp()
+					GetGestureTimestamp(),
+					activeFingerId,
+					secondFingerId
 				));
 			}
 
@@ -627,7 +647,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.Pinch,
 					activeFingerPosition,
 					secondFingerPosition,
-					GetGestureTimestamp()
+					GetGestureTimestamp(),
+					activeFingerId,
+					secondFingerId
 				));
 			}
 			else
@@ -639,7 +661,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					GestureType.Pinch,
 					activeFingerPosition,
 					secondFingerPosition,
-					GetGestureTimestamp()
+					GetGestureTimestamp(),
+					activeFingerId,
+					secondFingerId
 				));
 			}
 		}

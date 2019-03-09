@@ -56,6 +56,22 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#endregion
 
+		#region Public FNA Extension Properties
+
+		public int FingerIdEXT
+		{
+			get;
+			private set;
+		}
+
+		public int FingerId2EXT
+		{
+			get;
+			private set;
+		}
+
+		#endregion
+
 		#region Internal Constructor
 
 		internal GestureSample(
@@ -64,7 +80,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			GestureType gestureType,
 			Vector2 position,
 			Vector2 position2,
-			TimeSpan timestamp
+			TimeSpan timestamp,
+			int fingerId,
+			int fingerId2
 		) : this() {
 			Delta = delta;
 			Delta2 = delta2;
@@ -72,6 +90,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			Position = position;
 			Position2 = position2;
 			Timestamp = timestamp;
+			FingerIdEXT = fingerId;
+			FingerId2EXT = fingerId2;
 		}
 
 		#endregion
