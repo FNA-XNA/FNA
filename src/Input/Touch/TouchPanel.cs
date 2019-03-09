@@ -137,7 +137,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 				case TouchLocationState.Moved:
 
-					// FIXME: This isn't always 100% accurate due to rounding errors
 					Vector2 delta = new Vector2(
 						(float) Math.Round(dx * DisplayWidth),
 						(float) Math.Round(dy * DisplayHeight)
