@@ -22,6 +22,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		// The maximum number of simultaneous touches allowed by XNA.
 		internal const int MAX_TOUCHES = 8;
 
+		// The value that represents the absence of a finger.
+		internal const int NO_FINGER = -1;
+
 		#endregion
 
 		#region Public Static Properties
@@ -154,7 +157,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		internal static void SetFinger(int index, int fingerId, Vector2 fingerPos)
 		{
-			if (fingerId == -1)
+			if (fingerId == NO_FINGER)
 			{
 				// Was there a finger here before and the user just released it?
 				if (prevTouches[index].State != TouchLocationState.Invalid
@@ -175,7 +178,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					 * is not included in GetState().
 					 */
 					touches[index] = new TouchLocation(
-						-1,
+						NO_FINGER,
 						TouchLocationState.Invalid,
 						Vector2.Zero
 					);
