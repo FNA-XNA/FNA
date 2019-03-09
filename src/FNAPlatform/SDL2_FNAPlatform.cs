@@ -2587,7 +2587,7 @@ namespace Microsoft.Xna.Framework
 					typeof(SDL.SDL_Finger)
 				);
 
-				// Hand over the finger data to the TouchPanel
+				// Send the finger data to the TouchPanel
 				TouchPanel.SetFinger(
 					i,
 					(int) finger.id,
