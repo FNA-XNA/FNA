@@ -19,7 +19,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		#region Private Static Variables
 
 		// The ID of the active finger
-		private static int activeFingerId = -1;
+		private static int activeFingerId = TouchPanel.NO_FINGER;
 
 		// The current position of the active finger
 		private static Vector2 activeFingerPosition;
@@ -49,7 +49,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static Vector2 pressPosition;
 
 		// The ID of the second finger (used only for Pinching)
-		private static int secondFingerId = -1;
+		private static int secondFingerId = TouchPanel.NO_FINGER;
 
 		// The current position of the second finger (used only for Pinching)
 		private static Vector2 secondFingerPosition;
@@ -111,7 +111,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 
 			// Set the active finger if there isn't one already
-			if (activeFingerId == -1)
+			if (activeFingerId == TouchPanel.NO_FINGER)
 			{
 				activeFingerId = fingerId;
 				activeFingerPosition = touchPosition;
@@ -157,8 +157,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 								touchPosition,
 								Vector2.Zero,
 								GetGestureTimestamp(),
-								-1,
-								-1
+								TouchPanel.NO_FINGER,
+								TouchPanel.NO_FINGER
 							));
 
 							justDoubleTapped = true;
@@ -188,7 +188,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			// Did the user lift the active finger?
 			if (fingerId == activeFingerId)
 			{
-				activeFingerId = -1;
+				activeFingerId = TouchPanel.NO_FINGER;
 			}
 
 			// We're only interested in the very last finger to leave
@@ -224,8 +224,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 									touchPosition,
 									Vector2.Zero,
 									GetGestureTimestamp(),
-									-1,
-									-1
+									TouchPanel.NO_FINGER,
+									TouchPanel.NO_FINGER
 								));
 							}
 
@@ -261,7 +261,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						Vector2.Zero,
 						GetGestureTimestamp(),
 						fingerId,
-						-1
+						TouchPanel.NO_FINGER
 					));
 				}
 
@@ -291,7 +291,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						Vector2.Zero,
 						GetGestureTimestamp(),
 						fingerId,
-						-1
+						TouchPanel.NO_FINGER
 					));
 				}
 			}
@@ -309,8 +309,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					Vector2.Zero,
 					Vector2.Zero,
 					GetGestureTimestamp(),
-					-1,
-					-1
+					TouchPanel.NO_FINGER,
+					TouchPanel.NO_FINGER
 				));
 			}
 			callBelatedPinchComplete = false;
@@ -336,7 +336,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 
 			// Replace the active finger if we lost it
-			if (activeFingerId == -1)
+			if (activeFingerId == TouchPanel.NO_FINGER)
 			{
 				activeFingerId = fingerId;
 			}
@@ -402,7 +402,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					Vector2.Zero,
 					GetGestureTimestamp(),
 					fingerId,
-					-1
+					TouchPanel.NO_FINGER
 				));
 			}
 			else if (state == GestureState.DRAGGING_V && vdrag)
@@ -416,7 +416,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					Vector2.Zero,
 					GetGestureTimestamp(),
 					fingerId,
-					-1
+					TouchPanel.NO_FINGER
 				));
 			}
 			else if (state == GestureState.DRAGGING_FREE && fdrag)
@@ -430,7 +430,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					Vector2.Zero,
 					GetGestureTimestamp(),
 					fingerId,
-					-1
+					TouchPanel.NO_FINGER
 				));
 			}
 
@@ -462,7 +462,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				if (!IsGestureEnabled(GestureType.Pinch))
 				{
 					state = GestureState.HELD;
-					secondFingerId = -1;
+					secondFingerId = TouchPanel.NO_FINGER;
 
 					// Still might need to trigger a PinchComplete
 					callBelatedPinchComplete = true;
@@ -473,7 +473,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 
 			// Must have an active finger to proceed
-			if (activeFingerId == -1)
+			if (activeFingerId == TouchPanel.NO_FINGER)
 			{
 				return;
 			}
@@ -529,7 +529,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						Vector2.Zero,
 						GetGestureTimestamp(),
 						activeFingerId,
-						-1
+						TouchPanel.NO_FINGER
 					));
 
 					state = GestureState.HELD;
@@ -594,7 +594,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			}
 
 			// Regardless, we no longer have a second finger
-			secondFingerId = -1;
+			secondFingerId = TouchPanel.NO_FINGER;
 
 			// Attempt to replace our fallen comrade
 			bool replacedSecondFinger = false;

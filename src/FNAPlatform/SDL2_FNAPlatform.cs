@@ -2576,7 +2576,8 @@ namespace Microsoft.Xna.Framework
 				IntPtr fingerPtr = SDL.SDL_GetTouchFinger(touchDevice, i);
 				if (fingerPtr == IntPtr.Zero)
 				{
-					TouchPanel.SetFinger(i, -1, Vector2.Zero);
+					// No finger found at this index
+					TouchPanel.SetFinger(i, TouchPanel.NO_FINGER, Vector2.Zero);
 					continue;
 				}
 
