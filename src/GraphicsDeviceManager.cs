@@ -424,7 +424,7 @@ namespace Microsoft.Xna.Framework
 			gdi.GraphicsProfile = GraphicsProfile;
 			gdi.PresentationParameters = new PresentationParameters();
 			gdi.PresentationParameters.DeviceWindowHandle = game.Window.Handle;
-			gdi.PresentationParameters.DepthStencilFormat = DepthFormat.Depth24;
+			gdi.PresentationParameters.DepthStencilFormat = PreferredDepthStencilFormat;
 			gdi.PresentationParameters.IsFullScreen = false;
 
 			// Give the user a chance to change the initial settings
