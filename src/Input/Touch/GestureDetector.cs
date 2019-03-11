@@ -157,7 +157,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 								touchPosition,
 								Vector2.Zero,
 								GetGestureTimestamp(),
-								TouchPanel.NO_FINGER,
+								fingerId,
 								TouchPanel.NO_FINGER
 							));
 
@@ -224,7 +224,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 									touchPosition,
 									Vector2.Zero,
 									GetGestureTimestamp(),
-									TouchPanel.NO_FINGER,
+									fingerId,
 									TouchPanel.NO_FINGER
 								));
 							}
