@@ -2567,33 +2567,27 @@ namespace Microsoft.Xna.Framework
 			};
 		}
 
-		public static void UpdateTouchPanelState()
+		public static unsafe void UpdateTouchPanelState()
 		{
 			// Poll the touch device for all active fingers
 			long touchDevice = SDL.SDL_GetTouchDevice(0);
 			for (int i = 0; i < TouchPanel.MAX_TOUCHES; i += 1)
 			{
-				IntPtr fingerPtr = SDL.SDL_GetTouchFinger(touchDevice, i);
-				if (fingerPtr == IntPtr.Zero)
+				SDL.SDL_Finger* finger = (SDL.SDL_Finger*) SDL.SDL_GetTouchFinger(touchDevice, i);
+				if (finger == null)
 				{
 					// No finger found at this index
 					TouchPanel.SetFinger(i, TouchPanel.NO_FINGER, Vector2.Zero);
 					continue;
 				}
 
-				// Get finger info
-				SDL.SDL_Finger finger = (SDL.SDL_Finger) Marshal.PtrToStructure(
-					fingerPtr,
-					typeof(SDL.SDL_Finger)
-				);
-
 				// Send the finger data to the TouchPanel
 				TouchPanel.SetFinger(
 					i,
-					(int) finger.id,
+					(int) finger->id,
 					new Vector2(
-						(float) Math.Round(finger.x * TouchPanel.DisplayWidth),
-						(float) Math.Round(finger.y * TouchPanel.DisplayHeight)
+						(float) Math.Round(finger->x * TouchPanel.DisplayWidth),
+						(float) Math.Round(finger->y * TouchPanel.DisplayHeight)
 					)
 				);
 			}
