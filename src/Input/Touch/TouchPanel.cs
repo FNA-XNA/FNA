@@ -80,6 +80,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static Queue<GestureSample> gestures = new Queue<GestureSample>();
 		private static TouchLocation[] touches = new TouchLocation[MAX_TOUCHES];
 		private static TouchLocation[] prevTouches = new TouchLocation[MAX_TOUCHES];
+		private static List<TouchLocation> validTouches = new List<TouchLocation>();
 
 		#endregion
 
@@ -92,9 +93,15 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public static TouchCollection GetState()
 		{
-			return new TouchCollection(
-				Array.FindAll(touches, t => t.State != TouchLocationState.Invalid)
-			);
+			validTouches.Clear();
+			for (int i = 0; i < MAX_TOUCHES; i += 1)
+			{
+				if (touches[i].State != TouchLocationState.Invalid)
+				{
+					validTouches.Add(touches[i]);
+				}
+			}
+			return new TouchCollection(validTouches.ToArray());
 		}
 
 		public static GestureSample ReadGesture()
