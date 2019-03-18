@@ -54,6 +54,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_SCISSOR_TEST =			0x0C11,
 			GL_DEPTH_TEST =				0x0B71,
 			GL_STENCIL_TEST =			0x0B90,
+			// Points
+			GL_PROGRAM_POINT_SIZE =			0x8642,
+			GL_POINT_SPRITE =			0x8861,
+			GL_COORD_REPLACE =			0x8862,
 			// Polygons
 			GL_LINE =				0x1B01,
 			GL_FILL =				0x1B02,
@@ -531,6 +535,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			float param
 		);
 		private TexParameterf glTexParameterf;
+
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+		private delegate void TexEnvi(
+			GLenum target,
+			GLenum pname,
+			int param
+		);
+		private TexEnvi glTexEnvi;
 
 		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
 		private delegate void ActiveTexture(GLenum texture);
@@ -1093,6 +1105,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				glTexParameterf = (TexParameterf) GetProcAddress(
 					"glTexParameterf",
 					typeof(TexParameterf)
+				);
+				glTexEnvi = (TexEnvi) GetProcAddress(
+					"glTexEnvi",
+					typeof(TexEnvi)
 				);
 				glActiveTexture = (ActiveTexture) GetProcAddress(
 					"glActiveTexture",
