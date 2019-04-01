@@ -211,6 +211,7 @@
 		<Compile Include="src\Graphics\PackedVector\Rgba1010102.cs" />
 		<Compile Include="src\Graphics\PackedVector\Short2.cs" />
 		<Compile Include="src\Graphics\PackedVector\Short4.cs" />
+		<Compile Include="src\Graphics\PipelineCache.cs" />
 		<Compile Include="src\Graphics\PresentationParameters.cs" />
 		<Compile Include="src\Graphics\PresentInterval.cs" />
 		<Compile Include="src\Graphics\PrimitiveType.cs" />
