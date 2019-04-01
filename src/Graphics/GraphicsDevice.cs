@@ -449,7 +449,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Allocate the pipeline cache to be used by Effects
 			PipelineCache = new PipelineCache(this);
-
 #if WIIU_GAMEPAD
 			wiiuStream = DRC.drc_new_streamer();
 			if (wiiuStream == IntPtr.Zero)

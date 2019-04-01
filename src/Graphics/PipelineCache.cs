@@ -7,12 +7,6 @@
  */
 #endregion
 
-#region Using Statements
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-#endregion
-
 namespace Microsoft.Xna.Framework.Graphics
 {
 	public class PipelineCache
