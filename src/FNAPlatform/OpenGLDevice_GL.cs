@@ -1631,8 +1631,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			/* Android developers are incredibly stupid and export stub functions */
 			if (useES3)
 			{
-				if (	SDL.SDL_GL_ExtensionSupported("KHR_debug") == SDL.SDL_bool.SDL_FALSE &&
-					SDL.SDL_GL_ExtensionSupported("ARB_debug_output") == SDL.SDL_bool.SDL_FALSE	)
+				if (	SDL.SDL_GL_ExtensionSupported("GL_KHR_debug") == SDL.SDL_bool.SDL_FALSE &&
+					SDL.SDL_GL_ExtensionSupported("GL_ARB_debug_output") == SDL.SDL_bool.SDL_FALSE	)
 				{
 					supportsDebug = false;
 				}
