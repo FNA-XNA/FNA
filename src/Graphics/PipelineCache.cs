@@ -9,7 +9,7 @@
 
 namespace Microsoft.Xna.Framework.Graphics
 {
-	public class PipelineCache
+	internal class PipelineCache
 	{
 		#region Public BlendState Variables
 
