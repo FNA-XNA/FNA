@@ -7,6 +7,10 @@
  */
 #endregion
 
+#region Using Statements
+using System.Collections.Generic;
+#endregion
+
 namespace Microsoft.Xna.Framework.Graphics
 {
 	internal class PipelineCache
@@ -84,6 +88,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Private State Cache Variables
+
+		private Dictionary<BlendStateHash, BlendState> blendCache =
+			new Dictionary<BlendStateHash, BlendState>();
+
+		#endregion
+
 		#region Private State Cache Hack Variables
 
 		/* This is a workaround to prevent excessive state allocation.
@@ -98,10 +109,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		 * getting a state from a cache, generating a new one if needed.
 		 * -flibit
 		 */
-		private BlendState[] blendCache = new BlendState[2]
-		{
-			new BlendState(), new BlendState()
-		};
 		private DepthStencilState[] depthStencilCache = new DepthStencilState[2]
 		{
 			new DepthStencilState(), new DepthStencilState()
@@ -188,28 +195,30 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplyBlend()
 		{
-			// FIXME: This is part of the state cache hack! -flibit
 			BlendState newBlend;
-			if (device.BlendState == blendCache[0])
+			BlendStateHash hash = device.BlendState.GetHash();
+
+			if (!blendCache.TryGetValue(hash, out newBlend))
 			{
-				newBlend = blendCache[1];
+				newBlend = new BlendState();
+
+				newBlend.AlphaBlendFunction = AlphaBlendFunction;
+				newBlend.AlphaDestinationBlend = AlphaDestinationBlend;
+				newBlend.AlphaSourceBlend = AlphaSourceBlend;
+				newBlend.ColorBlendFunction = ColorBlendFunction;
+				newBlend.ColorDestinationBlend = ColorDestinationBlend;
+				newBlend.ColorSourceBlend = ColorSourceBlend;
+				newBlend.ColorWriteChannels = ColorWriteChannels;
+				newBlend.ColorWriteChannels1 = ColorWriteChannels1;
+				newBlend.ColorWriteChannels2 = ColorWriteChannels2;
+				newBlend.ColorWriteChannels3 = ColorWriteChannels3;
+				newBlend.BlendFactor = BlendFactor;
+				newBlend.MultiSampleMask = MultiSampleMask;
+
+				blendCache.Add(hash, newBlend);
+				FNALoggerEXT.LogInfo("New BlendState added to cache");
 			}
-			else
-			{
-				newBlend = blendCache[0];
-			}
-			newBlend.AlphaBlendFunction = AlphaBlendFunction;
-			newBlend.AlphaDestinationBlend = AlphaDestinationBlend;
-			newBlend.AlphaSourceBlend = AlphaSourceBlend;
-			newBlend.ColorBlendFunction = ColorBlendFunction;
-			newBlend.ColorDestinationBlend = ColorDestinationBlend;
-			newBlend.ColorSourceBlend = ColorSourceBlend;
-			newBlend.ColorWriteChannels = ColorWriteChannels;
-			newBlend.ColorWriteChannels1 = ColorWriteChannels1;
-			newBlend.ColorWriteChannels2 = ColorWriteChannels2;
-			newBlend.ColorWriteChannels3 = ColorWriteChannels3;
-			newBlend.BlendFactor = BlendFactor;
-			newBlend.MultiSampleMask = MultiSampleMask;
+
 			device.BlendState = newBlend;
 		}
 
