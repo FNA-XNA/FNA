@@ -338,7 +338,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (stateChanges->render_state_change_count > 0)
 			{
 				PipelineCache pipelineCache = GraphicsDevice.PipelineCache;
-				pipelineCache.BeginApply();
+				pipelineCache.BeginApplyBlend();
+				pipelineCache.BeginApplyDepthStencil();
+				pipelineCache.BeginApplyRasterizer();
 
 				// Used to avoid redundant device state application
 				bool blendStateChanged = false;

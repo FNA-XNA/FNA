@@ -15,7 +15,24 @@ namespace Microsoft.Xna.Framework.Graphics
 {
 	internal class PipelineCache
 	{
-		#region Public BlendState Variables
+		#region Private Variables
+
+		private GraphicsDevice device;
+
+		#endregion
+
+		#region Public Constructor
+
+		public PipelineCache(GraphicsDevice graphicsDevice)
+		{
+			device = graphicsDevice;
+		}
+
+		#endregion
+
+		#region BlendState Cache
+
+		/* Public Variables */
 
 		public BlendFunction AlphaBlendFunction;
 		public Blend AlphaDestinationBlend;
@@ -36,92 +53,33 @@ namespace Microsoft.Xna.Framework.Graphics
 		 */
 		public bool SeparateAlphaBlend;
 
-		#endregion
-
-		#region Public DepthStencilState Variables
-
-		public bool DepthBufferEnable;
-		public bool DepthBufferWriteEnable;
-		public CompareFunction DepthBufferFunction;
-		public bool StencilEnable;
-		public CompareFunction StencilFunction;
-		public StencilOperation StencilPass;
-		public StencilOperation StencilFail;
-		public StencilOperation StencilDepthBufferFail;
-		public bool TwoSidedStencilMode;
-		public CompareFunction CCWStencilFunction;
-		public StencilOperation CCWStencilFail;
-		public StencilOperation CCWStencilPass;
-		public StencilOperation CCWStencilDepthBufferFail;
-		public int StencilMask;
-		public int StencilWriteMask;
-		public int ReferenceStencil;
-
-		#endregion
-
-		#region Public RasterizerState Variables
-
-		public CullMode CullMode;
-		public FillMode FillMode;
-		public float DepthBias;
-		public bool MultiSampleAntiAlias;
-		public bool ScissorTestEnable;
-		public float SlopeScaleDepthBias;
-
-		#endregion
-
-		#region Public SamplerState Variables
-
-		public TextureAddressMode AddressU;
-		public TextureAddressMode AddressV;
-		public TextureAddressMode AddressW;
-		public int MaxAnisotropy;
-		public int MaxMipLevel;
-		public float MipMapLODBias;
-		public TextureFilter Filter;
-
-		#endregion
-
-		#region Private Variables
-
-		private GraphicsDevice device;
-
-		#endregion
-
-		#region Private State Cache Variables
+		/* Private Cache Storage */
 
 		private Dictionary<BlendStateHash, BlendState> blendCache =
 			new Dictionary<BlendStateHash, BlendState>();
 
-		private Dictionary<DepthStencilStateHash, DepthStencilState> depthStencilCache =
-			new Dictionary<DepthStencilStateHash, DepthStencilState>();
-
-		private Dictionary<RasterizerStateHash, RasterizerState> rasterizerCache =
-			new Dictionary<RasterizerStateHash, RasterizerState>();
-
-		private Dictionary<SamplerStateHash, SamplerState> samplerCache =
-			new Dictionary<SamplerStateHash, SamplerState>();
-
-		#endregion
-
-		#region Public Constructor
-
-		public PipelineCache(GraphicsDevice graphicsDevice)
+		private struct BlendStateHash
 		{
-			device = graphicsDevice;
+			internal int funcs;
+			internal int blendsAndColorWriteChannels;
+			internal uint blendFactor;
+			internal int multiSampleMask;
+
+			public override string ToString()
+			{
+				return    System.Convert.ToString(funcs, 2).PadLeft(32, '0')
+					+ System.Convert.ToString(blendsAndColorWriteChannels, 2).PadLeft(32, '0')
+					+ System.Convert.ToString(blendFactor, 2).PadLeft(32, '0')
+					+ System.Convert.ToString(multiSampleMask, 2).PadLeft(32, '0');
+			}
 		}
 
-		#endregion
+		/* Public Functions */
 
-		#region Public Methods
-
-		public void BeginApply()
+		public void BeginApplyBlend()
 		{
 			BlendState oldBlendState = device.BlendState;
-			DepthStencilState oldDepthStencilState = device.DepthStencilState;
-			RasterizerState oldRasterizerState = device.RasterizerState;
 
-			// Current blend state
 			AlphaBlendFunction = oldBlendState.AlphaBlendFunction;
 			AlphaDestinationBlend = oldBlendState.AlphaDestinationBlend;
 			AlphaSourceBlend = oldBlendState.AlphaSourceBlend;
@@ -138,39 +96,25 @@ namespace Microsoft.Xna.Framework.Graphics
 				ColorBlendFunction != AlphaBlendFunction ||
 				ColorDestinationBlend != AlphaDestinationBlend
 			);
-
-			// Current depth/stencil state
-			DepthBufferEnable = oldDepthStencilState.DepthBufferEnable;
-			DepthBufferWriteEnable = oldDepthStencilState.DepthBufferWriteEnable;
-			DepthBufferFunction = oldDepthStencilState.DepthBufferFunction;
-			StencilEnable = oldDepthStencilState.StencilEnable;
-			StencilFunction = oldDepthStencilState.StencilFunction;
-			StencilPass = oldDepthStencilState.StencilPass;
-			StencilFail = oldDepthStencilState.StencilFail;
-			StencilDepthBufferFail = oldDepthStencilState.StencilDepthBufferFail;
-			TwoSidedStencilMode = oldDepthStencilState.TwoSidedStencilMode;
-			CCWStencilFunction = oldDepthStencilState.CounterClockwiseStencilFunction;
-			CCWStencilFail = oldDepthStencilState.CounterClockwiseStencilFail;
-			CCWStencilPass = oldDepthStencilState.CounterClockwiseStencilPass;
-			CCWStencilDepthBufferFail = oldDepthStencilState.CounterClockwiseStencilDepthBufferFail;
-			StencilMask = oldDepthStencilState.StencilMask;
-			StencilWriteMask = oldDepthStencilState.StencilWriteMask;
-			ReferenceStencil = oldDepthStencilState.ReferenceStencil;
-
-			// Current rasterizer state
-			CullMode = oldRasterizerState.CullMode;
-			FillMode = oldRasterizerState.FillMode;
-			DepthBias = oldRasterizerState.DepthBias;
-			MultiSampleAntiAlias = oldRasterizerState.MultiSampleAntiAlias;
-			ScissorTestEnable = oldRasterizerState.ScissorTestEnable;
-			SlopeScaleDepthBias = oldRasterizerState.SlopeScaleDepthBias;
 		}
 
 		public void EndApplyBlend()
 		{
-			BlendState newBlend;
-			BlendStateHash hash = device.BlendState.GetHash();
+			BlendStateHash hash = new BlendStateHash();
+			hash.funcs = ((int) AlphaBlendFunction << 4) | ((int) ColorBlendFunction);
+			hash.blendsAndColorWriteChannels =
+				  ((int) AlphaDestinationBlend	<< (32 - 4))
+				| ((int) AlphaSourceBlend	<< (32 - 8))
+				| ((int) ColorDestinationBlend	<< (32 - 12))
+				| ((int) ColorSourceBlend	<< (32 - 16))
+				| ((int) ColorWriteChannels	<< (32 - 20))
+				| ((int) ColorWriteChannels1	<< (32 - 24))
+				| ((int) ColorWriteChannels2	<< (32 - 28))
+				| ((int) ColorWriteChannels3);
+			hash.blendFactor = BlendFactor.PackedValue;
+			hash.multiSampleMask = MultiSampleMask;
 
+			BlendState newBlend;
 			if (!blendCache.TryGetValue(hash, out newBlend))
 			{
 				newBlend = new BlendState();
@@ -195,11 +139,103 @@ namespace Microsoft.Xna.Framework.Graphics
 			device.BlendState = newBlend;
 		}
 
+		#endregion
+
+		#region DepthStencilState Cache
+
+		/* Public Variables */
+
+		public bool DepthBufferEnable;
+		public bool DepthBufferWriteEnable;
+		public CompareFunction DepthBufferFunction;
+		public bool StencilEnable;
+		public CompareFunction StencilFunction;
+		public StencilOperation StencilPass;
+		public StencilOperation StencilFail;
+		public StencilOperation StencilDepthBufferFail;
+		public bool TwoSidedStencilMode;
+		public CompareFunction CCWStencilFunction;
+		public StencilOperation CCWStencilFail;
+		public StencilOperation CCWStencilPass;
+		public StencilOperation CCWStencilDepthBufferFail;
+		public int StencilMask;
+		public int StencilWriteMask;
+		public int ReferenceStencil;
+
+		/* Private Cache Storage */
+
+		private Dictionary<DepthStencilStateHash, DepthStencilState> depthStencilCache =
+			new Dictionary<DepthStencilStateHash, DepthStencilState>();
+
+		private struct DepthStencilStateHash
+		{
+			internal int packedProperties;
+			internal int stencilMask;
+			internal int stencilWriteMask;
+			internal int referenceStencil;
+
+			public override string ToString()
+			{
+				return    System.Convert.ToString(packedProperties, 2).PadLeft(32, '0')
+					+ System.Convert.ToString(stencilMask, 2).PadLeft(32, '0')
+					+ System.Convert.ToString(stencilWriteMask, 2).PadLeft(32, '0')
+					+ System.Convert.ToString(referenceStencil, 2).PadLeft(32, '0');
+			}
+		}
+
+		/* Public Functions */
+
+		public void BeginApplyDepthStencil()
+		{
+			DepthStencilState oldDepthStencilState = device.DepthStencilState;
+
+			DepthBufferEnable = oldDepthStencilState.DepthBufferEnable;
+			DepthBufferWriteEnable = oldDepthStencilState.DepthBufferWriteEnable;
+			DepthBufferFunction = oldDepthStencilState.DepthBufferFunction;
+			StencilEnable = oldDepthStencilState.StencilEnable;
+			StencilFunction = oldDepthStencilState.StencilFunction;
+			StencilPass = oldDepthStencilState.StencilPass;
+			StencilFail = oldDepthStencilState.StencilFail;
+			StencilDepthBufferFail = oldDepthStencilState.StencilDepthBufferFail;
+			TwoSidedStencilMode = oldDepthStencilState.TwoSidedStencilMode;
+			CCWStencilFunction = oldDepthStencilState.CounterClockwiseStencilFunction;
+			CCWStencilFail = oldDepthStencilState.CounterClockwiseStencilFail;
+			CCWStencilPass = oldDepthStencilState.CounterClockwiseStencilPass;
+			CCWStencilDepthBufferFail = oldDepthStencilState.CounterClockwiseStencilDepthBufferFail;
+			StencilMask = oldDepthStencilState.StencilMask;
+			StencilWriteMask = oldDepthStencilState.StencilWriteMask;
+			ReferenceStencil = oldDepthStencilState.ReferenceStencil;
+		}
+
 		public void EndApplyDepthStencil()
 		{
-			DepthStencilState newDepthStencil;
-			DepthStencilStateHash hash = device.DepthStencilState.GetHash();
+			DepthStencilStateHash hash = new DepthStencilStateHash();
 
+			// Bool -> Int32 conversion
+			int depthBufferEnable = DepthBufferEnable ? 1 : 0;
+			int depthBufferWriteEnable = DepthBufferWriteEnable ? 1 : 0;
+			int stencilEnable = StencilEnable ? 1 : 0;
+			int twoSidedStencilMode = TwoSidedStencilMode ? 1 : 0;
+
+			hash.packedProperties =
+				  ((int) depthBufferEnable	<< 32 - 2)
+				| ((int) depthBufferWriteEnable	<< 32 - 3)
+				| ((int) stencilEnable		<< 32 - 4)
+				| ((int) twoSidedStencilMode	<< 32 - 5)
+				| ((int) DepthBufferFunction	<< 32 - 8)
+				| ((int) StencilFunction	<< 32 - 11)
+				| ((int) CCWStencilFunction	<< 32 - 14)
+				| ((int) StencilPass		<< 32 - 17)
+				| ((int) StencilFail		<< 32 - 20)
+				| ((int) StencilDepthBufferFail	<< 32 - 23)
+				| ((int) CCWStencilFail		<< 32 - 26)
+				| ((int) CCWStencilPass		<< 32 - 29)
+				| ((int) CCWStencilDepthBufferFail);
+			hash.stencilMask = StencilMask;
+			hash.stencilWriteMask = StencilWriteMask;
+			hash.referenceStencil = ReferenceStencil;
+
+			DepthStencilState newDepthStencil;
 			if (!depthStencilCache.TryGetValue(hash, out newDepthStencil))
 			{
 				newDepthStencil = new DepthStencilState();
@@ -228,11 +264,79 @@ namespace Microsoft.Xna.Framework.Graphics
 			device.DepthStencilState = newDepthStencil;
 		}
 
+		#endregion
+
+		#region RasterizerState Cache
+
+		/* Public Variables */
+
+		public CullMode CullMode;
+		public FillMode FillMode;
+		public float DepthBias;
+		public bool MultiSampleAntiAlias;
+		public bool ScissorTestEnable;
+		public float SlopeScaleDepthBias;
+
+		/* Private Cache Storage */
+
+		private Dictionary<RasterizerStateHash, RasterizerState> rasterizerCache =
+			new Dictionary<RasterizerStateHash, RasterizerState>();
+
+		private struct RasterizerStateHash
+		{
+			internal int packedProperties;
+			internal float depthBias;
+			internal float slopeScaleDepthBias;
+
+			public override string ToString()
+			{
+				string binary = System.Convert.ToString(packedProperties, 2).PadLeft(32, '0');
+
+				foreach (byte b in System.BitConverter.GetBytes(depthBias))
+				{
+					binary += System.Convert.ToString(b, 2).PadLeft(8, '0');
+				}
+
+				foreach (byte b in System.BitConverter.GetBytes(slopeScaleDepthBias))
+				{
+					binary += System.Convert.ToString(b, 2).PadLeft(8, '0');
+				}
+
+				return binary;
+			}
+		}
+
+		/* Public Functions */
+
+		public void BeginApplyRasterizer()
+		{
+			RasterizerState oldRasterizerState = device.RasterizerState;
+
+			CullMode = oldRasterizerState.CullMode;
+			FillMode = oldRasterizerState.FillMode;
+			DepthBias = oldRasterizerState.DepthBias;
+			MultiSampleAntiAlias = oldRasterizerState.MultiSampleAntiAlias;
+			ScissorTestEnable = oldRasterizerState.ScissorTestEnable;
+			SlopeScaleDepthBias = oldRasterizerState.SlopeScaleDepthBias;
+		}
+
 		public void EndApplyRasterizer()
 		{
-			RasterizerState newRasterizer;
-			RasterizerStateHash hash = device.RasterizerState.GetHash();
+			RasterizerStateHash hash = new RasterizerStateHash();
 
+			// Bool -> Int32 conversion
+			int multiSampleAntiAlias = (MultiSampleAntiAlias ? 1 : 0);
+			int scissorTestEnable = (ScissorTestEnable ? 1 : 0);
+
+			hash.packedProperties =
+				  ((int) multiSampleAntiAlias	<< 4)
+				| ((int) scissorTestEnable	<< 3)
+				| ((int) CullMode		<< 1)
+				| ((int) FillMode);
+			hash.depthBias = DepthBias;
+			hash.slopeScaleDepthBias = SlopeScaleDepthBias;
+
+			RasterizerState newRasterizer;
 			if (!rasterizerCache.TryGetValue(hash, out newRasterizer))
 			{
 				newRasterizer = new RasterizerState();
@@ -251,6 +355,49 @@ namespace Microsoft.Xna.Framework.Graphics
 			device.RasterizerState = newRasterizer;
 		}
 
+		#endregion
+
+		#region SamplerState Cache
+
+		/* Public Variables */
+
+		public TextureAddressMode AddressU;
+		public TextureAddressMode AddressV;
+		public TextureAddressMode AddressW;
+		public int MaxAnisotropy;
+		public int MaxMipLevel;
+		public float MipMapLODBias;
+		public TextureFilter Filter;
+
+		/* Private Cache Storage */
+
+		private Dictionary<SamplerStateHash, SamplerState> samplerCache =
+			new Dictionary<SamplerStateHash, SamplerState>();
+
+		private struct SamplerStateHash
+		{
+			internal int filterAndAddresses;
+			internal int maxAnisotropy;
+			internal int maxMipLevel;
+			internal float mipMapLevelOfDetailBias;
+
+			public override string ToString()
+			{
+				string binary =   System.Convert.ToString(filterAndAddresses, 2).PadLeft(32, '0')
+						+ System.Convert.ToString(maxAnisotropy, 2).PadLeft(32, '0')
+						+ System.Convert.ToString(maxMipLevel, 2).PadLeft(32, '0');
+
+				foreach (byte b in System.BitConverter.GetBytes(mipMapLevelOfDetailBias))
+				{
+					binary += System.Convert.ToString(b, 2).PadLeft(8, '0');
+				}
+
+				return binary;
+			}
+		}
+
+		/* Public Functions */
+
 		public void BeginApplySampler(SamplerStateCollection samplers, int register)
 		{
 			SamplerState oldSampler = samplers[register];
@@ -267,9 +414,17 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplySampler(SamplerStateCollection samplers, int register)
 		{
-			SamplerState newSampler;
-			SamplerStateHash hash = samplers[register].GetHash();
+			SamplerStateHash hash = new SamplerStateHash();
+			hash.filterAndAddresses =
+				  ((int) Filter		<< 6)
+				| ((int) AddressU	<< 4)
+				| ((int) AddressV	<< 2)
+				| ((int) AddressW);
+			hash.maxAnisotropy = MaxAnisotropy;
+			hash.maxMipLevel = MaxMipLevel;
+			hash.mipMapLevelOfDetailBias = MipMapLODBias;
 
+			SamplerState newSampler;
 			if (!samplerCache.TryGetValue(hash, out newSampler))
 			{
 				newSampler = new SamplerState();

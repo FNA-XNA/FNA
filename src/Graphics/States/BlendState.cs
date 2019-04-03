@@ -160,45 +160,5 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		#endregion
-
-		#region Internal Hash Function
-
-		internal BlendStateHash GetHash()
-		{
-			BlendStateHash hash = new BlendStateHash();
-
-			hash.funcs = ((int) AlphaBlendFunction << 4) | ((int) ColorBlendFunction);
-			hash.blendsAndColorWriteChannels =
-				  ((int) AlphaDestinationBlend	<< (32 - 4))
-				| ((int) AlphaSourceBlend	<< (32 - 8))
-				| ((int) ColorDestinationBlend	<< (32 - 12))
-				| ((int) ColorSourceBlend	<< (32 - 16))
-				| ((int) ColorWriteChannels	<< (32 - 20))
-				| ((int) ColorWriteChannels1	<< (32 - 24))
-				| ((int) ColorWriteChannels2	<< (32 - 28))
-				| ((int) ColorWriteChannels3);
-			hash.blendFactor = BlendFactor.PackedValue;
-			hash.multiSampleMask = MultiSampleMask;
-
-			return hash;
-		}
-
-		#endregion
-	}
-
-	internal struct BlendStateHash
-	{
-		internal int funcs;
-		internal int blendsAndColorWriteChannels;
-		internal uint blendFactor;
-		internal int multiSampleMask;
-
-		public override string ToString()
-		{
-			return    System.Convert.ToString(funcs, 2).PadLeft(32, '0')
-				+ System.Convert.ToString(blendsAndColorWriteChannels, 2).PadLeft(32, '0')
-				+ System.Convert.ToString(blendFactor, 2).PadLeft(32, '0')
-				+ System.Convert.ToString(multiSampleMask, 2).PadLeft(32, '0');
-		}
 	}
 }
