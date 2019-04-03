@@ -95,5 +95,52 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		#endregion
+
+		#region Internal Hash Function
+
+		internal RasterizerStateHash GetHash()
+		{
+			RasterizerStateHash hash = new RasterizerStateHash();
+
+			// Bool -> Int32 conversion
+			int multiSampleAntiAlias = (MultiSampleAntiAlias ? 1 : 0);
+			int scissorTestEnable = (ScissorTestEnable ? 1 : 0);
+
+			hash.packedProperties =
+				  ((int) multiSampleAntiAlias	<< 4)
+				| ((int) scissorTestEnable	<< 3)
+				| ((int) CullMode		<< 1)
+				| ((int) FillMode);
+			hash.depthBias = DepthBias;
+			hash.slopeScaleDepthBias = SlopeScaleDepthBias;
+
+			return hash;
+		}
+
+		#endregion
+	}
+
+	internal struct RasterizerStateHash
+	{
+		internal int packedProperties;
+		internal float depthBias;
+		internal float slopeScaleDepthBias;
+
+		public override string ToString()
+		{
+			string binary = System.Convert.ToString(packedProperties, 2).PadLeft(32, '0');
+
+			foreach (byte b in System.BitConverter.GetBytes(depthBias))
+			{
+				binary += System.Convert.ToString(b, 2).PadLeft(8, '0');
+			}
+
+			foreach (byte b in System.BitConverter.GetBytes(slopeScaleDepthBias))
+			{
+				binary += System.Convert.ToString(b, 2).PadLeft(8, '0');
+			}
+
+			return binary;
+		}
 	}
 }
