@@ -141,47 +141,5 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		#endregion
-
-		#region Internal Hash Function
-
-		internal SamplerStateHash GetHash()
-		{
-			SamplerStateHash hash = new SamplerStateHash();
-
-			hash.filterAndAddresses =
-				  ((int) Filter		<< 6)
-				| ((int) AddressU	<< 4)
-				| ((int) AddressV	<< 2)
-				| ((int) AddressW);
-			hash.maxAnisotropy = MaxAnisotropy;
-			hash.maxMipLevel = MaxMipLevel;
-			hash.mipMapLevelOfDetailBias = MipMapLevelOfDetailBias;
-
-			return hash;
-		}
-
-		#endregion
-	}
-
-	internal struct SamplerStateHash
-	{
-		internal int filterAndAddresses;
-		internal int maxAnisotropy;
-		internal int maxMipLevel;
-		internal float mipMapLevelOfDetailBias;
-
-		public override string ToString()
-		{
-			string binary =   System.Convert.ToString(filterAndAddresses, 2).PadLeft(32, '0')
-					+ System.Convert.ToString(maxAnisotropy, 2).PadLeft(32, '0')
-					+ System.Convert.ToString(maxMipLevel, 2).PadLeft(32, '0');
-
-			foreach (byte b in System.BitConverter.GetBytes(mipMapLevelOfDetailBias))
-			{
-				binary += System.Convert.ToString(b, 2).PadLeft(8, '0');
-			}
-
-			return binary;
-		}
 	}
 }
