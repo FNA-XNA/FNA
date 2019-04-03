@@ -7,6 +7,15 @@
  */
 #endregion
 
+#region VERBOSE_PIPELINECACHE Option
+// #define VERBOSE_PIPELINECACHE
+/* If you want to debug the PipelineCache to make sure it's interpreting your
+ * Effects' render state changes properly, you can enable this and get a bunch
+ * of messages logged to FNALoggerEXT.
+ * -flibit
+ */
+#endregion
+
 #region Using Statements
 using System;
 using System.Collections.Generic;
@@ -171,7 +180,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				newBlend.MultiSampleMask = MultiSampleMask;
 
 				blendCache.Add(hash, newBlend);
+#if VERBOSE_PIPELINECACHE
 				FNALoggerEXT.LogInfo("New BlendState added to pipeline cache");
+#endif
 			}
 
 			device.BlendState = newBlend;
@@ -282,7 +293,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				newDepthStencil.ReferenceStencil = ReferenceStencil;
 
 				depthStencilCache.Add(hash, newDepthStencil);
+#if VERBOSE_PIPELINECACHE
 				FNALoggerEXT.LogInfo("New DepthStencilState added to pipeline cache");
+#endif
 			}
 
 			device.DepthStencilState = newDepthStencil;
@@ -352,7 +365,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				newRasterizer.SlopeScaleDepthBias = SlopeScaleDepthBias;
 
 				rasterizerCache.Add(hash, newRasterizer);
+#if VERBOSE_PIPELINECACHE
 				FNALoggerEXT.LogInfo("New RasterizerState added to pipeline cache");
+#endif
 			}
 
 			device.RasterizerState = newRasterizer;
@@ -421,7 +436,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				newSampler.MipMapLevelOfDetailBias = MipMapLODBias;
 
 				samplerCache.Add(hash, newSampler);
+#if VERBOSE_PIPELINECACHE
 				FNALoggerEXT.LogInfo("New SamplerState added to pipeline cache");
+#endif
 			}
 
 			samplers[register] = newSampler;
