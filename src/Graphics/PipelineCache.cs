@@ -8,13 +8,63 @@
 #endregion
 
 #region Using Statements
+using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
 {
 	internal class PipelineCache
 	{
+		#region Private PSO Hash Struct
+
+		[StructLayout(LayoutKind.Sequential, Pack = 4, Size = 128)]
+		private struct StateHash : IEquatable<StateHash>
+		{
+			readonly int i1;
+			readonly int i2;
+			readonly int i3;
+			readonly int i4;
+
+			public StateHash(int i1, int i2, int i3, int i4)
+			{
+				this.i1 = i1;
+				this.i2 = i2;
+				this.i3 = i3;
+				this.i4 = i4;
+			}
+
+			public override string ToString()
+			{
+				return    Convert.ToString(i1, 2).PadLeft(32, '0')
+					+ Convert.ToString(i2, 2).PadLeft(32, '0')
+					+ Convert.ToString(i3, 2).PadLeft(32, '0')
+					+ Convert.ToString(i4, 2).PadLeft(32, '0');
+			}
+
+                        bool IEquatable<StateHash>.Equals(StateHash hash)
+                        {
+                                return i1 == hash.i1 && i2 == hash.i2 && i3 == hash.i3 && i4 == hash.i4;
+                        }
+
+                        override public bool Equals(object obj)
+                        {
+                                if (obj == null || obj.GetType() != GetType())
+                                        return false;
+
+                                StateHash hash = (StateHash) obj;
+                                return i1 == hash.i1 && i2 == hash.i2 && i3 == hash.i3 && i4 == hash.i4;
+                        }
+
+                        override public int GetHashCode()
+                        {
+                                return unchecked(i1 + i2 + i3 + i4);
+                        }
+		}
+
+		#endregion
+
 		#region Private Variables
 
 		private GraphicsDevice device;
@@ -55,24 +105,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* Private Cache Storage */
 
-		private Dictionary<BlendStateHash, BlendState> blendCache =
-			new Dictionary<BlendStateHash, BlendState>();
-
-		private struct BlendStateHash
-		{
-			internal int funcs;
-			internal int blendsAndColorWriteChannels;
-			internal uint blendFactor;
-			internal int multiSampleMask;
-
-			public override string ToString()
-			{
-				return    System.Convert.ToString(funcs, 2).PadLeft(32, '0')
-					+ System.Convert.ToString(blendsAndColorWriteChannels, 2).PadLeft(32, '0')
-					+ System.Convert.ToString(blendFactor, 2).PadLeft(32, '0')
-					+ System.Convert.ToString(multiSampleMask, 2).PadLeft(32, '0');
-			}
-		}
+		private Dictionary<StateHash, BlendState> blendCache =
+			new Dictionary<StateHash, BlendState>();
 
 		/* Public Functions */
 
@@ -100,9 +134,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplyBlend()
 		{
-			BlendStateHash hash = new BlendStateHash();
-			hash.funcs = ((int) AlphaBlendFunction << 4) | ((int) ColorBlendFunction);
-			hash.blendsAndColorWriteChannels =
+			int funcs = ((int) AlphaBlendFunction << 4) | ((int) ColorBlendFunction);
+			int blendsAndColorWriteChannels =
 				  ((int) AlphaDestinationBlend	<< (32 - 4))
 				| ((int) AlphaSourceBlend	<< (32 - 8))
 				| ((int) ColorDestinationBlend	<< (32 - 12))
@@ -111,8 +144,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) ColorWriteChannels1	<< (32 - 24))
 				| ((int) ColorWriteChannels2	<< (32 - 28))
 				| ((int) ColorWriteChannels3);
-			hash.blendFactor = BlendFactor.PackedValue;
-			hash.multiSampleMask = MultiSampleMask;
+
+			StateHash hash = new StateHash(
+				funcs,
+				blendsAndColorWriteChannels,
+				(int) BlendFactor.PackedValue,
+				MultiSampleMask
+			);
 
 			BlendState newBlend;
 			if (!blendCache.TryGetValue(hash, out newBlend))
@@ -164,24 +202,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* Private Cache Storage */
 
-		private Dictionary<DepthStencilStateHash, DepthStencilState> depthStencilCache =
-			new Dictionary<DepthStencilStateHash, DepthStencilState>();
-
-		private struct DepthStencilStateHash
-		{
-			internal int packedProperties;
-			internal int stencilMask;
-			internal int stencilWriteMask;
-			internal int referenceStencil;
-
-			public override string ToString()
-			{
-				return    System.Convert.ToString(packedProperties, 2).PadLeft(32, '0')
-					+ System.Convert.ToString(stencilMask, 2).PadLeft(32, '0')
-					+ System.Convert.ToString(stencilWriteMask, 2).PadLeft(32, '0')
-					+ System.Convert.ToString(referenceStencil, 2).PadLeft(32, '0');
-			}
-		}
+		private Dictionary<StateHash, DepthStencilState> depthStencilCache =
+			new Dictionary<StateHash, DepthStencilState>();
 
 		/* Public Functions */
 
@@ -209,15 +231,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplyDepthStencil()
 		{
-			DepthStencilStateHash hash = new DepthStencilStateHash();
-
 			// Bool -> Int32 conversion
 			int depthBufferEnable = DepthBufferEnable ? 1 : 0;
 			int depthBufferWriteEnable = DepthBufferWriteEnable ? 1 : 0;
 			int stencilEnable = StencilEnable ? 1 : 0;
 			int twoSidedStencilMode = TwoSidedStencilMode ? 1 : 0;
 
-			hash.packedProperties =
+			int packedProperties =
 				  ((int) depthBufferEnable	<< 32 - 2)
 				| ((int) depthBufferWriteEnable	<< 32 - 3)
 				| ((int) stencilEnable		<< 32 - 4)
@@ -231,9 +251,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) CCWStencilFail		<< 32 - 26)
 				| ((int) CCWStencilPass		<< 32 - 29)
 				| ((int) CCWStencilDepthBufferFail);
-			hash.stencilMask = StencilMask;
-			hash.stencilWriteMask = StencilWriteMask;
-			hash.referenceStencil = ReferenceStencil;
+
+			StateHash hash = new StateHash(
+				packedProperties,
+				StencilMask,
+				StencilWriteMask,
+				ReferenceStencil
+			);
 
 			DepthStencilState newDepthStencil;
 			if (!depthStencilCache.TryGetValue(hash, out newDepthStencil))
@@ -279,32 +303,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* Private Cache Storage */
 
-		private Dictionary<RasterizerStateHash, RasterizerState> rasterizerCache =
-			new Dictionary<RasterizerStateHash, RasterizerState>();
-
-		private struct RasterizerStateHash
-		{
-			internal int packedProperties;
-			internal float depthBias;
-			internal float slopeScaleDepthBias;
-
-			public override string ToString()
-			{
-				string binary = System.Convert.ToString(packedProperties, 2).PadLeft(32, '0');
-
-				foreach (byte b in System.BitConverter.GetBytes(depthBias))
-				{
-					binary += System.Convert.ToString(b, 2).PadLeft(8, '0');
-				}
-
-				foreach (byte b in System.BitConverter.GetBytes(slopeScaleDepthBias))
-				{
-					binary += System.Convert.ToString(b, 2).PadLeft(8, '0');
-				}
-
-				return binary;
-			}
-		}
+		private Dictionary<StateHash, RasterizerState> rasterizerCache =
+			new Dictionary<StateHash, RasterizerState>();
 
 		/* Public Functions */
 
@@ -322,19 +322,22 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplyRasterizer()
 		{
-			RasterizerStateHash hash = new RasterizerStateHash();
-
 			// Bool -> Int32 conversion
 			int multiSampleAntiAlias = (MultiSampleAntiAlias ? 1 : 0);
 			int scissorTestEnable = (ScissorTestEnable ? 1 : 0);
 
-			hash.packedProperties =
+			int packedProperties =
 				  ((int) multiSampleAntiAlias	<< 4)
 				| ((int) scissorTestEnable	<< 3)
 				| ((int) CullMode		<< 1)
 				| ((int) FillMode);
-			hash.depthBias = DepthBias;
-			hash.slopeScaleDepthBias = SlopeScaleDepthBias;
+
+			StateHash hash = new StateHash(
+				0,
+				packedProperties,
+				FloatToInt32(DepthBias),
+				FloatToInt32(SlopeScaleDepthBias)
+			);
 
 			RasterizerState newRasterizer;
 			if (!rasterizerCache.TryGetValue(hash, out newRasterizer))
@@ -371,30 +374,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* Private Cache Storage */
 
-		private Dictionary<SamplerStateHash, SamplerState> samplerCache =
-			new Dictionary<SamplerStateHash, SamplerState>();
-
-		private struct SamplerStateHash
-		{
-			internal int filterAndAddresses;
-			internal int maxAnisotropy;
-			internal int maxMipLevel;
-			internal float mipMapLevelOfDetailBias;
-
-			public override string ToString()
-			{
-				string binary =   System.Convert.ToString(filterAndAddresses, 2).PadLeft(32, '0')
-						+ System.Convert.ToString(maxAnisotropy, 2).PadLeft(32, '0')
-						+ System.Convert.ToString(maxMipLevel, 2).PadLeft(32, '0');
-
-				foreach (byte b in System.BitConverter.GetBytes(mipMapLevelOfDetailBias))
-				{
-					binary += System.Convert.ToString(b, 2).PadLeft(8, '0');
-				}
-
-				return binary;
-			}
-		}
+		private Dictionary<StateHash, SamplerState> samplerCache =
+			new Dictionary<StateHash, SamplerState>();
 
 		/* Public Functions */
 
@@ -413,15 +394,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplySampler(SamplerStateCollection samplers, int register)
 		{
-			SamplerStateHash hash = new SamplerStateHash();
-			hash.filterAndAddresses =
+			int filterAndAddresses =
 				  ((int) Filter		<< 6)
 				| ((int) AddressU	<< 4)
 				| ((int) AddressV	<< 2)
 				| ((int) AddressW);
-			hash.maxAnisotropy = MaxAnisotropy;
-			hash.maxMipLevel = MaxMipLevel;
-			hash.mipMapLevelOfDetailBias = MipMapLODBias;
+
+			StateHash hash = new StateHash(
+				filterAndAddresses,
+				MaxAnisotropy,
+				MaxMipLevel,
+				FloatToInt32(MipMapLODBias)
+			);
 
 			SamplerState newSampler;
 			if (!samplerCache.TryGetValue(hash, out newSampler))
@@ -441,6 +425,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			samplers[register] = newSampler;
+		}
+
+		#endregion
+
+		#region Private Helper Methods
+
+		private unsafe int FloatToInt32(float f)
+		{
+			return *((int *) &f);
 		}
 
 		#endregion
