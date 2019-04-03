@@ -402,7 +402,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			SamplerState oldSampler = samplers[register];
 
-			// Current sampler state
 			AddressU = oldSampler.AddressU;
 			AddressV = oldSampler.AddressV;
 			AddressW = oldSampler.AddressW;
