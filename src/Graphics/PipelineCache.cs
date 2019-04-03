@@ -93,41 +93,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		private Dictionary<BlendStateHash, BlendState> blendCache =
 			new Dictionary<BlendStateHash, BlendState>();
 
-		#endregion
+		private Dictionary<DepthStencilStateHash, DepthStencilState> depthStencilCache =
+			new Dictionary<DepthStencilStateHash, DepthStencilState>();
 
-		#region Private State Cache Hack Variables
+		private Dictionary<RasterizerStateHash, RasterizerState> rasterizerCache =
+			new Dictionary<RasterizerStateHash, RasterizerState>();
 
-		/* This is a workaround to prevent excessive state allocation.
-		 * Well, I say "excessive", but even this allocates a minimum of
-		 * 1916 bytes per effect. Just for states.
-		 *
-		 * Additionally, we depend on our inaccurate behavior of letting you
-		 * change the state after it's been bound to the GraphicsDevice.
-		 *
-		 * More accurate behavior will require hashing the current states,
-		 * comparing them to the new state after applying the effect, and
-		 * getting a state from a cache, generating a new one if needed.
-		 * -flibit
-		 */
-		private DepthStencilState[] depthStencilCache = new DepthStencilState[2]
-		{
-			new DepthStencilState(), new DepthStencilState()
-		};
-		private RasterizerState[] rasterizerCache = new RasterizerState[2]
-		{
-			new RasterizerState(), new RasterizerState()
-		};
-		private SamplerState[] samplerCache = GenerateSamplerCache();
-		private static SamplerState[] GenerateSamplerCache()
-		{
-			int numSamplers = 60; // FIXME: Arbitrary! -flibit
-			SamplerState[] result = new SamplerState[numSamplers];
-			for (int i = 0; i < numSamplers; i += 1)
-			{
-				result[i] = new SamplerState();
-			}
-			return result;
-		}
+		private Dictionary<SamplerStateHash, SamplerState> samplerCache =
+			new Dictionary<SamplerStateHash, SamplerState>();
 
 		#endregion
 
@@ -216,7 +189,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				newBlend.MultiSampleMask = MultiSampleMask;
 
 				blendCache.Add(hash, newBlend);
-				FNALoggerEXT.LogInfo("New BlendState added to cache");
+				FNALoggerEXT.LogInfo("New BlendState added to pipeline cache");
 			}
 
 			device.BlendState = newBlend;
@@ -224,53 +197,57 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplyDepthStencil()
 		{
-			// FIXME: This is part of the state cache hack! -flibit
 			DepthStencilState newDepthStencil;
-			if (device.DepthStencilState == depthStencilCache[0])
+			DepthStencilStateHash hash = device.DepthStencilState.GetHash();
+
+			if (!depthStencilCache.TryGetValue(hash, out newDepthStencil))
 			{
-				newDepthStencil = depthStencilCache[1];
+				newDepthStencil = new DepthStencilState();
+
+				newDepthStencil.DepthBufferEnable = DepthBufferEnable;
+				newDepthStencil.DepthBufferWriteEnable = DepthBufferWriteEnable;
+				newDepthStencil.DepthBufferFunction = DepthBufferFunction;
+				newDepthStencil.StencilEnable = StencilEnable;
+				newDepthStencil.StencilFunction = StencilFunction;
+				newDepthStencil.StencilPass = StencilPass;
+				newDepthStencil.StencilFail = StencilFail;
+				newDepthStencil.StencilDepthBufferFail = StencilDepthBufferFail;
+				newDepthStencil.TwoSidedStencilMode = TwoSidedStencilMode;
+				newDepthStencil.CounterClockwiseStencilFunction = CCWStencilFunction;
+				newDepthStencil.CounterClockwiseStencilFail = CCWStencilFail;
+				newDepthStencil.CounterClockwiseStencilPass = CCWStencilPass;
+				newDepthStencil.CounterClockwiseStencilDepthBufferFail = CCWStencilDepthBufferFail;
+				newDepthStencil.StencilMask = StencilMask;
+				newDepthStencil.StencilWriteMask = StencilWriteMask;
+				newDepthStencil.ReferenceStencil = ReferenceStencil;
+
+				depthStencilCache.Add(hash, newDepthStencil);
+				FNALoggerEXT.LogInfo("New DepthStencilState added to pipeline cache");
 			}
-			else
-			{
-				newDepthStencil = depthStencilCache[0];
-			}
-			newDepthStencil.DepthBufferEnable = DepthBufferEnable;
-			newDepthStencil.DepthBufferWriteEnable = DepthBufferWriteEnable;
-			newDepthStencil.DepthBufferFunction = DepthBufferFunction;
-			newDepthStencil.StencilEnable = StencilEnable;
-			newDepthStencil.StencilFunction = StencilFunction;
-			newDepthStencil.StencilPass = StencilPass;
-			newDepthStencil.StencilFail = StencilFail;
-			newDepthStencil.StencilDepthBufferFail = StencilDepthBufferFail;
-			newDepthStencil.TwoSidedStencilMode = TwoSidedStencilMode;
-			newDepthStencil.CounterClockwiseStencilFunction = CCWStencilFunction;
-			newDepthStencil.CounterClockwiseStencilFail = CCWStencilFail;
-			newDepthStencil.CounterClockwiseStencilPass = CCWStencilPass;
-			newDepthStencil.CounterClockwiseStencilDepthBufferFail = CCWStencilDepthBufferFail;
-			newDepthStencil.StencilMask = StencilMask;
-			newDepthStencil.StencilWriteMask = StencilWriteMask;
-			newDepthStencil.ReferenceStencil = ReferenceStencil;
+
 			device.DepthStencilState = newDepthStencil;
 		}
 
 		public void EndApplyRasterizer()
 		{
-			// FIXME: This is part of the state cache hack! -flibit
 			RasterizerState newRasterizer;
-			if (device.RasterizerState == rasterizerCache[0])
+			RasterizerStateHash hash = device.RasterizerState.GetHash();
+
+			if (!rasterizerCache.TryGetValue(hash, out newRasterizer))
 			{
-				newRasterizer = rasterizerCache[1];
+				newRasterizer = new RasterizerState();
+
+				newRasterizer.CullMode = CullMode;
+				newRasterizer.FillMode = FillMode;
+				newRasterizer.DepthBias = DepthBias;
+				newRasterizer.MultiSampleAntiAlias = MultiSampleAntiAlias;
+				newRasterizer.ScissorTestEnable = ScissorTestEnable;
+				newRasterizer.SlopeScaleDepthBias = SlopeScaleDepthBias;
+
+				rasterizerCache.Add(hash, newRasterizer);
+				FNALoggerEXT.LogInfo("New RasterizerState added to pipeline cache");
 			}
-			else
-			{
-				newRasterizer = rasterizerCache[0];
-			}
-			newRasterizer.CullMode = CullMode;
-			newRasterizer.FillMode = FillMode;
-			newRasterizer.DepthBias = DepthBias;
-			newRasterizer.MultiSampleAntiAlias = MultiSampleAntiAlias;
-			newRasterizer.ScissorTestEnable = ScissorTestEnable;
-			newRasterizer.SlopeScaleDepthBias = SlopeScaleDepthBias;
+
 			device.RasterizerState = newRasterizer;
 		}
 
@@ -290,24 +267,25 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplySampler(SamplerStateCollection samplers, int register)
 		{
-			// FIXME: This is part of the state cache hack! -flibit
 			SamplerState newSampler;
-			if (samplers[register] == samplerCache[register])
+			SamplerStateHash hash = samplers[register].GetHash();
+
+			if (!samplerCache.TryGetValue(hash, out newSampler))
 			{
-				// FIXME: 30 is arbitrary! -flibit
-				newSampler = samplerCache[register + 30];
+				newSampler = new SamplerState();
+
+				newSampler.Filter = Filter;
+				newSampler.AddressU = AddressU;
+				newSampler.AddressV = AddressV;
+				newSampler.AddressW = AddressW;
+				newSampler.MaxAnisotropy = MaxAnisotropy;
+				newSampler.MaxMipLevel = MaxMipLevel;
+				newSampler.MipMapLevelOfDetailBias = MipMapLODBias;
+
+				samplerCache.Add(hash, newSampler);
+				FNALoggerEXT.LogInfo("New SamplerState added to pipeline cache");
 			}
-			else
-			{
-				newSampler = samplerCache[register];
-			}
-			newSampler.Filter = Filter;
-			newSampler.AddressU = AddressU;
-			newSampler.AddressV = AddressV;
-			newSampler.AddressW = AddressW;
-			newSampler.MaxAnisotropy = MaxAnisotropy;
-			newSampler.MaxMipLevel = MaxMipLevel;
-			newSampler.MipMapLevelOfDetailBias = MipMapLODBias;
+
 			samplers[register] = newSampler;
 		}
 
