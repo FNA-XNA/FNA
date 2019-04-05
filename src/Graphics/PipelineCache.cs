@@ -183,7 +183,8 @@ namespace Microsoft.Xna.Framework.Graphics
 #if VERBOSE_PIPELINECACHE
 				FNALoggerEXT.LogInfo("New BlendState added to pipeline cache with hash:\n"
 							+ hash.ToString());
-				FNALoggerEXT.LogInfo("Updated size of BlendState cache: " + blendCache.Count);
+				FNALoggerEXT.LogInfo("Updated size of BlendState cache: "
+							+ blendCache.Count);
 			}
 			else
 			{
@@ -303,7 +304,8 @@ namespace Microsoft.Xna.Framework.Graphics
 #if VERBOSE_PIPELINECACHE
 				FNALoggerEXT.LogInfo("New DepthStencilState added to pipeline cache with hash:\n"
 							+ hash.ToString());
-				FNALoggerEXT.LogInfo("Updated size of DepthStencilState cache: " + depthStencilCache.Count);
+				FNALoggerEXT.LogInfo("Updated size of DepthStencilState cache: "
+							+ depthStencilCache.Count);
 			}
 			else
 			{
@@ -382,7 +384,8 @@ namespace Microsoft.Xna.Framework.Graphics
 #if VERBOSE_PIPELINECACHE
 				FNALoggerEXT.LogInfo("New RasterizerState added to pipeline cache with hash:\n"
 							+ hash.ToString());
-				FNALoggerEXT.LogInfo("Updated size of RasterizerState cache: " + rasterizerCache.Count);
+				FNALoggerEXT.LogInfo("Updated size of RasterizerState cache: "
+							+ rasterizerCache.Count);
 			}
 			else
 			{
@@ -460,7 +463,8 @@ namespace Microsoft.Xna.Framework.Graphics
 #if VERBOSE_PIPELINECACHE
 				FNALoggerEXT.LogInfo("New SamplerState added to pipeline cache with hash:\n"
 							+ hash.ToString());
-				FNALoggerEXT.LogInfo("Updated size of SamplerState cache: " + samplerCache.Count);
+				FNALoggerEXT.LogInfo("Updated size of SamplerState cache: "
+							+ samplerCache.Count);
 			}
 			else
 			{
