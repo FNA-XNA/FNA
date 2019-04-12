@@ -1891,7 +1891,12 @@ namespace Microsoft.Xna.Framework
 			[ObjCRuntime.MonoPInvokeCallback(typeof(SizeFunc))]
 			private static long size(IntPtr context)
 			{
-				return -1;
+				Stream stream;
+				lock (streamMap)
+				{
+					stream = streamMap[context];
+				}
+				return stream.Length;
 			}
 
 			[ObjCRuntime.MonoPInvokeCallback(typeof(SeekFunc))]
