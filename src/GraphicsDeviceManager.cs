@@ -321,7 +321,7 @@ namespace Microsoft.Xna.Framework
 			);
 
 			// Apply the PresentInterval.
-			FNAPlatform.SetPresentationInterval(
+			GraphicsDevice.GLDevice.SetPresentationInterval(
 				gdi.PresentationParameters.PresentationInterval
 			);
 		}

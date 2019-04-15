@@ -48,7 +48,6 @@ namespace Microsoft.Xna.Framework
 			SetWindowTitle =		SDL2_FNAPlatform.SetWindowTitle;
 			RunLoop =			SDL2_FNAPlatform.RunLoop;
 			CreateGLDevice =		SDL2_FNAPlatform.CreateGLDevice;
-			SetPresentationInterval =	SDL2_FNAPlatform.SetPresentationInterval;
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
 			GetCurrentDisplayMode =		SDL2_FNAPlatform.GetCurrentDisplayMode;
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
@@ -151,9 +150,6 @@ namespace Microsoft.Xna.Framework
 			GraphicsAdapter adapter
 		);
 		public static readonly CreateGLDeviceFunc CreateGLDevice;
-
-		public delegate void SetPresentationIntervalFunc(PresentInterval interval);
-		public static readonly SetPresentationIntervalFunc SetPresentationInterval;
 
 		public delegate GraphicsAdapter[] GetGraphicsAdaptersFunc();
 		public static readonly GetGraphicsAdaptersFunc GetGraphicsAdapters;

@@ -1154,47 +1154,6 @@ namespace Microsoft.Xna.Framework
 
 		#region Graphics Methods
 
-		public static void SetPresentationInterval(PresentInterval interval)
-		{
-			if (interval == PresentInterval.Default || interval == PresentInterval.One)
-			{
-				bool disableLateSwapTear = (
-					OSVersion.Equals("Mac OS X") ||
-					OSVersion.Equals("WinRT") ||
-					Environment.GetEnvironmentVariable("FNA_OPENGL_DISABLE_LATESWAPTEAR") == "1"
-				);
-				if (disableLateSwapTear)
-				{
-					SDL.SDL_GL_SetSwapInterval(1);
-				}
-				else
-				{
-					if (SDL.SDL_GL_SetSwapInterval(-1) != -1)
-					{
-						FNALoggerEXT.LogInfo("Using EXT_swap_control_tear VSync!");
-					}
-					else
-					{
-						FNALoggerEXT.LogInfo("EXT_swap_control_tear unsupported. Fall back to standard VSync.");
-						SDL.SDL_ClearError();
-						SDL.SDL_GL_SetSwapInterval(1);
-					}
-				}
-			}
-			else if (interval == PresentInterval.Immediate)
-			{
-				SDL.SDL_GL_SetSwapInterval(0);
-			}
-			else if (interval == PresentInterval.Two)
-			{
-				SDL.SDL_GL_SetSwapInterval(2);
-			}
-			else
-			{
-				throw new NotSupportedException("Unrecognized PresentInterval!");
-			}
-		}
-
 		public static GraphicsAdapter[] GetGraphicsAdapters()
 		{
 			SDL.SDL_DisplayMode filler = new SDL.SDL_DisplayMode();
