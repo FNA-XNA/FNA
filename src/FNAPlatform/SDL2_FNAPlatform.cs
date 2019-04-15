@@ -188,8 +188,12 @@ namespace Microsoft.Xna.Framework
 
 		#region Window Methods
 
-		public static GameWindow CreateWindow()
+		private static bool PrepareGLAttributes()
 		{
+			/* TODO: For platforms not using OpenGL (Vulkan/Metal),
+			 * return false to avoid OpenGL WSI calls.
+			 */
+
 			// GLContext environment variables
 			bool forceES3 = Environment.GetEnvironmentVariable(
 				"FNA_OPENGL_FORCE_ES3"
@@ -210,18 +214,6 @@ namespace Microsoft.Xna.Framework
 				OSVersion.Equals("Emscripten")
 			);
 
-			// Set and initialize the SDL2 window
-			SDL.SDL_WindowFlags initFlags = (
-				SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL |
-				SDL.SDL_WindowFlags.SDL_WINDOW_HIDDEN |
-				SDL.SDL_WindowFlags.SDL_WINDOW_INPUT_FOCUS |
-				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
-			);
-
-			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
-			{
-				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI;
-			}
 
 			int depthSize = 24;
 			int stencilSize = 8;
@@ -319,6 +311,29 @@ namespace Microsoft.Xna.Framework
 				(int) SDL.SDL_GLcontext.SDL_GL_CONTEXT_DEBUG_FLAG
 			);
 #endif
+			return true;
+		}
+
+		public static GameWindow CreateWindow()
+		{
+
+			// Set and initialize the SDL2 window
+			SDL.SDL_WindowFlags initFlags = (
+				SDL.SDL_WindowFlags.SDL_WINDOW_HIDDEN |
+				SDL.SDL_WindowFlags.SDL_WINDOW_INPUT_FOCUS |
+				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
+			);
+
+			if (PrepareGLAttributes())
+			{
+				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL;
+			}
+
+			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
+			{
+				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI;
+			}
+
 			string title = MonoGame.Utilities.AssemblyHelper.GetDefaultWindowTitle();
 			IntPtr window = SDL.SDL_CreateWindow(
 				title,
