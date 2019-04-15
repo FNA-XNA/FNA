@@ -118,6 +118,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int primitiveCount
 		);
 
+		void SetPresentationInterval(PresentInterval presentInterval);
 		void SetViewport(Viewport vp, bool renderTargetBound);
 		void SetScissorRect(
 			Rectangle scissorRect,
