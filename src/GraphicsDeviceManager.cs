@@ -319,11 +319,6 @@ namespace Microsoft.Xna.Framework
 				gdi.PresentationParameters,
 				gdi.Adapter
 			);
-
-			// Apply the PresentInterval.
-			GraphicsDevice.GLDevice.SetPresentationInterval(
-				gdi.PresentationParameters.PresentationInterval
-			);
 		}
 
 		public void ToggleFullScreen()

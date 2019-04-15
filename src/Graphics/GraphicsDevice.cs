@@ -697,6 +697,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				PresentationParameters.BackBufferHeight
 			);
 
+			// Finally, update the swap interval
+			GLDevice.SetPresentationInterval(
+				PresentationParameters.PresentationInterval
+			);
+
 			// We just reset, let the application know.
 			if (DeviceReset != null)
 			{
