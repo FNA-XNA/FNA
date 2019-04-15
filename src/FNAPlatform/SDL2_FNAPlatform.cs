@@ -188,6 +188,12 @@ namespace Microsoft.Xna.Framework
 
 		#region Window Methods
 
+		private static bool PrepareVKAttributes()
+		{
+			// Who will write the VulkanDevice.. will it be YOU?
+			return false;
+		}
+
 		private static bool PrepareGLAttributes()
 		{
 			/* TODO: For platforms not using OpenGL (Vulkan/Metal),
@@ -324,7 +330,12 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
 			);
 
-			if (PrepareGLAttributes())
+			bool vulkan = false, opengl = false;
+			if (vulkan = PrepareVKAttributes())
+			{
+				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN;
+			}
+			else if (opengl = PrepareGLAttributes())
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL;
 			}
@@ -376,24 +387,34 @@ namespace Microsoft.Xna.Framework
 			 * -flibit
 			 */
 			int drawX, drawY;
-			SDL.SDL_GL_GetDrawableSize(window, out drawX, out drawY);
+			if (vulkan)
+			{
+				SDL.SDL_Vulkan_GetDrawableSize(window, out drawX, out drawY);
+			}
+			else if (opengl)
+			{
+				SDL.SDL_GL_GetDrawableSize(window, out drawX, out drawY);
+			}
+			else
+			{
+				throw new InvalidOperationException("Metal? Glide? What?");
+			}
 			if (	drawX == GraphicsDeviceManager.DefaultBackBufferWidth &&
 				drawY == GraphicsDeviceManager.DefaultBackBufferHeight	)
 			{
 				Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "0");
 			}
+			else
+			{
+				// Store the full retina resolution of the display
+				RetinaWidth = drawX;
+				RetinaHeight = drawY;
+			}
 
 			// We're done with that temporary GL context.
-			if (OSVersion.Equals("iOS"))
+			if (tempGLContext != IntPtr.Zero)
 			{
 				SDL.SDL_GL_DeleteContext(tempGLContext);
-
-				if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
-				{
-					// Store the full retina resolution of the display
-					RetinaWidth = drawX;
-					RetinaHeight = drawY;
-				}
 			}
 
 			return new FNAWindow(
