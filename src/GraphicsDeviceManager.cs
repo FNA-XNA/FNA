@@ -278,6 +278,10 @@ namespace Microsoft.Xna.Framework
 				PreferredDepthStencilFormat;
 			gdi.PresentationParameters.IsFullScreen =
 				IsFullScreen;
+			gdi.PresentationParameters.PresentationInterval =
+				SynchronizeWithVerticalRetrace ?
+					PresentInterval.One :
+					PresentInterval.Immediate;
 			if (!PreferMultiSampling)
 			{
 				gdi.PresentationParameters.MultiSampleCount = 0;
@@ -318,9 +322,7 @@ namespace Microsoft.Xna.Framework
 
 			// Apply the PresentInterval.
 			FNAPlatform.SetPresentationInterval(
-				SynchronizeWithVerticalRetrace ?
-					gdi.PresentationParameters.PresentationInterval :
-					PresentInterval.Immediate
+				gdi.PresentationParameters.PresentationInterval
 			);
 		}
 
