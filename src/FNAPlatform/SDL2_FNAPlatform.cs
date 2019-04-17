@@ -370,7 +370,7 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_DisableScreenSaver();
 
 			// We hide the mouse cursor by default.
-			SDL.SDL_ShowCursor(0);
+			OnIsMouseVisibleChanged(false);
 
 			/* iOS requires a GL context to get the drawable size
 			 * of the screen, so we create a temporary one here.
