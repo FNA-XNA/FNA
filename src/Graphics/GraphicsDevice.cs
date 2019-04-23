@@ -268,6 +268,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Internal Pipeline Cache
+
+		internal readonly PipelineCache PipelineCache;
+
+		#endregion
+
 		#region Private State Shadowing Variables
 
 		private BlendState currentBlend;
@@ -441,6 +447,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			Viewport = new Viewport(PresentationParameters.Bounds);
 			ScissorRectangle = Viewport.Bounds;
 
+			// Allocate the pipeline cache to be used by Effects
+			PipelineCache = new PipelineCache(this);
 #if WIIU_GAMEPAD
 			wiiuStream = DRC.drc_new_streamer();
 			if (wiiuStream == IntPtr.Zero)

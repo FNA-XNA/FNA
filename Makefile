@@ -203,6 +203,7 @@ SRC = \
 	src/Graphics/PackedVector/Rgba1010102.cs \
 	src/Graphics/PackedVector/Short2.cs \
 	src/Graphics/PackedVector/Short4.cs \
+	src/Graphics/PipelineCache.cs \
 	src/Graphics/PresentationParameters.cs \
 	src/Graphics/PresentInterval.cs \
 	src/Graphics/PrimitiveType.cs \
