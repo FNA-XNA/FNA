@@ -809,10 +809,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			else
 			{
 				// Compat-only, but needed for PSIZE0 accuracy
-				if (!useES3)
-				{
-					glEnable(GLenum.GL_PROGRAM_POINT_SIZE);
-				}
 				glTexEnvi(GLenum.GL_POINT_SPRITE, GLenum.GL_COORD_REPLACE, 1);
 			}
 		}

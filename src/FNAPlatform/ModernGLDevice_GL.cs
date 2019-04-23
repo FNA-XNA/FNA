@@ -55,7 +55,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_DEPTH_TEST =				0x0B71,
 			GL_STENCIL_TEST =			0x0B90,
 			// Points
-			GL_PROGRAM_POINT_SIZE =			0x8642,
 			GL_POINT_SPRITE =			0x8861,
 			GL_COORD_REPLACE =			0x8862,
 			// Polygons
