@@ -360,18 +360,6 @@ namespace Microsoft.Xna.Framework.Media
 
 		#endregion
 
-		#region malloc/free Entry Points
-
-		// Yes, we're seriously using these. -flibit
-
-		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
-		private static extern IntPtr malloc(IntPtr size);
-
-		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
-		private static extern void free(IntPtr memblock);
-
-		#endregion
-
 		#region Private Methods: XNA VideoPlayer Implementation
 
 		private void checkDisposed()
@@ -453,7 +441,7 @@ namespace Microsoft.Xna.Framework.Media
 			// Free the YUV buffer
 			if (yuvData != IntPtr.Zero)
 			{
-				free(yuvData);
+				Marshal.FreeHGlobal(yuvData);
 				yuvData = IntPtr.Zero;
 			}
 
@@ -571,9 +559,9 @@ namespace Microsoft.Xna.Framework.Media
 			// Carve out YUV buffer before doing any decoder work
 			if (yuvData != IntPtr.Zero)
 			{
-				free(yuvData);
+				Marshal.FreeHGlobal(yuvData);
 			}
-			yuvData = malloc((IntPtr) (Video.Width * Video.Height * 2));
+			yuvData = Marshal.AllocHGlobal(Video.Width * Video.Height * 2);
 
 			// Hook up the decoder to this player
 			InitializeTheoraStream();

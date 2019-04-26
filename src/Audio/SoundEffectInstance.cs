@@ -159,13 +159,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region memset Entry Point
-
-		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
-		private static extern IntPtr memset(IntPtr ptr, int value, IntPtr num);
-
-		#endregion
-
 		#region Internal Constructor
 
 		internal SoundEffectInstance(SoundEffect parent = null)
@@ -434,16 +427,21 @@ namespace Microsoft.Xna.Framework.Audio
 			dspSettings.DopplerFactor = 1.0f;
 			dspSettings.SrcChannelCount = srcChannels;
 			dspSettings.DstChannelCount = SoundEffect.Device().DeviceDetails.OutputFormat.Format.nChannels;
-			dspSettings.pMatrixCoefficients = Marshal.AllocHGlobal(
+
+			int memsize = (
 				4 *
 				(int) dspSettings.SrcChannelCount *
 				(int) dspSettings.DstChannelCount
 			);
-			memset(
-				dspSettings.pMatrixCoefficients,
-				'\0',
-				(IntPtr) (4 * dspSettings.SrcChannelCount * dspSettings.DstChannelCount)
-			);
+			dspSettings.pMatrixCoefficients = Marshal.AllocHGlobal(memsize);
+			unsafe
+			{
+				byte* memPtr = (byte*) dspSettings.pMatrixCoefficients;
+				for (int i = 0; i < memsize; i += 1)
+				{
+					memPtr[i] = 0;
+				}
+			}
 			SetPanMatrixCoefficients();
 		}
 

@@ -539,8 +539,21 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region memcpy Export
 
 		/* This is used a lot for GetData/Read calls... -flibit */
+#if NETSTANDARD2_0
+		private static unsafe void memcpy(IntPtr dst, IntPtr src, IntPtr len)
+		{
+			long size = len.ToInt64();
+			Buffer.MemoryCopy(
+				(void*) src,
+				(void*) dst,
+				size,
+				size
+			);
+		}
+#else
 		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void memcpy(IntPtr dst, IntPtr src, IntPtr len);
+#endif
 
 		#endregion
 
