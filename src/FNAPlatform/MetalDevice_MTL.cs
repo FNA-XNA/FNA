@@ -201,19 +201,26 @@ namespace Microsoft.Xna.Framework.Graphics
 			Clear		= 2
 		}
 
+		private enum MTLStoreAction : ulong
+		{
+			DontCare		= 0,
+			Store			= 1,
+			MultisampleResolve	= 2
+		}
+
 		private enum MTLPrimitiveType : ulong
 		{
-			Point			= 0,
-			Line			= 1,
-			LineStrip		= 2,
-			Triangle		= 3,
+			Point		= 0,
+			Line		= 1,
+			LineStrip	= 2,
+			Triangle	= 3,
 			TriangleStrip	= 4
 		}
 
 		private enum MTLIndexType : ulong
 		{
-			ulong16 = 0,
-			ulong32 = 1
+			UInt16 = 0,
+			UInt32 = 1
 		}
 
 		private enum MTLPixelFormat : ulong
@@ -455,6 +462,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private static IntPtr selSetFramebufferOnly = Selector("setFramebufferOnly:");
 		private static IntPtr selSetStorageMode = Selector("setStorageMode:");
+		private static IntPtr selSetResolveTexture = Selector("setResolveTexture:");
+		private static IntPtr selSetStoreAction = Selector("setStoreAction:");
 
 		private static IntPtr selPixelFormat = Selector("pixelFormat");
 
@@ -597,7 +606,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Generic Color Attachment Methods (RenderPass or RenderPipelineState)
+		#region Attachment Methods
 
 		private static IntPtr mtlGetColorAttachment(
 			IntPtr desc,
@@ -615,6 +624,41 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static void mtlSetAttachmentLoadAction(
+			IntPtr attachment,
+			MTLLoadAction loadAction
+		) {
+			objc_msgSend(attachment, selSetLoadAction, (ulong) loadAction);
+		}
+
+		private static void mtlSetAttachmentStoreAction(
+			IntPtr attachment,
+			MTLStoreAction storeAction
+		) {
+			objc_msgSend(attachment, selSetStoreAction, (ulong) storeAction);
+		}
+
+		private static void mtlSetAttachmentTexture(
+			IntPtr attachment,
+			IntPtr texture
+		) {
+			objc_msgSend(attachment, selSetTexture, texture);
+		}
+
+		private static void mtlSetAttachmentPixelFormat(
+			IntPtr attachment,
+			MTLPixelFormat pixelFormat
+		) {
+			objc_msgSend(attachment, selSetPixelFormat, pixelFormat);
+		}
+
+		private static void mtlSetAttachmentResolveTexture(
+			IntPtr attachment,
+			IntPtr resolveTexture
+		) {
+			objc_msgSend(attachment, selSetResolveTexture, resolveTexture);
+		}
+
 		private static void mtlSetColorAttachmentClearColor(
 			IntPtr colorAttachment,
 			float r,
@@ -625,31 +669,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			MTLClearColor clearColor = new MTLClearColor(r, g, b, a);
 			objc_msgSend(colorAttachment, selSetClearColor, clearColor);
 		}
-
-		private static void mtlSetAttachmentLoadAction(
-			IntPtr colorAttachment,
-			MTLLoadAction loadAction
-		) {
-			objc_msgSend(colorAttachment, selSetLoadAction, (ulong) loadAction);
-		}
-
-		private static void mtlSetAttachmentTexture(
-			IntPtr colorAttachment,
-			IntPtr texture
-		) {
-			objc_msgSend(colorAttachment, selSetTexture, texture);
-		}
-
-		private static void mtlSetColorAttachmentPixelFormat(
-			IntPtr colorAttachment,
-			MTLPixelFormat pixelFormat
-		) {
-			objc_msgSend(colorAttachment, selSetPixelFormat, pixelFormat);
-		}
-
-		#endregion
-
-		#region Depth/Stencil Attachments
 
 		private static void mtlSetDepthAttachmentClearDepth(
 			IntPtr depthAttachment,
