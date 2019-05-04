@@ -41,6 +41,8 @@ namespace Microsoft.Xna.Framework
 		private static int RetinaWidth;
 		private static int RetinaHeight;
 
+		private static string forcedGLDevice;
+
 		#endregion
 
 		#region Game Objects
@@ -194,11 +196,28 @@ namespace Microsoft.Xna.Framework
 			return false;
 		}
 
+		private static bool PrepareMTLAttributes()
+		{
+			if (!String.IsNullOrEmpty(forcedGLDevice) && !forcedGLDevice.Equals("MetalDevice"))
+			{
+				return false;
+			}
+
+			return OSVersion.Equals("Mac OS X") || OSVersion.Equals("iOS") || OSVersion.Equals("tvOS");
+		}
+
 		private static bool PrepareGLAttributes()
 		{
 			/* TODO: For platforms not using OpenGL (Vulkan/Metal),
 			 * return false to avoid OpenGL WSI calls.
 			 */
+
+			if (	!String.IsNullOrEmpty(forcedGLDevice)
+				&& !forcedGLDevice.Equals("OpenGLDevice")
+				&& !forcedGLDevice.Equals("ModernGLDevice")	)
+			{
+				return false;
+			}
 
 			// GLContext environment variables
 			bool forceES3 = Environment.GetEnvironmentVariable(
@@ -330,10 +349,17 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
 			);
 
-			bool vulkan = false, opengl = false;
+			forcedGLDevice = Environment.GetEnvironmentVariable("FNA_GRAPHICS_FORCE_GLDEVICE");
+
+			bool vulkan = false, metal = false, opengl = false;
 			if (vulkan = PrepareVKAttributes())
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN;
+			}
+			else if (metal = PrepareMTLAttributes())
+			{
+				// FIXME: Replace this with a proper window flag
+				SDL.SDL_SetHint(SDL.SDL_HINT_RENDER_DRIVER, "metal");
 			}
 			else if (opengl = PrepareGLAttributes())
 			{
@@ -372,14 +398,19 @@ namespace Microsoft.Xna.Framework
 			// We hide the mouse cursor by default.
 			OnIsMouseVisibleChanged(false);
 
-			/* iOS requires a GL context to get the drawable size
-			 * of the screen, so we create a temporary one here.
-			 * -caleb
-			 */
-			IntPtr tempGLContext = IntPtr.Zero;
-			if (OSVersion.Equals("iOS"))
+			// FIXME: Remove this if/when SDL2 gets real Metal support!
+			if (metal)
 			{
-				tempGLContext = SDL.SDL_GL_CreateContext(window);
+				IntPtr renderer = SDL.SDL_CreateRenderer(
+					window,
+					-1,
+					SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC
+				);
+
+				// Keep a reference to the metal layer for CreateGLDevice()
+				metalLayer = SDL.SDL_RenderGetMetalLayer(renderer);
+
+				SDL.SDL_DestroyRenderer(renderer);
 			}
 
 			/* If high DPI is not found, unset the HIGHDPI var.
@@ -391,13 +422,19 @@ namespace Microsoft.Xna.Framework
 			{
 				SDL.SDL_Vulkan_GetDrawableSize(window, out drawX, out drawY);
 			}
+			else if (metal)
+			{
+				// FIXME: Add the GetDrawableSize call
+				drawX = 0;
+				drawY = 0;
+			}
 			else if (opengl)
 			{
 				SDL.SDL_GL_GetDrawableSize(window, out drawX, out drawY);
 			}
 			else
 			{
-				throw new InvalidOperationException("Metal? Glide? What?");
+				throw new InvalidOperationException("DirectX? Glide? What?");
 			}
 			if (	drawX == GraphicsDeviceManager.DefaultBackBufferWidth &&
 				drawY == GraphicsDeviceManager.DefaultBackBufferHeight	)
@@ -409,12 +446,6 @@ namespace Microsoft.Xna.Framework
 				// Store the full retina resolution of the display
 				RetinaWidth = drawX;
 				RetinaHeight = drawY;
-			}
-
-			// We're done with that temporary GL context.
-			if (tempGLContext != IntPtr.Zero)
-			{
-				SDL.SDL_GL_DeleteContext(tempGLContext);
 			}
 
 			return new FNAWindow(
@@ -1141,14 +1172,25 @@ namespace Microsoft.Xna.Framework
 			PresentationParameters presentationParameters,
 			GraphicsAdapter adapter
 		) {
+			if (forcedGLDevice == "MetalDevice")
+			{
+				return new MetalDevice(
+					presentationParameters,
+					adapter,
+					metalLayer
+				);
+			}
+
 			// This loads the OpenGL entry points.
-			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_FORCE_GLDEVICE") == "ModernGLDevice")
+			if (forcedGLDevice == "ModernGLDevice")
 			{
 				// FIXME: This is still experimental! -flibit
 				return new ModernGLDevice(presentationParameters, adapter);
 			}
 			return new OpenGLDevice(presentationParameters, adapter);
 		}
+
+		private static IntPtr metalLayer = IntPtr.Zero;
 
 		#endregion
 
