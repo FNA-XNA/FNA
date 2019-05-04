@@ -181,6 +181,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
+			public MTLResourceStorageMode StorageMode
+			{
+				set
+				{
+					mtlSetStorageMode(handle, value);
+				}
+			}
+
 			public TextureDescriptor(IntPtr mtlDevice)
 			{
 				this.mtlDevice = mtlDevice;
@@ -201,6 +209,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				Height = 1;
 				SampleCount = 1;
 				Usage = MTLTextureUsage.ShaderRead;
+				if (SDL.SDL_GetPlatform().Equals("Mac OS X"))
+				{
+					// macOS does not support Shared texture storage
+					StorageMode = MTLResourceStorageMode.Managed;
+				}
+				else
+				{
+					StorageMode = MTLResourceStorageMode.Shared;
+				}
 			}
 
 			public IntPtr GenTexture()
@@ -341,6 +358,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr queue;			// MTLCommandQueue*
 		private IntPtr commandBuffer;		// MTLCommandBuffer*
 		private IntPtr renderCommandEncoder;	// MTLRenderCommandEncoder*
+
+		private IntPtr currentColorBuffer = IntPtr.Zero;
+		private IntPtr currentDepthStencilBuffer = IntPtr.Zero;
+
+		#endregion
+
+		#region Objective-C Memory Management
 
 		private IntPtr pool;			// NSAutoreleasePool*
 
@@ -530,7 +554,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr blitEncoder = mtlMakeBlitCommandEncoder(commandBuffer);
 			mtlBlitTextureToTexture(
 				blitEncoder,
-				(Backbuffer as MetalBackbuffer).Texture,
+				(Backbuffer as MetalBackbuffer).ColorBuffer,
 				0,
 				0,
 				new MTLOrigin(0, 0, 0),
@@ -928,11 +952,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (!color.Equals(currentClearColor))
 				{
 					IntPtr colorAttachment = mtlGetColorAttachment(pass, 0);
-					mtlSetColorAttachmentTexture(
+					mtlSetAttachmentTexture(
 						colorAttachment,
-						(Backbuffer as MetalBackbuffer).Texture
+						currentColorBuffer
 					);
-					mtlSetColorAttachmentLoadAction(
+					mtlSetAttachmentLoadAction(
 						colorAttachment,
 						MTLLoadAction.Clear
 					);
@@ -951,8 +975,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (!depth.Equals(currentClearDepth))
 				{
 					IntPtr depthAttachment = mtlGetDepthAttachment(pass);
-					// FIXME: Set texture for attachment
-					// FIXME: Set load action for attachment
+					mtlSetAttachmentTexture(
+						depthAttachment,
+						currentDepthStencilBuffer
+					);
+					mtlSetAttachmentLoadAction(
+						depthAttachment,
+						MTLLoadAction.Clear
+					);
 					mtlSetDepthAttachmentClearDepth(
 						depthAttachment,
 						depth
@@ -965,8 +995,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (stencil != currentClearStencil)
 				{
 					IntPtr stencilAttachment = mtlGetStencilAttachment(pass);
-					// FIXME: Set texture for attachment
-					// FIXME: Set load action for attachment
+						mtlSetAttachmentTexture(
+						stencilAttachment,
+						currentDepthStencilBuffer
+					);
+					mtlSetAttachmentLoadAction(
+						stencilAttachment,
+						MTLLoadAction.Clear
+					);
 					mtlSetStencilAttachmentClearStencil(
 						stencilAttachment,
 						stencil
@@ -1074,6 +1110,19 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLPixelFormat.RGBA16Float,		// SurfaceFormat.HdrBlendable
 				MTLPixelFormat.BGRA8Unorm		// SurfaceFormat.ColorBgraEXT
 			};
+
+			public static readonly MTLPixelFormat[] DepthStorage = new MTLPixelFormat[]
+			{
+				/* FIXME: DepthFloat32 is the only cross-platform depth format
+				 * in Metal. Maybe we should check for feature set support so
+				 * that we could use Depth24UnormStencil8 and Depth16Unorm.
+				 */
+
+				MTLPixelFormat.Invalid,			// NOPE
+				MTLPixelFormat.Depth32Float,		// DepthFormat.Depth16
+				MTLPixelFormat.Depth32Float,		// DepthFormat.Depth24
+				MTLPixelFormat.Depth32Float_Stencil8	// DepthFormat.Depth24Stencil8
+			};
 		}
 
 		#endregion
@@ -1106,7 +1155,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public IntPtr Texture;
+			public IntPtr ColorBuffer;
+			public IntPtr DepthStencilBuffer;
 			
 			private MetalDevice mtlDevice;
 
@@ -1131,17 +1181,39 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlDevice.textureDescriptor.Usage = MTLTextureUsage.RenderTarget;
 				if (multiSampleCount > 0)
 				{
+					mtlDevice.textureDescriptor.StorageMode = MTLResourceStorageMode.Private;
 					mtlDevice.textureDescriptor.TextureType = MTLTextureType.Multisample2D;
 					mtlDevice.textureDescriptor.SampleCount = multiSampleCount;
 				}
-				Texture = mtlDevice.textureDescriptor.GenTexture();
+				ColorBuffer = mtlDevice.textureDescriptor.GenTexture();
+
+				if (depthFormat == DepthFormat.None)
+				{
+					// Don't bother creating a depth/stencil buffer.
+					DepthStencilBuffer = IntPtr.Zero;
+					mtlDevice.textureDescriptor.Reset();
+					return;
+				}
+
+				// Create the depth/stencil buffer
+				mtlDevice.textureDescriptor.PixelFormat = XNAToMTL.DepthStorage[(int) depthFormat];
+				mtlDevice.textureDescriptor.StorageMode = MTLResourceStorageMode.Private;
+				DepthStencilBuffer = mtlDevice.textureDescriptor.GenTexture();
+
 				mtlDevice.textureDescriptor.Reset();
+
+				// This backbuffer is the initial render target
+				mtlDevice.currentColorBuffer = ColorBuffer;
+				mtlDevice.currentDepthStencilBuffer = DepthStencilBuffer;
 			}
 
 			public void Dispose()
 			{
-				ObjCRelease(Texture);
-				Texture = IntPtr.Zero;
+				ObjCRelease(ColorBuffer);
+				ColorBuffer = IntPtr.Zero;
+
+				ObjCRelease(DepthStencilBuffer);
+				DepthStencilBuffer = IntPtr.Zero;
 			}
 
 			public void ResetFramebuffer(
@@ -1154,22 +1226,46 @@ namespace Microsoft.Xna.Framework.Graphics
 				DepthFormat = presentationParameters.DepthStencilFormat;
 				MultiSampleCount = presentationParameters.MultiSampleCount;
 
-				// Release the existing texture
-				ObjCRelease(Texture);
-				Texture = IntPtr.Zero;
+				// Release the existing color buffer
+				ObjCRelease(ColorBuffer);
+				ColorBuffer = IntPtr.Zero;
 
-				// Update texture to the new resolution.
+				// Release the depth/stencil buffer, if applicable
+				if (DepthStencilBuffer != IntPtr.Zero)
+				{
+					ObjCRelease(DepthStencilBuffer);
+					DepthStencilBuffer = IntPtr.Zero;
+				}
+
+				// Update color buffer to the new resolution.
 				mtlDevice.textureDescriptor.PixelFormat = mtlGetLayerPixelFormat(mtlDevice.layer);
 				mtlDevice.textureDescriptor.Width = Width;
 				mtlDevice.textureDescriptor.Height = Height;
 				mtlDevice.textureDescriptor.Usage = MTLTextureUsage.RenderTarget;
 				if (MultiSampleCount > 0)
 				{
+					mtlDevice.textureDescriptor.StorageMode = MTLResourceStorageMode.Private;
 					mtlDevice.textureDescriptor.TextureType = MTLTextureType.Multisample2D;
 					mtlDevice.textureDescriptor.SampleCount = MultiSampleCount;
 				}
-				Texture = mtlDevice.textureDescriptor.GenTexture();
+				ColorBuffer = mtlDevice.textureDescriptor.GenTexture();
+
+				// Update the depth/stencil buffer, if applicable
+				if (DepthFormat != DepthFormat.None)
+				{
+					mtlDevice.textureDescriptor.PixelFormat = XNAToMTL.DepthStorage[(int) DepthFormat];
+					mtlDevice.textureDescriptor.StorageMode = MTLResourceStorageMode.Private;
+					DepthStencilBuffer = mtlDevice.textureDescriptor.GenTexture();
+				}
+
 				mtlDevice.textureDescriptor.Reset();
+
+				// If we don't already have a render target, treat this as the render target.
+				if (!renderTargetBound)
+				{
+					mtlDevice.currentColorBuffer = ColorBuffer;
+					mtlDevice.currentDepthStencilBuffer = DepthStencilBuffer;
+				}
 			}
 		}
 

@@ -266,6 +266,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			Multisample2D = 4
 		}
 
+		private enum MTLResourceStorageMode
+		{
+			Shared = 0,
+			Managed = 1, /* macOS only */
+			Private = 2
+		}
+
 		#endregion
 
 		#region Private MTL Structs
@@ -447,6 +454,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetClearStencil = Selector("setClearStencil:");
 
 		private static IntPtr selSetFramebufferOnly = Selector("setFramebufferOnly:");
+		private static IntPtr selSetStorageMode = Selector("setStorageMode:");
 
 		private static IntPtr selPixelFormat = Selector("pixelFormat");
 
@@ -618,14 +626,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(colorAttachment, selSetClearColor, clearColor);
 		}
 
-		private static void mtlSetColorAttachmentLoadAction(
+		private static void mtlSetAttachmentLoadAction(
 			IntPtr colorAttachment,
 			MTLLoadAction loadAction
 		) {
 			objc_msgSend(colorAttachment, selSetLoadAction, (ulong) loadAction);
 		}
 
-		private static void mtlSetColorAttachmentTexture(
+		private static void mtlSetAttachmentTexture(
 			IntPtr colorAttachment,
 			IntPtr texture
 		) {
@@ -957,6 +965,17 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new Exception("Metal Error: " + GetNSErrorDescription(error));
 			}
 			return pipeline;
+		}
+
+		#endregion
+
+		#region Storage Modes
+
+		private static void mtlSetStorageMode(
+			IntPtr resource,
+			MTLResourceStorageMode mode
+		) {
+			objc_msgSend(resource, selSetStorageMode, (ulong) mode);
 		}
 
 		#endregion
