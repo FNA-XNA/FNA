@@ -1174,7 +1174,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				DepthFormat = depthFormat;
 				MultiSampleCount = multiSampleCount;
 
-				// Generate the backing texture
+				// Generate the color buffer
 				mtlDevice.textureDescriptor.PixelFormat = mtlGetLayerPixelFormat(mtlDevice.layer);
 				mtlDevice.textureDescriptor.Width = Width;
 				mtlDevice.textureDescriptor.Height = Height;
@@ -1191,15 +1191,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					// Don't bother creating a depth/stencil buffer.
 					DepthStencilBuffer = IntPtr.Zero;
-					mtlDevice.textureDescriptor.Reset();
-					return;
+				}
+				else
+				{
+					// Create the depth/stencil buffer
+					mtlDevice.textureDescriptor.PixelFormat = XNAToMTL.DepthStorage[(int) depthFormat];
+					mtlDevice.textureDescriptor.StorageMode = MTLResourceStorageMode.Private;
+					DepthStencilBuffer = mtlDevice.textureDescriptor.GenTexture();
 				}
 
-				// Create the depth/stencil buffer
-				mtlDevice.textureDescriptor.PixelFormat = XNAToMTL.DepthStorage[(int) depthFormat];
-				mtlDevice.textureDescriptor.StorageMode = MTLResourceStorageMode.Private;
-				DepthStencilBuffer = mtlDevice.textureDescriptor.GenTexture();
-
+				// Clean up
 				mtlDevice.textureDescriptor.Reset();
 
 				// This backbuffer is the initial render target
