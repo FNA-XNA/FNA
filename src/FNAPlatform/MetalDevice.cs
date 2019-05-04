@@ -358,6 +358,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr queue;			// MTLCommandQueue*
 		private IntPtr commandBuffer;		// MTLCommandBuffer*
 		private IntPtr renderCommandEncoder;	// MTLRenderCommandEncoder*
+		private IntPtr currentDrawable;		// CAMetalDrawable*
 
 		private IntPtr currentColorBuffer = IntPtr.Zero;
 		private IntPtr currentDepthStencilBuffer = IntPtr.Zero;
@@ -467,6 +468,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			// FIXME: Replace this with SDL_MTL_GetMetalLayer() or equivalent
 			layer = metalLayer;
 
+			// Get a reference to the drawable for this frame
+			currentDrawable = mtlNextDrawable(layer);
+
 			// Reuse the same descriptor for each generated texture
 			textureDescriptor = new TextureDescriptor(device);
 
@@ -546,37 +550,79 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SwapBuffers(Rectangle? sourceRectangle, Rectangle? destinationRectangle, IntPtr overrideWindowHandle)
 		{
+			// We're done rendering the frame!
 			mtlEndEncoding(renderCommandEncoder);
 
-			IntPtr nextDrawable = mtlNextDrawable(layer);
-			IntPtr drawableTexture = mtlGetTextureFromDrawable(nextDrawable);
+			IntPtr colorBuffer = (Backbuffer as MetalBackbuffer).ColorBuffer;
 
+			// Do one final pass to set the MSAA resolve texture, if applicable
+			if (Backbuffer.MultiSampleCount > 0)
+			{
+				// Generate temp texture for resolving the actual backbuffer
+				textureDescriptor.PixelFormat = mtlGetLayerPixelFormat(layer);
+				textureDescriptor.Width = Backbuffer.Width;
+				textureDescriptor.Height = Backbuffer.Height;
+				textureDescriptor.Usage = MTLTextureUsage.RenderTarget;
+				colorBuffer = textureDescriptor.GenTexture();
+				textureDescriptor.Reset();
+
+				// Describe the pass
+				IntPtr resolvePass = mtlMakeRenderPassDescriptor();
+				IntPtr colorAttachment = mtlGetColorAttachment(resolvePass, 0);
+				mtlSetAttachmentTexture(
+					colorAttachment,
+					(Backbuffer as MetalBackbuffer).ColorBuffer
+				);
+				mtlSetAttachmentResolveTexture(
+					colorAttachment,
+					colorBuffer
+				);
+				mtlSetAttachmentStoreAction(
+					colorAttachment,
+					MTLStoreAction.MultisampleResolve
+				);
+
+				// Perform the pass
+				renderCommandEncoder = mtlMakeRenderCommandEncoder(
+					commandBuffer,
+					resolvePass
+				);
+				mtlEndEncoding(renderCommandEncoder);
+			}
+
+			// Blit the faux-backbuffer to the real backbuffer
+			// FIXME: What should we do with depth/stencil?
+			MTLOrigin topLeft = new MTLOrigin(0, 0, 0);
+			MTLSize backbufferSize = new MTLSize(
+				(ulong) Backbuffer.Width,
+				(ulong) Backbuffer.Height,
+				1
+			);
 			IntPtr blitEncoder = mtlMakeBlitCommandEncoder(commandBuffer);
 			mtlBlitTextureToTexture(
 				blitEncoder,
-				(Backbuffer as MetalBackbuffer).ColorBuffer,
+				colorBuffer,
 				0,
 				0,
-				new MTLOrigin(0, 0, 0),
-				new MTLSize(
-					(ulong) Backbuffer.Width,
-					(ulong) Backbuffer.Height,
-					1
-				),
-				drawableTexture,
+				topLeft,
+				backbufferSize,
+				mtlGetTextureFromDrawable(currentDrawable),
 				0,
 				0,
-				new MTLOrigin(0, 0, 0)
+				topLeft
 			);
 			mtlEndEncoding(blitEncoder);
 
-			mtlPresentDrawable(commandBuffer, nextDrawable);
+			mtlPresentDrawable(commandBuffer, currentDrawable);
 			mtlCommitCommandBuffer(commandBuffer);
 
+			// Release allocations from this frame
 			DrainAutoreleasePool(pool);
-			pool = StartAutoreleasePool();
 
+			// The cycle begins anew...
+			pool = StartAutoreleasePool();
 			commandBuffer = mtlMakeCommandBuffer(queue);
+			currentDrawable = mtlNextDrawable(layer);
 
 			IntPtr pass = mtlMakeRenderPassDescriptor();
 			// FIXME: Set render pass info (e.g. render targets)
@@ -1259,6 +1305,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					DepthStencilBuffer = mtlDevice.textureDescriptor.GenTexture();
 				}
 
+				// Clean up
 				mtlDevice.textureDescriptor.Reset();
 
 				// If we don't already have a render target, treat this as the render target.
