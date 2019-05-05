@@ -54,10 +54,19 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
-		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, MTLPixelFormat arg);
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, ulong arg2);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, ulong arg2, ulong arg3);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg1, ulong arg2, ulong arg3);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, bool arg);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, double arg);
@@ -95,6 +104,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, string arg);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -106,6 +118,15 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, IntPtr arg2);
 
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, IntPtr arg2, IntPtr arg3);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, out IntPtr arg2);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, IntPtr arg2, out IntPtr arg3);
+
 		// ulong
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -116,7 +137,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
 
-		// Other
+		// CGSize
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern CGSize cgsize_objc_msgSend(IntPtr receiver, IntPtr selector);
+
+		// Utilities
 
 		[DllImport(objcLibrary)]
 		private static extern IntPtr objc_getClass(string name);
@@ -396,6 +422,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		[StructLayout(LayoutKind.Sequential, Pack = 1)]
+		private struct CGSize
+		{
+			public double width;
+			public double height;
+		}
+
 		#endregion
 
 		#region Selectors
@@ -444,6 +477,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetFragmentFunction = Selector("setFragmentFunction:");
 		private static IntPtr selSetVertexDescriptor = Selector("setVertexDescriptor:");
 		private static IntPtr selNewRenderPipelineState = Selector("newRenderPipelineStateWithDescriptor:error:");
+		private static IntPtr selSetRenderPipelineState = Selector("setRenderPipelineState:");
+		private static IntPtr selSetVertexBuffer = Selector("setVertexBuffer:offset:atIndex:");
+		private static IntPtr selSetFragmentTexture = Selector("setFragmentTexture:atIndex:");
 
 		private static IntPtr selSetStencilReference = Selector("setStencilReferenceValue:");
 
@@ -466,7 +502,18 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetStoreAction = Selector("setStoreAction:");
 
 		private static IntPtr selPixelFormat = Selector("pixelFormat");
+		private static IntPtr selDrawableSize = Selector("drawableSize");
 
+		private static IntPtr selNewLibraryWithSource = Selector("newLibraryWithSource:options:error:");
+		private static IntPtr selNewFunctionWithName = Selector("newFunctionWithName:");
+
+		private static IntPtr selNewSamplerStateWithDescriptor = Selector("newSamplerStateWithDescriptor:");
+		private static IntPtr selSetMinFilter = Selector("setMinFilter:");
+		private static IntPtr selSetMagFilter = Selector("setMagFilter:");
+		private static IntPtr selSetFragmentSamplerState = Selector("setFragmentSamplerState:atIndex:");
+		private static IntPtr selSetNormalizedCoordinates = Selector("setNormalizedCoordinates:");
+
+		private static IntPtr selAlloc = Selector("alloc");
 		private static IntPtr selNew = Selector("new");
 		private static IntPtr selRelease = Selector("release");
 		private static IntPtr selRetain = Selector("retain");
@@ -480,16 +527,29 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr classRenderPassDescriptor = objc_getClass("MTLRenderPassDescriptor");
 		private static IntPtr classRenderPipelineDescriptor = objc_getClass("MTLRenderPipelineDescriptor");
 		private static IntPtr classNSAutoreleasePool = objc_getClass("NSAutoreleasePool");
+		private static IntPtr classMTLSamplerDescriptor = objc_getClass("MTLSamplerDescriptor");
 
 		#endregion
 
-		#region NSString -> C# String
+		#region NSString <-> C# String
 
 		private static IntPtr selUtf8 = Selector("UTF8String");
+		private static IntPtr selInitWithUtf8 = Selector("initWithUTF8String:");
+		private static IntPtr classNSString = objc_getClass("NSString");
+
 		private static string NSStringToUTF8(IntPtr nsstr)
 		{
 			return Marshal.PtrToStringAnsi(
 				intptr_objc_msgSend(nsstr, selUtf8)
+			);
+		}
+
+		private static IntPtr UTF8ToNSString(string str)
+		{
+			return intptr_objc_msgSend(
+				intptr_objc_msgSend(classNSString, selAlloc),
+				selInitWithUtf8,
+				str
 			);
 		}
 
@@ -552,6 +612,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				device,
 				selNewTextureWithDescriptor,
 				texDesc
+			);
+		}
+
+		private static IntPtr mtlNewSamplerStateWithDescriptor(IntPtr device, IntPtr sampDesc)
+		{
+			return intptr_objc_msgSend(
+				device,
+				selNewSamplerStateWithDescriptor,
+				sampDesc
 			);
 		}
 
@@ -649,7 +718,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr attachment,
 			MTLPixelFormat pixelFormat
 		) {
-			objc_msgSend(attachment, selSetPixelFormat, pixelFormat);
+			objc_msgSend(attachment, selSetPixelFormat, (ulong) pixelFormat);
 		}
 
 		private static void mtlSetAttachmentResolveTexture(
@@ -764,15 +833,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			int baseVertex,
 			ulong baseInstance
 		) {
-			Console.WriteLine("Encoder: " + renderCommandEncoder);
-			Console.WriteLine("Primitive Type: " + primitiveType);
-			Console.WriteLine("indexCount: " + indexCount);
-			Console.WriteLine("indexType: " + indexType);
-			Console.WriteLine("index buffer: " + indexBuffer);
-			Console.WriteLine("index buffer offset: " + indexBufferOffset);
-			Console.WriteLine("instanceCount: " + instanceCount);
-			Console.WriteLine("base vertex: " + baseVertex);
-			Console.WriteLine("baseInstance: " + baseInstance);
+			// Console.WriteLine("Encoder: " + renderCommandEncoder);
+			// Console.WriteLine("Primitive Type: " + primitiveType);
+			// Console.WriteLine("indexCount: " + indexCount);
+			// Console.WriteLine("indexType: " + indexType);
+			// Console.WriteLine("index buffer: " + indexBuffer);
+			// Console.WriteLine("index buffer offset: " + indexBufferOffset);
+			// Console.WriteLine("instanceCount: " + instanceCount);
+			// Console.WriteLine("base vertex: " + baseVertex);
+			// Console.WriteLine("baseInstance: " + baseInstance);
 			objc_msgSend(
 				renderCommandEncoder,
 				selDrawIndexedPrimitives,
@@ -799,6 +868,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static MTLPixelFormat mtlGetLayerPixelFormat(IntPtr layer)
 		{
 			return (MTLPixelFormat) ulong_objc_msgSend(layer, selPixelFormat);
+		}
+
+		private static CGSize mtlGetDrawableSize(IntPtr layer)
+		{
+			return (CGSize) cgsize_objc_msgSend(layer, selDrawableSize);
 		}
 
 		#endregion
@@ -862,7 +936,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr texDesc,
 			MTLPixelFormat format
 		) {
-			objc_msgSend(texDesc, selSetPixelFormat, format);
+			objc_msgSend(texDesc, selSetPixelFormat, (ulong) format);
 		}
 
 		private static void mtlSetTextureWidth(
@@ -978,12 +1052,95 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr pipelineDescriptor
 		) {
 			IntPtr error = IntPtr.Zero;
-			IntPtr pipeline = intptr_objc_msgSend(device, selNewRenderPipelineState, pipelineDescriptor, error);
+			IntPtr pipeline = intptr_objc_msgSend(
+				device,
+				selNewRenderPipelineState,
+				pipelineDescriptor,
+				out error
+			);
 			if (error != IntPtr.Zero)
 			{
 				throw new Exception("Metal Error: " + GetNSErrorDescription(error));
 			}
 			return pipeline;
+		}
+
+		private static void mtlSetRenderPipelineState(
+			IntPtr renderCommandEncoder,
+			IntPtr pipelineState
+		) {
+			objc_msgSend(renderCommandEncoder, selSetRenderPipelineState, pipelineState);
+		}
+
+		private static void mtlSetVertexBuffer(
+			IntPtr renderCommandEncoder,
+			IntPtr vertexBuffer,
+			ulong offset,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetVertexBuffer,
+				vertexBuffer,
+				offset,
+				index
+			);
+		}
+
+		private static void mtlSetFragmentTexture(
+			IntPtr renderCommandEncoder,
+			IntPtr fragmentTexture,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetFragmentTexture,
+				fragmentTexture,
+				index
+			);
+		}
+
+		private static void mtlSetFragmentSamplerState(
+			IntPtr renderCommandEncoder,
+			IntPtr samplerState,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetFragmentSamplerState,
+				samplerState,
+				index
+			);
+		}
+
+		#endregion
+
+		#region Sampler Descriptor
+
+		private static IntPtr mtlNewSamplerDescriptor()
+		{
+			return intptr_objc_msgSend(classMTLSamplerDescriptor, selNew);
+		}
+
+		private static void mtlSetSamplerMinFilter(
+			IntPtr samplerDesc,
+			MTLSamplerMinMagFilter filter
+		) {
+			objc_msgSend(samplerDesc, selSetMinFilter, (uint) filter);
+		}
+
+		private static void mtlSetSamplerMagFilter(
+			IntPtr samplerDesc,
+			MTLSamplerMinMagFilter filter
+		) {
+			objc_msgSend(samplerDesc, selSetMagFilter, (uint) filter);
+		}
+
+		private static void mtlSetSamplerNormalizedCoordinates(
+			IntPtr samplerDesc,
+			bool normalized
+		) {
+			objc_msgSend(samplerDesc, selSetNormalizedCoordinates, normalized);
 		}
 
 		#endregion
@@ -995,6 +1152,41 @@ namespace Microsoft.Xna.Framework.Graphics
 			MTLResourceStorageMode mode
 		) {
 			objc_msgSend(resource, selSetStorageMode, (ulong) mode);
+		}
+
+		#endregion
+
+		#region MTLLibrary
+
+		private static IntPtr mtlNewLibraryWithSource(
+			IntPtr device,
+			IntPtr shaderSourceNSString,
+			IntPtr compileOptions
+		) {
+			IntPtr error = IntPtr.Zero;
+			IntPtr library = intptr_objc_msgSend(
+				device,
+				selNewLibraryWithSource,
+				shaderSourceNSString,
+				compileOptions,
+				out error
+			);
+			if (error != IntPtr.Zero)
+			{
+				throw new Exception("Metal Error: " + GetNSErrorDescription(error));
+			}
+			return library;
+		}
+
+		private static IntPtr mtlNewFunctionWithName(
+			IntPtr library,
+			IntPtr shaderNameNSString
+		) {
+			return intptr_objc_msgSend(
+				library,
+				selNewFunctionWithName,
+				shaderNameNSString
+			);
 		}
 
 		#endregion

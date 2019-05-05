@@ -425,9 +425,8 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal)
 			{
-				// FIXME: Add the GetDrawableSize call
-				drawX = 0;
-				drawY = 0;
+				// FIXME: It'd be nice if this was an SDL2 function...
+				MetalDevice.MTL_GetDrawableSize(metalLayer, out drawX, out drawY);
 			}
 			else if (opengl)
 			{
