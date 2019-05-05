@@ -128,6 +128,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Texture Descriptor Container Class
 
+		// FIXME: We could probably remove this class
 		private class TextureDescriptor
 		{
 			private IntPtr handle;
@@ -360,8 +361,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr renderCommandEncoder;	// MTLRenderCommandEncoder*
 		private IntPtr currentDrawable;		// CAMetalDrawable*
 
-		private IntPtr currentColorBuffer = IntPtr.Zero;
-		private IntPtr currentDepthStencilBuffer = IntPtr.Zero;
+		private IntPtr currentColorBuffer;	// MTLTexture*
+		private IntPtr currentDepthStencilBuffer; // MTLTexture*
 
 		#endregion
 
@@ -667,7 +668,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					fauxBackbufferRenderPipeline
 				);
 
-				// Retrieve vertex buffer from cache
+				// Update cached vertex buffer if needed
 				Rectangle dstBounds = new Rectangle(dstX, dstY, dstW, dstH);
 				if (fauxBackbufferDestBounds != dstBounds)
 				{
@@ -836,7 +837,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else if (interval == PresentInterval.Two)
 			{
-				/* FIXME: Enable vsync. Only draw buffer every other frame. */
+				// FIXME: Enable vsync. Only draw buffer every other frame.
 			}
 			else
 			{
