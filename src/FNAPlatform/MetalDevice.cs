@@ -365,7 +365,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Objective-C Memory Management
+		#region Objective-C Memory Management Variables
 
 		private IntPtr pool;			// NSAutoreleasePool*
 
@@ -380,6 +380,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		private MTLSamplerMinMagFilter backbufferScaleMode;
+
+		// Cached data for rendering the faux-backbuffer
+		private Rectangle fauxBackbufferDestBounds;
+		private IntPtr fauxBackbufferVertexBuffer;
+		private IntPtr fauxBackbufferIndexBuffer;
+		private IntPtr fauxBackbufferRenderPipeline;
+		private IntPtr fauxBackbufferSamplerState;
 
 		#endregion
 
@@ -491,14 +498,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			MaxTextureSlots = 16;
 			MaxMultiSampleCount = mtlSupportsSampleCount(device, 8) ? 8 : 4;
 
-			// Initialize the faux-backbuffer
-			Backbuffer = new MetalBackbuffer(
-				this,
-				presentationParameters.BackBufferWidth,
-				presentationParameters.BackBufferHeight,
-				presentationParameters.DepthStencilFormat,
-				presentationParameters.MultiSampleCount
-			);
+			// Create and setup the faux-backbuffer
+			InitializeFauxBackbuffer(presentationParameters);
 
 			// Begin the autorelease pool
 			pool = StartAutoreleasePool();
@@ -553,9 +554,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			// We're done rendering the frame!
 			mtlEndEncoding(renderCommandEncoder);
 
-			IntPtr colorBuffer = (Backbuffer as MetalBackbuffer).ColorBuffer;
-
 			// Do one final pass to set the MSAA resolve texture, if applicable
+			IntPtr colorBuffer = (Backbuffer as MetalBackbuffer).ColorBuffer;
 			if (Backbuffer.MultiSampleCount > 0)
 			{
 				// Generate temp texture for resolving the actual backbuffer
@@ -590,28 +590,143 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlEndEncoding(renderCommandEncoder);
 			}
 
-			// Blit the faux-backbuffer to the real backbuffer
-			// FIXME: What should we do with depth/stencil?
-			MTLOrigin topLeft = new MTLOrigin(0, 0, 0);
-			MTLSize backbufferSize = new MTLSize(
-				(ulong) Backbuffer.Width,
-				(ulong) Backbuffer.Height,
-				1
-			);
-			IntPtr blitEncoder = mtlMakeBlitCommandEncoder(commandBuffer);
-			mtlBlitTextureToTexture(
-				blitEncoder,
-				colorBuffer,
-				0,
-				0,
-				topLeft,
-				backbufferSize,
-				mtlGetTextureFromDrawable(currentDrawable),
-				0,
-				0,
-				topLeft
-			);
-			mtlEndEncoding(blitEncoder);
+			// Determine the regions to present
+			int srcX, srcY, srcW, srcH;
+			int dstX, dstY, dstW, dstH;
+			if (sourceRectangle.HasValue)
+			{
+				srcX = sourceRectangle.Value.X;
+				srcY = sourceRectangle.Value.Y;
+				srcW = sourceRectangle.Value.Width;
+				srcH = sourceRectangle.Value.Height;
+			}
+			else
+			{
+				srcX = 0;
+				srcY = 0;
+				srcW = Backbuffer.Width;
+				srcH = Backbuffer.Height;
+			}
+			if (destinationRectangle.HasValue)
+			{
+				dstX = destinationRectangle.Value.X;
+				dstY = destinationRectangle.Value.Y;
+				dstW = destinationRectangle.Value.Width;
+				dstH = destinationRectangle.Value.Height;
+			}
+			else
+			{
+				dstX = 0;
+				dstY = 0;
+				MTL_GetDrawableSize(layer, out dstW, out dstH);
+			}
+
+			if (srcW == dstW && srcH == dstH)
+			{
+				// Blit the faux-backbuffer to the real backbuffer
+				// FIXME: What should we do with depth/stencil?
+				MTLOrigin srcOrigin = new MTLOrigin((ulong) srcX, (ulong) srcY, 0);
+				MTLOrigin dstOrigin = new MTLOrigin((ulong) dstX, (ulong) dstY, 0);
+				MTLSize rectSize = new MTLSize((ulong) srcW, (ulong) srcH, 1);
+				IntPtr blitEncoder = mtlMakeBlitCommandEncoder(commandBuffer);
+				mtlBlitTextureToTexture(
+					blitEncoder,
+					colorBuffer,
+					0,
+					0,
+					srcOrigin,
+					rectSize,
+					mtlGetTextureFromDrawable(currentDrawable),
+					0,
+					0,
+					dstOrigin
+				);
+				mtlEndEncoding(blitEncoder);
+			}
+			else
+			{
+				/* Metal doesn't have a way to blit to a destination rect,
+				 * so we get to render it ourselves instead. Yayyy...
+				 * -caleb
+				 */
+
+				// FIXME: What should we do about depth/stencil?
+
+				IntPtr backbufferRenderPass = mtlMakeRenderPassDescriptor();
+				mtlSetAttachmentTexture(
+					mtlGetColorAttachment(backbufferRenderPass, 0),
+					mtlGetTextureFromDrawable(currentDrawable)
+				);
+				renderCommandEncoder = mtlMakeRenderCommandEncoder(
+					commandBuffer,
+					backbufferRenderPass
+				);
+
+				mtlSetRenderPipelineState(
+					renderCommandEncoder,
+					fauxBackbufferRenderPipeline
+				);
+
+				// Retrieve vertex buffer from cache
+				Rectangle dstBounds = new Rectangle(dstX, dstY, dstW, dstH);
+				if (fauxBackbufferDestBounds != dstBounds)
+				{
+					fauxBackbufferDestBounds = dstBounds;
+
+					// Scale the coordinates to (-1, 1)
+					float sx = -1 + (dstX / (float) Backbuffer.Width);
+					float sy = -1 + (dstY / (float) Backbuffer.Height);
+					float sw = (dstW / (float) Backbuffer.Width) * 2;
+					float sh = (dstH / (float) Backbuffer.Height) * 2;
+
+					// Update the vertex buffer contents
+					float[] data = new float[]
+					{
+						sx, sy,			0, 0,
+						sx + sw, sy,		1, 0,
+						sx + sw, sy + sh,	1, 1,
+						sx, sy + sh,		0, 1
+					};
+					memcpy(
+						mtlGetBufferContentsPtr(fauxBackbufferVertexBuffer),
+						Marshal.UnsafeAddrOfPinnedArrayElement(data, 0),
+						(IntPtr) (16 * sizeof(float))
+					);
+				}
+
+				mtlSetVertexBuffer(
+					renderCommandEncoder,
+					fauxBackbufferVertexBuffer,
+					0,
+					0
+				);
+
+				mtlSetFragmentTexture(
+					renderCommandEncoder,
+					colorBuffer,
+					0
+				);
+
+				mtlSetFragmentSamplerState(
+					renderCommandEncoder,
+					fauxBackbufferSamplerState,
+					0
+				);
+
+				mtlDrawIndexedPrimitives(
+					renderCommandEncoder,
+					MTLPrimitiveType.Triangle,
+					6,
+					MTLIndexType.UInt16,
+					fauxBackbufferIndexBuffer,
+					0,
+					0,
+					0,
+					0
+				);
+
+				mtlEndEncoding(renderCommandEncoder);
+			}
 
 			mtlPresentDrawable(commandBuffer, currentDrawable);
 			mtlCommitCommandBuffer(commandBuffer);
@@ -624,9 +739,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			commandBuffer = mtlMakeCommandBuffer(queue);
 			currentDrawable = mtlNextDrawable(layer);
 
-			IntPtr pass = mtlMakeRenderPassDescriptor();
+			IntPtr renderPass = mtlMakeRenderPassDescriptor();
 			// FIXME: Set render pass info (e.g. render targets)
-			renderCommandEncoder = mtlMakeRenderCommandEncoder(commandBuffer, pass);
+			renderCommandEncoder = mtlMakeRenderCommandEncoder(commandBuffer, renderPass);
 			ReinitializeRenderCommandEncoder();
 		}
 
@@ -995,66 +1110,57 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (clearTarget)
 			{
-				if (!color.Equals(currentClearColor))
-				{
-					IntPtr colorAttachment = mtlGetColorAttachment(pass, 0);
-					mtlSetAttachmentTexture(
-						colorAttachment,
-						currentColorBuffer
-					);
-					mtlSetAttachmentLoadAction(
-						colorAttachment,
-						MTLLoadAction.Clear
-					);
-					mtlSetColorAttachmentClearColor(
-						colorAttachment,
-						color.X,
-						color.Y,
-						color.Z,
-						color.W
-					);
-					currentClearColor = color;
-				}
+				IntPtr colorAttachment = mtlGetColorAttachment(pass, 0);
+				mtlSetAttachmentTexture(
+					colorAttachment,
+					currentColorBuffer
+				);
+				mtlSetAttachmentLoadAction(
+					colorAttachment,
+					MTLLoadAction.Clear
+				);
+				mtlSetColorAttachmentClearColor(
+					colorAttachment,
+					color.X,
+					color.Y,
+					color.Z,
+					color.W
+				);
+				currentClearColor = color;
 			}
 			if (clearDepth)
 			{
-				if (!depth.Equals(currentClearDepth))
-				{
-					IntPtr depthAttachment = mtlGetDepthAttachment(pass);
-					mtlSetAttachmentTexture(
-						depthAttachment,
-						currentDepthStencilBuffer
-					);
-					mtlSetAttachmentLoadAction(
-						depthAttachment,
-						MTLLoadAction.Clear
-					);
-					mtlSetDepthAttachmentClearDepth(
-						depthAttachment,
-						depth
-					);
-					currentClearDepth = depth;
-				}
+				IntPtr depthAttachment = mtlGetDepthAttachment(pass);
+				mtlSetAttachmentTexture(
+					depthAttachment,
+					currentDepthStencilBuffer
+				);
+				mtlSetAttachmentLoadAction(
+					depthAttachment,
+					MTLLoadAction.Clear
+				);
+				mtlSetDepthAttachmentClearDepth(
+					depthAttachment,
+					depth
+				);
+				currentClearDepth = depth;
 			}
 			if (clearStencil)
 			{
-				if (stencil != currentClearStencil)
-				{
-					IntPtr stencilAttachment = mtlGetStencilAttachment(pass);
-						mtlSetAttachmentTexture(
-						stencilAttachment,
-						currentDepthStencilBuffer
-					);
-					mtlSetAttachmentLoadAction(
-						stencilAttachment,
-						MTLLoadAction.Clear
-					);
-					mtlSetStencilAttachmentClearStencil(
-						stencilAttachment,
-						stencil
-					);
-					currentClearStencil = stencil;
-				}
+				IntPtr stencilAttachment = mtlGetStencilAttachment(pass);
+					mtlSetAttachmentTexture(
+					stencilAttachment,
+					currentDepthStencilBuffer
+				);
+				mtlSetAttachmentLoadAction(
+					stencilAttachment,
+					MTLLoadAction.Clear
+				);
+				mtlSetStencilAttachmentClearStencil(
+					stencilAttachment,
+					stencil
+				);
+				currentClearStencil = stencil;
 			}
 
 			renderCommandEncoder = mtlMakeRenderCommandEncoder(commandBuffer, pass);
@@ -1317,6 +1423,115 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		private void InitializeFauxBackbuffer(
+			PresentationParameters presentationParameters
+		) {
+			Backbuffer = new MetalBackbuffer(
+				this,
+				presentationParameters.BackBufferWidth,
+				presentationParameters.BackBufferHeight,
+				presentationParameters.DepthStencilFormat,
+				presentationParameters.MultiSampleCount
+			);
+
+			// Create the vertex buffer for rendering the faux-backbuffer
+			fauxBackbufferVertexBuffer = mtlNewBufferWithLength(
+				device,
+				16 * sizeof(float)
+			);
+
+			// Create and fill the index buffer
+			ushort[] indices = new ushort[]
+			{
+				0, 1, 3,
+				1, 2, 3
+			};
+			fauxBackbufferIndexBuffer = mtlNewBufferWithLength(
+				device,
+				6 * sizeof(ushort)
+			);
+			memcpy(
+				mtlGetBufferContentsPtr(fauxBackbufferIndexBuffer),
+				Marshal.UnsafeAddrOfPinnedArrayElement(indices, 0),
+				(IntPtr) (6 * sizeof(ushort))
+			);
+
+			// Create vertex and fragment shaders for the faux-backbuffer pipeline
+			// FIXME: Wonder if we could just compile ahead-of-time for this...
+			// FIXME: Could we replace this with an XNA SpriteEffect or something?
+			string shaderSource =
+			@"
+				#include <metal_stdlib>
+				using namespace metal;
+
+				struct VertexIn {
+					packed_float2 position;
+					packed_float2 texCoord;
+				};
+
+				struct VertexOut {
+					float4 position [[ position ]];
+					float2 texCoord;
+				};
+
+				vertex VertexOut
+				vertexShader(
+					uint vertexID [[ vertex_id ]],
+					constant VertexIn *vertexArray [[ buffer(0) ]]
+				) {
+					VertexOut out;
+					out.position = float4(vertexArray[vertexID].position, 0.0, 1.0);
+					out.texCoord = vertexArray[vertexID].texCoord;
+					return out;
+				}
+
+				fragment float4
+				fragmentShader(VertexOut in [[stage_in]],
+					texture2d<half> colorTexture [[ texture(0) ]],
+					sampler s0 [[sampler(0)]]
+				) {
+					const half4 colorSample = colorTexture.sample(s0, in.texCoord);
+					return float4(colorSample);
+				}
+			";
+
+			IntPtr library = mtlNewLibraryWithSource(
+				device,
+				UTF8ToNSString(shaderSource),
+				IntPtr.Zero
+			);
+			IntPtr vertexFunc = mtlNewFunctionWithName(
+				library,
+				UTF8ToNSString("vertexShader")
+			);
+			IntPtr fragFunc = mtlNewFunctionWithName(
+				library,
+				UTF8ToNSString("fragmentShader")
+			);
+
+			// Create a sampler state
+			IntPtr samplerDescriptor = mtlNewSamplerDescriptor();
+			mtlSetSamplerMinFilter(samplerDescriptor, backbufferScaleMode);
+			mtlSetSamplerMagFilter(samplerDescriptor, backbufferScaleMode);
+			fauxBackbufferSamplerState = mtlNewSamplerStateWithDescriptor(
+				device,
+				samplerDescriptor
+			);
+
+			// Create a render pipeline for rendering the backbuffer
+			IntPtr pipelineDesc = mtlMakeRenderPipelineDescriptor();
+			mtlSetPipelineVertexFunction(pipelineDesc, vertexFunc);
+			mtlSetPipelineFragmentFunction(pipelineDesc, fragFunc);
+			mtlSetAttachmentPixelFormat(
+				mtlGetColorAttachment(pipelineDesc, 0),
+				mtlGetLayerPixelFormat(layer)
+			);
+			fauxBackbufferRenderPipeline = mtlNewRenderPipelineStateWithDescriptor(
+				device,
+				pipelineDesc
+			);
+		}
+
 		#endregion
 
 		#region The Faux-Faux-Backbuffer
@@ -1364,6 +1579,20 @@ namespace Microsoft.Xna.Framework.Graphics
 				Width = presentationParameters.BackBufferWidth;
 				Height = presentationParameters.BackBufferHeight;
 			}
+		}
+
+		#endregion
+
+		#region Public Static Utilities
+
+		public static void MTL_GetDrawableSize(
+			IntPtr metalLayer,
+			out int width,
+			out int height
+		) {
+			CGSize size = mtlGetDrawableSize(metalLayer);
+			width = (int) size.width;
+			height = (int) size.height;
 		}
 
 		#endregion
