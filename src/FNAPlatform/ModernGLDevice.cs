@@ -760,7 +760,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			attachmentTypes = new GLenum[numAttachments];
 			currentAttachments = new uint[numAttachments];
 			currentAttachmentTypes = new GLenum[numAttachments];
-			drawBuffersArray = Marshal.AllocHGlobal(sizeof(GLenum) * numAttachments);
+			drawBuffersArray = Marshal.AllocHGlobal((sizeof(GLenum) * numAttachments) + 2);
 			unsafe
 			{
 				GLenum* dba = (GLenum*) drawBuffersArray;
@@ -770,6 +770,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					currentAttachmentTypes[i] = GLenum.GL_TEXTURE_2D;
 					dba[i] = GLenum.GL_COLOR_ATTACHMENT0 + i;
 				}
+				dba[numAttachments] = GLenum.GL_DEPTH_ATTACHMENT;
+				dba[numAttachments + 1] = GLenum.GL_STENCIL_ATTACHMENT;
 			}
 			currentDrawBuffers = 0;
 			currentRenderbuffer = 0;
@@ -994,6 +996,17 @@ namespace Microsoft.Xna.Framework.Graphics
 					overrideWindowHandle
 				);
 			}
+
+			/* Invalidate this at the very beginning of the frame.
+			 * This appears to prevent incoherent memory accesses
+			 * on iOS, though we're not sure why it has to be here
+			 * and not at SetRenderTargets like it should be.
+			 */
+			glInvalidateNamedFramebufferData(
+				targetFramebuffer,
+				attachments.Length + 2, // All colors + depth/stencil
+				drawBuffersArray
+			);
 
 #if !DISABLE_THREADING && !THREADED_GL
 			RunActions();
