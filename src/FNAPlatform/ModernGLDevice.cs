@@ -760,7 +760,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			attachmentTypes = new GLenum[numAttachments];
 			currentAttachments = new uint[numAttachments];
 			currentAttachmentTypes = new GLenum[numAttachments];
-			drawBuffersArray = Marshal.AllocHGlobal(sizeof(GLenum) * (numAttachments) + 2);
+			drawBuffersArray = Marshal.AllocHGlobal(sizeof(GLenum) * (numAttachments + 2));
 			unsafe
 			{
 				GLenum* dba = (GLenum*) drawBuffersArray;
