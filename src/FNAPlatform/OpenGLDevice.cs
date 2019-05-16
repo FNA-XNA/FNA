@@ -410,6 +410,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private readonly GLenum[] currentAttachmentTypes;
 		private int currentDrawBuffers;
 		private readonly IntPtr drawBuffersArray;
+		private readonly IntPtr drawBackbufferArray;
 		private uint currentRenderbuffer;
 		private DepthFormat currentDepthStencilFormat;
 		private readonly uint[] attachments;
@@ -809,6 +810,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				dba[numAttachments] = GLenum.GL_DEPTH_ATTACHMENT;
 				dba[numAttachments + 1] = GLenum.GL_STENCIL_ATTACHMENT;
 			}
+			drawBackbufferArray = Marshal.AllocHGlobal(sizeof(GLenum) * 3);
+			unsafe
+			{
+				GLenum* dba = (GLenum*) drawBackbufferArray;
+				dba[0] = GLenum.GL_COLOR;
+				dba[1] = GLenum.GL_DEPTH;
+				dba[2] = GLenum.GL_STENCIL;
+			}
 			currentDrawBuffers = 0;
 			currentRenderbuffer = 0;
 			currentDepthStencilFormat = DepthFormat.None;
@@ -852,6 +861,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			Backbuffer = null;
 			Marshal.FreeHGlobal(drawBuffersArray);
+			Marshal.FreeHGlobal(drawBackbufferArray);
 			MojoShader.MOJOSHADER_glMakeContextCurrent(IntPtr.Zero);
 			MojoShader.MOJOSHADER_glDestroyContext(shaderContext);
 
@@ -1047,23 +1057,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				SDL.SDL_GL_SwapWindow(
 					overrideWindowHandle
 				);
-			}
-
-			/* Invalidate this at the very beginning of the frame.
-			 * This appears to prevent incoherent memory accesses
-			 * on iOS, though we're not sure why it has to be here
-			 * and not at SetRenderTargets like it should be.
-			 */
-			if (supportsFBOInvalidation)
-			{
-				uint prevBuf = currentDrawFramebuffer;
-				BindFramebuffer(targetFramebuffer);
-				glInvalidateFramebuffer(
-					GLenum.GL_FRAMEBUFFER,
-					attachments.Length + 2, // All colors + depth/stencil
-					drawBuffersArray
-				);
-				BindFramebuffer(prevBuf);
 			}
 
 #if !DISABLE_THREADING && !THREADED_GL
@@ -3471,6 +3464,17 @@ namespace Microsoft.Xna.Framework.Graphics
 					GLenum.GL_FRAMEBUFFER,
 					handle
 				);
+
+				/* Invalidate the draw buffer */
+				if (supportsFBOInvalidation)
+				{
+					glInvalidateFramebuffer(
+						GLenum.GL_FRAMEBUFFER,
+						(handle == 0) ? 3 : (attachments.Length + 2),
+						(handle == 0) ? drawBackbufferArray : drawBuffersArray
+					);
+				}
+
 				currentReadFramebuffer = handle;
 				currentDrawFramebuffer = handle;
 			}
@@ -3510,6 +3514,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_DRAW_FRAMEBUFFER,
 				handle
 			);
+			if (supportsFBOInvalidation)
+			{
+				glInvalidateFramebuffer(
+					GLenum.GL_FRAMEBUFFER,
+					(handle == 0) ? 3 : (attachments.Length + 2),
+					(handle == 0) ? drawBackbufferArray : drawBuffersArray
+				);
+			}
 
 			currentDrawFramebuffer = handle;
 		}
