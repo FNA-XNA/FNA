@@ -3120,7 +3120,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					GLenum.GL_FRAMEBUFFER,
 					handle
 				);
-
 				currentReadFramebuffer = handle;
 				currentDrawFramebuffer = handle;
 			}
