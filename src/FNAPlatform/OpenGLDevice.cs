@@ -1059,6 +1059,28 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
+			/* Invalidate this at the very beginning of the frame.
+			 * This appears to prevent incoherent memory accesses
+			 * on iOS, though we're not sure why it has to be here
+			 * and not at SetRenderTargets like it should be.
+			 */
+			if (supportsFBOInvalidation)
+			{
+				glBindFramebuffer(GLenum.GL_FRAMEBUFFER, realBackbufferFBO);
+				glInvalidateFramebuffer(
+					GLenum.GL_FRAMEBUFFER,
+					3,
+					drawBackbufferArray
+				);
+
+				glBindFramebuffer(GLenum.GL_FRAMEBUFFER, targetFramebuffer);
+				glInvalidateFramebuffer(
+					GLenum.GL_FRAMEBUFFER,
+					attachments.Length + 2,
+					drawBuffersArray
+				);
+			}
+
 #if !DISABLE_THREADING && !THREADED_GL
 			RunActions();
 #endif
@@ -3465,16 +3487,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					handle
 				);
 
-				/* Invalidate the draw buffer */
-				if (supportsFBOInvalidation)
-				{
-					glInvalidateFramebuffer(
-						GLenum.GL_FRAMEBUFFER,
-						(handle == 0) ? 3 : (attachments.Length + 2),
-						(handle == 0) ? drawBackbufferArray : drawBuffersArray
-					);
-				}
-
 				currentReadFramebuffer = handle;
 				currentDrawFramebuffer = handle;
 			}
@@ -3514,14 +3526,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_DRAW_FRAMEBUFFER,
 				handle
 			);
-			if (supportsFBOInvalidation)
-			{
-				glInvalidateFramebuffer(
-					GLenum.GL_FRAMEBUFFER,
-					(handle == 0) ? 3 : (attachments.Length + 2),
-					(handle == 0) ? drawBackbufferArray : drawBuffersArray
-				);
-			}
 
 			currentDrawFramebuffer = handle;
 		}
