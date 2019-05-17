@@ -403,7 +403,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private readonly GLenum[] currentAttachmentTypes;
 		private int currentDrawBuffers;
 		private readonly IntPtr drawBuffersArray;
-		private readonly IntPtr drawBackbufferArray;
 		private uint currentRenderbuffer;
 		private DepthFormat currentDepthStencilFormat;
 		private readonly uint[] attachments;
@@ -774,14 +773,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				dba[numAttachments] = GLenum.GL_DEPTH_ATTACHMENT;
 				dba[numAttachments + 1] = GLenum.GL_STENCIL_ATTACHMENT;
 			}
-			drawBackbufferArray = Marshal.AllocHGlobal(sizeof(GLenum) * 3);
-			unsafe
-			{
-				GLenum* dba = (GLenum*) drawBackbufferArray;
-				dba[0] = GLenum.GL_COLOR;
-				dba[1] = GLenum.GL_DEPTH;
-				dba[2] = GLenum.GL_STENCIL;
-			}
 			currentDrawBuffers = 0;
 			currentRenderbuffer = 0;
 			currentDepthStencilFormat = DepthFormat.None;
@@ -825,7 +816,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			Backbuffer = null;
 			Marshal.FreeHGlobal(drawBuffersArray);
-			Marshal.FreeHGlobal(drawBackbufferArray);
 			MojoShader.MOJOSHADER_glMakeContextCurrent(IntPtr.Zero);
 			MojoShader.MOJOSHADER_glDestroyContext(shaderContext);
 
@@ -974,6 +964,12 @@ namespace Microsoft.Xna.Framework.Graphics
 						GLenum.GL_COLOR_BUFFER_BIT,
 						GLenum.GL_LINEAR
 					);
+					/* Invalidate the MSAA faux-backbuffer */
+					glInvalidateNamedFramebufferData(
+						glBack.Handle,
+						attachments.Length + 2,
+						drawBuffersArray
+					);
 					finalBuffer = resolveFramebufferDraw;
 				}
 				else
@@ -988,6 +984,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					dstX, dstY, dstW, dstH,
 					GLenum.GL_COLOR_BUFFER_BIT,
 					backbufferScaleMode
+				);
+				/* Invalidate the faux-backbuffer */
+				glInvalidateNamedFramebufferData(
+					finalBuffer,
+					attachments.Length + 2,
+					drawBuffersArray
 				);
 
 				if (scissorTestEnable)
@@ -2943,6 +2945,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					GLenum.GL_COLOR_BUFFER_BIT,
 					GLenum.GL_LINEAR
 				);
+				/* Don't invalidate the backbuffer here! */
 				BindReadFramebuffer(resolveFramebufferDraw);
 			}
 			else
@@ -3085,6 +3088,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					GLenum.GL_COLOR_BUFFER_BIT,
 					GLenum.GL_LINEAR
 				);
+				/* Invalidate the MSAA buffer */
+				glInvalidateNamedFramebufferData(
+					resolveFramebufferRead,
+					attachments.Length + 2,
+					drawBuffersArray
+				);
 				if (scissorTestEnable)
 				{
 					glEnable(GLenum.GL_SCISSOR_TEST);
@@ -3110,13 +3119,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				glBindFramebuffer(
 					GLenum.GL_FRAMEBUFFER,
 					handle
-				);
-
-				/* Invalidate the draw buffer */
-				glInvalidateNamedFramebufferData(
-					handle,
-					(handle == 0) ? 3 : (attachments.Length + 2),
-					(handle == 0) ? drawBackbufferArray : drawBuffersArray
 				);
 
 				currentReadFramebuffer = handle;
@@ -3157,11 +3159,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			glBindFramebuffer(
 				GLenum.GL_DRAW_FRAMEBUFFER,
 				handle
-			);
-			glInvalidateNamedFramebufferData(
-				handle,
-				(handle == 0) ? 3 : (attachments.Length + 2),
-				(handle == 0) ? drawBackbufferArray : drawBuffersArray
 			);
 
 			currentDrawFramebuffer = handle;

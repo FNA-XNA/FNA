@@ -120,9 +120,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_LINEAR_MIPMAP_NEAREST =		0x2701,
 			GL_LINEAR_MIPMAP_LINEAR =		0x2703,
 			// Attachments
-			GL_COLOR =				0x1800,
-			GL_DEPTH =				0x1801,
-			GL_STENCIL =				0x1802,
 			GL_COLOR_ATTACHMENT0 =			0x8CE0,
 			GL_DEPTH_ATTACHMENT =			0x8D00,
 			GL_STENCIL_ATTACHMENT =			0x8D20,
