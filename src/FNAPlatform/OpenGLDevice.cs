@@ -937,6 +937,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			Rectangle? destinationRectangle,
 			IntPtr overrideWindowHandle
 		) {
+			/* Invalidate this at the very end of the frame.
+			 * This appears to prevent incoherent memory accesses
+			 * on iOS, though we're not sure why it has to be here
+			 * and not at SetRenderTargets like it should be.
+			 */
+			if (supportsFBOInvalidation)
+			{
+				BindFramebuffer(targetFramebuffer);
+				glInvalidateFramebuffer(
+					GLenum.GL_FRAMEBUFFER,
+					attachments.Length + 2,
+					drawBuffersArray
+				);
+			}
+
 			/* Only the faux-backbuffer supports presenting
 			 * specific regions given to Present().
 			 * -flibit
@@ -1039,6 +1054,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 
 				BindFramebuffer(realBackbufferFBO);
+				if (supportsFBOInvalidation)
+				{
+					glInvalidateFramebuffer(
+						GLenum.GL_FRAMEBUFFER,
+						3,
+						drawBackbufferArray
+					);
+				}
 
 				if (scissorTestEnable)
 				{
@@ -1056,28 +1079,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Nothing left to do, just swap!
 				SDL.SDL_GL_SwapWindow(
 					overrideWindowHandle
-				);
-			}
-
-			/* Invalidate this at the very beginning of the frame.
-			 * This appears to prevent incoherent memory accesses
-			 * on iOS, though we're not sure why it has to be here
-			 * and not at SetRenderTargets like it should be.
-			 */
-			if (supportsFBOInvalidation)
-			{
-				glBindFramebuffer(GLenum.GL_FRAMEBUFFER, realBackbufferFBO);
-				glInvalidateFramebuffer(
-					GLenum.GL_FRAMEBUFFER,
-					3,
-					drawBackbufferArray
-				);
-
-				glBindFramebuffer(GLenum.GL_FRAMEBUFFER, targetFramebuffer);
-				glInvalidateFramebuffer(
-					GLenum.GL_FRAMEBUFFER,
-					attachments.Length + 2,
-					drawBuffersArray
 				);
 			}
 
