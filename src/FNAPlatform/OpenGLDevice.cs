@@ -822,7 +822,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				glGenVertexArrays(1, out vao);
 				glBindVertexArray(vao);
 			}
-			else
+			else if (glTexEnvi != null)
 			{
 				// Compat-only, but needed for PSIZE0 accuracy
 				glTexEnvi(GLenum.GL_POINT_SPRITE, GLenum.GL_COORD_REPLACE, 1);

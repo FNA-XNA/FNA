@@ -1113,10 +1113,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					"glTexParameterf",
 					typeof(TexParameterf)
 				);
-				glTexEnvi = (TexEnvi) GetProcAddress(
-					"glTexEnvi",
-					typeof(TexEnvi)
-				);
 				glActiveTexture = (ActiveTexture) GetProcAddress(
 					"glActiveTexture",
 					typeof(ActiveTexture)
@@ -1274,6 +1270,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					glGetTexImage = GetTexImageESError;
 				}
+				ep = SDL.SDL_GL_GetProcAddress("glTexEnvi");
+				if (ep != IntPtr.Zero)
+				{
+					glTexEnvi = (TexEnvi) Marshal.GetDelegateForFunctionPointer(
+						ep,
+						typeof(TexEnvi)
+					);
+				}
 				ep = SDL.SDL_GL_GetProcAddress("glGetBufferSubData");
 				if (ep != IntPtr.Zero)
 				{
@@ -1298,6 +1302,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					glGetTexImage = (GetTexImage) GetProcAddress(
 						"glGetTexImage",
 						typeof(GetTexImage)
+					);
+					glTexEnvi = (TexEnvi) GetProcAddress(
+						"glTexEnvi",
+						typeof(TexEnvi)
 					);
 					glGetBufferSubData = (GetBufferSubData) GetProcAddress(
 						"glGetBufferSubData",
