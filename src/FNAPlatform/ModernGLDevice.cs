@@ -696,10 +696,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Initialize texture collection array
 			int numSamplers;
 			glGetIntegerv(GLenum.GL_MAX_TEXTURE_IMAGE_UNITS, out numSamplers);
-			numSamplers = Math.Min(
-				numSamplers,
-				GraphicsDevice.MAX_TEXTURE_SAMPLERS + GraphicsDevice.MAX_VERTEXTEXTURE_SAMPLERS
-			);
 			Textures = new OpenGLTexture[numSamplers];
 			Samplers = new uint[numSamplers];
 			SamplersU = new TextureAddressMode[numSamplers];
