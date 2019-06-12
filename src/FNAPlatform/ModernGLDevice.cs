@@ -696,10 +696,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Initialize texture collection array
 			int numSamplers;
 			glGetIntegerv(GLenum.GL_MAX_TEXTURE_IMAGE_UNITS, out numSamplers);
-			numSamplers = Math.Min(
-				numSamplers,
-				GraphicsDevice.MAX_TEXTURE_SAMPLERS + GraphicsDevice.MAX_VERTEXTEXTURE_SAMPLERS
-			);
 			Textures = new OpenGLTexture[numSamplers];
 			Samplers = new uint[numSamplers];
 			SamplersU = new TextureAddressMode[numSamplers];
@@ -760,7 +756,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			attachmentTypes = new GLenum[numAttachments];
 			currentAttachments = new uint[numAttachments];
 			currentAttachmentTypes = new GLenum[numAttachments];
-			drawBuffersArray = Marshal.AllocHGlobal(sizeof(GLenum) * numAttachments);
+			drawBuffersArray = Marshal.AllocHGlobal(sizeof(GLenum) * (numAttachments + 2));
 			unsafe
 			{
 				GLenum* dba = (GLenum*) drawBuffersArray;
@@ -770,6 +766,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					currentAttachmentTypes[i] = GLenum.GL_TEXTURE_2D;
 					dba[i] = GLenum.GL_COLOR_ATTACHMENT0 + i;
 				}
+				dba[numAttachments] = GLenum.GL_DEPTH_ATTACHMENT;
+				dba[numAttachments + 1] = GLenum.GL_STENCIL_ATTACHMENT;
 			}
 			currentDrawBuffers = 0;
 			currentRenderbuffer = 0;
@@ -962,6 +960,12 @@ namespace Microsoft.Xna.Framework.Graphics
 						GLenum.GL_COLOR_BUFFER_BIT,
 						GLenum.GL_LINEAR
 					);
+					/* Invalidate the MSAA faux-backbuffer */
+					glInvalidateNamedFramebufferData(
+						glBack.Handle,
+						attachments.Length + 2,
+						drawBuffersArray
+					);
 					finalBuffer = resolveFramebufferDraw;
 				}
 				else
@@ -976,6 +980,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					dstX, dstY, dstW, dstH,
 					GLenum.GL_COLOR_BUFFER_BIT,
 					backbufferScaleMode
+				);
+				/* Invalidate the faux-backbuffer */
+				glInvalidateNamedFramebufferData(
+					finalBuffer,
+					attachments.Length + 2,
+					drawBuffersArray
 				);
 
 				if (scissorTestEnable)
@@ -2931,6 +2941,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					GLenum.GL_COLOR_BUFFER_BIT,
 					GLenum.GL_LINEAR
 				);
+				/* Don't invalidate the backbuffer here! */
 				BindReadFramebuffer(resolveFramebufferDraw);
 			}
 			else
@@ -3072,6 +3083,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					0, 0, width, height,
 					GLenum.GL_COLOR_BUFFER_BIT,
 					GLenum.GL_LINEAR
+				);
+				/* Invalidate the MSAA buffer */
+				glInvalidateNamedFramebufferData(
+					resolveFramebufferRead,
+					attachments.Length + 2,
+					drawBuffersArray
 				);
 				if (scissorTestEnable)
 				{

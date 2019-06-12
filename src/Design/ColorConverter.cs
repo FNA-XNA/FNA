@@ -41,10 +41,10 @@ namespace Microsoft.Xna.Framework.Design
 					culture.TextInfo.ListSeparator.ToCharArray()
 				);
 				return new Color(
-					float.Parse(v[0], culture),
-					float.Parse(v[1], culture),
-					float.Parse(v[2], culture),
-					float.Parse(v[3], culture)
+					int.Parse(v[0], culture),
+					int.Parse(v[1], culture),
+					int.Parse(v[2], culture),
+					int.Parse(v[3], culture)
 				);
 			}
 			return base.ConvertFrom(context, culture, value);
@@ -78,10 +78,10 @@ namespace Microsoft.Xna.Framework.Design
 			IDictionary propertyValues
 		) {
 			return (object) new Color(
-				(float) propertyValues["R"],
-				(float) propertyValues["G"],
-				(float) propertyValues["B"],
-				(float) propertyValues["A"]
+				(int) propertyValues["R"],
+				(int) propertyValues["G"],
+				(int) propertyValues["B"],
+				(int) propertyValues["A"]
 			);
 		}
 

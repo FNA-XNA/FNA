@@ -20,11 +20,11 @@ namespace Microsoft.Xna.Framework.Input
 	public enum Buttons
 	{
 		/// <summary>
-		/// Directional pad down.
+		/// Directional pad up.
 		/// </summary>
 		DPadUp =		0x00000001,
 		/// <summary>
-		/// Directional pad up.
+		/// Directional pad down.
 		/// </summary>
 		DPadDown =		0x00000002,
 		/// <summary>

@@ -706,6 +706,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		private BlitFramebuffer glBlitFramebuffer;
 
 		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+		private delegate void InvalidateFramebuffer(
+			GLenum target,
+			int numAttachments,
+			IntPtr attachments
+		);
+		InvalidateFramebuffer glInvalidateFramebuffer;
+
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
 		private delegate void GenRenderbuffers(
 			int n,
 			out uint renderbuffers
@@ -1105,10 +1113,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					"glTexParameterf",
 					typeof(TexParameterf)
 				);
-				glTexEnvi = (TexEnvi) GetProcAddress(
-					"glTexEnvi",
-					typeof(TexEnvi)
-				);
 				glActiveTexture = (ActiveTexture) GetProcAddress(
 					"glActiveTexture",
 					typeof(ActiveTexture)
@@ -1266,6 +1270,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					glGetTexImage = GetTexImageESError;
 				}
+				ep = SDL.SDL_GL_GetProcAddress("glTexEnvi");
+				if (ep != IntPtr.Zero)
+				{
+					glTexEnvi = (TexEnvi) Marshal.GetDelegateForFunctionPointer(
+						ep,
+						typeof(TexEnvi)
+					);
+				}
 				ep = SDL.SDL_GL_GetProcAddress("glGetBufferSubData");
 				if (ep != IntPtr.Zero)
 				{
@@ -1290,6 +1302,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					glGetTexImage = (GetTexImage) GetProcAddress(
 						"glGetTexImage",
 						typeof(GetTexImage)
+					);
+					glTexEnvi = (TexEnvi) GetProcAddress(
+						"glTexEnvi",
+						typeof(TexEnvi)
 					);
 					glGetBufferSubData = (GetBufferSubData) GetProcAddress(
 						"glGetBufferSubData",
@@ -1517,6 +1533,26 @@ namespace Microsoft.Xna.Framework.Graphics
 			catch
 			{
 				SupportsHardwareInstancing = false;
+			}
+
+			/* ARB_invalidate_subdata makes target swaps faster on mobile targets */
+			supportsFBOInvalidation = useES3; // FIXME: Does desktop benefit from this?
+			try
+			{
+				IntPtr ifbo = SDL.SDL_GL_GetProcAddress("glInvalidateFramebuffer");
+				if (ifbo == IntPtr.Zero && useES3)
+				{
+					/* ES2 has EXT_discard_framebuffer as a fallback */
+					ifbo = SDL.SDL_GL_GetProcAddress("glDiscardFramebufferEXT");
+				}
+				glInvalidateFramebuffer = (InvalidateFramebuffer) Marshal.GetDelegateForFunctionPointer(
+					ifbo,
+					typeof(InvalidateFramebuffer)
+				);
+			}
+			catch
+			{
+				supportsFBOInvalidation = false;
 			}
 
 			/* Indexed color mask is a weird thing.

@@ -727,6 +727,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		private BlitNamedFramebuffer glBlitNamedFramebuffer;
 
 		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+		private delegate void InvalidateNamedFramebufferData(
+			uint framebuffer,
+			int numAttachments,
+			IntPtr attachments
+		);
+		InvalidateNamedFramebufferData glInvalidateNamedFramebufferData;
+
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
 		private delegate void CreateRenderbuffers(
 			int n,
 			out uint renderbuffers
@@ -1220,6 +1228,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				glBlitNamedFramebuffer = (BlitNamedFramebuffer) Marshal.GetDelegateForFunctionPointer(
 					SDL.SDL_GL_GetProcAddress("glBlitNamedFramebuffer"),
 					typeof(BlitNamedFramebuffer)
+				);
+				glInvalidateNamedFramebufferData = (InvalidateNamedFramebufferData) Marshal.GetDelegateForFunctionPointer(
+					SDL.SDL_GL_GetProcAddress("glInvalidateNamedFramebufferData"),
+					typeof(InvalidateNamedFramebufferData)
 				);
 				glVertexAttribPointer = (VertexAttribPointer) Marshal.GetDelegateForFunctionPointer(
 					SDL.SDL_GL_GetProcAddress("glVertexAttribPointer"),
