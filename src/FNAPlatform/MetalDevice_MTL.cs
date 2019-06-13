@@ -161,63 +161,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Private MojoShader Interop
-
-		// FIXME: Move all this to MojoShader.cs
-
-		const string mojoshader = "mojoshader";
-
-		[DllImport(mojoshader)]
-		private static extern IntPtr MOJOSHADER_mtlCompileEffect(
-			IntPtr effect, // MOJOSHADER_effect*
-			IntPtr mtlDevice // MTLDevice*
-		);
-
-		[DllImport(mojoshader)]
-		private static extern string MOJOSHADER_mtlGetError();
-
-		[DllImport(mojoshader)]
-		private static extern void MOJOSHADER_mtlDeleteEffect(IntPtr mtlEffect);
-
-		[DllImport(mojoshader)]
-		private static extern void MOJOSHADER_mtlEffectBegin(
-			IntPtr mtlEffect,
-			out uint numPasses,
-			int saveShaderState,
-			IntPtr stateChanges,
-			IntPtr curVert,
-			IntPtr curFrag
-		);
-
-		[DllImport(mojoshader)]
-		private static extern void MOJOSHADER_mtlEffectBeginPass(
-			IntPtr mtlEffect,
-			uint pass,
-			IntPtr curVert,
-			IntPtr curFrag,
-			out IntPtr newVert_out,
-			out IntPtr newFrag_out
-		);
-
-		[DllImport(mojoshader)]
-		private static extern void MOJOSHADER_mtlEffectCommitChanges(
-			IntPtr mtlEffect,
-			out IntPtr newVert_out,
-			out IntPtr newFrag_out
-		);
-
-		[DllImport(mojoshader)]
-		private static extern void MOJOSHADER_mtlEffectEndPass(IntPtr mtlEffect);
-
-		[DllImport(mojoshader)]
-		private static extern void MOJOSHADER_mtlEffectEnd(
-			IntPtr mtlEffect,
-			out IntPtr newVert_out,
-			out IntPtr newFrag_out
-		);
-
-		#endregion
-
 		#region Private MTL Enums
 
 		private enum MTLLoadAction : ulong

@@ -451,6 +451,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private bool effectApplied = false;
 
+		// FIXME: Do these belong here?
+		private IntPtr currentVertexShader = IntPtr.Zero;
+		private IntPtr currentFragmentShader = IntPtr.Zero;
+
 		#endregion
 
 		#region memcpy Export
@@ -1014,11 +1018,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 #endif
-			mtlEffect = MOJOSHADER_mtlCompileEffect(effect, device);
+			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(effect, device);
 			if (mtlEffect == IntPtr.Zero)
 			{
 				throw new InvalidOperationException(
-					MOJOSHADER_mtlGetError()
+					MojoShader.MOJOSHADER_mtlGetError()
 				);
 			}
 
@@ -1030,9 +1034,61 @@ namespace Microsoft.Xna.Framework.Graphics
 			throw new NotImplementedException();
 		}
 
-		public void ApplyEffect(IGLEffect effect, IntPtr technique, uint pass, IntPtr stateChanges)
-		{
-			throw new NotImplementedException();
+		public void ApplyEffect(
+			IGLEffect effect,
+			IntPtr technique,
+			uint pass,
+			IntPtr stateChanges
+		) {
+			effectApplied = true;
+			IntPtr mtlEffectData = (effect as MetalEffect).MTLEffectData;
+			if (mtlEffectData == currentEffect)
+			{
+				if (technique == currentTechnique && pass == currentPass)
+				{
+					MojoShader.MOJOSHADER_mtlEffectCommitChanges(
+						currentEffect,
+						out currentVertexShader,
+						out currentFragmentShader
+					);
+					return;
+				}
+				MojoShader.MOJOSHADER_mtlEffectEndPass(currentEffect);
+				MojoShader.MOJOSHADER_mtlEffectBeginPass(
+					currentEffect,
+					pass,
+					out currentVertexShader,
+					out currentFragmentShader
+				);
+				currentTechnique = technique;
+				currentPass = pass;
+				return;
+			}
+			else if (currentEffect != IntPtr.Zero)
+			{
+				MojoShader.MOJOSHADER_mtlEffectEndPass(currentEffect);
+				MojoShader.MOJOSHADER_mtlEffectEnd(
+					currentEffect,
+					out currentVertexShader,
+					out currentFragmentShader
+				);
+			}
+			uint whatever;
+			MojoShader.MOJOSHADER_mtlEffectBegin(
+				mtlEffectData,
+				out whatever,
+				0,
+				stateChanges
+			);
+			MojoShader.MOJOSHADER_mtlEffectBeginPass(
+				mtlEffectData,
+				pass,
+				out currentVertexShader,
+				out currentFragmentShader
+			);
+			currentEffect = mtlEffectData;
+			currentTechnique = technique;
+			currentPass = pass;
 		}
 
 		public void BeginPassRestore(IGLEffect effect, IntPtr stateChanges)
