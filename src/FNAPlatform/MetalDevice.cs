@@ -474,6 +474,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region memset Export
+
+		// FIXME: What is the .NET Standard version of this?
+		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void memset(IntPtr dst, IntPtr value, IntPtr size);
+
+		#endregion
+
 		#region Public Constructor
 
 		public MetalDevice(
@@ -967,7 +975,54 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public IGLEffect CreateEffect(byte[] effectCode)
 		{
-			throw new NotImplementedException();
+			IntPtr effect = IntPtr.Zero;
+			IntPtr mtlEffect = IntPtr.Zero;
+
+			effect = MojoShader.MOJOSHADER_parseEffect(
+				"metal",
+				effectCode,
+				(uint) effectCode.Length,
+				null,
+				0,
+				null,
+				0,
+				null,
+				null,
+				IntPtr.Zero
+			);
+
+#if DEBUG
+			unsafe
+			{
+				MojoShader.MOJOSHADER_effect *effectPtr = (MojoShader.MOJOSHADER_effect*) effect;
+				MojoShader.MOJOSHADER_error* err = (MojoShader.MOJOSHADER_error*) effectPtr->errors;
+				for (int i = 0; i < effectPtr->error_count; i += 1)
+				{
+					// From the SDL2# LPToUtf8StringMarshaler
+					byte* endPtr = (byte*) err[i].error;
+					while (*endPtr != 0)
+					{
+						endPtr++;
+					}
+					byte[] bytes = new byte[endPtr - (byte*) err[i].error];
+					Marshal.Copy(err[i].error, bytes, 0, bytes.Length);
+
+					FNALoggerEXT.LogError(
+						"MOJOSHADER_parseEffect Error: " +
+						System.Text.Encoding.UTF8.GetString(bytes)
+					);
+				}
+			}
+#endif
+			mtlEffect = MOJOSHADER_mtlCompileEffect(effect, device);
+			if (mtlEffect == IntPtr.Zero)
+			{
+				throw new InvalidOperationException(
+					MOJOSHADER_mtlGetError()
+				);
+			}
+
+			return new MetalEffect(effect, mtlEffect);
 		}
 		
 		public IGLEffect CloneEffect(IGLEffect effect)
@@ -1008,9 +1063,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region glGenBuffers Methods
 
-		public IGLBuffer GenIndexBuffer(bool dynamic, int indexCount, IndexElementSize indexElementSize)
-		{
-			throw new NotImplementedException();
+		public IGLBuffer GenIndexBuffer(
+			bool dynamic,
+			int indexCount,
+			IndexElementSize indexElementSize
+		) {
+			IntPtr size = (IntPtr) (indexCount * XNAToMTL.IndexSize[(int) indexElementSize]);
+			IntPtr buf = mtlNewBufferWithLength(device, (uint) size);
+			return new MetalBuffer(buf, size);
+
+			/* No need to use memset since the buffer is zero-filled by default.
+			 * Additionally, we have no reason to use the dynamic flag here.
+			 * -caleb
+			 */
 		}
 
 		public IGLRenderbuffer GenRenderbuffer(int width, int height, SurfaceFormat format, int multiSampleCount)
@@ -1023,18 +1088,40 @@ namespace Microsoft.Xna.Framework.Graphics
 			throw new NotImplementedException();
 		}
 
-		public IGLBuffer GenVertexBuffer(bool dynamic, int vertexCount, int vertexStride)
-		{
-			throw new NotImplementedException();
+		public IGLBuffer GenVertexBuffer(
+			bool dynamic,
+			int vertexCount,
+			int vertexStride
+		) {
+			IntPtr size = (IntPtr) (vertexCount * vertexStride);
+			IntPtr buf = mtlNewBufferWithLength(device, (uint) size);
+			return new MetalBuffer(buf, size);
+
+			/* No need to use memset since the buffer is zero-filled by default.
+			 * Additionally, we have no reason to use the dynamic flag here.
+			 * -caleb
+			 */
 		}
 
 		#endregion
 
 		#region SetBufferData Methods
 
-		public void SetIndexBufferData(IGLBuffer buffer, int offsetInBytes, IntPtr data, int dataLength, SetDataOptions options)
-		{
-			throw new NotImplementedException();
+		public void SetIndexBufferData(
+			IGLBuffer buffer,
+			int offsetInBytes,
+			IntPtr data,
+			int dataLength,
+			SetDataOptions options
+		) {
+			if (options == SetDataOptions.Discard)
+			{
+				// Zero out the memory
+				memset((buffer as MetalBuffer).Contents, (IntPtr) 0, buffer.BufferSize);
+			}
+
+			IntPtr dst = IntPtr.Add((buffer as MetalBuffer).Contents, offsetInBytes);
+			memcpy(dst, data, (IntPtr) dataLength);
 		}
 
 		public void SetVertexBufferData(IGLBuffer buffer, int offsetInBytes, IntPtr data, int dataLength, SetDataOptions options)
@@ -1243,7 +1330,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public static readonly MTLPixelFormat[] DepthStorage = new MTLPixelFormat[]
 			{
-				/* FIXME: DepthFloat32 is the only cross-platform depth format
+				/* FIXME: Depth32Float is the only cross-platform depth format
 				 * in Metal. Maybe we should check for feature set support so
 				 * that we could use Depth24UnormStencil8 and Depth16Unorm.
 				 */
@@ -1252,6 +1339,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLPixelFormat.Depth32Float,		// DepthFormat.Depth16
 				MTLPixelFormat.Depth32Float,		// DepthFormat.Depth24
 				MTLPixelFormat.Depth32Float_Stencil8	// DepthFormat.Depth24Stencil8
+			};
+
+			public static readonly int[] IndexSize = new int[]
+			{
+				2,	// IndexElementSize.SixteenBits
+				4	// IndexElementSize.ThirtyTwoBits
 			};
 		}
 
