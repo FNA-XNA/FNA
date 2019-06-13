@@ -126,116 +126,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Texture Descriptor Container Class
-
-		// FIXME: We could probably remove this class
-		private class TextureDescriptor
-		{
-			private IntPtr handle;
-			private IntPtr mtlDevice;
-
-			public MTLTextureType TextureType
-			{
-				set
-				{
-					mtlSetTextureType(handle, value);
-				}
-			}
-
-			public MTLPixelFormat PixelFormat
-			{
-				set
-				{
-					mtlSetTexturePixelFormat(handle, value);
-				}
-			}
-
-			public int Width
-			{
-				set
-				{
-					mtlSetTextureWidth(handle, value);
-				}
-			}
-
-			public int Height
-			{
-				set
-				{
-					mtlSetTextureHeight(handle, value);
-				}
-			}
-
-			public int SampleCount
-			{
-				set
-				{
-					mtlSetTextureSampleCount(handle, value);
-				}
-			}
-
-			public MTLTextureUsage Usage
-			{
-				set
-				{
-					mtlSetTextureUsage(handle, value);
-				}
-			}
-
-			public MTLResourceStorageMode StorageMode
-			{
-				set
-				{
-					mtlSetStorageMode(handle, value);
-				}
-			}
-
-			public TextureDescriptor(IntPtr mtlDevice)
-			{
-				this.mtlDevice = mtlDevice;
-				handle = mtlMakeTexture2DDescriptor(
-					MTLPixelFormat.RGBA8Unorm,
-					1,
-					1,
-					false
-				);
-			}
-
-			public void Reset()
-			{
-				// Return to default values
-				TextureType = MTLTextureType.Texture2D;
-				PixelFormat = MTLPixelFormat.RGBA8Unorm;
-				Width = 1;
-				Height = 1;
-				SampleCount = 1;
-				Usage = MTLTextureUsage.ShaderRead;
-				if (SDL.SDL_GetPlatform().Equals("Mac OS X"))
-				{
-					// macOS does not support Shared texture storage
-					StorageMode = MTLResourceStorageMode.Managed;
-				}
-				else
-				{
-					StorageMode = MTLResourceStorageMode.Shared;
-				}
-			}
-
-			public IntPtr GenTexture()
-			{
-				IntPtr tex = mtlNewTextureWithDescriptor(mtlDevice, handle);
-
-				// Make sure ObjC doesn't autorelease our texture
-				ObjCRetain(tex);
-
-				return tex;
-			}
-		}
-
-		private TextureDescriptor textureDescriptor;
-
-		#endregion
-
 		#region Blending State Variables
 
 		public Color BlendFactor
@@ -249,13 +139,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (value != blendColor)
 				{
 					blendColor = value;
-					mtlSetBlendColor(
-						renderCommandEncoder,
-						blendColor.R / 255f,
-						blendColor.G / 255f,
-						blendColor.B / 255f,
-						blendColor.A / 255f
-					);
+					if (RenderCommandEncoder != IntPtr.Zero)
+					{
+						mtlSetBlendColor(
+							RenderCommandEncoder,
+							blendColor.R / 255f,
+							blendColor.G / 255f,
+							blendColor.B / 255f,
+							blendColor.A / 255f
+						);
+					}
 				}
 			}
 		}
@@ -297,10 +190,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (value != stencilRef)
 				{
 					stencilRef = value;
-					mtlSetStencilReferenceValue(
-						renderCommandEncoder,
-						(uint) stencilRef
-					);
+					if (RenderCommandEncoder != IntPtr.Zero)
+					{
+						mtlSetStencilReferenceValue(
+							RenderCommandEncoder,
+							(uint) stencilRef
+						);
+					}
 				}
 			}
 		}
@@ -346,9 +242,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Clear Cache Variables
 
-		private Vector4 currentClearColor = new Vector4(0, 0, 0, 0);
-		private float currentClearDepth = 1.0f;
-		private int currentClearStencil = 0;
+		private Vector4 clearColor = new Vector4(0, 0, 0, 0);
+		private float clearDepth = 1.0f;
+		private int clearStencil = 0;
 
 		#endregion
 
@@ -358,11 +254,126 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr device;			// MTLDevice*
 		private IntPtr queue;			// MTLCommandQueue*
 		private IntPtr commandBuffer;		// MTLCommandBuffer*
-		private IntPtr renderCommandEncoder;	// MTLRenderCommandEncoder*
-		private IntPtr currentDrawable;		// CAMetalDrawable*
 
+		private IntPtr currentDrawable;		// CAMetalDrawable*
 		private IntPtr currentColorBuffer;	// MTLTexture*
 		private IntPtr currentDepthStencilBuffer; // MTLTexture*
+
+		private bool renderPassDirty = false;
+		private bool shouldClearColor = false;
+		private bool shouldClearDepth = false;
+		private bool shouldClearStencil = false;
+
+		#endregion
+
+		#region Private Metal State Properties
+
+		private IntPtr RenderCommandEncoder;	// MTLRenderCommandEncoder*
+		private IntPtr GetRenderCommandEncoder()
+		{
+			if (renderPassDirty)
+			{
+				// Wrap up rendering with the old encoder
+				if (RenderCommandEncoder != IntPtr.Zero)
+				{
+					mtlEndEncoding(RenderCommandEncoder);
+				}
+
+				// Generate the descriptor
+				IntPtr renderPassDesc = mtlMakeRenderPassDescriptor();
+
+				// Clear color
+				IntPtr colorAttachment = mtlGetColorAttachment(renderPassDesc, 0);
+				mtlSetAttachmentTexture(colorAttachment, currentColorBuffer);
+				if (shouldClearColor)
+				{
+					mtlSetAttachmentLoadAction(colorAttachment, MTLLoadAction.Clear);
+					mtlSetColorAttachmentClearColor(
+						colorAttachment,
+						clearColor.X,
+						clearColor.Y,
+						clearColor.Z,
+						clearColor.W
+					);
+					shouldClearColor = false;
+				}
+				else
+				{
+					mtlSetAttachmentLoadAction(colorAttachment, MTLLoadAction.Load);
+				}
+
+				// Clear depth
+				IntPtr depthAttachment = mtlGetDepthAttachment(renderPassDesc);
+				mtlSetAttachmentTexture(depthAttachment, currentDepthStencilBuffer);
+				if (shouldClearDepth)
+				{
+					mtlSetAttachmentLoadAction(depthAttachment, MTLLoadAction.Clear);
+					mtlSetDepthAttachmentClearDepth(depthAttachment, clearDepth);
+					shouldClearDepth = false;
+				}
+				else
+				{
+					mtlSetAttachmentLoadAction(depthAttachment, MTLLoadAction.Load);
+				}
+
+				// Clear stencil
+				IntPtr stencilAttachment = mtlGetStencilAttachment(renderPassDesc);
+				mtlSetAttachmentTexture(stencilAttachment, currentDepthStencilBuffer);
+				if (shouldClearStencil)
+				{
+					mtlSetAttachmentLoadAction(stencilAttachment, MTLLoadAction.Clear);
+					mtlSetStencilAttachmentClearStencil(stencilAttachment, clearStencil);
+					shouldClearStencil = false;
+				}
+				else
+				{
+					mtlSetAttachmentLoadAction(stencilAttachment, MTLLoadAction.Load);
+				}
+
+				// Make a new encoder
+				RenderCommandEncoder = mtlMakeRenderCommandEncoder(
+					commandBuffer,
+					renderPassDesc
+				);
+
+				// Initialize the new encoder
+				mtlSetViewport(
+					RenderCommandEncoder,
+					viewport.X,
+					viewport.Y,
+					viewport.Width,
+					viewport.Height,
+					depthRangeMin,
+					depthRangeMax
+				);
+
+				mtlSetScissorRect(
+					RenderCommandEncoder,
+					(uint) scissorRectangle.X,
+					(uint) scissorRectangle.Y,
+					(uint) scissorRectangle.Width,
+					(uint) scissorRectangle.Height
+				);
+
+				mtlSetBlendColor(
+					RenderCommandEncoder,
+					blendColor.R / 255f,
+					blendColor.G / 255f,
+					blendColor.B / 255f,
+					blendColor.A / 255f
+				);
+
+				mtlSetStencilReferenceValue(
+					RenderCommandEncoder,
+					(ulong) stencilRef
+				);
+
+				// Reset the flag
+				renderPassDirty = false;
+			}
+
+			return RenderCommandEncoder;
+		}
 
 		#endregion
 
@@ -388,6 +399,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr fauxBackbufferIndexBuffer;
 		private IntPtr fauxBackbufferRenderPipeline;
 		private IntPtr fauxBackbufferSamplerState;
+		private bool fauxBackbufferSizeChanged;
 
 		#endregion
 
@@ -479,9 +491,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Get a reference to the drawable for this frame
 			currentDrawable = mtlNextDrawable(layer);
 
-			// Reuse the same descriptor for each generated texture
-			textureDescriptor = new TextureDescriptor(device);
-
 			// Log GLDevice info
 			FNALoggerEXT.LogInfo("IGLDevice: MetalDevice");
 			FNALoggerEXT.LogInfo("Device Name: " + mtlGetDeviceName(device));
@@ -498,6 +507,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			SupportsHardwareInstancing = true;
 			MaxTextureSlots = 16;
 			MaxMultiSampleCount = mtlSupportsSampleCount(device, 8) ? 8 : 4;
+
+			// Force the creation of a render pass
+			renderPassDirty = true;
 
 			// Create and setup the faux-backbuffer
 			InitializeFauxBackbuffer(presentationParameters);
@@ -550,45 +562,60 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Window SwapBuffers Method
 
-		public void SwapBuffers(Rectangle? sourceRectangle, Rectangle? destinationRectangle, IntPtr overrideWindowHandle)
-		{
-			// We're done rendering the frame!
-			mtlEndEncoding(renderCommandEncoder);
+		public void SwapBuffers(
+			Rectangle? sourceRectangle,
+			Rectangle? destinationRectangle,
+			IntPtr overrideWindowHandle
+		) {
+			// Finish the render pass
+			if (GetRenderCommandEncoder() != IntPtr.Zero)
+			{
+				mtlEndEncoding(RenderCommandEncoder);
+				RenderCommandEncoder = IntPtr.Zero;
 
-			// Do one final pass to set the MSAA resolve texture, if applicable
+			}
+
+			// Perform a pass for the MSAA resolve texture, if applicable
 			IntPtr colorBuffer = (Backbuffer as MetalBackbuffer).ColorBuffer;
 			if (Backbuffer.MultiSampleCount > 0)
 			{
 				// Generate temp texture for resolving the actual backbuffer
-				textureDescriptor.PixelFormat = mtlGetLayerPixelFormat(layer);
-				textureDescriptor.Width = Backbuffer.Width;
-				textureDescriptor.Height = Backbuffer.Height;
-				textureDescriptor.Usage = MTLTextureUsage.RenderTarget;
-				colorBuffer = textureDescriptor.GenTexture();
-				textureDescriptor.Reset();
+				IntPtr resolveTextureDesc = mtlMakeTexture2DDescriptor(
+					mtlGetLayerPixelFormat(layer),
+					(uint) Backbuffer.Width,
+					(uint) Backbuffer.Height,
+					false
+				);
+				mtlSetTextureType(
+					resolveTextureDesc,
+					MTLTextureType.Texture2D
+				);
+				mtlSetTextureUsage(
+					resolveTextureDesc,
+					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+				);
 
-				// Describe the pass
-				IntPtr resolvePass = mtlMakeRenderPassDescriptor();
-				IntPtr colorAttachment = mtlGetColorAttachment(resolvePass, 0);
-				mtlSetAttachmentTexture(
-					colorAttachment,
-					(Backbuffer as MetalBackbuffer).ColorBuffer
-				);
-				mtlSetAttachmentResolveTexture(
-					colorAttachment,
-					colorBuffer
-				);
+				IntPtr resolveTexture = mtlNewTextureWithDescriptor(device, resolveTextureDesc);
+				IntPtr resolveRenderPass = mtlMakeRenderPassDescriptor();
+				IntPtr colorAttachment = mtlGetColorAttachment(resolveRenderPass, 0);
+
 				mtlSetAttachmentStoreAction(
 					colorAttachment,
 					MTLStoreAction.MultisampleResolve
 				);
-
-				// Perform the pass
-				renderCommandEncoder = mtlMakeRenderCommandEncoder(
-					commandBuffer,
-					resolvePass
+				mtlSetAttachmentTexture(
+					colorAttachment,
+					colorBuffer
 				);
-				mtlEndEncoding(renderCommandEncoder);
+				mtlSetAttachmentResolveTexture(
+					colorAttachment,
+					resolveTexture
+				);
+
+				IntPtr rce = mtlMakeRenderCommandEncoder(commandBuffer, resolveRenderPass);
+				mtlEndEncoding(rce);
+
+				colorBuffer = resolveTexture;
 			}
 
 			// Determine the regions to present
@@ -622,27 +649,58 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTL_GetDrawableSize(layer, out dstW, out dstH);
 			}
 
-			if (srcW == dstW && srcH == dstH)
+			CopyTextureRegion(
+				colorBuffer,
+				new Rectangle(srcX, srcY, srcW, srcH),
+				mtlGetTextureFromDrawable(currentDrawable),
+				new Rectangle(dstX, dstY, dstW, dstH)
+			);
+
+			mtlPresentDrawable(commandBuffer, currentDrawable);
+			mtlCommitCommandBuffer(commandBuffer);
+
+			// Release allocations from this frame
+			DrainAutoreleasePool(pool);
+
+			// The cycle begins anew...
+			pool = StartAutoreleasePool();
+			commandBuffer = mtlMakeCommandBuffer(queue);
+			currentDrawable = mtlNextDrawable(layer);
+			renderPassDirty = true;
+			RenderCommandEncoder = IntPtr.Zero;
+		}
+
+		private void CopyTextureRegion(
+			IntPtr srcTex,
+			Rectangle srcRect,
+			IntPtr dstTex,
+			Rectangle dstRect
+		) {
+			if (srcRect.Width == 0 || srcRect.Height == 0 || dstRect.Width == 0 || dstRect.Height == 0)
 			{
-				// Blit the faux-backbuffer to the real backbuffer
-				// FIXME: What should we do with depth/stencil?
-				MTLOrigin srcOrigin = new MTLOrigin((ulong) srcX, (ulong) srcY, 0);
-				MTLOrigin dstOrigin = new MTLOrigin((ulong) dstX, (ulong) dstY, 0);
-				MTLSize rectSize = new MTLSize((ulong) srcW, (ulong) srcH, 1);
-				IntPtr blitEncoder = mtlMakeBlitCommandEncoder(commandBuffer);
-				mtlBlitTextureToTexture(
-					blitEncoder,
-					colorBuffer,
-					0,
-					0,
-					srcOrigin,
-					rectSize,
-					mtlGetTextureFromDrawable(currentDrawable),
-					0,
-					0,
-					dstOrigin
+				// FIXME: OpenGL lets this slide, but what does XNA do here?
+				throw new InvalidOperationException(
+					"sourceRectangle and destinationRectangle must have non-zero width and height!"
 				);
-				mtlEndEncoding(blitEncoder);
+			}
+
+			// Can we just blit?
+			if (srcRect.Width == dstRect.Width && srcRect.Height == dstRect.Height)
+			{
+				IntPtr bce = mtlMakeBlitCommandEncoder(commandBuffer);
+				mtlBlitTextureToTexture(
+					bce,
+					srcTex,
+					0,
+					0,
+					new MTLOrigin((ulong) srcRect.X, (ulong) srcRect.Y, 0),
+					new MTLSize((ulong) srcRect.Width, (ulong) srcRect.Height, 1),
+					dstTex,
+					0,
+					0,
+					new MTLOrigin((ulong) dstRect.X, (ulong) dstRect.Y, 0)
+				);
+				mtlEndEncoding(bce);
 			}
 			else
 			{
@@ -651,34 +709,34 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * -caleb
 				 */
 
-				// FIXME: What should we do about depth/stencil?
-
 				IntPtr backbufferRenderPass = mtlMakeRenderPassDescriptor();
 				mtlSetAttachmentTexture(
 					mtlGetColorAttachment(backbufferRenderPass, 0),
-					mtlGetTextureFromDrawable(currentDrawable)
+					dstTex
 				);
-				renderCommandEncoder = mtlMakeRenderCommandEncoder(
+
+				IntPtr rce = mtlMakeRenderCommandEncoder(
 					commandBuffer,
 					backbufferRenderPass
 				);
-
 				mtlSetRenderPipelineState(
-					renderCommandEncoder,
+					rce,
 					fauxBackbufferRenderPipeline
 				);
 
 				// Update cached vertex buffer if needed
-				Rectangle dstBounds = new Rectangle(dstX, dstY, dstW, dstH);
-				if (fauxBackbufferDestBounds != dstBounds)
+				if (fauxBackbufferDestBounds != dstRect || fauxBackbufferSizeChanged)
 				{
-					fauxBackbufferDestBounds = dstBounds;
+					fauxBackbufferDestBounds = dstRect;
+					fauxBackbufferSizeChanged = false;
 
 					// Scale the coordinates to (-1, 1)
-					float sx = -1 + (dstX / (float) Backbuffer.Width);
-					float sy = -1 + (dstY / (float) Backbuffer.Height);
-					float sw = (dstW / (float) Backbuffer.Width) * 2;
-					float sh = (dstH / (float) Backbuffer.Height) * 2;
+					int dw, dh;
+					MTL_GetDrawableSize(layer, out dw, out dh);
+					float sx = -1 + (dstRect.X / (float) dw);
+					float sy = -1 + (dstRect.Y / (float) dh);
+					float sw = (dstRect.Width / (float) dw) * 2;
+					float sh = (dstRect.Height / (float) dh) * 2;
 
 					// Update the vertex buffer contents
 					float[] data = new float[]
@@ -696,54 +754,38 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				mtlSetVertexBuffer(
-					renderCommandEncoder,
+					rce,
 					fauxBackbufferVertexBuffer,
 					0,
 					0
 				);
 
 				mtlSetFragmentTexture(
-					renderCommandEncoder,
-					colorBuffer,
+					rce,
+					srcTex,
 					0
 				);
 
 				mtlSetFragmentSamplerState(
-					renderCommandEncoder,
+					rce,
 					fauxBackbufferSamplerState,
 					0
 				);
 
 				mtlDrawIndexedPrimitives(
-					renderCommandEncoder,
+					rce,
 					MTLPrimitiveType.Triangle,
 					6,
 					MTLIndexType.UInt16,
 					fauxBackbufferIndexBuffer,
 					0,
-					0,
+					1,
 					0,
 					0
 				);
 
-				mtlEndEncoding(renderCommandEncoder);
+				mtlEndEncoding(rce);
 			}
-
-			mtlPresentDrawable(commandBuffer, currentDrawable);
-			mtlCommitCommandBuffer(commandBuffer);
-
-			// Release allocations from this frame
-			DrainAutoreleasePool(pool);
-
-			// The cycle begins anew...
-			pool = StartAutoreleasePool();
-			commandBuffer = mtlMakeCommandBuffer(queue);
-			currentDrawable = mtlNextDrawable(layer);
-
-			IntPtr renderPass = mtlMakeRenderPassDescriptor();
-			// FIXME: Set render pass info (e.g. render targets)
-			renderCommandEncoder = mtlMakeRenderCommandEncoder(commandBuffer, renderPass);
-			ReinitializeRenderCommandEncoder();
 		}
 
 		#endregion
@@ -855,16 +897,19 @@ namespace Microsoft.Xna.Framework.Graphics
 				viewport = vp.Bounds;
 				depthRangeMin = vp.MinDepth;
 				depthRangeMax = vp.MaxDepth;
-				
-				mtlSetViewport(
-					renderCommandEncoder,
-					viewport.X,
-					viewport.Y,
-					viewport.Width,
-					viewport.Height,
-					(double) depthRangeMin,
-					(double) depthRangeMax
-				);
+
+				if (RenderCommandEncoder != IntPtr.Zero)
+				{
+					mtlSetViewport(
+						RenderCommandEncoder,
+						viewport.X,
+						viewport.Y,
+						viewport.Width,
+						viewport.Height,
+						(double) depthRangeMin,
+						(double) depthRangeMax
+					);
+				}
 			}
 
 			/* Note: We don't need to flip the viewport,
@@ -878,13 +923,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (scissorRect != scissorRectangle)
 			{
 				scissorRectangle = scissorRect;
-				mtlSetScissorRect(
-					renderCommandEncoder,
-					(uint) scissorRectangle.X,
-					(uint) scissorRectangle.Y,
-					(uint) scissorRectangle.Width,
-					(uint) scissorRectangle.Height
-				);
+				if (RenderCommandEncoder != IntPtr.Zero)
+				{
+					mtlSetScissorRect(
+						RenderCommandEncoder,
+						(uint) scissorRectangle.X,
+						(uint) scissorRectangle.Y,
+						(uint) scissorRectangle.Width,
+						(uint) scissorRectangle.Height
+					);
+				}
 			}
 
 			/* Note: We don't need to flip the rectangle,
@@ -1098,109 +1146,38 @@ namespace Microsoft.Xna.Framework.Graphics
 			float depth,
 			int stencil
 		) {
-			if (renderCommandEncoder != IntPtr.Zero)
-			{
-				mtlEndEncoding(renderCommandEncoder);
-			}
-
-			IntPtr pass = mtlMakeRenderPassDescriptor();
-
 			bool clearTarget = (options & ClearOptions.Target) == ClearOptions.Target;
 			bool clearDepth = (options & ClearOptions.DepthBuffer) == ClearOptions.DepthBuffer;
 			bool clearStencil = (options & ClearOptions.Stencil) == ClearOptions.Stencil;
 
 			if (clearTarget)
 			{
-				IntPtr colorAttachment = mtlGetColorAttachment(pass, 0);
-				mtlSetAttachmentTexture(
-					colorAttachment,
-					currentColorBuffer
-				);
-				mtlSetAttachmentLoadAction(
-					colorAttachment,
-					MTLLoadAction.Clear
-				);
-				mtlSetColorAttachmentClearColor(
-					colorAttachment,
-					color.X,
-					color.Y,
-					color.Z,
-					color.W
-				);
-				currentClearColor = color;
+				clearColor = color;
+				shouldClearColor = true;
 			}
 			if (clearDepth)
 			{
-				IntPtr depthAttachment = mtlGetDepthAttachment(pass);
-				mtlSetAttachmentTexture(
-					depthAttachment,
-					currentDepthStencilBuffer
-				);
-				mtlSetAttachmentLoadAction(
-					depthAttachment,
-					MTLLoadAction.Clear
-				);
-				mtlSetDepthAttachmentClearDepth(
-					depthAttachment,
-					depth
-				);
-				currentClearDepth = depth;
+				this.clearDepth = depth;
+				shouldClearDepth = true;
 			}
 			if (clearStencil)
 			{
-				IntPtr stencilAttachment = mtlGetStencilAttachment(pass);
-					mtlSetAttachmentTexture(
-					stencilAttachment,
-					currentDepthStencilBuffer
-				);
-				mtlSetAttachmentLoadAction(
-					stencilAttachment,
-					MTLLoadAction.Clear
-				);
-				mtlSetStencilAttachmentClearStencil(
-					stencilAttachment,
-					stencil
-				);
-				currentClearStencil = stencil;
+				this.clearStencil = stencil;
+				shouldClearStencil = true;
 			}
 
-			renderCommandEncoder = mtlMakeRenderCommandEncoder(commandBuffer, pass);
-			ReinitializeRenderCommandEncoder();
-		}
-
-		#endregion
-
-		#region RenderCommandEncoder Initialization Method
-
-		private void ReinitializeRenderCommandEncoder()
-		{
-			mtlSetViewport(
-				renderCommandEncoder,
-				viewport.X,
-				viewport.Y,
-				viewport.Width,
-				viewport.Height,
-				depthRangeMin,
-				depthRangeMax
-			);
-
-			mtlSetScissorRect(
-				renderCommandEncoder,
-				(uint) scissorRectangle.X,
-				(uint) scissorRectangle.Y,
-				(uint) scissorRectangle.Width,
-				(uint) scissorRectangle.Height
-			);
-
-			// FIXME: Set any other renderCommandEncoder properties here
+			renderPassDirty |= clearTarget | clearDepth | clearStencil;
 		}
 
 		#endregion
 
 		#region SetRenderTargets Method
 
-		public void SetRenderTargets(RenderTargetBinding[] renderTargets, IGLRenderbuffer renderbuffer, DepthFormat depthFormat)
-		{
+		public void SetRenderTargets(
+			RenderTargetBinding[] renderTargets,
+			IGLRenderbuffer renderbuffer,
+			DepthFormat depthFormat
+		) {
 			throw new NotImplementedException();
 		}
 
@@ -1328,18 +1305,24 @@ namespace Microsoft.Xna.Framework.Graphics
 				MultiSampleCount = multiSampleCount;
 
 				// Generate the color buffer
-				mtlDevice.textureDescriptor.PixelFormat = mtlGetLayerPixelFormat(mtlDevice.layer);
-				mtlDevice.textureDescriptor.Width = Width;
-				mtlDevice.textureDescriptor.Height = Height;
-				mtlDevice.textureDescriptor.Usage = MTLTextureUsage.RenderTarget;
+				IntPtr colorBufferDesc = mtlMakeTexture2DDescriptor(
+					mtlGetLayerPixelFormat(mtlDevice.layer),
+					(uint) Width,
+					(uint) Height,
+					false
+				);
+				mtlSetTextureUsage(colorBufferDesc, MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead);
+
 				if (multiSampleCount > 0)
 				{
-					mtlDevice.textureDescriptor.StorageMode = MTLResourceStorageMode.Private;
-					mtlDevice.textureDescriptor.TextureType = MTLTextureType.Multisample2D;
-					mtlDevice.textureDescriptor.SampleCount = multiSampleCount;
+					mtlSetStorageMode(colorBufferDesc, MTLResourceStorageMode.Private);
+					mtlSetTextureType(colorBufferDesc, MTLTextureType.Multisample2D);
+					mtlSetTextureSampleCount(colorBufferDesc, multiSampleCount);
 				}
-				ColorBuffer = mtlDevice.textureDescriptor.GenTexture();
 
+				ColorBuffer = mtlNewTextureWithDescriptor(device.device, colorBufferDesc);
+
+				// Create the depth-stencil buffer, if needed
 				if (depthFormat == DepthFormat.None)
 				{
 					// Don't bother creating a depth/stencil buffer.
@@ -1348,13 +1331,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				else
 				{
 					// Create the depth/stencil buffer
-					mtlDevice.textureDescriptor.PixelFormat = XNAToMTL.DepthStorage[(int) depthFormat];
-					mtlDevice.textureDescriptor.StorageMode = MTLResourceStorageMode.Private;
-					DepthStencilBuffer = mtlDevice.textureDescriptor.GenTexture();
+					IntPtr depthStencilBufferDesc = mtlMakeTexture2DDescriptor(
+						XNAToMTL.DepthStorage[(int) depthFormat],
+						(uint) Width,
+						(uint) Height,
+						false
+					);
+					mtlSetStorageMode(depthStencilBufferDesc, MTLResourceStorageMode.Private);
+					DepthStencilBuffer = mtlNewTextureWithDescriptor(device.device, depthStencilBufferDesc);
 				}
-
-				// Clean up
-				mtlDevice.textureDescriptor.Reset();
 
 				// This backbuffer is the initial render target
 				mtlDevice.currentColorBuffer = ColorBuffer;
@@ -1376,6 +1361,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			) {
 				Width = presentationParameters.BackBufferWidth;
 				Height = presentationParameters.BackBufferHeight;
+				mtlDevice.fauxBackbufferSizeChanged = true;
 
 				DepthFormat = presentationParameters.DepthStencilFormat;
 				MultiSampleCount = presentationParameters.MultiSampleCount;
@@ -1392,28 +1378,33 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Update color buffer to the new resolution.
-				mtlDevice.textureDescriptor.PixelFormat = mtlGetLayerPixelFormat(mtlDevice.layer);
-				mtlDevice.textureDescriptor.Width = Width;
-				mtlDevice.textureDescriptor.Height = Height;
-				mtlDevice.textureDescriptor.Usage = MTLTextureUsage.RenderTarget;
+				IntPtr colorBufferDesc = mtlMakeTexture2DDescriptor(
+					mtlGetLayerPixelFormat(mtlDevice.layer),
+					(uint) Width,
+					(uint) Height,
+					false
+				);
+				mtlSetTextureUsage(colorBufferDesc, MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead);
 				if (MultiSampleCount > 0)
 				{
-					mtlDevice.textureDescriptor.StorageMode = MTLResourceStorageMode.Private;
-					mtlDevice.textureDescriptor.TextureType = MTLTextureType.Multisample2D;
-					mtlDevice.textureDescriptor.SampleCount = MultiSampleCount;
+					mtlSetStorageMode(colorBufferDesc, MTLResourceStorageMode.Private);
+					mtlSetTextureType(colorBufferDesc, MTLTextureType.Multisample2D);
+					mtlSetTextureSampleCount(colorBufferDesc, MultiSampleCount);
 				}
-				ColorBuffer = mtlDevice.textureDescriptor.GenTexture();
+				ColorBuffer = mtlNewTextureWithDescriptor(mtlDevice.device, colorBufferDesc);
 
 				// Update the depth/stencil buffer, if applicable
 				if (DepthFormat != DepthFormat.None)
 				{
-					mtlDevice.textureDescriptor.PixelFormat = XNAToMTL.DepthStorage[(int) DepthFormat];
-					mtlDevice.textureDescriptor.StorageMode = MTLResourceStorageMode.Private;
-					DepthStencilBuffer = mtlDevice.textureDescriptor.GenTexture();
+					IntPtr depthStencilBufferDesc = mtlMakeTexture2DDescriptor(
+						XNAToMTL.DepthStorage[(int) DepthFormat],
+						(uint) Width,
+						(uint) Height,
+						false
+					);
+					mtlSetStorageMode(depthStencilBufferDesc, MTLResourceStorageMode.Private);
+					DepthStencilBuffer = mtlNewTextureWithDescriptor(mtlDevice.device, depthStencilBufferDesc);
 				}
-
-				// Clean up
-				mtlDevice.textureDescriptor.Reset();
 
 				// If we don't already have a render target, treat this as the render target.
 				if (!renderTargetBound)
@@ -1459,7 +1450,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Create vertex and fragment shaders for the faux-backbuffer pipeline
 			// FIXME: Wonder if we could just compile ahead-of-time for this...
-			// FIXME: Could we replace this with an XNA SpriteEffect or something?
 			string shaderSource =
 			@"
 				#include <metal_stdlib>
