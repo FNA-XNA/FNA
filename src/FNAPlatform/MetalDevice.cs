@@ -139,16 +139,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (value != blendColor)
 				{
 					blendColor = value;
-					if (RenderCommandEncoder != IntPtr.Zero)
-					{
-						mtlSetBlendColor(
-							RenderCommandEncoder,
-							blendColor.R / 255f,
-							blendColor.G / 255f,
-							blendColor.B / 255f,
-							blendColor.A / 255f
-						);
-					}
+					SetRCEBlendColor();
 				}
 			}
 		}
@@ -169,12 +160,28 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		private bool alphaBlendEnable = false;
 		private Color blendColor = Color.Transparent;
+		private BlendFunction blendOp = BlendFunction.Add;
+		private BlendFunction blendOpAlpha = BlendFunction.Add;
+		private Blend srcBlend = Blend.One;
+		private Blend dstBlend = Blend.Zero;
+		private Blend srcBlendAlpha = Blend.One;
+		private Blend dstBlendAlpha = Blend.Zero;
+		private ColorWriteChannels colorWriteEnable = ColorWriteChannels.All;
+		private ColorWriteChannels colorWriteEnable1 = ColorWriteChannels.All;
+		private ColorWriteChannels colorWriteEnable2 = ColorWriteChannels.All;
+		private ColorWriteChannels colorWriteEnable3 = ColorWriteChannels.All;
 		private int multisampleMask = -1; // AKA 0xFFFFFFFF
 
 		#endregion
 
 		#region Depth State Variables
+
+		private bool zEnable = false;
+		private bool zWriteEnable = false;
+		private CompareFunction depthFunc = CompareFunction.Less;
+
 		#endregion
 
 		#region Stencil State Variables
@@ -190,22 +197,36 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (value != stencilRef)
 				{
 					stencilRef = value;
-					if (RenderCommandEncoder != IntPtr.Zero)
-					{
-						mtlSetStencilReferenceValue(
-							RenderCommandEncoder,
-							(uint) stencilRef
-						);
-					}
+					SetRCEStencilReferenceValue();
 				}
 			}
 		}
 
+		private bool stencilEnable = false;
+		private int stencilWriteMask = -1; // AKA 0xFFFFFFFF, ugh -flibit
+		private bool separateStencilEnable = false;
 		private int stencilRef = 0;
+		private int stencilMask = -1; // AKA 0xFFFFFFFF, ugh -flibit
+		private CompareFunction stencilFunc = CompareFunction.Always;
+		private StencilOperation stencilFail = StencilOperation.Keep;
+		private StencilOperation stencilZFail = StencilOperation.Keep;
+		private StencilOperation stencilPass = StencilOperation.Keep;
+		private CompareFunction ccwStencilFunc = CompareFunction.Always;
+		private StencilOperation ccwStencilFail = StencilOperation.Keep;
+		private StencilOperation ccwStencilZFail = StencilOperation.Keep;
+		private StencilOperation ccwStencilPass = StencilOperation.Keep;
 
 		#endregion
 
 		#region Rasterizer State Variables
+
+		private bool scissorTestEnable = false;
+		private CullMode cullFrontFace = CullMode.None;
+		private FillMode fillMode = FillMode.Solid;
+		private float depthBias = 0.0f;
+		private float slopeScaleDepthBias = 0.0f;
+		private bool multiSampleEnable = true;
+
 		#endregion
 
 		#region Viewport State Variables
@@ -258,6 +279,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr currentDrawable;		// CAMetalDrawable*
 		private IntPtr currentColorBuffer;	// MTLTexture*
 		private IntPtr currentDepthStencilBuffer; // MTLTexture*
+
+		private ulong currentAttachmentWidth;
+		private ulong currentAttachmentHeight;
 
 		private bool renderPassDirty = false;
 		private bool shouldClearColor = false;
@@ -330,31 +354,49 @@ namespace Microsoft.Xna.Framework.Graphics
 					mtlSetAttachmentLoadAction(stencilAttachment, MTLLoadAction.Load);
 				}
 
+				// Get attachment size
+				currentAttachmentWidth = mtlGetTextureWidth(currentColorBuffer);
+				currentAttachmentHeight = mtlGetTextureHeight(currentColorBuffer);
+
 				// Make a new encoder
 				RenderCommandEncoder = mtlMakeRenderCommandEncoder(
 					commandBuffer,
 					renderPassDesc
 				);
 
-				// Initialize the new encoder
-				mtlSetViewport(
-					RenderCommandEncoder,
-					viewport.X,
-					viewport.Y,
-					viewport.Width,
-					viewport.Height,
-					depthRangeMin,
-					depthRangeMax
-				);
+				SetRCEViewport();
+				if (scissorTestEnable)
+				{
+					SetRCEScissorRect();
+				}
+				SetRCEBlendColor();
+				SetRCEStencilReferenceValue();
+				SetRCECullModeAndWinding();
+				SetRCEFillMode();
+				SetRCEDepthBias();
 
-				mtlSetScissorRect(
-					RenderCommandEncoder,
-					(uint) scissorRectangle.X,
-					(uint) scissorRectangle.Y,
-					(uint) scissorRectangle.Width,
-					(uint) scissorRectangle.Height
-				);
+				// Reset the flag
+				renderPassDirty = false;
+			}
 
+			return RenderCommandEncoder;
+		}
+
+		private void SetRCEStencilReferenceValue()
+		{
+			if (RenderCommandEncoder != IntPtr.Zero)
+			{
+				mtlSetStencilReferenceValue(
+					RenderCommandEncoder,
+					(ulong) stencilRef
+				);
+			}
+		}
+
+		private void SetRCEBlendColor()
+		{
+			if (RenderCommandEncoder != IntPtr.Zero)
+			{
 				mtlSetBlendColor(
 					RenderCommandEncoder,
 					blendColor.R / 255f,
@@ -362,17 +404,81 @@ namespace Microsoft.Xna.Framework.Graphics
 					blendColor.B / 255f,
 					blendColor.A / 255f
 				);
+			}
+		}
 
-				mtlSetStencilReferenceValue(
+		private void SetRCEViewport()
+		{
+			if (RenderCommandEncoder != IntPtr.Zero)
+			{
+				mtlSetViewport(
 					RenderCommandEncoder,
-					(ulong) stencilRef
+					viewport.X,
+					viewport.Y,
+					viewport.Width,
+					viewport.Height,
+					(double) depthRangeMin,
+					(double) depthRangeMax
+				);
+			}
+		}
+
+		private void SetRCECullModeAndWinding()
+		{
+			if (RenderCommandEncoder != IntPtr.Zero)
+			{
+				mtlSetCullMode(
+					RenderCommandEncoder,
+					XNAToMTL.CullingEnabled[(int) cullFrontFace]
 				);
 
-				// Reset the flag
-				renderPassDirty = false;
+				if (cullFrontFace != CullMode.None)
+				{
+					mtlSetFrontFacingWinding(
+						RenderCommandEncoder,
+						XNAToMTL.FrontFace[(int) cullFrontFace]
+					);
+				}
 			}
 
-			return RenderCommandEncoder;
+		}
+
+		private void SetRCEFillMode()
+		{
+			if (RenderCommandEncoder != IntPtr.Zero)
+			{
+				mtlSetTriangleFillMode(
+					RenderCommandEncoder,
+					XNAToMTL.FillMode[(int) fillMode]
+				);
+			}
+		}
+
+		private void SetRCEDepthBias()
+		{
+			if (RenderCommandEncoder != null)
+			{
+				mtlSetDepthBias(
+					RenderCommandEncoder,
+					depthBias,
+					slopeScaleDepthBias,
+					2.0f // FIXME: What should this be?
+				);
+			}
+		}
+
+		private void SetRCEScissorRect()
+		{
+			if (RenderCommandEncoder != IntPtr.Zero)
+			{
+				mtlSetScissorRect(
+					RenderCommandEncoder,
+					(uint) scissorRectangle.X,
+					(uint) scissorRectangle.Y,
+					(uint) scissorRectangle.Width,
+					(uint) scissorRectangle.Height
+				);
+			}
 		}
 
 		#endregion
@@ -909,19 +1015,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				viewport = vp.Bounds;
 				depthRangeMin = vp.MinDepth;
 				depthRangeMax = vp.MaxDepth;
-
-				if (RenderCommandEncoder != IntPtr.Zero)
-				{
-					mtlSetViewport(
-						RenderCommandEncoder,
-						viewport.X,
-						viewport.Y,
-						viewport.Width,
-						viewport.Height,
-						(double) depthRangeMin,
-						(double) depthRangeMax
-					);
-				}
+				SetRCEViewport();
 			}
 
 			/* Note: We don't need to flip the viewport,
@@ -935,16 +1029,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (scissorRect != scissorRectangle)
 			{
 				scissorRectangle = scissorRect;
-				if (RenderCommandEncoder != IntPtr.Zero)
-				{
-					mtlSetScissorRect(
-						RenderCommandEncoder,
-						(uint) scissorRectangle.X,
-						(uint) scissorRectangle.Y,
-						(uint) scissorRectangle.Width,
-						(uint) scissorRectangle.Height
-					);
-				}
 			}
 
 			/* Note: We don't need to flip the rectangle,
@@ -953,9 +1037,76 @@ namespace Microsoft.Xna.Framework.Graphics
 			 */
 		}
 
-		public void ApplyRasterizerState(RasterizerState rasterizerState, bool renderTargetBound)
-		{
-			throw new NotImplementedException();
+		public void ApplyRasterizerState(
+			RasterizerState rasterizerState,
+			bool renderTargetBound
+		) {
+			if (rasterizerState.ScissorTestEnable != scissorTestEnable)
+			{
+				scissorTestEnable = rasterizerState.ScissorTestEnable;
+				if (!scissorTestEnable && RenderCommandEncoder != IntPtr.Zero)
+				{
+					// Set to the default scissor rect
+					// FIXME: Make sure currentAttachmentWidth/Height get updated appropriately
+					mtlSetScissorRect(
+						RenderCommandEncoder,
+						0,
+						0,
+						currentAttachmentWidth,
+						currentAttachmentHeight
+					);
+				}
+			}
+
+			CullMode actualMode;
+			if (renderTargetBound)
+			{
+				actualMode = rasterizerState.CullMode;
+			}
+			else
+			{
+				// When not rendering offscreen the faces change order.
+				if (rasterizerState.CullMode == CullMode.None)
+				{
+					actualMode = rasterizerState.CullMode;
+				}
+				else
+				{
+					actualMode = (
+						rasterizerState.CullMode == CullMode.CullClockwiseFace ?
+							CullMode.CullCounterClockwiseFace :
+							CullMode.CullClockwiseFace
+					);
+				}
+			}
+			if (actualMode != cullFrontFace)
+			{
+				cullFrontFace = actualMode;
+				SetRCECullModeAndWinding();
+			}
+
+			if (rasterizerState.FillMode != fillMode)
+			{
+				fillMode = rasterizerState.FillMode;
+				SetRCEFillMode();
+			}
+
+			float realDepthBias = rasterizerState.DepthBias * XNAToMTL.DepthBiasScale[
+				(int) Backbuffer.DepthFormat // FIXME: Handle render targets
+			];
+			if (	realDepthBias != depthBias ||
+				rasterizerState.SlopeScaleDepthBias != slopeScaleDepthBias	)
+			{
+				depthBias = realDepthBias;
+				slopeScaleDepthBias = rasterizerState.SlopeScaleDepthBias;
+				SetRCEDepthBias();
+			}
+
+			if (rasterizerState.MultiSampleAntiAlias != multiSampleEnable)
+			{
+				multiSampleEnable = rasterizerState.MultiSampleAntiAlias;
+				// FIXME: What should we do with this...?
+			}
 		}
 
 		public void VerifySampler(int index, Texture texture, SamplerState sampler)
@@ -965,12 +1116,75 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetBlendState(BlendState blendState)
 		{
-			throw new NotImplementedException();
+			/* Store changes since the state isn't applied until
+			 * we create or retrieve a render pipeline state.
+			 */
+
+			bool newEnable = (
+				!(	blendState.ColorSourceBlend == Blend.One &&
+					blendState.ColorDestinationBlend == Blend.Zero &&
+					blendState.AlphaSourceBlend == Blend.One &&
+					blendState.AlphaDestinationBlend == Blend.Zero	)
+			);
+			if (newEnable != alphaBlendEnable)
+			{
+				alphaBlendEnable = newEnable;
+			}
+
+			if (alphaBlendEnable)
+			{
+				if (blendState.BlendFactor != blendColor)
+				{
+					blendColor = blendState.BlendFactor;
+					SetRCEBlendColor();
+				}
+
+				if (	blendState.ColorSourceBlend != srcBlend ||
+					blendState.ColorDestinationBlend != dstBlend ||
+					blendState.AlphaSourceBlend != srcBlendAlpha ||
+					blendState.AlphaDestinationBlend != dstBlendAlpha	)
+				{
+					srcBlend = blendState.ColorSourceBlend;
+					dstBlend = blendState.ColorDestinationBlend;
+					srcBlendAlpha = blendState.AlphaSourceBlend;
+					dstBlendAlpha = blendState.AlphaDestinationBlend;
+				}
+
+				if (	blendState.ColorBlendFunction != blendOp ||
+					blendState.AlphaBlendFunction != blendOpAlpha	)
+				{
+					blendOp = blendState.ColorBlendFunction;
+					blendOpAlpha = blendState.AlphaBlendFunction;
+				}
+			}
+
+			if (blendState.ColorWriteChannels != colorWriteEnable)
+			{
+				colorWriteEnable = blendState.ColorWriteChannels;
+			}
+			if (blendState.ColorWriteChannels1 != colorWriteEnable1)
+			{
+				colorWriteEnable1 = blendState.ColorWriteChannels1;
+			}
+			if (blendState.ColorWriteChannels2 != colorWriteEnable2)
+			{
+				colorWriteEnable2 = blendState.ColorWriteChannels2;
+			}
+			if (blendState.ColorWriteChannels3 != colorWriteEnable3)
+			{
+				colorWriteEnable3 = blendState.ColorWriteChannels3;
+			}
+
+			if (blendState.MultiSampleMask != multisampleMask)
+			{
+				multisampleMask = blendState.MultiSampleMask;
+				// FIXME: This doesn't do anything...
+			}
 		}
 
 		public void SetDepthStencilState(DepthStencilState depthStencilState)
 		{
-			throw new NotImplementedException();
+			// FIXME: Add this once we figure out depth-stencil buffers
 		}
 
 		#endregion
@@ -1105,13 +1319,82 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region ApplyVertexAttributes Methods
 
-		public void ApplyVertexAttributes(VertexBufferBinding[] bindings, int numBindings, bool bindingsUpdated, int baseVertex)
+		private void SetupPipeline()
 		{
+			// Apply Blend State
+
+			// mtlSetAttachmentBlendingEnabled(
+			// 	colorAttachment,
+			// 	alphaBlendEnable
+			// );
+
+			// mtlSetAttachmentSourceRGBBlendFactor(
+			// 	colorAttachment,
+			// 	XNAToMTL.BlendMode[(int) srcBlend]
+			// );
+			// mtlSetAttachmentDestinationRGBBlendFactor(
+			// 	colorAttachment,
+			// 	XNAToMTL.BlendMode[(int) dstBlend]
+			// );
+			// mtlSetAttachmentSourceAlphaBlendFactor(
+			// 	colorAttachment,
+			// 	XNAToMTL.BlendMode[(int) srcBlendAlpha]
+			// );
+			// mtlSetAttachmentDestinationAlphaBlendFactor(
+			// 	colorAttachment,
+			// 	XNAToMTL.BlendMode[(int) dstBlendAlpha]
+			// );
+
+			// mtlSetAttachmentRGBBlendOperation(
+			// 	colorAttachment,
+			// 	XNAToMTL.BlendOperation[(int) blendOp]
+			// );
+			// mtlSetAttachmentAlphaBlendOperation(
+			// 	colorAttachment,
+			// 	XNAToMTL.BlendOperation[(int) blendOpAlpha]
+			// );
+
+			// mtlSetAttachmentWriteMask(
+			// 	colorAttachment,
+			// 	(ulong) colorWriteEnable
+			// );
+			// /* FIXME: So how exactly do we factor in
+			// 	* COLORWRITEENABLE for buffer 0? Do we just assume that
+			// 	* the default is just buffer 0, and all other calls
+			// 	* update the other write masks afterward? Or do we
+			// 	* assume that COLORWRITEENABLE only touches 0, and the
+			// 	* other 3 buffers are left alone unless we don't have
+			// 	* EXT_draw_buffers2?
+			// 	* -flibit
+			// 	*/
+			// mtlSetAttachmentWriteMask(
+			// 	mtlGetColorAttachment(pipelineDesc, 1),
+			// 	(ulong) colorWriteEnable1
+			// );
+			// mtlSetAttachmentWriteMask(
+			// 	mtlGetColorAttachment(pipelineDesc, 2),
+			// 	(ulong) colorWriteEnable2
+			// );
+			// mtlSetAttachmentWriteMask(
+			// 	mtlGetColorAttachment(pipelineDesc, 3),
+			// 	(ulong) colorWriteEnable3
+			// );
+		}
+
+		public void ApplyVertexAttributes(
+			VertexBufferBinding[] bindings,
+			int numBindings,
+			bool bindingsUpdated,
+			int baseVertex
+		) {
 			throw new NotImplementedException();
 		}
 
-		public void ApplyVertexAttributes(VertexDeclaration vertexDeclaration, IntPtr ptr, int vertexOffset)
-		{
+		public void ApplyVertexAttributes(
+			VertexDeclaration vertexDeclaration,
+			IntPtr ptr,
+			int vertexOffset
+		) {
 			throw new NotImplementedException();
 		}
 
@@ -1163,7 +1446,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region SetBufferData Methods
 
-		public void SetIndexBufferData(
+		private void SetBufferData(
 			IGLBuffer buffer,
 			int offsetInBytes,
 			IntPtr data,
@@ -1180,9 +1463,24 @@ namespace Microsoft.Xna.Framework.Graphics
 			memcpy(dst, data, (IntPtr) dataLength);
 		}
 
-		public void SetVertexBufferData(IGLBuffer buffer, int offsetInBytes, IntPtr data, int dataLength, SetDataOptions options)
-		{
-			throw new NotImplementedException();
+		public void SetIndexBufferData(
+			IGLBuffer buffer,
+			int offsetInBytes,
+			IntPtr data,
+			int dataLength,
+			SetDataOptions options
+		) {
+			SetBufferData(buffer, offsetInBytes, data, dataLength, options);
+		}
+
+		public void SetVertexBufferData(
+			IGLBuffer buffer,
+			int offsetInBytes,
+			IntPtr data,
+			int dataLength,
+			SetDataOptions options
+		) {
+			SetBufferData(buffer, offsetInBytes, data, dataLength, options);
 		}
 
 		#endregion
@@ -1203,9 +1501,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region CreateTexture Methods
 
-		public IGLTexture CreateTexture2D(SurfaceFormat format, int width, int height, int levelCount)
-		{
-			throw new NotImplementedException();
+		public IGLTexture CreateTexture2D(
+			SurfaceFormat format,
+			int width,
+			int height,
+			int levelCount
+		) {
+			IntPtr texDesc = mtlMakeTexture2DDescriptor(
+				XNAToMTL.TextureFormat[(int) format],
+				(ulong) width,
+				(ulong) height,
+				levelCount > 0
+			);
+			IntPtr tex = mtlNewTextureWithDescriptor(device, texDesc);
+			return new MetalTexture(tex, levelCount);
 		}
 
 		public IGLTexture CreateTexture3D(SurfaceFormat format, int width, int height, int depth, int levelCount)
@@ -1222,9 +1531,28 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region SetTextureData Methods
 
-		public void SetTextureData2D(IGLTexture texture, SurfaceFormat format, int x, int y, int w, int h, int level, IntPtr data, int dataLength)
-		{
-			throw new NotImplementedException();
+		public void SetTextureData2D(
+			IGLTexture texture,
+			SurfaceFormat format,
+			int x,
+			int y,
+			int w,
+			int h,
+			int level,
+			IntPtr data,
+			int dataLength
+		) {
+			MTLRegion region = new MTLRegion(
+				new MTLOrigin((ulong) x, (ulong) y, 0),
+				new MTLSize((ulong) w, (ulong) h, 1)
+			);
+			mtlReplaceRegion(
+				(texture as MetalTexture).Handle,
+				region,
+				(ulong) level,
+				data,
+				(ulong) (dataLength / h)
+			);
 		}
 
 		public void SetTextureData2DPointer(Texture2D texture, IntPtr ptr)
@@ -1401,6 +1729,60 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				2,	// IndexElementSize.SixteenBits
 				4	// IndexElementSize.ThirtyTwoBits
+			};
+
+			public static readonly MTLBlendFactor[] BlendMode = new MTLBlendFactor[]
+			{
+				MTLBlendFactor.One,			// Blend.One
+				MTLBlendFactor.Zero,			// Blend.Zero
+				MTLBlendFactor.SourceColor,		// Blend.SourceColor
+				MTLBlendFactor.OneMinusSourceColor,	// Blend.InverseSourceColor
+				MTLBlendFactor.SourceAlpha,		// Blend.SourceAlpha
+				MTLBlendFactor.OneMinusSourceAlpha,	// Blend.InverseSourceAlpha
+				MTLBlendFactor.DestinationColor,	// Blend.DestinationColor
+				MTLBlendFactor.OneMinusDestinationColor,// Blend.InverseDestinationColor
+				MTLBlendFactor.DestinationAlpha,	// Blend.DestinationAlpha
+				MTLBlendFactor.OneMinusDestinationAlpha,// Blend.InverseDestinationAlpha
+				MTLBlendFactor.BlendColor,		// Blend.BlendFactor
+				MTLBlendFactor.OneMinusBlendColor,	// Blend.InverseBlendFactor
+				MTLBlendFactor.SourceAlphaSaturated	// Blend.SourceAlphaSaturation
+			};
+
+			public static readonly MTLBlendOperation[] BlendOperation = new MTLBlendOperation[]
+			{
+				MTLBlendOperation.Add,			// BlendFunction.Add
+				MTLBlendOperation.Subtract,		// BlendFunction.Subtract
+				MTLBlendOperation.ReverseSubtract,	// BlendFunction.ReverseSubtract
+				MTLBlendOperation.Max,			// BlendFunction.Max
+				MTLBlendOperation.Min			// BlendFunction.Min
+			};
+
+			public static readonly MTLWinding[] FrontFace = new MTLWinding[]
+			{
+				0,				// NOPE
+				MTLWinding.Clockwise,		// CullMode.CullClockwiseFace
+				MTLWinding.CounterClockwise	// CullMode.CullCounterClockwiseFace
+			};
+
+			public static readonly MTLTriangleFillMode[] FillMode = new MTLTriangleFillMode[]
+			{
+				MTLTriangleFillMode.Fill,	// FillMode.Solid
+				MTLTriangleFillMode.Lines	// FillMode.WireFrame
+			};
+
+			public static readonly float[] DepthBiasScale = new float[]
+			{
+				0.0f,				// DepthFormat.None
+				(float) ((1 << 16) - 1),	// DepthFormat.Depth16
+				(float) ((1 << 24) - 1),	// DepthFormat.Depth24
+				(float) ((1 << 24) - 1)		// DepthFormat.Depth24Stencil8
+			};
+
+			public static readonly MTLCullMode[] CullingEnabled = new MTLCullMode[]
+			{
+				MTLCullMode.None,		// CullMode.None
+				MTLCullMode.Back,		// CullMode.CullClockwiseFace
+				MTLCullMode.Back		// CullMode.CullCounterClockwiseFace
 			};
 		}
 

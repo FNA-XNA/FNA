@@ -81,6 +81,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, MTLClearColor color);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, float arg1, float arg2, float arg3);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, float arg1, float arg2, float arg3, float arg4);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -249,6 +252,53 @@ namespace Microsoft.Xna.Framework.Graphics
 			Private = 2
 		}
 
+		private enum MTLBlendFactor
+		{
+			Zero = 0,
+			One = 1,
+			SourceColor = 2,
+			OneMinusSourceColor = 3,
+			SourceAlpha = 4,
+			OneMinusSourceAlpha = 5,
+			DestinationColor = 6,
+			OneMinusDestinationColor = 7,
+			DestinationAlpha = 8,
+			OneMinusDestinationAlpha = 9,
+			SourceAlphaSaturated = 10,
+			BlendColor = 11,
+			OneMinusBlendColor = 12,
+			BlendAlpha = 13,
+			OneMinusBlendAlpha = 14,
+		}
+
+		private enum MTLBlendOperation
+		{
+			Add = 0,
+			Subtract = 1,
+			ReverseSubtract = 2,
+			Min = 3,
+			Max = 4
+		}
+
+		private enum MTLCullMode
+		{
+			None = 0,
+			Front = 1,
+			Back = 2
+		}
+
+		private enum MTLWinding
+		{
+			Clockwise = 0,
+			CounterClockwise = 1
+		}
+
+		private enum MTLTriangleFillMode
+		{
+			Fill = 0,
+			Lines = 1
+		}
+
 		#endregion
 
 		#region Private MTL Structs
@@ -393,6 +443,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selRenderCommandEncoder = Selector("renderCommandEncoderWithDescriptor:");
 		private static IntPtr selSupportsSampleCount = Selector("supportsSampleCount:");
 		private static IntPtr selNewTextureWithDescriptor = Selector("newTextureWithDescriptor:");
+		private static IntPtr selWidth = Selector("width");
+		private static IntPtr selHeight = Selector("height");
 
 		private static IntPtr selClearColor = Selector("clearColor");
 		private static IntPtr selSetClearColor = Selector("setClearColor:");
@@ -443,6 +495,20 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetStorageMode = Selector("setStorageMode:");
 		private static IntPtr selSetResolveTexture = Selector("setResolveTexture:");
 		private static IntPtr selSetStoreAction = Selector("setStoreAction:");
+
+		private static IntPtr selBlendingEnabled = Selector("setBlendingEnabled:");
+		private static IntPtr selSetAlphaBlendOperation = Selector("setAlphaBlendOperation:");
+		private static IntPtr selSetRGBBlendOperation = Selector("setRgbBlendOperation:"); // FIXME: Is this right?
+		private static IntPtr selSetDestinationAlphaBlendFactor = Selector("setDestinationAlphaBlendFactor:");
+		private static IntPtr selSetDestinationRGBBlendFactor = Selector("setDestinationRGBBlendFactor:");
+		private static IntPtr selSetSourceAlphaBlendFactor = Selector("setSourceAlphaBlendFactor:");
+		private static IntPtr selSetSourceRGBBlendFactor = Selector("setSourceRGBBlendFactor:");
+		private static IntPtr selSetWriteMask = Selector("setWriteMask:");
+
+		private static IntPtr selSetCullMode = Selector("setCullMode:");
+		private static IntPtr selSetTriangleFillMode = Selector("setTriangleFillMode:");
+		private static IntPtr selSetFrontFacingWinding = Selector("setFrontFacingWinding:");
+		private static IntPtr selSetDepthBias = Selector("setDepthBias:slopeScale:clamp:");
 
 		private static IntPtr selPixelFormat = Selector("pixelFormat");
 		private static IntPtr selDrawableSize = Selector("drawableSize");
@@ -696,6 +762,62 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(stencilAttachment, selSetClearStencil, (ulong) clearStencil);
 		}
 
+		private static void mtlSetAttachmentBlendingEnabled(
+			IntPtr colorAttachment,
+			bool enabled
+		) {
+			objc_msgSend(colorAttachment, selBlendingEnabled, enabled);
+		}
+
+		private static void mtlSetAttachmentAlphaBlendOperation(
+			IntPtr colorAttachment,
+			MTLBlendOperation op
+		) {
+			objc_msgSend(colorAttachment, selSetAlphaBlendOperation, (ulong) op);
+		}
+
+		private static void mtlSetAttachmentRGBBlendOperation(
+			IntPtr colorAttachment,
+			MTLBlendOperation op
+		) {
+			objc_msgSend(colorAttachment, selSetRGBBlendOperation, (ulong) op);
+		}
+
+		private static void mtlSetAttachmentDestinationAlphaBlendFactor(
+			IntPtr colorAttachment,
+			MTLBlendFactor blend
+		) {
+			objc_msgSend(colorAttachment, selSetDestinationAlphaBlendFactor, (ulong) blend);
+		}
+
+		private static void mtlSetAttachmentDestinationRGBBlendFactor(
+			IntPtr colorAttachment,
+			MTLBlendFactor blend
+		) {
+			objc_msgSend(colorAttachment, selSetDestinationRGBBlendFactor, (ulong) blend);
+		}
+
+		private static void mtlSetAttachmentSourceAlphaBlendFactor(
+			IntPtr colorAttachment,
+			MTLBlendFactor blend
+		) {
+			objc_msgSend(colorAttachment, selSetSourceAlphaBlendFactor, (ulong) blend);
+		}
+
+		private static void mtlSetAttachmentSourceRGBBlendFactor(
+			IntPtr colorAttachment,
+			MTLBlendFactor blend
+		) {
+			objc_msgSend(colorAttachment, selSetSourceRGBBlendFactor, (ulong) blend);
+		}
+
+		private static void mtlSetAttachmentWriteMask(
+			IntPtr colorAttachment,
+			ulong mask
+		) {
+			objc_msgSend(colorAttachment, selSetWriteMask, (ulong) mask);
+		}
+
 		#endregion
 
 		#region MTLRenderPassDescriptor
@@ -799,6 +921,54 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static void mtlSetCullMode(
+			IntPtr renderCommandEncoder,
+			MTLCullMode cullMode
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetCullMode,
+				(ulong) cullMode
+			);
+		}
+
+		private static void mtlSetFrontFacingWinding(
+			IntPtr renderCommandEncoder,
+			MTLWinding winding
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetFrontFacingWinding,
+				(ulong) winding
+			);
+		}
+
+		private static void mtlSetTriangleFillMode(
+			IntPtr renderCommandEncoder,
+			MTLTriangleFillMode fillMode
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetTriangleFillMode,
+				(ulong) fillMode
+			);
+		}
+
+		private static void mtlSetDepthBias(
+			IntPtr renderCommandEncoder,
+			float depthBias,
+			float slopeScaleDepthBias,
+			float clamp
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetDepthBias,
+				depthBias,
+				slopeScaleDepthBias,
+				clamp
+			);
+		}
+
 		#endregion
 
 		#region CAMetalLayer
@@ -894,6 +1064,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			int height
 		) {
 			objc_msgSend(texDesc, selSetHeight, (ulong) height);
+		}
+
+		private static ulong mtlGetTextureWidth(IntPtr texture)
+		{
+			return ulong_objc_msgSend(texture, selWidth);
+		}
+
+		private static ulong mtlGetTextureHeight(IntPtr texture)
+		{
+			return ulong_objc_msgSend(texture, selHeight);
 		}
 
 		#endregion
