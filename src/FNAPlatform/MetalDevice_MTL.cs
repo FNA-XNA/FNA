@@ -299,6 +299,41 @@ namespace Microsoft.Xna.Framework.Graphics
 			Lines = 1
 		}
 
+		private enum MTLSamplerAddressMode
+		{
+			ClampToEdge = 0,
+			Repeat = 2,
+			MirrorRepeat = 3
+		}
+
+		private enum MTLSamplerMipFilter
+		{
+			NotMipmapped = 0,
+			Nearest = 1,
+			Linear = 2
+		}
+
+		private enum MTLVertexFormat
+		{
+			UChar4 = 3,
+			UChar4Normalized = 9,
+			Short2 = 16,
+			Short4 = 18,
+			Short2Normalized = 22,
+			Short4Normalized = 24,
+			Half2 = 25,
+			Half4 = 27,
+			Float = 28,
+			Float2 = 29,
+			Float3 = 30,
+			Float4 = 31
+		}
+
+		private enum MTLVertexStepFunction
+		{
+			PerInstance = 2
+		}
+
 		#endregion
 
 		#region Private MTL Structs
@@ -431,103 +466,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			return sel_registerName(System.Text.Encoding.UTF8.GetBytes(name));
 		}
 
-		// FIXME: Clean up this huge mess
-
-		private static IntPtr selCommandBuffer = Selector("commandBuffer");
-		private static IntPtr selCommandQueue = Selector("newCommandQueue");
-		private static IntPtr selCommit = Selector("commit");
-		private static IntPtr selContents = Selector("contents");
-		private static IntPtr selName = Selector("name");
-		private static IntPtr selPresentDrawable = Selector("presentDrawable:");
-		private static IntPtr selNewBufferWithLength = Selector("newBufferWithLength:options:");
-		private static IntPtr selRenderCommandEncoder = Selector("renderCommandEncoderWithDescriptor:");
-		private static IntPtr selSupportsSampleCount = Selector("supportsSampleCount:");
-		private static IntPtr selNewTextureWithDescriptor = Selector("newTextureWithDescriptor:");
-		private static IntPtr selWidth = Selector("width");
-		private static IntPtr selHeight = Selector("height");
-
-		private static IntPtr selClearColor = Selector("clearColor");
-		private static IntPtr selSetClearColor = Selector("setClearColor:");
-		private static IntPtr selLoadAction = Selector("loadAction");
-		private static IntPtr selSetLoadAction = Selector("setLoadAction:");
-		private static IntPtr selTexture = Selector("texture");
-		private static IntPtr selSetTexture = Selector("setTexture:");
-		private static IntPtr selSetPixelFormat = Selector("setPixelFormat:");
-
-		private static IntPtr selColorAttachments = Selector("colorAttachments");
-		private static IntPtr selObjectAtIndexedSubscript = Selector("objectAtIndexedSubscript:");
-		private static IntPtr selRenderPassDescriptor = Selector("renderPassDescriptor");
-		private static IntPtr selSetViewport = Selector("setViewport:");
-		private static IntPtr selSetScissorRect = Selector("setScissorRect:");
-		private static IntPtr selEndEncoding = Selector("endEncoding");
-		private static IntPtr selNextDrawable = Selector("nextDrawable");
-		private static IntPtr selTexture2DDescriptor = Selector("texture2DDescriptorWithPixelFormat:width:height:mipmapped:");
-		private static IntPtr selReplaceRegion = Selector("replaceRegion:mipmapLevel:withBytes:bytesPerRow:");
-		private static IntPtr selBlitCommandEncoder = Selector("blitCommandEncoder");
-		private static IntPtr selCopyFromTexture = Selector("copyFromTexture:sourceSlice:sourceLevel:sourceOrigin:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:");
-		private static IntPtr selSetBlendColor = Selector("setBlendColorRed:green:blue:alpha:");
-		private static IntPtr selDrawIndexedPrimitives = Selector("drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:instanceCount:baseVertex:baseInstance:");
-
-		private static IntPtr selSetVertexFunction = Selector("setVertexFunction:");
-		private static IntPtr selSetFragmentFunction = Selector("setFragmentFunction:");
-		private static IntPtr selSetVertexDescriptor = Selector("setVertexDescriptor:");
-		private static IntPtr selNewRenderPipelineState = Selector("newRenderPipelineStateWithDescriptor:error:");
-		private static IntPtr selSetRenderPipelineState = Selector("setRenderPipelineState:");
-		private static IntPtr selSetVertexBuffer = Selector("setVertexBuffer:offset:atIndex:");
-		private static IntPtr selSetFragmentTexture = Selector("setFragmentTexture:atIndex:");
-
-		private static IntPtr selSetStencilReference = Selector("setStencilReferenceValue:");
-
-		private static IntPtr selLocalizedDescription = Selector("localizedDescription");
-
-		private static IntPtr selSetUsage = Selector("setUsage:");
-		private static IntPtr selSetTextureType = Selector("setTextureType:");
-		private static IntPtr selSetSampleCount = Selector("setSampleCount:");
-		private static IntPtr selSetWidth = Selector("setWidth:");
-		private static IntPtr selSetHeight = Selector("setHeight:");
-
-		private static IntPtr selDepthAttachment = Selector("depthAttachment");
-		private static IntPtr selSetClearDepth = Selector("setClearDepth:");
-		private static IntPtr selStencilAttachment = Selector("stencilAttachment");
-		private static IntPtr selSetClearStencil = Selector("setClearStencil:");
-
-		private static IntPtr selSetFramebufferOnly = Selector("setFramebufferOnly:");
-		private static IntPtr selSetStorageMode = Selector("setStorageMode:");
-		private static IntPtr selSetResolveTexture = Selector("setResolveTexture:");
-		private static IntPtr selSetStoreAction = Selector("setStoreAction:");
-
-		private static IntPtr selBlendingEnabled = Selector("setBlendingEnabled:");
-		private static IntPtr selSetAlphaBlendOperation = Selector("setAlphaBlendOperation:");
-		private static IntPtr selSetRGBBlendOperation = Selector("setRgbBlendOperation:"); // FIXME: Is this right?
-		private static IntPtr selSetDestinationAlphaBlendFactor = Selector("setDestinationAlphaBlendFactor:");
-		private static IntPtr selSetDestinationRGBBlendFactor = Selector("setDestinationRGBBlendFactor:");
-		private static IntPtr selSetSourceAlphaBlendFactor = Selector("setSourceAlphaBlendFactor:");
-		private static IntPtr selSetSourceRGBBlendFactor = Selector("setSourceRGBBlendFactor:");
-		private static IntPtr selSetWriteMask = Selector("setWriteMask:");
-
-		private static IntPtr selSetCullMode = Selector("setCullMode:");
-		private static IntPtr selSetTriangleFillMode = Selector("setTriangleFillMode:");
-		private static IntPtr selSetFrontFacingWinding = Selector("setFrontFacingWinding:");
-		private static IntPtr selSetDepthBias = Selector("setDepthBias:slopeScale:clamp:");
-
-		private static IntPtr selPixelFormat = Selector("pixelFormat");
-		private static IntPtr selDrawableSize = Selector("drawableSize");
-
-		private static IntPtr selNewLibraryWithSource = Selector("newLibraryWithSource:options:error:");
-		private static IntPtr selNewFunctionWithName = Selector("newFunctionWithName:");
-
-		private static IntPtr selNewSamplerStateWithDescriptor = Selector("newSamplerStateWithDescriptor:");
-		private static IntPtr selSetMinFilter = Selector("setMinFilter:");
-		private static IntPtr selSetMagFilter = Selector("setMagFilter:");
-		private static IntPtr selSetFragmentSamplerState = Selector("setFragmentSamplerState:atIndex:");
-		private static IntPtr selSetNormalizedCoordinates = Selector("setNormalizedCoordinates:");
-
-		private static IntPtr selAlloc = Selector("alloc");
-		private static IntPtr selNew = Selector("new");
-		private static IntPtr selRelease = Selector("release");
-		private static IntPtr selRetain = Selector("retain");
-		private static IntPtr selDrain = Selector("drain");
-
 		#endregion
 
 		#region ObjC Class References
@@ -537,6 +475,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr classRenderPipelineDescriptor = objc_getClass("MTLRenderPipelineDescriptor");
 		private static IntPtr classNSAutoreleasePool = objc_getClass("NSAutoreleasePool");
 		private static IntPtr classMTLSamplerDescriptor = objc_getClass("MTLSamplerDescriptor");
+		private static IntPtr classMTLVertexDescriptor = objc_getClass("MTLVertexDescriptor");
+		private static IntPtr classMTLCaptureManager = objc_getClass("MTLCaptureManager");
 
 		#endregion
 
@@ -553,6 +493,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selAlloc = Selector("alloc");
 		private static IntPtr UTF8ToNSString(string str)
 		{
 			return intptr_objc_msgSend(
@@ -566,21 +507,25 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Objective-C Memory Management Utilities
 
+		private static IntPtr selRelease = Selector("release");
 		private static void ObjCRelease(IntPtr obj)
 		{
 			objc_msgSend(obj, selRelease);
 		}
 
+		private static IntPtr selRetain = Selector("retain");
 		private static void ObjCRetain(IntPtr obj)
 		{
 			objc_msgSend(obj, selRetain);
 		}
 
+		private static IntPtr selNew = Selector("new");
 		private static IntPtr StartAutoreleasePool()
 		{
 			return intptr_objc_msgSend(classNSAutoreleasePool, selNew);
 		}
 
+		private static IntPtr selDrain = Selector("drain");
 		private static void DrainAutoreleasePool(IntPtr pool)
 		{
 			objc_msgSend(pool, selDrain);
@@ -590,21 +535,25 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLDevice
 
+		private static IntPtr selName = Selector("name");
 		private static string mtlGetDeviceName(IntPtr device)
 		{
 			return NSStringToUTF8(intptr_objc_msgSend(device, selName));
 		}
 
+		private static IntPtr selSupportsSampleCount = Selector("supportsSampleCount:");
 		private static bool mtlSupportsSampleCount(IntPtr device, ulong count)
 		{
 			return bool_objc_msgSend(device, selSupportsSampleCount, count);
 		}
 
+		private static IntPtr selCommandQueue = Selector("newCommandQueue");
 		private static IntPtr mtlMakeCommandQueue(IntPtr device)
 		{
 			return intptr_objc_msgSend(device, selCommandQueue);
 		}
 
+		private static IntPtr selNewBufferWithLength = Selector("newBufferWithLength:options:");
 		private static IntPtr mtlNewBufferWithLength(IntPtr device, ulong length)
 		{
 			return intptr_objc_msgSend(
@@ -615,6 +564,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selNewTextureWithDescriptor = Selector("newTextureWithDescriptor:");
 		private static IntPtr mtlNewTextureWithDescriptor(IntPtr device, IntPtr texDesc)
 		{
 			return intptr_objc_msgSend(
@@ -624,6 +574,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selNewSamplerStateWithDescriptor = Selector("newSamplerStateWithDescriptor:");
 		private static IntPtr mtlNewSamplerStateWithDescriptor(IntPtr device, IntPtr sampDesc)
 		{
 			return intptr_objc_msgSend(
@@ -637,6 +588,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLBuffer
 
+		private static IntPtr selContents = Selector("contents");
 		private static IntPtr mtlGetBufferContentsPtr(IntPtr buffer)
 		{
 			return intptr_objc_msgSend(buffer, selContents);
@@ -644,8 +596,38 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region MTLCapture
+
+		private static IntPtr selSharedCaptureManager = Selector("sharedCaptureManager");
+		private static IntPtr mtlGetSharedCaptureManager()
+		{
+			return intptr_objc_msgSend(classMTLCaptureManager, selSharedCaptureManager);
+		}
+
+		private static IntPtr selStartCaptureWithDevice = Selector("startCaptureWithDevice:");
+		private static void mtlStartCapture(IntPtr device)
+		{
+			objc_msgSend(
+				mtlGetSharedCaptureManager(),
+				selStartCaptureWithDevice,
+				device
+			);
+		}
+
+		private static IntPtr selStopCapture = Selector("stopCapture");
+		private static void mtlStopCapture()
+		{
+			objc_msgSend(
+				mtlGetSharedCaptureManager(),
+				selStopCapture
+			);
+		}
+
+		#endregion
+
 		#region MTLCommandBuffer
 
+		private static IntPtr selRenderCommandEncoder = Selector("renderCommandEncoderWithDescriptor:");
 		private static IntPtr mtlMakeRenderCommandEncoder(
 			IntPtr commandBuffer,
 			IntPtr renderPassDesc
@@ -657,6 +639,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selPresentDrawable = Selector("presentDrawable:");
 		private static void mtlPresentDrawable(
 			IntPtr commandBuffer,
 			IntPtr drawable
@@ -668,6 +651,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selCommit = Selector("commit");
 		private static void mtlCommitCommandBuffer(IntPtr commandBuffer)
 		{
 			objc_msgSend(commandBuffer, selCommit);
@@ -677,6 +661,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLCommandQueue
 
+		private static IntPtr selCommandBuffer = Selector("commandBuffer");
 		private static IntPtr mtlMakeCommandBuffer(IntPtr queue)
 		{
 			return intptr_objc_msgSend(queue, selCommandBuffer);
@@ -686,6 +671,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Attachment Methods
 
+		private static IntPtr selColorAttachments = Selector("colorAttachments");
+		private static IntPtr selObjectAtIndexedSubscript = Selector("objectAtIndexedSubscript:");
 		private static IntPtr mtlGetColorAttachment(
 			IntPtr desc,
 			ulong index
@@ -702,6 +689,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSetLoadAction = Selector("setLoadAction:");
 		private static void mtlSetAttachmentLoadAction(
 			IntPtr attachment,
 			MTLLoadAction loadAction
@@ -709,6 +697,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(attachment, selSetLoadAction, (ulong) loadAction);
 		}
 
+		private static IntPtr selSetStoreAction = Selector("setStoreAction:");
 		private static void mtlSetAttachmentStoreAction(
 			IntPtr attachment,
 			MTLStoreAction storeAction
@@ -716,6 +705,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(attachment, selSetStoreAction, (ulong) storeAction);
 		}
 
+		private static IntPtr selSetTexture = Selector("setTexture:");
 		private static void mtlSetAttachmentTexture(
 			IntPtr attachment,
 			IntPtr texture
@@ -723,6 +713,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(attachment, selSetTexture, texture);
 		}
 
+		private static IntPtr selSetPixelFormat = Selector("setPixelFormat:");
 		private static void mtlSetAttachmentPixelFormat(
 			IntPtr attachment,
 			MTLPixelFormat pixelFormat
@@ -730,6 +721,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(attachment, selSetPixelFormat, (ulong) pixelFormat);
 		}
 
+		private static IntPtr selSetResolveTexture = Selector("setResolveTexture:");
 		private static void mtlSetAttachmentResolveTexture(
 			IntPtr attachment,
 			IntPtr resolveTexture
@@ -737,6 +729,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(attachment, selSetResolveTexture, resolveTexture);
 		}
 
+		private static IntPtr selSetClearColor = Selector("setClearColor:");
 		private static void mtlSetColorAttachmentClearColor(
 			IntPtr colorAttachment,
 			float r,
@@ -748,6 +741,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(colorAttachment, selSetClearColor, clearColor);
 		}
 
+		private static IntPtr selSetClearDepth = Selector("setClearDepth:");
 		private static void mtlSetDepthAttachmentClearDepth(
 			IntPtr depthAttachment,
 			float clearDepth
@@ -755,6 +749,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(depthAttachment, selSetClearDepth, clearDepth);
 		}
 
+		private static IntPtr selSetClearStencil = Selector("setClearStencil:");
 		private static void mtlSetStencilAttachmentClearStencil(
 			IntPtr stencilAttachment,
 			int clearStencil
@@ -762,6 +757,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(stencilAttachment, selSetClearStencil, (ulong) clearStencil);
 		}
 
+		private static IntPtr selBlendingEnabled = Selector("setBlendingEnabled:");
 		private static void mtlSetAttachmentBlendingEnabled(
 			IntPtr colorAttachment,
 			bool enabled
@@ -769,6 +765,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(colorAttachment, selBlendingEnabled, enabled);
 		}
 
+		private static IntPtr selSetAlphaBlendOperation = Selector("setAlphaBlendOperation:");
 		private static void mtlSetAttachmentAlphaBlendOperation(
 			IntPtr colorAttachment,
 			MTLBlendOperation op
@@ -776,6 +773,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(colorAttachment, selSetAlphaBlendOperation, (ulong) op);
 		}
 
+		private static IntPtr selSetRGBBlendOperation = Selector("setRgbBlendOperation:"); // FIXME: Is this right?
 		private static void mtlSetAttachmentRGBBlendOperation(
 			IntPtr colorAttachment,
 			MTLBlendOperation op
@@ -783,6 +781,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(colorAttachment, selSetRGBBlendOperation, (ulong) op);
 		}
 
+		private static IntPtr selSetDestinationAlphaBlendFactor = Selector("setDestinationAlphaBlendFactor:");
 		private static void mtlSetAttachmentDestinationAlphaBlendFactor(
 			IntPtr colorAttachment,
 			MTLBlendFactor blend
@@ -790,6 +789,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(colorAttachment, selSetDestinationAlphaBlendFactor, (ulong) blend);
 		}
 
+		private static IntPtr selSetDestinationRGBBlendFactor = Selector("setDestinationRGBBlendFactor:");
 		private static void mtlSetAttachmentDestinationRGBBlendFactor(
 			IntPtr colorAttachment,
 			MTLBlendFactor blend
@@ -797,6 +797,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(colorAttachment, selSetDestinationRGBBlendFactor, (ulong) blend);
 		}
 
+		private static IntPtr selSetSourceAlphaBlendFactor = Selector("setSourceAlphaBlendFactor:");
 		private static void mtlSetAttachmentSourceAlphaBlendFactor(
 			IntPtr colorAttachment,
 			MTLBlendFactor blend
@@ -804,6 +805,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(colorAttachment, selSetSourceAlphaBlendFactor, (ulong) blend);
 		}
 
+		private static IntPtr selSetSourceRGBBlendFactor = Selector("setSourceRGBBlendFactor:");
 		private static void mtlSetAttachmentSourceRGBBlendFactor(
 			IntPtr colorAttachment,
 			MTLBlendFactor blend
@@ -811,6 +813,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(colorAttachment, selSetSourceRGBBlendFactor, (ulong) blend);
 		}
 
+		private static IntPtr selSetWriteMask = Selector("setWriteMask:");
 		private static void mtlSetAttachmentWriteMask(
 			IntPtr colorAttachment,
 			ulong mask
@@ -822,16 +825,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLRenderPassDescriptor
 
+		private static IntPtr selRenderPassDescriptor = Selector("renderPassDescriptor");
 		private static IntPtr mtlMakeRenderPassDescriptor()
 		{
 			return intptr_objc_msgSend(classRenderPassDescriptor, selRenderPassDescriptor);
 		}
 
+		private static IntPtr selDepthAttachment = Selector("depthAttachment");
 		private static IntPtr mtlGetDepthAttachment(IntPtr pass)
 		{
 			return intptr_objc_msgSend(pass, selDepthAttachment);
 		}
 
+		private static IntPtr selStencilAttachment = Selector("stencilAttachment");
 		private static IntPtr mtlGetStencilAttachment(IntPtr pass)
 		{
 			return intptr_objc_msgSend(pass, selStencilAttachment);
@@ -841,6 +847,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLRenderCommandEncoder
 
+		private static IntPtr selSetBlendColor = Selector("setBlendColorRed:green:blue:alpha:");
 		private static void mtlSetBlendColor(
 			IntPtr renderCommandEncoder,
 			float red,
@@ -851,6 +858,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(renderCommandEncoder, selSetBlendColor, red, green, blue, alpha);
 		}
 
+		private static IntPtr selSetStencilReference = Selector("setStencilReferenceValue:");
 		private static void mtlSetStencilReferenceValue(
 			IntPtr renderCommandEncoder,
 			ulong referenceValue
@@ -858,6 +866,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(renderCommandEncoder, selSetStencilReference, referenceValue);
 		}
 
+		private static IntPtr selSetViewport = Selector("setViewport:");
 		private static void mtlSetViewport(
 			IntPtr renderCommandEncoder,
 			int x,
@@ -871,6 +880,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(renderCommandEncoder, selSetViewport, viewport);
 		}
 
+		private static IntPtr selSetScissorRect = Selector("setScissorRect:");
 		private static void mtlSetScissorRect(
 			IntPtr renderCommandEncoder,
 			ulong x,
@@ -882,11 +892,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(renderCommandEncoder, selSetScissorRect, rect);
 		}
 
+		private static IntPtr selEndEncoding = Selector("endEncoding");
 		private static void mtlEndEncoding(IntPtr commandEncoder)
 		{
 			objc_msgSend(commandEncoder, selEndEncoding);
 		}
 
+		private static IntPtr selDrawIndexedPrimitives = Selector("drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:instanceCount:baseVertex:baseInstance:");
 		private static void mtlDrawIndexedPrimitives(
 			IntPtr renderCommandEncoder,
 			MTLPrimitiveType primitiveType,
@@ -921,6 +933,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSetCullMode = Selector("setCullMode:");
 		private static void mtlSetCullMode(
 			IntPtr renderCommandEncoder,
 			MTLCullMode cullMode
@@ -932,6 +945,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSetFrontFacingWinding = Selector("setFrontFacingWinding:");
 		private static void mtlSetFrontFacingWinding(
 			IntPtr renderCommandEncoder,
 			MTLWinding winding
@@ -943,6 +957,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSetTriangleFillMode = Selector("setTriangleFillMode:");
 		private static void mtlSetTriangleFillMode(
 			IntPtr renderCommandEncoder,
 			MTLTriangleFillMode fillMode
@@ -954,6 +969,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSetDepthBias = Selector("setDepthBias:slopeScale:clamp:");
 		private static void mtlSetDepthBias(
 			IntPtr renderCommandEncoder,
 			float depthBias,
@@ -973,16 +989,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region CAMetalLayer
 
+		private static IntPtr selNextDrawable = Selector("nextDrawable");
 		private static IntPtr mtlNextDrawable(IntPtr layer)
 		{
 			return intptr_objc_msgSend(layer, selNextDrawable);
 		}
 
+		private static IntPtr selPixelFormat = Selector("pixelFormat");
 		private static MTLPixelFormat mtlGetLayerPixelFormat(IntPtr layer)
 		{
 			return (MTLPixelFormat) ulong_objc_msgSend(layer, selPixelFormat);
 		}
 
+		private static IntPtr selDrawableSize = Selector("drawableSize");
 		private static CGSize mtlGetDrawableSize(IntPtr layer)
 		{
 			return (CGSize) cgsize_objc_msgSend(layer, selDrawableSize);
@@ -992,11 +1011,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region CAMetalDrawable
 
+		private static IntPtr selTexture = Selector("texture");
 		private static IntPtr mtlGetTextureFromDrawable(IntPtr drawable)
 		{
 			return intptr_objc_msgSend(drawable, selTexture);
 		}
 
+		private static IntPtr selSetFramebufferOnly = Selector("setFramebufferOnly:");
 		private static void mtlSetLayerFramebufferOnly(
 			IntPtr layer,
 			bool framebufferOnly
@@ -1008,6 +1029,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLTextureDescriptor
 
+		private static IntPtr selTexture2DDescriptor = Selector("texture2DDescriptorWithPixelFormat:width:height:mipmapped:");
 		private static IntPtr mtlMakeTexture2DDescriptor(
 			MTLPixelFormat pixelFormat,
 			ulong width,
@@ -1024,6 +1046,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSetUsage = Selector("setUsage:");
 		private static void mtlSetTextureUsage(
 			IntPtr texDesc,
 			MTLTextureUsage usage
@@ -1031,6 +1054,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(texDesc, selSetUsage, (ulong) usage);
 		}
 
+		private static IntPtr selSetTextureType = Selector("setTextureType:");
 		private static void mtlSetTextureType(
 			IntPtr texDesc,
 			MTLTextureType type
@@ -1038,6 +1062,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(texDesc, selSetTextureType, (ulong) type);
 		}
 
+		private static IntPtr selSetSampleCount = Selector("setSampleCount:");
 		private static void mtlSetTextureSampleCount(
 			IntPtr texDesc,
 			int sampleCount
@@ -1045,6 +1070,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(texDesc, selSetSampleCount, (ulong) sampleCount);
 		}
 
+		// selSetPixelFormat already defined
 		private static void mtlSetTexturePixelFormat(
 			IntPtr texDesc,
 			MTLPixelFormat format
@@ -1052,6 +1078,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(texDesc, selSetPixelFormat, (ulong) format);
 		}
 
+		private static IntPtr selSetWidth = Selector("setWidth:");
 		private static void mtlSetTextureWidth(
 			IntPtr texDesc,
 			int width
@@ -1059,6 +1086,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(texDesc, selSetWidth, (ulong) width);
 		}
 
+		private static IntPtr selSetHeight = Selector("setHeight:");
 		private static void mtlSetTextureHeight(
 			IntPtr texDesc,
 			int height
@@ -1066,11 +1094,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(texDesc, selSetHeight, (ulong) height);
 		}
 
+		private static IntPtr selWidth = Selector("width");
 		private static ulong mtlGetTextureWidth(IntPtr texture)
 		{
 			return ulong_objc_msgSend(texture, selWidth);
 		}
 
+		private static IntPtr selHeight = Selector("height");
 		private static ulong mtlGetTextureHeight(IntPtr texture)
 		{
 			return ulong_objc_msgSend(texture, selHeight);
@@ -1080,6 +1110,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLTexture
 
+		private static IntPtr selReplaceRegion = Selector("replaceRegion:mipmapLevel:withBytes:bytesPerRow:");
 		private static void mtlReplaceRegion(
 			IntPtr texture,
 			MTLRegion region,
@@ -1108,11 +1139,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLBlitCommandEncoder
 
+		private static IntPtr selBlitCommandEncoder = Selector("blitCommandEncoder");
 		private static IntPtr mtlMakeBlitCommandEncoder(IntPtr commandBuffer)
 		{
 			return intptr_objc_msgSend(commandBuffer, selBlitCommandEncoder);
 		}
 
+		private static IntPtr selCopyFromTexture = Selector("copyFromTexture:sourceSlice:sourceLevel:sourceOrigin:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:");
 		private static void mtlBlitTextureToTexture(
 			IntPtr blitCommandEncoder,
 			IntPtr srcTexture,
@@ -1144,11 +1177,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLRenderPipelineState
 
+		// selNew already defined
 		private static IntPtr mtlMakeRenderPipelineDescriptor()
 		{
 			return intptr_objc_msgSend(classRenderPipelineDescriptor, selNew);
 		}
 
+		private static IntPtr selSetVertexFunction = Selector("setVertexFunction:");
 		private static void mtlSetPipelineVertexFunction(
 			IntPtr pipelineDescriptor,
 			IntPtr vertexFunction
@@ -1156,6 +1191,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(pipelineDescriptor, selSetVertexFunction, vertexFunction);
 		}
 
+		private static IntPtr selSetFragmentFunction = Selector("setFragmentFunction:");
 		private static void mtlSetPipelineFragmentFunction(
 			IntPtr pipelineDescriptor,
 			IntPtr fragmentFunction
@@ -1163,6 +1199,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(pipelineDescriptor, selSetFragmentFunction, fragmentFunction);
 		}
 
+		private static IntPtr selSetVertexDescriptor = Selector("setVertexDescriptor:");
 		private static void mtlSetPipelineVertexDescriptor(
 			IntPtr pipelineDescriptor,
 			IntPtr vertexDescriptor
@@ -1170,6 +1207,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(pipelineDescriptor, selSetVertexDescriptor, vertexDescriptor);
 		}
 
+		private static IntPtr selNewRenderPipelineState = Selector("newRenderPipelineStateWithDescriptor:error:");
 		private static IntPtr mtlNewRenderPipelineStateWithDescriptor(
 			IntPtr device,
 			IntPtr pipelineDescriptor
@@ -1183,11 +1221,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			if (error != IntPtr.Zero)
 			{
+				FNALoggerEXT.LogError("Metal Error: " + GetNSErrorDescription(error));
 				throw new Exception("Metal Error: " + GetNSErrorDescription(error));
 			}
 			return pipeline;
 		}
 
+		private static IntPtr selSetRenderPipelineState = Selector("setRenderPipelineState:");
 		private static void mtlSetRenderPipelineState(
 			IntPtr renderCommandEncoder,
 			IntPtr pipelineState
@@ -1195,6 +1235,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(renderCommandEncoder, selSetRenderPipelineState, pipelineState);
 		}
 
+		private static IntPtr selSetVertexBuffer = Selector("setVertexBuffer:offset:atIndex:");
 		private static void mtlSetVertexBuffer(
 			IntPtr renderCommandEncoder,
 			IntPtr vertexBuffer,
@@ -1210,6 +1251,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSetFragmentBuffer = Selector("setFragmentBuffer:offset:atIndex:");
+		private static void mtlSetFragmentBuffer(
+			IntPtr renderCommandEncoder,
+			IntPtr fragmentBuffer,
+			ulong offset,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetFragmentBuffer,
+				fragmentBuffer,
+				offset,
+				index
+			);
+		}
+
+		private static IntPtr selSetFragmentTexture = Selector("setFragmentTexture:atIndex:");
 		private static void mtlSetFragmentTexture(
 			IntPtr renderCommandEncoder,
 			IntPtr fragmentTexture,
@@ -1223,6 +1281,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSetFragmentSamplerState = Selector("setFragmentSamplerState:atIndex:");
 		private static void mtlSetFragmentSamplerState(
 			IntPtr renderCommandEncoder,
 			IntPtr samplerState,
@@ -1240,11 +1299,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Sampler Descriptor
 
+		// selNew already defined
 		private static IntPtr mtlNewSamplerDescriptor()
 		{
 			return intptr_objc_msgSend(classMTLSamplerDescriptor, selNew);
 		}
 
+		private static IntPtr selSetMinFilter = Selector("setMinFilter:");
 		private static void mtlSetSamplerMinFilter(
 			IntPtr samplerDesc,
 			MTLSamplerMinMagFilter filter
@@ -1252,6 +1313,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(samplerDesc, selSetMinFilter, (uint) filter);
 		}
 
+		private static IntPtr selSetMagFilter = Selector("setMagFilter:");
 		private static void mtlSetSamplerMagFilter(
 			IntPtr samplerDesc,
 			MTLSamplerMinMagFilter filter
@@ -1259,6 +1321,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(samplerDesc, selSetMagFilter, (uint) filter);
 		}
 
+				private static IntPtr selSetNormalizedCoordinates = Selector("setNormalizedCoordinates:");
 		private static void mtlSetSamplerNormalizedCoordinates(
 			IntPtr samplerDesc,
 			bool normalized
@@ -1266,10 +1329,135 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(samplerDesc, selSetNormalizedCoordinates, normalized);
 		}
 
+		private static IntPtr selSetMaxAnisotropy = Selector("setMaxAnisotropy:");
+		private static void mtlSetSamplerMaxAnisotropy(
+			IntPtr samplerDesc,
+			ulong maxAnisotropy
+		) {
+			objc_msgSend(samplerDesc, selSetMaxAnisotropy, maxAnisotropy);
+		}
+
+		private static IntPtr selSetRAddressMode = Selector("setRAddressMode:");
+		private static void mtlSetSampler_rAddressMode(
+			IntPtr samplerDesc,
+			MTLSamplerAddressMode mode
+		) {
+			objc_msgSend(samplerDesc, selSetRAddressMode, (ulong) mode);
+		}
+
+		private static IntPtr selSetSAddressMode = Selector("setSAddressMode:");
+		private static void mtlSetSampler_sAddressMode(
+			IntPtr samplerDesc,
+			MTLSamplerAddressMode mode
+		) {
+			objc_msgSend(samplerDesc, selSetSAddressMode, (ulong) mode);
+		}
+		
+		private static IntPtr selSetTAddressMode = Selector("setTAddressMode:");
+		private static void mtlSetSampler_tAddressMode(
+			IntPtr samplerDesc,
+			MTLSamplerAddressMode mode
+		) {
+			objc_msgSend(samplerDesc, selSetTAddressMode, (ulong) mode);
+		}
+
+		#endregion
+
+		#region Vertex Descriptor
+
+		private static IntPtr selVertexDescriptor = Selector("vertexDescriptor");
+		private static IntPtr mtlMakeVertexDescriptor()
+		{
+			return intptr_objc_msgSend(classMTLVertexDescriptor, selVertexDescriptor);
+		}
+
+		private static IntPtr selAttributes = Selector("attributes");
+		private static IntPtr mtlGetVertexAttributeDescriptor(
+			IntPtr vertexDesc,
+			int index
+		) {
+			IntPtr attributes = intptr_objc_msgSend(
+				vertexDesc,
+				selAttributes
+			);
+
+			return intptr_objc_msgSend(
+				attributes, 
+				selObjectAtIndexedSubscript,
+				(ulong) index
+			);
+		}
+
+		private static IntPtr selSetFormat = Selector("setFormat:");
+		private static void mtlSetVertexAttributeFormat(
+			IntPtr vertexAttribute,
+			MTLVertexFormat format
+		) {
+			objc_msgSend(vertexAttribute, selSetFormat, (ulong) format);
+		}
+
+		private static IntPtr selSetOffset = Selector("setOffset:");
+		private static void mtlSetVertexAttributeOffset(
+			IntPtr vertexAttribute,
+			int offset
+		) {
+			objc_msgSend(vertexAttribute, selSetOffset, (ulong) offset);
+		}
+
+		private static IntPtr selSetBufferIndex = Selector("setBufferIndex:");
+		private static void mtlSetVertexAttributeBufferIndex(
+			IntPtr vertexAttribute,
+			int bufferIndex
+		) {
+			objc_msgSend(vertexAttribute, selSetBufferIndex, (ulong) bufferIndex);
+		}
+
+		private static IntPtr selLayouts = Selector("layouts");
+		private static IntPtr mtlGetVertexBufferLayoutDescriptor(
+			IntPtr vertexDesc,
+			int index
+		) {
+			IntPtr layouts = intptr_objc_msgSend(
+				vertexDesc,
+				selLayouts
+			);
+
+			return intptr_objc_msgSend(
+				layouts, 
+				selObjectAtIndexedSubscript,
+				(ulong) index
+			);
+		}
+
+		private static IntPtr selSetStride = Selector("setStride:");
+		private static void mtlSetVertexBufferLayoutStride(
+			IntPtr vertexBufferLayout,
+			int stride
+		) {
+			objc_msgSend(vertexBufferLayout, selSetStride, (ulong) stride);
+		}
+
+		private static IntPtr selSetStepFunction = Selector("setStepFunction:");
+		private static void mtlSetVertexBufferLayoutStepFunction(
+			IntPtr vertexBufferLayout,
+			MTLVertexStepFunction stepFunc
+		) {
+			objc_msgSend(vertexBufferLayout, selSetStepFunction, (ulong) stepFunc);
+		}
+
+		private static IntPtr selSetStepRate = Selector("setStepRate:");
+		private static void mtlSetVertexBufferLayoutStepRate(
+			IntPtr vertexBufferLayout,
+			int stepRate
+		) {
+			objc_msgSend(vertexBufferLayout, selSetStepRate, (ulong) stepRate);
+		}
+
 		#endregion
 
 		#region Storage Modes
 
+		private static IntPtr selSetStorageMode = Selector("setStorageMode:");
 		private static void mtlSetStorageMode(
 			IntPtr resource,
 			MTLResourceStorageMode mode
@@ -1281,6 +1469,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLLibrary
 
+		private static IntPtr selNewLibraryWithSource = Selector("newLibraryWithSource:options:error:");
 		private static IntPtr mtlNewLibraryWithSource(
 			IntPtr device,
 			IntPtr shaderSourceNSString,
@@ -1301,6 +1490,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			return library;
 		}
 
+		private static IntPtr selNewFunctionWithName = Selector("newFunctionWithName:");
 		private static IntPtr mtlNewFunctionWithName(
 			IntPtr library,
 			IntPtr shaderNameNSString
@@ -1316,6 +1506,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Error Handling
 
+		private static IntPtr selLocalizedDescription = Selector("localizedDescription");
 		private static IntPtr mtlGetErrorLocalizedDescription(IntPtr error)
 		{
 			return intptr_objc_msgSend(error, selLocalizedDescription);
