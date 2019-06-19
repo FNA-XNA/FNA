@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using SDL2;
 #endregion
@@ -38,13 +39,36 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
+			public IntPtr SamplerHandle;
+			public TextureAddressMode WrapS;
+			public TextureAddressMode WrapT;
+			public TextureAddressMode WrapR;
+			public TextureFilter Filter;
+			public float Anisotropy;
+			public int MaxMipmapLevel;
+			public float LODBias;
+
 			public MetalTexture(
 				IntPtr handle,
 				int levelCount
 			) {
 				Handle = handle;
 				HasMipmaps = levelCount > 1;
+
+				WrapS = TextureAddressMode.Wrap;
+				WrapT = TextureAddressMode.Wrap;
+				WrapR = TextureAddressMode.Wrap;
+				Filter = TextureFilter.Linear;
+				Anisotropy = 4.0f;
+				MaxMipmapLevel = 0;
+				LODBias = 0.0f;
 			}
+
+			private MetalTexture()
+			{
+				Handle = IntPtr.Zero;
+			}
+			public static readonly MetalTexture NullTexture = new MetalTexture();
 		}
 
 		#endregion
@@ -253,9 +277,21 @@ namespace Microsoft.Xna.Framework.Graphics
 		#endregion
 
 		#region Sampler State Variables
+
+		private MetalTexture[] Textures;
+
 		#endregion
 
 		#region Buffer Binding Cache Variables
+
+		// ld, or LastDrawn, effect/vertex attributes
+		private int ldBaseVertex = -1; // FIXME: Needed?
+		private VertexDeclaration ldVertexDeclaration = null;
+		private IntPtr ldPointer = IntPtr.Zero;
+		private IntPtr ldEffect = IntPtr.Zero;
+		private IntPtr ldTechnique = IntPtr.Zero;
+		private uint ldPass = 0;
+
 		#endregion
 
 		#region Render Target Cache Variables
@@ -279,6 +315,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr currentDrawable;		// CAMetalDrawable*
 		private IntPtr currentColorBuffer;	// MTLTexture*
 		private IntPtr currentDepthStencilBuffer; // MTLTexture*
+		private IntPtr currentVertexDescriptor;	// MTLVertexDescriptor*
 
 		private ulong currentAttachmentWidth;
 		private ulong currentAttachmentHeight;
@@ -557,9 +594,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private bool effectApplied = false;
 
-		// FIXME: Do these belong here?
 		private IntPtr currentVertexShader = IntPtr.Zero;
 		private IntPtr currentFragmentShader = IntPtr.Zero;
+		private IntPtr currentVertexUniformBuffer = IntPtr.Zero;
+		private IntPtr currentFragmentUniformBuffer = IntPtr.Zero;
 
 		#endregion
 
@@ -625,6 +663,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			SupportsHardwareInstancing = true;
 			MaxTextureSlots = 16;
 			MaxMultiSampleCount = mtlSupportsSampleCount(device, 8) ? 8 : 4;
+
+			// Initialize texture collection array
+			Textures = new MetalTexture[MaxTextureSlots];
+			for (int i = 0; i < MaxTextureSlots; i += 1)
+			{
+				Textures[i] = MetalTexture.NullTexture;
+			}
 
 			// Force the creation of a render pass
 			renderPassDirty = true;
@@ -956,14 +1001,48 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Drawing Methods
 
-		public void DrawIndexedPrimitives(PrimitiveType primitiveType, int baseVertex, int minVertexIndex, int numVertices, int startIndex, int primitiveCount, IndexBuffer indices)
-		{
-			throw new NotImplementedException();
+		public void DrawIndexedPrimitives(
+			PrimitiveType primitiveType,
+			int baseVertex,
+			int minVertexIndex,
+			int numVertices,
+			int startIndex,
+			int primitiveCount,
+			IndexBuffer indices
+		) {
+			DrawInstancedPrimitives(
+				primitiveType,
+				baseVertex,
+				minVertexIndex,
+				numVertices,
+				startIndex,
+				primitiveCount,
+				1,
+				indices
+			);
 		}
 
-		public void DrawInstancedPrimitives(PrimitiveType primitiveType, int baseVertex, int minVertexIndex, int numVertices, int startIndex, int primitiveCount, int instanceCount, IndexBuffer indices)
-		{
-			throw new NotImplementedException();
+		public void DrawInstancedPrimitives(
+			PrimitiveType primitiveType,
+			int baseVertex,
+			int minVertexIndex,
+			int numVertices,
+			int startIndex,
+			int primitiveCount,
+			int instanceCount,
+			IndexBuffer indices
+		) {
+			mtlDrawIndexedPrimitives(
+				RenderCommandEncoder,
+				XNAToMTL.Primitive[(int) primitiveType],
+				(ulong) XNAToMTL.PrimitiveVerts(primitiveType, primitiveCount),
+				(indices.IndexElementSize == IndexElementSize.SixteenBits) ? MTLIndexType.UInt16 : MTLIndexType.UInt32,
+				(indices.buffer as MetalBuffer).Handle,
+				(ulong) minVertexIndex,
+				(ulong) instanceCount,
+				baseVertex,
+				0
+			);
 		}
 
 		public void DrawPrimitives(PrimitiveType primitiveType, int vertexStart, int primitiveCount)
@@ -1111,7 +1190,107 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void VerifySampler(int index, Texture texture, SamplerState sampler)
 		{
-			throw new NotImplementedException();
+			if (texture == null)
+			{
+				Textures[index] = MetalTexture.NullTexture;
+				return;
+			}
+
+			MetalTexture tex = texture.texture as MetalTexture;
+			if (	tex == Textures[index] &&
+				sampler.AddressU == tex.WrapS &&
+				sampler.AddressV == tex.WrapT &&
+				sampler.AddressW == tex.WrapR &&
+				sampler.Filter == tex.Filter &&
+				sampler.MaxAnisotropy == tex.Anisotropy &&
+				sampler.MaxMipLevel == tex.MaxMipmapLevel &&
+				sampler.MipMapLevelOfDetailBias == tex.LODBias	)
+			{
+				// Nothing's changing, forget it.
+				return;
+			}
+
+			// Bind the correct texture
+			if (tex != Textures[index])
+			{
+				Textures[index] = tex;
+			}
+
+			// Apply the sampler states
+			IntPtr samplerDesc = mtlNewSamplerDescriptor();
+			if (sampler.AddressU != tex.WrapS)
+			{
+				tex.WrapS = sampler.AddressU;
+				mtlSetSampler_sAddressMode(
+					samplerDesc,
+					XNAToMTL.Wrap[(int) tex.WrapS]
+				);
+			}
+			if (sampler.AddressV != tex.WrapT)
+			{
+				tex.WrapT = sampler.AddressV;
+				mtlSetSampler_tAddressMode(
+					samplerDesc,
+					XNAToMTL.Wrap[(int) tex.WrapT]
+				);
+			}
+			if (sampler.AddressW != tex.WrapR)
+			{
+				tex.WrapR = sampler.AddressW;
+				mtlSetSampler_rAddressMode(
+					samplerDesc,
+					XNAToMTL.Wrap[(int) tex.WrapR]
+				);
+			}
+			if (	sampler.Filter != tex.Filter ||
+				sampler.MaxAnisotropy != tex.Anisotropy	)
+			{
+				tex.Filter = sampler.Filter;
+				tex.Anisotropy = sampler.MaxAnisotropy;
+
+				mtlSetSamplerMagFilter(
+					samplerDesc,
+					XNAToMTL.MagFilter[(int) tex.Filter]
+				);
+
+				mtlSetSamplerMinFilter(
+					samplerDesc,
+					XNAToMTL.MinFilter[(int) tex.Filter]
+				);
+
+				ulong scaledAnisotropy = 1 + (ulong) Math.Round(tex.Anisotropy * 15);
+				mtlSetSamplerMaxAnisotropy(
+					samplerDesc,
+					(tex.Filter == TextureFilter.Anisotropic) ?
+						scaledAnisotropy :
+						1
+				);
+			}
+
+			// FIXME: We'll need to create a new MTLTexture for this.
+			// if (sampler.MaxMipLevel != tex.MaxMipmapLevel)
+			// {
+			// 	tex.MaxMipmapLevel = sampler.MaxMipLevel;
+			// 	glTexParameteri(
+			// 		tex.Target,
+			// 		GLenum.GL_TEXTURE_BASE_LEVEL,
+			// 		tex.MaxMipmapLevel
+			// 	);
+			// }
+
+			if (sampler.MipMapLevelOfDetailBias != tex.LODBias)
+			{
+				tex.LODBias = sampler.MipMapLevelOfDetailBias;
+				/* FIXME: Metal doesn't have a LODBias.
+				 * It only has lodMinClamp, lodMaxClamp, and lodAverage.
+				 */
+			}
+
+			// Create and store the new sampler state
+			tex.SamplerHandle = mtlNewSamplerStateWithDescriptor(
+				device,
+				samplerDesc
+			);
 		}
 
 		public void SetBlendState(BlendState blendState)
@@ -1232,6 +1411,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 #endif
+
 			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(effect, device);
 			if (mtlEffect == IntPtr.Zero)
 			{
@@ -1263,7 +1443,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					MojoShader.MOJOSHADER_mtlEffectCommitChanges(
 						currentEffect,
 						out currentVertexShader,
-						out currentFragmentShader
+						out currentFragmentShader,
+						out currentVertexUniformBuffer,
+						out currentFragmentUniformBuffer
 					);
 					return;
 				}
@@ -1272,7 +1454,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					currentEffect,
 					pass,
 					out currentVertexShader,
-					out currentFragmentShader
+					out currentFragmentShader,
+					out currentVertexUniformBuffer,
+					out currentFragmentUniformBuffer
 				);
 				currentTechnique = technique;
 				currentPass = pass;
@@ -1284,7 +1468,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				MojoShader.MOJOSHADER_mtlEffectEnd(
 					currentEffect,
 					out currentVertexShader,
-					out currentFragmentShader
+					out currentFragmentShader,
+					out currentVertexUniformBuffer,
+					out currentFragmentUniformBuffer
 				);
 			}
 			uint whatever;
@@ -1298,7 +1484,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlEffectData,
 				pass,
 				out currentVertexShader,
-				out currentFragmentShader
+				out currentFragmentShader,
+				out currentVertexUniformBuffer,
+				out currentFragmentUniformBuffer
 			);
 			currentEffect = mtlEffectData;
 			currentTechnique = technique;
@@ -1319,66 +1507,149 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region ApplyVertexAttributes Methods
 
-		private void SetupPipeline()
+		private Dictionary<VertexBufferBinding[], IntPtr> VertexDescriptorCache =
+			new Dictionary<VertexBufferBinding[], IntPtr>();
+
+		private Dictionary<PipelineState, IntPtr> PipelineStateCache =
+			new Dictionary<PipelineState, IntPtr>();
+
+		private struct PipelineState
 		{
+			public MTLPixelFormat pixelFormat;
+			public IntPtr vertexFunction;
+			public IntPtr fragFunction;
+			public IntPtr vertexDescriptor;
+
+			// FIXME: Make use of PipelineCache
+			public bool alphaBlendEnable;
+			public MTLBlendFactor srcRGB;
+			public MTLBlendFactor dstRGB;
+			public MTLBlendFactor srcAlpha;
+			public MTLBlendFactor dstAlpha;
+			public MTLBlendOperation rgbOp;
+			public MTLBlendOperation alphaOp;
+			public ulong colorWriteEnable;
+			public ulong colorWriteEnable1;
+			public ulong colorWriteEnable2;
+			public ulong colorWriteEnable3;
+		}
+
+		private IntPtr FetchRenderPipeline()
+		{
+			PipelineState state = new PipelineState();
+
+			state.pixelFormat = mtlGetLayerPixelFormat(layer); // FIXME: This should be currentPixelFormat!
+			state.vertexFunction = currentVertexShader;
+			state.fragFunction = currentFragmentShader;
+			state.vertexDescriptor = currentVertexDescriptor;
+
+			state.alphaBlendEnable = alphaBlendEnable;
+			state.srcRGB = XNAToMTL.BlendMode[(int) srcBlend];
+			state.srcAlpha = XNAToMTL.BlendMode[(int) srcBlendAlpha];
+			state.dstRGB = XNAToMTL.BlendMode[(int) dstBlend];
+			state.dstAlpha = XNAToMTL.BlendMode[(int) dstBlendAlpha];
+			state.rgbOp = XNAToMTL.BlendOperation[(int) blendOp];
+			state.alphaOp = XNAToMTL.BlendOperation[(int) blendOpAlpha];
+			state.colorWriteEnable  = (ulong) colorWriteEnable;
+			state.colorWriteEnable1 = (ulong) colorWriteEnable1;
+			state.colorWriteEnable2 = (ulong) colorWriteEnable2;
+			state.colorWriteEnable3 = (ulong) colorWriteEnable3;
+
+			IntPtr pipeline = IntPtr.Zero;
+			if (PipelineStateCache.TryGetValue(state, out pipeline))
+			{
+				// We have this state already cached!
+				return pipeline;
+			}
+
+			Console.WriteLine("Making new pipeline...");
+
+			// Make a new render pipeline descriptor
+			IntPtr pipelineDesc = mtlMakeRenderPipelineDescriptor();
+			
 			// Apply Blend State
+			IntPtr colorAttachment = mtlGetColorAttachment(pipelineDesc, 0);
+			Console.WriteLine("Blending enabled? " + alphaBlendEnable);
+			Console.WriteLine("SRC RGB: " + state.srcRGB);
+			Console.WriteLine("SRC ALPHA: " + state.srcAlpha);
+			Console.WriteLine("DST RGB: " + state.dstRGB);
+			Console.WriteLine("DST ALPHA: " + state.dstAlpha);
+			Console.WriteLine("RBG OP: " + state.rgbOp);
+			Console.WriteLine("ALPHA OP: " + state.alphaOp);
+			Console.WriteLine("COLOR WRITE ENABLE 0: " + state.colorWriteEnable);
+			Console.WriteLine("COLOR WRITE ENABLE 1: " + state.colorWriteEnable1);
+			Console.WriteLine("COLOR WRITE ENABLE 2: " + state.colorWriteEnable2);
+			Console.WriteLine("COLOR WRITE ENABLE 3: " + state.colorWriteEnable3);
+			mtlSetAttachmentBlendingEnabled(
+				colorAttachment,
+				alphaBlendEnable
+			);
+			mtlSetAttachmentSourceRGBBlendFactor(
+				colorAttachment,
+				state.srcRGB
+			);
+			mtlSetAttachmentDestinationRGBBlendFactor(
+				colorAttachment,
+				state.dstRGB
+			);
+			mtlSetAttachmentSourceAlphaBlendFactor(
+				colorAttachment,
+				state.srcAlpha
+			);
+			mtlSetAttachmentDestinationAlphaBlendFactor(
+				colorAttachment,
+				state.dstAlpha
+			);
 
-			// mtlSetAttachmentBlendingEnabled(
-			// 	colorAttachment,
-			// 	alphaBlendEnable
-			// );
+			mtlSetAttachmentRGBBlendOperation(
+				colorAttachment,
+				state.rgbOp
+			);
+			mtlSetAttachmentAlphaBlendOperation(
+				colorAttachment,
+				state.alphaOp
+			);
 
-			// mtlSetAttachmentSourceRGBBlendFactor(
-			// 	colorAttachment,
-			// 	XNAToMTL.BlendMode[(int) srcBlend]
-			// );
-			// mtlSetAttachmentDestinationRGBBlendFactor(
-			// 	colorAttachment,
-			// 	XNAToMTL.BlendMode[(int) dstBlend]
-			// );
-			// mtlSetAttachmentSourceAlphaBlendFactor(
-			// 	colorAttachment,
-			// 	XNAToMTL.BlendMode[(int) srcBlendAlpha]
-			// );
-			// mtlSetAttachmentDestinationAlphaBlendFactor(
-			// 	colorAttachment,
-			// 	XNAToMTL.BlendMode[(int) dstBlendAlpha]
-			// );
+			mtlSetAttachmentWriteMask(
+				colorAttachment,
+				state.colorWriteEnable
+			);
+			/* FIXME: So how exactly do we factor in
+			 * COLORWRITEENABLE for buffer 0? Do we just assume that
+			 * the default is just buffer 0, and all other calls
+			 * update the other write masks afterward?
+			 * -flibit
+			 */
+			mtlSetAttachmentWriteMask(
+				mtlGetColorAttachment(pipelineDesc, 1),
+				state.colorWriteEnable1
+			);
+			mtlSetAttachmentWriteMask(
+				mtlGetColorAttachment(pipelineDesc, 2),
+				state.colorWriteEnable2
+			);
+			mtlSetAttachmentWriteMask(
+				mtlGetColorAttachment(pipelineDesc, 3),
+				state.colorWriteEnable3
+			);
 
-			// mtlSetAttachmentRGBBlendOperation(
-			// 	colorAttachment,
-			// 	XNAToMTL.BlendOperation[(int) blendOp]
-			// );
-			// mtlSetAttachmentAlphaBlendOperation(
-			// 	colorAttachment,
-			// 	XNAToMTL.BlendOperation[(int) blendOpAlpha]
-			// );
+			mtlSetAttachmentPixelFormat(
+				colorAttachment,
+				state.pixelFormat
+			);
 
-			// mtlSetAttachmentWriteMask(
-			// 	colorAttachment,
-			// 	(ulong) colorWriteEnable
-			// );
-			// /* FIXME: So how exactly do we factor in
-			// 	* COLORWRITEENABLE for buffer 0? Do we just assume that
-			// 	* the default is just buffer 0, and all other calls
-			// 	* update the other write masks afterward? Or do we
-			// 	* assume that COLORWRITEENABLE only touches 0, and the
-			// 	* other 3 buffers are left alone unless we don't have
-			// 	* EXT_draw_buffers2?
-			// 	* -flibit
-			// 	*/
-			// mtlSetAttachmentWriteMask(
-			// 	mtlGetColorAttachment(pipelineDesc, 1),
-			// 	(ulong) colorWriteEnable1
-			// );
-			// mtlSetAttachmentWriteMask(
-			// 	mtlGetColorAttachment(pipelineDesc, 2),
-			// 	(ulong) colorWriteEnable2
-			// );
-			// mtlSetAttachmentWriteMask(
-			// 	mtlGetColorAttachment(pipelineDesc, 3),
-			// 	(ulong) colorWriteEnable3
-			// );
+			// Apply shaders and vertex descriptor
+			mtlSetPipelineVertexFunction(pipelineDesc, state.vertexFunction);
+			mtlSetPipelineFragmentFunction(pipelineDesc, state.fragFunction);
+			mtlSetPipelineVertexDescriptor(pipelineDesc, state.vertexDescriptor);
+
+			// Finalize the render pipeline
+			IntPtr pipelineState = mtlNewRenderPipelineStateWithDescriptor(
+				device,
+				pipelineDesc
+			);
+			PipelineStateCache.Add(state, pipelineState);
+			return pipelineState;
 		}
 
 		public void ApplyVertexAttributes(
@@ -1387,7 +1658,146 @@ namespace Microsoft.Xna.Framework.Graphics
 			bool bindingsUpdated,
 			int baseVertex
 		) {
-			throw new NotImplementedException();
+			if (	bindingsUpdated ||
+				currentEffect != ldEffect ||
+				currentTechnique != ldTechnique ||
+				currentPass != ldPass ||
+				effectApplied	)
+			{
+				// Translate the bindings array into a descriptor
+				IntPtr descriptor;
+				if (VertexDescriptorCache.TryGetValue(bindings, out descriptor))
+				{
+					currentVertexDescriptor = descriptor;
+				}
+				else
+				{
+					Console.WriteLine("Making a new vertex descriptor");
+					descriptor = mtlMakeVertexDescriptor();
+					for (int i = numBindings - 1; i >= 0; i -= 1)
+					{
+						// Describe vertex attributes
+						VertexDeclaration vertexDeclaration = bindings[i].VertexBuffer.VertexDeclaration;
+						for (int j = 0; j < vertexDeclaration.elements.Length; j += 1)
+						{
+							VertexElement element = vertexDeclaration.elements[j];
+							// int attribLoc = MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
+							// 	XNAToMTL.VertexAttribUsage[(int) element.VertexElementUsage],
+							// 	element.UsageIndex
+							// );
+							// if (attribLoc == -1)
+							// {
+							// 	// Stream not in use!
+							// 	continue;
+							// }
+							Console.WriteLine(XNAToMTL.VertexAttribType[(int) element.VertexElementFormat]);
+							Console.WriteLine(element.Offset);
+							IntPtr attrib = mtlGetVertexAttributeDescriptor(
+								descriptor,
+								j
+							);
+							mtlSetVertexAttributeFormat(
+								attrib,
+								XNAToMTL.VertexAttribType[(int) element.VertexElementFormat]
+							);
+							mtlSetVertexAttributeOffset(
+								attrib,
+								element.Offset
+							);
+							mtlSetVertexAttributeBufferIndex(
+								attrib,
+								i
+							);
+						}
+						
+						// Describe vertex buffer layout
+						IntPtr layout = mtlGetVertexBufferLayoutDescriptor(
+							descriptor,
+							i
+						);
+						mtlSetVertexBufferLayoutStride(
+							layout,
+							vertexDeclaration.VertexStride
+						);
+						if (bindings[i].InstanceFrequency > 1)
+						{
+							mtlSetVertexBufferLayoutStepFunction(
+								layout,
+								MTLVertexStepFunction.PerInstance
+							);
+							mtlSetVertexBufferLayoutStepRate(
+								layout,
+								bindings[i].InstanceFrequency
+							);
+						}
+
+					}
+					VertexDescriptorCache.Add(bindings, descriptor);
+					currentVertexDescriptor = descriptor;
+				}
+
+				ldBaseVertex = baseVertex;
+				ldEffect = currentEffect;
+				ldTechnique = currentTechnique;
+				ldPass = currentPass;
+				effectApplied = false;
+				ldVertexDeclaration = null;
+				ldPointer = IntPtr.Zero;
+			}
+
+			// Get the latest encoder
+			GetRenderCommandEncoder();
+
+			// Update the vertex buffers
+			for (int i = 0; i < bindings.Length; i += 1)
+			{
+				if (bindings[i].VertexBuffer != null)
+				{
+					mtlSetVertexBuffer(
+						RenderCommandEncoder,
+						(bindings[i].VertexBuffer.buffer as MetalBuffer).Handle,
+						(ulong) bindings[i].VertexOffset, // FIXME: This may need to change.
+						(ulong) i
+					);
+					//Console.WriteLine((bindings[i].VertexBuffer.buffer as MetalBuffer).Contents.ToString("X"));
+				}
+			}
+
+			// Bind the sampler state
+			mtlSetFragmentSamplerState(
+				RenderCommandEncoder,
+				Textures[0].SamplerHandle, // FIXME
+				0 // FIXME
+			);
+
+			// Bind the uniform buffers
+			if (currentVertexUniformBuffer != IntPtr.Zero)
+			{
+				//Console.WriteLine(mtlGetBufferContentsPtr(currentVertexUniformBuffer).ToString("X"));
+				mtlSetVertexBuffer(
+					RenderCommandEncoder,
+					currentVertexUniformBuffer,
+					0,
+					16 // In MojoShader output it's always 16 for some reason
+				);
+			}
+
+			if (currentFragmentUniformBuffer != IntPtr.Zero)
+			{
+				mtlSetFragmentBuffer(
+					RenderCommandEncoder,
+					currentFragmentUniformBuffer,
+					0,
+					16 // In MojoShader output it's always 16 for some reason
+				);
+			}
+
+			// Finally, set the pipeline state.
+			IntPtr pipelineState = FetchRenderPipeline();
+			mtlSetRenderPipelineState(
+				RenderCommandEncoder,
+				pipelineState
+			);
 		}
 
 		public void ApplyVertexAttributes(
@@ -1725,6 +2135,62 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLPixelFormat.Depth32Float_Stencil8	// DepthFormat.Depth24Stencil8
 			};
 
+			public static readonly MojoShader.MOJOSHADER_usage[] VertexAttribUsage = new MojoShader.MOJOSHADER_usage[]
+			{
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_POSITION,		// VertexElementUsage.Position
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_COLOR,		// VertexElementUsage.Color
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TEXCOORD,		// VertexElementUsage.TextureCoordinate
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_NORMAL,		// VertexElementUsage.Normal
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_BINORMAL,		// VertexElementUsage.Binormal
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TANGENT,		// VertexElementUsage.Tangent
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_BLENDINDICES,	// VertexElementUsage.BlendIndices
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_BLENDWEIGHT,	// VertexElementUsage.BlendWeight
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_DEPTH,		// VertexElementUsage.Depth
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_FOG,		// VertexElementUsage.Fog
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_POINTSIZE,		// VertexElementUsage.PointSize
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_SAMPLE,		// VertexElementUsage.Sample
+				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TESSFACTOR		// VertexElementUsage.TessellateFactor
+			};
+
+			public static readonly int[] VertexAttribSize = new int[]
+			{
+					1,	// VertexElementFormat.Single
+					2,	// VertexElementFormat.Vector2
+					3,	// VertexElementFormat.Vector3
+					4,	// VertexElementFormat.Vector4
+					4,	// VertexElementFormat.Color
+					4,	// VertexElementFormat.Byte4
+					2,	// VertexElementFormat.Short2
+					4,	// VertexElementFormat.Short4
+					2,	// VertexElementFormat.NormalizedShort2
+					4,	// VertexElementFormat.NormalizedShort4
+					2,	// VertexElementFormat.HalfVector2
+					4	// VertexElementFormat.HalfVector4
+			};
+
+			public static readonly MTLVertexFormat[] VertexAttribType = new MTLVertexFormat[]
+			{
+				MTLVertexFormat.Float,		// VertexElementFormat.Single
+				MTLVertexFormat.Float2,		// VertexElementFormat.Vector2
+				MTLVertexFormat.Float3,		// VertexElementFormat.Vector3
+				MTLVertexFormat.Float4,		// VertexElementFormat.Vector4
+				MTLVertexFormat.UChar4Normalized,	// VertexElementFormat.Color
+				MTLVertexFormat.UChar4,		// VertexElementFormat.Byte4
+				MTLVertexFormat.Short2,		// VertexElementFormat.Short2
+				MTLVertexFormat.Short4,		// VertexElementFormat.Short4
+				MTLVertexFormat.Short2Normalized,	// VertexElementFormat.NormalizedShort2
+				MTLVertexFormat.Short4Normalized,	// VertexElementFormat.NormalizedShort4
+				MTLVertexFormat.Half2,		// VertexElementFormat.HalfVector2
+				MTLVertexFormat.Half4		// VertexElementFormat.HalfVector4
+			};
+
+			public static bool VertexAttribNormalized(VertexElement element)
+			{
+				return (	element.VertexElementUsage == VertexElementUsage.Color ||
+						element.VertexElementFormat == VertexElementFormat.NormalizedShort2 ||
+						element.VertexElementFormat == VertexElementFormat.NormalizedShort4	);
+			}
+
 			public static readonly int[] IndexSize = new int[]
 			{
 				2,	// IndexElementSize.SixteenBits
@@ -1784,6 +2250,79 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLCullMode.Back,		// CullMode.CullClockwiseFace
 				MTLCullMode.Back		// CullMode.CullCounterClockwiseFace
 			};
+
+			public static readonly MTLSamplerAddressMode[] Wrap = new MTLSamplerAddressMode[]
+			{
+				MTLSamplerAddressMode.Repeat,		// TextureAddressMode.Wrap
+				MTLSamplerAddressMode.ClampToEdge,	// TextureAddressMode.Clamp
+				MTLSamplerAddressMode.MirrorRepeat	// TextureAddressMode.Mirror
+			};
+
+			public static readonly MTLSamplerMinMagFilter[] MagFilter = new MTLSamplerMinMagFilter[]
+			{
+				MTLSamplerMinMagFilter.Linear,	// TextureFilter.Linear
+				MTLSamplerMinMagFilter.Nearest,	// TextureFilter.Point
+				MTLSamplerMinMagFilter.Linear,	// TextureFilter.Anisotropic
+				MTLSamplerMinMagFilter.Linear,	// TextureFilter.LinearMipPoint
+				MTLSamplerMinMagFilter.Nearest,	// TextureFilter.PointMipLinear
+				MTLSamplerMinMagFilter.Nearest,	// TextureFilter.MinLinearMagPointMipLinear
+				MTLSamplerMinMagFilter.Nearest,	// TextureFilter.MinLinearMagPointMipPoint
+				MTLSamplerMinMagFilter.Linear,	// TextureFilter.MinPointMagLinearMipLinear
+				MTLSamplerMinMagFilter.Linear	// TextureFilter.MinPointMagLinearMipPoint
+			};
+
+			public static readonly int[] MinMipFilter = new int[]
+			{
+				(int) MTLSamplerMipFilter.Linear,	// TextureFilter.Linear
+				(int) MTLSamplerMipFilter.Nearest,	// TextureFilter.Point
+				(int) MTLSamplerMipFilter.Linear,	// TextureFilter.Anisotropic
+				(int) MTLSamplerMipFilter.Nearest,	// TextureFilter.LinearMipPoint
+				(int) MTLSamplerMipFilter.Linear,	// TextureFilter.PointMipLinear
+				(int) MTLSamplerMipFilter.Linear,	// TextureFilter.MinLinearMagPointMipLinear
+				(int) MTLSamplerMipFilter.Nearest,	// TextureFilter.MinLinearMagPointMipPoint
+				(int) MTLSamplerMipFilter.Linear,	// TextureFilter.MinPointMagLinearMipLinear
+				(int) MTLSamplerMipFilter.Nearest	// TextureFilter.MinPointMagLinearMipPoint
+			};
+
+			public static readonly MTLSamplerMinMagFilter[] MinFilter = new MTLSamplerMinMagFilter[]
+			{
+				MTLSamplerMinMagFilter.Linear,	// TextureFilter.Linear
+				MTLSamplerMinMagFilter.Nearest,	// TextureFilter.Point
+				MTLSamplerMinMagFilter.Linear,	// TextureFilter.Anisotropic
+				MTLSamplerMinMagFilter.Linear,	// TextureFilter.LinearMipPoint
+				MTLSamplerMinMagFilter.Nearest,	// TextureFilter.PointMipLinear
+				MTLSamplerMinMagFilter.Linear,	// TextureFilter.MinLinearMagPointMipLinear
+				MTLSamplerMinMagFilter.Linear,	// TextureFilter.MinLinearMagPointMipPoint
+				MTLSamplerMinMagFilter.Nearest,	// TextureFilter.MinPointMagLinearMipLinear
+				MTLSamplerMinMagFilter.Nearest	// TextureFilter.MinPointMagLinearMipPoint
+			};
+
+			public static readonly MTLPrimitiveType[] Primitive = new MTLPrimitiveType[]
+			{
+				MTLPrimitiveType.Triangle,	// PrimitiveType.TriangleList
+				MTLPrimitiveType.TriangleStrip,	// PrimitiveType.TriangleStrip
+				MTLPrimitiveType.Line,		// PrimitiveType.LineList
+				MTLPrimitiveType.LineStrip,	// PrimitiveType.LineStrip
+				MTLPrimitiveType.Point		// PrimitiveType.PointListEXT
+			};
+
+			public static int PrimitiveVerts(PrimitiveType primitiveType, int primitiveCount)
+			{
+				switch (primitiveType)
+				{
+					case PrimitiveType.TriangleList:
+						return primitiveCount * 3;
+					case PrimitiveType.TriangleStrip:
+						return primitiveCount + 2;
+					case PrimitiveType.LineList:
+						return primitiveCount * 2;
+					case PrimitiveType.LineStrip:
+						return primitiveCount + 1;
+					case PrimitiveType.PointListEXT:
+						return primitiveCount;
+				}
+				throw new NotSupportedException();
+			}
 		}
 
 		#endregion
