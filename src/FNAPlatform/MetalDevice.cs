@@ -1681,20 +1681,24 @@ namespace Microsoft.Xna.Framework.Graphics
 						for (int j = 0; j < vertexDeclaration.elements.Length; j += 1)
 						{
 							VertexElement element = vertexDeclaration.elements[j];
-							// int attribLoc = MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
-							// 	XNAToMTL.VertexAttribUsage[(int) element.VertexElementUsage],
-							// 	element.UsageIndex
-							// );
-							// if (attribLoc == -1)
-							// {
-							// 	// Stream not in use!
-							// 	continue;
-							// }
-							Console.WriteLine(XNAToMTL.VertexAttribType[(int) element.VertexElementFormat]);
-							Console.WriteLine(element.Offset);
+
+							Console.WriteLine(XNAToMTL.VertexAttribUsage[(int) element.VertexElementUsage]);
+							Console.WriteLine("USAGE INDEX: " + element.UsageIndex);
+
+							int attribLoc = MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
+								currentEffect,
+								XNAToMTL.VertexAttribUsage[(int) element.VertexElementUsage],
+								element.UsageIndex
+							);
+							Console.WriteLine(attribLoc);
+							if (attribLoc == -1)
+							{
+								// Stream not in use!
+								continue;
+							}
 							IntPtr attrib = mtlGetVertexAttributeDescriptor(
 								descriptor,
-								j
+								attribLoc
 							);
 							mtlSetVertexAttributeFormat(
 								attrib,
@@ -1763,7 +1767,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
-			// Bind the sampler state
+			// Bind the texture and its sampler state
+			mtlSetFragmentTexture(
+				RenderCommandEncoder,
+				Textures[0].Handle, // FIXME
+				0 // FIXME
+			);
 			mtlSetFragmentSamplerState(
 				RenderCommandEncoder,
 				Textures[0].SamplerHandle, // FIXME
