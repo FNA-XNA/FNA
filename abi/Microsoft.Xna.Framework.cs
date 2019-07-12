@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Content.ContentManager))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Content.ResourceContentManager))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Content.ContentTypeReader))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Content.ContentTypeReader<int>))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.FrameworkDispatcher))]
 #if TODO_MEDIASTUB
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.MediaLibrary))]
@@ -84,6 +85,7 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Design.RayConverter))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Design.ColorConverter))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Graphics.PackedVector.IPackedVector))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Graphics.PackedVector.IPackedVector<int>))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Graphics.PackedVector.Alpha8))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Graphics.PackedVector.Bgr565))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Graphics.PackedVector.Bgra5551))]
