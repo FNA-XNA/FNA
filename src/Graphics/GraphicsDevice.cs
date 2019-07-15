@@ -291,8 +291,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Sampler Change Queue
 
-		private readonly Queue<int> modifiedSamplers = new Queue<int>();
-		private readonly Queue<int> modifiedVertexSamplers = new Queue<int>();
+
+		private readonly bool[] modifiedSamplers = new bool[MAX_TEXTURE_SAMPLERS];
+		private readonly bool[] modifiedVertexSamplers = new bool[MAX_VERTEXTEXTURE_SAMPLERS];
 
 		#endregion
 
@@ -1467,24 +1468,37 @@ namespace Microsoft.Xna.Framework.Graphics
 				RenderTargetCount > 0
 			);
 
-			while (modifiedSamplers.Count > 0)
+			for (int sampler = 0; sampler < modifiedSamplers.Length; sampler += 1)
 			{
-				int sampler = modifiedSamplers.Dequeue();
+				if (!modifiedSamplers[sampler])
+				{
+					continue;
+				}
+
+				modifiedSamplers[sampler] = false;
+
 				GLDevice.VerifySampler(
 					sampler,
 					Textures[sampler],
 					SamplerStates[sampler]
 				);
 			}
-			while (modifiedVertexSamplers.Count > 0)
+
+			for (int sampler = 0; sampler < modifiedVertexSamplers.Length; sampler += 1) 
 			{
+				if (!modifiedVertexSamplers[sampler])
+				{
+					continue;
+				}
+
+				modifiedVertexSamplers[sampler] = false;
+
 				/* Believe it or not, this is actually how VertexTextures are
 				 * stored in XNA4! Their D3D9 renderer just uses the last 4
 				 * slots available in the device's sampler array. So that's what
 				 * we get to do.
 				 * -flibit
 				 */
-				int sampler = modifiedVertexSamplers.Dequeue();
 				GLDevice.VerifySampler(
 					vertexSamplerStart + sampler,
 					VertexTextures[sampler],
