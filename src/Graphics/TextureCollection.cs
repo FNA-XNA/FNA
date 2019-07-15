@@ -36,10 +36,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 #endif
 				textures[index] = value;
-				if (!modifiedSamplers.Contains(index))
-				{
-					modifiedSamplers.Enqueue(index);
-				}
+				modifiedSamplers[index] = true;
 			}
 		}
 
@@ -48,7 +45,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Private Variables
 
 		private readonly Texture[] textures;
-		private readonly Queue<int> modifiedSamplers;
+		private readonly bool[] modifiedSamplers;
 
 		#endregion
 
@@ -56,7 +53,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal TextureCollection(
 			int slots,
-			Queue<int> modSamplers
+			bool[] modSamplers
 		) {
 			textures = new Texture[slots];
 			modifiedSamplers = modSamplers;

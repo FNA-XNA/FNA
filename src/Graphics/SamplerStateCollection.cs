@@ -26,10 +26,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			set
 			{
 				samplers[index] = value;
-				if (!modifiedSamplers.Contains(index))
-				{
-					modifiedSamplers.Enqueue(index);
-				}
+				modifiedSamplers[index] = true;
 			}
 		}
 
@@ -38,7 +35,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Private Variables
 
 		private readonly SamplerState[] samplers;
-		private readonly Queue<int> modifiedSamplers;
+		private readonly bool[] modifiedSamplers;
 
 		#endregion
 
@@ -46,7 +43,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal SamplerStateCollection(
 			int slots,
-			Queue<int> modSamplers
+			bool[] modSamplers
 		) {
 			samplers = new SamplerState[slots];
 			modifiedSamplers = modSamplers;
