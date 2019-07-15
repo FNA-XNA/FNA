@@ -291,7 +291,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Sampler Change Queue
 
-
 		private readonly bool[] modifiedSamplers = new bool[MAX_TEXTURE_SAMPLERS];
 		private readonly bool[] modifiedVertexSamplers = new bool[MAX_VERTEXTEXTURE_SAMPLERS];
 

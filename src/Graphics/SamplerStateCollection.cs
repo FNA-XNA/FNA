@@ -7,10 +7,6 @@
  */
 #endregion
 
-#region Using Statements
-using System.Collections.Generic;
-#endregion
-
 namespace Microsoft.Xna.Framework.Graphics
 {
 	public sealed class SamplerStateCollection
