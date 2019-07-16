@@ -262,8 +262,15 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public virtual void Play()
 		{
-			if (State != SoundState.Stopped)
+			if (State == SoundState.Playing)
 			{
+				return;
+			}
+			if (State == SoundState.Paused)
+			{
+				/* Just resume the existing handle */
+				FAudio.FAudioSourceVoice_Start(handle, 0, 0);
+				INTERNAL_state = SoundState.Playing;
 				return;
 			}
 
