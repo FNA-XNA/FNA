@@ -1379,20 +1379,6 @@ namespace Microsoft.Xna.Framework
 				}
 				return Path.Combine(osConfigDir, exeName);
 			}
-			if (OSVersion.Equals("tvOS"))
-			{
-				/* tvOS doesn't have persistent local storage. :(
-				 * The only place on-device where we can save data is a
-				 * cache directory that the OS can empty at any time.
-				 *
-				 * It's therefore very likely that save data will be erased
-				 * between game sessions. If you want your game's save data
-				 * to actually stick around, you'll need to use CloudKit.
-				 *
-				 * -caleb
-				 */
-				return Environment.GetFolderPath(Environment.SpecialFolder.InternetCache);
-			}
 
 			/* There is a minor inaccuracy here: SDL_GetPrefPath
 			 * creates the directories right away, whereas XNA will
