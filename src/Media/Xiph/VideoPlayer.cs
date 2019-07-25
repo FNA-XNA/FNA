@@ -194,7 +194,7 @@ namespace Microsoft.Xna.Framework.Media
 
 			// Prep viewport
 			prevViewport = currentDevice.Viewport;
-			currentDevice.GLDevice.SetViewport(viewport, true);
+			currentDevice.GLDevice.SetViewport(viewport);
 		}
 
 		private void GL_popState()
@@ -233,10 +233,7 @@ namespace Microsoft.Xna.Framework.Media
 			oldTargets = null;
 
 			// Set viewport AFTER setting targets!
-			currentDevice.GLDevice.SetViewport(
-				prevViewport,
-				currentDevice.RenderTargetCount > 0
-			);
+			currentDevice.GLDevice.SetViewport(prevViewport);
 
 			// Restore buffers
 			currentDevice.SetVertexBuffers(oldBuffers);

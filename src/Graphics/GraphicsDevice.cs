@@ -164,10 +164,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			set
 			{
 				INTERNAL_scissorRectangle = value;
-				GLDevice.SetScissorRect(
-					value,
-					RenderTargetCount > 0
-				);
+				GLDevice.SetScissorRect(value);
 			}
 		}
 
@@ -185,10 +182,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			set
 			{
 				INTERNAL_viewport = value;
-				GLDevice.SetViewport(
-					value,
-					RenderTargetCount > 0
-				);
+				GLDevice.SetViewport(value);
 			}
 		}
 
@@ -669,8 +663,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			 */
 			GLDevice.ResetBackbuffer(
 				PresentationParameters,
-				Adapter,
-				RenderTargetCount > 0
+				Adapter
 			);
 
 			// The mouse needs to know this for faux-backbuffer mouse scaling.
@@ -1462,10 +1455,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Always update RasterizerState, as it depends on other device states
-			GLDevice.ApplyRasterizerState(
-				RasterizerState,
-				RenderTargetCount > 0
-			);
+			GLDevice.ApplyRasterizerState(RasterizerState);
 
 			for (int sampler = 0; sampler < modifiedSamplers.Length; sampler += 1)
 			{
