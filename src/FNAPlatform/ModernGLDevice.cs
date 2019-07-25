@@ -505,7 +505,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr currentTechnique = IntPtr.Zero;
 		private uint currentPass = 0;
 
-		private int flipViewport = 1;
+		private int targetBound = 0;
 
 		private bool effectApplied = false;
 
@@ -2028,7 +2028,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			MojoShader.MOJOSHADER_glProgramReady();
-			MojoShader.MOJOSHADER_glProgramViewportFlip(flipViewport);
+			MojoShader.MOJOSHADER_glProgramViewportInfo(
+				viewport.Width, viewport.Height,
+				Backbuffer.Width, Backbuffer.Height,
+				targetBound
+			);
 		}
 
 		public void ApplyVertexAttributes(
@@ -2094,7 +2098,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			MojoShader.MOJOSHADER_glProgramReady();
-			MojoShader.MOJOSHADER_glProgramViewportFlip(flipViewport);
+			MojoShader.MOJOSHADER_glProgramViewportInfo(
+				viewport.Width, viewport.Height,
+				Backbuffer.Width, Backbuffer.Height,
+				targetBound
+			);
 		}
 
 		private void FlushGLVertexAttributes()
@@ -3397,13 +3405,13 @@ namespace Microsoft.Xna.Framework.Graphics
 						(Backbuffer as OpenGLBackbuffer).Handle :
 						0
 				);
-				flipViewport = 1;
+				targetBound = 0;
 				return;
 			}
 			else
 			{
 				BindFramebuffer(targetFramebuffer);
-				flipViewport = -1;
+				targetBound = 1;
 			}
 
 			int i;
