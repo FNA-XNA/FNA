@@ -246,16 +246,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Internal RenderTarget Properties
-
-		internal int RenderTargetCount
-		{
-			get;
-			private set;
-		}
-
-		#endregion
-
 		#region Internal GL Device
 
 		internal readonly IGLDevice GLDevice;
@@ -321,6 +311,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Private RenderTarget Variables
 
 		private readonly RenderTargetBinding[] renderTargetBindings = new RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
+
+		private int renderTargetCount = 0;
 
 		// Used to prevent allocs on SetRenderTarget()
 		private readonly RenderTargetBinding[] singleTargetCache = new RenderTargetBinding[1];
@@ -737,7 +729,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void Clear(ClearOptions options, Vector4 color, float depth, int stencil)
 		{
 			DepthFormat dsFormat;
-			if (RenderTargetCount == 0)
+			if (renderTargetCount == 0)
 			{
 				/* FIXME: PresentationParameters.DepthStencilFormat is probably
 				 * a more accurate value here, but the Backbuffer may disagree.
@@ -853,11 +845,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void SetRenderTargets(params RenderTargetBinding[] renderTargets)
 		{
 			// Checking for redundant SetRenderTargets...
-			if (renderTargets == null && RenderTargetCount == 0)
+			if (renderTargets == null && renderTargetCount == 0)
 			{
 				return;
 			}
-			else if (renderTargets != null && renderTargets.Length == RenderTargetCount)
+			else if (renderTargets != null && renderTargets.Length == renderTargetCount)
 			{
 				bool isRedundant = true;
 				for (int i = 0; i < renderTargets.Length; i += 1)
@@ -888,12 +880,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				clearTarget = PresentationParameters.RenderTargetUsage;
 
 				// Resolve previous targets, if needed
-				for (int i = 0; i < RenderTargetCount; i += 1)
+				for (int i = 0; i < renderTargetCount; i += 1)
 				{
 					GLDevice.ResolveTarget(renderTargetBindings[i]);
 				}
 				Array.Clear(renderTargetBindings, 0, renderTargetBindings.Length);
-				RenderTargetCount = 0;
+				renderTargetCount = 0;
 			}
 			else
 			{
@@ -910,7 +902,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				clearTarget = target.RenderTargetUsage;
 
 				// Resolve previous targets, if needed
-				for (int i = 0; i < RenderTargetCount; i += 1)
+				for (int i = 0; i < renderTargetCount; i += 1)
 				{
 					// We only need to resolve if the target is no longer bound.
 					bool stillBound = false;
@@ -930,7 +922,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				Array.Clear(renderTargetBindings, 0, renderTargetBindings.Length);
 				Array.Copy(renderTargets, renderTargetBindings, renderTargets.Length);
-				RenderTargetCount = renderTargets.Length;
+				renderTargetCount = renderTargets.Length;
 			}
 
 			// Apply new GL state, clear target if requested
@@ -950,8 +942,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		public RenderTargetBinding[] GetRenderTargets()
 		{
 			// Return a correctly sized copy our internal array.
-			RenderTargetBinding[] bindings = new RenderTargetBinding[RenderTargetCount];
-			Array.Copy(renderTargetBindings, bindings, RenderTargetCount);
+			RenderTargetBinding[] bindings = new RenderTargetBinding[renderTargetCount];
+			Array.Copy(renderTargetBindings, bindings, renderTargetCount);
 			return bindings;
 		}
 
