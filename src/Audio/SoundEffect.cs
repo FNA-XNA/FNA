@@ -474,7 +474,7 @@ namespace Microsoft.Xna.Framework.Audio
 						out DeviceDetails
 					);
 				}
-				FAudio.FAudio_CreateMasteringVoice(
+				if (FAudio.FAudio_CreateMasteringVoice(
 					Handle,
 					out MasterVoice,
 					FAudio.FAUDIO_DEFAULT_CHANNELS,
@@ -482,7 +482,13 @@ namespace Microsoft.Xna.Framework.Audio
 					0,
 					i,
 					IntPtr.Zero
-				);
+				) != 0) {
+					FAudio.FAudio_Release(ctx);
+					FNALoggerEXT.LogError(
+						"Failed to create mastering voice!"
+					);
+					return;
+				}
 
 				CurveDistanceScaler = 1.0f;
 				DopplerScale = 1.0f;

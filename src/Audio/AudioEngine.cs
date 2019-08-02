@@ -130,7 +130,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 			// Init engine, finally
 			FAudio.FACTCreateEngine(0, out handle);
-			FAudio.FACTAudioEngine_Initialize(handle, ref settings);
+			if (FAudio.FACTAudioEngine_Initialize(handle, ref settings) != 0)
+			{
+				throw new InvalidOperationException(
+					"Engine initialization failed!"
+				);
+			}
 
 			// Free the settings strings
 			if (settings.pRendererID != IntPtr.Zero)
