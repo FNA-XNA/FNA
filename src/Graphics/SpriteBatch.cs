@@ -720,7 +720,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			List<Rectangle> glyphData = spriteFont.glyphData;
 			List<Rectangle> croppingData = spriteFont.croppingData;
 			List<Vector3> kerning = spriteFont.kerning;
-			List<char> characterMap = spriteFont.characterMap;
+			Dictionary<char, int> characterIndexMap = spriteFont.CharacterIndexMap;
 
 			// FIXME: This needs an accuracy check! -flibit
 
@@ -762,7 +762,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * DefaultCharacter if it's set.
 				 */
 				int index;
-				if (!spriteFont.CharacterIndexMap.TryGetValue(c, out index))
+				if (!characterIndexMap.TryGetValue(c, out index))
 				{
 					if (!spriteFont.DefaultCharacter.HasValue)
 					{
@@ -772,7 +772,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = spriteFont.CharacterIndexMap[spriteFont.DefaultCharacter.Value];
+					index = characterIndexMap[spriteFont.DefaultCharacter.Value];
 				}
 
 				/* For the first character in a line, always push the width
@@ -918,7 +918,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			List<Rectangle> glyphData = spriteFont.glyphData;
 			List<Rectangle> croppingData = spriteFont.croppingData;
 			List<Vector3> kerning = spriteFont.kerning;
-			List<char> characterMap = spriteFont.characterMap;
+			Dictionary<char, int> characterIndexMap = spriteFont.CharacterIndexMap;
 
 			// FIXME: This needs an accuracy check! -flibit
 
@@ -958,7 +958,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * DefaultCharacter if it's set.
 				 */
 				int index;
-				if (!spriteFont.CharacterIndexMap.TryGetValue(c, out index))
+				if (!characterIndexMap.TryGetValue(c, out index))
 				{
 					if (!spriteFont.DefaultCharacter.HasValue)
 					{
@@ -968,7 +968,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = spriteFont.CharacterIndexMap[spriteFont.DefaultCharacter.Value];
+					index = characterIndexMap[spriteFont.DefaultCharacter.Value];
 				}
 
 				/* For the first character in a line, always push the width
