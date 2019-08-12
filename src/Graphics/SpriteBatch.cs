@@ -761,8 +761,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				/* Get the List index from the character map, defaulting to the
 				 * DefaultCharacter if it's set.
 				 */
-				int index = characterMap.IndexOf(c);
-				if (index == -1)
+				int index;
+				if (!spriteFont.CharacterIndexMap.TryGetValue(c, out index))
 				{
 					if (!spriteFont.DefaultCharacter.HasValue)
 					{
@@ -772,9 +772,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = characterMap.IndexOf(
-						spriteFont.DefaultCharacter.Value
-					);
+					index = spriteFont.CharacterIndexMap[spriteFont.DefaultCharacter.Value];
 				}
 
 				/* For the first character in a line, always push the width
@@ -959,8 +957,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				/* Get the List index from the character map, defaulting to the
 				 * DefaultCharacter if it's set.
 				 */
-				int index = characterMap.IndexOf(c);
-				if (index == -1)
+				int index;
+				if (!spriteFont.CharacterIndexMap.TryGetValue(c, out index))
 				{
 					if (!spriteFont.DefaultCharacter.HasValue)
 					{
@@ -970,9 +968,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = characterMap.IndexOf(
-						spriteFont.DefaultCharacter.Value
-					);
+					index = spriteFont.CharacterIndexMap[spriteFont.DefaultCharacter.Value];
 				}
 
 				/* For the first character in a line, always push the width
