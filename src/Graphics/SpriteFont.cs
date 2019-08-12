@@ -82,6 +82,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal int lineSpacing;
 		internal float spacing;
 
+		internal Dictionary<char, int> CharacterIndexMap;
+
 		#endregion
 
 		#region Internal Constructor
@@ -106,6 +108,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			croppingData = cropping;
 			kerning = kerningData;
 			characterMap = characters;
+
+			CharacterIndexMap = new Dictionary<char, int>(characters.Count);
+			for (int i = 0; i < characters.Count; i += 1)
+			{
+				CharacterIndexMap[characters[i]] = i;
+			}
 		}
 
 		#endregion
@@ -154,8 +162,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				/* Get the List index from the character map, defaulting to the
 				 * DefaultCharacter if it's set.
 				 */
-				int index = characterMap.IndexOf(c);
-				if (index == -1)
+				int index;
+				if (!CharacterIndexMap.TryGetValue(c, out index))
 				{
 					if (!DefaultCharacter.HasValue)
 					{
@@ -165,7 +173,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = characterMap.IndexOf(DefaultCharacter.Value);
+					index = CharacterIndexMap[DefaultCharacter.Value];
 				}
 
 				/* For the first character in a line, always push the width
@@ -250,8 +258,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				/* Get the List index from the character map, defaulting to the
 				 * DefaultCharacter if it's set.
 				 */
-				int index = characterMap.IndexOf(c);
-				if (index == -1)
+				int index;
+				if (!CharacterIndexMap.TryGetValue(c, out index))
 				{
 					if (!DefaultCharacter.HasValue)
 					{
@@ -261,7 +269,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = characterMap.IndexOf(DefaultCharacter.Value);
+					index = CharacterIndexMap[DefaultCharacter.Value];
 				}
 
 				/* For the first character in a line, always push the width
