@@ -720,7 +720,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			List<Rectangle> glyphData = spriteFont.glyphData;
 			List<Rectangle> croppingData = spriteFont.croppingData;
 			List<Vector3> kerning = spriteFont.kerning;
-			Dictionary<char, int> characterIndexMap = spriteFont.CharacterIndexMap;
+			Dictionary<char, int> characterIndexMap = spriteFont.characterIndexMap;
 
 			// FIXME: This needs an accuracy check! -flibit
 
@@ -918,7 +918,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			List<Rectangle> glyphData = spriteFont.glyphData;
 			List<Rectangle> croppingData = spriteFont.croppingData;
 			List<Vector3> kerning = spriteFont.kerning;
-			Dictionary<char, int> characterIndexMap = spriteFont.CharacterIndexMap;
+			Dictionary<char, int> characterIndexMap = spriteFont.characterIndexMap;
 
 			// FIXME: This needs an accuracy check! -flibit
 

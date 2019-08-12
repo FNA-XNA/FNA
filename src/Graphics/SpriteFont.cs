@@ -82,7 +82,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal int lineSpacing;
 		internal float spacing;
 
-		internal Dictionary<char, int> CharacterIndexMap;
+		/* This is not a part of the spec as far as we know, but we
+		 * added this because it's WAY faster than going to characterMap
+		 * and calling IndexOf on each character.
+		 */
+		internal Dictionary<char, int> characterIndexMap;
 
 		#endregion
 
@@ -109,10 +113,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			kerning = kerningData;
 			characterMap = characters;
 
-			CharacterIndexMap = new Dictionary<char, int>(characters.Count);
+			characterIndexMap = new Dictionary<char, int>(characters.Count);
 			for (int i = 0; i < characters.Count; i += 1)
 			{
-				CharacterIndexMap[characters[i]] = i;
+				characterIndexMap[characters[i]] = i;
 			}
 		}
 
@@ -163,7 +167,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * DefaultCharacter if it's set.
 				 */
 				int index;
-				if (!CharacterIndexMap.TryGetValue(c, out index))
+				if (!characterIndexMap.TryGetValue(c, out index))
 				{
 					if (!DefaultCharacter.HasValue)
 					{
@@ -173,7 +177,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = CharacterIndexMap[DefaultCharacter.Value];
+					index = characterIndexMap[DefaultCharacter.Value];
 				}
 
 				/* For the first character in a line, always push the width
@@ -259,7 +263,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * DefaultCharacter if it's set.
 				 */
 				int index;
-				if (!CharacterIndexMap.TryGetValue(c, out index))
+				if (!characterIndexMap.TryGetValue(c, out index))
 				{
 					if (!DefaultCharacter.HasValue)
 					{
@@ -269,7 +273,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = CharacterIndexMap[DefaultCharacter.Value];
+					index = characterIndexMap[DefaultCharacter.Value];
 				}
 
 				/* For the first character in a line, always push the width
