@@ -125,6 +125,7 @@ SRC = \
 	src/FNAPlatform/ModernGLDevice_GL.cs \
 	src/FNAPlatform/OpenGLDevice.cs \
 	src/FNAPlatform/OpenGLDevice_GL.cs \
+	src/FNAPlatform/ThreadedGLDevice.cs \
 	src/FNAPlatform/SDL2_FNAPlatform.cs \
 	src/FrameworkDispatcher.cs \
 	src/Game.cs \

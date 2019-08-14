@@ -1142,10 +1142,16 @@ namespace Microsoft.Xna.Framework
 			GraphicsAdapter adapter
 		) {
 			// This loads the OpenGL entry points.
-			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_FORCE_GLDEVICE") == "ModernGLDevice")
+			string glDevice = Environment.GetEnvironmentVariable("FNA_GRAPHICS_FORCE_GLDEVICE");
+			if (glDevice == "ModernGLDevice")
 			{
 				// FIXME: This is still experimental! -flibit
 				return new ModernGLDevice(presentationParameters, adapter);
+			}
+			if (glDevice == "ThreadedGLDevice")
+			{
+				// FIXME: This is still experimental! -flibit
+				return new ThreadedGLDevice(presentationParameters, adapter);
 			}
 			return new OpenGLDevice(presentationParameters, adapter);
 		}

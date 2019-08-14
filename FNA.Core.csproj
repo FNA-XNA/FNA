@@ -133,6 +133,7 @@
 		<Compile Include="src\FNAPlatform\ModernGLDevice_GL.cs" />
 		<Compile Include="src\FNAPlatform\OpenGLDevice.cs" />
 		<Compile Include="src\FNAPlatform\OpenGLDevice_GL.cs" />
+		<Compile Include="src\FNAPlatform\ThreadedGLDevice.cs" />
 		<Compile Include="src\FNAPlatform\SDL2_FNAPlatform.cs" />
 		<Compile Include="src\FrameworkDispatcher.cs" />
 		<Compile Include="src\Game.cs" />
