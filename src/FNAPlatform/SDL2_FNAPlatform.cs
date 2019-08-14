@@ -2266,7 +2266,7 @@ namespace Microsoft.Xna.Framework
 				device,
 				(ushort) (MathHelper.Clamp(leftMotor, 0.0f, 1.0f) * 0xFFFF),
 				(ushort) (MathHelper.Clamp(rightMotor, 0.0f, 1.0f) * 0xFFFF),
-				SDL.SDL_HAPTIC_INFINITY // Oh dear...
+				0
 			) == 0;
 		}
 
@@ -2341,7 +2341,7 @@ namespace Microsoft.Xna.Framework
 				INTERNAL_devices[which],
 				0,
 				0,
-				SDL.SDL_HAPTIC_INFINITY
+				0
 			) == 0;
 
 			// An SDL_GameController _should_ always be complete...
