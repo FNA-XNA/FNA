@@ -256,6 +256,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~SoundEffect()
 		{
+			if (Instances.Count > 0)
+			{
+				// STOP LEAKING YOUR INSTANCES, ARGH
+				GC.ReRegisterForFinalize(this);
+				return;
+			}
 			Dispose();
 		}
 
