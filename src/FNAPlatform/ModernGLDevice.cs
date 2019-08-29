@@ -607,13 +607,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Initialize entry points
 			LoadGLEntryPoints();
 
-			shaderProfile = MojoShader.MOJOSHADER_glBestProfile(
-				GLGetProcAddress,
-				IntPtr.Zero,
-				null,
-				null,
-				IntPtr.Zero
+			shaderProfile = Environment.GetEnvironmentVariable(
+				"FNA_GRAPHICS_MOJOSHADER_PROFILE"
 			);
+			if (string.IsNullOrEmpty(shaderProfile))
+			{
+				shaderProfile = MojoShader.MOJOSHADER_glBestProfile(
+					GLGetProcAddress,
+					IntPtr.Zero,
+					null,
+					null,
+					IntPtr.Zero
+				);
+			}
 			shaderContext = MojoShader.MOJOSHADER_glCreateContext(
 				shaderProfile,
 				GLGetProcAddress,

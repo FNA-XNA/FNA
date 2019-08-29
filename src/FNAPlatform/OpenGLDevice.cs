@@ -661,13 +661,26 @@ namespace Microsoft.Xna.Framework.Graphics
 				vendor
 			));
 
-			shaderProfile = MojoShader.MOJOSHADER_glBestProfile(
-				GLGetProcAddress,
-				IntPtr.Zero,
-				null,
-				null,
-				IntPtr.Zero
+			shaderProfile = Environment.GetEnvironmentVariable(
+				"FNA_GRAPHICS_MOJOSHADER_PROFILE"
 			);
+			if (string.IsNullOrEmpty(shaderProfile))
+			{
+				shaderProfile = MojoShader.MOJOSHADER_glBestProfile(
+					GLGetProcAddress,
+					IntPtr.Zero,
+					null,
+					null,
+					IntPtr.Zero
+				);
+
+				/* SPIR-V is very new and not really necessary. */
+				if (shaderProfile == "spirv")
+				{
+					shaderProfile = "glsl120";
+				}
+			}
+
 			shaderContext = MojoShader.MOJOSHADER_glCreateContext(
 				shaderProfile,
 				GLGetProcAddress,
