@@ -2954,6 +2954,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					GLenum.GL_UNSIGNED_BYTE,
 					ptr
 				);
+				ptr += tex.Width * tex.Height;
 			}
 			glPixelStorei(GLenum.GL_UNPACK_ALIGNMENT, 4);
 		}
