@@ -2700,35 +2700,25 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 		}
 
-		public void SetTextureData2DPointer(
-			Texture2D texture,
-			IntPtr ptr
-		) {
-			// Set pixel alignment to match texel size in bytes
-			int packSize = Texture.GetPixelStoreAlignment(texture.Format);
-			if (packSize != 4)
+		public void SetTextureDataYUV(Texture2D[] textures, IntPtr ptr)
+		{
+			glPixelStorei(GLenum.GL_UNPACK_ALIGNMENT, 1);
+			for (int i = 0; i < 3; i += 1)
 			{
-				glPixelStorei(
-					GLenum.GL_UNPACK_ALIGNMENT,
-					packSize
+				Texture2D tex = textures[i];
+				glTextureSubImage2D(
+					(tex.texture as OpenGLTexture).Handle,
+					0,
+					0,
+					0,
+					tex.Width,
+					tex.Height,
+					GLenum.GL_LUMINANCE,
+					GLenum.GL_UNSIGNED_BYTE,
+					ptr
 				);
 			}
-			glTextureSubImage2D(
-				(texture.texture as OpenGLTexture).Handle,
-				0,
-				0,
-				0,
-				texture.Width,
-				texture.Height,
-				XNAToGL.TextureFormat[(int) texture.Format],
-				XNAToGL.TextureDataType[(int) texture.Format],
-				ptr
-			);
-			// Keep this state sane -flibit
-			if (packSize != 4)
-			{
-				glPixelStorei(GLenum.GL_UNPACK_ALIGNMENT, 4);
-			}
+			glPixelStorei(GLenum.GL_UNPACK_ALIGNMENT, 4);
 		}
 
 		#endregion

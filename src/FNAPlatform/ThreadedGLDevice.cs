@@ -723,11 +723,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			}); // End ForceToMainThread
 		}
 
-		public void SetTextureData2DPointer(Texture2D texture, IntPtr ptr)
+		public void SetTextureDataYUV(Texture2D[] textures, IntPtr ptr)
 		{
 			ForceToMainThread(() =>
 			{
-				GLDevice.SetTextureData2DPointer(texture, ptr);
+				GLDevice.SetTextureDataYUV(textures, ptr);
 			}); // End ForceToMainThread
 		}
 

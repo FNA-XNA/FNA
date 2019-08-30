@@ -705,24 +705,9 @@ namespace Microsoft.Xna.Framework.Media
 		private void UpdateTexture()
 		{
 			// Prepare YUV GL textures with our current frame data
-			currentDevice.GLDevice.SetTextureData2DPointer(
-				yuvTextures[0],
+			currentDevice.GLDevice.SetTextureDataYUV(
+				yuvTextures,
 				yuvData
-			);
-			currentDevice.GLDevice.SetTextureData2DPointer(
-				yuvTextures[1],
-				new IntPtr(
-					yuvData.ToInt64() +
-					(Video.Width * Video.Height)
-				)
-			);
-			currentDevice.GLDevice.SetTextureData2DPointer(
-				yuvTextures[2],
-				new IntPtr(
-					yuvData.ToInt64() +
-					(Video.Width * Video.Height) +
-					(Video.Width / 2 * Video.Height / 2)
-				)
 			);
 
 			// Draw the YUV textures to the framebuffer with our shader.
