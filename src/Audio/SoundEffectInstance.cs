@@ -525,7 +525,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 
 			FAudio.FAudioFilterParameters p = new FAudio.FAudioFilterParameters();
-			p.Type = FAudio.FAudioFilterType.FAudioLowPassFilter;
+			p.Type = FAudio.FAudioFilterType.FAudioBandPassFilter;
 			p.Frequency = center;
 			p.OneOverQ = 1.0f;
 			FAudio.FAudioVoice_SetFilterParameters(
