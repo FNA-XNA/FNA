@@ -204,7 +204,11 @@ namespace Microsoft.Xna.Framework
 				return false;
 			}
 
-			return OSVersion.Equals("Mac OS X") || OSVersion.Equals("iOS") || OSVersion.Equals("tvOS");
+			return (
+				OSVersion.Equals("Mac OS X") ||
+				OSVersion.Equals("iOS") ||
+				OSVersion.Equals("tvOS")
+			);
 		}
 
 		private static bool PrepareGLAttributes()
@@ -213,9 +217,9 @@ namespace Microsoft.Xna.Framework
 			 * return false to avoid OpenGL WSI calls.
 			 */
 
-			if (	!String.IsNullOrEmpty(forcedGLDevice)
-				&& !forcedGLDevice.Equals("OpenGLDevice")
-				&& !forcedGLDevice.Equals("ModernGLDevice")	)
+			if (	!String.IsNullOrEmpty(forcedGLDevice) &&
+				!forcedGLDevice.Equals("OpenGLDevice") &&
+				!forcedGLDevice.Equals("ModernGLDevice")	)
 			{
 				return false;
 			}
