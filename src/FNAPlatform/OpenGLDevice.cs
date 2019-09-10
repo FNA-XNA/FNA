@@ -520,7 +520,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr currentTechnique = IntPtr.Zero;
 		private uint currentPass = 0;
 
-		private int flipViewport = 1;
+		private bool renderTargetBound = false;
 
 		private bool effectApplied = false;
 
@@ -661,13 +661,26 @@ namespace Microsoft.Xna.Framework.Graphics
 				vendor
 			));
 
-			shaderProfile = MojoShader.MOJOSHADER_glBestProfile(
-				GLGetProcAddress,
-				IntPtr.Zero,
-				null,
-				null,
-				IntPtr.Zero
+			shaderProfile = Environment.GetEnvironmentVariable(
+				"FNA_GRAPHICS_MOJOSHADER_PROFILE"
 			);
+			if (string.IsNullOrEmpty(shaderProfile))
+			{
+				shaderProfile = MojoShader.MOJOSHADER_glBestProfile(
+					GLGetProcAddress,
+					IntPtr.Zero,
+					null,
+					null,
+					IntPtr.Zero
+				);
+
+				/* SPIR-V is very new and not really necessary. */
+				if (shaderProfile == "spirv")
+				{
+					shaderProfile = "glsl120";
+				}
+			}
+
 			shaderContext = MojoShader.MOJOSHADER_glCreateContext(
 				shaderProfile,
 				GLGetProcAddress,
@@ -863,8 +876,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void ResetBackbuffer(
 			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter,
-			bool renderTargetBound
+			GraphicsAdapter adapter
 		) {
 			if (UseFauxBackbuffer(presentationParameters, adapter.CurrentDisplayMode))
 			{
@@ -888,8 +900,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				else
 				{
 					Backbuffer.ResetFramebuffer(
-						presentationParameters,
-						renderTargetBound
+						presentationParameters
 					);
 				}
 			}
@@ -907,8 +918,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				else
 				{
 					Backbuffer.ResetFramebuffer(
-						presentationParameters,
-						renderTargetBound
+						presentationParameters
 					);
 				}
 			}
@@ -1340,7 +1350,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		public void SetViewport(Viewport vp, bool renderTargetBound)
+		public void SetViewport(Viewport vp)
 		{
 			// Flip viewport when target is not bound
 			if (!renderTargetBound)
@@ -1367,10 +1377,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		public void SetScissorRect(
-			Rectangle scissorRect,
-			bool renderTargetBound
-		) {
+		public void SetScissorRect(Rectangle scissorRect)
+		{
 			// Flip rectangle when target is not bound
 			if (!renderTargetBound)
 			{
@@ -1622,10 +1630,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		public void ApplyRasterizerState(
-			RasterizerState rasterizerState,
-			bool renderTargetBound
-		) {
+		public void ApplyRasterizerState(RasterizerState rasterizerState)
+		{
 			if (rasterizerState.ScissorTestEnable != scissorTestEnable)
 			{
 				scissorTestEnable = rasterizerState.ScissorTestEnable;
@@ -2123,7 +2129,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			MojoShader.MOJOSHADER_glProgramReady();
-			MojoShader.MOJOSHADER_glProgramViewportFlip(flipViewport);
+			MojoShader.MOJOSHADER_glProgramViewportInfo(
+				viewport.Width, viewport.Height,
+				Backbuffer.Width, Backbuffer.Height,
+				renderTargetBound ? 1 : 0 // lol C#
+			);
 		}
 
 		public void ApplyVertexAttributes(
@@ -2190,7 +2200,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			MojoShader.MOJOSHADER_glProgramReady();
-			MojoShader.MOJOSHADER_glProgramViewportFlip(flipViewport);
+			MojoShader.MOJOSHADER_glProgramViewportInfo(
+				viewport.Width, viewport.Height,
+				Backbuffer.Width, Backbuffer.Height,
+				renderTargetBound ? 1 : 0 // lol C#
+			);
 		}
 
 		private void FlushGLVertexAttributes()
@@ -2922,36 +2936,27 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 		}
 
-		public void SetTextureData2DPointer(
-			Texture2D texture,
-			IntPtr ptr
-		) {
-			BindTexture(texture.texture);
-			// Set pixel alignment to match texel size in bytes
-			int packSize = Texture.GetPixelStoreAlignment(texture.Format);
-			if (packSize != 4)
+		public void SetTextureDataYUV(Texture2D[] textures, IntPtr ptr)
+		{
+			glPixelStorei(GLenum.GL_UNPACK_ALIGNMENT, 1);
+			for (int i = 0; i < 3; i += 1)
 			{
-				glPixelStorei(
-					GLenum.GL_UNPACK_ALIGNMENT,
-					packSize
+				Texture2D tex = textures[i];
+				BindTexture(tex.texture);
+				glTexSubImage2D(
+					GLenum.GL_TEXTURE_2D,
+					0,
+					0,
+					0,
+					tex.Width,
+					tex.Height,
+					GLenum.GL_LUMINANCE,
+					GLenum.GL_UNSIGNED_BYTE,
+					ptr
 				);
+				ptr += tex.Width * tex.Height;
 			}
-			glTexSubImage2D(
-				GLenum.GL_TEXTURE_2D,
-				0,
-				0,
-				0,
-				texture.Width,
-				texture.Height,
-				XNAToGL.TextureFormat[(int) texture.Format],
-				XNAToGL.TextureDataType[(int) texture.Format],
-				ptr
-			);
-			// Keep this state sane -flibit
-			if (packSize != 4)
-			{
-				glPixelStorei(GLenum.GL_UNPACK_ALIGNMENT, 4);
-			}
+			glPixelStorei(GLenum.GL_UNPACK_ALIGNMENT, 4);
 		}
 
 		#endregion
@@ -3775,13 +3780,13 @@ namespace Microsoft.Xna.Framework.Graphics
 						(Backbuffer as OpenGLBackbuffer).Handle :
 						realBackbufferFBO
 				);
-				flipViewport = 1;
+				renderTargetBound = false;
 				return;
 			}
 			else
 			{
 				BindFramebuffer(targetFramebuffer);
-				flipViewport = -1;
+				renderTargetBound = true;
 			}
 
 			int i;
@@ -4503,8 +4508,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			public void ResetFramebuffer(
-				PresentationParameters presentationParameters,
-				bool renderTargetBound
+				PresentationParameters presentationParameters
 			) {
 				Width = presentationParameters.BackBufferWidth;
 				Height = presentationParameters.BackBufferHeight;
@@ -4517,7 +4521,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					Texture = 0;
 				}
 
-				if (renderTargetBound)
+				if (glDevice.renderTargetBound)
 				{
 					glDevice.glBindFramebuffer(
 						GLenum.GL_FRAMEBUFFER, Handle
@@ -4647,7 +4651,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				DepthFormat = depthFormat;
 
-				if (renderTargetBound)
+				if (glDevice.renderTargetBound)
 				{
 					glDevice.glBindFramebuffer(
 						GLenum.GL_FRAMEBUFFER,
@@ -4704,8 +4708,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			public void ResetFramebuffer(
-				PresentationParameters presentationParameters,
-				bool renderTargetBound
+				PresentationParameters presentationParameters
 			) {
 				Width = presentationParameters.BackBufferWidth;
 				Height = presentationParameters.BackBufferHeight;

@@ -255,6 +255,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Double the ugly, double the fun!
 			INTERNAL_parseEffectStruct();
 
+			// Copy texture parameters, if applicable
+			for (int i = 0; i < cloneSource.Parameters.Count; i += 1)
+			{
+				Parameters[i].texture = cloneSource.Parameters[i].texture;
+			}
+
 			// The default technique is whatever the current technique was.
 			for (int i = 0; i < cloneSource.Techniques.Count; i += 1)
 			{

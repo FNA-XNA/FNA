@@ -198,23 +198,26 @@ namespace Microsoft.Xna.Framework
 
 		private static bool PrepareMTLAttributes()
 		{
-			if (!String.IsNullOrEmpty(forcedGLDevice) && !forcedGLDevice.Equals("MetalDevice"))
+
+			if (	!String.IsNullOrEmpty(forcedGLDevice) &&
+				!forcedGLDevice.Equals("MetalDevice")	)
 			{
 				return false;
 			}
 
-			return OSVersion.Equals("Mac OS X") || OSVersion.Equals("iOS") || OSVersion.Equals("tvOS");
+			return (
+				OSVersion.Equals("Mac OS X") ||
+				OSVersion.Equals("iOS") ||
+				OSVersion.Equals("tvOS")
+			);
 		}
 
 		private static bool PrepareGLAttributes()
 		{
-			/* TODO: For platforms not using OpenGL (Vulkan/Metal),
-			 * return false to avoid OpenGL WSI calls.
-			 */
+			if (	!String.IsNullOrEmpty(forcedGLDevice) &&
+				!forcedGLDevice.Equals("OpenGLDevice") &&
+				!forcedGLDevice.Equals("ModernGLDevice")	)
 
-			if (	!String.IsNullOrEmpty(forcedGLDevice)
-				&& !forcedGLDevice.Equals("OpenGLDevice")
-				&& !forcedGLDevice.Equals("ModernGLDevice")	)
 			{
 				return false;
 			}
@@ -304,11 +307,11 @@ namespace Microsoft.Xna.Framework
 			{
 				SDL.SDL_GL_SetAttribute(
 					SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION,
-					3
+					4
 				);
 				SDL.SDL_GL_SetAttribute(
 					SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION,
-					2
+					6
 				);
 				SDL.SDL_GL_SetAttribute(
 					SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
@@ -1185,6 +1188,11 @@ namespace Microsoft.Xna.Framework
 			{
 				// FIXME: This is still experimental! -flibit
 				return new ModernGLDevice(presentationParameters, adapter);
+			}
+			if (forcedGLDevice == "ThreadedGLDevice")
+			{
+				// FIXME: This is still experimental! -flibit
+				return new ThreadedGLDevice(presentationParameters, adapter);
 			}
 			return new OpenGLDevice(presentationParameters, adapter);
 		}
@@ -2301,7 +2309,7 @@ namespace Microsoft.Xna.Framework
 				device,
 				(ushort) (MathHelper.Clamp(leftMotor, 0.0f, 1.0f) * 0xFFFF),
 				(ushort) (MathHelper.Clamp(rightMotor, 0.0f, 1.0f) * 0xFFFF),
-				SDL.SDL_HAPTIC_INFINITY // Oh dear...
+				0
 			) == 0;
 		}
 
@@ -2376,7 +2384,7 @@ namespace Microsoft.Xna.Framework
 				INTERNAL_devices[which],
 				0,
 				0,
-				SDL.SDL_HAPTIC_INFINITY
+				0
 			) == 0;
 
 			// An SDL_GameController _should_ always be complete...

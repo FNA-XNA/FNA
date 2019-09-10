@@ -67,8 +67,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		void ResetBackbuffer(
 			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter,
-			bool renderTargetBound
+			GraphicsAdapter adapter
 		);
 		void SwapBuffers(
 			Rectangle? sourceRectangle,
@@ -119,17 +118,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 
 		void SetPresentationInterval(PresentInterval presentInterval);
-		void SetViewport(Viewport vp, bool renderTargetBound);
-		void SetScissorRect(
-			Rectangle scissorRect,
-			bool renderTargetBound
-		);
+		void SetViewport(Viewport vp);
+		void SetScissorRect(Rectangle scissorRect);
 		void SetBlendState(BlendState blendState);
 		void SetDepthStencilState(DepthStencilState depthStencilState);
-		void ApplyRasterizerState(
-			RasterizerState rasterizerState,
-			bool renderTargetBound
-		);
+		void ApplyRasterizerState(RasterizerState rasterizerState);
 		void VerifySampler(
 			int index,
 			Texture texture,
@@ -217,7 +210,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			int dataLength
 		);
-		void SetTextureData2DPointer(Texture2D texture, IntPtr ptr);
+		void SetTextureDataYUV(Texture2D[] textures, IntPtr ptr);
 		void GetTextureData2D(
 			IGLTexture texture,
 			SurfaceFormat format,
@@ -406,8 +399,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		void ResetFramebuffer(
-			PresentationParameters presentationParameters,
-			bool renderTargetBound
+			PresentationParameters presentationParameters
 		);
 	}
 }

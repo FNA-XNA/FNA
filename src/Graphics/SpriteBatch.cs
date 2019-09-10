@@ -720,7 +720,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			List<Rectangle> glyphData = spriteFont.glyphData;
 			List<Rectangle> croppingData = spriteFont.croppingData;
 			List<Vector3> kerning = spriteFont.kerning;
-			List<char> characterMap = spriteFont.characterMap;
+			Dictionary<char, int> characterIndexMap = spriteFont.characterIndexMap;
 
 			// FIXME: This needs an accuracy check! -flibit
 
@@ -761,8 +761,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				/* Get the List index from the character map, defaulting to the
 				 * DefaultCharacter if it's set.
 				 */
-				int index = characterMap.IndexOf(c);
-				if (index == -1)
+				int index;
+				if (!characterIndexMap.TryGetValue(c, out index))
 				{
 					if (!spriteFont.DefaultCharacter.HasValue)
 					{
@@ -772,9 +772,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = characterMap.IndexOf(
-						spriteFont.DefaultCharacter.Value
-					);
+					index = characterIndexMap[spriteFont.DefaultCharacter.Value];
 				}
 
 				/* For the first character in a line, always push the width
@@ -920,7 +918,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			List<Rectangle> glyphData = spriteFont.glyphData;
 			List<Rectangle> croppingData = spriteFont.croppingData;
 			List<Vector3> kerning = spriteFont.kerning;
-			List<char> characterMap = spriteFont.characterMap;
+			Dictionary<char, int> characterIndexMap = spriteFont.characterIndexMap;
 
 			// FIXME: This needs an accuracy check! -flibit
 
@@ -959,8 +957,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				/* Get the List index from the character map, defaulting to the
 				 * DefaultCharacter if it's set.
 				 */
-				int index = characterMap.IndexOf(c);
-				if (index == -1)
+				int index;
+				if (!characterIndexMap.TryGetValue(c, out index))
 				{
 					if (!spriteFont.DefaultCharacter.HasValue)
 					{
@@ -970,9 +968,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							"text"
 						);
 					}
-					index = characterMap.IndexOf(
-						spriteFont.DefaultCharacter.Value
-					);
+					index = characterIndexMap[spriteFont.DefaultCharacter.Value];
 				}
 
 				/* For the first character in a line, always push the width
