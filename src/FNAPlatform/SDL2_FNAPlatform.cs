@@ -41,7 +41,8 @@ namespace Microsoft.Xna.Framework
 		private static int RetinaWidth;
 		private static int RetinaHeight;
 
-		private static string forcedGLDevice;
+		private static string ForcedGLDevice;
+		private static IntPtr MetalView;
 
 		#endregion
 
@@ -182,6 +183,11 @@ namespace Microsoft.Xna.Framework
 			}
 			Media.MediaPlayer.DisposeIfNecessary();
 
+			if (MetalView != IntPtr.Zero)
+			{
+				SDL.SDL_Metal_DestroyView(MetalView);
+			}
+
 			// This _should_ be the last SDL call we make...
 			SDL.SDL_Quit();
 		}
@@ -198,9 +204,9 @@ namespace Microsoft.Xna.Framework
 
 		private static bool PrepareMTLAttributes()
 		{
-
-			if (	!String.IsNullOrEmpty(forcedGLDevice) &&
-				!forcedGLDevice.Equals("MetalDevice")	)
+			// FIXME: Apple devices should default to Metal once it works
+			if (	String.IsNullOrEmpty(ForcedGLDevice) ||
+				!ForcedGLDevice.Equals("MetalDevice")	)
 			{
 				return false;
 			}
@@ -214,9 +220,9 @@ namespace Microsoft.Xna.Framework
 
 		private static bool PrepareGLAttributes()
 		{
-			if (	!String.IsNullOrEmpty(forcedGLDevice) &&
-				!forcedGLDevice.Equals("OpenGLDevice") &&
-				!forcedGLDevice.Equals("ModernGLDevice")	)
+			if (	!String.IsNullOrEmpty(ForcedGLDevice) &&
+				!ForcedGLDevice.Equals("OpenGLDevice") &&
+				!ForcedGLDevice.Equals("ModernGLDevice")	)
 
 			{
 				return false;
@@ -241,7 +247,6 @@ namespace Microsoft.Xna.Framework
 				OSVersion.Equals("Android") ||
 				OSVersion.Equals("Emscripten")
 			);
-
 
 			int depthSize = 24;
 			int stencilSize = 8;
@@ -351,7 +356,9 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
 			);
 
-			forcedGLDevice = Environment.GetEnvironmentVariable("FNA_GRAPHICS_FORCE_GLDEVICE");
+			ForcedGLDevice = Environment.GetEnvironmentVariable(
+				"FNA_GRAPHICS_FORCE_GLDEVICE"
+			);
 
 			bool vulkan = false, metal = false, opengl = false;
 			if (vulkan = PrepareVKAttributes())
@@ -398,6 +405,12 @@ namespace Microsoft.Xna.Framework
 
 			// We hide the mouse cursor by default.
 			OnIsMouseVisibleChanged(false);
+
+			// Create the Metal view
+			if (metal)
+			{
+				MetalView = SDL.SDL_Metal_CreateView(window);
+			}
 
 			/* If high DPI is not found, unset the HIGHDPI var.
 			 * This is our way to communicate that it failed...
@@ -1156,21 +1169,22 @@ namespace Microsoft.Xna.Framework
 			PresentationParameters presentationParameters,
 			GraphicsAdapter adapter
 		) {
-			if (forcedGLDevice == "MetalDevice")
+			if (ForcedGLDevice == "MetalDevice")
 			{
 				return new MetalDevice(
 					presentationParameters,
-					adapter
+					adapter,
+					MetalView
 				);
 			}
 
 			// This loads the OpenGL entry points.
-			if (forcedGLDevice == "ModernGLDevice")
+			if (ForcedGLDevice == "ModernGLDevice")
 			{
 				// FIXME: This is still experimental! -flibit
 				return new ModernGLDevice(presentationParameters, adapter);
 			}
-			if (forcedGLDevice == "ThreadedGLDevice")
+			if (ForcedGLDevice == "ThreadedGLDevice")
 			{
 				// FIXME: This is still experimental! -flibit
 				return new ThreadedGLDevice(presentationParameters, adapter);

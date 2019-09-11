@@ -1005,6 +1005,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region CAMetalLayer
 
+		private static IntPtr selSetDevice = Selector("setDevice:");
+		private static void mtlSetLayerDevice(IntPtr layer, IntPtr device)
+		{
+			objc_msgSend(layer, selSetDevice, device);
+		}
+
 		private static IntPtr selNextDrawable = Selector("nextDrawable");
 		private static IntPtr mtlNextDrawable(IntPtr layer)
 		{
@@ -1023,7 +1029,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			return (CGSize) cgsize_objc_msgSend(layer, selDrawableSize);
 		}
 
-		private static IntPtr selDisplaySyncEnabled = Selector("setDisplaySyncEnabled");
+		private static IntPtr selDisplaySyncEnabled = Selector("setDisplaySyncEnabled:");
 		private static void mtlSetDisplaySyncEnabled(
 			IntPtr layer,
 			bool enabled
@@ -1046,7 +1052,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr layer,
 			bool framebufferOnly
 		) {
-			objc_msgSend(layer, selSetFramebufferOnly, framebufferOnly ? 1 : 0);
+			objc_msgSend(layer, selSetFramebufferOnly, framebufferOnly);
 		}
 
 		#endregion

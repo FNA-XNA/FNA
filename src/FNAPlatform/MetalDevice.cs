@@ -296,7 +296,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Metal State Variables
 
-		private IntPtr view;			// SDLMetalView
 		private IntPtr layer;			// CAMetalLayer*
 		private IntPtr device;			// MTLDevice*
 		private IntPtr queue;			// MTLCommandQueue*
@@ -434,17 +433,17 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public MetalDevice(
 			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter
+			GraphicsAdapter adapter,
+			IntPtr metalView
 		) {
 			device = MTLCreateSystemDefaultDevice();
 			queue = mtlMakeCommandQueue(device);
 			commandBuffer = mtlMakeCommandBuffer(queue);
 
-			// Create the view and get the backing layer
-			view = SDL.SDL_Metal_CreateView(
-				presentationParameters.DeviceWindowHandle
-			);
-			layer = SDL.SDL_Metal_GetLayer(view);
+			// Get the CAMetalLayer for this view
+			layer = SDL.SDL_Metal_GetLayer(metalView);
+			mtlSetLayerDevice(layer, device);
+			mtlSetLayerFramebufferOnly(layer, false);
 
 			// Log GLDevice info
 			FNALoggerEXT.LogInfo("IGLDevice: MetalDevice");
@@ -493,7 +492,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			// FIXME: "release" all retained objects
 			// FIXME: Delete the faux back buffer
 			// FIXME: null-ify variables
-			SDL.SDL_Metal_DestroyView(view);
 		}
 
 		#endregion
@@ -569,7 +567,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					resolveTexture
 				);
 
-				IntPtr rce = mtlMakeRenderCommandEncoder(commandBuffer, resolveRenderPass);
+				IntPtr rce = mtlMakeRenderCommandEncoder(
+					commandBuffer,
+					resolveRenderPass
+				);
 				mtlEndEncoding(rce);
 
 				colorBuffer = resolveTexture;
@@ -603,14 +604,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				dstX = 0;
 				dstY = 0;
-				SDL.SDL_Metal_GetDrawableSize(layer, out dstW, out dstH);
+				SDL.SDL_Metal_GetDrawableSize(
+					overrideWindowHandle,
+					out dstW,
+					out dstH
+				);
 			}
 
 			CopyTextureRegion(
 				colorBuffer,
 				new Rectangle(srcX, srcY, srcW, srcH),
 				mtlGetTextureFromDrawable(currentDrawable),
-				new Rectangle(dstX, dstY, dstW, dstH)
+				new Rectangle(dstX, dstY, dstW, dstH),
+				overrideWindowHandle
 			);
 
 			mtlPresentDrawable(commandBuffer, currentDrawable);
@@ -631,7 +637,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr srcTex,
 			Rectangle srcRect,
 			IntPtr dstTex,
-			Rectangle dstRect
+			Rectangle dstRect,
+			IntPtr windowHandle
 		) {
 			if (srcRect.Width == 0 || srcRect.Height == 0 || dstRect.Width == 0 || dstRect.Height == 0)
 			{
@@ -689,7 +696,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 					// Scale the coordinates to (-1, 1)
 					int dw, dh;
-					SDL2.SDL.SDL_Metal_GetDrawableSize(layer, out dw, out dh);
+					SDL2.SDL.SDL_Metal_GetDrawableSize(
+						windowHandle,
+						out dw,
+						out dh
+					);
 					float sx = -1 + (dstRect.X / (float) dw);
 					float sy = -1 + (dstRect.Y / (float) dh);
 					float sw = (dstRect.Width / (float) dw) * 2;
@@ -1140,8 +1151,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else if (interval == PresentInterval.Two)
 			{
-				/* FIXME:
-				 * There is no support for present-every-other-frame
+				/* There is no support for present-every-other-frame
 				 * in Metal. We *could* work around this, but do
 				 * any games actually use this mode...?
 				 * -caleb
