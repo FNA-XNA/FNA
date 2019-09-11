@@ -344,7 +344,6 @@ namespace Microsoft.Xna.Framework
 
 		public static GameWindow CreateWindow()
 		{
-
 			// Set and initialize the SDL2 window
 			SDL.SDL_WindowFlags initFlags = (
 				SDL.SDL_WindowFlags.SDL_WINDOW_HIDDEN |
@@ -361,8 +360,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal = PrepareMTLAttributes())
 			{
-				// FIXME: Replace this with a proper window flag
-				SDL.SDL_SetHint(SDL.SDL_HINT_RENDER_DRIVER, "metal");
+				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_METAL;
 			}
 			else if (opengl = PrepareGLAttributes())
 			{
@@ -401,21 +399,6 @@ namespace Microsoft.Xna.Framework
 			// We hide the mouse cursor by default.
 			OnIsMouseVisibleChanged(false);
 
-			// FIXME: Remove this if/when SDL2 gets real Metal support!
-			if (metal)
-			{
-				IntPtr renderer = SDL.SDL_CreateRenderer(
-					window,
-					-1,
-					SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC
-				);
-
-				// Keep a reference to the metal layer for CreateGLDevice()
-				metalLayer = SDL.SDL_RenderGetMetalLayer(renderer);
-
-				SDL.SDL_DestroyRenderer(renderer);
-			}
-
 			/* If high DPI is not found, unset the HIGHDPI var.
 			 * This is our way to communicate that it failed...
 			 * -flibit
@@ -427,8 +410,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal)
 			{
-				// FIXME: It'd be nice if this was an SDL2 function...
-				MetalDevice.MTL_GetDrawableSize(metalLayer, out drawX, out drawY);
+				SDL.SDL_Metal_GetDrawableSize(window, out drawX, out drawY);
 			}
 			else if (opengl)
 			{
@@ -1178,8 +1160,7 @@ namespace Microsoft.Xna.Framework
 			{
 				return new MetalDevice(
 					presentationParameters,
-					adapter,
-					metalLayer
+					adapter
 				);
 			}
 
@@ -1196,8 +1177,6 @@ namespace Microsoft.Xna.Framework
 			}
 			return new OpenGLDevice(presentationParameters, adapter);
 		}
-
-		private static IntPtr metalLayer = IntPtr.Zero;
 
 		#endregion
 

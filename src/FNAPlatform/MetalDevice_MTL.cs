@@ -933,6 +933,22 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selDrawPrimitives = Selector("drawPrimitives:vertexStart:vertexCount:");
+		private static void mtlDrawPrimitives(
+			IntPtr renderCommandEncoder,
+			MTLPrimitiveType primitive,
+			ulong vertexStart,
+			ulong vertexCount
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selDrawPrimitives,
+				(ulong) primitive,
+				vertexStart,
+				vertexCount
+			);
+		}
+
 		private static IntPtr selSetCullMode = Selector("setCullMode:");
 		private static void mtlSetCullMode(
 			IntPtr renderCommandEncoder,
@@ -1005,6 +1021,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static CGSize mtlGetDrawableSize(IntPtr layer)
 		{
 			return (CGSize) cgsize_objc_msgSend(layer, selDrawableSize);
+		}
+
+		private static IntPtr selDisplaySyncEnabled = Selector("setDisplaySyncEnabled");
+		private static void mtlSetDisplaySyncEnabled(
+			IntPtr layer,
+			bool enabled
+		) {
+			objc_msgSend(layer, selDisplaySyncEnabled, enabled);
 		}
 
 		#endregion
@@ -1321,12 +1345,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(samplerDesc, selSetMagFilter, (uint) filter);
 		}
 
-				private static IntPtr selSetNormalizedCoordinates = Selector("setNormalizedCoordinates:");
-		private static void mtlSetSamplerNormalizedCoordinates(
+		private static IntPtr selSetMipFilter = Selector("setMipFilter:");
+		private static void mtlSetSamplerMipFilter(
 			IntPtr samplerDesc,
-			bool normalized
+			MTLSamplerMipFilter filter
 		) {
-			objc_msgSend(samplerDesc, selSetNormalizedCoordinates, normalized);
+			objc_msgSend(samplerDesc, selSetMipFilter, (uint) filter);
+		}
+
+		private static IntPtr selSetLodMinClamp = Selector("setLodMinClamp:");
+		private static void mtlSetSamplerLodMinClamp(
+			IntPtr samplerDesc,
+			float clamp
+		) {
+			objc_msgSend(samplerDesc, selSetLodMinClamp, clamp);
 		}
 
 		private static IntPtr selSetMaxAnisotropy = Selector("setMaxAnisotropy:");
