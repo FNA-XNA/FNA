@@ -406,7 +406,10 @@ namespace Microsoft.Xna.Framework
 			// We hide the mouse cursor by default.
 			OnIsMouseVisibleChanged(false);
 
-			// Create the Metal view
+			/* The Metal view needs to be created before
+			 * we get the drawable size. Otherwise the
+			 * high DPI settings will be ignored.
+			 */
 			if (metal)
 			{
 				MetalView = SDL.SDL_Metal_CreateView(window);
