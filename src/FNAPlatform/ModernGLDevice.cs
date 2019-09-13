@@ -1956,7 +1956,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			bool bindingsUpdated,
 			int baseVertex
 		) {
-
 			if (	bindingsUpdated ||
 				currentEffect != ldEffect ||
 				currentTechnique != ldTechnique ||
@@ -1977,7 +1976,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					VertexDeclaration vertexDeclaration = bindings[i].VertexBuffer.VertexDeclaration;
 					IntPtr basePtr = (IntPtr) (
 						vertexDeclaration.VertexStride *
-						(bindings[i].VertexOffset + baseVertex)
+						(bindings[i].VertexOffset)
 					);
 					foreach (VertexElement element in vertexDeclaration.elements)
 					{
