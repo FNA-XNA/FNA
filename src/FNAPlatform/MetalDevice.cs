@@ -75,6 +75,49 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Metal Renderbuffer Container Class
+
+		private class MetalRenderbuffer : IGLRenderbuffer
+		{
+			public IntPtr Handle
+			{
+				get;
+				private set;
+			}
+
+			public SurfaceFormat Format
+			{
+				get;
+				private set;
+			}
+
+			public DepthFormat DepthFormat
+			{
+				get;
+				private set;
+			}
+
+			public bool IsDepthStencil
+			{
+				get;
+				private set;
+			}
+
+			public MetalRenderbuffer(
+				IntPtr handle,
+				bool isDepthStencil,
+				SurfaceFormat format,
+				DepthFormat depthFormat
+			) {
+				Handle = handle;
+				IsDepthStencil = isDepthStencil;
+				Format = format;
+				DepthFormat = depthFormat;
+			}
+		}
+
+		#endregion
+
 		#region Metal Buffer Container Class
 
 		private class MetalBuffer : IGLBuffer
@@ -154,6 +197,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Blending State Variables
 
+		private Color blendColor = Color.Transparent;
 		public Color BlendFactor
 		{
 			get
@@ -171,6 +215,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		// FIXME: This feature is unsupported in Metal! Workarounds...?
+		private int multisampleMask = -1; // AKA 0xFFFFFFFF
 		public int MultiSampleMask
 		{
 			get
@@ -182,20 +227,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				multisampleMask = value;
 			}
 		}
-
-		private bool alphaBlendEnable = false;
-		private Color blendColor = Color.Transparent;
-		private BlendFunction blendOp = BlendFunction.Add;
-		private BlendFunction blendOpAlpha = BlendFunction.Add;
-		private Blend srcBlend = Blend.One;
-		private Blend dstBlend = Blend.Zero;
-		private Blend srcBlendAlpha = Blend.One;
-		private Blend dstBlendAlpha = Blend.Zero;
-		private ColorWriteChannels colorWriteEnable = ColorWriteChannels.All;
-		private ColorWriteChannels colorWriteEnable1 = ColorWriteChannels.All;
-		private ColorWriteChannels colorWriteEnable2 = ColorWriteChannels.All;
-		private ColorWriteChannels colorWriteEnable3 = ColorWriteChannels.All;
-		private int multisampleMask = -1; // AKA 0xFFFFFFFF
 
 		#endregion
 
@@ -209,6 +240,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Stencil State Variables
 
+		private int stencilRef = 0;
 		public int ReferenceStencil
 		{
 			get
@@ -224,20 +256,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 		}
-
-		private bool stencilEnable = false;
-		private int stencilWriteMask = -1; // AKA 0xFFFFFFFF, ugh -flibit
-		private bool separateStencilEnable = false;
-		private int stencilRef = 0;
-		private int stencilMask = -1; // AKA 0xFFFFFFFF, ugh -flibit
-		private CompareFunction stencilFunc = CompareFunction.Always;
-		private StencilOperation stencilFail = StencilOperation.Keep;
-		private StencilOperation stencilZFail = StencilOperation.Keep;
-		private StencilOperation stencilPass = StencilOperation.Keep;
-		private CompareFunction ccwStencilFunc = CompareFunction.Always;
-		private StencilOperation ccwStencilFail = StencilOperation.Keep;
-		private StencilOperation ccwStencilZFail = StencilOperation.Keep;
-		private StencilOperation ccwStencilPass = StencilOperation.Keep;
 
 		#endregion
 
@@ -269,8 +287,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Buffer Binding Cache Variables
 
-		// ld, or LastDrawn, effect/vertex attributes
-		private int ldBaseVertex = -1; // FIXME: Needed?
 		private VertexDeclaration ldVertexDeclaration = null;
 		private IntPtr ldPointer = IntPtr.Zero;
 		private IntPtr ldEffect = IntPtr.Zero;
@@ -281,8 +297,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Render Target Cache Variables
 
-		private readonly MetalTexture[] currentAttachments;
-		private DepthFormat currentDepthStencilFormat;
+		private readonly IntPtr[] currentAttachments;
+		private readonly MTLPixelFormat[] currentColorFormats;
+		private MTLPixelFormat currentDepthFormat;
 
 		#endregion
 
@@ -303,7 +320,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr renderCommandEncoder;	// MTLRenderCommandEncoder*
 
 		private IntPtr currentDrawable;		// CAMetalDrawable*
-		private IntPtr currentColorBuffer;	// MTLTexture*
 		private IntPtr currentDepthStencilBuffer; // MTLTexture*
 		private IntPtr currentVertexDescriptor;	// MTLVertexDescriptor*
 
@@ -377,7 +393,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Private Render Pipeline State Cache
+		#region Private Render Pipeline State Variables
+
+		private BlendState blendState;
+		private DepthStencilState depthStencilState;
+
 		#endregion
 
 		#region Private Vertex Attribute Cache
@@ -437,7 +457,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr metalView
 		) {
 			device = MTLCreateSystemDefaultDevice();
-			queue = mtlMakeCommandQueue(device);
+			queue = mtlNewCommandQueue(device);
 			commandBuffer = mtlMakeCommandBuffer(queue);
 
 			// Get the CAMetalLayer for this view
@@ -469,6 +489,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				Textures[i] = MetalTexture.NullTexture;
 			}
 
+			// Initialize attachments array
+			currentAttachments = new IntPtr[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
+			currentColorFormats = new MTLPixelFormat[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
+			for (int i = 0; i < currentAttachments.Length; i += 1)
+			{
+				currentAttachments[i] = IntPtr.Zero;
+				currentColorFormats[i] = MTLPixelFormat.Invalid;
+			}
+
 			// Force the creation of a render pass
 			renderPassDirty = true;
 
@@ -488,7 +517,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void Dispose()
 		{
-			// FIXME: Drain NSAutorelease pool
+			DrainAutoreleasePool(pool);
 			// FIXME: "release" all retained objects
 			// FIXME: Delete the faux back buffer
 			// FIXME: null-ify variables
@@ -550,9 +579,15 @@ namespace Microsoft.Xna.Framework.Graphics
 					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
 				);
 
-				IntPtr resolveTexture = mtlNewTextureWithDescriptor(device, resolveTextureDesc);
+				IntPtr resolveTexture = mtlNewTextureWithDescriptor(
+					device,
+					resolveTextureDesc
+				);
 				IntPtr resolveRenderPass = mtlMakeRenderPassDescriptor();
-				IntPtr colorAttachment = mtlGetColorAttachment(resolveRenderPass, 0);
+				IntPtr colorAttachment = mtlGetColorAttachment(
+					resolveRenderPass,
+					0
+				);
 
 				mtlSetAttachmentStoreAction(
 					colorAttachment,
@@ -628,9 +663,26 @@ namespace Microsoft.Xna.Framework.Graphics
 			// The cycle begins anew...
 			pool = StartAutoreleasePool();
 			commandBuffer = mtlMakeCommandBuffer(queue);
-			currentDrawable = mtlNextDrawable(layer);
+			currentDrawable = mtlNextDrawable(layer); // FIXME: Don't hold onto this for so long!
 			renderPassDirty = true;
 			renderCommandEncoder = IntPtr.Zero;
+
+			// Go back to using the faux-backbuffer
+			ResetAttachments();
+		}
+
+		private void ResetAttachments()
+		{
+			for (int i = 0; i < currentAttachments.Length; i += 1)
+			{
+				currentAttachments[i] = IntPtr.Zero;
+			}
+
+			MetalBackbuffer bb = (Backbuffer as MetalBackbuffer);
+			currentAttachments[0] = bb.ColorBuffer;
+			currentColorFormats[0] = bb.PixelFormat;
+			currentDepthStencilBuffer = bb.DepthStencilBuffer;
+			currentDepthFormat = XNAToMTL.DepthFormat[(int) bb.DepthFormat];
 		}
 
 		private void CopyTextureRegion(
@@ -657,8 +709,16 @@ namespace Microsoft.Xna.Framework.Graphics
 					srcTex,
 					0,
 					0,
-					new MTLOrigin((ulong) srcRect.X, (ulong) srcRect.Y, 0),
-					new MTLSize((ulong) srcRect.Width, (ulong) srcRect.Height, 1),
+					new MTLOrigin(
+						(ulong) srcRect.X,
+						(ulong) srcRect.Y,
+						0
+					),
+					new MTLSize(
+						(ulong) srcRect.Width,
+						(ulong) srcRect.Height,
+						1
+					),
 					dstTex,
 					0,
 					0,
@@ -778,10 +838,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr passDesc = mtlMakeRenderPassDescriptor();
 
 			// Clear color
+			// FIXME: How does this work for multiple bound render targets?
 			IntPtr colorAttachment = mtlGetColorAttachment(passDesc, 0);
 			mtlSetAttachmentTexture(
 				colorAttachment,
-				currentColorBuffer
+				currentAttachments[0]
 			);
 			if (shouldClearColor)
 			{
@@ -833,34 +894,38 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Clear stencil
-			IntPtr stencilAttachment = mtlGetStencilAttachment(passDesc);
-			mtlSetAttachmentTexture(
-				stencilAttachment,
-				currentDepthStencilBuffer
-			);
-			if (shouldClearStencil)
+			if (currentDepthFormat == MTLPixelFormat.Depth32Float_Stencil8)
 			{
-				mtlSetAttachmentLoadAction(
+				IntPtr stencilAttachment = mtlGetStencilAttachment(passDesc);
+				mtlSetAttachmentTexture(
 					stencilAttachment,
-					MTLLoadAction.Clear
+					currentDepthStencilBuffer
 				);
-				mtlSetStencilAttachmentClearStencil(
-					stencilAttachment,
-					clearStencil
-				);
-				shouldClearStencil = false;
-			}
-			else
-			{
-				mtlSetAttachmentLoadAction(
-					stencilAttachment,
-					MTLLoadAction.Load
-				);
+				if (shouldClearStencil)
+				{
+					mtlSetAttachmentLoadAction(
+						stencilAttachment,
+						MTLLoadAction.Clear
+					);
+					mtlSetStencilAttachmentClearStencil(
+						stencilAttachment,
+						clearStencil
+					);
+					shouldClearStencil = false;
+				}
+				else
+				{
+					mtlSetAttachmentLoadAction(
+						stencilAttachment,
+						MTLLoadAction.Load
+					);
+				}
 			}
 
 			// Get attachment size
-			currentAttachmentWidth = mtlGetTextureWidth(currentColorBuffer);
-			currentAttachmentHeight = mtlGetTextureHeight(currentColorBuffer);
+			// FIXME: Is this right...?
+			currentAttachmentWidth = mtlGetTextureWidth(currentAttachments[0]);
+			currentAttachmentHeight = mtlGetTextureHeight(currentAttachments[0]);
 
 			// Make a new encoder
 			renderCommandEncoder = mtlMakeRenderCommandEncoder(
@@ -999,35 +1064,32 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void AddDisposeEffect(IGLEffect effect)
 		{
-			throw new NotImplementedException();
+			DeleteEffect(effect);
 		}
 
 		public void AddDisposeIndexBuffer(IGLBuffer buffer)
 		{
-			throw new NotImplementedException();
+			DeleteIndexBuffer(buffer);
 		}
 
 		public void AddDisposeQuery(IGLQuery query)
 		{
-			throw new NotImplementedException();
+			DeleteQuery(query);
 		}
 
 		public void AddDisposeRenderbuffer(IGLRenderbuffer renderbuffer)
 		{
-			throw new NotImplementedException();
+			DeleteRenderbuffer(renderbuffer);
 		}
 
 		public void AddDisposeTexture(IGLTexture texture)
 		{
-			if (texture != null)
-			{
-				ObjCRelease((texture as MetalTexture).Handle);
-			}
+			DeleteTexture(texture);
 		}
 
 		public void AddDisposeVertexBuffer(IGLBuffer buffer)
 		{
-			throw new NotImplementedException();
+			DeleteVertexBuffer(buffer);
 		}
 
 		#endregion
@@ -1208,7 +1270,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			float realDepthBias = rasterizerState.DepthBias * XNAToMTL.DepthBiasScale[
 				renderTargetBound ?
-					(int) currentDepthStencilFormat :
+					(int) currentDepthFormat :
 					(int) Backbuffer.DepthFormat
 			];
 			if (	realDepthBias != depthBias ||
@@ -1338,68 +1400,20 @@ namespace Microsoft.Xna.Framework.Graphics
 				device,
 				samplerDesc
 			);
+
+			// Clean up
+			ObjCRelease(samplerDesc);
 		}
 
 		public void SetBlendState(BlendState blendState)
 		{
-			/* The state isn't applied until we create or retrieve
-			 * a render pipeline state, so we just store changes here.
-			 * -caleb
-			 */
-			alphaBlendEnable = (
-				!(	blendState.ColorSourceBlend == Blend.One &&
-					blendState.ColorDestinationBlend == Blend.Zero &&
-					blendState.AlphaSourceBlend == Blend.One &&
-					blendState.AlphaDestinationBlend == Blend.Zero	)
-			);
-
-			if (blendState.BlendFactor != blendColor)
-			{
-				blendColor = blendState.BlendFactor;
-				SetEncoderBlendColor(); // Dynamic state!
-			}
-
-			srcBlend = blendState.ColorSourceBlend;
-			dstBlend = blendState.ColorDestinationBlend;
-			srcBlendAlpha = blendState.AlphaSourceBlend;
-			dstBlendAlpha = blendState.AlphaDestinationBlend;
-
-			blendOp = blendState.ColorBlendFunction;
-			blendOpAlpha = blendState.AlphaBlendFunction;
-
-			colorWriteEnable = blendState.ColorWriteChannels;
-			colorWriteEnable1 = blendState.ColorWriteChannels1;
-			colorWriteEnable2 = blendState.ColorWriteChannels2;
-			colorWriteEnable3 = blendState.ColorWriteChannels3;
-
-			multisampleMask = blendState.MultiSampleMask;
+			this.blendState = blendState;
+			SetEncoderBlendColor(); // Dynamic state!
 		}
 
 		public void SetDepthStencilState(DepthStencilState depthStencilState)
 		{
-			/* The state isn't applied until we create or retrieve
-			 * a render pipeline state, so we just store changes here.
-			 * -caleb
-			 */
-			zEnable = depthStencilState.DepthBufferEnable;
-			zWriteEnable = depthStencilState.DepthBufferWriteEnable;
-
-			depthFunc = depthStencilState.DepthBufferFunction;
-			stencilEnable = depthStencilState.StencilEnable;
-			stencilWriteMask = depthStencilState.StencilWriteMask;
-			separateStencilEnable = depthStencilState.TwoSidedStencilMode;
-			stencilRef = depthStencilState.ReferenceStencil;
-			stencilMask = depthStencilState.StencilMask;
-			stencilFunc = depthStencilState.StencilFunction;
-			stencilFail = depthStencilState.StencilFail;
-			stencilZFail = depthStencilState.StencilDepthBufferFail;
-			stencilPass = depthStencilState.StencilPass;
-
-			ccwStencilFunc = depthStencilState.CounterClockwiseStencilFunction;
-			ccwStencilFail = depthStencilState.CounterClockwiseStencilFail;
-			ccwStencilZFail = depthStencilState.CounterClockwiseStencilDepthBufferFail;
-			ccwStencilPass = depthStencilState.CounterClockwiseStencilPass;
-
+			this.depthStencilState = depthStencilState;
 			SetEncoderStencilReferenceValue(); // Dynamic state!
 		}
 
@@ -1458,6 +1472,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			return new MetalEffect(effect, mtlEffect);
+		}
+
+		private void DeleteEffect(IGLEffect effect)
+		{
+			// IntPtr glEffectData = (effect as OpenGLEffect).GLEffectData;
+			// if (glEffectData == currentEffect)
+			// {
+			// 	MojoShader.MOJOSHADER_glEffectEndPass(currentEffect);
+			// 	MojoShader.MOJOSHADER_glEffectEnd(currentEffect);
+			// 	currentEffect = IntPtr.Zero;
+			// 	currentTechnique = IntPtr.Zero;
+			// 	currentPass = 0;
+			// }
+			// MojoShader.MOJOSHADER_glDeleteEffect(glEffectData);
+			// MojoShader.MOJOSHADER_freeEffect(effect.EffectData);
 		}
 		
 		public IGLEffect CloneEffect(IGLEffect effect)
@@ -1550,65 +1579,34 @@ namespace Microsoft.Xna.Framework.Graphics
 		private Dictionary<PipelineState, IntPtr> PipelineStateCache =
 			new Dictionary<PipelineState, IntPtr>();
 
+		private Dictionary<DepthStencilState, IntPtr> DepthStencilStateCache =
+			new Dictionary<DepthStencilState, IntPtr>();
+
 		private struct PipelineState
 		{
-			public MTLPixelFormat pixelFormat;
 			public IntPtr vertexFunction;
-			public IntPtr fragFunction;
+			public IntPtr fragmentFunction;
 			public IntPtr vertexDescriptor;
-
-			// FIXME: Make use of PipelineCache
-			public bool alphaBlendEnable;
-			public MTLBlendFactor srcRGB;
-			public MTLBlendFactor dstRGB;
-			public MTLBlendFactor srcAlpha;
-			public MTLBlendFactor dstAlpha;
-			public MTLBlendOperation rgbOp;
-			public MTLBlendOperation alphaOp;
-			public ulong colorWriteEnable;
-			public ulong colorWriteEnable1;
-			public ulong colorWriteEnable2;
-			public ulong colorWriteEnable3;
-
-			public bool zEnable;
-			public bool zWriteEnable;
-			public CompareFunction depthFunc;
-
-			public bool stencilEnable;
-			public int stencilWriteMask;
-			public bool separateStencilEnable;
-			public int stencilMask;
-			public CompareFunction stencilFunc;
-			public StencilOperation stencilFail;
-			public StencilOperation stencilZFail;
-			public StencilOperation stencilPass;
-			public CompareFunction ccwStencilFunc;
-			public StencilOperation ccwStencilFail;
-			public StencilOperation ccwStencilZFail;
-			public StencilOperation ccwStencilPass;
+			public MTLPixelFormat[] colorFormats;
+			public MTLPixelFormat depthFormat;
+			public BlendState blend;
+			public DepthStencilState depthStencil;
 		}
 
 		private IntPtr FetchRenderPipeline()
 		{
-			PipelineState state = new PipelineState();
+			PipelineState state = new PipelineState
+			{
+				vertexFunction = currentVertexShader,
+				fragmentFunction = currentFragmentShader,
+				vertexDescriptor = currentVertexDescriptor,
+				colorFormats = currentColorFormats,
+				depthFormat = currentDepthFormat,
+				blend = blendState,
+				depthStencil = depthStencilState
+			};
 
-			state.pixelFormat = mtlGetLayerPixelFormat(layer); // FIXME: This should be currentPixelFormat!
-			state.vertexFunction = currentVertexShader;
-			state.fragFunction = currentFragmentShader;
-			state.vertexDescriptor = currentVertexDescriptor;
-
-			state.alphaBlendEnable = alphaBlendEnable;
-			state.srcRGB = XNAToMTL.BlendMode[(int) srcBlend];
-			state.srcAlpha = XNAToMTL.BlendMode[(int) srcBlendAlpha];
-			state.dstRGB = XNAToMTL.BlendMode[(int) dstBlend];
-			state.dstAlpha = XNAToMTL.BlendMode[(int) dstBlendAlpha];
-			state.rgbOp = XNAToMTL.BlendOperation[(int) blendOp];
-			state.alphaOp = XNAToMTL.BlendOperation[(int) blendOpAlpha];
-			state.colorWriteEnable  = (ulong) colorWriteEnable;
-			state.colorWriteEnable1 = (ulong) colorWriteEnable1;
-			state.colorWriteEnable2 = (ulong) colorWriteEnable2;
-			state.colorWriteEnable3 = (ulong) colorWriteEnable3;
-
+			// Can we just reuse an existing pipeline?
 			IntPtr pipeline = IntPtr.Zero;
 			if (PipelineStateCache.TryGetValue(state, out pipeline))
 			{
@@ -1616,96 +1614,267 @@ namespace Microsoft.Xna.Framework.Graphics
 				return pipeline;
 			}
 
-			// Make a new render pipeline descriptor
-			IntPtr pipelineDesc = mtlMakeRenderPipelineDescriptor();
-			
-			// Apply Blend State
-			IntPtr colorAttachment = mtlGetColorAttachment(pipelineDesc, 0);
-			mtlSetAttachmentBlendingEnabled(
-				colorAttachment,
-				alphaBlendEnable
+			// We'll have to make a new pipeline...
+			IntPtr pipelineDesc = mtlNewRenderPipelineDescriptor();
+			mtlSetPipelineVertexFunction(
+				pipelineDesc,
+				state.vertexFunction
 			);
-			mtlSetAttachmentSourceRGBBlendFactor(
-				colorAttachment,
-				state.srcRGB
+			mtlSetPipelineFragmentFunction(
+				pipelineDesc,
+				state.fragmentFunction
 			);
-			mtlSetAttachmentDestinationRGBBlendFactor(
-				colorAttachment,
-				state.dstRGB
+			mtlSetPipelineVertexDescriptor(
+				pipelineDesc,
+				state.vertexDescriptor
 			);
-			mtlSetAttachmentSourceAlphaBlendFactor(
-				colorAttachment,
-				state.srcAlpha
+			mtlSetDepthAttachmentPixelFormat(
+				pipelineDesc,
+				currentDepthFormat
 			);
-			mtlSetAttachmentDestinationAlphaBlendFactor(
-				colorAttachment,
-				state.dstAlpha
-			);
+			if (currentDepthFormat == MTLPixelFormat.Depth32Float_Stencil8)
+			{
+				mtlSetStencilAttachmentPixelFormat(
+					pipelineDesc,
+					currentDepthFormat
+				);
+			}
 
-			mtlSetAttachmentRGBBlendOperation(
-				colorAttachment,
-				state.rgbOp
-			);
-			mtlSetAttachmentAlphaBlendOperation(
-				colorAttachment,
-				state.alphaOp
-			);
+			// Apply the blend state
+			SetPipelineBlendState(pipelineDesc);
 
-			mtlSetAttachmentWriteMask(
-				colorAttachment,
-				state.colorWriteEnable
-			);
-			/* FIXME: So how exactly do we factor in
-			 * COLORWRITEENABLE for buffer 0? Do we just assume that
-			 * the default is just buffer 0, and all other calls
-			 * update the other write masks afterward?
-			 * -flibit
-			 */
-			mtlSetAttachmentWriteMask(
-				mtlGetColorAttachment(pipelineDesc, 1),
-				state.colorWriteEnable1
-			);
-			mtlSetAttachmentWriteMask(
-				mtlGetColorAttachment(pipelineDesc, 2),
-				state.colorWriteEnable2
-			);
-			mtlSetAttachmentWriteMask(
-				mtlGetColorAttachment(pipelineDesc, 3),
-				state.colorWriteEnable3
-			);
-
-			mtlSetAttachmentPixelFormat(
-				colorAttachment,
-				state.pixelFormat
-			);
-
-			// Apply shaders and vertex descriptor
-			mtlSetPipelineVertexFunction(pipelineDesc, state.vertexFunction);
-			mtlSetPipelineFragmentFunction(pipelineDesc, state.fragFunction);
-			mtlSetPipelineVertexDescriptor(pipelineDesc, state.vertexDescriptor);
-
-			// Finalize the render pipeline
+			// Bake the render pipeline!
 			IntPtr pipelineState = mtlNewRenderPipelineStateWithDescriptor(
 				device,
 				pipelineDesc
 			);
-			PipelineStateCache.Add(state, pipelineState);
+			PipelineStateCache[state] = pipelineState;
+
+			// Clean up
+			ObjCRelease(pipelineDesc);
+
+			// Return the pipeline!
 			return pipelineState;
+		}
+
+		private void SetPipelineBlendState(IntPtr pipelineDesc)
+		{
+			bool alphaBlendEnable = !(
+				blendState.ColorSourceBlend == Blend.One &&
+				blendState.ColorDestinationBlend == Blend.Zero &&
+				blendState.AlphaSourceBlend == Blend.One &&
+				blendState.AlphaDestinationBlend == Blend.Zero
+			);
+
+			for (int i = 0; i < currentAttachments.Length; i += 1)
+			{
+				if (currentAttachments[i] == IntPtr.Zero)
+				{
+					// There's no attachment bound at this index.
+					continue;
+				}
+
+				IntPtr colorAttachment = mtlGetColorAttachment(
+					pipelineDesc,
+					(ulong) i
+				);
+				mtlSetAttachmentPixelFormat(
+					colorAttachment,
+					currentColorFormats[i]
+				);
+				mtlSetAttachmentBlendingEnabled(
+					colorAttachment,
+					alphaBlendEnable
+				);
+				mtlSetAttachmentSourceRGBBlendFactor(
+					colorAttachment,
+					XNAToMTL.BlendMode[
+						(int) blendState.ColorSourceBlend
+					]
+				);
+				mtlSetAttachmentDestinationRGBBlendFactor(
+					colorAttachment,
+					XNAToMTL.BlendMode[
+						(int) blendState.ColorDestinationBlend
+					]
+				);
+				mtlSetAttachmentSourceAlphaBlendFactor(
+					colorAttachment,
+					XNAToMTL.BlendMode[
+						(int) blendState.AlphaSourceBlend
+					]
+				);
+				mtlSetAttachmentDestinationAlphaBlendFactor(
+					colorAttachment,
+					XNAToMTL.BlendMode[
+						(int) blendState.AlphaDestinationBlend
+					]
+				);
+				mtlSetAttachmentRGBBlendOperation(
+					colorAttachment,
+					XNAToMTL.BlendOperation[
+						(int) blendState.ColorBlendFunction
+					]
+				);
+				mtlSetAttachmentAlphaBlendOperation(
+					colorAttachment,
+					XNAToMTL.BlendOperation[
+						(int) blendState.AlphaBlendFunction
+					]
+				);
+				mtlSetAttachmentWriteMask(
+					colorAttachment,
+					(ulong) blendState.ColorWriteChannels
+				);
+				/* FIXME: So how exactly do we factor in
+				* COLORWRITEENABLE for buffer 0? Do we just assume that
+				* the default is just buffer 0, and all other calls
+				* update the other write masks?
+				*/
+				mtlSetAttachmentWriteMask(
+					mtlGetColorAttachment(pipelineDesc, 1),
+					(ulong) blendState.ColorWriteChannels1
+				);
+				mtlSetAttachmentWriteMask(
+					mtlGetColorAttachment(pipelineDesc, 2),
+					(ulong) blendState.ColorWriteChannels2
+				);
+				mtlSetAttachmentWriteMask(
+					mtlGetColorAttachment(pipelineDesc, 3),
+					(ulong) blendState.ColorWriteChannels3
+				);
+			}
+		}
+
+		private IntPtr FetchDepthStencilState()
+		{
+			// Can we just reuse an existing state?
+			IntPtr state = IntPtr.Zero;
+			if (DepthStencilStateCache.TryGetValue(depthStencilState, out state))
+			{
+				// This state has already been cached!
+				return state;
+			}
+
+			// We have to make a new DepthStencilState...
+			IntPtr dsDesc = mtlNewDepthStencilDescriptor();
+			mtlSetDepthCompareFunction(
+				dsDesc,
+				XNAToMTL.CompareFunc[(int) depthStencilState.DepthBufferFunction]
+			);
+			mtlSetDepthWriteEnabled(
+				dsDesc,
+				depthStencilState.DepthBufferWriteEnable
+			);
+
+			// Create stencil descriptors
+			IntPtr front = IntPtr.Zero;
+			IntPtr back = IntPtr.Zero;
+			
+			if (depthStencilState.StencilEnable)
+			{
+				front = mtlNewStencilDescriptor();
+				mtlSetStencilFailureOperation(
+					front,
+					XNAToMTL.StencilOp[(int) depthStencilState.StencilFail]
+				);
+				mtlSetDepthFailureOperation(
+					front,
+					XNAToMTL.StencilOp[(int) depthStencilState.StencilDepthBufferFail]
+				);
+				mtlSetDepthStencilPassOperation(
+					front,
+					XNAToMTL.StencilOp[(int) depthStencilState.StencilPass]
+				);
+				mtlSetStencilCompareFunction(
+					front,
+					XNAToMTL.CompareFunc[(int) depthStencilState.StencilFunction]
+				);
+				mtlSetStencilReadMask(
+					front,
+					depthStencilState.StencilMask
+				);
+				mtlSetStencilWriteMask(
+					front,
+					depthStencilState.StencilWriteMask
+				);
+
+				if (!depthStencilState.TwoSidedStencilMode)
+				{
+					back = front;
+				}
+			}
+
+			if (front != back)
+			{
+				back = mtlNewStencilDescriptor();
+				mtlSetStencilFailureOperation(
+					back,
+					XNAToMTL.StencilOp[(int) depthStencilState.CounterClockwiseStencilFail]
+				);
+				mtlSetDepthFailureOperation(
+					back,
+					XNAToMTL.StencilOp[(int) depthStencilState.CounterClockwiseStencilDepthBufferFail]
+				);
+				mtlSetDepthStencilPassOperation(
+					back,
+					XNAToMTL.StencilOp[(int) depthStencilState.CounterClockwiseStencilPass]
+				);
+				mtlSetStencilCompareFunction(
+					back,
+					XNAToMTL.CompareFunc[(int) depthStencilState.CounterClockwiseStencilFunction]
+				);
+				mtlSetStencilReadMask(
+					back,
+					depthStencilState.StencilMask
+				);
+				mtlSetStencilWriteMask(
+					back,
+					depthStencilState.StencilWriteMask
+				);
+			}
+
+			mtlSetFrontFaceStencil(
+				dsDesc,
+				front
+			);
+			mtlSetBackFaceStencil(
+				dsDesc,
+				back
+			);
+
+			// Bake the state!
+			state = mtlNewDepthStencilStateWithDescriptor(
+				device,
+				dsDesc
+			);
+			DepthStencilStateCache[depthStencilState] = state;
+
+			// Clean up
+			ObjCRelease(dsDesc);
+			ObjCRelease(back);
+			ObjCRelease(front);
+
+			// Return the state!
+			return state;
 		}
 
 		private void BindResources()
 		{
 			// Bind textures and their sampler states
-			mtlSetFragmentTexture(
-				renderCommandEncoder,
-				Textures[0].Handle, // FIXME
-				0 // FIXME
-			);
-			mtlSetFragmentSamplerState(
-				renderCommandEncoder,
-				Textures[0].SamplerHandle, // FIXME
-				0 // FIXME
-			);
+			for (int i = 0; i < Textures.Length; i += 1)
+			{
+				mtlSetFragmentTexture(
+					renderCommandEncoder,
+					Textures[i].Handle,
+					(ulong) i
+				);
+				mtlSetFragmentSamplerState(
+					renderCommandEncoder,
+					Textures[i].SamplerHandle,
+					(ulong) i
+				);
+			}
 
 			// Bind the uniform buffers
 			if (currentVertexUniformBuffer != IntPtr.Zero)
@@ -1728,7 +1897,17 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			// Finally, set the pipeline state.
+			// Bind the depth-stencil state
+			if (currentDepthStencilBuffer != IntPtr.Zero)
+			{
+				IntPtr depthStencilState = FetchDepthStencilState();
+				mtlSetDepthStencilState(
+					renderCommandEncoder,
+					depthStencilState
+				);
+			}
+
+			// Finally, bind the pipeline state
 			IntPtr pipelineState = FetchRenderPipeline();
 			mtlSetRenderPipelineState(
 				renderCommandEncoder,
@@ -1736,6 +1915,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		// FIXME: Update to handle overlapping attributes
 		public void ApplyVertexAttributes(
 			VertexBufferBinding[] bindings,
 			int numBindings,
@@ -1757,6 +1937,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				else
 				{
 					descriptor = mtlMakeVertexDescriptor();
+					ObjCRetain(descriptor); // Make sure this doesn't get drained
+
 					for (int i = numBindings - 1; i >= 0; i -= 1)
 					{
 						// Describe vertex attributes
@@ -1815,11 +1997,10 @@ namespace Microsoft.Xna.Framework.Graphics
 						}
 
 					}
-					VertexDescriptorCache.Add(bindings, descriptor);
+					VertexDescriptorCache[bindings] = descriptor;
 					currentVertexDescriptor = descriptor;
 				}
 
-				ldBaseVertex = baseVertex;
 				ldEffect = currentEffect;
 				ldTechnique = currentTechnique;
 				ldPass = currentPass;
@@ -1828,7 +2009,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				ldPointer = IntPtr.Zero;
 			}
 
-			// Update the vertex buffers
+			// Prepare for rendering
 			UpdateRenderPass();
 			for (int i = 0; i < bindings.Length; i += 1)
 			{
@@ -1842,7 +2023,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 				}
 			}
-
 			BindResources();
 		}
 
@@ -1874,16 +2054,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			 */
 		}
 
-		public IGLRenderbuffer GenRenderbuffer(int width, int height, SurfaceFormat format, int multiSampleCount)
-		{
-			throw new NotImplementedException();
-		}
-
-		public IGLRenderbuffer GenRenderbuffer(int width, int height, DepthFormat format, int multiSampleCount)
-		{
-			throw new NotImplementedException();
-		}
-
 		public IGLBuffer GenVertexBuffer(
 			bool dynamic,
 			int vertexCount,
@@ -1897,6 +2067,45 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * Additionally, we have no reason to use the dynamic flag here.
 			 * -caleb
 			 */
+		}
+
+		#endregion
+
+		#region Renderbuffer Methods
+
+		public IGLRenderbuffer GenRenderbuffer(int width, int height, SurfaceFormat format, int multiSampleCount)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IGLRenderbuffer GenRenderbuffer(int width, int height, DepthFormat format, int multiSampleCount)
+		{
+			throw new NotImplementedException();
+		}
+
+		private void DeleteRenderbuffer(IGLRenderbuffer renderbuffer)
+		{
+			// uint handle = (renderbuffer as OpenGLRenderbuffer).Handle;
+
+			// // Check color attachments
+			// for (int i = 0; i < currentAttachments.Length; i += 1)
+			// {
+			// 	if (handle == currentAttachments[i])
+			// 	{
+			// 		// Force an attachment update, this no longer exists!
+			// 		currentAttachments[i] = uint.MaxValue;
+			// 	}
+			// }
+
+			// // Check depth/stencil attachment
+			// if (handle == currentRenderbuffer)
+			// {
+			// 	// Force a renderbuffer update, this no longer exists!
+			// 	currentRenderbuffer = uint.MaxValue;
+			// }
+
+			// // Finally.
+			// glDeleteRenderbuffers(1, ref handle);
 		}
 
 		#endregion
@@ -1956,6 +2165,40 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region DeleteBuffer Methods
+
+		private void DeleteVertexBuffer(IGLBuffer buffer)
+		{
+			// uint handle = (buffer as OpenGLBuffer).Handle;
+			// if (handle == currentVertexBuffer)
+			// {
+			// 	glBindBuffer(GLenum.GL_ARRAY_BUFFER, 0);
+			// 	currentVertexBuffer = 0;
+			// }
+			// for (int i = 0; i < attributes.Length; i += 1)
+			// {
+			// 	if (handle == attributes[i].CurrentBuffer)
+			// 	{
+			// 		// Force the next vertex attrib update!
+			// 		attributes[i].CurrentBuffer = uint.MaxValue;
+			// 	}
+			// }
+			// glDeleteBuffers(1, ref handle);
+		}
+
+		private void DeleteIndexBuffer(IGLBuffer buffer)
+		{
+			// uint handle = (buffer as OpenGLBuffer).Handle;
+			// if (handle == currentIndexBuffer)
+			// {
+			// 	glBindBuffer(GLenum.GL_ELEMENT_ARRAY_BUFFER, 0);
+			// 	currentIndexBuffer = 0;
+			// }
+			// glDeleteBuffers(1, ref handle);
+		}
+
+		#endregion
+
 		#region CreateTexture Methods
 
 		public IGLTexture CreateTexture2D(
@@ -1982,6 +2225,35 @@ namespace Microsoft.Xna.Framework.Graphics
 		public IGLTexture CreateTextureCube(SurfaceFormat format, int size, int levelCount)
 		{
 			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		#region DeleteTexture Method
+
+		private void DeleteTexture(IGLTexture texture)
+		{
+			// IntPtr handle = (texture as MetalTexture).Handle;
+			// for (int i = 0; i < currentAttachments.Length; i += 1)
+			// {
+			// 	if (handle == currentAttachments[i].Handle)
+			// 	{
+			// 		// Force an attachment update -- this no longer exists!
+			// 		currentAttachments[i] = MetalTexture.NullTexture;
+			// 	}
+			// }
+			// ObjCRelease(handle);
+
+			// uint handle = (texture as OpenGLTexture).Handle;
+			// for (int i = 0; i < currentAttachments.Length; i += 1)
+			// {
+			// 	if (handle == currentAttachments[i])
+			// 	{
+			// 		// Force an attachment update, this no longer exists!
+			// 		currentAttachments[i] = uint.MaxValue;
+			// 	}
+			// }
+			// glDeleteTextures(1, ref handle);
 		}
 
 		#endregion
@@ -2118,6 +2390,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			throw new NotImplementedException();
 		}
 
+		private void DeleteQuery(IGLQuery query)
+		{
+			throw new NotImplementedException();
+			// uint handle = (query as OpenGLQuery).Handle;
+			// glDeleteQueries(
+			// 	1,
+			// 	ref handle
+			// );
+		}
+
 		public void QueryBegin(IGLQuery query)
 		{
 			throw new NotImplementedException();
@@ -2169,7 +2451,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLPixelFormat.BGRA8Unorm		// SurfaceFormat.ColorBgraEXT
 			};
 
-			public static readonly MTLPixelFormat[] DepthStorage = new MTLPixelFormat[]
+			public static readonly MTLPixelFormat[] DepthFormat = new MTLPixelFormat[]
 			{
 				/* FIXME: Depth32Float is the only cross-platform depth format
 				 * in Metal. Maybe we should check for feature set support so
@@ -2276,6 +2558,30 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLBlendOperation.ReverseSubtract,	// BlendFunction.ReverseSubtract
 				MTLBlendOperation.Max,			// BlendFunction.Max
 				MTLBlendOperation.Min			// BlendFunction.Min
+			};
+
+			public static readonly MTLCompareFunction[] CompareFunc = new MTLCompareFunction[]
+			{
+				MTLCompareFunction.Always,	// CompareFunction.Always
+				MTLCompareFunction.Never,	// CompareFunction.Never
+				MTLCompareFunction.Less,	// CompareFunction.Less
+				MTLCompareFunction.LessEqual,	// CompareFunction.LessEqual
+				MTLCompareFunction.Equal,	// CompareFunction.Equal
+				MTLCompareFunction.GreaterEqual,// CompareFunction.GreaterEqual
+				MTLCompareFunction.Greater,	// CompareFunction.Greater
+				MTLCompareFunction.NotEqual	// CompareFunction.NotEqual
+			};
+
+			public static readonly MTLStencilOperation[] StencilOp = new MTLStencilOperation[]
+			{
+				MTLStencilOperation.Keep,		// StencilOperation.Keep
+				MTLStencilOperation.Zero,		// StencilOperation.Zero
+				MTLStencilOperation.Replace,		// StencilOperation.Replace
+				MTLStencilOperation.IncrementWrap,	// StencilOperation.Increment
+				MTLStencilOperation.DecrementWrap,	// StencilOperation.Decrement
+				MTLStencilOperation.IncrementClamp,	// StencilOperation.IncrementSaturation
+				MTLStencilOperation.DecrementClamp,	// StencilOperation.DecrementSaturation
+				MTLStencilOperation.Invert		// StencilOperation.Invert
 			};
 
 			public static readonly MTLWinding[] FrontFace = new MTLWinding[]
@@ -2398,6 +2704,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
+			public MTLPixelFormat PixelFormat
+			{
+				get;
+				private set;
+			}
+
 			public DepthFormat DepthFormat
 			{
 				get;
@@ -2410,8 +2722,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public IntPtr ColorBuffer;
-			public IntPtr DepthStencilBuffer;
+			public IntPtr ColorBuffer = IntPtr.Zero;
+			public IntPtr DepthStencilBuffer = IntPtr.Zero;
 			
 			private MetalDevice mtlDevice;
 
@@ -2429,23 +2741,40 @@ namespace Microsoft.Xna.Framework.Graphics
 				DepthFormat = depthFormat;
 				MultiSampleCount = multiSampleCount;
 
+				PixelFormat = mtlGetLayerPixelFormat(mtlDevice.layer);
+
 				// Generate the color buffer
 				IntPtr colorBufferDesc = mtlMakeTexture2DDescriptor(
-					mtlGetLayerPixelFormat(mtlDevice.layer),
+					PixelFormat,
 					(uint) Width,
 					(uint) Height,
 					false
 				);
-				mtlSetTextureUsage(colorBufferDesc, MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead);
+				mtlSetTextureUsage(
+					colorBufferDesc,
+					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+				);
 
 				if (multiSampleCount > 0)
 				{
-					mtlSetStorageMode(colorBufferDesc, MTLResourceStorageMode.Private);
-					mtlSetTextureType(colorBufferDesc, MTLTextureType.Multisample2D);
-					mtlSetTextureSampleCount(colorBufferDesc, multiSampleCount);
+					mtlSetStorageMode(
+						colorBufferDesc,
+						MTLResourceStorageMode.Private
+					);
+					mtlSetTextureType(
+						colorBufferDesc,
+						MTLTextureType.Multisample2D
+					);
+					mtlSetTextureSampleCount(
+						colorBufferDesc,
+						multiSampleCount
+					);
 				}
 
-				ColorBuffer = mtlNewTextureWithDescriptor(device.device, colorBufferDesc);
+				ColorBuffer = mtlNewTextureWithDescriptor(
+					device.device,
+					colorBufferDesc
+				);
 
 				// Create the depth-stencil buffer, if needed
 				if (depthFormat == DepthFormat.None)
@@ -2457,18 +2786,24 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					// Create the depth/stencil buffer
 					IntPtr depthStencilBufferDesc = mtlMakeTexture2DDescriptor(
-						XNAToMTL.DepthStorage[(int) depthFormat],
+						XNAToMTL.DepthFormat[(int) depthFormat],
 						(uint) Width,
 						(uint) Height,
 						false
 					);
-					mtlSetStorageMode(depthStencilBufferDesc, MTLResourceStorageMode.Private);
-					DepthStencilBuffer = mtlNewTextureWithDescriptor(device.device, depthStencilBufferDesc);
+					mtlSetStorageMode(
+						depthStencilBufferDesc,
+						MTLResourceStorageMode.Private
+					);
+					mtlSetTextureUsage(
+						depthStencilBufferDesc,
+						MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+					);
+					DepthStencilBuffer = mtlNewTextureWithDescriptor(
+						device.device,
+						depthStencilBufferDesc
+					);
 				}
-
-				// This backbuffer is the initial render target
-				mtlDevice.currentColorBuffer = ColorBuffer;
-				mtlDevice.currentDepthStencilBuffer = DepthStencilBuffer;
 			}
 
 			public void Dispose()
@@ -2508,31 +2843,55 @@ namespace Microsoft.Xna.Framework.Graphics
 					(uint) Height,
 					false
 				);
-				mtlSetTextureUsage(colorBufferDesc, MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead);
+				mtlSetTextureUsage(
+					colorBufferDesc,
+					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+				);
 				if (MultiSampleCount > 0)
 				{
-					mtlSetStorageMode(colorBufferDesc, MTLResourceStorageMode.Private);
-					mtlSetTextureType(colorBufferDesc, MTLTextureType.Multisample2D);
-					mtlSetTextureSampleCount(colorBufferDesc, MultiSampleCount);
+					mtlSetStorageMode(
+						colorBufferDesc,
+						MTLResourceStorageMode.Private
+					);
+					mtlSetTextureType(
+						colorBufferDesc,
+						MTLTextureType.Multisample2D
+					);
+					mtlSetTextureSampleCount(
+						colorBufferDesc,
+						MultiSampleCount
+					);
 				}
-				ColorBuffer = mtlNewTextureWithDescriptor(mtlDevice.device, colorBufferDesc);
+				ColorBuffer = mtlNewTextureWithDescriptor(
+					mtlDevice.device, 
+					colorBufferDesc
+				);
 
 				// Update the depth/stencil buffer, if applicable
 				if (DepthFormat != DepthFormat.None)
 				{
 					IntPtr depthStencilBufferDesc = mtlMakeTexture2DDescriptor(
-						XNAToMTL.DepthStorage[(int) DepthFormat],
+						XNAToMTL.DepthFormat[(int) DepthFormat],
 						(uint) Width,
 						(uint) Height,
 						false
 					);
-					mtlSetStorageMode(depthStencilBufferDesc, MTLResourceStorageMode.Private);
-					DepthStencilBuffer = mtlNewTextureWithDescriptor(mtlDevice.device, depthStencilBufferDesc);
+					mtlSetStorageMode(
+						depthStencilBufferDesc,
+						MTLResourceStorageMode.Private
+					);
+					mtlSetTextureUsage(
+						depthStencilBufferDesc,
+						MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+					);
+					DepthStencilBuffer = mtlNewTextureWithDescriptor(
+						mtlDevice.device,
+						depthStencilBufferDesc
+					);
 				}
 
 				// This is the default render target
-				mtlDevice.currentColorBuffer = ColorBuffer;
-				mtlDevice.currentDepthStencilBuffer = DepthStencilBuffer;
+				mtlDevice.ResetAttachments();
 			}
 		}
 
@@ -2630,9 +2989,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				device,
 				samplerDescriptor
 			);
+			ObjCRelease(samplerDescriptor);
 
 			// Create a render pipeline for rendering the backbuffer
-			IntPtr pipelineDesc = mtlMakeRenderPipelineDescriptor();
+			IntPtr pipelineDesc = mtlNewRenderPipelineDescriptor();
 			mtlSetPipelineVertexFunction(pipelineDesc, vertexFunc);
 			mtlSetPipelineFragmentFunction(pipelineDesc, fragFunc);
 			mtlSetAttachmentPixelFormat(
@@ -2643,6 +3003,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				device,
 				pipelineDesc
 			);
+			ObjCRelease(pipelineDesc);
 		}
 
 		#endregion

@@ -334,6 +334,30 @@ namespace Microsoft.Xna.Framework.Graphics
 			PerInstance = 2
 		}
 
+		private enum MTLCompareFunction
+		{
+			Never = 0,
+			Less = 1,
+			Equal = 2,
+			LessEqual = 3,
+			Greater = 4,
+			NotEqual = 5,
+			GreaterEqual = 6,
+			Always = 7
+		}
+
+		private enum MTLStencilOperation
+		{
+			Keep = 0,
+			Zero = 1,
+			Replace = 2,
+			IncrementClamp = 3,
+			DecrementClamp = 4,
+			Invert = 5,
+			IncrementWrap = 6,
+			DecrementWrap = 7
+		}
+
 		#endregion
 
 		#region Private MTL Structs
@@ -473,10 +497,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr classTextureDescriptor = objc_getClass("MTLTextureDescriptor");
 		private static IntPtr classRenderPassDescriptor = objc_getClass("MTLRenderPassDescriptor");
 		private static IntPtr classRenderPipelineDescriptor = objc_getClass("MTLRenderPipelineDescriptor");
-		private static IntPtr classNSAutoreleasePool = objc_getClass("NSAutoreleasePool");
+		private static IntPtr classDepthStencilDescriptor = objc_getClass("MTLDepthStencilDescriptor");
+		private static IntPtr classStencilDescriptor = objc_getClass("MTLStencilDescriptor");
 		private static IntPtr classMTLSamplerDescriptor = objc_getClass("MTLSamplerDescriptor");
 		private static IntPtr classMTLVertexDescriptor = objc_getClass("MTLVertexDescriptor");
 		private static IntPtr classMTLCaptureManager = objc_getClass("MTLCaptureManager");
+		private static IntPtr classNSAutoreleasePool = objc_getClass("NSAutoreleasePool");
 
 		#endregion
 
@@ -548,7 +574,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		private static IntPtr selCommandQueue = Selector("newCommandQueue");
-		private static IntPtr mtlMakeCommandQueue(IntPtr device)
+		private static IntPtr mtlNewCommandQueue(IntPtr device)
 		{
 			return intptr_objc_msgSend(device, selCommandQueue);
 		}
@@ -687,6 +713,18 @@ namespace Microsoft.Xna.Framework.Graphics
 				selObjectAtIndexedSubscript,
 				index
 			);
+		}
+
+		private static IntPtr selDepthAttachment = Selector("depthAttachment");
+		private static IntPtr mtlGetDepthAttachment(IntPtr desc)
+		{
+			return intptr_objc_msgSend(desc, selDepthAttachment);
+		}
+
+		private static IntPtr selStencilAttachment = Selector("stencilAttachment");
+		private static IntPtr mtlGetStencilAttachment(IntPtr desc)
+		{
+			return intptr_objc_msgSend(desc, selStencilAttachment);
 		}
 
 		private static IntPtr selSetLoadAction = Selector("setLoadAction:");
@@ -829,18 +867,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr mtlMakeRenderPassDescriptor()
 		{
 			return intptr_objc_msgSend(classRenderPassDescriptor, selRenderPassDescriptor);
-		}
-
-		private static IntPtr selDepthAttachment = Selector("depthAttachment");
-		private static IntPtr mtlGetDepthAttachment(IntPtr pass)
-		{
-			return intptr_objc_msgSend(pass, selDepthAttachment);
-		}
-
-		private static IntPtr selStencilAttachment = Selector("stencilAttachment");
-		private static IntPtr mtlGetStencilAttachment(IntPtr pass)
-		{
-			return intptr_objc_msgSend(pass, selStencilAttachment);
 		}
 
 		#endregion
@@ -998,6 +1024,18 @@ namespace Microsoft.Xna.Framework.Graphics
 				depthBias,
 				slopeScaleDepthBias,
 				clamp
+			);
+		}
+
+		private static IntPtr selSetDepthStencilState = Selector("setDepthStencilState:");
+		private static void mtlSetDepthStencilState(
+			IntPtr renderCommandEncoder,
+			IntPtr depthStencilState
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetDepthStencilState,
+				depthStencilState
 			);
 		}
 
@@ -1208,7 +1246,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region MTLRenderPipelineState
 
 		// selNew already defined
-		private static IntPtr mtlMakeRenderPipelineDescriptor()
+		private static IntPtr mtlNewRenderPipelineDescriptor()
 		{
 			return intptr_objc_msgSend(classRenderPipelineDescriptor, selNew);
 		}
@@ -1255,6 +1293,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new Exception("Metal Error: " + GetNSErrorDescription(error));
 			}
 			return pipeline;
+		}
+
+		private static IntPtr selSetDepthAttachmentPixelFormat = Selector("setDepthAttachmentPixelFormat:");
+		private static void mtlSetDepthAttachmentPixelFormat(
+			IntPtr pipelineDescriptor,
+			MTLPixelFormat format
+		) {
+			objc_msgSend(pipelineDescriptor, selSetDepthAttachmentPixelFormat, (ulong) format);
+		}
+
+		private static IntPtr selSetStencilAttachmentPixelFormat = Selector("setStencilAttachmentPixelFormat:");
+		private static void mtlSetStencilAttachmentPixelFormat(
+			IntPtr pipelineDescriptor,
+			MTLPixelFormat format
+		) {
+			objc_msgSend(pipelineDescriptor, selSetStencilAttachmentPixelFormat, (ulong) format);
 		}
 
 		private static IntPtr selSetRenderPipelineState = Selector("setRenderPipelineState:");
@@ -1538,6 +1592,112 @@ namespace Microsoft.Xna.Framework.Graphics
 				selNewFunctionWithName,
 				shaderNameNSString
 			);
+		}
+
+		#endregion
+
+		#region Depth-Stencil State
+
+		private static IntPtr mtlNewDepthStencilDescriptor()
+		{
+			return intptr_objc_msgSend(classDepthStencilDescriptor, selNew);
+		}
+
+		private static IntPtr mtlNewStencilDescriptor()
+		{
+			return intptr_objc_msgSend(classStencilDescriptor, selNew);
+		}
+
+		private static IntPtr selSetDepthCompareFunction = Selector("setDepthCompareFunction:");
+		private static void mtlSetDepthCompareFunction(
+			IntPtr depthStencilDescriptor,
+			MTLCompareFunction func
+		) {
+			objc_msgSend(depthStencilDescriptor, selSetDepthCompareFunction, (ulong) func);
+		}
+
+		private static IntPtr selSetDepthWriteEnabled = Selector("setDepthWriteEnabled:");
+		private static void mtlSetDepthWriteEnabled(
+			IntPtr depthStencilDescriptor,
+			bool enabled
+		) {
+			objc_msgSend(depthStencilDescriptor, selSetDepthWriteEnabled, enabled);
+		}
+
+		private static IntPtr selSetBackFaceStencil = Selector("setBackFaceStencil:");
+		private static void mtlSetBackFaceStencil(
+			IntPtr depthStencilDescriptor,
+			IntPtr stencilDescriptor
+		) {
+			objc_msgSend(depthStencilDescriptor, selSetBackFaceStencil, stencilDescriptor);
+		}
+
+		private static IntPtr selSetFrontFaceStencil = Selector("setFrontFaceStencil:");
+		private static void mtlSetFrontFaceStencil(
+			IntPtr depthStencilDescriptor,
+			IntPtr stencilDescriptor
+		) {
+			objc_msgSend(depthStencilDescriptor, selSetFrontFaceStencil, stencilDescriptor);
+		}
+
+		private static IntPtr selNewDepthStencilStateWithDescriptor = Selector("newDepthStencilStateWithDescriptor:");
+		private static IntPtr mtlNewDepthStencilStateWithDescriptor(
+			IntPtr device,
+			IntPtr descriptor
+		) {
+			return intptr_objc_msgSend(
+				device,
+				selNewDepthStencilStateWithDescriptor,
+				descriptor
+			);
+		}
+
+		private static IntPtr selSetStencilFailureOperation = Selector("setStencilFailureOperation");
+		private static void mtlSetStencilFailureOperation(
+			IntPtr stencilDescriptor,
+			MTLStencilOperation op
+		) {
+			objc_msgSend(stencilDescriptor, selSetStencilFailureOperation, (ulong) op);
+		}
+
+		private static IntPtr selSetDepthFailureOperation = Selector("setDepthFailureOperation:");
+		private static void mtlSetDepthFailureOperation(
+			IntPtr stencilDescriptor,
+			MTLStencilOperation op
+		) {
+			objc_msgSend(stencilDescriptor, selSetDepthFailureOperation, (ulong) op);
+		}
+
+		private static IntPtr selSetDepthStencilPassOperation = Selector("setDepthStencilPassOperation:");
+		private static void mtlSetDepthStencilPassOperation(
+			IntPtr stencilDescriptor,
+			MTLStencilOperation op
+		) {
+			objc_msgSend(stencilDescriptor, selSetDepthStencilPassOperation, (ulong) op);
+		}
+
+		private static IntPtr selSetStencilCompareFunction = Selector("setStencilCompareFunction:");
+		private static void mtlSetStencilCompareFunction(
+			IntPtr stencilDescriptor,
+			MTLCompareFunction func
+		) {
+			objc_msgSend(stencilDescriptor, selSetStencilCompareFunction, (ulong) func);
+		}
+
+		private static IntPtr selSetStencilReadMask = Selector("setReadMask:");
+		private static void mtlSetStencilReadMask(
+			IntPtr stencilDescriptor,
+			int mask
+		) {
+			objc_msgSend(stencilDescriptor, selSetStencilReadMask, mask);
+		}
+
+		private static IntPtr selSetStencilWriteMask = Selector("setWriteMask:");
+		private static void mtlSetStencilWriteMask(
+			IntPtr stencilDescriptor,
+			int mask
+		) {
+			objc_msgSend(stencilDescriptor, selSetStencilWriteMask, mask);
 		}
 
 		#endregion
