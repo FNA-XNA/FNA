@@ -299,7 +299,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private readonly IntPtr[] currentAttachments;
 		private readonly MTLPixelFormat[] currentColorFormats;
-		private MTLPixelFormat currentDepthFormat;
+		private DepthFormat currentDepthFormat;
 
 		#endregion
 
@@ -319,7 +319,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr commandBuffer;		// MTLCommandBuffer*
 		private IntPtr renderCommandEncoder;	// MTLRenderCommandEncoder*
 
-		private IntPtr currentDrawable;		// CAMetalDrawable*
 		private IntPtr currentDepthStencilBuffer; // MTLTexture*
 		private IntPtr currentVertexDescriptor;	// MTLVertexDescriptor*
 
@@ -390,6 +389,22 @@ namespace Microsoft.Xna.Framework.Graphics
 			get;
 			private set;
 		}
+
+		#endregion
+
+		#region Private State Object Caches
+
+		private Dictionary<VertexBufferBinding[], IntPtr> VertexDescriptorCache =
+			new Dictionary<VertexBufferBinding[], IntPtr>();
+
+		private Dictionary<PipelineState, IntPtr> PipelineStateCache =
+			new Dictionary<PipelineState, IntPtr>();
+
+		private Dictionary<DepthStencilState, IntPtr> DepthStencilStateCache =
+			new Dictionary<DepthStencilState, IntPtr>();
+
+		private Dictionary<SamplerState, IntPtr> SamplerStateCache =
+			new Dictionary<SamplerState, IntPtr>();
 
 		#endregion
 
@@ -501,9 +516,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Force the creation of a render pass
 			renderPassDirty = true;
 
-			// Get a reference to the drawable for this frame
-			currentDrawable = mtlNextDrawable(layer);
-
 			// Create and setup the faux-backbuffer
 			InitializeFauxBackbuffer(presentationParameters);
 
@@ -518,8 +530,35 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void Dispose()
 		{
 			DrainAutoreleasePool(pool);
+
+			// Release vertex descriptors
+			foreach (IntPtr vdesc in VertexDescriptorCache.Values)
+			{
+				ObjCRelease(vdesc);
+			}
+			VertexDescriptorCache.Clear();
+			VertexDescriptorCache = null;
+
+			// Release depth stencil states
+			foreach (IntPtr ds in DepthStencilStateCache.Values)
+			{
+				ObjCRelease(ds);
+			}
+			DepthStencilStateCache.Clear();
+			DepthStencilStateCache = null;
+
+			// Release pipeline states
+			foreach (IntPtr pso in PipelineStateCache.Values)
+			{
+				ObjCRelease(pso);
+			}
+			PipelineStateCache.Clear();
+			PipelineStateCache = null;
+
+			// Dispose the backbuffer
+			(Backbuffer as MetalBackbuffer).Dispose();
+
 			// FIXME: "release" all retained objects
-			// FIXME: Delete the faux back buffer
 			// FIXME: null-ify variables
 		}
 
@@ -558,6 +597,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlEndEncoding(renderCommandEncoder);
 				renderCommandEncoder = IntPtr.Zero;
 			}
+
+			// Get the next drawable
+			IntPtr drawable = mtlNextDrawable(layer);
 
 			// Perform a pass for the MSAA resolve texture, if applicable
 			IntPtr colorBuffer = (Backbuffer as MetalBackbuffer).ColorBuffer;
@@ -646,15 +688,17 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
+			// "Blit" the backbuffer to the drawable
 			CopyTextureRegion(
 				colorBuffer,
 				new Rectangle(srcX, srcY, srcW, srcH),
-				mtlGetTextureFromDrawable(currentDrawable),
+				mtlGetTextureFromDrawable(drawable),
 				new Rectangle(dstX, dstY, dstW, dstH),
 				overrideWindowHandle
 			);
 
-			mtlPresentDrawable(commandBuffer, currentDrawable);
+			// Submit the command buffer for presentation
+			mtlPresentDrawable(commandBuffer, drawable);
 			mtlCommitCommandBuffer(commandBuffer);
 
 			// Release allocations from this frame
@@ -663,7 +707,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			// The cycle begins anew...
 			pool = StartAutoreleasePool();
 			commandBuffer = mtlMakeCommandBuffer(queue);
-			currentDrawable = mtlNextDrawable(layer); // FIXME: Don't hold onto this for so long!
 			renderPassDirty = true;
 			renderCommandEncoder = IntPtr.Zero;
 
@@ -682,7 +725,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			currentAttachments[0] = bb.ColorBuffer;
 			currentColorFormats[0] = bb.PixelFormat;
 			currentDepthStencilBuffer = bb.DepthStencilBuffer;
-			currentDepthFormat = XNAToMTL.DepthFormat[(int) bb.DepthFormat];
+			currentDepthFormat = bb.DepthFormat;
 		}
 
 		private void CopyTextureRegion(
@@ -894,7 +937,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Clear stencil
-			if (currentDepthFormat == MTLPixelFormat.Depth32Float_Stencil8)
+			if (currentDepthFormat == DepthFormat.Depth24Stencil8)
 			{
 				IntPtr stencilAttachment = mtlGetStencilAttachment(passDesc);
 				mtlSetAttachmentTexture(
@@ -1154,6 +1197,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexStart,
 			int primitiveCount
 		) {
+			Console.WriteLine("Draw primitives!");
 			mtlDrawPrimitives(
 				renderCommandEncoder,
 				XNAToMTL.Primitive[(int) primitiveType],
@@ -1316,93 +1360,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				Textures[index] = tex;
 			}
 
-			// Apply the sampler states
-			IntPtr samplerDesc = mtlNewSamplerDescriptor();
-			if (sampler.AddressU != tex.WrapS)
-			{
-				tex.WrapS = sampler.AddressU;
-				mtlSetSampler_sAddressMode(
-					samplerDesc,
-					XNAToMTL.Wrap[(int) tex.WrapS]
-				);
-			}
-			if (sampler.AddressV != tex.WrapT)
-			{
-				tex.WrapT = sampler.AddressV;
-				mtlSetSampler_tAddressMode(
-					samplerDesc,
-					XNAToMTL.Wrap[(int) tex.WrapT]
-				);
-			}
-			if (sampler.AddressW != tex.WrapR)
-			{
-				tex.WrapR = sampler.AddressW;
-				mtlSetSampler_rAddressMode(
-					samplerDesc,
-					XNAToMTL.Wrap[(int) tex.WrapR]
-				);
-			}
-			if (	sampler.Filter != tex.Filter ||
-				sampler.MaxAnisotropy != tex.Anisotropy	)
-			{
-				tex.Filter = sampler.Filter;
-				tex.Anisotropy = sampler.MaxAnisotropy;
-
-				mtlSetSamplerMagFilter(
-					samplerDesc,
-					XNAToMTL.MagFilter[(int) tex.Filter]
-				);
-
-				mtlSetSamplerMinFilter(
-					samplerDesc,
-					XNAToMTL.MinFilter[(int) tex.Filter]
-				);
-
-				if (tex.HasMipmaps)
-				{
-					mtlSetSamplerMipFilter(
-						samplerDesc,
-						XNAToMTL.MipFilter[(int) tex.Filter]
-					);
-				}
-
-				// Anisotropy must be in the range [1, 16]
-				ulong scaledAnisotropy = 1 + (ulong) Math.Round(tex.Anisotropy * 15);
-				mtlSetSamplerMaxAnisotropy(
-					samplerDesc,
-					(tex.Filter == TextureFilter.Anisotropic) ?
-						scaledAnisotropy :
-						1
-				);
-			}
-
-			if (sampler.MaxMipLevel != tex.MaxMipmapLevel)
-			{
-				tex.MaxMipmapLevel = sampler.MaxMipLevel;
-				mtlSetSamplerLodMinClamp(
-					samplerDesc,
-					tex.MaxMipmapLevel
-				);
-			}
-
-			/* FIXME:
-			 * The only way to set lod bias in metal is via the MSL
-			 * bias() function in a shader. What should we do here?
-			 * -caleb
-			 */
-			if (sampler.MipMapLevelOfDetailBias != tex.LODBias)
-			{
-				tex.LODBias = sampler.MipMapLevelOfDetailBias;
-			}
-
-			// Create and store the new sampler state
-			tex.SamplerHandle = mtlNewSamplerStateWithDescriptor(
-				device,
-				samplerDesc
-			);
-
-			// Clean up
-			ObjCRelease(samplerDesc);
+			// Update the texture info
+			tex.WrapS = sampler.AddressU;
+			tex.WrapT = sampler.AddressV;
+			tex.WrapR = sampler.AddressW;
+			tex.Filter = sampler.Filter;
+			tex.Anisotropy = sampler.MaxAnisotropy;
+			tex.MaxMipmapLevel = sampler.MaxMipLevel;
+			tex.LODBias = sampler.MipMapLevelOfDetailBias;
+			tex.SamplerHandle = FetchSamplerState(sampler);
 		}
 
 		public void SetBlendState(BlendState blendState)
@@ -1419,168 +1385,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Effect Methods
-
-		public IGLEffect CreateEffect(byte[] effectCode)
-		{
-			IntPtr effect = IntPtr.Zero;
-			IntPtr mtlEffect = IntPtr.Zero;
-
-			effect = MojoShader.MOJOSHADER_parseEffect(
-				"metal",
-				effectCode,
-				(uint) effectCode.Length,
-				null,
-				0,
-				null,
-				0,
-				null,
-				null,
-				IntPtr.Zero
-			);
-
-#if DEBUG
-			unsafe
-			{
-				MojoShader.MOJOSHADER_effect *effectPtr = (MojoShader.MOJOSHADER_effect*) effect;
-				MojoShader.MOJOSHADER_error* err = (MojoShader.MOJOSHADER_error*) effectPtr->errors;
-				for (int i = 0; i < effectPtr->error_count; i += 1)
-				{
-					// From the SDL2# LPToUtf8StringMarshaler
-					byte* endPtr = (byte*) err[i].error;
-					while (*endPtr != 0)
-					{
-						endPtr++;
-					}
-					byte[] bytes = new byte[endPtr - (byte*) err[i].error];
-					Marshal.Copy(err[i].error, bytes, 0, bytes.Length);
-
-					FNALoggerEXT.LogError(
-						"MOJOSHADER_parseEffect Error: " +
-						System.Text.Encoding.UTF8.GetString(bytes)
-					);
-				}
-			}
-#endif
-
-			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(effect, device);
-			if (mtlEffect == IntPtr.Zero)
-			{
-				throw new InvalidOperationException(
-					MojoShader.MOJOSHADER_mtlGetError()
-				);
-			}
-
-			return new MetalEffect(effect, mtlEffect);
-		}
-
-		private void DeleteEffect(IGLEffect effect)
-		{
-			// IntPtr glEffectData = (effect as OpenGLEffect).GLEffectData;
-			// if (glEffectData == currentEffect)
-			// {
-			// 	MojoShader.MOJOSHADER_glEffectEndPass(currentEffect);
-			// 	MojoShader.MOJOSHADER_glEffectEnd(currentEffect);
-			// 	currentEffect = IntPtr.Zero;
-			// 	currentTechnique = IntPtr.Zero;
-			// 	currentPass = 0;
-			// }
-			// MojoShader.MOJOSHADER_glDeleteEffect(glEffectData);
-			// MojoShader.MOJOSHADER_freeEffect(effect.EffectData);
-		}
-		
-		public IGLEffect CloneEffect(IGLEffect effect)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void ApplyEffect(
-			IGLEffect effect,
-			IntPtr technique,
-			uint pass,
-			IntPtr stateChanges
-		) {
-			effectApplied = true;
-			IntPtr mtlEffectData = (effect as MetalEffect).MTLEffectData;
-			if (mtlEffectData == currentEffect)
-			{
-				if (technique == currentTechnique && pass == currentPass)
-				{
-					MojoShader.MOJOSHADER_mtlEffectCommitChanges(
-						currentEffect,
-						out currentVertexShader,
-						out currentFragmentShader,
-						out currentVertexUniformBuffer,
-						out currentFragmentUniformBuffer
-					);
-					return;
-				}
-				MojoShader.MOJOSHADER_mtlEffectEndPass(currentEffect);
-				MojoShader.MOJOSHADER_mtlEffectBeginPass(
-					currentEffect,
-					pass,
-					out currentVertexShader,
-					out currentFragmentShader,
-					out currentVertexUniformBuffer,
-					out currentFragmentUniformBuffer
-				);
-				currentTechnique = technique;
-				currentPass = pass;
-				return;
-			}
-			else if (currentEffect != IntPtr.Zero)
-			{
-				MojoShader.MOJOSHADER_mtlEffectEndPass(currentEffect);
-				MojoShader.MOJOSHADER_mtlEffectEnd(
-					currentEffect,
-					out currentVertexShader,
-					out currentFragmentShader,
-					out currentVertexUniformBuffer,
-					out currentFragmentUniformBuffer
-				);
-			}
-			uint whatever;
-			MojoShader.MOJOSHADER_mtlEffectBegin(
-				mtlEffectData,
-				out whatever,
-				0,
-				stateChanges
-			);
-			MojoShader.MOJOSHADER_mtlEffectBeginPass(
-				mtlEffectData,
-				pass,
-				out currentVertexShader,
-				out currentFragmentShader,
-				out currentVertexUniformBuffer,
-				out currentFragmentUniformBuffer
-			);
-			currentEffect = mtlEffectData;
-			currentTechnique = technique;
-			currentPass = pass;
-		}
-
-		public void BeginPassRestore(IGLEffect effect, IntPtr stateChanges)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void EndPassRestore(IGLEffect effect)
-		{
-			throw new NotImplementedException();
-		}
-
-		#endregion
-
-		#region ApplyVertexAttributes Methods
-
-		private Dictionary<VertexBufferBinding[], IntPtr> VertexDescriptorCache =
-			new Dictionary<VertexBufferBinding[], IntPtr>();
-
-		private Dictionary<PipelineState, IntPtr> PipelineStateCache =
-			new Dictionary<PipelineState, IntPtr>();
-
-		private Dictionary<DepthStencilState, IntPtr> DepthStencilStateCache =
-			new Dictionary<DepthStencilState, IntPtr>();
+		#region PipelineState Helper Struct
 
 		private struct PipelineState
 		{
@@ -1593,6 +1398,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			public DepthStencilState depthStencil;
 		}
 
+		#endregion
+
+		#region State Creation/Retrieval Methods
+
 		private IntPtr FetchRenderPipeline()
 		{
 			PipelineState state = new PipelineState
@@ -1601,7 +1410,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				fragmentFunction = currentFragmentShader,
 				vertexDescriptor = currentVertexDescriptor,
 				colorFormats = currentColorFormats,
-				depthFormat = currentDepthFormat,
+				depthFormat = XNAToMTL.DepthFormat[(int) currentDepthFormat],
 				blend = blendState,
 				depthStencil = depthStencilState
 			};
@@ -1630,42 +1439,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			mtlSetDepthAttachmentPixelFormat(
 				pipelineDesc,
-				currentDepthFormat
+				XNAToMTL.DepthFormat[(int) currentDepthFormat]
 			);
-			if (currentDepthFormat == MTLPixelFormat.Depth32Float_Stencil8)
+			if (currentDepthFormat == DepthFormat.Depth24Stencil8)
 			{
 				mtlSetStencilAttachmentPixelFormat(
 					pipelineDesc,
-					currentDepthFormat
+					XNAToMTL.DepthFormat[(int) currentDepthFormat]
 				);
 			}
 
 			// Apply the blend state
-			SetPipelineBlendState(pipelineDesc);
-
-			// Bake the render pipeline!
-			IntPtr pipelineState = mtlNewRenderPipelineStateWithDescriptor(
-				device,
-				pipelineDesc
-			);
-			PipelineStateCache[state] = pipelineState;
-
-			// Clean up
-			ObjCRelease(pipelineDesc);
-
-			// Return the pipeline!
-			return pipelineState;
-		}
-
-		private void SetPipelineBlendState(IntPtr pipelineDesc)
-		{
 			bool alphaBlendEnable = !(
 				blendState.ColorSourceBlend == Blend.One &&
 				blendState.ColorDestinationBlend == Blend.Zero &&
 				blendState.AlphaSourceBlend == Blend.One &&
 				blendState.AlphaDestinationBlend == Blend.Zero
 			);
-
 			for (int i = 0; i < currentAttachments.Length; i += 1)
 			{
 				if (currentAttachments[i] == IntPtr.Zero)
@@ -1744,6 +1534,19 @@ namespace Microsoft.Xna.Framework.Graphics
 					(ulong) blendState.ColorWriteChannels3
 				);
 			}
+
+			// Bake the render pipeline!
+			IntPtr pipelineState = mtlNewRenderPipelineStateWithDescriptor(
+				device,
+				pipelineDesc
+			);
+			PipelineStateCache[state] = pipelineState;
+
+			// Clean up
+			ObjCRelease(pipelineDesc);
+
+			// Return the pipeline!
+			return pipelineState;
 		}
 
 		private IntPtr FetchDepthStencilState()
@@ -1770,7 +1573,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Create stencil descriptors
 			IntPtr front = IntPtr.Zero;
 			IntPtr back = IntPtr.Zero;
-			
+
 			if (depthStencilState.StencilEnable)
 			{
 				front = mtlNewStencilDescriptor();
@@ -1858,6 +1661,239 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Return the state!
 			return state;
 		}
+
+		private IntPtr FetchSamplerState(SamplerState samplerState)
+		{
+			IntPtr state = IntPtr.Zero;
+			if (SamplerStateCache.TryGetValue(samplerState, out state))
+			{
+				// The value is already cached!
+				return state;
+			}
+
+			// We have to make a new sampler state...
+			IntPtr samplerDesc = mtlNewSamplerDescriptor();
+
+			mtlSetSampler_sAddressMode(
+				samplerDesc,
+				XNAToMTL.Wrap[(int) samplerState.AddressU]
+			);
+			mtlSetSampler_tAddressMode(
+				samplerDesc,
+				XNAToMTL.Wrap[(int) samplerState.AddressV]
+			);
+			mtlSetSampler_rAddressMode(
+				samplerDesc,
+				XNAToMTL.Wrap[(int) samplerState.AddressW]
+			);
+			mtlSetSamplerMagFilter(
+				samplerDesc,
+				XNAToMTL.MagFilter[(int) samplerState.Filter]
+			);
+			mtlSetSamplerMinFilter(
+				samplerDesc,
+				XNAToMTL.MinFilter[(int) samplerState.Filter]
+			);
+			mtlSetSamplerMipFilter(
+				samplerDesc,
+				XNAToMTL.MipFilter[(int) samplerState.Filter]
+			);
+			mtlSetSamplerLodMinClamp(
+				samplerDesc,
+				samplerState.MaxMipLevel
+			);
+
+			// Anisotropy must be in the range [1, 16]
+			ulong scaledAnisotropy = 1 + (ulong) (samplerState.MaxAnisotropy * 15);
+			mtlSetSamplerMaxAnisotropy(
+				samplerDesc,
+				(samplerState.Filter == TextureFilter.Anisotropic) ?
+					scaledAnisotropy :
+					1
+			);
+
+			/* FIXME:
+			 * The only way to set lod bias in metal is via the MSL
+			 * bias() function in a shader. So we can't do:
+			 *
+			 * 	mtlSetSamplerLodBias(
+			 *		samplerDesc,
+			 *		samplerState.MipMapLevelOfDetailBias
+			 *	);
+			 *
+			 * What should we do instead?
+			 * -caleb
+			 */
+
+			// Bake the sampler state!
+			state = mtlNewSamplerStateWithDescriptor(
+				device,
+				samplerDesc
+			);
+			SamplerStateCache[samplerState] = state;
+
+			// Clean up
+			ObjCRelease(samplerDesc);
+
+			// Return the sampler state!
+			return state;
+		}
+
+		#endregion
+
+		#region Effect Methods
+
+		public IGLEffect CreateEffect(byte[] effectCode)
+		{
+			IntPtr effect = IntPtr.Zero;
+			IntPtr mtlEffect = IntPtr.Zero;
+
+			effect = MojoShader.MOJOSHADER_parseEffect(
+				"metal",
+				effectCode,
+				(uint) effectCode.Length,
+				null,
+				0,
+				null,
+				0,
+				null,
+				null,
+				IntPtr.Zero
+			);
+
+#if DEBUG
+			unsafe
+			{
+				MojoShader.MOJOSHADER_effect *effectPtr = (MojoShader.MOJOSHADER_effect*) effect;
+				MojoShader.MOJOSHADER_error* err = (MojoShader.MOJOSHADER_error*) effectPtr->errors;
+				for (int i = 0; i < effectPtr->error_count; i += 1)
+				{
+					// From the SDL2# LPToUtf8StringMarshaler
+					byte* endPtr = (byte*) err[i].error;
+					while (*endPtr != 0)
+					{
+						endPtr++;
+					}
+					byte[] bytes = new byte[endPtr - (byte*) err[i].error];
+					Marshal.Copy(err[i].error, bytes, 0, bytes.Length);
+
+					FNALoggerEXT.LogError(
+						"MOJOSHADER_parseEffect Error: " +
+						System.Text.Encoding.UTF8.GetString(bytes)
+					);
+				}
+			}
+#endif
+
+			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(effect, device);
+			if (mtlEffect == IntPtr.Zero)
+			{
+				throw new InvalidOperationException(
+					MojoShader.MOJOSHADER_mtlGetError()
+				);
+			}
+
+			return new MetalEffect(effect, mtlEffect);
+		}
+
+		private void DeleteEffect(IGLEffect effect)
+		{
+			// IntPtr glEffectData = (effect as OpenGLEffect).GLEffectData;
+			// if (glEffectData == currentEffect)
+			// {
+			// 	MojoShader.MOJOSHADER_glEffectEndPass(currentEffect);
+			// 	MojoShader.MOJOSHADER_glEffectEnd(currentEffect);
+			// 	currentEffect = IntPtr.Zero;
+			// 	currentTechnique = IntPtr.Zero;
+			// 	currentPass = 0;
+			// }
+			// MojoShader.MOJOSHADER_glDeleteEffect(glEffectData);
+			// MojoShader.MOJOSHADER_freeEffect(effect.EffectData);
+		}
+
+		public IGLEffect CloneEffect(IGLEffect effect)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void ApplyEffect(
+			IGLEffect effect,
+			IntPtr technique,
+			uint pass,
+			IntPtr stateChanges
+		) {
+			effectApplied = true;
+			IntPtr mtlEffectData = (effect as MetalEffect).MTLEffectData;
+			if (mtlEffectData == currentEffect)
+			{
+				if (technique == currentTechnique && pass == currentPass)
+				{
+					MojoShader.MOJOSHADER_mtlEffectCommitChanges(
+						currentEffect,
+						out currentVertexShader,
+						out currentFragmentShader,
+						out currentVertexUniformBuffer,
+						out currentFragmentUniformBuffer
+					);
+					return;
+				}
+				MojoShader.MOJOSHADER_mtlEffectEndPass(currentEffect);
+				MojoShader.MOJOSHADER_mtlEffectBeginPass(
+					currentEffect,
+					pass,
+					out currentVertexShader,
+					out currentFragmentShader,
+					out currentVertexUniformBuffer,
+					out currentFragmentUniformBuffer
+				);
+				currentTechnique = technique;
+				currentPass = pass;
+				return;
+			}
+			else if (currentEffect != IntPtr.Zero)
+			{
+				MojoShader.MOJOSHADER_mtlEffectEndPass(currentEffect);
+				MojoShader.MOJOSHADER_mtlEffectEnd(
+					currentEffect,
+					out currentVertexShader,
+					out currentFragmentShader,
+					out currentVertexUniformBuffer,
+					out currentFragmentUniformBuffer
+				);
+			}
+			uint whatever;
+			MojoShader.MOJOSHADER_mtlEffectBegin(
+				mtlEffectData,
+				out whatever,
+				0,
+				stateChanges
+			);
+			MojoShader.MOJOSHADER_mtlEffectBeginPass(
+				mtlEffectData,
+				pass,
+				out currentVertexShader,
+				out currentFragmentShader,
+				out currentVertexUniformBuffer,
+				out currentFragmentUniformBuffer
+			);
+			currentEffect = mtlEffectData;
+			currentTechnique = technique;
+			currentPass = pass;
+		}
+
+		public void BeginPassRestore(IGLEffect effect, IntPtr stateChanges)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void EndPassRestore(IGLEffect effect)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		#region ApplyVertexAttributes Methods
 
 		private void BindResources()
 		{
@@ -2863,7 +2899,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 				}
 				ColorBuffer = mtlNewTextureWithDescriptor(
-					mtlDevice.device, 
+					mtlDevice.device,
 					colorBufferDesc
 				);
 
