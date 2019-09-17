@@ -1197,7 +1197,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexStart,
 			int primitiveCount
 		) {
-			Console.WriteLine("Draw primitives!");
 			mtlDrawPrimitives(
 				renderCommandEncoder,
 				XNAToMTL.Primitive[(int) primitiveType],
