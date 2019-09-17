@@ -980,7 +980,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			SetEncoderScissorRect();
 			SetEncoderBlendColor();
 			SetEncoderStencilReferenceValue();
-			SetEncoderCullModeAndWinding();
+			SetEncoderCullMode();
 			SetEncoderFillMode();
 			SetEncoderDepthBias();
 
@@ -1029,7 +1029,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		private void SetEncoderCullModeAndWinding()
+		private void SetEncoderCullMode()
 		{
 			if (renderCommandEncoder != IntPtr.Zero)
 			{
@@ -1037,16 +1037,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					renderCommandEncoder,
 					XNAToMTL.CullingEnabled[(int) cullFrontFace]
 				);
-
-				if (cullFrontFace != CullMode.None)
-				{
-					mtlSetFrontFacingWinding(
-						renderCommandEncoder,
-						XNAToMTL.FrontFace[(int) cullFrontFace]
-					);
-				}
 			}
-
 		}
 
 		private void SetEncoderFillMode()
@@ -1302,7 +1293,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (rasterizerState.CullMode != cullFrontFace)
 			{
 				cullFrontFace = rasterizerState.CullMode;
-				SetEncoderCullModeAndWinding(); // Dynamic state!
+				SetEncoderCullMode(); // Dynamic state!
 			}
 
 			if (rasterizerState.FillMode != fillMode)
@@ -2619,13 +2610,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLStencilOperation.Invert		// StencilOperation.Invert
 			};
 
-			public static readonly MTLWinding[] FrontFace = new MTLWinding[]
-			{
-				0,				// NOPE
-				MTLWinding.Clockwise,		// CullMode.CullClockwiseFace
-				MTLWinding.CounterClockwise	// CullMode.CullCounterClockwiseFace
-			};
-
 			public static readonly MTLTriangleFillMode[] FillMode = new MTLTriangleFillMode[]
 			{
 				MTLTriangleFillMode.Fill,	// FillMode.Solid
@@ -2643,7 +2627,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			public static readonly MTLCullMode[] CullingEnabled = new MTLCullMode[]
 			{
 				MTLCullMode.None,		// CullMode.None
-				MTLCullMode.Back,		// CullMode.CullClockwiseFace
+				MTLCullMode.Front,		// CullMode.CullClockwiseFace
 				MTLCullMode.Back		// CullMode.CullCounterClockwiseFace
 			};
 
