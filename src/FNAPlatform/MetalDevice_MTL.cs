@@ -620,6 +620,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			return intptr_objc_msgSend(buffer, selContents);
 		}
 
+		private static IntPtr selSetLabel = Selector("setLabel:");
+		private static void mtlSetLabel(IntPtr handle, string label)
+		{
+			objc_msgSend(handle, selSetLabel, UTF8ToNSString(label));
+		}
+
 		#endregion
 
 		#region MTLCapture

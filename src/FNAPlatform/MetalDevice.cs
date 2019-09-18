@@ -394,8 +394,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private State Object Caches
 
-		private Dictionary<VertexBufferBinding[], IntPtr> VertexDescriptorCache =
-			new Dictionary<VertexBufferBinding[], IntPtr>();
+		private Dictionary<long, IntPtr> VertexDescriptorCache =
+			new Dictionary<long, IntPtr>();
 
 		private Dictionary<PipelineState, IntPtr> PipelineStateCache =
 			new Dictionary<PipelineState, IntPtr>();
@@ -430,8 +430,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private IntPtr currentVertexShader = IntPtr.Zero;
 		private IntPtr currentFragmentShader = IntPtr.Zero;
-		private IntPtr currentVertexUniformBuffer = IntPtr.Zero;
-		private IntPtr currentFragmentUniformBuffer = IntPtr.Zero;
+		private IntPtr currentUniformBuffer = IntPtr.Zero;
 
 		#endregion
 
@@ -1396,8 +1395,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			PipelineState state = new PipelineState
 			{
-				vertexFunction = currentVertexShader,
-				fragmentFunction = currentFragmentShader,
+				vertexFunction = MojoShader.MOJOSHADER_mtlGetFunctionHandle(
+					currentVertexShader
+				),
+				fragmentFunction = MojoShader.MOJOSHADER_mtlGetFunctionHandle(
+					currentFragmentShader
+				),
 				vertexDescriptor = currentVertexDescriptor,
 				colorFormats = currentColorFormats,
 				depthFormat = XNAToMTL.DepthFormat[(int) currentDepthFormat],
@@ -1729,6 +1732,90 @@ namespace Microsoft.Xna.Framework.Graphics
 			return state;
 		}
 
+		private IntPtr FetchVertexDescriptor(
+			VertexBufferBinding[] bindings,
+			int numBindings
+		) {
+			// Get the binding hash value
+			long hash = 0;
+			for (int i = 0; i < numBindings; i += 1)
+			{
+				hash += (long) bindings[i].GetHashCode();
+			}
+
+			// Try to get the descriptor from the cache
+			IntPtr descriptor;
+			if (VertexDescriptorCache.TryGetValue(hash, out descriptor))
+			{
+				// The value is already cached!
+				return descriptor;
+			}
+
+			// We have to make a new vertex descriptor...
+			descriptor = mtlMakeVertexDescriptor();
+			ObjCRetain(descriptor); // Make sure this doesn't get drained
+
+			for (int i = numBindings - 1; i >= 0; i -= 1)
+			{
+				// Describe vertex attributes
+				VertexDeclaration vertexDeclaration = bindings[i].VertexBuffer.VertexDeclaration;
+				for (int j = 0; j < vertexDeclaration.elements.Length; j += 1)
+				{
+					VertexElement element = vertexDeclaration.elements[j];
+
+					int attribLoc = MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
+						currentVertexShader,
+						XNAToMTL.VertexAttribUsage[(int) element.VertexElementUsage],
+						element.UsageIndex
+					);
+					if (attribLoc == -1)
+					{
+						// Stream not in use!
+						continue;
+					}
+					IntPtr attrib = mtlGetVertexAttributeDescriptor(
+						descriptor,
+						attribLoc
+					);
+					mtlSetVertexAttributeFormat(
+						attrib,
+						XNAToMTL.VertexAttribType[(int) element.VertexElementFormat]
+					);
+					mtlSetVertexAttributeOffset(
+						attrib,
+						element.Offset
+					);
+					mtlSetVertexAttributeBufferIndex(
+						attrib,
+						i
+					);
+				}
+
+				// Describe vertex buffer layout
+				IntPtr layout = mtlGetVertexBufferLayoutDescriptor(
+					descriptor,
+					i
+				);
+				mtlSetVertexBufferLayoutStride(
+					layout,
+					vertexDeclaration.VertexStride
+				);
+				if (bindings[i].InstanceFrequency > 1)
+				{
+					mtlSetVertexBufferLayoutStepFunction(
+						layout,
+						MTLVertexStepFunction.PerInstance
+					);
+					mtlSetVertexBufferLayoutStepRate(
+						layout,
+						bindings[i].InstanceFrequency
+					);
+				}
+			}
+			VertexDescriptorCache[hash] = descriptor;
+			return descriptor;
+		}
+
 		#endregion
 
 		#region Effect Methods
@@ -1822,8 +1909,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						currentEffect,
 						out currentVertexShader,
 						out currentFragmentShader,
-						out currentVertexUniformBuffer,
-						out currentFragmentUniformBuffer
+						out currentUniformBuffer
 					);
 					return;
 				}
@@ -1833,8 +1919,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					pass,
 					out currentVertexShader,
 					out currentFragmentShader,
-					out currentVertexUniformBuffer,
-					out currentFragmentUniformBuffer
+					out currentUniformBuffer
 				);
 				currentTechnique = technique;
 				currentPass = pass;
@@ -1847,8 +1932,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					currentEffect,
 					out currentVertexShader,
 					out currentFragmentShader,
-					out currentVertexUniformBuffer,
-					out currentFragmentUniformBuffer
+					out currentUniformBuffer
 				);
 			}
 			uint whatever;
@@ -1863,8 +1947,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				pass,
 				out currentVertexShader,
 				out currentFragmentShader,
-				out currentVertexUniformBuffer,
-				out currentFragmentUniformBuffer
+				out currentUniformBuffer
 			);
 			currentEffect = mtlEffectData;
 			currentTechnique = technique;
@@ -1902,22 +1985,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			// Bind the uniform buffers
-			if (currentVertexUniformBuffer != IntPtr.Zero)
+			// Bind the uniform buffer
+			if (currentUniformBuffer != IntPtr.Zero)
 			{
 				mtlSetVertexBuffer(
 					renderCommandEncoder,
-					currentVertexUniformBuffer,
-					0,
-					16 // In MojoShader output it's always 16 for some reason
-				);
-			}
-
-			if (currentFragmentUniformBuffer != IntPtr.Zero)
-			{
-				mtlSetFragmentBuffer(
-					renderCommandEncoder,
-					currentFragmentUniformBuffer,
+					currentUniformBuffer,
 					0,
 					16 // In MojoShader output it's always 16 for some reason
 				);
@@ -1955,77 +2028,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				effectApplied	)
 			{
 				// Translate the bindings array into a descriptor
-				IntPtr descriptor;
-				if (VertexDescriptorCache.TryGetValue(bindings, out descriptor))
-				{
-					currentVertexDescriptor = descriptor;
-				}
-				else
-				{
-					descriptor = mtlMakeVertexDescriptor();
-					ObjCRetain(descriptor); // Make sure this doesn't get drained
-
-					for (int i = numBindings - 1; i >= 0; i -= 1)
-					{
-						// Describe vertex attributes
-						VertexDeclaration vertexDeclaration = bindings[i].VertexBuffer.VertexDeclaration;
-						for (int j = 0; j < vertexDeclaration.elements.Length; j += 1)
-						{
-							VertexElement element = vertexDeclaration.elements[j];
-
-							int attribLoc = MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
-								currentEffect,
-								XNAToMTL.VertexAttribUsage[(int) element.VertexElementUsage],
-								element.UsageIndex
-							);
-							if (attribLoc == -1)
-							{
-								// Stream not in use!
-								continue;
-							}
-							IntPtr attrib = mtlGetVertexAttributeDescriptor(
-								descriptor,
-								attribLoc
-							);
-							mtlSetVertexAttributeFormat(
-								attrib,
-								XNAToMTL.VertexAttribType[(int) element.VertexElementFormat]
-							);
-							mtlSetVertexAttributeOffset(
-								attrib,
-								element.Offset
-							);
-							mtlSetVertexAttributeBufferIndex(
-								attrib,
-								i
-							);
-						}
-						
-						// Describe vertex buffer layout
-						IntPtr layout = mtlGetVertexBufferLayoutDescriptor(
-							descriptor,
-							i
-						);
-						mtlSetVertexBufferLayoutStride(
-							layout,
-							vertexDeclaration.VertexStride
-						);
-						if (bindings[i].InstanceFrequency > 1)
-						{
-							mtlSetVertexBufferLayoutStepFunction(
-								layout,
-								MTLVertexStepFunction.PerInstance
-							);
-							mtlSetVertexBufferLayoutStepRate(
-								layout,
-								bindings[i].InstanceFrequency
-							);
-						}
-
-					}
-					VertexDescriptorCache[bindings] = descriptor;
-					currentVertexDescriptor = descriptor;
-				}
+				currentVertexDescriptor = FetchVertexDescriptor(
+					bindings,
+					numBindings
+				);
 
 				ldEffect = currentEffect;
 				ldTechnique = currentTechnique;
@@ -2039,11 +2045,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			UpdateRenderPass();
 			for (int i = 0; i < bindings.Length; i += 1)
 			{
-				if (bindings[i].VertexBuffer != null)
+				VertexBuffer vertexBuffer = bindings[i].VertexBuffer;
+				if (vertexBuffer != null)
 				{
 					mtlSetVertexBuffer(
 						renderCommandEncoder,
-						(bindings[i].VertexBuffer.buffer as MetalBuffer).Handle,
+						(vertexBuffer.buffer as MetalBuffer).Handle,
 						(ulong) bindings[i].VertexOffset,
 						(ulong) i
 					);
@@ -2148,10 +2155,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (options == SetDataOptions.Discard)
 			{
 				// Zero out the memory
-				memset((buffer as MetalBuffer).Contents, (IntPtr) 0, buffer.BufferSize);
+				memset(
+					(buffer as MetalBuffer).Contents,
+					(IntPtr) 0,
+					buffer.BufferSize
+				);
 			}
 
-			IntPtr dst = IntPtr.Add((buffer as MetalBuffer).Contents, offsetInBytes);
+			IntPtr dst = IntPtr.Add(
+				(buffer as MetalBuffer).Contents,
+				offsetInBytes
+			);
 			memcpy(dst, data, (IntPtr) dataLength);
 		}
 
@@ -2926,26 +2940,30 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Create the vertex buffer for rendering the faux-backbuffer
+			// FIXME: Combine this and the index buffer into one MTLBuffer
 			fauxBackbufferVertexBuffer = mtlNewBufferWithLength(
 				device,
 				16 * sizeof(float)
 			);
 
 			// Create and fill the index buffer
+			fauxBackbufferIndexBuffer = mtlNewBufferWithLength(
+				device,
+				6 * sizeof(ushort)
+			);
+
 			ushort[] indices = new ushort[]
 			{
 				0, 1, 3,
 				1, 2, 3
 			};
-			fauxBackbufferIndexBuffer = mtlNewBufferWithLength(
-				device,
-				6 * sizeof(ushort)
-			);
+			GCHandle indicesPinned = GCHandle.Alloc(indices, GCHandleType.Pinned);
 			memcpy(
 				mtlGetBufferContentsPtr(fauxBackbufferIndexBuffer),
-				Marshal.UnsafeAddrOfPinnedArrayElement(indices, 0),
+				indicesPinned.AddrOfPinnedObject(),
 				(IntPtr) (6 * sizeof(ushort))
 			);
+			indicesPinned.Free();
 
 			// Create vertex and fragment shaders for the faux-backbuffer pipeline
 			// FIXME: Wonder if we could just compile ahead-of-time for this...
