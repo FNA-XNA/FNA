@@ -942,15 +942,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			int baseVertex,
 			ulong baseInstance
 		) {
-			// Console.WriteLine("Encoder: " + renderCommandEncoder);
-			// Console.WriteLine("Primitive Type: " + primitiveType);
-			// Console.WriteLine("indexCount: " + indexCount);
-			// Console.WriteLine("indexType: " + indexType);
-			// Console.WriteLine("index buffer: " + indexBuffer);
-			// Console.WriteLine("index buffer offset: " + indexBufferOffset);
-			// Console.WriteLine("instanceCount: " + instanceCount);
-			// Console.WriteLine("base vertex: " + baseVertex);
-			// Console.WriteLine("baseInstance: " + baseInstance);
 			objc_msgSend(
 				renderCommandEncoder,
 				selDrawIndexedPrimitives,
@@ -1042,6 +1033,18 @@ namespace Microsoft.Xna.Framework.Graphics
 				renderCommandEncoder,
 				selSetDepthStencilState,
 				depthStencilState
+			);
+		}
+
+		private static IntPtr selInsertDebugSignpost = Selector("insertDebugSignpost:");
+		private static void mtlInsertDebugSignpost(
+			IntPtr renderCommandEncoder,
+			string message
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selInsertDebugSignpost,
+				UTF8ToNSString(message)
 			);
 		}
 
