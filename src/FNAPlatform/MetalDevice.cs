@@ -430,7 +430,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private IntPtr currentVertexShader = IntPtr.Zero;
 		private IntPtr currentFragmentShader = IntPtr.Zero;
-		private IntPtr currentUniformBuffer = IntPtr.Zero;
+		private IntPtr currentVertUniformBuffer = IntPtr.Zero;
+		private IntPtr currentFragUniformBuffer = IntPtr.Zero;
 
 		#endregion
 
@@ -1687,10 +1688,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				samplerDesc,
 				XNAToMTL.MinFilter[(int) samplerState.Filter]
 			);
-			mtlSetSamplerMipFilter(
-				samplerDesc,
-				XNAToMTL.MipFilter[(int) samplerState.Filter]
-			);
+			if (samplerState.MaxMipLevel > 0)
+			{
+				mtlSetSamplerMipFilter(
+					samplerDesc,
+					XNAToMTL.MipFilter[(int) samplerState.Filter]
+				);
+			}
 			mtlSetSamplerLodMinClamp(
 				samplerDesc,
 				samplerState.MaxMipLevel
@@ -1909,7 +1913,8 @@ namespace Microsoft.Xna.Framework.Graphics
 						currentEffect,
 						out currentVertexShader,
 						out currentFragmentShader,
-						out currentUniformBuffer
+						out currentVertUniformBuffer,
+						out currentFragUniformBuffer
 					);
 					return;
 				}
@@ -1919,7 +1924,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					pass,
 					out currentVertexShader,
 					out currentFragmentShader,
-					out currentUniformBuffer
+					out currentVertUniformBuffer,
+					out currentFragUniformBuffer
 				);
 				currentTechnique = technique;
 				currentPass = pass;
@@ -1932,7 +1938,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					currentEffect,
 					out currentVertexShader,
 					out currentFragmentShader,
-					out currentUniformBuffer
+					out currentVertUniformBuffer,
+					out currentFragUniformBuffer
 				);
 			}
 			uint whatever;
@@ -1947,7 +1954,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				pass,
 				out currentVertexShader,
 				out currentFragmentShader,
-				out currentUniformBuffer
+				out currentVertUniformBuffer,
+				out currentFragUniformBuffer
 			);
 			currentEffect = mtlEffectData;
 			currentTechnique = technique;
@@ -1985,12 +1993,21 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			// Bind the uniform buffer
-			if (currentUniformBuffer != IntPtr.Zero)
+			// Bind the uniform buffers
+			if (currentVertUniformBuffer != IntPtr.Zero)
 			{
 				mtlSetVertexBuffer(
 					renderCommandEncoder,
-					currentUniformBuffer,
+					currentVertUniformBuffer,
+					0,
+					16 // In MojoShader output it's always 16 for some reason
+				);
+			}
+			if (currentFragUniformBuffer != IntPtr.Zero)
+			{
+				mtlSetFragmentBuffer(
+					renderCommandEncoder,
+					currentFragUniformBuffer,
 					0,
 					16 // In MojoShader output it's always 16 for some reason
 				);
