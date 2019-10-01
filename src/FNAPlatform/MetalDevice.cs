@@ -1905,9 +1905,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			MojoShader.MOJOSHADER_freeEffect(effect.EffectData);
 		}
 
-		public IGLEffect CloneEffect(IGLEffect effect)
+		public IGLEffect CloneEffect(IGLEffect cloneSource)
 		{
-			throw new NotImplementedException();
+			IntPtr effect = IntPtr.Zero;
+			IntPtr mtlEffect = IntPtr.Zero;
+
+			effect = MojoShader.MOJOSHADER_cloneEffect(cloneSource.EffectData);
+			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(effect, device);
+			if (mtlEffect == IntPtr.Zero)
+			{
+				throw new InvalidOperationException(
+					MojoShader.MOJOSHADER_mtlGetError()
+				);
+			}
+
+			return new MetalEffect(effect, mtlEffect);
 		}
 
 		public void ApplyEffect(
