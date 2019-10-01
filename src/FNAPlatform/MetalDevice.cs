@@ -1882,17 +1882,27 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void DeleteEffect(IGLEffect effect)
 		{
-			// IntPtr glEffectData = (effect as OpenGLEffect).GLEffectData;
-			// if (glEffectData == currentEffect)
-			// {
-			// 	MojoShader.MOJOSHADER_glEffectEndPass(currentEffect);
-			// 	MojoShader.MOJOSHADER_glEffectEnd(currentEffect);
-			// 	currentEffect = IntPtr.Zero;
-			// 	currentTechnique = IntPtr.Zero;
-			// 	currentPass = 0;
-			// }
-			// MojoShader.MOJOSHADER_glDeleteEffect(glEffectData);
-			// MojoShader.MOJOSHADER_freeEffect(effect.EffectData);
+			IntPtr mtlEffectData = (effect as MetalEffect).MTLEffectData;
+			if (mtlEffectData == currentEffect)
+			{
+				MojoShader.MOJOSHADER_mtlEffectEndPass(currentEffect);
+				MojoShader.MOJOSHADER_mtlEffectEnd(
+					currentEffect,
+					out currentVertexShader,
+					out currentFragmentShader,
+					out currentVertUniformBuffer,
+					out currentFragUniformBuffer
+				);
+				currentEffect = IntPtr.Zero;
+				currentTechnique = IntPtr.Zero;
+				currentPass = 0;
+				currentVertexShader = IntPtr.Zero;
+				currentFragmentShader = IntPtr.Zero;
+				currentVertUniformBuffer = IntPtr.Zero;
+				currentFragUniformBuffer = IntPtr.Zero;
+			}
+			MojoShader.MOJOSHADER_mtlDeleteEffect(mtlEffectData);
+			MojoShader.MOJOSHADER_freeEffect(effect.EffectData);
 		}
 
 		public IGLEffect CloneEffect(IGLEffect effect)
