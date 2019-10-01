@@ -338,9 +338,7 @@
 		<Compile Include="lib\Theorafile\csharp\Theorafile.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="FNA.dll.config">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
+		<None Include="app.config" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="src\Graphics\Effect\StockEffects\FXB\AlphaTestEffect.fxb">
