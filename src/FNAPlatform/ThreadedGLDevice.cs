@@ -578,7 +578,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			SurfaceFormat format,
 			int width,
 			int height,
-			int levelCount
+			int levelCount,
+			bool isRenderTarget
 		) {
 			IGLTexture result = null;
 			ForceToMainThread(() =>
@@ -587,7 +588,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					format,
 					width,
 					height,
-					levelCount
+					levelCount,
+					isRenderTarget
 				);
 			}); // End ForceToMainThread
 			return result;

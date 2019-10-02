@@ -2485,7 +2485,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			SurfaceFormat format,
 			int width,
 			int height,
-			int levelCount
+			int levelCount,
+			bool isRenderTarget
 		) {
 			OpenGLTexture result = null;
 

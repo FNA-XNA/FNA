@@ -98,7 +98,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				Format,
 				Width,
 				Height,
-				LevelCount
+				LevelCount,
+				(this is IRenderTarget)
 			);
 		}
 

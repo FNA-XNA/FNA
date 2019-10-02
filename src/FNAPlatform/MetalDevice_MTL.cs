@@ -135,6 +135,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern ulong ulong_objc_msgSend(IntPtr receiver, IntPtr selector);
 
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern ulong ulong_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
+
 		// Bool
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -356,6 +359,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			Invert = 5,
 			IncrementWrap = 6,
 			DecrementWrap = 7
+		}
+
+		private enum MTLPurgeableState
+		{
+			KeepCurrent = 1,
+			NonVolatile = 2,
+			Volatile = 3,
+			Empty = 4
 		}
 
 		#endregion
@@ -624,6 +635,16 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlSetLabel(IntPtr handle, string label)
 		{
 			objc_msgSend(handle, selSetLabel, UTF8ToNSString(label));
+		}
+
+		private static IntPtr selSetPurgeableState = Selector("setPurgeableState:");
+		private static MTLPurgeableState mtlSetPurgeableState(IntPtr resource, MTLPurgeableState state)
+		{
+			return (MTLPurgeableState) ulong_objc_msgSend(
+				resource,
+				selSetPurgeableState,
+				(ulong) state
+			);
 		}
 
 		#endregion

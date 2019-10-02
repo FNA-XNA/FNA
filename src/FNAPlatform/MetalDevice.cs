@@ -41,6 +41,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
+			public MTLPixelFormat Format;
 			public IntPtr SamplerHandle;
 			public TextureAddressMode WrapS;
 			public TextureAddressMode WrapT;
@@ -52,9 +53,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public MetalTexture(
 				IntPtr handle,
+				SurfaceFormat format,
 				int levelCount
 			) {
 				Handle = handle;
+				Format = XNAToMTL.TextureFormat[(int) format];
 				HasMipmaps = levelCount > 1;
 
 				WrapS = TextureAddressMode.Wrap;
@@ -103,16 +106,64 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
+			public int MultiSampleCount
+			{
+				get;
+				private set;
+			}
+
+			public int Width
+			{
+				get;
+				private set;
+			}
+
+			public int Height
+			{
+				get;
+				private set;
+			}
+
 			public MetalRenderbuffer(
-				IntPtr handle,
+				IntPtr mtlDevice,
+				int width,
+				int height,
 				bool isDepthStencil,
 				SurfaceFormat format,
-				DepthFormat depthFormat
+				DepthFormat depthFormat,
+				int multiSampleCount
 			) {
-				Handle = handle;
+				Width = width;
+				Height = height;
 				IsDepthStencil = isDepthStencil;
 				Format = format;
 				DepthFormat = depthFormat;
+				MultiSampleCount = multiSampleCount;
+
+				// Generate the texture
+				MTLPixelFormat pixelFormat = (
+					isDepthStencil ?
+					XNAToMTL.DepthFormat[(int) depthFormat] :
+					XNAToMTL.TextureFormat[(int) format]
+				);
+				IntPtr desc = mtlMakeTexture2DDescriptor(
+					pixelFormat,
+					(ulong) Width,
+					(ulong) Height,
+					false
+				);
+				mtlSetTextureSampleCount(
+					desc,
+					multiSampleCount
+				);
+				mtlSetTextureUsage(
+					desc,
+					MTLTextureUsage.RenderTarget
+				);
+				Handle = mtlNewTextureWithDescriptor(
+					mtlDevice,
+					desc
+				);
 			}
 		}
 
@@ -124,14 +175,18 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			public IntPtr Handle
 			{
-				get;
-				private set;
+				get
+				{
+					return Handles[handleIndex];
+				}
 			}
 
 			public IntPtr Contents
 			{
-				get;
-				private set;
+				get
+				{
+					return mtlGetBufferContentsPtr(Handle);
+				}
 			}
 
 			public IntPtr BufferSize
@@ -140,13 +195,67 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
+			/* Use a list instead of an array since we
+			 * don't know for sure how many times the
+			 * game will overwrite the vertex buffer
+			 * in a single frame.
+			 *
+			 * -caleb
+			 */
+			public List<IntPtr> Handles
+			{
+				get;
+				private set;
+			}
+
+			public bool HasBeenSetThisFrame
+			{
+				get;
+				set;
+			}
+
+			private IntPtr mtlDevice = IntPtr.Zero;
+			private int handleIndex = -1;
+
 			public MetalBuffer(
-				IntPtr handle,
-				IntPtr bufferSize
+				IntPtr mtlDevice,
+				IntPtr bufferSize,
+				bool dynamic
 			) {
-				Handle = handle;
-				Contents = mtlGetBufferContentsPtr(handle);
+				this.mtlDevice = mtlDevice;
 				BufferSize = bufferSize;
+				Handles = new List<IntPtr>(dynamic ? 4 : 1);
+				NextMTLBuffer();
+			}
+
+			public void NextMTLBuffer()
+			{
+				handleIndex += 1;
+				if (Handles.Count <= handleIndex)
+				{
+					// Allocate new MTLBuffer if needed
+					IntPtr newBuf = mtlNewBufferWithLength(
+						mtlDevice,
+						(uint) BufferSize
+					);
+					Handles.Add(newBuf);
+				}
+			}
+
+			public void ResetToDefaultHandle()
+			{
+				handleIndex = 0;
+				HasBeenSetThisFrame = false;
+			}
+
+			public void Dispose()
+			{
+				foreach (IntPtr handle in Handles)
+				{
+					mtlSetPurgeableState(handle, MTLPurgeableState.Empty);
+					ObjCRelease(handle);
+				}
+				Handles = null;
 			}
 		}
 
@@ -287,8 +396,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Buffer Binding Cache Variables
 
-		private VertexDeclaration ldVertexDeclaration = null;
-		private IntPtr ldPointer = IntPtr.Zero;
+		private List<MetalBuffer> Buffers = new List<MetalBuffer>();
 		private IntPtr ldEffect = IntPtr.Zero;
 		private IntPtr ldTechnique = IntPtr.Zero;
 		private uint ldPass = 0;
@@ -297,7 +405,22 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Render Target Cache Variables
 
+		private enum AttachmentType
+		{
+			None,
+			Backbuffer,
+			Renderbuffer,
+			Texture2D,
+			TextureCubeMapPositiveX,
+			TextureCubeMapNegativeX,
+			TextureCubeMapPositiveY,
+			TextureCubeMapNegativeY,
+			TextureCubeMapPositiveZ,
+			TextureCubeMapNegativeZ
+		}
+
 		private readonly IntPtr[] currentAttachments;
+		private readonly AttachmentType[] currentAttachmentTypes;
 		private readonly MTLPixelFormat[] currentColorFormats;
 		private DepthFormat currentDepthFormat;
 
@@ -325,7 +448,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private ulong currentAttachmentWidth;
 		private ulong currentAttachmentHeight;
 
-		private bool renderPassDirty = false;
+		private bool needNewRenderPass = false;
 		private bool shouldClearColor = false;
 		private bool shouldClearDepth = false;
 		private bool shouldClearStencil = false;
@@ -507,14 +630,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Initialize attachments array
 			currentAttachments = new IntPtr[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 			currentColorFormats = new MTLPixelFormat[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
+			currentAttachmentTypes = new AttachmentType[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 			for (int i = 0; i < currentAttachments.Length; i += 1)
 			{
 				currentAttachments[i] = IntPtr.Zero;
 				currentColorFormats[i] = MTLPixelFormat.Invalid;
+				currentAttachmentTypes[i] = AttachmentType.None;
 			}
 
 			// Force the creation of a render pass
-			renderPassDirty = true;
+			needNewRenderPass = true;
 
 			// Create and setup the faux-backbuffer
 			InitializeFauxBackbuffer(presentationParameters);
@@ -707,25 +832,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			// The cycle begins anew...
 			pool = StartAutoreleasePool();
 			commandBuffer = mtlMakeCommandBuffer(queue);
-			renderPassDirty = true;
+			needNewRenderPass = true;
 			renderCommandEncoder = IntPtr.Zero;
+
+			// Reset all buffers
+			foreach (MetalBuffer buf in Buffers)
+			{
+				buf.ResetToDefaultHandle();
+			}
 
 			// Go back to using the faux-backbuffer
 			ResetAttachments();
-		}
-
-		private void ResetAttachments()
-		{
-			for (int i = 0; i < currentAttachments.Length; i += 1)
-			{
-				currentAttachments[i] = IntPtr.Zero;
-			}
-
-			MetalBackbuffer bb = (Backbuffer as MetalBackbuffer);
-			currentAttachments[0] = bb.ColorBuffer;
-			currentColorFormats[0] = bb.PixelFormat;
-			currentDepthStencilBuffer = bb.DepthStencilBuffer;
-			currentDepthFormat = bb.DepthFormat;
+			BindBackbuffer();
 		}
 
 		private void CopyTextureRegion(
@@ -865,7 +983,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void UpdateRenderPass()
 		{
-			if (!renderPassDirty)
+			if (!needNewRenderPass)
 			{
 				// Nothing to do
 				return;
@@ -880,34 +998,42 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Generate the descriptor
 			IntPtr passDesc = mtlMakeRenderPassDescriptor();
 
-			// Clear color
-			// FIXME: How does this work for multiple bound render targets?
-			IntPtr colorAttachment = mtlGetColorAttachment(passDesc, 0);
-			mtlSetAttachmentTexture(
-				colorAttachment,
-				currentAttachments[0]
-			);
-			if (shouldClearColor)
+			// Bind color attachments
+			for (ulong i = 0; i < (ulong) currentAttachments.Length; i += 1)
 			{
-				mtlSetAttachmentLoadAction(
+				if (currentAttachments[i] == IntPtr.Zero)
+				{
+					continue;
+				}
+
+				IntPtr colorAttachment = mtlGetColorAttachment(passDesc, i);
+				mtlSetAttachmentTexture(
 					colorAttachment,
-					MTLLoadAction.Clear
+					currentAttachments[i]
 				);
-				mtlSetColorAttachmentClearColor(
-					colorAttachment,
-					clearColor.X,
-					clearColor.Y,
-					clearColor.Z,
-					clearColor.W
-				);
-				shouldClearColor = false;
-			}
-			else
-			{
-				mtlSetAttachmentLoadAction(
-					colorAttachment,
-					MTLLoadAction.Load
-				);
+
+				// Clear color
+				if (shouldClearColor)
+				{
+					mtlSetAttachmentLoadAction(
+						colorAttachment,
+						MTLLoadAction.Clear
+					);
+					mtlSetColorAttachmentClearColor(
+						colorAttachment,
+						clearColor.X,
+						clearColor.Y,
+						clearColor.Z,
+						clearColor.W
+					);
+				}
+				else
+				{
+					mtlSetAttachmentLoadAction(
+						colorAttachment,
+						MTLLoadAction.Load
+					);
+				}
 			}
 
 			// Clear depth
@@ -926,7 +1052,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					depthAttachment,
 					clearDepth
 				);
-				shouldClearDepth = false;
 			}
 			else
 			{
@@ -954,7 +1079,6 @@ namespace Microsoft.Xna.Framework.Graphics
 						stencilAttachment,
 						clearStencil
 					);
-					shouldClearStencil = false;
 				}
 				else
 				{
@@ -966,7 +1090,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Get attachment size
-			// FIXME: Is this right...?
+			// FIXME: Need to test this with multiple bound render targets. -caleb
 			currentAttachmentWidth = mtlGetTextureWidth(currentAttachments[0]);
 			currentAttachmentHeight = mtlGetTextureHeight(currentAttachments[0]);
 
@@ -984,8 +1108,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			SetEncoderFillMode();
 			SetEncoderDepthBias();
 
-			// Reset the flag
-			renderPassDirty = false;
+			// Reset the flags
+			needNewRenderPass = false;
+			shouldClearColor = false;
+			shouldClearDepth = false;
+			shouldClearStencil = false;
 		}
 
 		private void SetEncoderStencilReferenceValue()
@@ -1103,7 +1230,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void AddDisposeIndexBuffer(IGLBuffer buffer)
 		{
-			DeleteIndexBuffer(buffer);
+			DeleteBuffer(buffer);
 		}
 
 		public void AddDisposeQuery(IGLQuery query)
@@ -1123,7 +1250,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void AddDisposeVertexBuffer(IGLBuffer buffer)
 		{
-			DeleteVertexBuffer(buffer);
+			DeleteBuffer(buffer);
 		}
 
 		#endregion
@@ -1385,7 +1512,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			public IntPtr vertexFunction;
 			public IntPtr fragmentFunction;
 			public IntPtr vertexDescriptor;
-			public MTLPixelFormat[] colorFormats;
+			public MTLPixelFormat colorFormat0;
+			public MTLPixelFormat colorFormat1;
+			public MTLPixelFormat colorFormat2;
+			public MTLPixelFormat colorFormat3;
 			public MTLPixelFormat depthFormat;
 			public BlendState blend;
 			public DepthStencilState depthStencil;
@@ -1406,7 +1536,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					currentFragmentShader
 				),
 				vertexDescriptor = currentVertexDescriptor,
-				colorFormats = currentColorFormats,
+				colorFormat0 = currentColorFormats[0],
+				colorFormat1 = currentColorFormats[1],
+				colorFormat2 = currentColorFormats[2],
+				colorFormat3 = currentColorFormats[3],
 				depthFormat = XNAToMTL.DepthFormat[(int) currentDepthFormat],
 				blend = blendState,
 				depthStencil = depthStencilState
@@ -1509,27 +1642,40 @@ namespace Microsoft.Xna.Framework.Graphics
 						(int) blendState.AlphaBlendFunction
 					]
 				);
-				mtlSetAttachmentWriteMask(
-					colorAttachment,
-					(ulong) blendState.ColorWriteChannels
-				);
+
 				/* FIXME: So how exactly do we factor in
 				* COLORWRITEENABLE for buffer 0? Do we just assume that
 				* the default is just buffer 0, and all other calls
 				* update the other write masks?
 				*/
-				mtlSetAttachmentWriteMask(
-					mtlGetColorAttachment(pipelineDesc, 1),
-					(ulong) blendState.ColorWriteChannels1
-				);
-				mtlSetAttachmentWriteMask(
-					mtlGetColorAttachment(pipelineDesc, 2),
-					(ulong) blendState.ColorWriteChannels2
-				);
-				mtlSetAttachmentWriteMask(
-					mtlGetColorAttachment(pipelineDesc, 3),
-					(ulong) blendState.ColorWriteChannels3
-				);
+				if (i == 0)
+				{
+					mtlSetAttachmentWriteMask(
+						colorAttachment,
+						(ulong) blendState.ColorWriteChannels
+					);
+				}
+				else if (i == 1)
+				{
+					mtlSetAttachmentWriteMask(
+						mtlGetColorAttachment(pipelineDesc, 1),
+						(ulong) blendState.ColorWriteChannels1
+					);
+				}
+				else if (i == 2)
+				{
+					mtlSetAttachmentWriteMask(
+						mtlGetColorAttachment(pipelineDesc, 2),
+						(ulong) blendState.ColorWriteChannels2
+					);
+				}
+				else if (i == 3)
+				{
+					mtlSetAttachmentWriteMask(
+						mtlGetColorAttachment(pipelineDesc, 3),
+						(ulong) blendState.ColorWriteChannels3
+					);
+				}
 			}
 
 			// Bake the render pipeline!
@@ -2074,13 +2220,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					bindings,
 					numBindings
 				);
-
-				ldEffect = currentEffect;
-				ldTechnique = currentTechnique;
-				ldPass = currentPass;
-				effectApplied = false;
-				ldVertexDeclaration = null;
-				ldPointer = IntPtr.Zero;
 			}
 
 			// Prepare for rendering
@@ -2112,7 +2251,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region glGenBuffers Methods
+		#region GenBuffers Methods
 
 		public IGLBuffer GenIndexBuffer(
 			bool dynamic,
@@ -2120,13 +2259,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			IndexElementSize indexElementSize
 		) {
 			IntPtr size = (IntPtr) (indexCount * XNAToMTL.IndexSize[(int) indexElementSize]);
-			IntPtr buf = mtlNewBufferWithLength(device, (uint) size);
-			return new MetalBuffer(buf, size);
-
-			/* No need to use memset since the buffer is zero-filled by default.
-			 * Additionally, we have no reason to use the dynamic flag here.
-			 * -caleb
-			 */
+			MetalBuffer newbuf = new MetalBuffer(device, size, dynamic);
+			Buffers.Add(newbuf);
+			return newbuf;
 		}
 
 		public IGLBuffer GenVertexBuffer(
@@ -2135,52 +2270,70 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexStride
 		) {
 			IntPtr size = (IntPtr) (vertexCount * vertexStride);
-			IntPtr buf = mtlNewBufferWithLength(device, (uint) size);
-			return new MetalBuffer(buf, size);
-
-			/* No need to use memset since the buffer is zero-filled by default.
-			 * Additionally, we have no reason to use the dynamic flag here.
-			 * -caleb
-			 */
+			MetalBuffer newbuf = new MetalBuffer(device, size, dynamic);
+			Buffers.Add(newbuf);
+			return newbuf;
 		}
 
 		#endregion
 
 		#region Renderbuffer Methods
 
-		public IGLRenderbuffer GenRenderbuffer(int width, int height, SurfaceFormat format, int multiSampleCount)
-		{
-			throw new NotImplementedException();
+		public IGLRenderbuffer GenRenderbuffer(
+			int width,
+			int height,
+			SurfaceFormat format,
+			int multiSampleCount
+		) {
+			return new MetalRenderbuffer(
+				device,
+				width,
+				height,
+				false,
+				format,
+				DepthFormat.None, // ignored!
+				multiSampleCount
+			);
 		}
 
-		public IGLRenderbuffer GenRenderbuffer(int width, int height, DepthFormat format, int multiSampleCount)
-		{
-			throw new NotImplementedException();
+		public IGLRenderbuffer GenRenderbuffer(
+			int width,
+			int height,
+			DepthFormat format,
+			int multiSampleCount
+		) {
+			return new MetalRenderbuffer(
+				device,
+				width,
+				height,
+				true,
+				0, // ignored!
+				format,
+				multiSampleCount
+			);
 		}
 
 		private void DeleteRenderbuffer(IGLRenderbuffer renderbuffer)
 		{
-			// uint handle = (renderbuffer as OpenGLRenderbuffer).Handle;
+			IntPtr handle = (renderbuffer as MetalRenderbuffer).Handle;
 
-			// // Check color attachments
-			// for (int i = 0; i < currentAttachments.Length; i += 1)
-			// {
-			// 	if (handle == currentAttachments[i])
-			// 	{
-			// 		// Force an attachment update, this no longer exists!
-			// 		currentAttachments[i] = uint.MaxValue;
-			// 	}
-			// }
+			// Check color attachments
+			for (int i = 0; i < currentAttachments.Length; i += 1)
+			{
+				if (handle == currentAttachments[i])
+				{
+					currentAttachments[i] = IntPtr.Zero;
+				}
+			}
 
-			// // Check depth/stencil attachment
-			// if (handle == currentRenderbuffer)
-			// {
-			// 	// Force a renderbuffer update, this no longer exists!
-			// 	currentRenderbuffer = uint.MaxValue;
-			// }
+			// Check depth-stencil attachment
+			if (handle == currentDepthStencilBuffer)
+			{
+				currentDepthStencilBuffer = IntPtr.Zero;
+			}
 
-			// // Finally.
-			// glDeleteRenderbuffers(1, ref handle);
+			// Finally.
+			ObjCRelease(handle);
 		}
 
 		#endregion
@@ -2194,18 +2347,35 @@ namespace Microsoft.Xna.Framework.Graphics
 			int dataLength,
 			SetDataOptions options
 		) {
+			MetalBuffer metalBuffer = (buffer as MetalBuffer);
+
+			/* If a buffer is written to twice in the same frame,
+			 * all drawing will be based on the more recent write.
+			 * To counteract this, we have to generate/fetch new
+			 * MTLBuffers for each overwrite to make sure the data
+			 * is properly stored for the final command submission.
+			 *
+			 * -caleb
+			 */
+			if (metalBuffer.HasBeenSetThisFrame)
+			{
+				metalBuffer.NextMTLBuffer();
+			}
+			metalBuffer.HasBeenSetThisFrame = true;
+
+			// Now we can set the buffer's data
 			if (options == SetDataOptions.Discard)
 			{
 				// Zero out the memory
 				memset(
-					(buffer as MetalBuffer).Contents,
+					metalBuffer.Contents,
 					(IntPtr) 0,
 					buffer.BufferSize
 				);
 			}
 
 			IntPtr dst = IntPtr.Add(
-				(buffer as MetalBuffer).Contents,
+				metalBuffer.Contents,
 				offsetInBytes
 			);
 			memcpy(dst, data, (IntPtr) dataLength);
@@ -2249,34 +2419,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region DeleteBuffer Methods
 
-		private void DeleteVertexBuffer(IGLBuffer buffer)
+		private void DeleteBuffer(IGLBuffer buffer)
 		{
-			// uint handle = (buffer as OpenGLBuffer).Handle;
-			// if (handle == currentVertexBuffer)
-			// {
-			// 	glBindBuffer(GLenum.GL_ARRAY_BUFFER, 0);
-			// 	currentVertexBuffer = 0;
-			// }
-			// for (int i = 0; i < attributes.Length; i += 1)
-			// {
-			// 	if (handle == attributes[i].CurrentBuffer)
-			// 	{
-			// 		// Force the next vertex attrib update!
-			// 		attributes[i].CurrentBuffer = uint.MaxValue;
-			// 	}
-			// }
-			// glDeleteBuffers(1, ref handle);
-		}
-
-		private void DeleteIndexBuffer(IGLBuffer buffer)
-		{
-			// uint handle = (buffer as OpenGLBuffer).Handle;
-			// if (handle == currentIndexBuffer)
-			// {
-			// 	glBindBuffer(GLenum.GL_ELEMENT_ARRAY_BUFFER, 0);
-			// 	currentIndexBuffer = 0;
-			// }
-			// glDeleteBuffers(1, ref handle);
+			Buffers.Remove(buffer as MetalBuffer);
+			(buffer as MetalBuffer).Dispose();
 		}
 
 		#endregion
@@ -2287,7 +2433,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			SurfaceFormat format,
 			int width,
 			int height,
-			int levelCount
+			int levelCount,
+			bool isRenderTarget
 		) {
 			IntPtr texDesc = mtlMakeTexture2DDescriptor(
 				XNAToMTL.TextureFormat[(int) format],
@@ -2295,8 +2442,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				(ulong) height,
 				levelCount > 0
 			);
+			if (isRenderTarget)
+			{
+				mtlSetTextureUsage(
+					texDesc,
+					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+				);
+			}
 			IntPtr tex = mtlNewTextureWithDescriptor(device, texDesc);
-			return new MetalTexture(tex, levelCount);
+			return new MetalTexture(tex, format, levelCount);
 		}
 
 		public IGLTexture CreateTexture3D(SurfaceFormat format, int width, int height, int depth, int levelCount)
@@ -2315,27 +2469,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void DeleteTexture(IGLTexture texture)
 		{
-			// IntPtr handle = (texture as MetalTexture).Handle;
-			// for (int i = 0; i < currentAttachments.Length; i += 1)
-			// {
-			// 	if (handle == currentAttachments[i].Handle)
-			// 	{
-			// 		// Force an attachment update -- this no longer exists!
-			// 		currentAttachments[i] = MetalTexture.NullTexture;
-			// 	}
-			// }
-			// ObjCRelease(handle);
-
-			// uint handle = (texture as OpenGLTexture).Handle;
-			// for (int i = 0; i < currentAttachments.Length; i += 1)
-			// {
-			// 	if (handle == currentAttachments[i])
-			// 	{
-			// 		// Force an attachment update, this no longer exists!
-			// 		currentAttachments[i] = uint.MaxValue;
-			// 	}
-			// }
-			// glDeleteTextures(1, ref handle);
+			IntPtr handle = (texture as MetalTexture).Handle;
+			for (int i = 0; i < currentAttachments.Length; i += 1)
+			{
+				if (handle == currentAttachments[i])
+				{
+					currentAttachments[i] = IntPtr.Zero;
+				}
+			}
+			mtlSetPurgeableState(handle, MTLPurgeableState.Empty);
+			ObjCRelease(handle);
 		}
 
 		#endregion
@@ -2415,7 +2558,75 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void ResolveTarget(RenderTargetBinding target)
 		{
-			throw new NotImplementedException();
+			// FIXME!
+			// if ((target.RenderTarget as IRenderTarget).MultiSampleCount > 0)
+			// {
+			// 	// Set up the texture framebuffer
+			// 	int width, height;
+			// 	if (target.RenderTarget is RenderTarget2D)
+			// 	{
+			// 		Texture2D target2D = (target.RenderTarget as Texture2D);
+			// 		width = target2D.Width;
+			// 		height = target2D.Height;
+			// 		glNamedFramebufferTexture(
+			// 			resolveFramebufferDraw,
+			// 			GLenum.GL_COLOR_ATTACHMENT0,
+			// 			(target.RenderTarget.texture as OpenGLTexture).Handle,
+			// 			0
+			// 		);
+			// 	}
+			// 	else
+			// 	{
+			// 		TextureCube targetCube = (target.RenderTarget as TextureCube);
+			// 		width = targetCube.Size;
+			// 		height = targetCube.Size;
+			// 		glNamedFramebufferTextureLayer(
+			// 			resolveFramebufferDraw,
+			// 			GLenum.GL_COLOR_ATTACHMENT0,
+			// 			(target.RenderTarget.texture as OpenGLTexture).Handle,
+			// 			0,
+			// 			(int) target.CubeMapFace
+			// 		);
+			// 	}
+
+			// 	// Set up the renderbuffer framebuffer
+			// 	glNamedFramebufferRenderbuffer(
+			// 		resolveFramebufferRead,
+			// 		GLenum.GL_COLOR_ATTACHMENT0,
+			// 		GLenum.GL_RENDERBUFFER,
+			// 		((target.RenderTarget as IRenderTarget).ColorBuffer as OpenGLRenderbuffer).Handle
+			// 	);
+
+			// 	// Blit!
+			// 	if (scissorTestEnable)
+			// 	{
+			// 		glDisable(GLenum.GL_SCISSOR_TEST);
+			// 	}
+			// 	glBlitNamedFramebuffer(
+			// 		resolveFramebufferRead,
+			// 		resolveFramebufferDraw,
+			// 		0, 0, width, height,
+			// 		0, 0, width, height,
+			// 		GLenum.GL_COLOR_BUFFER_BIT,
+			// 		GLenum.GL_LINEAR
+			// 	);
+			// 	/* Invalidate the MSAA buffer */
+			// 	glInvalidateNamedFramebufferData(
+			// 		resolveFramebufferRead,
+			// 		attachments.Length + 2,
+			// 		drawBuffersArray
+			// 	);
+			// 	if (scissorTestEnable)
+			// 	{
+			// 		glEnable(GLenum.GL_SCISSOR_TEST);
+			// 	}
+			// }
+
+			//// If the target has mipmaps, regenerate them now
+			//if (target.RenderTarget.LevelCount > 1)
+			//{
+				//glGenerateTextureMipmap((target.RenderTarget.texture as OpenGLTexture).Handle);
+			//}
 		}
 
 		#endregion
@@ -2448,19 +2659,129 @@ namespace Microsoft.Xna.Framework.Graphics
 				shouldClearStencil = true;
 			}
 
-			renderPassDirty |= clearTarget | clearDepth | clearStencil;
+			needNewRenderPass |= clearTarget | clearDepth | clearStencil;
 		}
 
 		#endregion
 
-		#region SetRenderTargets Method
+		#region SetRenderTargets Methods
 
 		public void SetRenderTargets(
 			RenderTargetBinding[] renderTargets,
 			IGLRenderbuffer renderbuffer,
 			DepthFormat depthFormat
 		) {
-			throw new NotImplementedException();
+			/* FIXME:
+			 * Rendering to multiple render targets at once
+			 * is not currently possible due to MojoShader's
+			 * MSL output only containing the [[color(0)]]
+			 * attribute in its Fragment Output structs.
+			 * (See MSL spec Table 5.6.)
+			 * 
+			 * This can be fixed but the output might get
+			 * really ugly... Not that it matters too much.
+			 * 
+			 * -caleb
+			 */
+
+			/* FIXME:
+			 * The uniform buffers for each effect get written to
+			 * multiple times throughout a frame. This means that
+			 * constants get overwritten and whatever is most recent
+			 * "wins". This leads to distortion and various weirdness.
+			 * 
+			 * I need to fix this to work like the vertex buffers do,
+			 * where it's actually using multiple MTLBuffers behind
+			 * the scenes to ensure no data gets lost.
+			 * 
+			 * -caleb
+			 */
+
+			/* FIXME:
+			 * If a Draw() function begins with setting a render target,
+			 * there's a wasted RenderCommandEncoder from before the
+			 * transition takes effect. Could we fix that?
+			 * -caleb
+			 */
+
+			UpdateRenderPass();
+			ResetAttachments();
+
+			// Bind the right framebuffer, if needed
+			if (renderTargets == null)
+			{
+				BindBackbuffer();
+				renderTargetBound = false;
+				return;
+			}
+			else
+			{
+				renderTargetBound = true;
+			}
+
+			// Update color buffers
+			int i;
+			for (i = 0; i < renderTargets.Length; i += 1)
+			{
+				IGLRenderbuffer colorBuffer = (renderTargets[i].RenderTarget as IRenderTarget).ColorBuffer;
+				if (colorBuffer != null)
+				{
+					currentAttachments[i] = (colorBuffer as MetalRenderbuffer).Handle;
+					currentAttachmentTypes[i] = AttachmentType.Renderbuffer;
+					currentColorFormats[i] = XNAToMTL.TextureFormat[
+						(int) (colorBuffer as MetalRenderbuffer).Format
+					];
+				}
+				else
+				{
+					currentAttachments[i] = (renderTargets[i].RenderTarget.texture as MetalTexture).Handle;
+					currentColorFormats[i] = (renderTargets[i].RenderTarget.texture as MetalTexture).Format;
+					if (renderTargets[i].RenderTarget is RenderTarget2D)
+					{
+						currentAttachmentTypes[i] = AttachmentType.Texture2D;
+					}
+					else
+					{
+						currentAttachmentTypes[i] = AttachmentType.TextureCubeMapPositiveX + (int) renderTargets[i].CubeMapFace;
+					}
+				}
+			}
+
+			// Update depth stencil state
+			IntPtr handle;
+			if (renderbuffer == null)
+			{
+				handle = IntPtr.Zero;
+			}
+			else
+			{
+				handle = (renderbuffer as MetalRenderbuffer).Handle;
+			}
+			if (handle != currentDepthStencilBuffer)
+			{
+				currentDepthFormat = depthFormat;
+				currentDepthStencilBuffer = handle;
+			}
+		}
+
+		private void ResetAttachments()
+		{
+			for (int i = 0; i < currentAttachments.Length; i += 1)
+			{
+				currentAttachments[i] = IntPtr.Zero;
+				currentAttachmentTypes[i] = AttachmentType.None;
+				currentColorFormats[i] = MTLPixelFormat.Invalid;
+			}
+		}
+
+		private void BindBackbuffer()
+		{
+			MetalBackbuffer bb = (Backbuffer as MetalBackbuffer);
+			currentAttachments[0] = bb.ColorBuffer;
+			currentColorFormats[0] = bb.PixelFormat;
+			currentAttachmentTypes[0] = AttachmentType.Backbuffer;
+			currentDepthStencilBuffer = bb.DepthStencilBuffer;
+			currentDepthFormat = bb.DepthFormat;
 		}
 
 		#endregion
@@ -2913,7 +3234,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Update color buffer to the new resolution.
 				IntPtr colorBufferDesc = mtlMakeTexture2DDescriptor(
-					mtlGetLayerPixelFormat(mtlDevice.layer),
+					PixelFormat,
 					(uint) Width,
 					(uint) Height,
 					false
@@ -2967,6 +3288,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// This is the default render target
 				mtlDevice.ResetAttachments();
+				mtlDevice.BindBackbuffer();
 			}
 		}
 
