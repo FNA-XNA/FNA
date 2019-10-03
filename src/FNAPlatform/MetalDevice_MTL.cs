@@ -98,6 +98,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong primitiveType, ulong indexCount, ulong indexType, IntPtr indexBuffer, ulong indexBufferOffset);
 
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr pixelBytes, ulong bytesPerRow, MTLRegion region, ulong level);
+
 		// IntPtr
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -1229,6 +1232,24 @@ namespace Microsoft.Xna.Framework.Graphics
 				level,
 				pixelBytes,
 				bytesPerRow
+			);
+		}
+
+		private static IntPtr selGetBytes = Selector("getBytes:bytesPerRow:fromRegion:mipmapLevel:");
+		private static void mtlGetTextureBytes(
+			IntPtr texture,
+			IntPtr pixelBytes,
+			ulong bytesPerRow,
+			MTLRegion region,
+			ulong level
+		) {
+			objc_msgSend(
+				texture,
+				selGetBytes,
+				pixelBytes,
+				bytesPerRow,
+				region,
+				level
 			);
 		}
 

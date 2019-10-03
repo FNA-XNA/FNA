@@ -208,7 +208,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public bool HasBeenSetThisFrame
+			public bool CurrentlyInUse
 			{
 				get;
 				set;
@@ -245,7 +245,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			public void ResetToDefaultHandle()
 			{
 				handleIndex = 0;
-				HasBeenSetThisFrame = false;
+				CurrentlyInUse = false;
 			}
 
 			public void Dispose()
@@ -400,6 +400,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr ldEffect = IntPtr.Zero;
 		private IntPtr ldTechnique = IntPtr.Zero;
 		private uint ldPass = 0;
+
+		private List<VertexBuffer> userVertexBuffers = new List<VertexBuffer>();
+		private List<IndexBuffer> userIndexBuffers = new List<IndexBuffer>();
+		VertexBufferBinding[] userBufferBinding = new VertexBufferBinding[1];
+		VertexDeclaration userVertexDeclaration;
+		IntPtr userVertexPtr;
 
 		#endregion
 
@@ -874,11 +880,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			renderCommandEncoder = IntPtr.Zero;
 
 			// Reset all buffers
-			foreach (MetalBuffer buf in Buffers)
-			{
-				buf.ResetToDefaultHandle();
-			}
-			MojoShader.MOJOSHADER_mtlResetUniformBuffers();
+			// foreach (MetalBuffer buf in Buffers)
+			// {
+			// 	buf.ResetToDefaultHandle();
+			// }
+			// MojoShader.MOJOSHADER_mtlResetUniformBuffers();
 
 			// Go back to using the faux-backbuffer
 			ResetAttachments();
@@ -1374,8 +1380,56 @@ namespace Microsoft.Xna.Framework.Graphics
 			IndexElementSize indexElementSize,
 			int primitiveCount
 		) {
-			FNALoggerEXT.LogError("Client-side arrays are not allowed in Metal.");
-			throw new NotSupportedException();
+			int stride = userVertexDeclaration.VertexStride;
+			int vbufLength = stride * numVertices;
+			int idxsize = XNAToMTL.IndexSize[(int) indexElementSize];
+			int idxbufLength = idxsize * numVertices;
+
+			// Get a temp buffer and set the vertex attributes
+			VertexBuffer vertbuf = FetchUserVertexBuffer(
+				userVertexDeclaration,
+				vbufLength,
+				(ulong) numVertices
+			);
+			userBufferBinding[0] = new VertexBufferBinding(vertbuf);
+			ApplyVertexAttributes(userBufferBinding, 1, true, 0);
+
+			// Copy the vertex contents into the buffer
+			SetVertexBufferData(
+				vertbuf.buffer,
+				0, // FIXME: Not sure about this. -caleb
+				userVertexPtr + (vertexOffset * stride),
+				vbufLength,
+				SetDataOptions.Discard
+			);
+
+			// Copy index data into buffer
+			IndexBuffer idxbuf = FetchUserIndexBuffer(
+				userVertexDeclaration.GraphicsDevice,
+				indexElementSize,
+				numVertices,
+				idxbufLength
+			);
+			SetIndexBufferData(
+				idxbuf.buffer,
+				0,
+				indexData + (indexOffset * idxsize),
+				idxbufLength,
+				SetDataOptions.Discard
+			);
+
+			// Draw!
+			mtlDrawIndexedPrimitives(
+				renderCommandEncoder,
+				XNAToMTL.Primitive[(int) primitiveType],
+				(ulong) numVertices,
+				XNAToMTL.IndexType[(int) indexElementSize],
+				(idxbuf.buffer as MetalBuffer).Handle,
+				0,
+				1,
+				vertexOffset,
+				0
+			);
 		}
 
 		public void DrawUserPrimitives(
@@ -1384,8 +1438,38 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexOffset,
 			int primitiveCount
 		) {
-			FNALoggerEXT.LogError("Client-side arrays are not allowed in Metal.");
-			throw new NotSupportedException();
+			ulong numVerts = XNAToMTL.PrimitiveVerts(
+				primitiveType,
+				primitiveCount
+			);
+			int stride = userVertexDeclaration.VertexStride;
+			int size = stride * (int) numVerts;
+
+			// Get a temp buffer and set the vertex attributes
+			VertexBuffer buf = FetchUserVertexBuffer(
+				userVertexDeclaration,
+				size,
+				numVerts
+			);
+			userBufferBinding[0] = new VertexBufferBinding(buf);
+			ApplyVertexAttributes(userBufferBinding, 1, true, 0);
+
+			// Copy the pointer contents into the buffer
+			SetVertexBufferData(
+				buf.buffer,
+				0, // FIXME: Not sure about this. -caleb
+				userVertexPtr + (vertexOffset * stride),
+				size,
+				SetDataOptions.Discard
+			);
+
+			// Draw!
+			mtlDrawPrimitives(
+				renderCommandEncoder,
+				XNAToMTL.Primitive[(int) primitiveType],
+				(ulong) vertexOffset,
+				numVerts
+			);
 		}
 
 		#endregion
@@ -2008,6 +2092,57 @@ namespace Microsoft.Xna.Framework.Graphics
 			return descriptor;
 		}
 
+		private VertexBuffer FetchUserVertexBuffer(
+			VertexDeclaration declaration,
+			int size,
+			ulong vertexCount
+		) {
+			// Do we already have a buffer cached?
+			foreach (VertexBuffer userBuffer in userVertexBuffers)
+			{
+				if ((int) userBuffer.buffer.BufferSize >= size)
+				{
+					return userBuffer;
+				}
+			}
+
+			// Make a new vertex buffer
+			VertexBuffer newBuf = new VertexBuffer(
+				declaration.GraphicsDevice,
+				declaration,
+				(int) vertexCount,
+				BufferUsage.None
+			);
+			userVertexBuffers.Add(newBuf);
+			return newBuf;
+		}
+
+		private IndexBuffer FetchUserIndexBuffer(
+			GraphicsDevice graphicsDevice,
+			IndexElementSize indexElementSize,
+			int numIndices,
+			int size
+		) {
+			// Do we already have a buffer cached?
+			foreach (IndexBuffer userBuffer in userIndexBuffers)
+			{
+				if ((int) userBuffer.buffer.BufferSize >= size)
+				{
+					return userBuffer;
+				}
+			}
+
+			// Make a new index buffer
+			IndexBuffer newBuf = new IndexBuffer(
+				graphicsDevice,
+				indexElementSize,
+				numIndices,
+				BufferUsage.None
+			);
+			userIndexBuffers.Add(newBuf);
+			return newBuf;
+		}
+
 		#endregion
 
 		#region Effect Methods
@@ -2284,8 +2419,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr ptr,
 			int vertexOffset
 		) {
-			FNALoggerEXT.LogError("Client-side arrays are not allowed in Metal.");
-			throw new NotSupportedException();
+			userVertexDeclaration = vertexDeclaration;
+			userVertexPtr = ptr;
+			// The rest of the work happens in DrawUser[Indexed]Primitives.
 		}
 
 		#endregion
@@ -2396,11 +2532,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			 *
 			 * -caleb
 			 */
-			if (metalBuffer.HasBeenSetThisFrame)
+			if (metalBuffer.CurrentlyInUse)
 			{
 				metalBuffer.NextMTLBuffer();
 			}
-			metalBuffer.HasBeenSetThisFrame = true;
+			metalBuffer.CurrentlyInUse = true;
 
 			// Now we can set the buffer's data
 			if (options == SetDataOptions.Discard)
@@ -2535,6 +2671,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			int dataLength
 		) {
+			ulong stride = (ulong) (dataLength / h);
+			if (	format == SurfaceFormat.Dxt1 ||
+				format == SurfaceFormat.Dxt3 ||
+				format == SurfaceFormat.Dxt5	)
+			{
+				stride *= (ulong) Texture.GetFormatSize(format) / 4;
+			}
+
 			MTLRegion region = new MTLRegion(
 				new MTLOrigin((ulong) x, (ulong) y, 0),
 				new MTLSize((ulong) w, (ulong) h, 1)
@@ -2544,7 +2688,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				region,
 				(ulong) level,
 				data,
-				(ulong) (dataLength / h)
+				stride
 			);
 		}
 
@@ -2567,9 +2711,46 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region GetTextureData Methods
 
-		public void GetTextureData2D(IGLTexture texture, SurfaceFormat format, int width, int height, int level, int subX, int subY, int subW, int subH, IntPtr data, int startIndex, int elementCount, int elementSizeInBytes)
-		{
-			throw new NotImplementedException();
+		public void GetTextureData2D(
+			IGLTexture texture,
+			SurfaceFormat format,
+			int width,
+			int height,
+			int level,
+			int subX,
+			int subY,
+			int subW,
+			int subH,
+			IntPtr data,
+			int startIndex,
+			int elementCount,
+			int elementSizeInBytes
+		) {
+			if (	format == SurfaceFormat.Dxt1 ||
+				format == SurfaceFormat.Dxt3 ||
+				format == SurfaceFormat.Dxt5	)
+			{
+				throw new NotImplementedException("GetData, CompressedTexture");
+			}
+
+			mtlGetTextureBytes(
+				(texture as MetalTexture).Handle,
+				data,
+				(ulong) (subW * elementSizeInBytes * Texture.GetFormatSize(format)),
+				new MTLRegion(
+					new MTLOrigin(
+						(ulong) subX,
+						(ulong) subY,
+						0
+					),
+					new MTLSize(
+						(ulong) subW,
+						(ulong) subH,
+						1
+					)
+				),
+				(ulong) level
+			);
 		}
 
 		public void GetTextureData3D(IGLTexture texture, SurfaceFormat format, int left, int top, int front, int right, int bottom, int back, int level, IntPtr data, int startIndex, int elementCount, int elementSizeInBytes)
