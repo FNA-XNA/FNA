@@ -36,12 +36,12 @@ namespace Microsoft.Xna.Framework
 		) == "1";
 
 		private static bool SupportsGlobalMouse;
+		private static string ForcedGLDevice;
 
 		// For iOS high dpi support
 		private static int RetinaWidth;
 		private static int RetinaHeight;
 
-		private static string ForcedGLDevice;
 		private static IntPtr MetalView;
 
 		#endregion
@@ -204,7 +204,7 @@ namespace Microsoft.Xna.Framework
 
 		private static bool PrepareMTLAttributes()
 		{
-			// FIXME: Apple devices should default to Metal once it works
+			// FIXME: Apple devices should default to Metal!
 			if (	String.IsNullOrEmpty(ForcedGLDevice) ||
 				!ForcedGLDevice.Equals("MetalDevice")	)
 			{
@@ -367,7 +367,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal = PrepareMTLAttributes())
 			{
-				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_METAL;
+				// FIXME: SDL doesn't have a METAL window flag. What to do here?
 			}
 			else if (opengl = PrepareGLAttributes())
 			{
@@ -426,7 +426,8 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal)
 			{
-				SDL.SDL_Metal_GetDrawableSize(window, out drawX, out drawY);
+				// FIXME: hack!
+				MetalDevice.FNA_Metal_GetDrawableSize(MetalView, out drawX, out drawY);
 			}
 			else if (opengl)
 			{

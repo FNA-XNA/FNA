@@ -1073,6 +1073,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region CAMetalLayer
 
+		private static IntPtr selLayer = Selector("layer");
+		private static IntPtr mtlGetLayer(IntPtr view)
+		{
+			return intptr_objc_msgSend(view, selLayer);
+		}
+
 		private static IntPtr selSetDevice = Selector("setDevice:");
 		private static void mtlSetLayerDevice(IntPtr layer, IntPtr device)
 		{

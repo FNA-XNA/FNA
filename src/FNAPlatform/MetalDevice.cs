@@ -610,7 +610,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			commandBuffer = mtlMakeCommandBuffer(queue);
 
 			// Get the CAMetalLayer for this view
-			layer = SDL.SDL_Metal_GetLayer(metalView);
+			layer = mtlGetLayer(metalView);
 			mtlSetLayerDevice(layer, device);
 			mtlSetLayerFramebufferOnly(layer, false);
 
@@ -696,6 +696,34 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// FIXME: "release" all retained objects
 			// FIXME: null-ify variables
+		}
+
+		#endregion
+
+		#region GetDrawableSize Methods
+
+		/* FIXME: This should be replaced by its SDL2
+		 * equivalent if/when this patch gets merged:
+		 * https://bugzilla.libsdl.org/show_bug.cgi?id=4796
+		 * -caleb
+		 */
+		public static void FNA_Metal_GetDrawableSize(
+			IntPtr view,
+			out int w,
+			out int h
+		) {
+			IntPtr l = mtlGetLayer(view);
+			GetDrawableSize(l, out w, out h);
+		}
+
+		private static void GetDrawableSize(
+			IntPtr layer,
+			out int w,
+			out int h
+		) {
+			CGSize size = mtlGetDrawableSize(layer);
+			w = (int) size.width;
+			h = (int) size.height;
 		}
 
 		#endregion
@@ -817,8 +845,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				dstX = 0;
 				dstY = 0;
-				SDL.SDL_Metal_GetDrawableSize(
-					overrideWindowHandle,
+				GetDrawableSize(
+					layer,
 					out dstW,
 					out dstH
 				);
@@ -829,8 +857,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				colorBuffer,
 				new Rectangle(srcX, srcY, srcW, srcH),
 				mtlGetTextureFromDrawable(drawable),
-				new Rectangle(dstX, dstY, dstW, dstH),
-				overrideWindowHandle
+				new Rectangle(dstX, dstY, dstW, dstH)
 			);
 
 			// Submit the command buffer for presentation
@@ -862,8 +889,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr srcTex,
 			Rectangle srcRect,
 			IntPtr dstTex,
-			Rectangle dstRect,
-			IntPtr windowHandle
+			Rectangle dstRect
 		) {
 			if (srcRect.Width == 0 || srcRect.Height == 0 || dstRect.Width == 0 || dstRect.Height == 0)
 			{
@@ -929,8 +955,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 					// Scale the coordinates to (-1, 1)
 					int dw, dh;
-					SDL2.SDL.SDL_Metal_GetDrawableSize(
-						windowHandle,
+					GetDrawableSize(
+						layer,
 						out dw,
 						out dh
 					);
