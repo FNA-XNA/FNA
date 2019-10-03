@@ -581,9 +581,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region memset Export
 
-		// FIXME: What is the .NET Standard version of this?
+#if NETSTANDARD2_0
+		// FIXME: This needs testing. -caleb
+		private static unsafe void memset(IntPtr dst, IntPtr value, IntPtr size)
+		{
+			byte* p = (byte*) dst;
+			for (int i = 0; i < (int) size; i += 1)
+			{
+				*(p + i) = (byte) value;
+			}
+		}
+#else
 		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void memset(IntPtr dst, IntPtr value, IntPtr size);
+#endif
 
 		#endregion
 
@@ -840,6 +851,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				buf.ResetToDefaultHandle();
 			}
+			MojoShader.MOJOSHADER_mtlResetUniformBuffers();
 
 			// Go back to using the faux-backbuffer
 			ResetAttachments();
@@ -1868,6 +1880,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			 *	);
 			 *
 			 * What should we do instead?
+			 *
 			 * -caleb
 			 */
 
