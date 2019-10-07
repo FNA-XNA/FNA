@@ -177,7 +177,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				get
 				{
-					return Handles[handleIndex];
+					return internalBuffers[frame];
 				}
 			}
 
@@ -195,27 +195,19 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			/* Use a list instead of an array since we
-			 * don't know for sure how many times the
-			 * game will overwrite the vertex buffer
-			 * in a single frame.
-			 *
-			 * -caleb
-			 */
-			public List<IntPtr> Handles
+			public int InternalOffset
 			{
 				get;
 				private set;
 			}
 
-			public bool CurrentlyInUse
-			{
-				get;
-				set;
-			}
-
 			private IntPtr mtlDevice = IntPtr.Zero;
-			private int handleIndex = -1;
+
+			private const int NUM_FRAMES = 3;
+			private IntPtr[] internalBuffers;
+			private int internalBufferSize = 0;
+			private bool alreadyWritten = false;
+			private int frame = 0;
 
 			public MetalBuffer(
 				IntPtr mtlDevice,
@@ -224,38 +216,107 @@ namespace Microsoft.Xna.Framework.Graphics
 			) {
 				this.mtlDevice = mtlDevice;
 				BufferSize = bufferSize;
-				Handles = new List<IntPtr>(dynamic ? 4 : 1);
-				NextMTLBuffer();
-			}
 
-			public void NextMTLBuffer()
-			{
-				handleIndex += 1;
-				if (Handles.Count <= handleIndex)
+				internalBuffers = new IntPtr[NUM_FRAMES];
+				internalBufferSize = (int) bufferSize * (dynamic ? 4 : 1);
+
+				for (int i = 0; i < NUM_FRAMES; i += 1)
 				{
-					// Allocate new MTLBuffer if needed
-					IntPtr newBuf = mtlNewBufferWithLength(
-						mtlDevice,
-						(uint) BufferSize
-					);
-					Handles.Add(newBuf);
+					CreateBackingBuffer(i);
 				}
 			}
 
-			public void ResetToDefaultHandle()
+			private void CreateBackingBuffer(int f)
 			{
-				handleIndex = 0;
-				CurrentlyInUse = false;
+				IntPtr oldBuffer = internalBuffers[f];
+				IntPtr newBuffer = mtlNewBufferWithLength(
+					mtlDevice,
+					(uint) internalBufferSize
+				);
+				internalBuffers[f] = newBuffer;
+				if (oldBuffer != IntPtr.Zero)
+				{
+					// Copy over data from old buffer
+					memcpy(
+						mtlGetBufferContentsPtr(newBuffer),
+						mtlGetBufferContentsPtr(oldBuffer),
+						(IntPtr) mtlGetBufferLength(oldBuffer)
+					);
+
+					// Free the old buffer
+					ObjCRelease(oldBuffer);
+				}
+			}
+
+			public void PreDraw()
+			{
+				if (!alreadyWritten)
+				{
+					alreadyWritten = true;
+					return;
+				}
+
+				InternalOffset += (int) BufferSize;
+				if (InternalOffset >= (int) mtlGetBufferLength(Handle))
+				{
+					if (InternalOffset >= internalBufferSize)
+					{
+						// Double capacity when we're out of room
+						Console.WriteLine("We need more space! Doubling internal buffer size!");
+						internalBufferSize *= 2;
+					}
+					CreateBackingBuffer(frame);
+				}
+			}
+
+			public void EndOfFrame()
+			{
+				int lastFrame = frame;
+				InternalOffset = 0;
+				frame = (frame + 1) % NUM_FRAMES;
+				alreadyWritten = false;
+
+				// FIXME: We need a dispatch_semaphore for synchronization! -caleb
+
+				// Copy the last frame's contents to the new one
+				CopyContents(
+					lastFrame,
+					frame
+				);
+
+				/* FIXME: Do we have to do this every
+				 * single frame, or should we only
+				 * copy if we absolutely need to?
+				 * -caleb
+				 */
+			}
+
+			private void CopyContents(int srcFrame, int dstFrame)
+			{
+				int dstLen = (int) mtlGetBufferLength(internalBuffers[dstFrame]);
+				if (dstLen < internalBufferSize)
+				{
+					CreateBackingBuffer(dstFrame);
+				}
+				memcpy(
+					mtlGetBufferContentsPtr(internalBuffers[dstFrame]),
+					mtlGetBufferContentsPtr(internalBuffers[srcFrame]),
+					(IntPtr) internalBufferSize
+				);
 			}
 
 			public void Dispose()
 			{
-				foreach (IntPtr handle in Handles)
+				for (int i = 0; i < NUM_FRAMES; i += 1)
 				{
-					mtlSetPurgeableState(handle, MTLPurgeableState.Empty);
-					ObjCRelease(handle);
+					mtlSetPurgeableState(
+						internalBuffers[i],
+						MTLPurgeableState.Empty
+					);
+					ObjCRelease(internalBuffers[i]);
+					internalBuffers[i] = IntPtr.Zero;
 				}
-				Handles = null;
+				internalBuffers = null;
 			}
 		}
 
@@ -561,6 +622,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr currentFragmentShader = IntPtr.Zero;
 		private IntPtr currentVertUniformBuffer = IntPtr.Zero;
 		private IntPtr currentFragUniformBuffer = IntPtr.Zero;
+		private int currentVertUniformOffset = 0;
+		private int currentFragUniformOffset = 0;
 
 		#endregion
 
@@ -880,11 +943,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			renderCommandEncoder = IntPtr.Zero;
 
 			// Reset all buffers
-			// foreach (MetalBuffer buf in Buffers)
-			// {
-			// 	buf.ResetToDefaultHandle();
-			// }
-			// MojoShader.MOJOSHADER_mtlResetUniformBuffers();
+			foreach (MetalBuffer buf in Buffers)
+			{
+				buf.EndOfFrame();
+			}
+			MojoShader.MOJOSHADER_mtlEndFrame();
 
 			// Go back to using the faux-backbuffer
 			ResetAttachments();
@@ -2211,7 +2274,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					out currentVertexShader,
 					out currentFragmentShader,
 					out currentVertUniformBuffer,
-					out currentFragUniformBuffer
+					out currentFragUniformBuffer,
+					out currentVertUniformOffset,
+					out currentFragUniformOffset
 				);
 				currentEffect = IntPtr.Zero;
 				currentTechnique = IntPtr.Zero;
@@ -2220,6 +2285,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				currentFragmentShader = IntPtr.Zero;
 				currentVertUniformBuffer = IntPtr.Zero;
 				currentFragUniformBuffer = IntPtr.Zero;
+				currentVertUniformOffset = 0;
+				currentFragUniformOffset = 0;
 			}
 			MojoShader.MOJOSHADER_mtlDeleteEffect(mtlEffectData);
 			MojoShader.MOJOSHADER_freeEffect(effect.EffectData);
@@ -2259,7 +2326,9 @@ namespace Microsoft.Xna.Framework.Graphics
 						out currentVertexShader,
 						out currentFragmentShader,
 						out currentVertUniformBuffer,
-						out currentFragUniformBuffer
+						out currentFragUniformBuffer,
+						out currentVertUniformOffset,
+						out currentFragUniformOffset
 					);
 					return;
 				}
@@ -2270,7 +2339,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					out currentVertexShader,
 					out currentFragmentShader,
 					out currentVertUniformBuffer,
-					out currentFragUniformBuffer
+					out currentFragUniformBuffer,
+					out currentVertUniformOffset,
+					out currentFragUniformOffset
 				);
 				currentTechnique = technique;
 				currentPass = pass;
@@ -2284,7 +2355,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					out currentVertexShader,
 					out currentFragmentShader,
 					out currentVertUniformBuffer,
-					out currentFragUniformBuffer
+					out currentFragUniformBuffer,
+					out currentVertUniformOffset,
+					out currentFragUniformOffset
 				);
 			}
 			uint whatever;
@@ -2300,7 +2373,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				out currentVertexShader,
 				out currentFragmentShader,
 				out currentVertUniformBuffer,
-				out currentFragUniformBuffer
+				out currentFragUniformBuffer,
+				out currentVertUniformOffset,
+				out currentFragUniformOffset
 			);
 			currentEffect = mtlEffectData;
 			currentTechnique = technique;
@@ -2344,7 +2419,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlSetVertexBuffer(
 					renderCommandEncoder,
 					currentVertUniformBuffer,
-					0,
+					(ulong) currentVertUniformOffset,
 					16 // In MojoShader output it's always 16 for some reason
 				);
 			}
@@ -2353,7 +2428,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlSetFragmentBuffer(
 					renderCommandEncoder,
 					currentFragUniformBuffer,
-					0,
+					(ulong) currentFragUniformOffset,
 					16 // In MojoShader output it's always 16 for some reason
 				);
 			}
@@ -2403,10 +2478,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				VertexBuffer vertexBuffer = bindings[i].VertexBuffer;
 				if (vertexBuffer != null)
 				{
+					int offset = (
+						bindings[i].VertexOffset +
+						(vertexBuffer.buffer as MetalBuffer).InternalOffset
+					);
 					mtlSetVertexBuffer(
 						renderCommandEncoder,
 						(vertexBuffer.buffer as MetalBuffer).Handle,
-						(ulong) bindings[i].VertexOffset,
+						(ulong) offset,
 						(ulong) i
 					);
 				}
@@ -2433,7 +2512,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int indexCount,
 			IndexElementSize indexElementSize
 		) {
-			IntPtr size = (IntPtr) (indexCount * XNAToMTL.IndexSize[(int) indexElementSize]);
+			int elementSize = XNAToMTL.IndexSize[(int) indexElementSize];
+			IntPtr size = (IntPtr) (indexCount * elementSize);
 			MetalBuffer newbuf = new MetalBuffer(device, size, dynamic);
 			Buffers.Add(newbuf);
 			return newbuf;
@@ -2523,37 +2603,29 @@ namespace Microsoft.Xna.Framework.Graphics
 			SetDataOptions options
 		) {
 			MetalBuffer metalBuffer = (buffer as MetalBuffer);
+			metalBuffer.PreDraw();
 
-			/* If a buffer is written to twice in the same frame,
-			 * all drawing will be based on the more recent write.
-			 * To counteract this, we have to generate/fetch new
-			 * MTLBuffers for each overwrite to make sure the data
-			 * is properly stored for the final command submission.
-			 *
-			 * -caleb
-			 */
-			if (metalBuffer.CurrentlyInUse)
-			{
-				metalBuffer.NextMTLBuffer();
-			}
-			metalBuffer.CurrentlyInUse = true;
+			IntPtr dstPtr = (
+				metalBuffer.Contents +
+				(int) metalBuffer.InternalOffset
+			);
 
 			// Now we can set the buffer's data
 			if (options == SetDataOptions.Discard)
 			{
 				// Zero out the memory
 				memset(
-					metalBuffer.Contents,
+					dstPtr,
 					(IntPtr) 0,
 					buffer.BufferSize
 				);
 			}
 
-			IntPtr dst = IntPtr.Add(
-				metalBuffer.Contents,
-				offsetInBytes
+			memcpy(
+				dstPtr + offsetInBytes,
+				data,
+				(IntPtr) dataLength
 			);
-			memcpy(dst, data, (IntPtr) dataLength);
 		}
 
 		public void SetIndexBufferData(

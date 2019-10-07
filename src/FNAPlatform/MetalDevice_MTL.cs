@@ -650,6 +650,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selLength = Selector("length");
+		private static ulong mtlGetBufferLength(IntPtr buffer)
+		{
+			return ulong_objc_msgSend(buffer, selLength);
+		}
+
 		#endregion
 
 		#region MTLCapture
