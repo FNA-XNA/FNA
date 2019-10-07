@@ -2977,19 +2977,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			 */
 
 			/* FIXME:
-			 * The uniform buffers for each effect get written to
-			 * multiple times throughout a frame. This means that
-			 * constants get overwritten and whatever is most recent
-			 * "wins". This leads to distortion and various weirdness.
-			 * 
-			 * I need to fix this to work like the vertex buffers do,
-			 * where it's actually using multiple MTLBuffers behind
-			 * the scenes to ensure no data gets lost.
-			 * 
-			 * -caleb
-			 */
-
-			/* FIXME:
 			 * If a Draw() function begins with setting a render target,
 			 * there's a wasted RenderCommandEncoder from before the
 			 * transition takes effect. Could we fix that?
