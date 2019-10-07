@@ -688,9 +688,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNALoggerEXT.LogInfo("Device Name: " + mtlGetDeviceName(device));
 			FNALoggerEXT.LogInfo("MojoShader Profile: metal");
 
+			/* FIXME: This environment variable still says "OPENGL".
+			 * Should we introduce a METAL equivalent or just use GL?
+			 * For backwards compatibility I'm thinking the latter.
+			 * Its naming can be chalked up to "legacy reasons".
+			 * -caleb
+			 */
 			// Some users might want pixely upscaling...
 			backbufferScaleMode = Environment.GetEnvironmentVariable(
-				"FNA_METAL_BACKBUFFER_SCALE_NEAREST"
+				"FNA_OPENGL_BACKBUFFER_SCALE_NEAREST"
 			) == "1" ? MTLSamplerMinMagFilter.Nearest : MTLSamplerMinMagFilter.Linear;
 
 			// Set device properties
