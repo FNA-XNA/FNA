@@ -63,6 +63,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg1, ulong arg2, ulong arg3);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg1, ulong arg2);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -133,13 +136,17 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, IntPtr arg2, out IntPtr arg3);
 
-		// ulong
+		// Ulong
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern ulong ulong_objc_msgSend(IntPtr receiver, IntPtr selector);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern ulong ulong_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
+
+		// Double
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern double double_objc_msgSend(IntPtr receiver, IntPtr selector);
 
 		// Bool
 
@@ -717,6 +724,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlCommitCommandBuffer(IntPtr commandBuffer)
 		{
 			objc_msgSend(commandBuffer, selCommit);
+		}
+
+		private static IntPtr selWaitUntilCompleted = Selector("waitUntilCompleted");
+		private static void mtlCommandBufferWaitUntilCompleted(IntPtr commandBuffer)
+		{
+			objc_msgSend(commandBuffer, selWaitUntilCompleted);
 		}
 
 		#endregion
@@ -1398,6 +1411,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSetVertexBufferOffset = Selector("setVertexBufferOffset:atIndex:");
+		private static void mtlSetVertexBufferOffset(
+			IntPtr renderCommandEncoder,
+			ulong offset,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetVertexBufferOffset,
+				offset,
+				index
+			);
+		}
+
 		private static IntPtr selSetFragmentBuffer = Selector("setFragmentBuffer:offset:atIndex:");
 		private static void mtlSetFragmentBuffer(
 			IntPtr renderCommandEncoder,
@@ -1409,6 +1436,20 @@ namespace Microsoft.Xna.Framework.Graphics
 				renderCommandEncoder,
 				selSetFragmentBuffer,
 				fragmentBuffer,
+				offset,
+				index
+			);
+		}
+
+		private static IntPtr selSetFragmentBufferOffset = Selector("setFragmentBufferOffset:atIndex:");
+		private static void mtlSetFragmentBufferOffset(
+			IntPtr renderCommandEncoder,
+			ulong offset,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetFragmentBufferOffset,
 				offset,
 				index
 			);

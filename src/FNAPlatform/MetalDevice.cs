@@ -201,13 +201,23 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			private IntPtr mtlDevice = IntPtr.Zero;
+			// Identifies this logical MetalBuffer, not the backing buffer
+			public int ID
+			{
+				get;
+				private set;
+			}
 
+			private IntPtr mtlDevice = IntPtr.Zero;
 			private const int NUM_FRAMES = 3;
 			private IntPtr[] internalBuffers;
 			private int internalBufferSize = 0;
 			private bool alreadyWritten = false;
 			private int frame = 0;
+			private int copiesNeeded = 0;
+			private bool dynamic = false;
+
+			private static int id = 0;
 
 			public MetalBuffer(
 				IntPtr mtlDevice,
@@ -216,9 +226,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			) {
 				this.mtlDevice = mtlDevice;
 				BufferSize = bufferSize;
+				this.dynamic = dynamic;
+
+				ID = id++;
 
 				internalBuffers = new IntPtr[NUM_FRAMES];
-				internalBufferSize = (int) bufferSize * (dynamic ? 4 : 1);
+				internalBufferSize = (
+					(int) bufferSize *
+					(dynamic ? 4 : 1)
+				);
 
 				for (int i = 0; i < NUM_FRAMES; i += 1)
 				{
@@ -248,8 +264,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
-			public void PreDraw()
+			public void PrepareForSetData()
 			{
+				if (!dynamic)
+				{
+					copiesNeeded = NUM_FRAMES - 1;
+				}
+
 				if (!alreadyWritten)
 				{
 					alreadyWritten = true;
@@ -276,19 +297,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				frame = (frame + 1) % NUM_FRAMES;
 				alreadyWritten = false;
 
-				// FIXME: We need a dispatch_semaphore for synchronization! -caleb
-
-				// Copy the last frame's contents to the new one
-				CopyContents(
-					lastFrame,
-					frame
-				);
-
-				/* FIXME: Do we have to do this every
-				 * single frame, or should we only
-				 * copy if we absolutely need to?
-				 * -caleb
-				 */
+				if (copiesNeeded > 0)
+				{
+					Console.WriteLine("Copy " + Handle);
+					// Copy the last frame's contents to the new one
+					CopyContents(
+						lastFrame,
+						frame
+					);
+					copiesNeeded -= 1;
+				}
 			}
 
 			private void CopyContents(int srcFrame, int dstFrame)
@@ -452,6 +470,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Sampler State Variables
 
 		private MetalTexture[] Textures;
+		private bool[] textureNeedsUpdate;
+		private bool[] samplerNeedsUpdate;
 
 		#endregion
 
@@ -464,9 +484,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private List<VertexBuffer> userVertexBuffers = new List<VertexBuffer>();
 		private List<IndexBuffer> userIndexBuffers = new List<IndexBuffer>();
-		VertexBufferBinding[] userBufferBinding = new VertexBufferBinding[1];
-		VertexDeclaration userVertexDeclaration;
-		IntPtr userVertexPtr;
+		private VertexBufferBinding[] userBufferBinding = new VertexBufferBinding[1];
+		private VertexDeclaration userVertexDeclaration;
+		private IntPtr userVertexPtr;
 
 		#endregion
 
@@ -519,6 +539,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private bool shouldClearColor = false;
 		private bool shouldClearDepth = false;
 		private bool shouldClearStencil = false;
+
+		private Queue<IntPtr> submittedCommandBuffers;
 
 		#endregion
 
@@ -587,14 +609,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		private Dictionary<long, IntPtr> VertexDescriptorCache =
 			new Dictionary<long, IntPtr>();
 
-		private Dictionary<PipelineState, IntPtr> PipelineStateCache =
-			new Dictionary<PipelineState, IntPtr>();
+		private Dictionary<int, IntPtr> PipelineStateCache =
+			new Dictionary<int, IntPtr>();
 
-		private Dictionary<DepthStencilState, IntPtr> DepthStencilStateCache =
-			new Dictionary<DepthStencilState, IntPtr>();
+		private Dictionary<StateHash, IntPtr> DepthStencilStateCache =
+			new Dictionary<StateHash, IntPtr>();
 
-		private Dictionary<SamplerState, IntPtr> SamplerStateCache =
-			new Dictionary<SamplerState, IntPtr>();
+		private Dictionary<StateHash, IntPtr> SamplerStateCache =
+			new Dictionary<StateHash, IntPtr>();
 
 		#endregion
 
@@ -603,9 +625,23 @@ namespace Microsoft.Xna.Framework.Graphics
 		private BlendState blendState;
 		private DepthStencilState depthStencilState;
 
+		private IntPtr ldDepthStencilState = IntPtr.Zero;
+		private IntPtr ldPipelineState = IntPtr.Zero;
+
 		#endregion
 
-		#region Private Vertex Attribute Cache
+		#region Private Buffer Binding Cache
+
+		private const int MAX_BOUND_VERTEX_BUFFERS = 16;
+
+		private IntPtr ldVertUniformBuffer = IntPtr.Zero;
+		private IntPtr ldFragUniformBuffer = IntPtr.Zero;
+		private int ldVertUniformOffset = 0;
+		private int ldFragUniformOffset = 0;
+
+		private IntPtr[] ldVertexBuffers;
+		private int[] ldVertexBufferOffsets;
+
 		#endregion
 
 		#region Private MojoShader Interop
@@ -681,7 +717,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Get the CAMetalLayer for this view
 			layer = mtlGetLayer(metalView);
 			mtlSetLayerDevice(layer, device);
-			mtlSetLayerFramebufferOnly(layer, false);
+			mtlSetLayerFramebufferOnly(layer, true);
 
 			// Log GLDevice info
 			FNALoggerEXT.LogInfo("IGLDevice: MetalDevice");
@@ -712,6 +748,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				Textures[i] = MetalTexture.NullTexture;
 			}
+			textureNeedsUpdate = new bool[MaxTextureSlots];
+			samplerNeedsUpdate = new bool[MaxTextureSlots];
 
 			// Initialize attachments array
 			currentAttachments = new IntPtr[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
@@ -724,8 +762,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				currentAttachmentTypes[i] = AttachmentType.None;
 			}
 
-			// Force the creation of a render pass
-			needNewRenderPass = true;
+			// Initialize vertex buffer cache
+			ldVertexBuffers = new IntPtr[MAX_BOUND_VERTEX_BUFFERS];
+			ldVertexBufferOffsets = new int[MAX_BOUND_VERTEX_BUFFERS];
+
+			// Initialize submitted command buffer synchronization queue
+			submittedCommandBuffers = new Queue<IntPtr>(3);
 
 			// Create and setup the faux-backbuffer
 			InitializeFauxBackbuffer(presentationParameters);
@@ -939,8 +981,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlPresentDrawable(commandBuffer, drawable);
 			mtlCommitCommandBuffer(commandBuffer);
 
+			// Put it in the queue so we can track it
+			submittedCommandBuffers.Enqueue(commandBuffer);
+			ObjCRetain(commandBuffer);
+
 			// Release allocations from this frame
 			DrainAutoreleasePool(pool);
+
+			// Wait until we can submit another command buffer
+			if (submittedCommandBuffers.Count == 3)
+			{
+				IntPtr cmdbuf = submittedCommandBuffers.Dequeue();
+				mtlCommandBufferWaitUntilCompleted(cmdbuf);
+				ObjCRelease(cmdbuf);
+			}
 
 			// The cycle begins anew...
 			pool = StartAutoreleasePool();
@@ -949,9 +1003,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			renderCommandEncoder = IntPtr.Zero;
 
 			// Reset all buffers
-			foreach (MetalBuffer buf in Buffers)
+			for (int i = 0; i < Buffers.Count; i += 1)
 			{
-				buf.EndOfFrame();
+				Buffers[i].EndOfFrame();
 			}
 			MojoShader.MOJOSHADER_mtlEndFrame();
 
@@ -966,7 +1020,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr dstTex,
 			Rectangle dstRect
 		) {
-			if (srcRect.Width == 0 || srcRect.Height == 0 || dstRect.Width == 0 || dstRect.Height == 0)
+			if (	srcRect.Width == 0 ||
+				srcRect.Height == 0 ||
+				dstRect.Width == 0 ||
+				dstRect.Height == 0	)
 			{
 				// FIXME: OpenGL lets this slide, but what does XNA do here?
 				throw new InvalidOperationException(
@@ -974,120 +1031,93 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			// Can we just blit?
-			if (srcRect.Width == dstRect.Width && srcRect.Height == dstRect.Height)
+			/* Metal doesn't have a way to blit to a destination rect,
+			 * so we get to render it ourselves instead. Yayyy...
+			 * -caleb
+			 */
+
+			IntPtr backbufferRenderPass = mtlMakeRenderPassDescriptor();
+			mtlSetAttachmentTexture(
+				mtlGetColorAttachment(backbufferRenderPass, 0),
+				dstTex
+			);
+
+			IntPtr rce = mtlMakeRenderCommandEncoder(
+				commandBuffer,
+				backbufferRenderPass
+			);
+			mtlSetRenderPipelineState(
+				rce,
+				fauxBackbufferRenderPipeline
+			);
+
+			// Update cached vertex buffer if needed
+			if (fauxBackbufferDestBounds != dstRect || fauxBackbufferSizeChanged)
 			{
-				IntPtr bce = mtlMakeBlitCommandEncoder(commandBuffer);
-				mtlBlitTextureToTexture(
-					bce,
-					srcTex,
-					0,
-					0,
-					new MTLOrigin(
-						(ulong) srcRect.X,
-						(ulong) srcRect.Y,
-						0
-					),
-					new MTLSize(
-						(ulong) srcRect.Width,
-						(ulong) srcRect.Height,
-						1
-					),
-					dstTex,
-					0,
-					0,
-					new MTLOrigin((ulong) dstRect.X, (ulong) dstRect.Y, 0)
-				);
-				mtlEndEncoding(bce);
-			}
-			else
-			{
-				/* Metal doesn't have a way to blit to a destination rect,
-				 * so we get to render it ourselves instead. Yayyy...
-				 * -caleb
-				 */
+				fauxBackbufferDestBounds = dstRect;
+				fauxBackbufferSizeChanged = false;
 
-				IntPtr backbufferRenderPass = mtlMakeRenderPassDescriptor();
-				mtlSetAttachmentTexture(
-					mtlGetColorAttachment(backbufferRenderPass, 0),
-					dstTex
+				// Scale the coordinates to (-1, 1)
+				int dw, dh;
+				GetDrawableSize(
+					layer,
+					out dw,
+					out dh
 				);
+				float sx = -1 + (dstRect.X / (float) dw);
+				float sy = -1 + (dstRect.Y / (float) dh);
+				float sw = (dstRect.Width / (float) dw) * 2;
+				float sh = (dstRect.Height / (float) dh) * 2;
 
-				IntPtr rce = mtlMakeRenderCommandEncoder(
-					commandBuffer,
-					backbufferRenderPass
-				);
-				mtlSetRenderPipelineState(
-					rce,
-					fauxBackbufferRenderPipeline
-				);
-
-				// Update cached vertex buffer if needed
-				if (fauxBackbufferDestBounds != dstRect || fauxBackbufferSizeChanged)
+				// Update the vertex buffer contents
+				float[] data = new float[]
 				{
-					fauxBackbufferDestBounds = dstRect;
-					fauxBackbufferSizeChanged = false;
-
-					// Scale the coordinates to (-1, 1)
-					int dw, dh;
-					GetDrawableSize(
-						layer,
-						out dw,
-						out dh
-					);
-					float sx = -1 + (dstRect.X / (float) dw);
-					float sy = -1 + (dstRect.Y / (float) dh);
-					float sw = (dstRect.Width / (float) dw) * 2;
-					float sh = (dstRect.Height / (float) dh) * 2;
-
-					// Update the vertex buffer contents
-					float[] data = new float[]
-					{
-						sx, sy,			0, 0,
-						sx + sw, sy,		1, 0,
-						sx + sw, sy + sh,	1, 1,
-						sx, sy + sh,		0, 1
-					};
-					memcpy(
-						mtlGetBufferContentsPtr(fauxBackbufferVertexBuffer),
-						Marshal.UnsafeAddrOfPinnedArrayElement(data, 0),
-						(IntPtr) (16 * sizeof(float))
-					);
-				}
-
-				mtlSetVertexBuffer(
-					rce,
-					fauxBackbufferVertexBuffer,
-					0,
-					0
+					sx, sy,			0, 0,
+					sx + sw, sy,		1, 0,
+					sx + sw, sy + sh,	1, 1,
+					sx, sy + sh,		0, 1
+				};
+				GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+				memcpy(
+					mtlGetBufferContentsPtr(fauxBackbufferVertexBuffer),
+					handle.AddrOfPinnedObject(),
+					(IntPtr) (16 * sizeof(float))
 				);
-
-				mtlSetFragmentTexture(
-					rce,
-					srcTex,
-					0
-				);
-
-				mtlSetFragmentSamplerState(
-					rce,
-					fauxBackbufferSamplerState,
-					0
-				);
-
-				mtlDrawIndexedPrimitives(
-					rce,
-					MTLPrimitiveType.Triangle,
-					6,
-					MTLIndexType.UInt16,
-					fauxBackbufferIndexBuffer,
-					0,
-					1,
-					0,
-					0
-				);
-
-				mtlEndEncoding(rce);
+				handle.Free();
 			}
+
+			mtlSetVertexBuffer(
+				rce,
+				fauxBackbufferVertexBuffer,
+				0,
+				0
+			);
+
+			mtlSetFragmentTexture(
+				rce,
+				srcTex,
+				0
+			);
+
+			mtlSetFragmentSamplerState(
+				rce,
+				fauxBackbufferSamplerState,
+				0
+			);
+
+			mtlDrawIndexedPrimitives(
+				rce,
+				MTLPrimitiveType.Triangle,
+				6,
+				MTLIndexType.UInt16,
+				fauxBackbufferIndexBuffer,
+				0,
+				1,
+				0,
+				0
+			);
+
+			mtlEndEncoding(rce);
 		}
 
 		#endregion
@@ -1226,6 +1256,27 @@ namespace Microsoft.Xna.Framework.Graphics
 			shouldClearColor = false;
 			shouldClearDepth = false;
 			shouldClearStencil = false;
+
+			// Reset the bindings
+			for (int i = 0; i < MaxTextureSlots; i += 1)
+			{
+				if (Textures[i] != MetalTexture.NullTexture)
+				{
+					textureNeedsUpdate[i] = true;
+					samplerNeedsUpdate[i] = true;
+				}
+			}
+			ldDepthStencilState = IntPtr.Zero;
+			ldFragUniformBuffer = IntPtr.Zero;
+			ldFragUniformOffset = 0;
+			ldVertUniformBuffer = IntPtr.Zero;
+			ldVertUniformOffset = 0;
+			ldPipelineState = IntPtr.Zero;
+			for (int i = 0; i < MAX_BOUND_VERTEX_BUFFERS; i += 1)
+			{
+				ldVertexBuffers[i] = IntPtr.Zero;
+				ldVertexBufferOffsets[i] = 0;
+			}
 		}
 
 		private void SetEncoderStencilReferenceValue()
@@ -1648,6 +1699,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (texture == null)
 			{
 				Textures[index] = MetalTexture.NullTexture;
+				textureNeedsUpdate[index] = true;
+				samplerNeedsUpdate[index] = true;
 				return;
 			}
 
@@ -1666,9 +1719,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Bind the correct texture
-			if (tex != Textures[index])
+			bool sameTexture = (tex == Textures[index]);
+			if (!sameTexture)
 			{
 				Textures[index] = tex;
+				textureNeedsUpdate[index] = true;
 			}
 
 			// Update the texture info
@@ -1679,7 +1734,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			tex.Anisotropy = sampler.MaxAnisotropy;
 			tex.MaxMipmapLevel = sampler.MaxMipLevel;
 			tex.LODBias = sampler.MipMapLevelOfDetailBias;
+
+			IntPtr oldSamplerHandle = tex.SamplerHandle;
 			tex.SamplerHandle = FetchSamplerState(sampler);
+			if (tex.SamplerHandle != oldSamplerHandle)
+			{
+				samplerNeedsUpdate[index] = true;
+			}
 		}
 
 		public void SetBlendState(BlendState blendState)
@@ -1696,67 +1757,60 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region PipelineState Helper Struct
-
-		private struct PipelineState
-		{
-			public IntPtr vertexFunction;
-			public IntPtr fragmentFunction;
-			public IntPtr vertexDescriptor;
-			public MTLPixelFormat colorFormat0;
-			public MTLPixelFormat colorFormat1;
-			public MTLPixelFormat colorFormat2;
-			public MTLPixelFormat colorFormat3;
-			public MTLPixelFormat depthFormat;
-			public BlendState blend;
-			public DepthStencilState depthStencil;
-		}
-
-		#endregion
-
 		#region State Creation/Retrieval Methods
+
+		/* A pipeline state is defined by these things:
+		 *
+		 * Vertex Shader
+		 * Fragment Shader
+		 * Vertex Descriptor
+		 * Color Attachment Formats (0-4)
+		 * Depth-Stencil Attachment Format
+		 * Blend State
+		 * Depth Stencil State
+		 * 
+		 * -caleb
+		 */
 
 		private IntPtr FetchRenderPipeline()
 		{
-			PipelineState state = new PipelineState
-			{
-				vertexFunction = MojoShader.MOJOSHADER_mtlGetFunctionHandle(
-					currentVertexShader
-				),
-				fragmentFunction = MojoShader.MOJOSHADER_mtlGetFunctionHandle(
-					currentFragmentShader
-				),
-				vertexDescriptor = currentVertexDescriptor,
-				colorFormat0 = currentColorFormats[0],
-				colorFormat1 = currentColorFormats[1],
-				colorFormat2 = currentColorFormats[2],
-				colorFormat3 = currentColorFormats[3],
-				depthFormat = XNAToMTL.DepthFormat[(int) currentDepthFormat],
-				blend = blendState,
-				depthStencil = depthStencilState
-			};
-
 			// Can we just reuse an existing pipeline?
+			// FIXME: Find a better way to hash pipeline state.
+			int hash = unchecked(
+				(int) currentVertexShader +
+				(int) currentFragmentShader +
+				(int) currentVertexDescriptor +
+				(int) currentColorFormats[0] +
+				(int) currentColorFormats[1] +
+				(int) currentColorFormats[2] +
+				(int) currentColorFormats[3] +
+				(int) currentDepthFormat +
+
+				// FIXME: Store hashes for structs when blend/depth state gets changed, then use them instead.
+				PipelineCache.GetBlendHash(blendState).GetHashCode() +
+				PipelineCache.GetDepthStencilHash(depthStencilState).GetHashCode()
+			);
 			IntPtr pipeline = IntPtr.Zero;
-			if (PipelineStateCache.TryGetValue(state, out pipeline))
+			if (PipelineStateCache.TryGetValue(hash, out pipeline))
 			{
 				// We have this state already cached!
 				return pipeline;
 			}
 
 			// We'll have to make a new pipeline...
+			Console.WriteLine("NEW PIPELINE!");
 			IntPtr pipelineDesc = mtlNewRenderPipelineDescriptor();
 			mtlSetPipelineVertexFunction(
 				pipelineDesc,
-				state.vertexFunction
+				MojoShader.MOJOSHADER_mtlGetFunctionHandle(currentVertexShader)
 			);
 			mtlSetPipelineFragmentFunction(
 				pipelineDesc,
-				state.fragmentFunction
+				MojoShader.MOJOSHADER_mtlGetFunctionHandle(currentFragmentShader)
 			);
 			mtlSetPipelineVertexDescriptor(
 				pipelineDesc,
-				state.vertexDescriptor
+				currentVertexDescriptor
 			);
 			mtlSetDepthAttachmentPixelFormat(
 				pipelineDesc,
@@ -1874,7 +1928,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				device,
 				pipelineDesc
 			);
-			PipelineStateCache[state] = pipelineState;
+			PipelineStateCache[hash] = pipelineState;
 
 			// Clean up
 			ObjCRelease(pipelineDesc);
@@ -1886,8 +1940,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr FetchDepthStencilState()
 		{
 			// Can we just reuse an existing state?
+			StateHash hash = PipelineCache.GetDepthStencilHash(
+				depthStencilState
+			);
 			IntPtr state = IntPtr.Zero;
-			if (DepthStencilStateCache.TryGetValue(depthStencilState, out state))
+			if (DepthStencilStateCache.TryGetValue(hash, out state))
 			{
 				// This state has already been cached!
 				return state;
@@ -1985,7 +2042,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				device,
 				dsDesc
 			);
-			DepthStencilStateCache[depthStencilState] = state;
+			DepthStencilStateCache[hash] = state;
 
 			// Clean up
 			ObjCRelease(dsDesc);
@@ -1998,8 +2055,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private IntPtr FetchSamplerState(SamplerState samplerState)
 		{
+			// Can we just reuse an existing state?
+			StateHash hash = PipelineCache.GetSamplerHash(samplerState);
 			IntPtr state = IntPtr.Zero;
-			if (SamplerStateCache.TryGetValue(samplerState, out state))
+			if (SamplerStateCache.TryGetValue(hash, out state))
 			{
 				// The value is already cached!
 				return state;
@@ -2068,7 +2127,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				device,
 				samplerDesc
 			);
-			SamplerStateCache[samplerState] = state;
+			SamplerStateCache[hash] = state;
 
 			// Clean up
 			ObjCRelease(samplerDesc);
@@ -2085,7 +2144,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			long hash = 0;
 			for (int i = 0; i < numBindings; i += 1)
 			{
-				hash += (long) bindings[i].GetHashCode();
+				VertexBufferBinding binding = bindings[i];
+				hash += (long) unchecked (
+					(binding.VertexBuffer.buffer as MetalBuffer).ID +
+					binding.InstanceFrequency +
+					binding.VertexOffset
+				);
 			}
 
 			// Try to get the descriptor from the cache
@@ -2407,54 +2471,91 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Bind textures and their sampler states
 			for (int i = 0; i < Textures.Length; i += 1)
 			{
-				mtlSetFragmentTexture(
-					renderCommandEncoder,
-					Textures[i].Handle,
-					(ulong) i
-				);
-				mtlSetFragmentSamplerState(
-					renderCommandEncoder,
-					Textures[i].SamplerHandle,
-					(ulong) i
-				);
+				if (textureNeedsUpdate[i])
+				{
+					mtlSetFragmentTexture(
+						renderCommandEncoder,
+						Textures[i].Handle,
+						(ulong) i
+					);
+					textureNeedsUpdate[i] = false;
+				}
+				if (samplerNeedsUpdate[i])
+				{
+					mtlSetFragmentSamplerState(
+						renderCommandEncoder,
+						Textures[i].SamplerHandle,
+						(ulong) i
+					);
+					samplerNeedsUpdate[i] = false;
+				}
 			}
 
 			// Bind the uniform buffers
-			if (currentVertUniformBuffer != IntPtr.Zero)
+			const int UNIFORM_REG = 16; // In MojoShader output it's always 16
+			if (currentVertUniformBuffer != ldVertUniformBuffer)
 			{
 				mtlSetVertexBuffer(
 					renderCommandEncoder,
 					currentVertUniformBuffer,
 					(ulong) currentVertUniformOffset,
-					16 // In MojoShader output it's always 16 for some reason
+					UNIFORM_REG
 				);
+				ldVertUniformBuffer = currentVertUniformBuffer;
+				ldVertUniformOffset = currentVertUniformOffset;
 			}
-			if (currentFragUniformBuffer != IntPtr.Zero)
+			else if (currentVertUniformOffset != ldVertUniformOffset)
+			{
+				mtlSetVertexBufferOffset(
+					renderCommandEncoder,
+					(ulong) currentVertUniformOffset,
+					UNIFORM_REG
+				);
+				ldVertUniformOffset = currentVertUniformOffset;
+			}
+
+			if (currentFragUniformBuffer != ldFragUniformBuffer)
 			{
 				mtlSetFragmentBuffer(
 					renderCommandEncoder,
 					currentFragUniformBuffer,
 					(ulong) currentFragUniformOffset,
-					16 // In MojoShader output it's always 16 for some reason
+					UNIFORM_REG
 				);
+				ldFragUniformBuffer = currentFragUniformBuffer;
+				ldFragUniformOffset = currentFragUniformOffset;
+			}
+			else if (currentFragUniformOffset != ldFragUniformOffset)
+			{
+				mtlSetFragmentBufferOffset(
+					renderCommandEncoder,
+					(ulong) currentFragUniformOffset,
+					UNIFORM_REG
+				);
+				ldFragUniformOffset = currentFragUniformOffset;
 			}
 
 			// Bind the depth-stencil state
-			if (currentDepthStencilBuffer != IntPtr.Zero)
+			IntPtr depthStencilState = FetchDepthStencilState();
+			if (depthStencilState != ldDepthStencilState)
 			{
-				IntPtr depthStencilState = FetchDepthStencilState();
 				mtlSetDepthStencilState(
 					renderCommandEncoder,
 					depthStencilState
 				);
+				ldDepthStencilState = depthStencilState;
 			}
 
 			// Finally, bind the pipeline state
 			IntPtr pipelineState = FetchRenderPipeline();
-			mtlSetRenderPipelineState(
-				renderCommandEncoder,
-				pipelineState
-			);
+			if (pipelineState != ldPipelineState)
+			{
+				mtlSetRenderPipelineState(
+					renderCommandEncoder,
+					pipelineState
+				);
+				ldPipelineState = pipelineState;
+			}
 		}
 
 		// FIXME: Update to handle overlapping attributes
@@ -2488,12 +2589,28 @@ namespace Microsoft.Xna.Framework.Graphics
 						bindings[i].VertexOffset +
 						(vertexBuffer.buffer as MetalBuffer).InternalOffset
 					);
-					mtlSetVertexBuffer(
-						renderCommandEncoder,
-						(vertexBuffer.buffer as MetalBuffer).Handle,
-						(ulong) offset,
-						(ulong) i
-					);
+					IntPtr handle = (vertexBuffer.buffer as MetalBuffer).Handle;
+
+					if (ldVertexBuffers[i] != handle)
+					{
+						mtlSetVertexBuffer(
+							renderCommandEncoder,
+							handle,
+							(ulong) offset,
+							(ulong) i
+						);
+						ldVertexBuffers[i] = handle;
+						ldVertexBufferOffsets[i] = offset;
+					}
+					else if (ldVertexBufferOffsets[i] != offset)
+					{
+						mtlSetVertexBufferOffset(
+							renderCommandEncoder,
+							(ulong) offset,
+							(ulong) i
+						);
+						ldVertexBufferOffsets[i] = offset;
+					}
 				}
 			}
 			BindResources();
@@ -2609,7 +2726,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			SetDataOptions options
 		) {
 			MetalBuffer metalBuffer = (buffer as MetalBuffer);
-			metalBuffer.PreDraw();
+			metalBuffer.PrepareForSetData();
 
 			IntPtr dstPtr = (
 				metalBuffer.Contents +
@@ -2658,13 +2775,26 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region GetBufferData Methods
 
-		public void GetIndexBufferData(IGLBuffer buffer, int offsetInBytes, IntPtr data, int startIndex, int elementCount, int elementSizeInBytes)
-		{
+		public void GetIndexBufferData(
+			IGLBuffer buffer,
+			int offsetInBytes,
+			IntPtr data,
+			int startIndex,
+			int elementCount,
+			int elementSizeInBytes
+		) {
 			throw new NotImplementedException();
 		}
 
-		public void GetVertexBufferData(IGLBuffer buffer, int offsetInBytes, IntPtr data, int startIndex, int elementCount, int elementSizeInBytes, int vertexStride)
-		{
+		public void GetVertexBufferData(
+			IGLBuffer buffer,
+			int offsetInBytes,
+			IntPtr data,
+			int startIndex,
+			int elementCount,
+			int elementSizeInBytes,
+			int vertexStride
+		) {
 			throw new NotImplementedException();
 		}
 
@@ -2982,14 +3112,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * -caleb
 			 */
 
-			/* FIXME:
-			 * If a Draw() function begins with setting a render target,
-			 * there's a wasted RenderCommandEncoder from before the
-			 * transition takes effect. Could we fix that?
-			 * -caleb
-			 */
-
-			UpdateRenderPass();
+			if (renderCommandEncoder != IntPtr.Zero)
+			{
+				UpdateRenderPass();
+			}
 			ResetAttachments();
 
 			// Bind the right framebuffer, if needed
@@ -2999,10 +3125,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				renderTargetBound = false;
 				return;
 			}
-			else
-			{
-				renderTargetBound = true;
-			}
+			renderTargetBound = true;
 
 			// Update color buffers
 			int i;
