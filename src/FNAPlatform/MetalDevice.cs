@@ -19,6 +19,7 @@ using SDL2;
  * [2] https://developer.apple.com/documentation/metal/mtldevice/1433355-supportstexturesamplecount
  * [3] https://computergraphics.stackexchange.com/questions/5556/how-are-mipmap-levels-computed-in-metal
  * [4] https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-setresourceminlod#remarks
+ * [5] https://www.shawnhargreaves.com/blog/setdataoptions-nooverwrite-versus-discard.html
  */
 
 namespace Microsoft.Xna.Framework.Graphics
@@ -263,7 +264,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
-			// https://www.shawnhargreaves.com/blog/setdataoptions-nooverwrite-versus-discard.html
 			public void SetData(
 				int offsetInBytes,
 				IntPtr data,
