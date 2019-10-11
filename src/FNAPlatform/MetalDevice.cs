@@ -201,15 +201,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			// Identifies this logical MetalBuffer, not the backing buffer
-			public int ID
-			{
-				get;
-				private set;
-			}
-
+			private MetalDevice device;
 			private IntPtr mtlDevice = IntPtr.Zero;
-			private const int NUM_FRAMES = 3;
 			private IntPtr[] internalBuffers;
 			private int internalBufferSize = 0;
 			private bool alreadyWritten = false;
@@ -217,26 +210,32 @@ namespace Microsoft.Xna.Framework.Graphics
 			private int copiesNeeded = 0;
 			private bool dynamic = false;
 
-			private static int id = 0;
-
 			public MetalBuffer(
-				IntPtr mtlDevice,
+				MetalDevice device,
 				IntPtr bufferSize,
 				bool dynamic
 			) {
-				this.mtlDevice = mtlDevice;
+				this.device = device;
+				this.mtlDevice = device.device;
 				BufferSize = bufferSize;
 				this.dynamic = dynamic;
 
-				ID = id++;
-
-				internalBuffers = new IntPtr[NUM_FRAMES];
+				/* Since dynamic buffers will likely be overwritten
+				 * in a single frame, allocate more space up-front.
+				 *
+				 * Note that in the case of a dynamic buffer set with
+				 * SetDataOptions.None (e.g. immediate mode SpriteBatch),
+				 * the bigger this number, the faster the performance
+				 * since there's more batching between CPU stalls.
+				 *
+				 * -caleb
+				 */
 				internalBufferSize = (
 					(int) bufferSize *
-					(dynamic ? 4 : 1)
+					(dynamic ? 8 : 1)
 				);
-
-				for (int i = 0; i < NUM_FRAMES; i += 1)
+				internalBuffers = new IntPtr[device.backingBufferCount];
+				for (int i = 0; i < internalBuffers.Length; i += 1)
 				{
 					CreateBackingBuffer(i);
 				}
@@ -264,29 +263,78 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
-			public void PrepareForSetData()
-			{
-				if (!dynamic)
+			// https://www.shawnhargreaves.com/blog/setdataoptions-nooverwrite-versus-discard.html
+			public void SetData(
+				int offsetInBytes,
+				IntPtr data,
+				int dataLength,
+				SetDataOptions options
+			) {
+				if (options == SetDataOptions.Discard)
 				{
-					copiesNeeded = NUM_FRAMES - 1;
+					HandleOverwrite(dynamic);
+
+					// Zero out the memory
+					memset(
+						Contents + InternalOffset,
+						(IntPtr) 0,
+						BufferSize
+					);
+				}
+				else if (options == SetDataOptions.None)
+				{
+					HandleOverwrite(false);
 				}
 
+				// Copy the data into the buffer
+				memcpy(
+					Contents + InternalOffset + offsetInBytes,
+					data,
+					(IntPtr) dataLength
+				);
+
+				// Set flags for the next SetData or EndOfFrame call
+				if (!dynamic)
+				{
+					copiesNeeded = device.backingBufferCount - 1;
+				}
+				alreadyWritten = true;
+			}
+
+			private void HandleOverwrite(bool shouldExpand)
+			{
 				if (!alreadyWritten)
 				{
-					alreadyWritten = true;
 					return;
 				}
 
 				InternalOffset += (int) BufferSize;
 				if (InternalOffset >= (int) mtlGetBufferLength(Handle))
 				{
-					if (InternalOffset >= internalBufferSize)
+					if (shouldExpand)
 					{
-						// Double capacity when we're out of room
-						Console.WriteLine("We need more space! Doubling internal buffer size!");
-						internalBufferSize *= 2;
+						if (InternalOffset >= internalBufferSize)
+						{
+							// Double capacity when we're out of room
+							Console.WriteLine("We need more space! Doubling internal buffer size!");
+							internalBufferSize *= 2;
+						}
+						CreateBackingBuffer(frame);
 					}
-					CreateBackingBuffer(frame);
+					else
+					{
+						// Stall until we can rewrite this buffer
+						mtlEndEncoding(device.renderCommandEncoder);
+						device.renderCommandEncoder = IntPtr.Zero;
+
+						mtlCommitCommandBuffer(device.commandBuffer);
+						mtlCommandBufferWaitUntilCompleted(device.commandBuffer);
+
+						device.commandBuffer = mtlMakeCommandBuffer(device.queue);
+						device.needNewRenderPass = true;
+						device.UpdateRenderPass();
+						InternalOffset = 0;
+					}
 				}
 			}
 
@@ -294,43 +342,31 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				int lastFrame = frame;
 				InternalOffset = 0;
-				frame = (frame + 1) % NUM_FRAMES;
+				frame = (frame + 1) % device.backingBufferCount;
 				alreadyWritten = false;
 
 				if (copiesNeeded > 0)
 				{
-					Console.WriteLine("Copy " + Handle);
 					// Copy the last frame's contents to the new one
-					CopyContents(
-						lastFrame,
-						frame
+					Console.WriteLine("Copy " + Handle);
+					int dstLen = (int) mtlGetBufferLength(Handle);
+					if (dstLen < internalBufferSize)
+					{
+						CreateBackingBuffer(frame);
+					}
+					memcpy(
+						mtlGetBufferContentsPtr(Handle),
+						mtlGetBufferContentsPtr(internalBuffers[lastFrame]),
+						(IntPtr) internalBufferSize
 					);
 					copiesNeeded -= 1;
 				}
 			}
 
-			private void CopyContents(int srcFrame, int dstFrame)
-			{
-				int dstLen = (int) mtlGetBufferLength(internalBuffers[dstFrame]);
-				if (dstLen < internalBufferSize)
-				{
-					CreateBackingBuffer(dstFrame);
-				}
-				memcpy(
-					mtlGetBufferContentsPtr(internalBuffers[dstFrame]),
-					mtlGetBufferContentsPtr(internalBuffers[srcFrame]),
-					(IntPtr) internalBufferSize
-				);
-			}
-
 			public void Dispose()
 			{
-				for (int i = 0; i < NUM_FRAMES; i += 1)
+				for (int i = 0; i < internalBuffers.Length; i += 1)
 				{
-					mtlSetPurgeableState(
-						internalBuffers[i],
-						MTLPurgeableState.Empty
-					);
 					ObjCRelease(internalBuffers[i]);
 					internalBuffers[i] = IntPtr.Zero;
 				}
@@ -540,6 +576,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private bool shouldClearDepth = false;
 		private bool shouldClearStencil = false;
 
+		private readonly int backingBufferCount = 2;
 		private Queue<IntPtr> submittedCommandBuffers;
 
 		#endregion
@@ -767,7 +804,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			ldVertexBufferOffsets = new int[MAX_BOUND_VERTEX_BUFFERS];
 
 			// Initialize submitted command buffer synchronization queue
-			submittedCommandBuffers = new Queue<IntPtr>(3);
+			submittedCommandBuffers = new Queue<IntPtr>(backingBufferCount);
 
 			// Create and setup the faux-backbuffer
 			InitializeFauxBackbuffer(presentationParameters);
@@ -989,7 +1026,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			DrainAutoreleasePool(pool);
 
 			// Wait until we can submit another command buffer
-			if (submittedCommandBuffers.Count == 3)
+			if (submittedCommandBuffers.Count >= backingBufferCount)
 			{
 				IntPtr cmdbuf = submittedCommandBuffers.Dequeue();
 				mtlCommandBufferWaitUntilCompleted(cmdbuf);
@@ -1775,7 +1812,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr FetchRenderPipeline()
 		{
 			// Can we just reuse an existing pipeline?
-			// FIXME: Find a better way to hash pipeline state.
+			// FIXME: This hash could definitely be improved. -caleb
 			int hash = unchecked(
 				(int) currentVertexShader +
 				(int) currentFragmentShader +
@@ -1785,10 +1822,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				(int) currentColorFormats[2] +
 				(int) currentColorFormats[3] +
 				(int) currentDepthFormat +
-
-				// FIXME: Store hashes for structs when blend/depth state gets changed, then use them instead.
 				PipelineCache.GetBlendHash(blendState).GetHashCode() +
-				PipelineCache.GetDepthStencilHash(depthStencilState).GetHashCode()
+				(int) FetchDepthStencilState()
 			);
 			IntPtr pipeline = IntPtr.Zero;
 			if (PipelineStateCache.TryGetValue(hash, out pipeline))
@@ -1798,7 +1833,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// We'll have to make a new pipeline...
-			Console.WriteLine("NEW PIPELINE!");
 			IntPtr pipelineDesc = mtlNewRenderPipelineDescriptor();
 			mtlSetPipelineVertexFunction(
 				pipelineDesc,
@@ -1939,6 +1973,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private IntPtr FetchDepthStencilState()
 		{
+			// Don't apply a depth state if none was requested.
+			if (currentDepthFormat == DepthFormat.None)
+			{
+				return IntPtr.Zero;
+			}
+
 			// Can we just reuse an existing state?
 			StateHash hash = PipelineCache.GetDepthStencilHash(
 				depthStencilState
@@ -2146,13 +2186,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				VertexBufferBinding binding = bindings[i];
 				hash += (long) unchecked (
-					(binding.VertexBuffer.buffer as MetalBuffer).ID +
-					binding.InstanceFrequency +
-					binding.VertexOffset
+					binding.VertexOffset +
+					binding.VertexBuffer.VertexDeclaration.GetHashCode() +
+					binding.InstanceFrequency
 				);
 			}
 
-			// Try to get the descriptor from the cache
+			// Can we just reuse an existing descriptor?
 			IntPtr descriptor;
 			if (VertexDescriptorCache.TryGetValue(hash, out descriptor))
 			{
@@ -2322,7 +2362,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 #endif
 
-			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(effect, device);
+			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(
+				effect,
+				device,
+				backingBufferCount
+			);
 			if (mtlEffect == IntPtr.Zero)
 			{
 				throw new InvalidOperationException(
@@ -2368,7 +2412,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr mtlEffect = IntPtr.Zero;
 
 			effect = MojoShader.MOJOSHADER_cloneEffect(cloneSource.EffectData);
-			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(effect, device);
+			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(
+				effect,
+				device,
+				backingBufferCount
+			);
 			if (mtlEffect == IntPtr.Zero)
 			{
 				throw new InvalidOperationException(
@@ -2637,7 +2685,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			int elementSize = XNAToMTL.IndexSize[(int) indexElementSize];
 			IntPtr size = (IntPtr) (indexCount * elementSize);
-			MetalBuffer newbuf = new MetalBuffer(device, size, dynamic);
+			MetalBuffer newbuf = new MetalBuffer(this, size, dynamic);
 			Buffers.Add(newbuf);
 			return newbuf;
 		}
@@ -2648,7 +2696,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexStride
 		) {
 			IntPtr size = (IntPtr) (vertexCount * vertexStride);
-			MetalBuffer newbuf = new MetalBuffer(device, size, dynamic);
+			MetalBuffer newbuf = new MetalBuffer(this, size, dynamic);
 			Buffers.Add(newbuf);
 			return newbuf;
 		}
@@ -2718,39 +2766,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region SetBufferData Methods
 
-		private void SetBufferData(
-			IGLBuffer buffer,
-			int offsetInBytes,
-			IntPtr data,
-			int dataLength,
-			SetDataOptions options
-		) {
-			MetalBuffer metalBuffer = (buffer as MetalBuffer);
-			metalBuffer.PrepareForSetData();
-
-			IntPtr dstPtr = (
-				metalBuffer.Contents +
-				(int) metalBuffer.InternalOffset
-			);
-
-			// Now we can set the buffer's data
-			if (options == SetDataOptions.Discard)
-			{
-				// Zero out the memory
-				memset(
-					dstPtr,
-					(IntPtr) 0,
-					buffer.BufferSize
-				);
-			}
-
-			memcpy(
-				dstPtr + offsetInBytes,
-				data,
-				(IntPtr) dataLength
-			);
-		}
-
 		public void SetIndexBufferData(
 			IGLBuffer buffer,
 			int offsetInBytes,
@@ -2758,7 +2773,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			int dataLength,
 			SetDataOptions options
 		) {
-			SetBufferData(buffer, offsetInBytes, data, dataLength, options);
+			(buffer as MetalBuffer).SetData(
+				offsetInBytes,
+				data,
+				dataLength,
+				options
+			);
 		}
 
 		public void SetVertexBufferData(
@@ -2768,7 +2788,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			int dataLength,
 			SetDataOptions options
 		) {
-			SetBufferData(buffer, offsetInBytes, data, dataLength, options);
+			(buffer as MetalBuffer).SetData(
+				offsetInBytes,
+				data,
+				dataLength,
+				options
+			);
 		}
 
 		#endregion
@@ -3712,7 +3737,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Create the vertex buffer for rendering the faux-backbuffer
-			// FIXME: Combine this and the index buffer into one MTLBuffer
 			fauxBackbufferVertexBuffer = mtlNewBufferWithLength(
 				device,
 				16 * sizeof(float)
@@ -3761,6 +3785,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				) {
 					VertexOut out;
 					out.position = float4(vertexArray[vertexID].position, 0.0, 1.0);
+					out.position.y *= -1;
 					out.texCoord = vertexArray[vertexID].texCoord;
 					return out;
 				}
