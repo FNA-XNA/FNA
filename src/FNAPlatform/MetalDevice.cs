@@ -518,8 +518,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr ldTechnique = IntPtr.Zero;
 		private uint ldPass = 0;
 
-		private List<VertexBuffer> userVertexBuffers = new List<VertexBuffer>();
-		private List<IndexBuffer> userIndexBuffers = new List<IndexBuffer>();
+		private List<DynamicVertexBuffer> userVertexBuffers = new List<DynamicVertexBuffer>();
+		private List<DynamicIndexBuffer> userIndexBuffers = new List<DynamicIndexBuffer>();
 		private VertexBufferBinding[] userBufferBinding = new VertexBufferBinding[1];
 		private VertexDeclaration userVertexDeclaration;
 		private IntPtr userVertexPtr;
@@ -1543,7 +1543,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int idxbufLength = idxsize * numVertices;
 
 			// Get a temp buffer and set the vertex attributes
-			VertexBuffer vertbuf = FetchUserVertexBuffer(
+			DynamicVertexBuffer vertbuf = FetchUserVertexBuffer(
 				userVertexDeclaration,
 				vbufLength,
 				(ulong) numVertices
@@ -1561,7 +1561,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Copy index data into buffer
-			IndexBuffer idxbuf = FetchUserIndexBuffer(
+			DynamicIndexBuffer idxbuf = FetchUserIndexBuffer(
 				userVertexDeclaration.GraphicsDevice,
 				indexElementSize,
 				numVertices,
@@ -1603,7 +1603,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int size = stride * (int) numVerts;
 
 			// Get a temp buffer and set the vertex attributes
-			VertexBuffer buf = FetchUserVertexBuffer(
+			DynamicVertexBuffer buf = FetchUserVertexBuffer(
 				userVertexDeclaration,
 				size,
 				numVerts
@@ -2265,13 +2265,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			return descriptor;
 		}
 
-		private VertexBuffer FetchUserVertexBuffer(
+		private DynamicVertexBuffer FetchUserVertexBuffer(
 			VertexDeclaration declaration,
 			int size,
 			ulong vertexCount
 		) {
 			// Do we already have a buffer cached?
-			foreach (VertexBuffer userBuffer in userVertexBuffers)
+			foreach (DynamicVertexBuffer userBuffer in userVertexBuffers)
 			{
 				if ((int) userBuffer.buffer.BufferSize >= size)
 				{
@@ -2280,7 +2280,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Make a new vertex buffer
-			VertexBuffer newBuf = new VertexBuffer(
+			DynamicVertexBuffer newBuf = new DynamicVertexBuffer(
 				declaration.GraphicsDevice,
 				declaration,
 				(int) vertexCount,
@@ -2290,14 +2290,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			return newBuf;
 		}
 
-		private IndexBuffer FetchUserIndexBuffer(
+		private DynamicIndexBuffer FetchUserIndexBuffer(
 			GraphicsDevice graphicsDevice,
 			IndexElementSize indexElementSize,
 			int numIndices,
 			int size
 		) {
 			// Do we already have a buffer cached?
-			foreach (IndexBuffer userBuffer in userIndexBuffers)
+			foreach (DynamicIndexBuffer userBuffer in userIndexBuffers)
 			{
 				if ((int) userBuffer.buffer.BufferSize >= size)
 				{
@@ -2306,7 +2306,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Make a new index buffer
-			IndexBuffer newBuf = new IndexBuffer(
+			DynamicIndexBuffer newBuf = new DynamicIndexBuffer(
 				graphicsDevice,
 				indexElementSize,
 				numIndices,
