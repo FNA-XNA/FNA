@@ -700,6 +700,17 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Private Graphics Object Disposal Queues
+
+		private Queue<IGLTexture> GCTextures = new Queue<IGLTexture>();
+		private Queue<IGLRenderbuffer> GCDepthBuffers = new Queue<IGLRenderbuffer>();
+		private Queue<IGLBuffer> GCVertexBuffers = new Queue<IGLBuffer>();
+		private Queue<IGLBuffer> GCIndexBuffers = new Queue<IGLBuffer>();
+		private Queue<IGLEffect> GCEffects = new Queue<IGLEffect>();
+		private Queue<IGLQuery> GCQueries = new Queue<IGLQuery>();
+
+		#endregion
+
 		#region memcpy Export
 
 		/* This is used a lot for GetData/Read calls... -flibit */
@@ -1031,6 +1042,37 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr cmdbuf = submittedCommandBuffers.Dequeue();
 				mtlCommandBufferWaitUntilCompleted(cmdbuf);
 				ObjCRelease(cmdbuf);
+			}
+
+			// Clear out all the deleted resources
+			IGLTexture gcTexture;
+			while (GCTextures.Count > 0)
+			{
+				DeleteTexture(GCTextures.Dequeue());
+			}
+			IGLRenderbuffer gcDepthBuffer;
+			while (GCDepthBuffers.Count > 0)
+			{
+				DeleteRenderbuffer(GCDepthBuffers.Dequeue());
+			}
+			IGLBuffer gcBuffer;
+			while (GCVertexBuffers.Count > 0)
+			{
+				DeleteBuffer(GCVertexBuffers.Dequeue());
+			}
+			while (GCIndexBuffers.Count > 0)
+			{
+				DeleteBuffer(GCIndexBuffers.Dequeue());
+			}
+			IGLEffect gcEffect;
+			while (GCEffects.Count > 0)
+			{
+				DeleteEffect(GCEffects.Dequeue());
+			}
+			IGLQuery gcQuery;
+			while (GCQueries.Count > 0)
+			{
+				DeleteQuery(GCQueries.Dequeue());
 			}
 
 			// The cycle begins anew...
@@ -1426,32 +1468,32 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void AddDisposeEffect(IGLEffect effect)
 		{
-			DeleteEffect(effect);
+			GCEffects.Enqueue(effect);
 		}
 
 		public void AddDisposeIndexBuffer(IGLBuffer buffer)
 		{
-			DeleteBuffer(buffer);
+			GCIndexBuffers.Enqueue(buffer);
 		}
 
 		public void AddDisposeQuery(IGLQuery query)
 		{
-			DeleteQuery(query);
+			GCQueries.Enqueue(query);
 		}
 
 		public void AddDisposeRenderbuffer(IGLRenderbuffer renderbuffer)
 		{
-			DeleteRenderbuffer(renderbuffer);
+			GCDepthBuffers.Enqueue(renderbuffer);
 		}
 
 		public void AddDisposeTexture(IGLTexture texture)
 		{
-			DeleteTexture(texture);
+			GCTextures.Enqueue(texture);
 		}
 
 		public void AddDisposeVertexBuffer(IGLBuffer buffer)
 		{
-			DeleteBuffer(buffer);
+			GCVertexBuffers.Enqueue(buffer);
 		}
 
 		#endregion
