@@ -522,7 +522,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private List<DynamicIndexBuffer> userIndexBuffers = new List<DynamicIndexBuffer>();
 		private VertexBufferBinding[] userBufferBinding = new VertexBufferBinding[1];
 		private VertexDeclaration userVertexDeclaration;
-		private IntPtr userVertexPtr;
 
 		#endregion
 
@@ -1045,17 +1044,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Clear out all the deleted resources
-			IGLTexture gcTexture;
 			while (GCTextures.Count > 0)
 			{
 				DeleteTexture(GCTextures.Dequeue());
 			}
-			IGLRenderbuffer gcDepthBuffer;
 			while (GCDepthBuffers.Count > 0)
 			{
 				DeleteRenderbuffer(GCDepthBuffers.Dequeue());
 			}
-			IGLBuffer gcBuffer;
 			while (GCVertexBuffers.Count > 0)
 			{
 				DeleteBuffer(GCVertexBuffers.Dequeue());
@@ -1064,12 +1060,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				DeleteBuffer(GCIndexBuffers.Dequeue());
 			}
-			IGLEffect gcEffect;
 			while (GCEffects.Count > 0)
 			{
 				DeleteEffect(GCEffects.Dequeue());
 			}
-			IGLQuery gcQuery;
 			while (GCQueries.Count > 0)
 			{
 				DeleteQuery(GCQueries.Dequeue());
@@ -1580,51 +1574,57 @@ namespace Microsoft.Xna.Framework.Graphics
 			int primitiveCount
 		) {
 			int stride = userVertexDeclaration.VertexStride;
-			int vbufLength = stride * numVertices;
-			int idxsize = XNAToMTL.IndexSize[(int) indexElementSize];
-			int idxbufLength = idxsize * numVertices;
+			int indexSize = XNAToMTL.IndexSize[(int) indexElementSize];
+			int numIndices = (int) XNAToMTL.PrimitiveVerts(primitiveType, primitiveCount);
+			int vertexDataLen = numVertices * stride;
+			int indexDataLen = numIndices * indexSize;
 
 			// Get a temp buffer and set the vertex attributes
 			DynamicVertexBuffer vertbuf = FetchUserVertexBuffer(
 				userVertexDeclaration,
-				vbufLength,
+				vertexDataLen,
 				(ulong) numVertices
 			);
-			userBufferBinding[0] = new VertexBufferBinding(vertbuf);
+			userBufferBinding[0] = new VertexBufferBinding(vertbuf, vertexOffset);
 			ApplyVertexAttributes(userBufferBinding, 1, true, 0);
 
 			// Copy the vertex contents into the buffer
 			SetVertexBufferData(
 				vertbuf.buffer,
-				0, // FIXME: Not sure about this. -caleb
-				userVertexPtr + (vertexOffset * stride),
-				vbufLength,
+				vertexOffset * stride,
+				vertexData,
+				vertexDataLen,
 				SetDataOptions.Discard
 			);
 
-			// Copy index data into buffer
+			// Get a temp index buffer and copy the data
 			DynamicIndexBuffer idxbuf = FetchUserIndexBuffer(
 				userVertexDeclaration.GraphicsDevice,
 				indexElementSize,
-				numVertices,
-				idxbufLength
+				numIndices,
+				indexDataLen
 			);
 			SetIndexBufferData(
 				idxbuf.buffer,
-				0,
-				indexData + (indexOffset * idxsize),
-				idxbufLength,
+				indexOffset * indexSize,
+				indexData,
+				indexDataLen,
 				SetDataOptions.Discard
+			);
+
+			ulong totalIndexOffset = (ulong) (
+				(indexOffset * indexSize) +
+				(idxbuf.buffer as MetalBuffer).InternalOffset
 			);
 
 			// Draw!
 			mtlDrawIndexedPrimitives(
 				renderCommandEncoder,
 				XNAToMTL.Primitive[(int) primitiveType],
-				(ulong) numVertices,
+				(ulong) numIndices,
 				XNAToMTL.IndexType[(int) indexElementSize],
 				(idxbuf.buffer as MetalBuffer).Handle,
-				0,
+				totalIndexOffset,
 				1,
 				vertexOffset,
 				0
@@ -1656,8 +1656,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Copy the pointer contents into the buffer
 			SetVertexBufferData(
 				buf.buffer,
-				0, // FIXME: Not sure about this. -caleb
-				userVertexPtr + (vertexOffset * stride),
+				vertexOffset * stride,
+				vertexData,
 				size,
 				SetDataOptions.Discard
 			);
@@ -2326,7 +2326,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				declaration.GraphicsDevice,
 				declaration,
 				(int) vertexCount,
-				BufferUsage.None
+				BufferUsage.WriteOnly
 			);
 			userVertexBuffers.Add(newBuf);
 			return newBuf;
@@ -2352,7 +2352,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				graphicsDevice,
 				indexElementSize,
 				numIndices,
-				BufferUsage.None
+				BufferUsage.WriteOnly
 			);
 			userIndexBuffers.Add(newBuf);
 			return newBuf;
@@ -2712,7 +2712,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexOffset
 		) {
 			userVertexDeclaration = vertexDeclaration;
-			userVertexPtr = ptr;
 			// The rest of the work happens in DrawUser[Indexed]Primitives.
 		}
 
