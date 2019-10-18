@@ -1797,14 +1797,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				return;
 			}
 
-			// Bind the correct texture
-			bool sameTexture = (tex == Textures[index]);
-			if (!sameTexture)
-			{
-				Textures[index] = tex;
-				textureNeedsUpdate[index] = true;
-			}
-
 			// Update the texture info
 			tex.WrapS = sampler.AddressU;
 			tex.WrapT = sampler.AddressV;
@@ -1813,12 +1805,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			tex.Anisotropy = sampler.MaxAnisotropy;
 			tex.MaxMipmapLevel = sampler.MaxMipLevel;
 			tex.LODBias = sampler.MipMapLevelOfDetailBias;
-
-			IntPtr oldSamplerHandle = tex.SamplerHandle;
 			tex.SamplerHandle = FetchSamplerState(sampler);
-			if (tex.SamplerHandle != oldSamplerHandle)
+			if (tex.SamplerHandle != Textures[index].SamplerHandle)
 			{
 				samplerNeedsUpdate[index] = true;
+			}
+
+			// Bind the correct texture
+			if (tex != Textures[index])
+			{
+				Textures[index] = tex;
+				textureNeedsUpdate[index] = true;
 			}
 		}
 
