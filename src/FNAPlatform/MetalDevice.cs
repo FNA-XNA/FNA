@@ -687,7 +687,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private uint currentPass = 0;
 
 		private bool renderTargetBound = false;
-
 		private bool effectApplied = false;
 
 		private IntPtr currentVertexShader = IntPtr.Zero;
@@ -696,6 +695,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr currentFragUniformBuffer = IntPtr.Zero;
 		private int currentVertUniformOffset = 0;
 		private int currentFragUniformOffset = 0;
+
+		private IntPtr prevEffect = IntPtr.Zero;
+		private IntPtr prevVertexShader = IntPtr.Zero;
+		private IntPtr prevFragmentShader = IntPtr.Zero;
+		private IntPtr prevVertUniformBuffer = IntPtr.Zero;
+		private IntPtr prevFragUniformBuffer = IntPtr.Zero;
+		private int prevVertUniformOffset = 0;
+		private int prevFragUniformOffset = 0;
 
 		#endregion
 
@@ -2541,12 +2548,62 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void BeginPassRestore(IGLEffect effect, IntPtr stateChanges)
 		{
-			throw new NotImplementedException();
+			// Store the current data
+			// FIXME: This is super inelegant... -caleb
+			prevEffect = currentEffect;
+			prevVertexShader = currentVertexShader;
+			prevFragmentShader = currentFragmentShader;
+			prevVertUniformBuffer = currentVertUniformBuffer;
+			prevFragUniformBuffer = currentFragUniformBuffer;
+			prevVertUniformOffset = currentVertUniformOffset;
+			prevFragUniformOffset = currentFragUniformOffset;
+
+			IntPtr mtlEffectData = (effect as MetalEffect).MTLEffectData;
+			uint whatever;
+			MojoShader.MOJOSHADER_mtlEffectBegin(
+				mtlEffectData,
+				out whatever,
+				1,
+				stateChanges
+			);
+			MojoShader.MOJOSHADER_mtlEffectBeginPass(
+				mtlEffectData,
+				0,
+				out currentVertexShader,
+				out currentFragmentShader,
+				out currentVertUniformBuffer,
+				out currentFragUniformBuffer,
+				out currentVertUniformOffset,
+				out currentFragUniformOffset
+			);
+			currentEffect = mtlEffectData;
+			effectApplied = true;
 		}
 
 		public void EndPassRestore(IGLEffect effect)
 		{
-			throw new NotImplementedException();
+			IntPtr mtlEffectData = (effect as MetalEffect).MTLEffectData;
+			MojoShader.MOJOSHADER_mtlEffectEndPass(mtlEffectData);
+			MojoShader.MOJOSHADER_mtlEffectEnd(
+				mtlEffectData,
+				out currentVertexShader,
+				out currentFragmentShader,
+				out currentVertUniformBuffer,
+				out currentFragUniformBuffer,
+				out currentVertUniformOffset,
+				out currentFragUniformOffset
+			);
+			effectApplied = true;
+
+			// Restore the old data
+			// FIXME: This is super inelegant... -caleb
+			currentVertexShader = prevVertexShader;
+			currentFragmentShader = prevFragmentShader;
+			currentVertUniformBuffer = prevVertUniformBuffer;
+			currentFragUniformBuffer = prevFragUniformBuffer;
+			currentVertUniformOffset = prevVertUniformOffset;
+			currentFragUniformOffset = prevFragUniformOffset;
+			currentEffect = prevEffect;
 		}
 
 		#endregion
@@ -2965,7 +3022,22 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetTextureDataYUV(Texture2D[] textures, IntPtr ptr)
 		{
-			throw new NotImplementedException();
+			for (int i = 0; i < 3; i += 1)
+			{
+				Texture2D tex = textures[i];
+				MTLRegion region = new MTLRegion(
+					new MTLOrigin(0, 0, 0),
+					new MTLSize((ulong) tex.Width, (ulong) tex.Height, 1)
+				);
+				mtlReplaceRegion(
+					(tex.texture as MetalTexture).Handle,
+					region,
+					0,
+					ptr,
+					(ulong) tex.Width
+				);
+				ptr += tex.Width * tex.Height;
+			}
 		}
 
 		public void SetTextureData3D(IGLTexture texture, SurfaceFormat format, int level, int left, int top, int right, int bottom, int front, int back, IntPtr data, int dataLength)
@@ -3175,17 +3247,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * -caleb
 			 */
 
-			if (renderCommandEncoder != IntPtr.Zero)
-			{
-				UpdateRenderPass();
-			}
 			ResetAttachments();
 
 			// Bind the right framebuffer, if needed
 			if (renderTargets == null)
 			{
-				BindBackbuffer();
 				renderTargetBound = false;
+				BindBackbuffer();
 				return;
 			}
 			renderTargetBound = true;
@@ -3219,12 +3287,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Update depth stencil state
-			IntPtr handle;
-			if (renderbuffer == null)
-			{
-				handle = IntPtr.Zero;
-			}
-			else
+			IntPtr handle = IntPtr.Zero;
+			if (renderbuffer != null)
 			{
 				handle = (renderbuffer as MetalRenderbuffer).Handle;
 			}
@@ -3233,6 +3297,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				currentDepthFormat = depthFormat;
 				currentDepthStencilBuffer = handle;
 			}
+
+			// Force an update to the render pass
+			needNewRenderPass = true;
 		}
 
 		private void ResetAttachments()
@@ -3253,6 +3320,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			currentAttachmentTypes[0] = AttachmentType.Backbuffer;
 			currentDepthStencilBuffer = bb.DepthStencilBuffer;
 			currentDepthFormat = bb.DepthFormat;
+
+			needNewRenderPass = true;
 		}
 
 		#endregion
@@ -3314,7 +3383,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLPixelFormat.RGB10A2Unorm,		// SurfaceFormat.Rgba1010102
 				MTLPixelFormat.RG16Unorm,		// SurfaceFormat.Rg32
 				MTLPixelFormat.RGBA16Unorm,		// SurfaceFormat.Rgba64
-				MTLPixelFormat.A8Unorm,			// SurfaceFormat.Alpha8
+				MTLPixelFormat.R8Unorm,			// SurfaceFormat.Alpha8
 				MTLPixelFormat.R32Float,		// SurfaceFormat.Single
 				MTLPixelFormat.RG32Float,		// SurfaceFormat.Vector2
 				MTLPixelFormat.RGBA32Float,		// SurfaceFormat.Vector4

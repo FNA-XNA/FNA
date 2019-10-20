@@ -211,7 +211,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private enum MTLPixelFormat : ulong
 		{
 			Invalid				= 0,
-			A8Unorm      		   	= 1,
+			R8Unorm				= 10,
 			R16Float     			= 25,
 			RG8Snorm			= 32,
 			B5G6R5Unorm 			= 40,
