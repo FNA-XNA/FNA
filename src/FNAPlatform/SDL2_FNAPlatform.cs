@@ -244,6 +244,7 @@ namespace Microsoft.Xna.Framework
 				OSVersion.Equals("WinRT") ||
 				OSVersion.Equals("iOS") ||
 				OSVersion.Equals("tvOS") ||
+				OSVersion.Equals("Stadia") ||
 				OSVersion.Equals("Android") ||
 				OSVersion.Equals("Emscripten")
 			);

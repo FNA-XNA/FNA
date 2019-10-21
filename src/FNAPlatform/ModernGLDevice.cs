@@ -2507,6 +2507,31 @@ namespace Microsoft.Xna.Framework.Graphics
 				height
 			);
 
+			if (format == SurfaceFormat.Alpha8)
+			{
+				// Alpha8 needs a swizzle, since GL_ALPHA is unsupported
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_R,
+					GLenum.GL_ZERO
+				);
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_G,
+					GLenum.GL_ZERO
+				);
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_B,
+					GLenum.GL_ZERO
+				);
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_A,
+					GLenum.GL_RED
+				);
+			}
+
 #if !DISABLE_THREADING
 			});
 #endif
@@ -2541,6 +2566,31 @@ namespace Microsoft.Xna.Framework.Graphics
 				depth
 			);
 
+			if (format == SurfaceFormat.Alpha8)
+			{
+				// Alpha8 needs a swizzle, since GL_ALPHA is unsupported
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_R,
+					GLenum.GL_ZERO
+				);
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_G,
+					GLenum.GL_ZERO
+				);
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_B,
+					GLenum.GL_ZERO
+				);
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_A,
+					GLenum.GL_RED
+				);
+			}
+
 #if !DISABLE_THREADING
 			});
 #endif
@@ -2571,6 +2621,31 @@ namespace Microsoft.Xna.Framework.Graphics
 				size,
 				size
 			);
+
+			if (format == SurfaceFormat.Alpha8)
+			{
+				// Alpha8 needs a swizzle, since GL_ALPHA is unsupported
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_R,
+					GLenum.GL_ZERO
+				);
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_G,
+					GLenum.GL_ZERO
+				);
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_B,
+					GLenum.GL_ZERO
+				);
+				glTextureParameteri(
+					result.Handle,
+					GLenum.GL_TEXTURE_SWIZZLE_A,
+					GLenum.GL_RED
+				);
+			}
 
 #if !DISABLE_THREADING
 			});
@@ -2765,7 +2840,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					0,
 					tex.Width,
 					tex.Height,
-					GLenum.GL_LUMINANCE,
+					GLenum.GL_RED,
 					GLenum.GL_UNSIGNED_BYTE,
 					ptr
 				);
@@ -3705,7 +3780,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_RGBA,				// SurfaceFormat.Rgba1010102
 				GLenum.GL_RG,				// SurfaceFormat.Rg32
 				GLenum.GL_RGBA,				// SurfaceFormat.Rgba64
-				GLenum.GL_LUMINANCE,			// SurfaceFormat.Alpha8
+				GLenum.GL_RED,				// SurfaceFormat.Alpha8
 				GLenum.GL_RED,				// SurfaceFormat.Single
 				GLenum.GL_RG,				// SurfaceFormat.Vector2
 				GLenum.GL_RGBA,				// SurfaceFormat.Vector4
@@ -3730,7 +3805,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				GLenum.GL_RGB10_A2_EXT,				// SurfaceFormat.Rgba1010102
 				GLenum.GL_RG16,					// SurfaceFormat.Rg32
 				GLenum.GL_RGBA16,				// SurfaceFormat.Rgba64
-				GLenum.GL_LUMINANCE8,				// SurfaceFormat.Alpha8
+				GLenum.GL_R8,					// SurfaceFormat.Alpha8
 				GLenum.GL_R32F,					// SurfaceFormat.Single
 				GLenum.GL_RG32F,				// SurfaceFormat.Vector2
 				GLenum.GL_RGBA32F,				// SurfaceFormat.Vector4
