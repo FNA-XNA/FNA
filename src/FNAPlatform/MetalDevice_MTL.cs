@@ -211,7 +211,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private enum MTLPixelFormat : ulong
 		{
 			Invalid				= 0,
-			R8Unorm				= 10,
+			A8Unorm				= 1,
 			R16Float     			= 25,
 			RG8Snorm			= 32,
 			B5G6R5Unorm 			= 40,
@@ -1220,18 +1220,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(texDesc, selSetHeight, (ulong) height);
 		}
 
-		private static IntPtr selWidth = Selector("width");
-		private static ulong mtlGetTextureWidth(IntPtr texture)
-		{
-			return ulong_objc_msgSend(texture, selWidth);
-		}
-
-		private static IntPtr selHeight = Selector("height");
-		private static ulong mtlGetTextureHeight(IntPtr texture)
-		{
-			return ulong_objc_msgSend(texture, selHeight);
-		}
-
 		#endregion
 
 		#region MTLTexture
@@ -1270,6 +1258,18 @@ namespace Microsoft.Xna.Framework.Graphics
 				region,
 				level
 			);
+		}
+
+		private static IntPtr selWidth = Selector("width");
+		private static ulong mtlGetTextureWidth(IntPtr texture)
+		{
+			return ulong_objc_msgSend(texture, selWidth);
+		}
+
+		private static IntPtr selHeight = Selector("height");
+		private static ulong mtlGetTextureHeight(IntPtr texture)
+		{
+			return ulong_objc_msgSend(texture, selHeight);
 		}
 
 		#region MTLShader

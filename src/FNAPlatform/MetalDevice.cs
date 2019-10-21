@@ -153,10 +153,24 @@ namespace Microsoft.Xna.Framework.Graphics
 					(ulong) Height,
 					false
 				);
-				mtlSetTextureSampleCount(
-					desc,
-					multiSampleCount
-				);
+				if (multiSampleCount > 1 || depthFormat != DepthFormat.None)
+				{
+					mtlSetStorageMode(
+						desc,
+						MTLResourceStorageMode.Private
+					);
+				}
+				if (multiSampleCount > 1)
+				{
+					mtlSetTextureType(
+						desc,
+						MTLTextureType.Multisample2D
+					);
+					mtlSetTextureSampleCount(
+						desc,
+						multiSampleCount
+					);
+				}
 				mtlSetTextureUsage(
 					desc,
 					MTLTextureUsage.RenderTarget
@@ -3076,22 +3090,18 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new NotImplementedException("GetData, CompressedTexture");
 			}
 
+			ulong bytesPerRow = (ulong) (
+				subW * elementSizeInBytes * Texture.GetFormatSize(format)
+			);
+			MTLRegion region = new MTLRegion(
+				new MTLOrigin((ulong) subX, (ulong) subY, 0),
+				new MTLSize((ulong) subW, (ulong) subH, 1)
+			);
 			mtlGetTextureBytes(
 				(texture as MetalTexture).Handle,
 				data,
-				(ulong) (subW * elementSizeInBytes * Texture.GetFormatSize(format)),
-				new MTLRegion(
-					new MTLOrigin(
-						(ulong) subX,
-						(ulong) subY,
-						0
-					),
-					new MTLSize(
-						(ulong) subW,
-						(ulong) subH,
-						1
-					)
-				),
+				bytesPerRow,
+				region,
 				(ulong) level
 			);
 		}
@@ -3383,7 +3393,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLPixelFormat.RGB10A2Unorm,		// SurfaceFormat.Rgba1010102
 				MTLPixelFormat.RG16Unorm,		// SurfaceFormat.Rg32
 				MTLPixelFormat.RGBA16Unorm,		// SurfaceFormat.Rgba64
-				MTLPixelFormat.R8Unorm,			// SurfaceFormat.Alpha8
+				MTLPixelFormat.A8Unorm,			// SurfaceFormat.Alpha8
 				MTLPixelFormat.R32Float,		// SurfaceFormat.Single
 				MTLPixelFormat.RG32Float,		// SurfaceFormat.Vector2
 				MTLPixelFormat.RGBA32Float,		// SurfaceFormat.Vector4
