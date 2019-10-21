@@ -125,9 +125,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_DEPTH_STENCIL_ATTACHMENT =		0x821A,
 			// Texture Formats
 			GL_RED =				0x1903,
+			GL_ALPHA =				0x1906,
 			GL_RGB =				0x1907,
 			GL_RGBA =				0x1908,
-			GL_LUMINANCE =				0x1909,
 			GL_RGB8 =				0x8051,
 			GL_RGBA8 =				0x8058,
 			GL_RGBA4 =				0x8056,

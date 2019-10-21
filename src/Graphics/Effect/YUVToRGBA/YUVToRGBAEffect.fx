@@ -25,9 +25,9 @@ float4 PS(float2 tex : TEXCOORD0) : SV_Target0
 	const float3 Bcoeff = float3(1.164,  2.018,  0.000);
 
 	float3 yuv;
-	yuv.x = tex2D(samp0, tex).x;
-	yuv.y = tex2D(samp1, tex).x;
-	yuv.z = tex2D(samp2, tex).x;
+	yuv.x = tex2D(samp0, tex).w;
+	yuv.y = tex2D(samp1, tex).w;
+	yuv.z = tex2D(samp2, tex).w;
 	yuv += offset;
 
 	float4 rgba;

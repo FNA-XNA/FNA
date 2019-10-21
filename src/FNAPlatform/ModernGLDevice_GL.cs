@@ -127,8 +127,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_RED =				0x1903,
 			GL_RGB =				0x1907,
 			GL_RGBA =				0x1908,
-			GL_LUMINANCE =				0x1909,
-			GL_LUMINANCE8 =				0x8040,
 			GL_RGBA8 =				0x8058,
 			GL_RGBA4 =				0x8056,
 			GL_RGB5_A1 =				0x8057,
@@ -138,6 +136,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_DEPTH_COMPONENT16 =			0x81A5,
 			GL_DEPTH_COMPONENT24 =			0x81A6,
 			GL_RG =					0x8227,
+			GL_R8 =					0x8229,
 			GL_RG8 =				0x822B,
 			GL_RG16 =				0x822C,
 			GL_R16F =				0x822D,
@@ -170,6 +169,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			GL_TEXTURE0 =				0x84C0,
 			GL_MAX_TEXTURE_IMAGE_UNITS =		0x8872,
 			GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS =	0x8B4C,
+			// Texture Swizzling
+			GL_TEXTURE_SWIZZLE_R =			0x8E42,
+			GL_TEXTURE_SWIZZLE_G =			0x8E43,
+			GL_TEXTURE_SWIZZLE_B =			0x8E44,
+			GL_TEXTURE_SWIZZLE_A =			0x8E45,
 			// Buffer objects
 			GL_ARRAY_BUFFER =			0x8892,
 			GL_ELEMENT_ARRAY_BUFFER =		0x8893,
@@ -517,6 +521,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr pixels
 		);
 		private GetTextureSubImage glGetTextureSubImage;
+
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+		private delegate void TextureParameteri(
+			uint texture,
+			GLenum parameter,
+			GLenum param
+		);
+		private TextureParameteri glTextureParameteri;
 
 		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
 		private delegate void CreateSamplers(
@@ -1103,6 +1115,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				glGetTextureSubImage = (GetTextureSubImage) Marshal.GetDelegateForFunctionPointer(
 					SDL.SDL_GL_GetProcAddress("glGetTextureSubImage"),
 					typeof(GetTextureSubImage)
+				);
+				glTextureParameteri = (TextureParameteri) Marshal.GetDelegateForFunctionPointer(
+					SDL.SDL_GL_GetProcAddress("glTextureParameteri"),
+					typeof(TextureParameteri)
 				);
 				glCreateSamplers = (CreateSamplers) Marshal.GetDelegateForFunctionPointer(
 					SDL.SDL_GL_GetProcAddress("glCreateSamplers"),
