@@ -3013,14 +3013,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			int dataLength
 		) {
-			ulong stride = (ulong) (dataLength / h);
-			if (	format == SurfaceFormat.Dxt1 ||
-				format == SurfaceFormat.Dxt3 ||
-				format == SurfaceFormat.Dxt5	)
-			{
-				stride *= (ulong) Texture.GetFormatSize(format) / 4;
-			}
-
 			MTLRegion region = new MTLRegion(
 				new MTLOrigin((ulong) x, (ulong) y, 0),
 				new MTLSize((ulong) w, (ulong) h, 1)
@@ -3030,7 +3022,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				region,
 				(ulong) level,
 				data,
-				stride
+				(ulong) (w * Texture.GetFormatSize(format))
 			);
 		}
 
@@ -3090,9 +3082,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new NotImplementedException("GetData, CompressedTexture");
 			}
 
-			ulong bytesPerRow = (ulong) (
-				subW * elementSizeInBytes * Texture.GetFormatSize(format)
-			);
 			MTLRegion region = new MTLRegion(
 				new MTLOrigin((ulong) subX, (ulong) subY, 0),
 				new MTLSize((ulong) subW, (ulong) subH, 1)
@@ -3100,7 +3089,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlGetTextureBytes(
 				(texture as MetalTexture).Handle,
 				data,
-				bytesPerRow,
+				(ulong) (subW * Texture.GetFormatSize(format)),
 				region,
 				(ulong) level
 			);

@@ -508,6 +508,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private static IntPtr Selector(string name)
 		{
+			name += Char.MinValue; // null terminator
 			return sel_registerName(System.Text.Encoding.UTF8.GetBytes(name));
 		}
 
