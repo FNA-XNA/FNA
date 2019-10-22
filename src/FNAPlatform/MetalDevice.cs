@@ -3013,6 +3013,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			int dataLength
 		) {
+			ulong bytesPerRow = (ulong) (w * Texture.GetFormatSize(format));
+			if (	format == SurfaceFormat.Dxt1 ||
+				format == SurfaceFormat.Dxt3 ||
+				format == SurfaceFormat.Dxt5	)
+			{
+				bytesPerRow /= (ulong) (Texture.GetFormatSize(format) / 4);
+			}
+
 			MTLRegion region = new MTLRegion(
 				new MTLOrigin((ulong) x, (ulong) y, 0),
 				new MTLSize((ulong) w, (ulong) h, 1)
@@ -3022,7 +3030,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				region,
 				(ulong) level,
 				data,
-				(ulong) (w * Texture.GetFormatSize(format))
+				bytesPerRow
 			);
 		}
 
