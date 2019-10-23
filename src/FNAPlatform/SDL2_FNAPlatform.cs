@@ -1795,62 +1795,17 @@ namespace Microsoft.Xna.Framework
 
 		private static class FakeRWops
 		{
-			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-			private delegate long SizeFunc(IntPtr context);
-
-			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-			private delegate long SeekFunc(
-				IntPtr context,
-				long offset,
-				int whence
-			);
-
-			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-			private delegate IntPtr ReadFunc(
-				IntPtr context,
-				IntPtr ptr,
-				IntPtr size,
-				IntPtr maxnum
-			);
-
-			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-			private delegate IntPtr WriteFunc(
-				IntPtr context,
-				IntPtr ptr,
-				IntPtr size,
-				IntPtr num
-			);
-
-			[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-			private delegate int CloseFunc(IntPtr context);
-
-			[StructLayout(LayoutKind.Sequential)]
-			private struct PartialRWops
-			{
-				public IntPtr size;
-				public IntPtr seek;
-				public IntPtr read;
-				public IntPtr write;
-				public IntPtr close;
-			}
-
-			[DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
-			private static extern IntPtr SDL_AllocRW();
-
-			[DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
-			private static extern void SDL_FreeRW(IntPtr area);
-
 			private static readonly Dictionary<IntPtr, Stream> streamMap =
 				new Dictionary<IntPtr, Stream>();
 
 			// Based on PNG_ZBUF_SIZE default
 			private static byte[] temp = new byte[8192];
 
-			private static readonly SizeFunc sizeFunc = size;
-			private static readonly SeekFunc seekFunc = seek;
-			private static readonly ReadFunc readFunc = read;
-			private static readonly WriteFunc writeFunc = write;
-			private static readonly CloseFunc closeFunc = close;
+			private static readonly SDL.SDLRWopsSizeCallback sizeFunc = size;
+			private static readonly SDL.SDLRWopsSeekCallback seekFunc = seek;
+			private static readonly SDL.SDLRWopsReadCallback readFunc = read;
+			private static readonly SDL.SDLRWopsWriteCallback writeFunc = write;
+			private static readonly SDL.SDLRWopsCloseCallback closeFunc = close;
 			private static readonly IntPtr sizePtr =
 				Marshal.GetFunctionPointerForDelegate(sizeFunc);
 			private static readonly IntPtr seekPtr =
@@ -1864,10 +1819,10 @@ namespace Microsoft.Xna.Framework
 
 			public static IntPtr Alloc(Stream stream)
 			{
-				IntPtr rwops = SDL_AllocRW();
+				IntPtr rwops = SDL.SDL_AllocRW();
 				unsafe
 				{
-					PartialRWops* p = (PartialRWops*) rwops;
+					SDL.SDL_RWops* p = (SDL.SDL_RWops*) rwops;
 					p->size = sizePtr;
 					p->seek = seekPtr;
 					p->read = readPtr;
@@ -1890,7 +1845,7 @@ namespace Microsoft.Xna.Framework
 				return temp;
 			}
 
-			[ObjCRuntime.MonoPInvokeCallback(typeof(SizeFunc))]
+			[ObjCRuntime.MonoPInvokeCallback(typeof(SDL.SDLRWopsSizeCallback))]
 			private static long size(IntPtr context)
 			{
 				Stream stream;
@@ -1901,7 +1856,7 @@ namespace Microsoft.Xna.Framework
 				return stream.Length;
 			}
 
-			[ObjCRuntime.MonoPInvokeCallback(typeof(SeekFunc))]
+			[ObjCRuntime.MonoPInvokeCallback(typeof(SDL.SDLRWopsSeekCallback))]
 			private static long seek(IntPtr context, long offset, int whence)
 			{
 				Stream stream;
@@ -1913,7 +1868,7 @@ namespace Microsoft.Xna.Framework
 				return stream.Position;
 			}
 
-			[ObjCRuntime.MonoPInvokeCallback(typeof(ReadFunc))]
+			[ObjCRuntime.MonoPInvokeCallback(typeof(SDL.SDLRWopsReadCallback))]
 			private static IntPtr read(
 				IntPtr context,
 				IntPtr ptr,
@@ -1937,7 +1892,7 @@ namespace Microsoft.Xna.Framework
 				return (IntPtr) len;
 			}
 
-			[ObjCRuntime.MonoPInvokeCallback(typeof(WriteFunc))]
+			[ObjCRuntime.MonoPInvokeCallback(typeof(SDL.SDLRWopsWriteCallback))]
 			private static IntPtr write(
 				IntPtr context,
 				IntPtr ptr,
@@ -1962,14 +1917,14 @@ namespace Microsoft.Xna.Framework
 				return (IntPtr) len;
 			}
 
-			[ObjCRuntime.MonoPInvokeCallback(typeof(CloseFunc))]
+			[ObjCRuntime.MonoPInvokeCallback(typeof(SDL.SDLRWopsCloseCallback))]
 			public static int close(IntPtr context)
 			{
 				lock (streamMap)
 				{
 					streamMap.Remove(context);
 				}
-				SDL_FreeRW(context);
+				SDL.SDL_FreeRW(context);
 				return 0;
 			}
 		}
