@@ -73,7 +73,7 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Public Static Variables
 
 		// STOP LEAKING YOUR XACT DATA, GOOD GRIEF PEOPLE
-		public static bool ProgramExiting = false;
+		internal static bool ProgramExiting = false;
 
 		#endregion
 

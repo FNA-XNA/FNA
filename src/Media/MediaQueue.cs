@@ -61,9 +61,9 @@ namespace Microsoft.Xna.Framework.Media
 
 		#endregion
 
-		#region Public Constructor
+		#region Internal Constructor
 
-		public MediaQueue()
+		internal MediaQueue()
 		{
 			ActiveSongIndex = -1;
 		}

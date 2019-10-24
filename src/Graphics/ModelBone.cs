@@ -88,9 +88,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Public Constructor
+		#region Internal Constructor
 
-		public ModelBone()
+		internal ModelBone()
 		{
 			Children = new ModelBoneCollection(new List<ModelBone>());
 			meshes = new List<ModelMesh>();

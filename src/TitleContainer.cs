@@ -56,7 +56,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Internal Static Methods
 
-		public static byte[] ReadAllBytes(string name)
+		internal static byte[] ReadAllBytes(string name)
 		{
 			string safeName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(name);
 

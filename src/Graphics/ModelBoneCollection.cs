@@ -43,9 +43,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Public Constructor
+		#region Internal Constructor
 
-		public ModelBoneCollection(IList<ModelBone> list) : base(list)
+		internal ModelBoneCollection(IList<ModelBone> list) : base(list)
 		{
 		}
 
