@@ -23,7 +23,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public string Name
 		{
 			get;
-			internal set;
+			private set;
 		}
 
 		/// <summary>
@@ -32,7 +32,17 @@ namespace Microsoft.Xna.Framework.Graphics
 		public Object Tag
 		{
 			get;
-			internal set;
+			private set;
+		}
+
+		#endregion
+
+		#region Internal Constructor
+
+		internal ResourceDestroyedEventArgs(string name, object tag)
+		{
+			Name = name;
+			Tag = tag;
 		}
 
 		#endregion

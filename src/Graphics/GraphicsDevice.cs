@@ -340,20 +340,20 @@ namespace Microsoft.Xna.Framework.Graphics
 		public event EventHandler<EventArgs> Disposing;
 
 		// TODO: Hook this up to GraphicsResource
-		internal void OnResourceCreated()
+		internal void OnResourceCreated(object resource)
 		{
 			if (ResourceCreated != null)
 			{
-				ResourceCreated(this, (ResourceCreatedEventArgs) EventArgs.Empty);
+				ResourceCreated(this, new ResourceCreatedEventArgs(resource));
 			}
 		}
 
 		// TODO: Hook this up to GraphicsResource
-		internal void OnResourceDestroyed()
+		internal void OnResourceDestroyed(string name, object tag)
 		{
 			if (ResourceDestroyed != null)
 			{
-				ResourceDestroyed(this, (ResourceDestroyedEventArgs) EventArgs.Empty);
+				ResourceDestroyed(this, new ResourceDestroyedEventArgs(name, tag));
 			}
 		}
 

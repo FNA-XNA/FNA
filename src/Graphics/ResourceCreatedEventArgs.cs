@@ -23,7 +23,16 @@ namespace Microsoft.Xna.Framework.Graphics
 		public Object Resource
 		{
 			get;
-			internal set;
+			private set;
+		}
+
+		#endregion
+
+		#region Internal Constructor
+
+		internal ResourceCreatedEventArgs(object resource)
+		{
+			Resource = resource;
 		}
 
 		#endregion

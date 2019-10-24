@@ -61,6 +61,14 @@ namespace Microsoft.Xna.Framework.Content
 
 		#endregion
 
+		#region Internal Constructor
+
+		internal ContentTypeReaderManager()
+		{
+		}
+
+		#endregion
+
 		#region Public Methods
 
 		public ContentTypeReader GetTypeReader(Type targetType)
