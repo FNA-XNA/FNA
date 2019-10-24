@@ -2515,8 +2515,6 @@ namespace Microsoft.Xna.Framework
 		public static TouchPanelCapabilities GetTouchCapabilities()
 		{
 			bool touchDeviceExists = SDL.SDL_GetNumTouchDevices() > 0;
-			return new TouchPanelCapabilities
-			{
 				/* Take these reported capabilities with a grain of salt.
 				 * On Windows, touch devices won't be detected until they
 				 * are interacted with. Also, MaximumTouchCount is completely
@@ -2524,9 +2522,10 @@ namespace Microsoft.Xna.Framework
 				 * 
 				 * -caleb
 				 */
-				IsConnected = touchDeviceExists,
-				MaximumTouchCount = touchDeviceExists ? 4 : 0
-			};
+			return new TouchPanelCapabilities(
+				touchDeviceExists,
+				touchDeviceExists ? 4 : 0
+			);
 		}
 
 		public static unsafe void UpdateTouchPanelState()

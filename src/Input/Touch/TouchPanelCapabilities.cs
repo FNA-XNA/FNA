@@ -17,13 +17,13 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		public bool IsConnected
 		{
 			get;
-			set;
+			private set;
 		}
 
 		public int MaximumTouchCount
 		{
 			get;
-			set;
+			private set;
 		}
 
 		#endregion

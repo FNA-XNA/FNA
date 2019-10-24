@@ -151,12 +151,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 						{
 							// Double Tap!
 							TouchPanel.EnqueueGesture(new GestureSample(
-								Vector2.Zero,
-								Vector2.Zero,
 								GestureType.DoubleTap,
+								GetGestureTimestamp(),
 								touchPosition,
 								Vector2.Zero,
-								GetGestureTimestamp(),
+								Vector2.Zero,
+								Vector2.Zero,
 								fingerId,
 								TouchPanel.NO_FINGER
 							));
@@ -218,12 +218,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 							{
 								// Tap!
 								TouchPanel.EnqueueGesture(new GestureSample(
-									Vector2.Zero,
-									Vector2.Zero,
 									GestureType.Tap,
+									GetGestureTimestamp(),
 									touchPosition,
 									Vector2.Zero,
-									GetGestureTimestamp(),
+									Vector2.Zero,
+									Vector2.Zero,
 									fingerId,
 									TouchPanel.NO_FINGER
 								));
@@ -254,12 +254,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				{
 					// Flick!
 					TouchPanel.EnqueueGesture(new GestureSample(
+						GestureType.Flick,
+						GetGestureTimestamp(),
+						Vector2.Zero,
+						Vector2.Zero,
 						velocity,
 						Vector2.Zero,
-						GestureType.Flick,
-						Vector2.Zero,
-						Vector2.Zero,
-						GetGestureTimestamp(),
 						fingerId,
 						TouchPanel.NO_FINGER
 					));
@@ -284,12 +284,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				{
 					// Drag Complete!
 					TouchPanel.EnqueueGesture(new GestureSample(
-						Vector2.Zero,
-						Vector2.Zero,
 						GestureType.DragComplete,
-						Vector2.Zero,
-						Vector2.Zero,
 						GetGestureTimestamp(),
+						Vector2.Zero,
+						Vector2.Zero,
+						Vector2.Zero,
+						Vector2.Zero,
 						fingerId,
 						TouchPanel.NO_FINGER
 					));
@@ -303,12 +303,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			if (callBelatedPinchComplete && IsGestureEnabled(GestureType.PinchComplete))
 			{
 				TouchPanel.EnqueueGesture(new GestureSample(
-					Vector2.Zero,
-					Vector2.Zero,
 					GestureType.PinchComplete,
-					Vector2.Zero,
-					Vector2.Zero,
 					GetGestureTimestamp(),
+					Vector2.Zero,
+					Vector2.Zero,
+					Vector2.Zero,
+					Vector2.Zero,
 					TouchPanel.NO_FINGER,
 					TouchPanel.NO_FINGER
 				));
@@ -395,12 +395,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				// Horizontal Dragging!
 				TouchPanel.EnqueueGesture(new GestureSample(
-					new Vector2(delta.X, 0),
-					Vector2.Zero,
 					GestureType.HorizontalDrag,
+					GetGestureTimestamp(),
 					touchPosition,
 					Vector2.Zero,
-					GetGestureTimestamp(),
+					new Vector2(delta.X, 0),
+					Vector2.Zero,
 					fingerId,
 					TouchPanel.NO_FINGER
 				));
@@ -409,12 +409,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				// Vertical Dragging!
 				TouchPanel.EnqueueGesture(new GestureSample(
-					new Vector2(0, delta.Y),
-					Vector2.Zero,
 					GestureType.VerticalDrag,
+					GetGestureTimestamp(),
 					touchPosition,
 					Vector2.Zero,
-					GetGestureTimestamp(),
+					new Vector2(0, delta.Y),
+					Vector2.Zero,
 					fingerId,
 					TouchPanel.NO_FINGER
 				));
@@ -423,12 +423,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				// Free Dragging!
 				TouchPanel.EnqueueGesture(new GestureSample(
-					delta,
-					Vector2.Zero,
 					GestureType.FreeDrag,
+					GetGestureTimestamp(),
 					touchPosition,
 					Vector2.Zero,
-					GetGestureTimestamp(),
+					delta,
+					Vector2.Zero,
 					fingerId,
 					TouchPanel.NO_FINGER
 				));
@@ -522,12 +522,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				{
 					// Hold!
 					TouchPanel.EnqueueGesture(new GestureSample(
-						Vector2.Zero,
-						Vector2.Zero,
 						GestureType.Hold,
+						GetGestureTimestamp(),
 						activeFingerPosition,
 						Vector2.Zero,
-						GetGestureTimestamp(),
+						Vector2.Zero,
+						Vector2.Zero,
 						activeFingerId,
 						TouchPanel.NO_FINGER
 					));
@@ -574,12 +574,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				// Pinch Complete!
 				TouchPanel.EnqueueGesture(new GestureSample(
-					Vector2.Zero,
-					Vector2.Zero,
 					GestureType.PinchComplete,
-					Vector2.Zero,
-					Vector2.Zero,
 					GetGestureTimestamp(),
+					Vector2.Zero,
+					Vector2.Zero,
+					Vector2.Zero,
+					Vector2.Zero,
 					activeFingerId,
 					secondFingerId
 				));
@@ -642,12 +642,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				activeFingerPosition = touchPosition;
 				TouchPanel.EnqueueGesture(new GestureSample(
-					delta,
-					Vector2.Zero,
 					GestureType.Pinch,
+					GetGestureTimestamp(),
 					activeFingerPosition,
 					secondFingerPosition,
-					GetGestureTimestamp(),
+					delta,
+					Vector2.Zero,
 					activeFingerId,
 					secondFingerId
 				));
@@ -656,12 +656,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				secondFingerPosition = touchPosition;
 				TouchPanel.EnqueueGesture(new GestureSample(
-					Vector2.Zero,
-					delta,
 					GestureType.Pinch,
+					GetGestureTimestamp(),
 					activeFingerPosition,
 					secondFingerPosition,
-					GetGestureTimestamp(),
+					Vector2.Zero,
+					delta,
 					activeFingerId,
 					secondFingerId
 				));

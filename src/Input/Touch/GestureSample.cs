@@ -72,24 +72,48 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#endregion
 
+		#region Public Constructor
+
+		public GestureSample(
+			GestureType gestureType,
+			TimeSpan timestamp,
+			Vector2 position,
+			Vector2 position2,
+			Vector2 delta,
+			Vector2 delta2
+		) : this() {
+			GestureType = gestureType;
+			Timestamp = timestamp;
+			Position = position;
+			Position2 = position2;
+			Delta = delta;
+			Delta2 = delta2;
+
+			// Oh well...
+			FingerIdEXT = TouchPanel.NO_FINGER;
+			FingerId2EXT = TouchPanel.NO_FINGER;
+		}
+
+		#endregion
+
 		#region Internal Constructor
 
 		internal GestureSample(
-			Vector2 delta,
-			Vector2 delta2,
 			GestureType gestureType,
+			TimeSpan timestamp,
 			Vector2 position,
 			Vector2 position2,
-			TimeSpan timestamp,
+			Vector2 delta,
+			Vector2 delta2,
 			int fingerId,
 			int fingerId2
 		) : this() {
-			Delta = delta;
-			Delta2 = delta2;
 			GestureType = gestureType;
+			Timestamp = timestamp;
 			Position = position;
 			Position2 = position2;
-			Timestamp = timestamp;
+			Delta = delta;
+			Delta2 = delta2;
 			FingerIdEXT = fingerId;
 			FingerId2EXT = fingerId2;
 		}
