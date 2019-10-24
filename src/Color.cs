@@ -1598,40 +1598,6 @@ namespace Microsoft.Xna.Framework
 		}
 
 		/// <summary>
-		/// Constructs an RGBA color from a <see cref="Color"/> and an alpha value.
-		/// </summary>
-		/// <param name="color">
-		/// A <see cref="Color"/> for RGB values of new <see cref="Color"/> instance.
-		/// </param>
-		/// <param name="alpha">The alpha component value from 0 to 255.</param>
-		public Color(Color color, int alpha)
-		{
-			packedValue = 0;
-
-			R = color.R;
-			G = color.G;
-			B = color.B;
-			A = (byte) MathHelper.Clamp(alpha, Byte.MinValue, Byte.MaxValue);
-		}
-
-		/// <summary>
-		/// Constructs an RGBA color from color and alpha value.
-		/// </summary>
-		/// <param name="color">
-		/// A <see cref="Color"/> for RGB values of new <see cref="Color"/> instance.
-		/// </param>
-		/// <param name="alpha">Alpha component value from 0.0f to 1.0f.</param>
-		public Color(Color color, float alpha)
-		{
-			packedValue = 0;
-
-			R = color.R;
-			G = color.G;
-			B = color.B;
-			A = (byte) MathHelper.Clamp(alpha * 255, Byte.MinValue, Byte.MaxValue);
-		}
-
-		/// <summary>
 		/// Constructs an RGBA color from scalars which representing red, green and blue values. Alpha value will be opaque.
 		/// </summary>
 		/// <param name="r">Red component value from 0.0f to 1.0f.</param>
