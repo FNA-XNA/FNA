@@ -34,7 +34,7 @@ namespace Microsoft.Xna.Framework.Content
 			if (existingInstance == null)
 			{
 				texture = new Texture3D(
-					reader.GraphicsDevice,
+					reader.ContentManager.GetGraphicsDevice(),
 					width,
 					height,
 					depth,

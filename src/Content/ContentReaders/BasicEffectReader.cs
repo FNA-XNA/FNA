@@ -21,7 +21,7 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader input,
 			BasicEffect existingInstance
 		) {
-			BasicEffect effect = new BasicEffect(input.GraphicsDevice);
+			BasicEffect effect = new BasicEffect(input.ContentManager.GetGraphicsDevice());
 			Texture2D texture = input.ReadExternalReference<Texture>() as Texture2D;
 			if (texture != null)
 			{

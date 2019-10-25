@@ -30,7 +30,7 @@ namespace Microsoft.Xna.Framework.Content
 			if (existingInstance == null)
 			{
 				textureCube = new TextureCube(
-					reader.GraphicsDevice,
+					reader.ContentManager.GetGraphicsDevice(),
 					size,
 					levels > 1,
 					surfaceFormat
