@@ -61,6 +61,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		#region Private Variables
 
+		private GraphicsDevice graphicsDevice;
 		private Dictionary<string, object> loadedAssets = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 		private List<IDisposable> disposableAssets = new List<IDisposable>();
 		private bool disposed;
@@ -441,14 +442,18 @@ namespace Microsoft.Xna.Framework.Content
 
 		internal GraphicsDevice GetGraphicsDevice()
 		{
-			IGraphicsDeviceService result = ServiceProvider.GetService(
-				typeof(IGraphicsDeviceService)
-			) as IGraphicsDeviceService;
-			if (result == null)
+			if (graphicsDevice == null)
 			{
-				throw new ContentLoadException("No Graphics Device Service");
+				IGraphicsDeviceService result = ServiceProvider.GetService(
+					typeof(IGraphicsDeviceService)
+				) as IGraphicsDeviceService;
+				if (result == null)
+				{
+					throw new ContentLoadException("No Graphics Device Service");
+				}
+				graphicsDevice = result.GraphicsDevice;
 			}
-			return result.GraphicsDevice;
+			return graphicsDevice;
 		}
 
 		#endregion
