@@ -220,20 +220,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			private IntPtr mtlDevice = IntPtr.Zero;
 			private IntPtr[] internalBuffers;
 			private int internalBufferSize = 0;
-			private bool alreadyWritten = false;
+			private int prevDataLength = 0;
 			private int frame = 0;
 			private int copiesNeeded = 0;
 			private bool dynamic = false;
+			private bool variableDataSize = false;
 
 			public MetalBuffer(
 				MetalDevice device,
 				IntPtr bufferSize,
-				bool dynamic
+				bool dynamic,
+				bool variableDataSize
 			) {
 				this.device = device;
 				this.mtlDevice = device.device;
 				BufferSize = bufferSize;
 				this.dynamic = dynamic;
+				this.variableDataSize = variableDataSize;
 
 				/* Since dynamic buffers will likely be overwritten
 				 * in a single frame, allocate more space up-front.
@@ -284,20 +287,21 @@ namespace Microsoft.Xna.Framework.Graphics
 				int dataLength,
 				SetDataOptions options
 			) {
+				int len = variableDataSize ? dataLength : (int) BufferSize;
 				if (options == SetDataOptions.Discard)
 				{
-					HandleOverwrite(dynamic);
+					HandleOverwrite(dynamic, len);
 
 					// Zero out the memory
 					memset(
 						Contents + InternalOffset,
 						(IntPtr) 0,
-						BufferSize
+						(IntPtr) len
 					);
 				}
 				else if (options == SetDataOptions.None)
 				{
-					HandleOverwrite(false);
+					HandleOverwrite(false, len);
 				}
 
 				// Copy the data into the buffer
@@ -312,26 +316,33 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					copiesNeeded = device.backingBufferCount - 1;
 				}
-				alreadyWritten = true;
+				prevDataLength = len;
 			}
 
-			private void HandleOverwrite(bool shouldExpand)
+			private void HandleOverwrite(bool shouldExpand, int dataLength)
 			{
-				if (!alreadyWritten)
-				{
-					return;
-				}
+				InternalOffset += prevDataLength;
 
-				InternalOffset += (int) BufferSize;
-				if (InternalOffset >= (int) mtlGetBufferLength(Handle))
+				int sizeNeeded = InternalOffset + dataLength;
+				if (sizeNeeded > (int) mtlGetBufferLength(Handle))
 				{
+					/* We can't stall if we're on a background thread.
+					 * Let's just expand the buffer instead. It'll use
+					 * a bit more memory, but that's better than crashing!
+					 * -caleb
+					 */
+					shouldExpand |= !device.OnMainThread();
+
 					if (shouldExpand)
 					{
-						if (InternalOffset >= internalBufferSize)
+						if (sizeNeeded >= internalBufferSize)
 						{
-							// Double capacity when we're out of room
-							Console.WriteLine("We need more space! Doubling internal buffer size!");
-							internalBufferSize *= 2;
+							// Increase capacity when we're out of room
+							Console.WriteLine("We need more space! Increasing internal buffer size!");
+							internalBufferSize = Math.Max(
+								internalBufferSize * 2,
+								internalBufferSize + dataLength
+							);
 						}
 						CreateBackingBuffer(frame);
 					}
@@ -357,7 +368,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				int lastFrame = frame;
 				InternalOffset = 0;
 				frame = (frame + 1) % device.backingBufferCount;
-				alreadyWritten = false;
+				prevDataLength = 0;
 
 				if (copiesNeeded > 0)
 				{
@@ -532,10 +543,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr ldTechnique = IntPtr.Zero;
 		private uint ldPass = 0;
 
-		private List<DynamicVertexBuffer> userVertexBuffers = new List<DynamicVertexBuffer>();
-		private List<DynamicIndexBuffer> userIndexBuffers = new List<DynamicIndexBuffer>();
-		private VertexBufferBinding[] userBufferBinding = new VertexBufferBinding[1];
-		private VertexDeclaration userVertexDeclaration;
+		private VertexDeclaration userVertexDeclaration = null;
+		private MetalBuffer userVertexBuffer = null;
+		private MetalBuffer userIndexBuffer = null;
 
 		#endregion
 
@@ -591,6 +601,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private readonly int backingBufferCount = 2;
 		private Queue<IntPtr> submittedCommandBuffers;
+
+		private int mainThreadID;
 
 		#endregion
 
@@ -836,6 +848,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Initialize submitted command buffer synchronization queue
 			submittedCommandBuffers = new Queue<IntPtr>(backingBufferCount);
+
+			// Store the main thread ID
+			mainThreadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
 
 			// Create and setup the faux-backbuffer
 			InitializeFauxBackbuffer(presentationParameters);
@@ -1564,7 +1579,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				XNAToMTL.PrimitiveVerts(primitiveType, primitiveCount),
 				XNAToMTL.IndexType[(int) indices.IndexElementSize],
 				(indices.buffer as MetalBuffer).Handle,
-				(ulong) minVertexIndex,
+				(ulong) (startIndex * XNAToMTL.IndexSize[(int) indices.IndexElementSize]),
 				(ulong) instanceCount,
 				baseVertex,
 				0
@@ -1594,57 +1609,47 @@ namespace Microsoft.Xna.Framework.Graphics
 			IndexElementSize indexElementSize,
 			int primitiveCount
 		) {
-			int stride = userVertexDeclaration.VertexStride;
-			int indexSize = XNAToMTL.IndexSize[(int) indexElementSize];
-			int numIndices = (int) XNAToMTL.PrimitiveVerts(primitiveType, primitiveCount);
-			int vertexDataLen = numVertices * stride;
-			int indexDataLen = numIndices * indexSize;
-
-			// Get a temp buffer and set the vertex attributes
-			DynamicVertexBuffer vertbuf = FetchUserVertexBuffer(
-				userVertexDeclaration,
-				vertexDataLen,
-				(ulong) numVertices
+			// Bind user vertex buffer
+			ulong numIndices = XNAToMTL.PrimitiveVerts(
+				primitiveType,
+				primitiveCount
 			);
-			userBufferBinding[0] = new VertexBufferBinding(vertbuf, vertexOffset);
-			ApplyVertexAttributes(userBufferBinding, 1, true, 0);
-
-			// Copy the vertex contents into the buffer
-			SetVertexBufferData(
-				vertbuf.buffer,
-				vertexOffset * stride,
+			BindUserVertexBuffer(
 				vertexData,
-				vertexDataLen,
-				SetDataOptions.Discard
+				(int) numIndices
 			);
 
-			// Get a temp index buffer and copy the data
-			DynamicIndexBuffer idxbuf = FetchUserIndexBuffer(
-				userVertexDeclaration.GraphicsDevice,
-				indexElementSize,
-				numIndices,
-				indexDataLen
-			);
-			SetIndexBufferData(
-				idxbuf.buffer,
-				indexOffset * indexSize,
+			// Bind user index buffer
+			int indexSize = XNAToMTL.IndexSize[(int) indexElementSize];
+			int len = (int) numIndices * indexSize;
+			if (userIndexBuffer == null)
+			{
+				userIndexBuffer = new MetalBuffer(
+					this,
+					(IntPtr) len,
+					true,
+					true
+				);
+				Buffers.Add(userIndexBuffer);
+			}
+			userIndexBuffer.SetData(
+				0,
 				indexData,
-				indexDataLen,
+				len,
 				SetDataOptions.Discard
 			);
-
 			ulong totalIndexOffset = (ulong) (
 				(indexOffset * indexSize) +
-				(idxbuf.buffer as MetalBuffer).InternalOffset
+				userIndexBuffer.InternalOffset
 			);
 
 			// Draw!
 			mtlDrawIndexedPrimitives(
 				renderCommandEncoder,
 				XNAToMTL.Primitive[(int) primitiveType],
-				(ulong) numIndices,
+				numIndices,
 				XNAToMTL.IndexType[(int) indexElementSize],
-				(idxbuf.buffer as MetalBuffer).Handle,
+				userIndexBuffer.Handle,
 				totalIndexOffset,
 				1,
 				vertexOffset,
@@ -1662,34 +1667,66 @@ namespace Microsoft.Xna.Framework.Graphics
 				primitiveType,
 				primitiveCount
 			);
-			int stride = userVertexDeclaration.VertexStride;
-			int size = stride * (int) numVerts;
-
-			// Get a temp buffer and set the vertex attributes
-			DynamicVertexBuffer buf = FetchUserVertexBuffer(
-				userVertexDeclaration,
-				size,
-				numVerts
-			);
-			userBufferBinding[0] = new VertexBufferBinding(buf);
-			ApplyVertexAttributes(userBufferBinding, 1, true, 0);
-
-			// Copy the pointer contents into the buffer
-			SetVertexBufferData(
-				buf.buffer,
-				vertexOffset * stride,
+			BindUserVertexBuffer(
 				vertexData,
-				size,
-				SetDataOptions.Discard
+				(int) numVerts
 			);
-
-			// Draw!
 			mtlDrawPrimitives(
 				renderCommandEncoder,
 				XNAToMTL.Primitive[(int) primitiveType],
 				(ulong) vertexOffset,
 				numVerts
 			);
+		}
+
+		private void BindUserVertexBuffer(
+			IntPtr vertexData,
+			int vertexCount
+		) {
+			UpdateRenderPass();
+
+			int len = vertexCount * userVertexDeclaration.VertexStride;
+			if (userVertexBuffer == null)
+			{
+				userVertexBuffer = new MetalBuffer(
+					this,
+					(IntPtr) len,
+					true,
+					true
+				);
+				Buffers.Add(userVertexBuffer);
+			}
+			userVertexBuffer.SetData(
+				0,
+				vertexData,
+				len,
+				SetDataOptions.Discard
+			);
+
+			int offset = userVertexBuffer.InternalOffset;
+			IntPtr handle = userVertexBuffer.Handle;
+			if (ldVertexBuffers[0] != handle)
+			{
+				mtlSetVertexBuffer(
+					renderCommandEncoder,
+					handle,
+					(ulong) offset,
+					(ulong) 0
+				);
+				ldVertexBuffers[0] = handle;
+				ldVertexBufferOffsets[0] = offset;
+			}
+			else if (ldVertexBufferOffsets[0] != offset)
+			{
+				mtlSetVertexBufferOffset(
+					renderCommandEncoder,
+					(ulong) offset,
+					(ulong) 0
+				);
+				ldVertexBufferOffsets[0] = offset;
+			}
+
+			BindResources();
 		}
 
 		#endregion
@@ -2325,55 +2362,74 @@ namespace Microsoft.Xna.Framework.Graphics
 			return descriptor;
 		}
 
-		private DynamicVertexBuffer FetchUserVertexBuffer(
-			VertexDeclaration declaration,
-			int size,
-			ulong vertexCount
+		private IntPtr FetchVertexDescriptor(
+			VertexDeclaration vertexDeclaration,
+			int vertexOffset
 		) {
-			// Do we already have a buffer cached?
-			foreach (DynamicVertexBuffer userBuffer in userVertexBuffers)
+			// Get the binding hash value
+			long hash = (long) unchecked (
+				vertexOffset +
+				vertexDeclaration.GetHashCode() +
+				1
+			);
+
+			// Can we just reuse an existing descriptor?
+			IntPtr descriptor;
+			if (VertexDescriptorCache.TryGetValue(hash, out descriptor))
 			{
-				if ((int) userBuffer.buffer.BufferSize >= size)
-				{
-					return userBuffer;
-				}
+				// The value is already cached!
+				return descriptor;
 			}
 
-			// Make a new vertex buffer
-			DynamicVertexBuffer newBuf = new DynamicVertexBuffer(
-				declaration.GraphicsDevice,
-				declaration,
-				(int) vertexCount,
-				BufferUsage.WriteOnly
-			);
-			userVertexBuffers.Add(newBuf);
-			return newBuf;
-		}
+			// We have to make a new vertex descriptor...
+			descriptor = mtlMakeVertexDescriptor();
+			ObjCRetain(descriptor); // Make sure this doesn't get drained
 
-		private DynamicIndexBuffer FetchUserIndexBuffer(
-			GraphicsDevice graphicsDevice,
-			IndexElementSize indexElementSize,
-			int numIndices,
-			int size
-		) {
-			// Do we already have a buffer cached?
-			foreach (DynamicIndexBuffer userBuffer in userIndexBuffers)
+			// Describe vertex attributes
+			for (int j = 0; j < vertexDeclaration.elements.Length; j += 1)
 			{
-				if ((int) userBuffer.buffer.BufferSize >= size)
+				VertexElement element = vertexDeclaration.elements[j];
+
+				int attribLoc = MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
+					currentVertexShader,
+					XNAToMTL.VertexAttribUsage[(int) element.VertexElementUsage],
+					element.UsageIndex
+				);
+				if (attribLoc == -1)
 				{
-					return userBuffer;
+					// Stream not in use!
+					continue;
 				}
+				IntPtr attrib = mtlGetVertexAttributeDescriptor(
+					descriptor,
+					attribLoc
+				);
+				mtlSetVertexAttributeFormat(
+					attrib,
+					XNAToMTL.VertexAttribType[(int) element.VertexElementFormat]
+				);
+				mtlSetVertexAttributeOffset(
+					attrib,
+					element.Offset
+				);
+				mtlSetVertexAttributeBufferIndex(
+					attrib,
+					0
+				);
 			}
 
-			// Make a new index buffer
-			DynamicIndexBuffer newBuf = new DynamicIndexBuffer(
-				graphicsDevice,
-				indexElementSize,
-				numIndices,
-				BufferUsage.WriteOnly
+			// Describe vertex buffer layout
+			IntPtr layout = mtlGetVertexBufferLayoutDescriptor(
+				descriptor,
+				0
 			);
-			userIndexBuffers.Add(newBuf);
-			return newBuf;
+			mtlSetVertexBufferLayoutStride(
+				layout,
+				vertexDeclaration.VertexStride
+			);
+
+			VertexDescriptorCache[hash] = descriptor;
+			return descriptor;
 		}
 
 		#endregion
@@ -2779,8 +2835,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr ptr,
 			int vertexOffset
 		) {
+			if (	currentEffect != ldEffect ||
+				currentTechnique != ldTechnique ||
+				currentPass != ldPass ||
+				effectApplied	)
+			{
+				// Translate the declaration into a descriptor
+				currentVertexDescriptor = FetchVertexDescriptor(
+					vertexDeclaration,
+					vertexOffset
+				);
+			}
+
 			userVertexDeclaration = vertexDeclaration;
-			// The rest of the work happens in DrawUser[Indexed]Primitives.
+			// The rest happens in DrawUser[Indexed]Primitives.
 		}
 
 		#endregion
@@ -2794,7 +2862,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			int elementSize = XNAToMTL.IndexSize[(int) indexElementSize];
 			IntPtr size = (IntPtr) (indexCount * elementSize);
-			MetalBuffer newbuf = new MetalBuffer(this, size, dynamic);
+			MetalBuffer newbuf = new MetalBuffer(
+				this,
+				size,
+				dynamic,
+				false
+			);
 			Buffers.Add(newbuf);
 			return newbuf;
 		}
@@ -2805,7 +2878,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexStride
 		) {
 			IntPtr size = (IntPtr) (vertexCount * vertexStride);
-			MetalBuffer newbuf = new MetalBuffer(this, size, dynamic);
+			MetalBuffer newbuf = new MetalBuffer(
+				this,
+				size,
+				dynamic,
+				false
+			);
 			Buffers.Add(newbuf);
 			return newbuf;
 		}
@@ -3952,6 +4030,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				pipelineDesc
 			);
 			ObjCRelease(pipelineDesc);
+		}
+
+		#endregion
+
+		#region Threading Helper Method
+
+		private bool OnMainThread()
+		{
+			return System.Threading.Thread.CurrentThread.ManagedThreadId == mainThreadID;
 		}
 
 		#endregion
