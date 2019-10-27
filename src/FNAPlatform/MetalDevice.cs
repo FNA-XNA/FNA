@@ -153,13 +153,14 @@ namespace Microsoft.Xna.Framework.Graphics
 					(ulong) Height,
 					false
 				);
-				if (multiSampleCount > 1 || depthFormat != DepthFormat.None)
-				{
-					mtlSetStorageMode(
-						desc,
-						MTLResourceStorageMode.Private
-					);
-				}
+				mtlSetStorageMode(
+					desc,
+					MTLResourceStorageMode.Private
+				);
+				mtlSetTextureUsage(
+					desc,
+					MTLTextureUsage.RenderTarget
+				);
 				if (multiSampleCount > 1)
 				{
 					mtlSetTextureType(
@@ -171,10 +172,6 @@ namespace Microsoft.Xna.Framework.Graphics
 						multiSampleCount
 					);
 				}
-				mtlSetTextureUsage(
-					desc,
-					MTLTextureUsage.RenderTarget
-				);
 				Handle = mtlNewTextureWithDescriptor(
 					mtlDevice,
 					desc
@@ -1352,6 +1349,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				passDesc
 			);
 
+			// Reset the flags
+			needNewRenderPass = false;
+			shouldClearColor = false;
+			shouldClearDepth = false;
+			shouldClearStencil = false;
+
+			// Apply the dynamic state
 			SetEncoderViewport();
 			SetEncoderScissorRect();
 			SetEncoderBlendColor();
@@ -1359,12 +1363,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			SetEncoderCullMode();
 			SetEncoderFillMode();
 			SetEncoderDepthBias();
-
-			// Reset the flags
-			needNewRenderPass = false;
-			shouldClearColor = false;
-			shouldClearDepth = false;
-			shouldClearStencil = false;
 
 			// Reset the bindings
 			for (int i = 0; i < MaxTextureSlots; i += 1)
@@ -1390,7 +1388,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void SetEncoderStencilReferenceValue()
 		{
-			if (renderCommandEncoder != IntPtr.Zero)
+			if (renderCommandEncoder != IntPtr.Zero && !needNewRenderPass)
 			{
 				mtlSetStencilReferenceValue(
 					renderCommandEncoder,
@@ -1401,7 +1399,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void SetEncoderBlendColor()
 		{
-			if (renderCommandEncoder != IntPtr.Zero)
+			if (renderCommandEncoder != IntPtr.Zero && !needNewRenderPass)
 			{
 				mtlSetBlendColor(
 					renderCommandEncoder,
@@ -1415,7 +1413,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void SetEncoderViewport()
 		{
-			if (renderCommandEncoder != IntPtr.Zero)
+			if (renderCommandEncoder != IntPtr.Zero && !needNewRenderPass)
 			{
 				mtlSetViewport(
 					renderCommandEncoder,
@@ -1431,7 +1429,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void SetEncoderCullMode()
 		{
-			if (renderCommandEncoder != IntPtr.Zero)
+			if (renderCommandEncoder != IntPtr.Zero && !needNewRenderPass)
 			{
 				mtlSetCullMode(
 					renderCommandEncoder,
@@ -1442,7 +1440,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void SetEncoderFillMode()
 		{
-			if (renderCommandEncoder != IntPtr.Zero)
+			if (renderCommandEncoder != IntPtr.Zero && !needNewRenderPass)
 			{
 				mtlSetTriangleFillMode(
 					renderCommandEncoder,
@@ -1453,7 +1451,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void SetEncoderDepthBias()
 		{
-			if (renderCommandEncoder != null)
+			if (renderCommandEncoder != null && !needNewRenderPass)
 			{
 				mtlSetDepthBias(
 					renderCommandEncoder,
@@ -1466,7 +1464,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void SetEncoderScissorRect()
 		{
-			if (renderCommandEncoder != IntPtr.Zero)
+			if (renderCommandEncoder != IntPtr.Zero && !needNewRenderPass)
 			{
 				if (!scissorTestEnable)
 				{
@@ -1880,13 +1878,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void SetBlendState(BlendState blendState)
 		{
 			this.blendState = blendState;
-			SetEncoderBlendColor(); // Dynamic state!
 		}
 
 		public void SetDepthStencilState(DepthStencilState depthStencilState)
 		{
 			this.depthStencilState = depthStencilState;
-			SetEncoderStencilReferenceValue(); // Dynamic state!
 		}
 
 		#endregion
@@ -3039,6 +3035,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			if (isRenderTarget)
 			{
+				mtlSetStorageMode(
+					texDesc,
+					MTLResourceStorageMode.Private
+				);
 				mtlSetTextureUsage(
 					texDesc,
 					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead

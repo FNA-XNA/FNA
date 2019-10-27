@@ -1273,15 +1273,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			return ulong_objc_msgSend(texture, selHeight);
 		}
 
-		#region MTLShader
-
-		private static string mtlGetShaderName(IntPtr mtlShader)
-		{
-			return NSStringToUTF8(intptr_objc_msgSend(mtlShader, selName));
-		}
-
-		#endregion
-
 		#region MTLBlitCommandEncoder
 
 		private static IntPtr selBlitCommandEncoder = Selector("blitCommandEncoder");
