@@ -2514,14 +2514,14 @@ namespace Microsoft.Xna.Framework
 
 		public static TouchPanelCapabilities GetTouchCapabilities()
 		{
+			/* Take these reported capabilities with a grain of salt.
+			 * On Windows, touch devices won't be detected until they
+			 * are interacted with. Also, MaximumTouchCount is completely
+			 * bogus. For any touch device, XNA always reports 4.
+			 *
+			 * -caleb
+			 */
 			bool touchDeviceExists = SDL.SDL_GetNumTouchDevices() > 0;
-				/* Take these reported capabilities with a grain of salt.
-				 * On Windows, touch devices won't be detected until they
-				 * are interacted with. Also, MaximumTouchCount is completely
-				 * bogus. For any touch device, XNA always reports 4.
-				 * 
-				 * -caleb
-				 */
 			return new TouchPanelCapabilities(
 				touchDeviceExists,
 				touchDeviceExists ? 4 : 0

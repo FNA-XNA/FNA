@@ -38,7 +38,7 @@ namespace Microsoft.Xna.Framework.Storage
 					// null drive means the OS denied info, so we get to guess!
 					if (drive == null)
 					{
-					    return long.MaxValue;
+						return long.MaxValue;
 					}
 					return drive.AvailableFreeSpace;
 				}
@@ -65,7 +65,7 @@ namespace Microsoft.Xna.Framework.Storage
 					// null drive means the OS denied info, so we get to guess!
 					if (drive == null)
 					{
-					    return true;
+						return true;
 					}
 					return drive.IsReady;
 				}
@@ -89,7 +89,7 @@ namespace Microsoft.Xna.Framework.Storage
 					// null drive means the OS denied info, so we get to guess!
 					if (drive == null)
 					{
-					    return long.MaxValue;
+						return long.MaxValue;
 					}
 					return drive.TotalSize;
 				}
