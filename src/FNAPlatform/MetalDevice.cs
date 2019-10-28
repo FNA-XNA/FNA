@@ -3332,9 +3332,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * -caleb
 			 */
 
-			ResetAttachments();
+			// Perform any pending clears before we leave the RT
+			UpdateRenderPass();
 
-			// Bind the right framebuffer, if needed
+			// Bind the correct framebuffer
+			ResetAttachments();
 			if (renderTargets == null)
 			{
 				renderTargetBound = false;
