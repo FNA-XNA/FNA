@@ -96,16 +96,18 @@ namespace Microsoft.Xna.Framework.Content
 			int levelCount = reader.ReadInt32();
 			int levelCountOutput = levelCount;
 
+			GraphicsDevice device = reader.ContentManager.GetGraphicsDevice();
+
 			// Check to see if we need to convert the surface data
 			SurfaceFormat convertedFormat = surfaceFormat;
 			if (	surfaceFormat == SurfaceFormat.Dxt1 &&
-				!reader.GraphicsDevice.GLDevice.SupportsDxt1	)
+				!device.GLDevice.SupportsDxt1	)
 			{
 				convertedFormat = SurfaceFormat.Color;
 			}
 			else if (	(	surfaceFormat == SurfaceFormat.Dxt3 ||
 						surfaceFormat == SurfaceFormat.Dxt5	) &&
-					!reader.GraphicsDevice.GLDevice.SupportsS3tc	)
+					!device.GLDevice.SupportsS3tc	)
 			{
 				convertedFormat = SurfaceFormat.Color;
 			}
@@ -114,7 +116,7 @@ namespace Microsoft.Xna.Framework.Content
 			if (existingInstance == null)
 			{
 				texture = new Texture2D(
-					reader.GraphicsDevice,
+					device,
 					width,
 					height,
 					levelCountOutput > 1,

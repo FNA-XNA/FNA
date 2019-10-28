@@ -17,9 +17,9 @@ namespace Microsoft.Xna.Framework.Graphics
 {
 	public sealed class ModelMeshPartCollection : ReadOnlyCollection<ModelMeshPart>
 	{
-		#region Public Constructor
+		#region Internal Constructor
 
-		public ModelMeshPartCollection(IList<ModelMeshPart> list) : base(list)
+		internal ModelMeshPartCollection(IList<ModelMeshPart> list) : base(list)
 		{
 		}
 

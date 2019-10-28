@@ -44,10 +44,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public override string ToString()
 		{
-			return    Convert.ToString(i1, 2).PadLeft(32, '0')
-				+ Convert.ToString(i2, 2).PadLeft(32, '0')
-				+ Convert.ToString(i3, 2).PadLeft(32, '0')
-				+ Convert.ToString(i4, 2).PadLeft(32, '0');
+			return	Convert.ToString(i1, 2).PadLeft(32, '0') +
+				Convert.ToString(i2, 2).PadLeft(32, '0') +
+				Convert.ToString(i3, 2).PadLeft(32, '0') +
+				Convert.ToString(i4, 2).PadLeft(32, '0');
 		}
 
 		bool IEquatable<StateHash>.Equals(StateHash hash)
@@ -55,16 +55,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			return i1 == hash.i1 && i2 == hash.i2 && i3 == hash.i3 && i4 == hash.i4;
 		}
 
-		override public bool Equals(object obj)
+		public override bool Equals(object obj)
 		{
 			if (obj == null || obj.GetType() != GetType())
+			{
 				return false;
+			}
 
 			StateHash hash = (StateHash) obj;
 			return i1 == hash.i1 && i2 == hash.i2 && i3 == hash.i3 && i4 == hash.i4;
 		}
 
-		override public int GetHashCode()
+		public override int GetHashCode()
 		{
 			return unchecked(i1 + i2 + i3 + i4);
 		}

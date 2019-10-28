@@ -15,8 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-
-using Microsoft.Xna.Framework.Graphics;
 #endregion
 
 namespace Microsoft.Xna.Framework.Content
@@ -53,14 +51,6 @@ namespace Microsoft.Xna.Framework.Content
 			}
 		}
 
-		internal GraphicsDevice GraphicsDevice
-		{
-			get
-			{
-				return this.graphicsDevice;
-			}
-		}
-
 		#endregion
 
 		#region Internal Variables
@@ -76,7 +66,6 @@ namespace Microsoft.Xna.Framework.Content
 		private Action<IDisposable> recordDisposableObject;
 		private ContentTypeReaderManager typeReaderManager;
 		private ContentTypeReader[] typeReaders;
-		private GraphicsDevice graphicsDevice;
 		private string assetName;
 
 		/* From what I can tell, shared resources work like this:
@@ -97,13 +86,11 @@ namespace Microsoft.Xna.Framework.Content
 		internal ContentReader(
 			ContentManager manager,
 			Stream stream,
-			GraphicsDevice graphicsDevice,
 			string assetName,
 			int version,
 			char platform,
 			Action<IDisposable> recordDisposableObject
 		) : base(stream) {
-			this.graphicsDevice = graphicsDevice;
 			this.recordDisposableObject = recordDisposableObject;
 			this.contentManager = manager;
 			this.assetName = assetName;

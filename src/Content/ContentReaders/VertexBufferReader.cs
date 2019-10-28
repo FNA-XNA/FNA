@@ -30,7 +30,7 @@ namespace Microsoft.Xna.Framework.Content
 			byte[] data = input.ReadBytes(vertexCount * declaration.VertexStride);
 
 			VertexBuffer buffer = new VertexBuffer(
-				input.GraphicsDevice,
+				input.ContentManager.GetGraphicsDevice(),
 				declaration,
 				vertexCount,
 				BufferUsage.None

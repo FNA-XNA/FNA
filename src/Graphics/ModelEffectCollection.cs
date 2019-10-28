@@ -21,15 +21,11 @@ namespace Microsoft.Xna.Framework.Graphics
 	/// </summary>
 	public sealed class ModelEffectCollection : ReadOnlyCollection<Effect>
 	{
-		#region Public Constructor
+		#region Internal Constructors
 
-		public ModelEffectCollection(IList<Effect> list) : base(list)
+		internal ModelEffectCollection(IList<Effect> list) : base(list)
 		{
 		}
-
-		#endregion
-
-		#region Internal Constructor
 
 		internal ModelEffectCollection() : base(new List<Effect>())
 		{

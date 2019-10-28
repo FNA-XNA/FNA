@@ -21,7 +21,7 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader input,
 			DualTextureEffect existingInstance
 		) {
-			DualTextureEffect effect = new DualTextureEffect(input.GraphicsDevice);
+			DualTextureEffect effect = new DualTextureEffect(input.ContentManager.GetGraphicsDevice());
 			effect.Texture = input.ReadExternalReference<Texture>() as Texture2D;
 			effect.Texture2 = input.ReadExternalReference<Texture>() as Texture2D;
 			effect.DiffuseColor = input.ReadVector3();

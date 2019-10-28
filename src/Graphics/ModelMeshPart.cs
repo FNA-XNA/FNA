@@ -134,5 +134,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		private Effect INTERNAL_effect;
 
 		#endregion
+
+		#region Internal Constructor
+
+		internal ModelMeshPart()
+		{
+		}
+
+		#endregion
 	}
 }

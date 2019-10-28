@@ -21,7 +21,7 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader input,
 			EnvironmentMapEffect existingInstance
 		) {
-			EnvironmentMapEffect effect = new EnvironmentMapEffect(input.GraphicsDevice);
+			EnvironmentMapEffect effect = new EnvironmentMapEffect(input.ContentManager.GetGraphicsDevice());
 			effect.Texture = input.ReadExternalReference<Texture>() as Texture2D;
 			effect.EnvironmentMap = input.ReadExternalReference<TextureCube>() as TextureCube;
 			effect.EnvironmentMapAmount = input.ReadSingle();

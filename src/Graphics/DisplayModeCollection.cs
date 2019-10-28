@@ -46,9 +46,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Public Constructor
+		#region Internal Constructor
 
-		public DisplayModeCollection(List<DisplayMode> setmodes)
+		internal DisplayModeCollection(List<DisplayMode> setmodes)
 		{
 			modes = setmodes;
 		}

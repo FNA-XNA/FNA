@@ -61,7 +61,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		#region Private Variables
 
-		private IGraphicsDeviceService graphicsDeviceService;
+		private GraphicsDevice graphicsDevice;
 		private Dictionary<string, object> loadedAssets = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 		private List<IDisposable> disposableAssets = new List<IDisposable>();
 		private bool disposed;
@@ -269,17 +269,6 @@ namespace Microsoft.Xna.Framework.Content
 			}
 
 			object result = null;
-
-			// FIXME: Should this block be here? -flibit
-			if (graphicsDeviceService == null)
-			{
-				graphicsDeviceService = ServiceProvider.GetService(typeof(IGraphicsDeviceService)) as IGraphicsDeviceService;
-				if (graphicsDeviceService == null)
-				{
-					throw new InvalidOperationException("No Graphics Device Service");
-				}
-			}
-
 			Stream stream = null;
 			string modifiedAssetName = String.Empty; // Will be used if we have to guess a filename
 			try
@@ -361,14 +350,14 @@ namespace Microsoft.Xna.Framework.Content
 						xnbHeader[3] == ' '	)
 					{
 						texture = Texture2D.DDSFromStreamEXT(
-							graphicsDeviceService.GraphicsDevice,
+							GetGraphicsDevice(),
 							stream
 						);
 					}
 					else
 					{
 						texture = Texture2D.FromStream(
-							graphicsDeviceService.GraphicsDevice,
+							GetGraphicsDevice(),
 							stream
 						);
 					}
@@ -383,7 +372,7 @@ namespace Microsoft.Xna.Framework.Content
 				{
 					byte[] data = new byte[stream.Length];
 					stream.Read(data, 0, (int) stream.Length);
-					result = new Effect(graphicsDeviceService.GraphicsDevice, data);
+					result = new Effect(GetGraphicsDevice(), data);
 				}
 				else if ((typeof(T) == typeof(Song)))
 				{
@@ -393,7 +382,7 @@ namespace Microsoft.Xna.Framework.Content
 				else if ((typeof(T) == typeof(Video)))
 				{
 					// FIXME: Not using the stream! -flibit
-					result = new Video(modifiedAssetName, graphicsDeviceService.GraphicsDevice);
+					result = new Video(modifiedAssetName, GetGraphicsDevice());
 					FNALoggerEXT.LogWarn(
 						"Video " +
 						modifiedAssetName +
@@ -449,6 +438,22 @@ namespace Microsoft.Xna.Framework.Content
 			{
 				disposableAssets.Add(disposable);
 			}
+		}
+
+		internal GraphicsDevice GetGraphicsDevice()
+		{
+			if (graphicsDevice == null)
+			{
+				IGraphicsDeviceService result = ServiceProvider.GetService(
+					typeof(IGraphicsDeviceService)
+				) as IGraphicsDeviceService;
+				if (result == null)
+				{
+					throw new ContentLoadException("No Graphics Device Service");
+				}
+				graphicsDevice = result.GraphicsDevice;
+			}
+			return graphicsDevice;
 		}
 
 		#endregion
@@ -555,7 +560,6 @@ namespace Microsoft.Xna.Framework.Content
 				reader = new ContentReader(
 					this,
 					decompressedStream,
-					graphicsDeviceService.GraphicsDevice,
 					originalAssetName,
 					version,
 					platform,
@@ -567,7 +571,6 @@ namespace Microsoft.Xna.Framework.Content
 				reader = new ContentReader(
 					this,
 					stream,
-					graphicsDeviceService.GraphicsDevice,
 					originalAssetName,
 					version,
 					platform,
