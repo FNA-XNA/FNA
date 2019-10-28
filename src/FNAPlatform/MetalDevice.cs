@@ -335,7 +335,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						if (sizeNeeded >= internalBufferSize)
 						{
 							// Increase capacity when we're out of room
-							Console.WriteLine("We need more space! Increasing internal buffer size!");
+							FNALoggerEXT.LogWarn("We need more space! Increasing internal buffer size!");
 							internalBufferSize = Math.Max(
 								internalBufferSize * 2,
 								internalBufferSize + dataLength
@@ -370,7 +370,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (copiesNeeded > 0)
 				{
 					// Copy the last frame's contents to the new one
-					Console.WriteLine("Copy " + Handle);
+					FNALoggerEXT.LogInfo("Copy " + Handle);
 					int dstLen = (int) mtlGetBufferLength(Handle);
 					if (dstLen < internalBufferSize)
 					{
@@ -592,6 +592,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private ulong currentAttachmentHeight;
 
 		private bool needNewRenderPass = false;
+		private bool justStartedFrame = false;
 		private bool shouldClearColor = false;
 		private bool shouldClearDepth = false;
 		private bool shouldClearStencil = false;
@@ -665,8 +666,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private State Object Caches
 
-		private Dictionary<long, IntPtr> VertexDescriptorCache =
-			new Dictionary<long, IntPtr>();
+		private Dictionary<string, IntPtr> VertexDescriptorCache =
+			new Dictionary<string, IntPtr>();
 
 		private Dictionary<int, IntPtr> PipelineStateCache =
 			new Dictionary<int, IntPtr>();
@@ -1106,6 +1107,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			pool = StartAutoreleasePool();
 			commandBuffer = mtlMakeCommandBuffer(queue);
 			needNewRenderPass = true;
+			justStartedFrame = true;
 			renderCommandEncoder = IntPtr.Zero;
 
 			// Reset all buffers
@@ -1351,6 +1353,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Reset the flags
 			needNewRenderPass = false;
+			justStartedFrame = false;
 			shouldClearColor = false;
 			shouldClearDepth = false;
 			shouldClearStencil = false;
@@ -1571,13 +1574,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			int instanceCount,
 			IndexBuffer indices
 		) {
+			ulong totalIndexOffset = (ulong) (
+				(startIndex * XNAToMTL.IndexSize[(int) indices.IndexElementSize]) +
+				(indices.buffer as MetalBuffer).InternalOffset
+			);
 			mtlDrawIndexedPrimitives(
 				renderCommandEncoder,
 				XNAToMTL.Primitive[(int) primitiveType],
 				XNAToMTL.PrimitiveVerts(primitiveType, primitiveCount),
 				XNAToMTL.IndexType[(int) indices.IndexElementSize],
 				(indices.buffer as MetalBuffer).Handle,
-				(ulong) (startIndex * XNAToMTL.IndexSize[(int) indices.IndexElementSize]),
+				totalIndexOffset,
 				(ulong) instanceCount,
 				baseVertex,
 				0
@@ -2269,20 +2276,40 @@ namespace Microsoft.Xna.Framework.Graphics
 			return state;
 		}
 
+		private string GetVertexDeclarationHash(VertexDeclaration declaration)
+		{
+			string hash = "";
+			foreach (VertexElement e in declaration.elements)
+			{
+				hash += e.UsageIndex + ":" +
+					(int) e.VertexElementFormat + ":" +
+					(int) e.VertexElementUsage + ":" +
+					MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
+						currentVertexShader,
+						XNAToMTL.VertexAttribUsage[
+							(int) e.VertexElementUsage
+						],
+						e.UsageIndex
+					) + ":";
+			}
+			hash += declaration.VertexStride;
+			return hash;
+		}
+
 		private IntPtr FetchVertexDescriptor(
 			VertexBufferBinding[] bindings,
 			int numBindings
 		) {
 			// Get the binding hash value
-			long hash = 0;
+			string hash = "";
 			for (int i = 0; i < numBindings; i += 1)
 			{
 				VertexBufferBinding binding = bindings[i];
-				hash += (long) unchecked (
-					binding.VertexOffset +
-					binding.VertexBuffer.VertexDeclaration.GetHashCode() +
-					binding.InstanceFrequency
-				);
+				hash += binding.VertexOffset + ":" +
+					binding.InstanceFrequency + ":" +
+					GetVertexDeclarationHash(
+						binding.VertexBuffer.VertexDeclaration
+					);
 			}
 
 			// Can we just reuse an existing descriptor?
@@ -2363,11 +2390,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexOffset
 		) {
 			// Get the binding hash value
-			long hash = (long) unchecked (
-				vertexOffset +
-				vertexDeclaration.GetHashCode() +
-				1
-			);
+			string hash = GetVertexDeclarationHash(vertexDeclaration);
 
 			// Can we just reuse an existing descriptor?
 			IntPtr descriptor;
@@ -3332,8 +3355,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * -caleb
 			 */
 
-			// Perform any pending clears before we leave the RT
-			UpdateRenderPass();
+			/* If this isn't the first pass of a new frame,
+			 * go ahead and perform any pending clears before
+			 * switching render targets. -caleb
+			 */
+			if (!justStartedFrame)
+			{
+				UpdateRenderPass();
+			}
 
 			// Bind the correct framebuffer
 			ResetAttachments();
