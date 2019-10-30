@@ -302,6 +302,11 @@ namespace Microsoft.Xna.Framework.Content
 				{
 					modifiedAssetName = VideoReader.Normalize(modifiedAssetName);
 				}
+				else
+				{
+					// No raw format available, disregard!
+					modifiedAssetName = null;
+				}
 
 				// Did we get anything...?
 				if (String.IsNullOrEmpty(modifiedAssetName))
