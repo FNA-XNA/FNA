@@ -43,46 +43,102 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
+		private bool INTERNAL_isFullScreen;
 		public bool IsFullScreen
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_isFullScreen;
+			}
+			set
+			{
+				INTERNAL_isFullScreen = value;
+				prefsChanged = true;
+			}
 		}
 
+		private bool INTERNAL_preferMultiSampling;
 		public bool PreferMultiSampling
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_preferMultiSampling;
+			}
+			set
+			{
+				INTERNAL_preferMultiSampling = value;
+				prefsChanged = true;
+			}
 		}
 
+		private SurfaceFormat INTERNAL_preferredBackBufferFormat;
 		public SurfaceFormat PreferredBackBufferFormat
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_preferredBackBufferFormat;
+			}
+			set
+			{
+				INTERNAL_preferredBackBufferFormat = value;
+				prefsChanged = true;
+			}
 		}
 
+		private int INTERNAL_preferredBackBufferHeight;
 		public int PreferredBackBufferHeight
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_preferredBackBufferHeight;
+			}
+			set
+			{
+				INTERNAL_preferredBackBufferHeight = value;
+				prefsChanged = true;
+			}
 		}
 
+		private int INTERNAL_preferredBackBufferWidth;
 		public int PreferredBackBufferWidth
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_preferredBackBufferWidth;
+			}
+			set
+			{
+				INTERNAL_preferredBackBufferWidth = value;
+				prefsChanged = true;
+			}
 		}
 
+		private DepthFormat INTERNAL_preferredDepthStencilFormat;
 		public DepthFormat PreferredDepthStencilFormat
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_preferredDepthStencilFormat;
+			}
+			set
+			{
+				INTERNAL_preferredDepthStencilFormat = value;
+				prefsChanged = true;
+			}
 		}
 
+		private bool INTERNAL_synchronizeWithVerticalRetrace;
 		public bool SynchronizeWithVerticalRetrace
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_synchronizeWithVerticalRetrace;
+			}
+			set
+			{
+				INTERNAL_synchronizeWithVerticalRetrace = value;
+				prefsChanged = true;
+			}
 		}
 
 		public DisplayOrientation SupportedOrientations
@@ -110,6 +166,7 @@ namespace Microsoft.Xna.Framework
 		private DisplayOrientation supportedOrientations;
 		private bool drawBegun;
 		private bool disposed;
+		private bool prefsChanged;
 		private bool useResizedBackBuffer;
 		private int resizedBackBufferWidth;
 		private int resizedBackBufferHeight;
@@ -225,6 +282,12 @@ namespace Microsoft.Xna.Framework
 				return;
 			}
 
+			// ApplyChanges() calls with no actual changes should be ignored.
+			if (!prefsChanged && !useResizedBackBuffer)
+			{
+				return;
+			}
+
 			// Recreate device information before resetting
 			GraphicsDeviceInformation gdi = new GraphicsDeviceInformation();
 			gdi.Adapter = GraphicsDevice.Adapter;
@@ -319,6 +382,7 @@ namespace Microsoft.Xna.Framework
 				gdi.PresentationParameters,
 				gdi.Adapter
 			);
+			prefsChanged = false;
 		}
 
 		public void ToggleFullScreen()
