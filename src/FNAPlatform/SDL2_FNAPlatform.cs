@@ -221,7 +221,6 @@ namespace Microsoft.Xna.Framework
 				OSVersion.Equals("Emscripten")
 			);
 
-
 			int depthSize = 24;
 			int stencilSize = 8;
 			DepthFormat windowDepthFormat;
@@ -323,7 +322,6 @@ namespace Microsoft.Xna.Framework
 
 		public static GameWindow CreateWindow()
 		{
-
 			// Set and initialize the SDL2 window
 			SDL.SDL_WindowFlags initFlags = (
 				SDL.SDL_WindowFlags.SDL_WINDOW_HIDDEN |
