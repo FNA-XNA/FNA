@@ -3058,8 +3058,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				XNAToMTL.TextureFormat[(int) format],
 				(ulong) width,
 				(ulong) height,
-				levelCount > 0
+				levelCount > 1
 			);
+
+			// Override Metal's automatic mipmap level calculation
+			mtlSetMipmapLevelCount(texDesc, levelCount);
+
 			if (isRenderTarget)
 			{
 				mtlSetStorageMode(
@@ -3071,6 +3075,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
 				);
 			}
+
 			IntPtr tex = mtlNewTextureWithDescriptor(device, texDesc);
 			return new MetalTexture(tex, format, levelCount);
 		}

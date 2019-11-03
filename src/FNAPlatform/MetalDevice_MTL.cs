@@ -1250,6 +1250,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(texDesc, selSetHeight, (ulong) height);
 		}
 
+		private static IntPtr selSetMipmapLevelCount = Selector("setMipmapLevelCount:");
+		private static ulong mtlSetMipmapLevelCount(IntPtr texDesc, int levelCount)
+		{
+			return ulong_objc_msgSend(texDesc, selSetMipmapLevelCount, (ulong) levelCount);
+		}
+
 		#endregion
 
 		#region MTLTexture
