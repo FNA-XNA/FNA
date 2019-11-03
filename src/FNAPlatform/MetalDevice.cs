@@ -2776,10 +2776,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr depthStencilState = FetchDepthStencilState();
 			if (depthStencilState != ldDepthStencilState)
 			{
-				mtlSetDepthStencilState(
-					renderCommandEncoder,
-					depthStencilState
-				);
+				if (depthStencilState != IntPtr.Zero)
+				{
+					mtlSetDepthStencilState(
+						renderCommandEncoder,
+						depthStencilState
+					);
+				}
 				ldDepthStencilState = depthStencilState;
 			}
 
