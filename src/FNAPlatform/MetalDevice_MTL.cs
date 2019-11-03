@@ -153,6 +153,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
 
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, out IntPtr arg2);
+
 		// CGSize
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -524,7 +527,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr classMTLSamplerDescriptor = objc_getClass("MTLSamplerDescriptor");
 		private static IntPtr classMTLVertexDescriptor = objc_getClass("MTLVertexDescriptor");
 		private static IntPtr classMTLCaptureManager = objc_getClass("MTLCaptureManager");
+		private static IntPtr classMTLCaptureDescriptor = objc_getClass("MTLCaptureDescriptor");
 		private static IntPtr classNSAutoreleasePool = objc_getClass("NSAutoreleasePool");
+		private static IntPtr classNSURL = objc_getClass("NSURL");
 
 		#endregion
 
@@ -674,14 +679,38 @@ namespace Microsoft.Xna.Framework.Graphics
 			return intptr_objc_msgSend(classMTLCaptureManager, selSharedCaptureManager);
 		}
 
-		private static IntPtr selStartCaptureWithDevice = Selector("startCaptureWithDevice:");
-		private static void mtlStartCapture(IntPtr device)
+		private static IntPtr selStartCaptureWithDescriptor = Selector("startCaptureWithDescriptor:error:");
+		private static IntPtr selSetCaptureObject = Selector("setCaptureObject:");
+		private static IntPtr selSetDestination = Selector("setDestination:");
+		private static IntPtr selSetOutputURL = Selector("setOutputURL:");
+		private static IntPtr selFileURLWithPath = Selector("fileURLWithPath:isDirectory:");
+		private static void mtlStartCapture(IntPtr device, string url)
 		{
+			IntPtr desc = intptr_objc_msgSend(classMTLCaptureDescriptor, selNew);
+			objc_msgSend(desc, selSetCaptureObject, device);
+			objc_msgSend(desc, selSetDestination, 2);
 			objc_msgSend(
-				mtlGetSharedCaptureManager(),
-				selStartCaptureWithDevice,
-				device
+				desc,
+				selSetOutputURL,
+				intptr_objc_msgSend(
+					classNSURL,
+					selFileURLWithPath,
+					UTF8ToNSString(url),
+					IntPtr.Zero
+				)
 			);
+			IntPtr error = IntPtr.Zero;
+			bool success = bool_objc_msgSend(
+				mtlGetSharedCaptureManager(),
+				selStartCaptureWithDescriptor,
+				desc,
+				out error
+			);
+			if (!success)
+			{
+				throw new Exception(GetNSErrorDescription(error));
+			}
+			ObjCRelease(desc);
 		}
 
 		private static IntPtr selStopCapture = Selector("stopCapture");

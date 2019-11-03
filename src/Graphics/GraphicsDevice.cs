@@ -1428,6 +1428,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			GLDevice.SetStringMarker(text);
 		}
 
+		public void CaptureFrameEXT(string outputPath)
+		{
+			GLDevice.CaptureFrame(outputPath);
+		}
+
 		#endregion
 
 		#region Private State Flush Methods

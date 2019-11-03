@@ -1201,6 +1201,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Frame Capture Method
+
+		public void CaptureFrame(string outputPath)
+		{
+#if DEBUG
+			throw new NotSupportedException(
+				"GPU Capture is not yet supported by OpenGLDevice!"
+			);
+#endif
+		}
+
+		#endregion
+
 		#region Drawing Methods
 
 		public void DrawIndexedPrimitives(

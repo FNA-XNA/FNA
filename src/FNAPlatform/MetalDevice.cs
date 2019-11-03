@@ -288,13 +288,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (options == SetDataOptions.Discard)
 				{
 					HandleOverwrite(dynamic, len);
-
-					// Zero out the memory
-					memset(
-						Contents + InternalOffset,
-						(IntPtr) 0,
-						(IntPtr) len
-					);
 				}
 				else if (options == SetDataOptions.None)
 				{
@@ -476,14 +469,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Depth State Variables
-
-		private bool zEnable = false;
-		private bool zWriteEnable = false;
-		private CompareFunction depthFunc = CompareFunction.Less;
-
-		#endregion
-
 		#region Stencil State Variables
 
 		private int stencilRef = 0;
@@ -592,7 +577,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private ulong currentAttachmentHeight;
 
 		private bool needNewRenderPass = false;
-		private bool justStartedFrame = false;
 		private bool shouldClearColor = false;
 		private bool shouldClearDepth = false;
 		private bool shouldClearStencil = false;
@@ -666,8 +650,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private State Object Caches
 
-		private Dictionary<string, IntPtr> VertexDescriptorCache =
-			new Dictionary<string, IntPtr>();
+		private Dictionary<long, IntPtr> VertexDescriptorCache =
+			new Dictionary<long, IntPtr>();
 
 		private Dictionary<int, IntPtr> PipelineStateCache =
 			new Dictionary<int, IntPtr>();
@@ -762,22 +746,21 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region memset Export
+		#region Public Frame Capture Method
 
-#if NETSTANDARD2_0
-		// FIXME: This needs testing. -caleb
-		private static unsafe void memset(IntPtr dst, IntPtr value, IntPtr size)
-		{
-			byte* p = (byte*) dst;
-			for (int i = 0; i < (int) size; i += 1)
-			{
-				*(p + i) = (byte) value;
-			}
-		}
-#else
-		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
-		private static extern void memset(IntPtr dst, IntPtr value, IntPtr size);
+#if DEBUG
+		private string frameCaptureURL;
+		private bool capturingThisFrame = false;
+		private bool shouldCaptureNextFrame = false;
 #endif
+
+		public void CaptureFrame(string url)
+		{
+#if DEBUG
+			frameCaptureURL = url;
+			shouldCaptureNextFrame = true;
+#endif
+		}
 
 		#endregion
 
@@ -889,11 +872,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			PipelineStateCache.Clear();
 			PipelineStateCache = null;
 
+			// Release sampler states
+			foreach (IntPtr ss in SamplerStateCache.Values)
+			{
+				ObjCRelease(ss);
+			}
+			SamplerStateCache.Clear();
+			SamplerStateCache = null;
+
 			// Dispose the backbuffer
 			(Backbuffer as MetalBackbuffer).Dispose();
-
-			// FIXME: "release" all retained objects
-			// FIXME: null-ify variables
 		}
 
 		#endregion
@@ -1069,6 +1057,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Release allocations from this frame
 			DrainAutoreleasePool(pool);
 
+#if DEBUG
+			// Finish frame capture
+			if (capturingThisFrame)
+			{
+				FNALoggerEXT.LogInfo("Stopping capture");
+				mtlStopCapture();
+				capturingThisFrame = false;
+			}
+#endif
+
 			// Wait until we can submit another command buffer
 			if (submittedCommandBuffers.Count >= backingBufferCount)
 			{
@@ -1103,11 +1101,19 @@ namespace Microsoft.Xna.Framework.Graphics
 				DeleteQuery(GCQueries.Dequeue());
 			}
 
+#if DEBUG
+			// Start frame capture
+			if (shouldCaptureNextFrame)
+			{
+				FNALoggerEXT.LogInfo("Starting capture");
+				mtlStartCapture(device, frameCaptureURL);
+				shouldCaptureNextFrame = false;
+			}
+#endif
+
 			// The cycle begins anew...
 			pool = StartAutoreleasePool();
 			commandBuffer = mtlMakeCommandBuffer(queue);
-			needNewRenderPass = true;
-			justStartedFrame = true;
 			renderCommandEncoder = IntPtr.Zero;
 
 			// Reset all buffers
@@ -1288,28 +1294,32 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Clear depth
-			IntPtr depthAttachment = mtlGetDepthAttachment(passDesc);
-			mtlSetAttachmentTexture(
-				depthAttachment,
-				currentDepthStencilBuffer
-			);
-			if (shouldClearDepth)
+			if (currentDepthFormat != DepthFormat.None)
 			{
-				mtlSetAttachmentLoadAction(
+				IntPtr depthAttachment = mtlGetDepthAttachment(passDesc);
+				mtlSetAttachmentTexture(
 					depthAttachment,
-					MTLLoadAction.Clear
+					currentDepthStencilBuffer
 				);
-				mtlSetDepthAttachmentClearDepth(
-					depthAttachment,
-					clearDepth
-				);
-			}
-			else
-			{
-				mtlSetAttachmentLoadAction(
-					depthAttachment,
-					MTLLoadAction.Load
-				);
+
+				if (shouldClearDepth)
+				{
+					mtlSetAttachmentLoadAction(
+						depthAttachment,
+						MTLLoadAction.Clear
+					);
+					mtlSetDepthAttachmentClearDepth(
+						depthAttachment,
+						clearDepth
+					);
+				}
+				else
+				{
+					mtlSetAttachmentLoadAction(
+						depthAttachment,
+						MTLLoadAction.Load
+					);
+				}
 			}
 
 			// Clear stencil
@@ -1353,7 +1363,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Reset the flags
 			needNewRenderPass = false;
-			justStartedFrame = false;
 			shouldClearColor = false;
 			shouldClearDepth = false;
 			shouldClearStencil = false;
@@ -2074,7 +2083,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr FetchDepthStencilState()
 		{
 			// Don't apply a depth state if none was requested.
-			if (currentDepthFormat == DepthFormat.None)
+			if (	currentDepthFormat == DepthFormat.None ||
+				depthStencilState.Name == "DepthStencilState.None")
 			{
 				return IntPtr.Zero;
 			}
@@ -2276,23 +2286,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			return state;
 		}
 
-		private string GetVertexDeclarationHash(VertexDeclaration declaration)
+		private long GetVertexDeclarationHash(VertexDeclaration declaration)
 		{
-			string hash = "";
-			foreach (VertexElement e in declaration.elements)
+			long hash = 0;
+			for (int i = 0; i < declaration.elements.Length; i += 1)
 			{
-				hash += e.UsageIndex + ":" +
-					(int) e.VertexElementFormat + ":" +
-					(int) e.VertexElementUsage + ":" +
-					MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
-						currentVertexShader,
-						XNAToMTL.VertexAttribUsage[
-							(int) e.VertexElementUsage
-						],
-						e.UsageIndex
-					) + ":";
+				VertexElement e = declaration.elements[i];
+				hash += unchecked(e.UsageIndex +
+					(int) e.VertexElementFormat +
+					(int) e.VertexElementUsage);
 			}
-			hash += declaration.VertexStride;
+			hash += declaration.VertexStride + (int) currentVertexShader;
 			return hash;
 		}
 
@@ -2301,12 +2305,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			int numBindings
 		) {
 			// Get the binding hash value
-			string hash = "";
+			long hash = 0;
 			for (int i = 0; i < numBindings; i += 1)
 			{
 				VertexBufferBinding binding = bindings[i];
-				hash += binding.VertexOffset + ":" +
-					binding.InstanceFrequency + ":" +
+				hash += binding.VertexOffset +
+					binding.InstanceFrequency +
 					GetVertexDeclarationHash(
 						binding.VertexBuffer.VertexDeclaration
 					);
@@ -2390,7 +2394,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexOffset
 		) {
 			// Get the binding hash value
-			string hash = GetVertexDeclarationHash(vertexDeclaration);
+			long hash = GetVertexDeclarationHash(vertexDeclaration);
 
 			// Can we just reuse an existing descriptor?
 			IntPtr descriptor;
@@ -3342,27 +3346,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			IGLRenderbuffer renderbuffer,
 			DepthFormat depthFormat
 		) {
-			/* FIXME:
-			 * Rendering to multiple render targets at once
-			 * is not currently possible due to MojoShader's
-			 * MSL output only containing the [[color(0)]]
-			 * attribute in its Fragment Output structs.
-			 * (See MSL spec Table 5.6.)
-			 * 
-			 * This can be fixed but the output might get
-			 * really ugly... Not that it matters too much.
-			 * 
-			 * -caleb
-			 */
+			// Perform any pending clears before switching render targets
+			UpdateRenderPass();
 
-			/* If this isn't the first pass of a new frame,
-			 * go ahead and perform any pending clears before
-			 * switching render targets. -caleb
-			 */
-			if (!justStartedFrame)
-			{
-				UpdateRenderPass();
-			}
+			// Force an update to the render pass
+			needNewRenderPass = true;
 
 			// Bind the correct framebuffer
 			ResetAttachments();
@@ -3413,9 +3401,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				currentDepthFormat = depthFormat;
 				currentDepthStencilBuffer = handle;
 			}
-
-			// Force an update to the render pass
-			needNewRenderPass = true;
 		}
 
 		private void ResetAttachments()
@@ -3426,6 +3411,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				currentAttachmentTypes[i] = AttachmentType.None;
 				currentColorFormats[i] = MTLPixelFormat.Invalid;
 			}
+			currentDepthStencilBuffer = IntPtr.Zero;
+			currentDepthFormat = DepthFormat.None;
 		}
 
 		private void BindBackbuffer()
@@ -3436,8 +3423,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			currentAttachmentTypes[0] = AttachmentType.Backbuffer;
 			currentDepthStencilBuffer = bb.DepthStencilBuffer;
 			currentDepthFormat = bb.DepthFormat;
-
-			needNewRenderPass = true;
 		}
 
 		#endregion
@@ -3794,68 +3779,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				MultiSampleCount = multiSampleCount;
 
 				PixelFormat = mtlGetLayerPixelFormat(mtlDevice.layer);
-
-				// Generate the color buffer
-				IntPtr colorBufferDesc = mtlMakeTexture2DDescriptor(
-					PixelFormat,
-					(uint) Width,
-					(uint) Height,
-					false
-				);
-				mtlSetTextureUsage(
-					colorBufferDesc,
-					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
-				);
-
-				if (multiSampleCount > 0)
-				{
-					mtlSetStorageMode(
-						colorBufferDesc,
-						MTLResourceStorageMode.Private
-					);
-					mtlSetTextureType(
-						colorBufferDesc,
-						MTLTextureType.Multisample2D
-					);
-					mtlSetTextureSampleCount(
-						colorBufferDesc,
-						multiSampleCount
-					);
-				}
-
-				ColorBuffer = mtlNewTextureWithDescriptor(
-					device.device,
-					colorBufferDesc
-				);
-
-				// Create the depth-stencil buffer, if needed
-				if (depthFormat == DepthFormat.None)
-				{
-					// Don't bother creating a depth/stencil buffer.
-					DepthStencilBuffer = IntPtr.Zero;
-				}
-				else
-				{
-					// Create the depth/stencil buffer
-					IntPtr depthStencilBufferDesc = mtlMakeTexture2DDescriptor(
-						XNAToMTL.DepthFormat[(int) depthFormat],
-						(uint) Width,
-						(uint) Height,
-						false
-					);
-					mtlSetStorageMode(
-						depthStencilBufferDesc,
-						MTLResourceStorageMode.Private
-					);
-					mtlSetTextureUsage(
-						depthStencilBufferDesc,
-						MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
-					);
-					DepthStencilBuffer = mtlNewTextureWithDescriptor(
-						device.device,
-						depthStencilBufferDesc
-					);
-				}
 			}
 
 			public void Dispose()
