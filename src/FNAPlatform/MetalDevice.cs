@@ -3355,7 +3355,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			DepthFormat depthFormat
 		) {
 			// Perform any pending clears before switching render targets
-			UpdateRenderPass();
+			if (shouldClearColor || shouldClearDepth || shouldClearStencil)
+			{
+				UpdateRenderPass();
+			}
 
 			// Force an update to the render pass
 			needNewRenderPass = true;
