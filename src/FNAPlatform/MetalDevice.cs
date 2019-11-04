@@ -606,8 +606,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		// Cached data for rendering the faux-backbuffer
 		private Rectangle fauxBackbufferDestBounds;
-		private IntPtr fauxBackbufferVertexBuffer;
-		private IntPtr fauxBackbufferIndexBuffer;
+		private IntPtr fauxBackbufferDrawBuffer;
 		private IntPtr fauxBackbufferRenderPipeline;
 		private IntPtr fauxBackbufferSamplerState;
 		private bool fauxBackbufferSizeChanged;
@@ -755,7 +754,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			device = MTLCreateSystemDefaultDevice();
 			queue = mtlNewCommandQueue(device);
-			commandBuffer = mtlMakeCommandBuffer(queue);
 
 			// Get the CAMetalLayer for this view
 			layer = mtlGetLayer(metalView);
@@ -820,6 +818,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Begin the autorelease pool
 			pool = StartAutoreleasePool();
+
+			// Create the inaugural command buffer!
+			commandBuffer = mtlMakeCommandBuffer(queue);
 		}
 
 		#endregion
@@ -1155,7 +1156,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				};
 				GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 				memcpy(
-					mtlGetBufferContentsPtr(fauxBackbufferVertexBuffer),
+					mtlGetBufferContentsPtr(fauxBackbufferDrawBuffer),
 					handle.AddrOfPinnedObject(),
 					(IntPtr) (16 * sizeof(float))
 				);
@@ -1164,7 +1165,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			mtlSetVertexBuffer(
 				rce,
-				fauxBackbufferVertexBuffer,
+				fauxBackbufferDrawBuffer,
 				0,
 				0
 			);
@@ -1186,8 +1187,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLPrimitiveType.Triangle,
 				6,
 				MTLIndexType.UInt16,
-				fauxBackbufferIndexBuffer,
-				0,
+				fauxBackbufferDrawBuffer,
+				16 * sizeof(float),
 				1,
 				0,
 				0
@@ -3773,9 +3774,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				DepthFormat = presentationParameters.DepthStencilFormat;
 				MultiSampleCount = presentationParameters.MultiSampleCount;
 
-				// Release the existing color buffer
-				ObjCRelease(ColorBuffer);
-				ColorBuffer = IntPtr.Zero;
+				// Release the existing color buffer, if applicable
+				if (ColorBuffer != IntPtr.Zero)
+				{
+					ObjCRelease(ColorBuffer);
+					ColorBuffer = IntPtr.Zero;
+				}
 
 				// Release the depth/stencil buffer, if applicable
 				if (DepthStencilBuffer != IntPtr.Zero)
@@ -3855,16 +3859,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				presentationParameters.MultiSampleCount
 			);
 
-			// Create the vertex buffer for rendering the faux-backbuffer
-			fauxBackbufferVertexBuffer = mtlNewBufferWithLength(
+			/* Create a combined vertex/index buffer
+			 * for rendering the faux-backbuffer.
+			 */
+			fauxBackbufferDrawBuffer = mtlNewBufferWithLength(
 				device,
-				16 * sizeof(float)
-			);
-
-			// Create and fill the index buffer
-			fauxBackbufferIndexBuffer = mtlNewBufferWithLength(
-				device,
-				6 * sizeof(ushort)
+				(16 * sizeof(float)) + (6 * sizeof(ushort))
 			);
 
 			ushort[] indices = new ushort[]
@@ -3874,7 +3874,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			};
 			GCHandle indicesPinned = GCHandle.Alloc(indices, GCHandleType.Pinned);
 			memcpy(
-				mtlGetBufferContentsPtr(fauxBackbufferIndexBuffer),
+				mtlGetBufferContentsPtr(fauxBackbufferDrawBuffer) + (16 * sizeof(float)),
 				indicesPinned.AddrOfPinnedObject(),
 				(IntPtr) (6 * sizeof(ushort))
 			);
@@ -3965,6 +3965,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				pipelineDesc
 			);
 			ObjCRelease(pipelineDesc);
+			ObjCRelease(vertexFunc);
+			ObjCRelease(fragFunc);
 		}
 
 		#endregion
