@@ -3920,19 +3920,27 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			";
 
+			IntPtr nsShaderSource = UTF8ToNSString(shaderSource);
+			IntPtr nsVertexShader = UTF8ToNSString("vertexShader");
+			IntPtr nsFragmentShader = UTF8ToNSString("fragmentShader");
+
 			IntPtr library = mtlNewLibraryWithSource(
 				device,
-				UTF8ToNSString(shaderSource),
+				nsShaderSource,
 				IntPtr.Zero
 			);
 			IntPtr vertexFunc = mtlNewFunctionWithName(
 				library,
-				UTF8ToNSString("vertexShader")
+				nsVertexShader
 			);
 			IntPtr fragFunc = mtlNewFunctionWithName(
 				library,
-				UTF8ToNSString("fragmentShader")
+				nsFragmentShader
 			);
+
+			ObjCRelease(nsShaderSource);
+			ObjCRelease(nsVertexShader);
+			ObjCRelease(nsFragmentShader);
 
 			// Create a sampler state
 			IntPtr samplerDescriptor = mtlNewSamplerDescriptor();
