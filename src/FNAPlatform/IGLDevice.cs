@@ -75,7 +75,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr overrideWindowHandle
 		);
 		void SetStringMarker(string text);
-		void CaptureFrame(string outputPath);
 
 		void DrawIndexedPrimitives(
 			PrimitiveType primitiveType,

@@ -746,24 +746,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Public Frame Capture Method
-
-#if DEBUG
-		private string frameCaptureURL;
-		private bool capturingThisFrame = false;
-		private bool shouldCaptureNextFrame = false;
-#endif
-
-		public void CaptureFrame(string url)
-		{
-#if DEBUG
-			frameCaptureURL = url;
-			shouldCaptureNextFrame = true;
-#endif
-		}
-
-		#endregion
-
 		#region Public Constructor
 
 		public MetalDevice(
@@ -1057,16 +1039,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Release allocations from this frame
 			DrainAutoreleasePool(pool);
 
-#if DEBUG
-			// Finish frame capture
-			if (capturingThisFrame)
-			{
-				FNALoggerEXT.LogInfo("Stopping capture");
-				mtlStopCapture();
-				capturingThisFrame = false;
-			}
-#endif
-
 			// Wait until we can submit another command buffer
 			if (submittedCommandBuffers.Count >= backingBufferCount)
 			{
@@ -1100,16 +1072,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				DeleteQuery(GCQueries.Dequeue());
 			}
-
-#if DEBUG
-			// Start frame capture
-			if (shouldCaptureNextFrame)
-			{
-				FNALoggerEXT.LogInfo("Starting capture");
-				mtlStartCapture(device, frameCaptureURL);
-				shouldCaptureNextFrame = false;
-			}
-#endif
 
 			// The cycle begins anew...
 			pool = StartAutoreleasePool();

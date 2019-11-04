@@ -332,18 +332,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Frame Capture Method
-
-		public void CaptureFrame(string outputPath)
-		{
-			ForceToMainThread(() =>
-			{
-				GLDevice.CaptureFrame(outputPath);
-			}); // End ForceToMainThread
-		}
-
-		#endregion
-
 		#region Draw Calls
 
 		public void DrawIndexedPrimitives(
