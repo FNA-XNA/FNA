@@ -38,3 +38,4 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.SignedInGamer))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.Achievement))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.LeaderboardWriter))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.GamerCollection<Microsoft.Xna.Framework.GamerServices.Gamer>))]

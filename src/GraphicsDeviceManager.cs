@@ -43,61 +43,115 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
+		private bool INTERNAL_isFullScreen;
 		public bool IsFullScreen
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_isFullScreen;
+			}
+			set
+			{
+				INTERNAL_isFullScreen = value;
+				prefsChanged = true;
+			}
 		}
 
+		private bool INTERNAL_preferMultiSampling;
 		public bool PreferMultiSampling
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_preferMultiSampling;
+			}
+			set
+			{
+				INTERNAL_preferMultiSampling = value;
+				prefsChanged = true;
+			}
 		}
 
+		private SurfaceFormat INTERNAL_preferredBackBufferFormat;
 		public SurfaceFormat PreferredBackBufferFormat
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_preferredBackBufferFormat;
+			}
+			set
+			{
+				INTERNAL_preferredBackBufferFormat = value;
+				prefsChanged = true;
+			}
 		}
 
+		private int INTERNAL_preferredBackBufferHeight;
 		public int PreferredBackBufferHeight
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_preferredBackBufferHeight;
+			}
+			set
+			{
+				INTERNAL_preferredBackBufferHeight = value;
+				prefsChanged = true;
+			}
 		}
 
+		private int INTERNAL_preferredBackBufferWidth;
 		public int PreferredBackBufferWidth
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_preferredBackBufferWidth;
+			}
+			set
+			{
+				INTERNAL_preferredBackBufferWidth = value;
+				prefsChanged = true;
+			}
 		}
 
+		private DepthFormat INTERNAL_preferredDepthStencilFormat;
 		public DepthFormat PreferredDepthStencilFormat
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_preferredDepthStencilFormat;
+			}
+			set
+			{
+				INTERNAL_preferredDepthStencilFormat = value;
+				prefsChanged = true;
+			}
 		}
 
+		private bool INTERNAL_synchronizeWithVerticalRetrace;
 		public bool SynchronizeWithVerticalRetrace
 		{
-			get;
-			set;
+			get
+			{
+				return INTERNAL_synchronizeWithVerticalRetrace;
+			}
+			set
+			{
+				INTERNAL_synchronizeWithVerticalRetrace = value;
+				prefsChanged = true;
+			}
 		}
 
+		private DisplayOrientation INTERNAL_supportedOrientations;
 		public DisplayOrientation SupportedOrientations
 		{
 			get
 			{
-				return supportedOrientations;
+				return INTERNAL_supportedOrientations;
 			}
 			set
 			{
-				supportedOrientations = value;
-				if (game.Window != null)
-				{
-					game.Window.SetSupportedOrientations(supportedOrientations);
-				}
+				INTERNAL_supportedOrientations = value;
+				prefsChanged = true;
 			}
 		}
 
@@ -107,9 +161,9 @@ namespace Microsoft.Xna.Framework
 
 		private Game game;
 		private GraphicsDevice graphicsDevice;
-		private DisplayOrientation supportedOrientations;
 		private bool drawBegun;
 		private bool disposed;
+		private bool prefsChanged;
 		private bool useResizedBackBuffer;
 		private int resizedBackBufferWidth;
 		private int resizedBackBufferHeight;
@@ -150,17 +204,17 @@ namespace Microsoft.Xna.Framework
 
 			this.game = game;
 
-			supportedOrientations = DisplayOrientation.Default;
+			INTERNAL_supportedOrientations = DisplayOrientation.Default;
 
-			PreferredBackBufferHeight = DefaultBackBufferHeight;
-			PreferredBackBufferWidth = DefaultBackBufferWidth;
+			INTERNAL_preferredBackBufferHeight = DefaultBackBufferHeight;
+			INTERNAL_preferredBackBufferWidth = DefaultBackBufferWidth;
 
-			PreferredBackBufferFormat = SurfaceFormat.Color;
-			PreferredDepthStencilFormat = DepthFormat.Depth24;
+			INTERNAL_preferredBackBufferFormat = SurfaceFormat.Color;
+			INTERNAL_preferredDepthStencilFormat = DepthFormat.Depth24;
 
-			SynchronizeWithVerticalRetrace = true;
+			INTERNAL_synchronizeWithVerticalRetrace = true;
 
-			PreferMultiSampling = false;
+			INTERNAL_preferMultiSampling = false;
 
 			if (game.Services.GetService(typeof(IGraphicsDeviceManager)) != null)
 			{
@@ -170,6 +224,7 @@ namespace Microsoft.Xna.Framework
 			game.Services.AddService(typeof(IGraphicsDeviceManager), this);
 			game.Services.AddService(typeof(IGraphicsDeviceService), this);
 
+			prefsChanged = true;
 			useResizedBackBuffer = false;
 			game.Window.ClientSizeChanged += INTERNAL_OnClientSizeChanged;
 		}
@@ -225,11 +280,19 @@ namespace Microsoft.Xna.Framework
 				return;
 			}
 
+			// ApplyChanges() calls with no actual changes should be ignored.
+			if (!prefsChanged && !useResizedBackBuffer)
+			{
+				return;
+			}
+
 			// Recreate device information before resetting
 			GraphicsDeviceInformation gdi = new GraphicsDeviceInformation();
 			gdi.Adapter = GraphicsDevice.Adapter;
 			gdi.GraphicsProfile = GraphicsDevice.GraphicsProfile;
 			gdi.PresentationParameters = GraphicsDevice.PresentationParameters.Clone();
+
+			bool supportsOrientations = FNAPlatform.SupportsOrientationChanges();
 
 			/* Apply the GraphicsDevice changes to the new Parameters.
 			 * Note that PreparingDeviceSettings can override any of these!
@@ -247,7 +310,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else
 			{
-				if (!FNAPlatform.SupportsOrientationChanges())
+				if (!supportsOrientations)
 				{
 					gdi.PresentationParameters.BackBufferWidth =
 						PreferredBackBufferWidth;
@@ -306,6 +369,12 @@ namespace Microsoft.Xna.Framework
 			);
 
 			// Reset!
+			if (supportsOrientations)
+			{
+				game.Window.SetSupportedOrientations(
+					INTERNAL_supportedOrientations
+				);
+			}
 			game.Window.BeginScreenDeviceChange(
 				gdi.PresentationParameters.IsFullScreen
 			);
@@ -319,6 +388,7 @@ namespace Microsoft.Xna.Framework
 				gdi.PresentationParameters,
 				gdi.Adapter
 			);
+			prefsChanged = false;
 		}
 
 		public void ToggleFullScreen()
