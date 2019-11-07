@@ -1791,7 +1791,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
-		private static IntPtr selSetStencilFailureOperation = Selector("setStencilFailureOperation");
+		private static IntPtr selSetStencilFailureOperation = Selector("setStencilFailureOperation:");
 		private static void mtlSetStencilFailureOperation(
 			IntPtr stencilDescriptor,
 			MTLStencilOperation op
