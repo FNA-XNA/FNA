@@ -1179,7 +1179,8 @@ namespace Microsoft.Xna.Framework
 				return new MetalDevice(
 					presentationParameters,
 					adapter,
-					MetalView
+					MetalView,
+					SDL.SDL_GetPlatform()
 				);
 			}
 

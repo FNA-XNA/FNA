@@ -801,7 +801,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		public MetalDevice(
 			PresentationParameters presentationParameters,
 			GraphicsAdapter adapter,
-			IntPtr metalView
+			IntPtr metalView,
+			string platform
 		) {
 			device = MTLCreateSystemDefaultDevice();
 			queue = mtlNewCommandQueue(device);
@@ -828,7 +829,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			) == "1" ? MTLSamplerMinMagFilter.Nearest : MTLSamplerMinMagFilter.Linear;
 
 			// Set device properties
-			platform = SDL.SDL_GetPlatform();
+			this.platform = platform;
 			SupportsS3tc = platform.Equals("Mac OS X");
 			SupportsDxt1 = SupportsS3tc;
 			SupportsHardwareInstancing = true;
