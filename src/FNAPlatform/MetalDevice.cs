@@ -42,6 +42,24 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
+			public int Width
+			{
+				get;
+				private set;
+			}
+
+			public int Height
+			{
+				get;
+				private set;
+			}
+
+			public bool IsPrivate
+			{
+				get;
+				private set;
+			}
+
 			public MTLPixelFormat Format;
 			public IntPtr SamplerHandle;
 			public TextureAddressMode WrapS;
@@ -52,14 +70,28 @@ namespace Microsoft.Xna.Framework.Graphics
 			public int MaxMipmapLevel;
 			public float LODBias;
 
+			public IntPtr CPUHandle = IntPtr.Zero;
+
 			public MetalTexture(
 				IntPtr handle,
+				int width,
+				int height,
 				SurfaceFormat format,
-				int levelCount
+				int levelCount,
+				bool isPrivate
 			) {
 				Handle = handle;
+				Width = width;
+				Height = height;
 				Format = XNAToMTL.TextureFormat[(int) format];
 				HasMipmaps = levelCount > 1;
+				IsPrivate = isPrivate;
+
+				if (!IsPrivate)
+				{
+					// For Managed and Shared, these are the same.
+					CPUHandle = Handle;
+				}
 
 				WrapS = TextureAddressMode.Wrap;
 				WrapT = TextureAddressMode.Wrap;
@@ -68,6 +100,24 @@ namespace Microsoft.Xna.Framework.Graphics
 				Anisotropy = 4.0f;
 				MaxMipmapLevel = 0;
 				LODBias = 0.0f;
+			}
+
+			/* FIXME: Could we create a cache of CPU-accessible
+			 * textures instead of creating new ones all the time?
+			 * -caleb
+			 */
+			public void MakeCPUTexture(IntPtr device)
+			{
+				IntPtr texDesc = mtlMakeTexture2DDescriptor(
+					Format,
+					(ulong) Width,
+					(ulong) Height,
+					HasMipmaps
+				);
+				CPUHandle = mtlNewTextureWithDescriptor(
+					device,
+					texDesc
+				);
 			}
 
 			private MetalTexture()
@@ -585,6 +635,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private Queue<IntPtr> submittedCommandBuffers;
 
 		private int mainThreadID;
+		private string platform;
 
 		#endregion
 
@@ -777,7 +828,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			) == "1" ? MTLSamplerMinMagFilter.Nearest : MTLSamplerMinMagFilter.Linear;
 
 			// Set device properties
-			SupportsS3tc = SDL.SDL_GetPlatform().Equals("Mac OS X");
+			platform = SDL.SDL_GetPlatform();
+			SupportsS3tc = platform.Equals("Mac OS X");
 			SupportsDxt1 = SupportsS3tc;
 			SupportsHardwareInstancing = true;
 			MaxTextureSlots = 16;
@@ -829,6 +881,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void Dispose()
 		{
+			if (renderCommandEncoder != IntPtr.Zero)
+			{
+				mtlEndEncoding(renderCommandEncoder);
+			}
+
 			DrainAutoreleasePool(pool);
 
 			// Release vertex descriptors
@@ -1712,8 +1769,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetPresentationInterval(PresentInterval interval)
 		{
-			string platform = SDL.SDL_GetPlatform();
-			if (platform == "iOS" || platform == "tvOS")
+			if (platform.Equals("iOS") || platform.Equals("tvOS"))
 			{
 				FNALoggerEXT.LogWarn(
 					"Cannot set presentation interval on iOS/tvOS! " +
@@ -3050,8 +3106,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			IntPtr tex = mtlNewTextureWithDescriptor(device, texDesc);
-			return new MetalTexture(tex, format, levelCount);
+			return new MetalTexture(
+				mtlNewTextureWithDescriptor(device, texDesc),
+				width,
+				height,
+				format,
+				levelCount,
+				isRenderTarget
+			);
 		}
 
 		public IGLTexture CreateTexture3D(SurfaceFormat format, int width, int height, int depth, int levelCount)
@@ -3105,17 +3167,62 @@ namespace Microsoft.Xna.Framework.Graphics
 				bytesPerRow /= (ulong) (Texture.GetFormatSize(format) / 4);
 			}
 
+			// Create a CPU-accessible texture, if needed
+			MetalTexture tex = texture as MetalTexture;
+			if (tex.IsPrivate && tex.CPUHandle == IntPtr.Zero)
+			{
+				tex.MakeCPUTexture(device);
+			}
+
+			// Write the data
 			MTLRegion region = new MTLRegion(
 				new MTLOrigin((ulong) x, (ulong) y, 0),
 				new MTLSize((ulong) w, (ulong) h, 1)
 			);
 			mtlReplaceRegion(
-				(texture as MetalTexture).Handle,
+				(texture as MetalTexture).CPUHandle,
 				region,
 				(ulong) level,
 				data,
 				bytesPerRow
 			);
+
+			if (tex.IsPrivate)
+			{
+				// End the render pass
+				if (renderCommandEncoder != IntPtr.Zero)
+				{
+					mtlEndEncoding(renderCommandEncoder);
+					renderCommandEncoder = IntPtr.Zero;
+				}
+
+				// Blit the texture to the GPU-private texture
+				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
+				MTLOrigin origin = new MTLOrigin(0, 0, 0);
+				mtlBlitTextureToTexture(
+					blit,
+					tex.CPUHandle,
+					0,
+					(ulong) level,
+					origin,
+					new MTLSize(
+						(ulong) tex.Width,
+						(ulong) tex.Height,
+						1
+					),
+					tex.Handle,
+					0,
+					(ulong) level,
+					origin
+				);
+
+				// Submit the blit command to the GPU and wait...
+				mtlEndEncoding(blit);
+				mtlCommitCommandBuffer(commandBuffer);
+				mtlCommandBufferWaitUntilCompleted(commandBuffer);
+				commandBuffer = mtlMakeCommandBuffer(queue);
+				needNewRenderPass = true;
+			}
 		}
 
 		public void SetTextureDataYUV(Texture2D[] textures, IntPtr ptr)
@@ -3174,12 +3281,62 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new NotImplementedException("GetData, CompressedTexture");
 			}
 
+			MetalTexture tex = texture as MetalTexture;
+			if (tex.IsPrivate)
+			{
+				// Create a CPU-accessible texture, if needed
+				if (tex.CPUHandle == IntPtr.Zero)
+				{
+					tex.MakeCPUTexture(device);
+				}
+
+				// End the render pass
+				if (renderCommandEncoder != IntPtr.Zero)
+				{
+					mtlEndEncoding(renderCommandEncoder);
+					renderCommandEncoder = IntPtr.Zero;
+				}
+
+				// Blit the texture to the CPU-accessible texture
+				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
+				MTLOrigin origin = new MTLOrigin(0, 0, 0);
+				mtlBlitTextureToTexture(
+					blit,
+					tex.Handle,
+					0,
+					(ulong) level,
+					origin,
+					new MTLSize(
+						(ulong) tex.Width,
+						(ulong) tex.Height,
+						1
+					),
+					tex.CPUHandle,
+					0,
+					(ulong) level,
+					origin
+				);
+
+				// "Managed" resources require explicit synchronization
+				if (platform.Equals("Mac OS X"))
+				{
+					mtlSynchronizeResource(blit, tex.CPUHandle);
+				}
+
+				// Submit the blit command to the GPU and wait...
+				mtlEndEncoding(blit);
+				mtlCommitCommandBuffer(commandBuffer);
+				mtlCommandBufferWaitUntilCompleted(commandBuffer);
+				commandBuffer = mtlMakeCommandBuffer(queue);
+				needNewRenderPass = true;
+			}
+
 			MTLRegion region = new MTLRegion(
 				new MTLOrigin((ulong) subX, (ulong) subY, 0),
 				new MTLSize((ulong) subW, (ulong) subH, 1)
 			);
 			mtlGetTextureBytes(
-				(texture as MetalTexture).Handle,
+				tex.CPUHandle,
 				data,
 				(ulong) (subW * Texture.GetFormatSize(format)),
 				region,

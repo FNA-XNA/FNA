@@ -1344,6 +1344,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSynchronizeResource = Selector("synchronizeResource:");
+		private static void mtlSynchronizeResource(
+			IntPtr blitCommandEncoder,
+			IntPtr resource
+		) {
+			objc_msgSend(blitCommandEncoder, selSynchronizeResource, resource);
+		}
+
 		#endregion
 
 		#region MTLRenderPipelineState
