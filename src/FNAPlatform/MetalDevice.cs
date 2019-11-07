@@ -3070,7 +3070,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int elementSizeInBytes
 		) {
-			throw new NotImplementedException();
+			// FIXME: We're assuming a non-private buffer! -caleb
+			memcpy(
+				data + (startIndex * elementSizeInBytes),
+				(buffer as MetalBuffer).Contents + offsetInBytes,
+				(IntPtr) (elementCount * elementSizeInBytes)
+			);
 		}
 
 		public void GetVertexBufferData(
@@ -3082,7 +3087,36 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementSizeInBytes,
 			int vertexStride
 		) {
-			throw new NotImplementedException();
+			IntPtr cpy;
+			bool useStagingBuffer = elementSizeInBytes < vertexStride;
+			if (useStagingBuffer)
+			{
+				cpy = Marshal.AllocHGlobal(elementCount * vertexStride);
+			}
+			else
+			{
+				cpy = data + (startIndex * elementSizeInBytes);
+			}
+
+			// FIXME: We're assuming a non-private buffer! -caleb
+			memcpy(
+				cpy,
+				(buffer as MetalBuffer).Contents + offsetInBytes,
+				(IntPtr) (elementCount * vertexStride)
+			);
+
+			if (useStagingBuffer)
+			{
+				IntPtr src = cpy;
+				IntPtr dst = data + (startIndex * elementSizeInBytes);
+				for (int i = 0; i < elementCount; i += 1)
+				{
+					memcpy(dst, src, (IntPtr) elementSizeInBytes);
+					dst += elementSizeInBytes;
+					src += vertexStride;
+				}
+				Marshal.FreeHGlobal(cpy);
+			}
 		}
 
 		#endregion
