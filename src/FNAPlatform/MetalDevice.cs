@@ -3388,9 +3388,50 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region ReadBackbuffer Method
 
-		public void ReadBackbuffer(IntPtr data, int dataLen, int startIndex, int elementCount, int elementSizeInBytes, int subX, int subY, int subW, int subH)
-		{
-			throw new NotImplementedException();
+		public void ReadBackbuffer(
+			IntPtr data,
+			int dataLen,
+			int startIndex,
+			int elementCount,
+			int elementSizeInBytes,
+			int subX,
+			int subY,
+			int subW,
+			int subH
+		) {
+			/* FIXME: Right now we're expecting one of the following:
+			 * - byte[]
+			 * - int[]
+			 * - uint[]
+			 * - Color[]
+			 * Anything else will freak out because we're using
+			 * color backbuffers. Maybe check this out when adding
+			 * support for more backbuffer types!
+			 * -flibit
+			 */
+
+			if (startIndex > 0 || elementCount != (dataLen / elementSizeInBytes))
+			{
+				throw new NotImplementedException(
+					"ReadBackbuffer startIndex/elementCount"
+				);
+			}
+
+			GetTextureData2D(
+				(Backbuffer as MetalBackbuffer).Texture,
+				SurfaceFormat.Color,
+				Backbuffer.Width,
+				Backbuffer.Height,
+				0,
+				subX,
+				subY,
+				subW,
+				subH,
+				data,
+				0,
+				dataLen,
+				1
+			);
 		}
 
 		#endregion
@@ -3928,6 +3969,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
+			public MetalTexture Texture
+			{
+				get;
+				private set;
+			}
+
 			public IntPtr ColorBuffer = IntPtr.Zero;
 			public IntPtr DepthStencilBuffer = IntPtr.Zero;
 			
@@ -4036,6 +4083,16 @@ namespace Microsoft.Xna.Framework.Graphics
 						depthStencilBufferDesc
 					);
 				}
+
+				// Update the Texture representation
+				Texture = new MetalTexture(
+					ColorBuffer,
+					Width,
+					Height,
+					SurfaceFormat.Color,
+					1,
+					true
+				);
 
 				// This is the default render target
 				mtlDevice.ResetAttachments();
