@@ -1904,15 +1904,21 @@ namespace Microsoft.Xna.Framework.Graphics
 				return pipeline;
 			}
 
-			// We'll have to make a new pipeline...
+			// We have to make a new pipeline...
 			IntPtr pipelineDesc = mtlNewRenderPipelineDescriptor();
+			IntPtr vertHandle = MojoShader.MOJOSHADER_mtlGetFunctionHandle(
+				currentVertexShader
+			);
+			IntPtr fragHandle = MojoShader.MOJOSHADER_mtlGetFunctionHandle(
+				currentFragmentShader
+			);
 			mtlSetPipelineVertexFunction(
 				pipelineDesc,
-				MojoShader.MOJOSHADER_mtlGetFunctionHandle(currentVertexShader)
+				vertHandle
 			);
 			mtlSetPipelineFragmentFunction(
 				pipelineDesc,
-				MojoShader.MOJOSHADER_mtlGetFunctionHandle(currentFragmentShader)
+				fragHandle
 			);
 			mtlSetPipelineVertexDescriptor(
 				pipelineDesc,
@@ -2038,6 +2044,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Clean up
 			ObjCRelease(pipelineDesc);
+			ObjCRelease(vertHandle);
+			ObjCRelease(fragHandle);
 
 			// Return the pipeline!
 			return pipelineState;
