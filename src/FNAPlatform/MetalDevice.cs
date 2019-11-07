@@ -2209,8 +2209,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Clean up
 			ObjCRelease(dsDesc);
-			ObjCRelease(back);
-			ObjCRelease(front);
 
 			// Return the state!
 			return state;
