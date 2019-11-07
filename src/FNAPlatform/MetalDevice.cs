@@ -70,8 +70,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			public int MaxMipmapLevel;
 			public float LODBias;
 
-			public IntPtr CPUHandle = IntPtr.Zero;
-
 			public MetalTexture(
 				IntPtr handle,
 				int width,
@@ -87,12 +85,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				HasMipmaps = levelCount > 1;
 				IsPrivate = isPrivate;
 
-				if (!IsPrivate)
-				{
-					// For Managed and Shared, these are the same.
-					CPUHandle = Handle;
-				}
-
 				WrapS = TextureAddressMode.Wrap;
 				WrapT = TextureAddressMode.Wrap;
 				WrapR = TextureAddressMode.Wrap;
@@ -100,24 +92,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				Anisotropy = 4.0f;
 				MaxMipmapLevel = 0;
 				LODBias = 0.0f;
-			}
-
-			/* FIXME: Could we create a cache of CPU-accessible
-			 * textures instead of creating new ones all the time?
-			 * -caleb
-			 */
-			public void MakeCPUTexture(IntPtr device)
-			{
-				IntPtr texDesc = mtlMakeTexture2DDescriptor(
-					Format,
-					(ulong) Width,
-					(ulong) Height,
-					HasMipmaps
-				);
-				CPUHandle = mtlNewTextureWithDescriptor(
-					device,
-					texDesc
-				);
 			}
 
 			private MetalTexture()
@@ -712,6 +686,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private Dictionary<StateHash, IntPtr> SamplerStateCache =
 			new Dictionary<StateHash, IntPtr>();
 
+		private List<MetalTexture> transientTextures =
+			new List<MetalTexture>();
+
 		#endregion
 
 		#region Private Render Pipeline State Variables
@@ -920,6 +897,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			SamplerStateCache.Clear();
 			SamplerStateCache = null;
+
+			// Release transient textures
+			foreach (MetalTexture tex in transientTextures)
+			{
+				ObjCRelease(tex.Handle);
+			}
+			transientTextures.Clear();
+			transientTextures = null;
 
 			// Dispose the backbuffer
 			(Backbuffer as MetalBackbuffer).Dispose();
@@ -2483,6 +2468,42 @@ namespace Microsoft.Xna.Framework.Graphics
 			return descriptor;
 		}
 
+		private IntPtr FetchTransientTexture(
+			SurfaceFormat format,
+			int width,
+			int height
+		) {
+			MTLPixelFormat pf = XNAToMTL.TextureFormat[(int) format];
+			for (int i = 0; i < transientTextures.Count; i += 1)
+			{
+				MetalTexture tex = transientTextures[i];
+				if (	tex.Format == pf &&
+					tex.Width == width &&
+					tex.Height == height
+				) {
+					return tex.Handle;
+				}
+			}
+
+			// We have to make a new texture...
+			IntPtr texDesc = mtlMakeTexture2DDescriptor(
+				pf,
+				(ulong) width,
+				(ulong) height,
+				false // FIXME: Is this right?
+			);
+			MetalTexture ret = new MetalTexture(
+				mtlNewTextureWithDescriptor(device, texDesc),
+				width,
+				height,
+				format,
+				1,
+				false
+			);
+			transientTextures.Add(ret);
+			return ret.Handle;
+		}
+
 		#endregion
 
 		#region Effect Methods
@@ -3168,11 +3189,17 @@ namespace Microsoft.Xna.Framework.Graphics
 				bytesPerRow /= (ulong) (Texture.GetFormatSize(format) / 4);
 			}
 
-			// Create a CPU-accessible texture, if needed
 			MetalTexture tex = texture as MetalTexture;
-			if (tex.IsPrivate && tex.CPUHandle == IntPtr.Zero)
+			IntPtr handle = tex.Handle;
+
+			// Fetch a CPU-accessible texture
+			if (tex.IsPrivate)
 			{
-				tex.MakeCPUTexture(device);
+				handle = FetchTransientTexture(
+					format,
+					tex.Width,
+					tex.Height
+				);
 			}
 
 			// Write the data
@@ -3181,7 +3208,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				new MTLSize((ulong) w, (ulong) h, 1)
 			);
 			mtlReplaceRegion(
-				(texture as MetalTexture).CPUHandle,
+				handle,
 				region,
 				(ulong) level,
 				data,
@@ -3202,7 +3229,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLOrigin origin = new MTLOrigin(0, 0, 0);
 				mtlBlitTextureToTexture(
 					blit,
-					tex.CPUHandle,
+					handle,
 					0,
 					(ulong) level,
 					origin,
@@ -3283,13 +3310,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			MetalTexture tex = texture as MetalTexture;
+			IntPtr handle = tex.Handle;
 			if (tex.IsPrivate)
 			{
-				// Create a CPU-accessible texture, if needed
-				if (tex.CPUHandle == IntPtr.Zero)
-				{
-					tex.MakeCPUTexture(device);
-				}
+				// Fetch a CPU-accessible texture
+				handle = FetchTransientTexture(
+					format,
+					tex.Width,
+					tex.Height
+				);
 
 				// End the render pass
 				if (renderCommandEncoder != IntPtr.Zero)
@@ -3312,16 +3341,16 @@ namespace Microsoft.Xna.Framework.Graphics
 						(ulong) tex.Height,
 						1
 					),
-					tex.CPUHandle,
+					handle,
 					0,
 					(ulong) level,
 					origin
 				);
 
-				// "Managed" resources require explicit synchronization
+				// Managed resources require explicit synchronization
 				if (platform.Equals("Mac OS X"))
 				{
-					mtlSynchronizeResource(blit, tex.CPUHandle);
+					mtlSynchronizeResource(blit, handle);
 				}
 
 				// Submit the blit command to the GPU and wait...
@@ -3337,7 +3366,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				new MTLSize((ulong) subW, (ulong) subH, 1)
 			);
 			mtlGetTextureBytes(
-				tex.CPUHandle,
+				handle,
 				data,
 				(ulong) (subW * Texture.GetFormatSize(format)),
 				region,
