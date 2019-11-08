@@ -1410,7 +1410,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				mtlSetStencilReferenceValue(
 					renderCommandEncoder,
-					(ulong) stencilRef
+					(uint) stencilRef
 				);
 			}
 		}
@@ -1899,11 +1899,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void SetBlendState(BlendState blendState)
 		{
 			this.blendState = blendState;
+			BlendFactor = blendState.BlendFactor; // Dynamic state!
 		}
 
 		public void SetDepthStencilState(DepthStencilState depthStencilState)
 		{
 			this.depthStencilState = depthStencilState;
+			ReferenceStencil = depthStencilState.ReferenceStencil; // Dynamic state!
 		}
 
 		#endregion

@@ -69,6 +69,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, uint arg);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, bool arg);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -966,7 +969,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetStencilReference = Selector("setStencilReferenceValue:");
 		private static void mtlSetStencilReferenceValue(
 			IntPtr renderCommandEncoder,
-			ulong referenceValue
+			uint referenceValue
 		) {
 			objc_msgSend(renderCommandEncoder, selSetStencilReference, referenceValue);
 		}
