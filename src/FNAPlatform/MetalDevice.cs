@@ -1477,7 +1477,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void SetEncoderDepthBias()
 		{
-			if (renderCommandEncoder != null && !needNewRenderPass)
+			if (renderCommandEncoder != IntPtr.Zero && !needNewRenderPass)
 			{
 				mtlSetDepthBias(
 					renderCommandEncoder,
@@ -1890,7 +1890,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			tex.Anisotropy = sampler.MaxAnisotropy;
 			tex.MaxMipmapLevel = sampler.MaxMipLevel;
 			tex.LODBias = sampler.MipMapLevelOfDetailBias;
-			tex.SamplerHandle = FetchSamplerState(sampler);
+			tex.SamplerHandle = FetchSamplerState(sampler, tex.HasMipmaps);
 			if (tex.SamplerHandle != Textures[index].SamplerHandle)
 			{
 				samplerNeedsUpdate[index] = true;
@@ -2224,7 +2224,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			return state;
 		}
 
-		private IntPtr FetchSamplerState(SamplerState samplerState)
+		private IntPtr FetchSamplerState(SamplerState samplerState, bool hasMipmaps)
 		{
 			// Can we just reuse an existing state?
 			StateHash hash = PipelineCache.GetSamplerHash(samplerState);
@@ -2258,7 +2258,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				samplerDesc,
 				XNAToMTL.MinFilter[(int) samplerState.Filter]
 			);
-			if (samplerState.MaxMipLevel > 0)
+			if (hasMipmaps)
 			{
 				mtlSetSamplerMipFilter(
 					samplerDesc,
