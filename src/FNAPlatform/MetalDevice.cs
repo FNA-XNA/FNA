@@ -2391,7 +2391,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					layout,
 					vertexDeclaration.VertexStride
 				);
-				if (bindings[i].InstanceFrequency > 1)
+				if (bindings[i].InstanceFrequency > 0)
 				{
 					mtlSetVertexBufferLayoutStepFunction(
 						layout,
