@@ -325,11 +325,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					(IntPtr) dataLength
 				);
 
-				// Set flags for the next SetData or EndOfFrame call
-				if (!dynamic)
-				{
-					copiesNeeded = device.backingBufferCount - 1;
-				}
+				copiesNeeded = device.backingBufferCount - 1;
 				prevDataLength = len;
 			}
 
@@ -387,7 +383,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (copiesNeeded > 0)
 				{
 					// Copy the last frame's contents to the new one
-					FNALoggerEXT.LogInfo("Copy " + Handle);
 					int dstLen = (int) mtlGetBufferLength(Handle);
 					if (dstLen < internalBufferSize)
 					{
@@ -2261,13 +2256,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				samplerDesc,
 				samplerState.MaxMipLevel
 			);
-
-			// Anisotropy must be in the range [1, 16]
-			ulong scaledAnisotropy = 1 + (ulong) (samplerState.MaxAnisotropy * 15);
 			mtlSetSamplerMaxAnisotropy(
 				samplerDesc,
 				(samplerState.Filter == TextureFilter.Anisotropic) ?
-					scaledAnisotropy :
+					(ulong) Math.Max(1, samplerState.MaxAnisotropy) :
 					1
 			);
 
@@ -3220,7 +3212,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				format == SurfaceFormat.Dxt3 ||
 				format == SurfaceFormat.Dxt5	)
 			{
-				bytesPerRow /= (ulong) (Texture.GetFormatSize(format) / 4);
+				bytesPerRow /= (ulong) 4;
 			}
 
 			MetalTexture tex = texture as MetalTexture;
