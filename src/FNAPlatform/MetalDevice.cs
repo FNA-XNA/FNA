@@ -2009,42 +2009,45 @@ namespace Microsoft.Xna.Framework.Graphics
 					colorAttachment,
 					alphaBlendEnable
 				);
-				mtlSetAttachmentSourceRGBBlendFactor(
-					colorAttachment,
-					XNAToMTL.BlendMode[
-						(int) blendState.ColorSourceBlend
-					]
-				);
-				mtlSetAttachmentDestinationRGBBlendFactor(
-					colorAttachment,
-					XNAToMTL.BlendMode[
-						(int) blendState.ColorDestinationBlend
-					]
-				);
-				mtlSetAttachmentSourceAlphaBlendFactor(
-					colorAttachment,
-					XNAToMTL.BlendMode[
-						(int) blendState.AlphaSourceBlend
-					]
-				);
-				mtlSetAttachmentDestinationAlphaBlendFactor(
-					colorAttachment,
-					XNAToMTL.BlendMode[
-						(int) blendState.AlphaDestinationBlend
-					]
-				);
-				mtlSetAttachmentRGBBlendOperation(
-					colorAttachment,
-					XNAToMTL.BlendOperation[
-						(int) blendState.ColorBlendFunction
-					]
-				);
-				mtlSetAttachmentAlphaBlendOperation(
-					colorAttachment,
-					XNAToMTL.BlendOperation[
-						(int) blendState.AlphaBlendFunction
-					]
-				);
+				if (alphaBlendEnable)
+				{
+					mtlSetAttachmentSourceRGBBlendFactor(
+						colorAttachment,
+						XNAToMTL.BlendMode[
+							(int) blendState.ColorSourceBlend
+						]
+					);
+					mtlSetAttachmentDestinationRGBBlendFactor(
+						colorAttachment,
+						XNAToMTL.BlendMode[
+							(int) blendState.ColorDestinationBlend
+						]
+					);
+					mtlSetAttachmentSourceAlphaBlendFactor(
+						colorAttachment,
+						XNAToMTL.BlendMode[
+							(int) blendState.AlphaSourceBlend
+						]
+					);
+					mtlSetAttachmentDestinationAlphaBlendFactor(
+						colorAttachment,
+						XNAToMTL.BlendMode[
+							(int) blendState.AlphaDestinationBlend
+						]
+					);
+					mtlSetAttachmentRGBBlendOperation(
+						colorAttachment,
+						XNAToMTL.BlendOperation[
+							(int) blendState.ColorBlendFunction
+						]
+					);
+					mtlSetAttachmentAlphaBlendOperation(
+						colorAttachment,
+						XNAToMTL.BlendOperation[
+							(int) blendState.AlphaBlendFunction
+						]
+					);
+				}
 
 				/* FIXME: So how exactly do we factor in
 				* COLORWRITEENABLE for buffer 0? Do we just assume that
@@ -2055,28 +2058,28 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					mtlSetAttachmentWriteMask(
 						colorAttachment,
-						(ulong) blendState.ColorWriteChannels
+						XNAToMTL.ColorWriteMask(blendState.ColorWriteChannels)
 					);
 				}
 				else if (i == 1)
 				{
 					mtlSetAttachmentWriteMask(
 						mtlGetColorAttachment(pipelineDesc, 1),
-						(ulong) blendState.ColorWriteChannels1
+						XNAToMTL.ColorWriteMask(blendState.ColorWriteChannels1)
 					);
 				}
 				else if (i == 2)
 				{
 					mtlSetAttachmentWriteMask(
 						mtlGetColorAttachment(pipelineDesc, 2),
-						(ulong) blendState.ColorWriteChannels2
+						XNAToMTL.ColorWriteMask(blendState.ColorWriteChannels2)
 					);
 				}
 				else if (i == 3)
 				{
 					mtlSetAttachmentWriteMask(
 						mtlGetColorAttachment(pipelineDesc, 3),
-						(ulong) blendState.ColorWriteChannels3
+						XNAToMTL.ColorWriteMask(blendState.ColorWriteChannels3)
 					);
 				}
 			}
@@ -3838,6 +3841,37 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLBlendOperation.Min			// BlendFunction.Min
 			};
 
+			public static ulong ColorWriteMask(ColorWriteChannels channels)
+			{
+				if (channels == ColorWriteChannels.None)
+				{
+					return 0x0;
+				}
+				if (channels == ColorWriteChannels.All)
+				{
+					return 0xf;
+				}
+
+				ulong ret = 0;
+				if ((channels & ColorWriteChannels.Red) != 0)
+				{
+					ret |= (0x1 << 3);
+				}
+				if ((channels & ColorWriteChannels.Green) != 0)
+				{
+					ret |= (0x1 << 2);
+				}
+				if ((channels & ColorWriteChannels.Blue) != 0)
+				{
+					ret |= (0x1 << 1);
+				}
+				if ((channels & ColorWriteChannels.Alpha) != 0)
+				{
+					ret |= (0x1 << 0);
+				}
+				return ret;
+			}
+
 			public static readonly MTLCompareFunction[] CompareFunc = new MTLCompareFunction[]
 			{
 				MTLCompareFunction.Always,	// CompareFunction.Always
@@ -4019,7 +4053,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				DepthFormat = depthFormat;
 				MultiSampleCount = multiSampleCount;
 
-				PixelFormat = mtlGetLayerPixelFormat(mtlDevice.layer);
+				PixelFormat = MTLPixelFormat.RGBA8Unorm;
 			}
 
 			public void Dispose()
