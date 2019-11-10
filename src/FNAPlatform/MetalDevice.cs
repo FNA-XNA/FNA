@@ -722,8 +722,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr currentEffect = IntPtr.Zero;
 		private IntPtr currentTechnique = IntPtr.Zero;
 		private uint currentPass = 0;
-
-		private bool renderTargetBound = false;
 		private bool effectApplied = false;
 
 		private IntPtr currentVertexShader = IntPtr.Zero;
@@ -1839,9 +1837,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			float realDepthBias = rasterizerState.DepthBias * XNAToMTL.DepthBiasScale[
-				renderTargetBound ?
-					(int) currentDepthFormat :
-					(int) Backbuffer.DepthFormat
+				(int) currentDepthFormat
 			];
 			if (	realDepthBias != depthBias ||
 				rasterizerState.SlopeScaleDepthBias != slopeScaleDepthBias	)
@@ -1928,7 +1924,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		 * Color Attachment Formats (0-4)
 		 * Depth-Stencil Attachment Format
 		 * Blend State
-		 * Depth Stencil State
 		 * 
 		 * -caleb
 		 */
@@ -1946,8 +1941,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				(int) currentColorFormats[2] +
 				(int) currentColorFormats[3] +
 				(int) currentDepthFormat +
-				PipelineCache.GetBlendHash(blendState).GetHashCode() +
-				(int) FetchDepthStencilState()
+				PipelineCache.GetBlendHash(blendState).GetHashCode()
 			);
 			IntPtr pipeline = IntPtr.Zero;
 			if (PipelineStateCache.TryGetValue(hash, out pipeline))
@@ -2105,13 +2099,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private IntPtr FetchDepthStencilState()
 		{
-			// Don't apply a depth state if none was requested.
-			if (	currentDepthFormat == DepthFormat.None ||
-				depthStencilState.Name == "DepthStencilState.None")
-			{
-				return IntPtr.Zero;
-			}
-
 			// Can we just reuse an existing state?
 			StateHash hash = PipelineCache.GetDepthStencilHash(
 				depthStencilState
@@ -2125,14 +2112,17 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// We have to make a new DepthStencilState...
 			IntPtr dsDesc = mtlNewDepthStencilDescriptor();
-			mtlSetDepthCompareFunction(
-				dsDesc,
-				XNAToMTL.CompareFunc[(int) depthStencilState.DepthBufferFunction]
-			);
-			mtlSetDepthWriteEnabled(
-				dsDesc,
-				depthStencilState.DepthBufferWriteEnable
-			);
+			if (depthStencilState.DepthBufferEnable)
+			{
+				mtlSetDepthCompareFunction(
+					dsDesc,
+					XNAToMTL.CompareFunc[(int) depthStencilState.DepthBufferFunction]
+				);
+				mtlSetDepthWriteEnabled(
+					dsDesc,
+					depthStencilState.DepthBufferWriteEnable
+				);
+			}
 
 			// Create stencil descriptors
 			IntPtr front = IntPtr.Zero;
@@ -2830,13 +2820,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr depthStencilState = FetchDepthStencilState();
 			if (depthStencilState != ldDepthStencilState)
 			{
-				if (depthStencilState != IntPtr.Zero)
-				{
-					mtlSetDepthStencilState(
-						renderCommandEncoder,
-						depthStencilState
-					);
-				}
+				mtlSetDepthStencilState(
+					renderCommandEncoder,
+					depthStencilState
+				);
 				ldDepthStencilState = depthStencilState;
 			}
 
@@ -3605,11 +3592,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			ResetAttachments();
 			if (renderTargets == null)
 			{
-				renderTargetBound = false;
 				BindBackbuffer();
 				return;
 			}
-			renderTargetBound = true;
 
 			// Update color buffers
 			int i;
@@ -3639,7 +3624,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
-			// Update depth stencil state
+			// Update depth stencil buffer
 			IntPtr handle = IntPtr.Zero;
 			if (renderbuffer != null)
 			{
@@ -3883,6 +3868,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLTriangleFillMode.Lines	// FillMode.WireFrame
 			};
 
+			// FIXME: This is definitely wrong for float32 depth formats. -caleb
 			public static readonly float[] DepthBiasScale = new float[]
 			{
 				0.0f,				// DepthFormat.None
