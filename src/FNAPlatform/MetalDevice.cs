@@ -2149,11 +2149,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 				mtlSetStencilReadMask(
 					front,
-					depthStencilState.StencilMask
+					(uint) depthStencilState.StencilMask
 				);
 				mtlSetStencilWriteMask(
 					front,
-					depthStencilState.StencilWriteMask
+					(uint) depthStencilState.StencilWriteMask
 				);
 
 				if (!depthStencilState.TwoSidedStencilMode)
@@ -2183,11 +2183,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 				mtlSetStencilReadMask(
 					back,
-					depthStencilState.StencilMask
+					(uint) depthStencilState.StencilMask
 				);
 				mtlSetStencilWriteMask(
 					back,
-					depthStencilState.StencilWriteMask
+					(uint) depthStencilState.StencilWriteMask
 				);
 			}
 

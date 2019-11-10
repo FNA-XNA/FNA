@@ -1829,7 +1829,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetStencilReadMask = Selector("setReadMask:");
 		private static void mtlSetStencilReadMask(
 			IntPtr stencilDescriptor,
-			int mask
+			uint mask
 		) {
 			objc_msgSend(stencilDescriptor, selSetStencilReadMask, mask);
 		}
@@ -1837,7 +1837,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetStencilWriteMask = Selector("setWriteMask:");
 		private static void mtlSetStencilWriteMask(
 			IntPtr stencilDescriptor,
-			int mask
+			uint mask
 		) {
 			objc_msgSend(stencilDescriptor, selSetStencilWriteMask, mask);
 		}
