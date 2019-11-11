@@ -924,8 +924,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			out int w,
 			out int h
 		) {
-			IntPtr l = mtlGetLayer(view);
-			GetDrawableSize(l, out w, out h);
+			GetDrawableSize(mtlGetLayer(view), out w, out h);
 		}
 
 		private static void GetDrawableSize(
@@ -3210,14 +3209,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			int dataLength
 		) {
-			ulong bytesPerRow = (ulong) (w * Texture.GetFormatSize(format));
-			if (	format == SurfaceFormat.Dxt1 ||
-				format == SurfaceFormat.Dxt3 ||
-				format == SurfaceFormat.Dxt5	)
-			{
-				bytesPerRow /= (ulong) 4;
-			}
-
 			MetalTexture tex = texture as MetalTexture;
 			IntPtr handle = tex.Handle;
 
@@ -3231,6 +3222,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
+			// Calculate bytes per row
+			int bytesPerRow = w;
+			if (	format == SurfaceFormat.Dxt1 ||
+				format == SurfaceFormat.Dxt3 ||
+				format == SurfaceFormat.Dxt5	)
+			{
+				bytesPerRow = (w + 3) / 4;
+			}
+			bytesPerRow *= Texture.GetFormatSize(format);
+
 			// Write the data
 			MTLRegion region = new MTLRegion(
 				new MTLOrigin((ulong) x, (ulong) y, 0),
@@ -3241,7 +3242,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				region,
 				(ulong) level,
 				data,
-				bytesPerRow
+				(ulong) bytesPerRow
 			);
 
 			if (tex.IsPrivate)
