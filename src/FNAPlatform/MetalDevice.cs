@@ -551,6 +551,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr ldTechnique = IntPtr.Zero;
 		private uint ldPass = 0;
 
+		// Some vertex declarations may have overlapping attributes :/
+		private bool[,] attrUse = new bool[(int) MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TOTAL, 10];
+
 		private VertexDeclaration userVertexDeclaration = null;
 		private MetalBuffer userVertexBuffer = null;
 		private MetalBuffer userIndexBuffer = null;
@@ -2338,18 +2341,43 @@ namespace Microsoft.Xna.Framework.Graphics
 			descriptor = mtlMakeVertexDescriptor();
 			ObjCRetain(descriptor); // Make sure this doesn't get drained
 
-			for (int i = numBindings - 1; i >= 0; i -= 1)
+			/* There's this weird case where you can have overlapping
+			 * vertex usage/index combinations. It seems like the first
+			 * attrib gets priority, so whenever a duplicate attribute
+			 * exists, give it the next available index. If that fails, we
+			 * have to crash :/
+			 * -flibit
+			 */
+			Array.Clear(attrUse, 0, attrUse.Length);
+			for (int i = 0; i < numBindings; i += 1)
 			{
 				// Describe vertex attributes
 				VertexDeclaration vertexDeclaration = bindings[i].VertexBuffer.VertexDeclaration;
-				for (int j = 0; j < vertexDeclaration.elements.Length; j += 1)
+				foreach (VertexElement element in vertexDeclaration.elements)
 				{
-					VertexElement element = vertexDeclaration.elements[j];
-
+					int usage = (int) element.VertexElementUsage;
+					int index = element.UsageIndex;
+					if (attrUse[usage, index])
+					{
+						index = -1;
+						for (int j = 0; j < 10; j += 1)
+						{
+							if (!attrUse[usage, j])
+							{
+								index = j;
+								break;
+							}
+						}
+						if (index < 0)
+						{
+							throw new InvalidOperationException("Vertex usage collision!");
+						}
+					}
+					attrUse[usage, index] = true;
 					int attribLoc = MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
 						currentVertexShader,
-						XNAToMTL.VertexAttribUsage[(int) element.VertexElementUsage],
-						element.UsageIndex
+						XNAToMTL.VertexAttribUsage[usage],
+						index
 					);
 					if (attribLoc == -1)
 					{
@@ -2418,15 +2446,39 @@ namespace Microsoft.Xna.Framework.Graphics
 			descriptor = mtlMakeVertexDescriptor();
 			ObjCRetain(descriptor); // Make sure this doesn't get drained
 
-			// Describe vertex attributes
-			for (int j = 0; j < vertexDeclaration.elements.Length; j += 1)
+			/* There's this weird case where you can have overlapping
+			 * vertex usage/index combinations. It seems like the first
+			 * attrib gets priority, so whenever a duplicate attribute
+			 * exists, give it the next available index. If that fails, we
+			 * have to crash :/
+			 * -flibit
+			 */
+			Array.Clear(attrUse, 0, attrUse.Length);
+			foreach (VertexElement element in vertexDeclaration.elements)
 			{
-				VertexElement element = vertexDeclaration.elements[j];
-
+				int usage = (int) element.VertexElementUsage;
+				int index = element.UsageIndex;
+				if (attrUse[usage, index])
+				{
+					index = -1;
+					for (int j = 0; j < 10; j += 1)
+					{
+						if (!attrUse[usage, j])
+						{
+							index = j;
+							break;
+						}
+					}
+					if (index < 0)
+					{
+						throw new InvalidOperationException("Vertex usage collision!");
+					}
+				}
+				attrUse[usage, index] = true;
 				int attribLoc = MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
 					currentVertexShader,
-					XNAToMTL.VertexAttribUsage[(int) element.VertexElementUsage],
-					element.UsageIndex
+					XNAToMTL.VertexAttribUsage[usage],
+					index
 				);
 				if (attribLoc == -1)
 				{
