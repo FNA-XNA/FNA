@@ -1638,16 +1638,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			int primitiveCount
 		) {
 			// Bind user vertex buffer
+			BindUserVertexBuffer(
+				vertexData,
+				(int) numVertices
+			);
+
+			// Bind user index buffer
 			ulong numIndices = XNAToMTL.PrimitiveVerts(
 				primitiveType,
 				primitiveCount
 			);
-			BindUserVertexBuffer(
-				vertexData,
-				(int) numIndices
-			);
-
-			// Bind user index buffer
 			int indexSize = XNAToMTL.IndexSize[(int) indexElementSize];
 			int len = (int) numIndices * indexSize;
 			if (userIndexBuffer == null)
