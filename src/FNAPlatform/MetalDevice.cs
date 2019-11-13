@@ -61,7 +61,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			public MTLPixelFormat Format;
-			public IntPtr SamplerHandle;
 			public TextureAddressMode WrapS;
 			public TextureAddressMode WrapT;
 			public TextureAddressMode WrapR;
@@ -539,6 +538,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Sampler State Variables
 
 		private MetalTexture[] Textures;
+		private IntPtr[] Samplers;
 		private bool[] textureNeedsUpdate;
 		private bool[] samplerNeedsUpdate;
 
@@ -816,11 +816,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			MaxTextureSlots = 16;
 			MaxMultiSampleCount = mtlSupportsSampleCount(device, 8) ? 8 : 4;
 
-			// Initialize texture collection array
+			// Initialize texture and sampler collections
 			Textures = new MetalTexture[MaxTextureSlots];
+			Samplers = new IntPtr[MaxTextureSlots];
 			for (int i = 0; i < MaxTextureSlots; i += 1)
 			{
 				Textures[i] = MetalTexture.NullTexture;
+				Samplers[i] = IntPtr.Zero;
 			}
 			textureNeedsUpdate = new bool[MaxTextureSlots];
 			samplerNeedsUpdate = new bool[MaxTextureSlots];
@@ -1396,6 +1398,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (Textures[i] != MetalTexture.NullTexture)
 				{
 					textureNeedsUpdate[i] = true;
+				}
+				if (Samplers[i] != IntPtr.Zero)
+				{
 					samplerNeedsUpdate[i] = true;
 				}
 			}
@@ -1860,10 +1865,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (texture == null)
 			{
-				Textures[index] = MetalTexture.NullTexture;
-				textureNeedsUpdate[index] = true;
-				samplerNeedsUpdate[index] = true;
-				return;
+				if (Textures[index] != MetalTexture.NullTexture)
+				{
+					Textures[index] = MetalTexture.NullTexture;
+					textureNeedsUpdate[index] = true;
+					return;
+				}
 			}
 
 			MetalTexture tex = texture.texture as MetalTexture;
@@ -1880,7 +1887,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				return;
 			}
 
-			// Update the texture info
+			// Bind the correct texture
+			if (tex != Textures[index])
+			{
+				Textures[index] = tex;
+				textureNeedsUpdate[index] = true;
+			}
+
+			// Update the texture sampler info
 			tex.WrapS = sampler.AddressU;
 			tex.WrapT = sampler.AddressV;
 			tex.WrapR = sampler.AddressW;
@@ -1888,17 +1902,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			tex.Anisotropy = sampler.MaxAnisotropy;
 			tex.MaxMipmapLevel = sampler.MaxMipLevel;
 			tex.LODBias = sampler.MipMapLevelOfDetailBias;
-			tex.SamplerHandle = FetchSamplerState(sampler, tex.HasMipmaps);
-			if (tex.SamplerHandle != Textures[index].SamplerHandle)
-			{
-				samplerNeedsUpdate[index] = true;
-			}
 
-			// Bind the correct texture
-			if (tex != Textures[index])
+			// Update the sampler state, if needed
+			IntPtr ss = FetchSamplerState(sampler, tex.HasMipmaps);
+			if (ss != Samplers[index])
 			{
-				Textures[index] = tex;
-				textureNeedsUpdate[index] = true;
+				Samplers[index] = ss;
+				samplerNeedsUpdate[index] = true;
 			}
 		}
 
@@ -2819,7 +2829,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					mtlSetFragmentSamplerState(
 						renderCommandEncoder,
-						Textures[i].SamplerHandle,
+						Samplers[i],
 						(ulong) i
 					);
 					samplerNeedsUpdate[i] = false;
