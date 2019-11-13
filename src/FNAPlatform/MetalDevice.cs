@@ -1139,9 +1139,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			MojoShader.MOJOSHADER_mtlEndFrame();
 
-			// Go back to using the faux-backbuffer
-			ResetAttachments();
-			BindBackbuffer();
+			// Bind the faux-backbuffer
+			SetRenderTargets(null, null, DepthFormat.None);
 		}
 
 		private void CopyTextureRegion(
