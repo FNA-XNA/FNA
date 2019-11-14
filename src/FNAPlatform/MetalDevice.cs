@@ -679,11 +679,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private State Object Caches
 
-		private Dictionary<long, IntPtr> VertexDescriptorCache =
-			new Dictionary<long, IntPtr>();
+		private Dictionary<ulong, IntPtr> VertexDescriptorCache =
+			new Dictionary<ulong, IntPtr>();
 
-		private Dictionary<int, IntPtr> PipelineStateCache =
-			new Dictionary<int, IntPtr>();
+		private Dictionary<ulong, IntPtr> PipelineStateCache =
+			new Dictionary<ulong, IntPtr>();
 
 		private Dictionary<StateHash, IntPtr> DepthStencilStateCache =
 			new Dictionary<StateHash, IntPtr>();
@@ -1943,16 +1943,16 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			// Can we just reuse an existing pipeline?
 			// FIXME: This hash could definitely be improved. -caleb
-			int hash = unchecked(
-				(int) currentVertexShader +
-				(int) currentFragmentShader +
-				(int) currentVertexDescriptor +
-				(int) currentColorFormats[0] +
-				(int) currentColorFormats[1] +
-				(int) currentColorFormats[2] +
-				(int) currentColorFormats[3] +
-				(int) currentDepthFormat +
-				PipelineCache.GetBlendHash(blendState).GetHashCode()
+			ulong hash = (
+				(ulong) currentVertexShader +
+				(ulong) currentFragmentShader +
+				(ulong) currentVertexDescriptor +
+				(ulong) currentColorFormats[0] +
+				(ulong) currentColorFormats[1] +
+				(ulong) currentColorFormats[2] +
+				(ulong) currentColorFormats[3] +
+				(ulong) currentDepthFormat +
+				(ulong) PipelineCache.GetBlendHash(blendState).GetHashCode()
 			);
 			IntPtr pipeline = IntPtr.Zero;
 			if (PipelineStateCache.TryGetValue(hash, out pipeline))
@@ -2308,17 +2308,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			return state;
 		}
 
-		private long GetVertexDeclarationHash(VertexDeclaration declaration)
+		private ulong GetVertexDeclarationHash(VertexDeclaration declaration)
 		{
-			long hash = 0;
+			ulong hash = 0;
 			for (int i = 0; i < declaration.elements.Length; i += 1)
 			{
 				VertexElement e = declaration.elements[i];
-				hash += unchecked(e.UsageIndex +
-					(int) e.VertexElementFormat +
-					(int) e.VertexElementUsage);
+				hash +=	(ulong) e.UsageIndex +
+					(ulong) e.VertexElementFormat +
+					(ulong) e.VertexElementUsage;
 			}
-			hash += declaration.VertexStride + (int) currentVertexShader;
+			hash += (ulong) declaration.VertexStride;
+			hash += (ulong) currentVertexShader;
 			return hash;
 		}
 
@@ -2327,12 +2328,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			int numBindings
 		) {
 			// Get the binding hash value
-			long hash = 0;
+			ulong hash = 0;
 			for (int i = 0; i < numBindings; i += 1)
 			{
 				VertexBufferBinding binding = bindings[i];
-				hash += binding.VertexOffset +
-					binding.InstanceFrequency +
+				hash += (ulong) binding.VertexOffset +
+					(ulong) binding.InstanceFrequency +
 					GetVertexDeclarationHash(
 						binding.VertexBuffer.VertexDeclaration
 					);
@@ -2441,7 +2442,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexOffset
 		) {
 			// Get the binding hash value
-			long hash = GetVertexDeclarationHash(vertexDeclaration);
+			ulong hash = GetVertexDeclarationHash(vertexDeclaration);
 
 			// Can we just reuse an existing descriptor?
 			IntPtr descriptor;
