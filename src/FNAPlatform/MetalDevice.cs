@@ -2842,7 +2842,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		// FIXME: Update to handle overlapping attributes
 		public void ApplyVertexAttributes(
 			VertexBufferBinding[] bindings,
 			int numBindings,
