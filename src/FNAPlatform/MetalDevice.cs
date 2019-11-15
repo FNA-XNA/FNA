@@ -112,19 +112,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public SurfaceFormat Format
+			public IntPtr MultiSampleHandle
 			{
 				get;
 				private set;
 			}
 
-			public DepthFormat DepthFormat
-			{
-				get;
-				private set;
-			}
-
-			public bool IsDepthStencil
+			public MTLPixelFormat PixelFormat
 			{
 				get;
 				private set;
@@ -136,69 +130,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public int Width
-			{
-				get;
-				private set;
-			}
-
-			public int Height
-			{
-				get;
-				private set;
-			}
-
 			public MetalRenderbuffer(
-				IntPtr mtlDevice,
-				int width,
-				int height,
-				bool isDepthStencil,
-				SurfaceFormat format,
-				DepthFormat depthFormat,
-				int multiSampleCount
+				IntPtr handle,
+				MTLPixelFormat pixelFormat,
+				int multiSampleCount,
+				IntPtr multiSampleHandle
 			) {
-				Width = width;
-				Height = height;
-				IsDepthStencil = isDepthStencil;
-				Format = format;
-				DepthFormat = depthFormat;
+				Handle = handle;
+				PixelFormat = pixelFormat;
 				MultiSampleCount = multiSampleCount;
-
-				// Generate the texture
-				MTLPixelFormat pixelFormat = (
-					isDepthStencil ?
-					XNAToMTL.DepthFormat[(int) depthFormat] :
-					XNAToMTL.TextureFormat[(int) format]
-				);
-				IntPtr desc = mtlMakeTexture2DDescriptor(
-					pixelFormat,
-					(ulong) Width,
-					(ulong) Height,
-					false
-				);
-				mtlSetStorageMode(
-					desc,
-					MTLResourceStorageMode.Private
-				);
-				mtlSetTextureUsage(
-					desc,
-					MTLTextureUsage.RenderTarget
-				);
-				if (multiSampleCount > 1)
-				{
-					mtlSetTextureType(
-						desc,
-						MTLTextureType.Multisample2D
-					);
-					mtlSetTextureSampleCount(
-						desc,
-						multiSampleCount
-					);
-				}
-				Handle = mtlNewTextureWithDescriptor(
-					mtlDevice,
-					desc
-				);
+				MultiSampleHandle = multiSampleHandle;
 			}
 		}
 
@@ -580,6 +521,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private readonly AttachmentType[] currentAttachmentTypes;
 		private readonly MTLPixelFormat[] currentColorFormats;
 		private DepthFormat currentDepthFormat;
+		private readonly IntPtr[] currentMSAttachments;
+		private int currentSampleCount;
 
 		#endregion
 
@@ -827,16 +770,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			textureNeedsUpdate = new bool[MaxTextureSlots];
 			samplerNeedsUpdate = new bool[MaxTextureSlots];
 
-			// Initialize attachments array
+			// Initialize attachment arrays
 			currentAttachments = new IntPtr[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 			currentColorFormats = new MTLPixelFormat[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 			currentAttachmentTypes = new AttachmentType[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
-			for (int i = 0; i < currentAttachments.Length; i += 1)
-			{
-				currentAttachments[i] = IntPtr.Zero;
-				currentColorFormats[i] = MTLPixelFormat.Invalid;
-				currentAttachmentTypes[i] = AttachmentType.None;
-			}
+			currentMSAttachments = new IntPtr[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 
 			// Initialize vertex buffer cache
 			ldVertexBuffers = new IntPtr[MAX_BOUND_VERTEX_BUFFERS];
@@ -991,52 +929,30 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr colorBuffer = (Backbuffer as MetalBackbuffer).ColorBuffer;
 			if (Backbuffer.MultiSampleCount > 0)
 			{
-				// Generate temp texture for resolving the actual backbuffer
-				IntPtr resolveTextureDesc = mtlMakeTexture2DDescriptor(
-					mtlGetLayerPixelFormat(layer),
-					(uint) Backbuffer.Width,
-					(uint) Backbuffer.Height,
-					false
-				);
-				mtlSetTextureType(
-					resolveTextureDesc,
-					MTLTextureType.Texture2D
-				);
-				mtlSetTextureUsage(
-					resolveTextureDesc,
-					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
-				);
-
-				IntPtr resolveTexture = mtlNewTextureWithDescriptor(
-					device,
-					resolveTextureDesc
-				);
 				IntPtr resolveRenderPass = mtlMakeRenderPassDescriptor();
 				IntPtr colorAttachment = mtlGetColorAttachment(
 					resolveRenderPass,
 					0
 				);
-
 				mtlSetAttachmentStoreAction(
 					colorAttachment,
 					MTLStoreAction.MultisampleResolve
 				);
 				mtlSetAttachmentTexture(
 					colorAttachment,
-					colorBuffer
+					(Backbuffer as MetalBackbuffer).MultiSampleColorBuffer
 				);
 				mtlSetAttachmentResolveTexture(
 					colorAttachment,
-					resolveTexture
+					(Backbuffer as MetalBackbuffer).ColorBuffer
 				);
 
+				// Resolve!
 				IntPtr rce = mtlMakeRenderCommandEncoder(
 					commandBuffer,
 					resolveRenderPass
 				);
 				mtlEndEncoding(rce);
-
-				colorBuffer = resolveTexture;
 			}
 
 			// Determine the regions to present
@@ -1283,6 +1199,23 @@ namespace Microsoft.Xna.Framework.Graphics
 					colorAttachment,
 					currentAttachments[i]
 				);
+
+				// Multisample?
+				if (currentSampleCount > 0)
+				{
+					mtlSetAttachmentTexture(
+						colorAttachment,
+						currentMSAttachments[i]
+					);
+					mtlSetAttachmentResolveTexture(
+						colorAttachment,
+						currentAttachments[i]
+					);
+					mtlSetAttachmentStoreAction(
+						colorAttachment,
+						MTLStoreAction.MultisampleResolve
+					);
+				}
 
 				// Clear color
 				if (shouldClearColor)
@@ -1934,6 +1867,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		 * Vertex Descriptor
 		 * Color Attachment Formats (0-4)
 		 * Depth-Stencil Attachment Format
+		 * Sample Count
 		 * Blend State
 		 * 
 		 * -caleb
@@ -1952,6 +1886,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				(ulong) currentColorFormats[2] +
 				(ulong) currentColorFormats[3] +
 				(ulong) currentDepthFormat +
+				(ulong) currentSampleCount +
 				(ulong) PipelineCache.GetBlendHash(blendState).GetHashCode()
 			);
 			IntPtr pipeline = IntPtr.Zero;
@@ -1992,6 +1927,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					XNAToMTL.DepthFormat[(int) currentDepthFormat]
 				);
 			}
+			mtlSetPipelineSampleCount(
+				pipelineDesc,
+				(ulong) Math.Max(1, currentSampleCount)
+			);
 
 			// Apply the blend state
 			bool alphaBlendEnable = !(
@@ -3027,16 +2966,45 @@ namespace Microsoft.Xna.Framework.Graphics
 			int width,
 			int height,
 			SurfaceFormat format,
-			int multiSampleCount
+			int multiSampleCount,
+			IGLTexture texture
 		) {
-			return new MetalRenderbuffer(
-				device,
-				width,
-				height,
-				false,
-				format,
-				DepthFormat.None, // ignored!
+			MTLPixelFormat pixelFormat = XNAToMTL.TextureFormat[(int) format];
+
+			// Generate a multisample texture
+			IntPtr desc = mtlMakeTexture2DDescriptor(
+				pixelFormat,
+				(ulong) width,
+				(ulong) height,
+				false
+			);
+			mtlSetStorageMode(
+				desc,
+				MTLResourceStorageMode.Private
+			);
+			mtlSetTextureUsage(
+				desc,
+				MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+			);
+			mtlSetTextureType(
+				desc,
+				MTLTextureType.Multisample2D
+			);
+			mtlSetTextureSampleCount(
+				desc,
 				multiSampleCount
+			);
+			IntPtr multisampleTexture = mtlNewTextureWithDescriptor(
+				device,
+				desc
+			);
+
+			// We're done!
+			return new MetalRenderbuffer(
+				(texture as MetalTexture).Handle,
+				pixelFormat,
+				multiSampleCount,
+				multisampleTexture
 			);
 		}
 
@@ -3046,38 +3014,76 @@ namespace Microsoft.Xna.Framework.Graphics
 			DepthFormat format,
 			int multiSampleCount
 		) {
-			return new MetalRenderbuffer(
+			MTLPixelFormat pixelFormat = XNAToMTL.DepthFormat[(int) format];
+
+			// Generate a depth texture
+			IntPtr desc = mtlMakeTexture2DDescriptor(
+				pixelFormat,
+				(ulong) width,
+				(ulong) height,
+				false
+			);
+			mtlSetStorageMode(
+				desc,
+				MTLResourceStorageMode.Private
+			);
+			mtlSetTextureUsage(
+				desc,
+				MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+			);
+			if (multiSampleCount > 0)
+			{
+				mtlSetTextureType(
+					desc,
+					MTLTextureType.Multisample2D
+				);
+				mtlSetTextureSampleCount(
+					desc,
+					multiSampleCount
+				);
+			}
+			IntPtr handle = mtlNewTextureWithDescriptor(
 				device,
-				width,
-				height,
-				true,
-				0, // ignored!
-				format,
-				multiSampleCount
+				desc
+			);
+
+			// We're done!
+			return new MetalRenderbuffer(
+				handle,
+				pixelFormat,
+				multiSampleCount,
+				IntPtr.Zero
 			);
 		}
 
 		private void DeleteRenderbuffer(IGLRenderbuffer renderbuffer)
 		{
-			IntPtr handle = (renderbuffer as MetalRenderbuffer).Handle;
+			MetalRenderbuffer rb = renderbuffer as MetalRenderbuffer;
+			bool isDepthStencil = rb.MultiSampleHandle == IntPtr.Zero;
 
-			// Check color attachments
-			for (int i = 0; i < currentAttachments.Length; i += 1)
+			if (isDepthStencil)
 			{
-				if (handle == currentAttachments[i])
+				if (rb.Handle == currentDepthStencilBuffer)
 				{
-					currentAttachments[i] = IntPtr.Zero;
+					currentDepthStencilBuffer = IntPtr.Zero;
 				}
+				ObjCRelease(rb.Handle);
 			}
-
-			// Check depth-stencil attachment
-			if (handle == currentDepthStencilBuffer)
+			else
 			{
-				currentDepthStencilBuffer = IntPtr.Zero;
-			}
+				for (int i = 0; i < currentAttachments.Length; i += 1)
+				{
+					if (rb.MultiSampleHandle == currentMSAttachments[i])
+					{
+						currentMSAttachments[i] = IntPtr.Zero;
+					}
+				}
+				ObjCRelease(rb.MultiSampleHandle);
 
-			// Finally.
-			ObjCRelease(handle);
+				/* We don't release the regular Handle since
+				 * it's owned by the associated IGLTexture!
+				 */
+			}
 		}
 
 		#endregion
@@ -3532,75 +3538,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void ResolveTarget(RenderTargetBinding target)
 		{
-			// FIXME!
-			// if ((target.RenderTarget as IRenderTarget).MultiSampleCount > 0)
-			// {
-			// 	// Set up the texture framebuffer
-			// 	int width, height;
-			// 	if (target.RenderTarget is RenderTarget2D)
-			// 	{
-			// 		Texture2D target2D = (target.RenderTarget as Texture2D);
-			// 		width = target2D.Width;
-			// 		height = target2D.Height;
-			// 		glNamedFramebufferTexture(
-			// 			resolveFramebufferDraw,
-			// 			GLenum.GL_COLOR_ATTACHMENT0,
-			// 			(target.RenderTarget.texture as OpenGLTexture).Handle,
-			// 			0
-			// 		);
-			// 	}
-			// 	else
-			// 	{
-			// 		TextureCube targetCube = (target.RenderTarget as TextureCube);
-			// 		width = targetCube.Size;
-			// 		height = targetCube.Size;
-			// 		glNamedFramebufferTextureLayer(
-			// 			resolveFramebufferDraw,
-			// 			GLenum.GL_COLOR_ATTACHMENT0,
-			// 			(target.RenderTarget.texture as OpenGLTexture).Handle,
-			// 			0,
-			// 			(int) target.CubeMapFace
-			// 		);
-			// 	}
+			// The target gets resolved at the end of the render pass.
 
-			// 	// Set up the renderbuffer framebuffer
-			// 	glNamedFramebufferRenderbuffer(
-			// 		resolveFramebufferRead,
-			// 		GLenum.GL_COLOR_ATTACHMENT0,
-			// 		GLenum.GL_RENDERBUFFER,
-			// 		((target.RenderTarget as IRenderTarget).ColorBuffer as OpenGLRenderbuffer).Handle
-			// 	);
-
-			// 	// Blit!
-			// 	if (scissorTestEnable)
-			// 	{
-			// 		glDisable(GLenum.GL_SCISSOR_TEST);
-			// 	}
-			// 	glBlitNamedFramebuffer(
-			// 		resolveFramebufferRead,
-			// 		resolveFramebufferDraw,
-			// 		0, 0, width, height,
-			// 		0, 0, width, height,
-			// 		GLenum.GL_COLOR_BUFFER_BIT,
-			// 		GLenum.GL_LINEAR
-			// 	);
-			// 	/* Invalidate the MSAA buffer */
-			// 	glInvalidateNamedFramebufferData(
-			// 		resolveFramebufferRead,
-			// 		attachments.Length + 2,
-			// 		drawBuffersArray
-			// 	);
-			// 	if (scissorTestEnable)
-			// 	{
-			// 		glEnable(GLenum.GL_SCISSOR_TEST);
-			// 	}
-			// }
-
-			//// If the target has mipmaps, regenerate them now
-			//if (target.RenderTarget.LevelCount > 1)
-			//{
-				//glGenerateTextureMipmap((target.RenderTarget.texture as OpenGLTexture).Handle);
-			//}
+			// If the target has mipmaps, regenerate them now
+			if (target.RenderTarget.LevelCount > 1)
+			{
+				// FIXME: Generate mipmaps
+			}
 		}
 
 		#endregion
@@ -3671,14 +3615,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					currentAttachments[i] = (colorBuffer as MetalRenderbuffer).Handle;
 					currentAttachmentTypes[i] = AttachmentType.Renderbuffer;
-					currentColorFormats[i] = XNAToMTL.TextureFormat[
-						(int) (colorBuffer as MetalRenderbuffer).Format
-					];
+					currentColorFormats[i] = (colorBuffer as MetalRenderbuffer).PixelFormat;
+					currentSampleCount = (colorBuffer as MetalRenderbuffer).MultiSampleCount;
+					currentMSAttachments[i] = (colorBuffer as MetalRenderbuffer).MultiSampleHandle;
 				}
 				else
 				{
 					currentAttachments[i] = (renderTargets[i].RenderTarget.texture as MetalTexture).Handle;
 					currentColorFormats[i] = (renderTargets[i].RenderTarget.texture as MetalTexture).Format;
+					currentSampleCount = 0;
 					if (renderTargets[i].RenderTarget is RenderTarget2D)
 					{
 						currentAttachmentTypes[i] = AttachmentType.Texture2D;
@@ -3710,9 +3655,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				currentAttachments[i] = IntPtr.Zero;
 				currentAttachmentTypes[i] = AttachmentType.None;
 				currentColorFormats[i] = MTLPixelFormat.Invalid;
+				currentMSAttachments[i] = IntPtr.Zero;
 			}
 			currentDepthStencilBuffer = IntPtr.Zero;
 			currentDepthFormat = DepthFormat.None;
+			currentSampleCount = 0;
 		}
 
 		private void BindBackbuffer()
@@ -3723,6 +3670,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			currentAttachmentTypes[0] = AttachmentType.Backbuffer;
 			currentDepthStencilBuffer = bb.DepthStencilBuffer;
 			currentDepthFormat = bb.DepthFormat;
+			currentSampleCount = bb.MultiSampleCount;
+			currentMSAttachments[0] = bb.MultiSampleColorBuffer;
 		}
 
 		#endregion
@@ -3737,11 +3686,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private void DeleteQuery(IGLQuery query)
 		{
 			throw new NotImplementedException();
-			// uint handle = (query as OpenGLQuery).Handle;
-			// glDeleteQueries(
-			// 	1,
-			// 	ref handle
-			// );
 		}
 
 		public void QueryBegin(IGLQuery query)
@@ -4098,6 +4042,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			public IntPtr ColorBuffer = IntPtr.Zero;
+			public IntPtr MultiSampleColorBuffer = IntPtr.Zero;
 			public IntPtr DepthStencilBuffer = IntPtr.Zero;
 			
 			private MetalDevice mtlDevice;
@@ -4124,6 +4069,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				ObjCRelease(ColorBuffer);
 				ColorBuffer = IntPtr.Zero;
 
+				ObjCRelease(MultiSampleColorBuffer);
+				MultiSampleColorBuffer = IntPtr.Zero;
+
 				ObjCRelease(DepthStencilBuffer);
 				DepthStencilBuffer = IntPtr.Zero;
 			}
@@ -4131,26 +4079,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			public void ResetFramebuffer(
 				PresentationParameters presentationParameters
 			) {
-				Width = presentationParameters.BackBufferWidth;
-				Height = presentationParameters.BackBufferHeight;
-				mtlDevice.fauxBackbufferSizeChanged = true;
+				int newWidth = presentationParameters.BackBufferWidth;
+				int newHeight = presentationParameters.BackBufferHeight;
+				if (Width != newWidth || Height != newHeight)
+				{
+					mtlDevice.fauxBackbufferSizeChanged = true;
+				}
 
+				// Update from presentation parameters
+				Width = newWidth;
+				Height = newHeight;
 				DepthFormat = presentationParameters.DepthStencilFormat;
 				MultiSampleCount = presentationParameters.MultiSampleCount;
 
-				// Release the existing color buffer, if applicable
-				if (ColorBuffer != IntPtr.Zero)
-				{
-					ObjCRelease(ColorBuffer);
-					ColorBuffer = IntPtr.Zero;
-				}
-
-				// Release the depth/stencil buffer, if applicable
-				if (DepthStencilBuffer != IntPtr.Zero)
-				{
-					ObjCRelease(DepthStencilBuffer);
-					DepthStencilBuffer = IntPtr.Zero;
-				}
+				// Release the existing buffers
+				Dispose();
 
 				// Update color buffer to the new resolution.
 				IntPtr colorBufferDesc = mtlMakeTexture2DDescriptor(
@@ -4159,16 +4102,20 @@ namespace Microsoft.Xna.Framework.Graphics
 					(uint) Height,
 					false
 				);
+				mtlSetStorageMode(
+					colorBufferDesc,
+					MTLResourceStorageMode.Private
+				);
 				mtlSetTextureUsage(
 					colorBufferDesc,
 					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
 				);
+				ColorBuffer = mtlNewTextureWithDescriptor(
+					mtlDevice.device,
+					colorBufferDesc
+				);
 				if (MultiSampleCount > 0)
 				{
-					mtlSetStorageMode(
-						colorBufferDesc,
-						MTLResourceStorageMode.Private
-					);
 					mtlSetTextureType(
 						colorBufferDesc,
 						MTLTextureType.Multisample2D
@@ -4177,11 +4124,11 @@ namespace Microsoft.Xna.Framework.Graphics
 						colorBufferDesc,
 						MultiSampleCount
 					);
+					MultiSampleColorBuffer = mtlNewTextureWithDescriptor(
+						mtlDevice.device,
+						colorBufferDesc
+					);
 				}
-				ColorBuffer = mtlNewTextureWithDescriptor(
-					mtlDevice.device,
-					colorBufferDesc
-				);
 
 				// Update the depth/stencil buffer, if applicable
 				if (DepthFormat != DepthFormat.None)
@@ -4200,6 +4147,17 @@ namespace Microsoft.Xna.Framework.Graphics
 						depthStencilBufferDesc,
 						MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
 					);
+					if (MultiSampleCount > 0)
+					{
+						mtlSetTextureType(
+							depthStencilBufferDesc,
+							MTLTextureType.Multisample2D
+						);
+						mtlSetTextureSampleCount(
+							depthStencilBufferDesc,
+							MultiSampleCount
+						);
+					}
 					DepthStencilBuffer = mtlNewTextureWithDescriptor(
 						mtlDevice.device,
 						depthStencilBufferDesc

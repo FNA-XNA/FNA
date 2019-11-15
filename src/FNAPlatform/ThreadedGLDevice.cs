@@ -846,7 +846,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int width,
 			int height,
 			SurfaceFormat format,
-			int multiSampleCount
+			int multiSampleCount,
+			IGLTexture texture
 		) {
 			IGLRenderbuffer result = null;
 			ForceToMainThread(() =>
@@ -855,7 +856,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					width,
 					height,
 					format,
-					multiSampleCount
+					multiSampleCount,
+					texture
 				);
 			}); // End ForceToMainThread
 			return result;

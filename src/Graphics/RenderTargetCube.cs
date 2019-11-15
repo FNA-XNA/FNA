@@ -184,7 +184,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					Size,
 					Size,
 					Format,
-					MultiSampleCount
+					MultiSampleCount,
+					texture
 				);
 			}
 

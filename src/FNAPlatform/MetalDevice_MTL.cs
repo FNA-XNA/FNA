@@ -1124,6 +1124,102 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSetRenderPipelineState = Selector("setRenderPipelineState:");
+		private static void mtlSetRenderPipelineState(
+			IntPtr renderCommandEncoder,
+			IntPtr pipelineState
+		) {
+			objc_msgSend(renderCommandEncoder, selSetRenderPipelineState, pipelineState);
+		}
+
+		private static IntPtr selSetVertexBuffer = Selector("setVertexBuffer:offset:atIndex:");
+		private static void mtlSetVertexBuffer(
+			IntPtr renderCommandEncoder,
+			IntPtr vertexBuffer,
+			ulong offset,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetVertexBuffer,
+				vertexBuffer,
+				offset,
+				index
+			);
+		}
+
+		private static IntPtr selSetVertexBufferOffset = Selector("setVertexBufferOffset:atIndex:");
+		private static void mtlSetVertexBufferOffset(
+			IntPtr renderCommandEncoder,
+			ulong offset,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetVertexBufferOffset,
+				offset,
+				index
+			);
+		}
+
+		private static IntPtr selSetFragmentBuffer = Selector("setFragmentBuffer:offset:atIndex:");
+		private static void mtlSetFragmentBuffer(
+			IntPtr renderCommandEncoder,
+			IntPtr fragmentBuffer,
+			ulong offset,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetFragmentBuffer,
+				fragmentBuffer,
+				offset,
+				index
+			);
+		}
+
+		private static IntPtr selSetFragmentBufferOffset = Selector("setFragmentBufferOffset:atIndex:");
+		private static void mtlSetFragmentBufferOffset(
+			IntPtr renderCommandEncoder,
+			ulong offset,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetFragmentBufferOffset,
+				offset,
+				index
+			);
+		}
+
+		private static IntPtr selSetFragmentTexture = Selector("setFragmentTexture:atIndex:");
+		private static void mtlSetFragmentTexture(
+			IntPtr renderCommandEncoder,
+			IntPtr fragmentTexture,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetFragmentTexture,
+				fragmentTexture,
+				index
+			);
+		}
+
+		private static IntPtr selSetFragmentSamplerState = Selector("setFragmentSamplerState:atIndex:");
+		private static void mtlSetFragmentSamplerState(
+			IntPtr renderCommandEncoder,
+			IntPtr samplerState,
+			ulong index
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetFragmentSamplerState,
+				samplerState,
+				index
+			);
+		}
+
 		#endregion
 
 		#region CAMetalLayer
@@ -1425,100 +1521,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(pipelineDescriptor, selSetStencilAttachmentPixelFormat, (ulong) format);
 		}
 
-		private static IntPtr selSetRenderPipelineState = Selector("setRenderPipelineState:");
-		private static void mtlSetRenderPipelineState(
-			IntPtr renderCommandEncoder,
-			IntPtr pipelineState
+		private static void mtlSetPipelineSampleCount(
+			IntPtr pipelineDescriptor,
+			ulong sampleCount
 		) {
-			objc_msgSend(renderCommandEncoder, selSetRenderPipelineState, pipelineState);
-		}
-
-		private static IntPtr selSetVertexBuffer = Selector("setVertexBuffer:offset:atIndex:");
-		private static void mtlSetVertexBuffer(
-			IntPtr renderCommandEncoder,
-			IntPtr vertexBuffer,
-			ulong offset,
-			ulong index
-		) {
-			objc_msgSend(
-				renderCommandEncoder,
-				selSetVertexBuffer,
-				vertexBuffer,
-				offset,
-				index
-			);
-		}
-
-		private static IntPtr selSetVertexBufferOffset = Selector("setVertexBufferOffset:atIndex:");
-		private static void mtlSetVertexBufferOffset(
-			IntPtr renderCommandEncoder,
-			ulong offset,
-			ulong index
-		) {
-			objc_msgSend(
-				renderCommandEncoder,
-				selSetVertexBufferOffset,
-				offset,
-				index
-			);
-		}
-
-		private static IntPtr selSetFragmentBuffer = Selector("setFragmentBuffer:offset:atIndex:");
-		private static void mtlSetFragmentBuffer(
-			IntPtr renderCommandEncoder,
-			IntPtr fragmentBuffer,
-			ulong offset,
-			ulong index
-		) {
-			objc_msgSend(
-				renderCommandEncoder,
-				selSetFragmentBuffer,
-				fragmentBuffer,
-				offset,
-				index
-			);
-		}
-
-		private static IntPtr selSetFragmentBufferOffset = Selector("setFragmentBufferOffset:atIndex:");
-		private static void mtlSetFragmentBufferOffset(
-			IntPtr renderCommandEncoder,
-			ulong offset,
-			ulong index
-		) {
-			objc_msgSend(
-				renderCommandEncoder,
-				selSetFragmentBufferOffset,
-				offset,
-				index
-			);
-		}
-
-		private static IntPtr selSetFragmentTexture = Selector("setFragmentTexture:atIndex:");
-		private static void mtlSetFragmentTexture(
-			IntPtr renderCommandEncoder,
-			IntPtr fragmentTexture,
-			ulong index
-		) {
-			objc_msgSend(
-				renderCommandEncoder,
-				selSetFragmentTexture,
-				fragmentTexture,
-				index
-			);
-		}
-
-		private static IntPtr selSetFragmentSamplerState = Selector("setFragmentSamplerState:atIndex:");
-		private static void mtlSetFragmentSamplerState(
-			IntPtr renderCommandEncoder,
-			IntPtr samplerState,
-			ulong index
-		) {
-			objc_msgSend(
-				renderCommandEncoder,
-				selSetFragmentSamplerState,
-				samplerState,
-				index
-			);
+			objc_msgSend(pipelineDescriptor, selSetSampleCount, sampleCount);
 		}
 
 		#endregion
