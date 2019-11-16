@@ -2874,12 +2874,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				VertexBuffer vertexBuffer = bindings[i].VertexBuffer;
 				if (vertexBuffer != null)
 				{
+					int stride = bindings[i].VertexBuffer.VertexDeclaration.VertexStride;
 					int offset = (
-						bindings[i].VertexOffset +
+						(bindings[i].VertexOffset * stride) +
 						(vertexBuffer.buffer as MetalBuffer).InternalOffset
 					);
-					IntPtr handle = (vertexBuffer.buffer as MetalBuffer).Handle;
 
+					IntPtr handle = (vertexBuffer.buffer as MetalBuffer).Handle;
 					if (ldVertexBuffers[i] != handle)
 					{
 						mtlSetVertexBuffer(
