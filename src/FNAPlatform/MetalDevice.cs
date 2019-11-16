@@ -741,9 +741,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNALoggerEXT.LogInfo("MojoShader Profile: metal");
 
 			/* FIXME: This environment variable still says "OPENGL".
-			 * Should we introduce a METAL equivalent or just use GL?
-			 * For backwards compatibility I'm thinking the latter.
-			 * Its naming can be chalked up to "legacy reasons".
+			 * Should we introduce a METAL equivalent...?
 			 * -caleb
 			 */
 			// Some users might want pixely upscaling...
@@ -1299,9 +1297,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Get attachment size
-			// FIXME: Need to test this with multiple bound render targets. -caleb
-			currentAttachmentWidth = mtlGetTextureWidth(currentAttachments[0]);
-			currentAttachmentHeight = mtlGetTextureHeight(currentAttachments[0]);
+			currentAttachmentWidth = mtlGetTextureWidth(
+				currentAttachments[0]
+			);
+			currentAttachmentHeight = mtlGetTextureHeight(
+				currentAttachments[0]
+			);
 
 			// Make a new encoder
 			renderCommandEncoder = mtlMakeRenderCommandEncoder(
@@ -1852,6 +1853,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetDepthStencilState(DepthStencilState depthStencilState)
 		{
+			// We can't perform depth operations without a depth texture...
+			if (currentDepthFormat == DepthFormat.None)
+			{
+				this.depthStencilState = DepthStencilState.None;
+				return;
+			}
+
 			this.depthStencilState = depthStencilState;
 			ReferenceStencil = depthStencilState.ReferenceStencil; // Dynamic state!
 		}
@@ -2000,10 +2008,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				/* FIXME: So how exactly do we factor in
-				* COLORWRITEENABLE for buffer 0? Do we just assume that
-				* the default is just buffer 0, and all other calls
-				* update the other write masks?
-				*/
+				 * COLORWRITEENABLE for buffer 0? Do we just assume that
+				 * the default is just buffer 0, and all other calls
+				 * update the other write masks?
+				 */
 				if (i == 0)
 				{
 					mtlSetAttachmentWriteMask(
@@ -2689,7 +2697,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void BeginPassRestore(IGLEffect effect, IntPtr stateChanges)
 		{
 			// Store the current data
-			// FIXME: This is super inelegant... -caleb
 			prevEffect = currentEffect;
 			prevVertexShader = currentVertexShader;
 			prevFragmentShader = currentFragmentShader;
@@ -2736,7 +2743,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			effectApplied = true;
 
 			// Restore the old data
-			// FIXME: This is super inelegant... -caleb
 			currentVertexShader = prevVertexShader;
 			currentFragmentShader = prevFragmentShader;
 			currentVertUniformBuffer = prevVertUniformBuffer;
@@ -3131,7 +3137,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int elementSizeInBytes
 		) {
-			// FIXME: We're assuming a non-private buffer! -caleb
+			// We're assuming the buffer isn't private! -caleb
 			memcpy(
 				data + (startIndex * elementSizeInBytes),
 				(buffer as MetalBuffer).Contents + offsetInBytes,
@@ -3159,7 +3165,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				cpy = data + (startIndex * elementSizeInBytes);
 			}
 
-			// FIXME: We're assuming a non-private buffer! -caleb
+			// We're assuming the buffer isn't private! -caleb
 			memcpy(
 				cpy,
 				(buffer as MetalBuffer).Contents + offsetInBytes,
@@ -4174,8 +4180,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 
 				// This is the default render target
-				mtlDevice.ResetAttachments();
-				mtlDevice.BindBackbuffer();
+				mtlDevice.SetRenderTargets(null, null, DepthFormat.None);
 			}
 		}
 
@@ -4212,7 +4217,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			indicesPinned.Free();
 
 			// Create vertex and fragment shaders for the faux-backbuffer pipeline
-			// FIXME: Wonder if we could just compile ahead-of-time for this...
 			string shaderSource =
 			@"
 				#include <metal_stdlib>
