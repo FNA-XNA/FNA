@@ -1802,8 +1802,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					Textures[index] = MetalTexture.NullTexture;
 					textureNeedsUpdate[index] = true;
-					return;
 				}
+				return;
 			}
 
 			MetalTexture tex = texture.texture as MetalTexture;
