@@ -1192,7 +1192,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				ep = SDL.SDL_GL_GetProcAddress("glDrawRangeElementsBaseVertexOES");
 			}
-			supportsBaseVertex = ep != IntPtr.Zero;
+			supportsBaseVertex = ep != IntPtr.Zero && BUG_HACK_NOTANGLE;
 			if (supportsBaseVertex)
 			{
 				glDrawRangeElementsBaseVertex = (DrawRangeElementsBaseVertex) Marshal.GetDelegateForFunctionPointer(
