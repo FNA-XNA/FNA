@@ -1451,6 +1451,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(blitCommandEncoder, selSynchronizeResource, resource);
 		}
 
+		private static IntPtr selGenerateMipmaps = Selector("generateMipmapsForTexture:");
+		private static void mtlGenerateMipmapsForTexture(
+			IntPtr blitCommandEncoder,
+			IntPtr texture
+		) {
+			objc_msgSend(blitCommandEncoder, selGenerateMipmaps, texture);
+		}
+
 		#endregion
 
 		#region MTLRenderPipelineState

@@ -3548,7 +3548,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			// If the target has mipmaps, regenerate them now
 			if (target.RenderTarget.LevelCount > 1)
 			{
-				// FIXME: Generate mipmaps
+				if (renderCommandEncoder != IntPtr.Zero)
+				{
+					mtlEndEncoding(renderCommandEncoder);
+					renderCommandEncoder = IntPtr.Zero;
+				}
+
+				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
+				mtlGenerateMipmapsForTexture(
+					blit,
+					(target.RenderTarget.texture as MetalTexture).Handle
+				);
+				mtlEndEncoding(blit);
 			}
 		}
 
