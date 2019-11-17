@@ -1802,8 +1802,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					Textures[index] = MetalTexture.NullTexture;
 					textureNeedsUpdate[index] = true;
-					return;
 				}
+				return;
 			}
 
 			MetalTexture tex = texture.texture as MetalTexture;
@@ -2255,6 +2255,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			return state;
 		}
 
+		// FIXME: This hash sucks. It causes problems in Reus! -caleb
 		private ulong GetVertexDeclarationHash(VertexDeclaration declaration)
 		{
 			ulong hash = 0;
@@ -2874,8 +2875,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				VertexBuffer vertexBuffer = bindings[i].VertexBuffer;
 				if (vertexBuffer != null)
 				{
+					int stride = bindings[i].VertexBuffer.VertexDeclaration.VertexStride;
 					int offset = (
-						bindings[i].VertexOffset +
+						(bindings[i].VertexOffset * stride) +
 						(vertexBuffer.buffer as MetalBuffer).InternalOffset
 					);
 					IntPtr handle = (vertexBuffer.buffer as MetalBuffer).Handle;
