@@ -2255,6 +2255,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			return state;
 		}
 
+		// FIXME: This hash sucks. It causes problems in Reus! -caleb
 		private ulong GetVertexDeclarationHash(VertexDeclaration declaration)
 		{
 			ulong hash = 0;
