@@ -488,16 +488,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Buffer Binding Cache Variables
 
 		private List<MetalBuffer> Buffers = new List<MetalBuffer>();
-		private IntPtr ldEffect = IntPtr.Zero;
-		private IntPtr ldTechnique = IntPtr.Zero;
-		private uint ldPass = 0;
-
-		// Some vertex declarations may have overlapping attributes :/
-		private bool[,] attrUse = new bool[(int) MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TOTAL, 10];
-
 		private VertexDeclaration userVertexDeclaration = null;
 		private MetalBuffer userVertexBuffer = null;
 		private MetalBuffer userIndexBuffer = null;
+
+		// Some vertex declarations may have overlapping attributes :/
+		private bool[,] attrUse = new bool[(int) MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TOTAL, 10];
 
 		#endregion
 
@@ -625,8 +621,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private Dictionary<ulong, IntPtr> VertexDescriptorCache =
 			new Dictionary<ulong, IntPtr>();
 
-		private Dictionary<ulong, IntPtr> PipelineStateCache =
-			new Dictionary<ulong, IntPtr>();
+		private Dictionary<RenderPipelineStateHash, IntPtr> PipelineStateCache =
+			new Dictionary<RenderPipelineStateHash, IntPtr>();
 
 		private Dictionary<StateHash, IntPtr> DepthStencilStateCache =
 			new Dictionary<StateHash, IntPtr>();
@@ -668,7 +664,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr currentEffect = IntPtr.Zero;
 		private IntPtr currentTechnique = IntPtr.Zero;
 		private uint currentPass = 0;
-		private bool effectApplied = false;
 
 		private IntPtr currentVertexShader = IntPtr.Zero;
 		private IntPtr currentFragmentShader = IntPtr.Zero;
@@ -1866,36 +1861,184 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region State Creation/Retrieval Methods
+		#region Render Pipeline State Hash Struct
 
-		/* A pipeline state is defined by these things:
-		 *
-		 * Vertex Shader
-		 * Fragment Shader
-		 * Vertex Descriptor
-		 * Color Attachment Formats (0-4)
-		 * Depth-Stencil Attachment Format
-		 * Sample Count
-		 * Blend State
-		 * 
-		 * -caleb
-		 */
+		[StructLayout(LayoutKind.Sequential, Pack=1, Size=256)]
+		private struct RenderPipelineStateHash : IEquatable<RenderPipelineStateHash>
+		{
+			private IntPtr VertexShader;
+			private IntPtr FragmentShader;
+			private IntPtr VertexDescriptor;
+			private int Formats;
+			private int BlendHash;
+
+			private static int HashColorFormat(MTLPixelFormat format)
+			{
+				switch (format)
+				{
+					case MTLPixelFormat.A8Unorm:
+						return 0;
+					case MTLPixelFormat.ABGR4Unorm:
+						return 1;
+					case MTLPixelFormat.B5G6R5Unorm:
+						return 2;
+					case MTLPixelFormat.BC1_RGBA:
+						return 3;
+					case MTLPixelFormat.BC2_RGBA:
+						return 4;
+					case MTLPixelFormat.BC3_RGBA:
+						return 5;
+					case MTLPixelFormat.BGR5A1Unorm:
+						return 6;
+					case MTLPixelFormat.BGRA8Unorm:
+						return 7;
+					case MTLPixelFormat.Invalid:
+						return 8;
+					case MTLPixelFormat.R16Float:
+						return 9;
+					case MTLPixelFormat.R32Float:
+						return 10;
+					case MTLPixelFormat.RG16Float:
+						return 11;
+					case MTLPixelFormat.RG16Snorm:
+						return 12;
+					case MTLPixelFormat.RG16Unorm:
+						return 13;
+					case MTLPixelFormat.RG32Float:
+						return 14;
+					case MTLPixelFormat.RG8Snorm:
+						return 15;
+					case MTLPixelFormat.RGB10A2Unorm:
+						return 16;
+					case MTLPixelFormat.RGBA16Float:
+						return 17;
+					case MTLPixelFormat.RGBA16Unorm:
+						return 18;
+					case MTLPixelFormat.RGBA32Float:
+						return 19;
+					case MTLPixelFormat.RGBA8Unorm:
+						return 20;
+				}
+
+				throw new Exception("Attempting to hash unknown pixel format!");
+			}
+
+			public RenderPipelineStateHash(
+				IntPtr vertexShader,
+				IntPtr fragmentShader,
+				IntPtr vertexDescriptor,
+				int blendHash,
+				MTLPixelFormat colorFormat0,
+				MTLPixelFormat colorFormat1,
+				MTLPixelFormat colorFormat2,
+				MTLPixelFormat colorFormat3,
+				DepthFormat depthFormat,
+				int sampleCount
+			) {
+				VertexShader = vertexShader;
+				FragmentShader = fragmentShader;
+				VertexDescriptor = vertexDescriptor;
+				BlendHash = blendHash;
+
+				// Calculate Formats
+				int sc = 0, df = 0;
+				switch (sampleCount)
+				{
+					case 0:
+						sc = 0;
+						break;
+					case 2:
+						sc = 1;
+						break;
+					case 4:
+						sc = 2;
+						break;
+					case 8:
+						sc = 3;
+						break;
+				}
+				switch (depthFormat)
+				{
+					case DepthFormat.None:
+						df = 0;
+						break;
+					case DepthFormat.Depth16:
+						df = 1;
+						break;
+					case DepthFormat.Depth24:
+						df = 2;
+						break;
+					case DepthFormat.Depth24Stencil8:
+						df = 3;
+						break;
+				}
+
+				int c0, c1, c2, c3;
+				c0 = HashColorFormat(colorFormat0);
+				c1 = HashColorFormat(colorFormat1);
+				c2 = HashColorFormat(colorFormat2);
+				c3 = HashColorFormat(colorFormat3);
+
+				Formats = (
+					sc |
+					(df << 2) |
+					(c0 << 4) |
+					(c1 << 9) |
+					(c2 << 14) |
+					(c3 << 19)
+				);
+			}
+
+			public bool Equals(RenderPipelineStateHash other)
+			{
+				return (
+					VertexShader == other.VertexShader &&
+					FragmentShader == other.FragmentShader &&
+					VertexDescriptor == other.VertexDescriptor &&
+					Formats == other.Formats &&
+					BlendHash == other.BlendHash
+				);
+			}
+
+			public override bool Equals(object obj)
+			{
+				if (obj == null || obj.GetType() != GetType())
+				{
+					return false;
+				}
+				return this.Equals((RenderPipelineStateHash) obj);
+			}
+
+			public override int GetHashCode()
+			{
+				return unchecked(
+					(int) VertexShader +
+					(int) FragmentShader +
+					(int) VertexDescriptor +
+					Formats +
+					BlendHash
+				);
+			}
+		}
+
+		#endregion
+
+		#region State Creation/Retrieval Methods
 
 		private IntPtr FetchRenderPipeline()
 		{
 			// Can we just reuse an existing pipeline?
-			// FIXME: This hash could definitely be improved. -caleb
-			ulong hash = (
-				(ulong) currentVertexShader +
-				(ulong) currentFragmentShader +
-				(ulong) currentVertexDescriptor +
-				(ulong) currentColorFormats[0] +
-				(ulong) currentColorFormats[1] +
-				(ulong) currentColorFormats[2] +
-				(ulong) currentColorFormats[3] +
-				(ulong) currentDepthFormat +
-				(ulong) currentSampleCount +
-				(ulong) PipelineCache.GetBlendHash(blendState).GetHashCode()
+			RenderPipelineStateHash hash = new RenderPipelineStateHash(
+				currentVertexShader,
+				currentFragmentShader,
+				currentVertexDescriptor,
+				PipelineCache.GetBlendHash(blendState).GetHashCode(),
+				currentColorFormats[0],
+				currentColorFormats[1],
+				currentColorFormats[2],
+				currentColorFormats[3],
+				currentDepthFormat,
+				currentSampleCount
 			);
 			IntPtr pipeline = IntPtr.Zero;
 			if (PipelineStateCache.TryGetValue(hash, out pipeline))
@@ -2255,7 +2398,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			return state;
 		}
 
-		// FIXME: This hash sucks. It causes problems in Reus! -caleb
 		private ulong GetVertexDeclarationHash(VertexDeclaration declaration)
 		{
 			ulong hash = 0;
@@ -2280,8 +2422,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			for (int i = 0; i < numBindings; i += 1)
 			{
 				VertexBufferBinding binding = bindings[i];
-				hash += (ulong) binding.VertexOffset +
-					(ulong) binding.InstanceFrequency +
+				hash += (ulong) binding.InstanceFrequency +
 					GetVertexDeclarationHash(
 						binding.VertexBuffer.VertexDeclaration
 					);
@@ -2628,7 +2769,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			uint pass,
 			IntPtr stateChanges
 		) {
-			effectApplied = true;
 			IntPtr mtlEffectData = (effect as MetalEffect).MTLEffectData;
 			if (mtlEffectData == currentEffect)
 			{
@@ -2725,7 +2865,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				out currentFragUniformOffset
 			);
 			currentEffect = mtlEffectData;
-			effectApplied = true;
 		}
 
 		public void EndPassRestore(IGLEffect effect)
@@ -2741,7 +2880,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				out currentVertUniformOffset,
 				out currentFragUniformOffset
 			);
-			effectApplied = true;
 
 			// Restore the old data
 			currentVertexShader = prevVertexShader;
@@ -2755,7 +2893,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region ApplyVertexAttributes Methods
+		#region Resource Binding Method
 
 		private void BindResources()
 		{
@@ -2849,24 +2987,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		#endregion
+
+		#region ApplyVertexAttributes Methods
+
 		public void ApplyVertexAttributes(
 			VertexBufferBinding[] bindings,
 			int numBindings,
 			bool bindingsUpdated,
 			int baseVertex
 		) {
-			if (	bindingsUpdated ||
-				currentEffect != ldEffect ||
-				currentTechnique != ldTechnique ||
-				currentPass != ldPass ||
-				effectApplied	)
-			{
-				// Translate the bindings array into a descriptor
-				currentVertexDescriptor = FetchVertexDescriptor(
-					bindings,
-					numBindings
-				);
-			}
+			// Translate the bindings array into a descriptor
+			currentVertexDescriptor = FetchVertexDescriptor(
+				bindings,
+				numBindings
+			);
 
 			// Prepare for rendering
 			UpdateRenderPass();
@@ -2912,17 +3047,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr ptr,
 			int vertexOffset
 		) {
-			if (	currentEffect != ldEffect ||
-				currentTechnique != ldTechnique ||
-				currentPass != ldPass ||
-				effectApplied	)
-			{
-				// Translate the declaration into a descriptor
-				currentVertexDescriptor = FetchVertexDescriptor(
-					vertexDeclaration,
-					vertexOffset
-				);
-			}
+			// Translate the declaration into a descriptor
+			currentVertexDescriptor = FetchVertexDescriptor(
+				vertexDeclaration,
+				vertexOffset
+			);
 
 			userVertexDeclaration = vertexDeclaration;
 			// The rest happens in DrawUser[Indexed]Primitives.
