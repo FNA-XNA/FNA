@@ -187,25 +187,25 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private enum MTLLoadAction : ulong
 		{
-			DontCare	= 0,
-			Load		= 1,
-			Clear		= 2
+			DontCare = 0,
+			Load = 1,
+			Clear = 2
 		}
 
 		private enum MTLStoreAction : ulong
 		{
-			DontCare		= 0,
-			Store			= 1,
-			MultisampleResolve	= 2
+			DontCare = 0,
+			Store = 1,
+			MultisampleResolve = 2
 		}
 
 		private enum MTLPrimitiveType : ulong
 		{
-			Point		= 0,
-			Line		= 1,
-			LineStrip	= 2,
-			Triangle	= 3,
-			TriangleStrip	= 4
+			Point = 0,
+			Line = 1,
+			LineStrip = 2,
+			Triangle = 3,
+			TriangleStrip = 4
 		}
 
 		private enum MTLIndexType : ulong
@@ -216,32 +216,29 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private enum MTLPixelFormat : ulong
 		{
-			Invalid				= 0,
-			A8Unorm				= 1,
-			R16Float     			= 25,
-			RG8Snorm			= 32,
-			B5G6R5Unorm 			= 40,
-			ABGR4Unorm			= 42,
-			BGR5A1Unorm			= 43,
-			R32Float			= 55,
-			RG16Unorm			= 60,
-			RG16Snorm			= 62,
-			RG16Float			= 65,
-			RGBA8Unorm			= 70,
-			RGBA8Snorm			= 72,
-			BGRA8Unorm			= 80,
-			RGB10A2Unorm			= 90,
-			RG32Float			= 105,
-			RGBA16Unorm			= 110,
-			RGBA16Float			= 115,
-			RGBA32Float			= 125,
-			BC1_RGBA			= 130,
-			BC2_RGBA			= 132,
-			BC3_RGBA			= 134,
-			Depth32Float			= 252,
-			Stencil8			= 253,
-			Depth24Unorm_Stencil8		= 255,
-			Depth32Float_Stencil8		= 260,
+			Invalid			= 0,
+			A8Unorm			= 1,
+			R16Float     		= 25,
+			RG8Snorm		= 32,
+			B5G6R5Unorm 		= 40,
+			ABGR4Unorm		= 42,
+			BGR5A1Unorm		= 43,
+			R32Float		= 55,
+			RG16Unorm		= 60,
+			RG16Snorm		= 62,
+			RG16Float		= 65,
+			RGBA8Unorm		= 70,
+			BGRA8Unorm		= 80,
+			RGB10A2Unorm		= 90,
+			RG32Float		= 105,
+			RGBA16Unorm		= 110,
+			RGBA16Float		= 115,
+			RGBA32Float		= 125,
+			BC1_RGBA		= 130,
+			BC2_RGBA		= 132,
+			BC3_RGBA		= 134,
+			Depth32Float		= 252,
+			Depth32Float_Stencil8	= 260,
 		}
 
 		private enum MTLSamplerMinMagFilter
