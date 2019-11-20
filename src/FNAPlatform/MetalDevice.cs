@@ -725,10 +725,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			device = MTLCreateSystemDefaultDevice();
 			queue = mtlNewCommandQueue(device);
 
-			// Get the CAMetalLayer for this view
+			// Set up the CAMetalLayer
 			layer = mtlGetLayer(metalView);
 			mtlSetLayerDevice(layer, device);
 			mtlSetLayerFramebufferOnly(layer, true);
+			mtlSetLayerMagnificationFilter(layer, UTF8ToNSString("nearest"));
 
 			// Log GLDevice info
 			FNALoggerEXT.LogInfo("IGLDevice: MetalDevice");

@@ -1259,6 +1259,22 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(layer, selDisplaySyncEnabled, enabled);
 		}
 
+		private static IntPtr selSetFramebufferOnly = Selector("setFramebufferOnly:");
+		private static void mtlSetLayerFramebufferOnly(
+			IntPtr layer,
+			bool framebufferOnly
+		) {
+			objc_msgSend(layer, selSetFramebufferOnly, framebufferOnly);
+		}
+
+		private static IntPtr selSetMagnificationFilter = Selector("setMagnificationFilter:");
+		private static void mtlSetLayerMagnificationFilter(
+			IntPtr layer,
+			IntPtr val
+		) {
+			objc_msgSend(layer, selSetMagnificationFilter, val);
+		}
+
 		#endregion
 
 		#region CAMetalDrawable
@@ -1267,14 +1283,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr mtlGetTextureFromDrawable(IntPtr drawable)
 		{
 			return intptr_objc_msgSend(drawable, selTexture);
-		}
-
-		private static IntPtr selSetFramebufferOnly = Selector("setFramebufferOnly:");
-		private static void mtlSetLayerFramebufferOnly(
-			IntPtr layer,
-			bool framebufferOnly
-		) {
-			objc_msgSend(layer, selSetFramebufferOnly, framebufferOnly);
 		}
 
 		#endregion
