@@ -499,20 +499,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Render Target Cache Variables
 
-		private enum AttachmentType
-		{
-			None,
-			Backbuffer,
-			Renderbuffer,
-			Texture2D,
-			TextureCubeMapPositiveX,
-			TextureCubeMapNegativeX,
-			TextureCubeMapPositiveY,
-			TextureCubeMapNegativeY,
-			TextureCubeMapPositiveZ,
-			TextureCubeMapNegativeZ
-		}
-
 		private readonly IntPtr[] currentAttachments;
 		private readonly MTLPixelFormat[] currentColorFormats;
 		private DepthFormat currentDepthFormat;
