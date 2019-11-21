@@ -558,10 +558,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private ANGLE Bug Hack
 
-		/* FIXME: THIS CHECK ABSOLUTELY SHOULD NOT EXIST! FIX THESE BUGS:
+		/* FIXME: THIS CHECK ABSOLUTELY SHOULD NOT EXIST! FIX THIS BUG:
 		 *
-		 * https://github.com/google/angle/commit/aa292a59f9f222535c2ff34d8eecbe3cce039664
-		 * https://bugs.chromium.org/p/angleproject/issues/detail?id=3582
+		 * https://bugs.chromium.org/p/angleproject/issues/detail?id=3402
 		 *
 		 * -flibit
 		 */
@@ -670,7 +669,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNALoggerEXT.LogInfo("OpenGL Vendor: " + vendor);
 
 			// FIXME: REMOVE ME ASAP!
-			BUG_HACK_NOTANGLE = !version.Contains("ANGLE 2.1.0");
+			BUG_HACK_NOTANGLE = !renderer.Contains("Direct3D11");
 
 			// Initialize entry points
 			LoadGLEntryPoints(string.Format(
