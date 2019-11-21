@@ -514,7 +514,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		private readonly IntPtr[] currentAttachments;
-		private readonly AttachmentType[] currentAttachmentTypes;
 		private readonly MTLPixelFormat[] currentColorFormats;
 		private DepthFormat currentDepthFormat;
 		private readonly IntPtr[] currentMSAttachments;
@@ -540,6 +539,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private IntPtr currentDepthStencilBuffer; // MTLTexture*
 		private IntPtr currentVertexDescriptor;	// MTLVertexDescriptor*
+		private IntPtr defaultDepthStencilState; // MTLDepthStencilState*
 
 		private ulong currentAttachmentWidth;
 		private ulong currentAttachmentHeight;
@@ -767,7 +767,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Initialize attachment arrays
 			currentAttachments = new IntPtr[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 			currentColorFormats = new MTLPixelFormat[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
-			currentAttachmentTypes = new AttachmentType[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 			currentMSAttachments = new IntPtr[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 
 			// Initialize vertex buffer cache
@@ -779,6 +778,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Store the main thread ID
 			mainThreadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
+
+			// Create a default depth stencil state
+			IntPtr defDS = mtlNewDepthStencilDescriptor();
+			defaultDepthStencilState = mtlNewDepthStencilStateWithDescriptor(device, defDS);
+			ObjCRelease(defDS);
 
 			// Create and setup the faux-backbuffer
 			InitializeFauxBackbuffer(presentationParameters);
@@ -1849,13 +1853,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetDepthStencilState(DepthStencilState depthStencilState)
 		{
-			// We can't perform depth operations without a depth texture...
-			if (currentDepthFormat == DepthFormat.None)
-			{
-				this.depthStencilState = DepthStencilState.None;
-				return;
-			}
-
 			this.depthStencilState = depthStencilState;
 			ReferenceStencil = depthStencilState.ReferenceStencil; // Dynamic state!
 		}
@@ -2204,6 +2201,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private IntPtr FetchDepthStencilState()
 		{
+			/* Just use the default depth-stencil state
+			 * if depth and stencil testing are disabled,
+			 * or if there is no bound depth attachment.
+			 * This wards off Metal validation errors.
+			 * -caleb
+			 */
+			bool zEnable = depthStencilState.DepthBufferEnable;
+			bool sEnable = depthStencilState.StencilEnable;
+			bool zFormat = (currentDepthFormat != DepthFormat.None);
+			if ((!zEnable && !sEnable) || (!zFormat))
+			{
+				return defaultDepthStencilState;
+			}
+
 			// Can we just reuse an existing state?
 			StateHash hash = PipelineCache.GetDepthStencilHash(
 				depthStencilState
@@ -3346,9 +3357,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				levelCount > 1
 			);
 
-			// Override Metal's automatic mipmap level calculation
-			mtlSetMipmapLevelCount(texDesc, levelCount);
-
 			if (isRenderTarget)
 			{
 				mtlSetStorageMode(
@@ -3371,14 +3379,66 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
-		public IGLTexture CreateTexture3D(SurfaceFormat format, int width, int height, int depth, int levelCount)
-		{
-			throw new NotImplementedException();
+		public IGLTexture CreateTexture3D(
+			SurfaceFormat format,
+			int width,
+			int height,
+			int depth,
+			int levelCount
+		) {
+			IntPtr texDesc = mtlMakeTexture2DDescriptor(
+				XNAToMTL.TextureFormat[(int) format],
+				(ulong) width,
+				(ulong) height,
+				levelCount > 1
+			);
+
+			// Make it 3D!
+			mtlSetTextureDepth(texDesc, (ulong) depth);
+			mtlSetTextureType(texDesc, MTLTextureType.Texture3D);
+
+			return new MetalTexture(
+				mtlNewTextureWithDescriptor(device, texDesc),
+				width,
+				height,
+				format,
+				levelCount,
+				false
+			);
 		}
 
-		public IGLTexture CreateTextureCube(SurfaceFormat format, int size, int levelCount)
-		{
-			throw new NotImplementedException();
+		public IGLTexture CreateTextureCube(
+			SurfaceFormat format,
+			int size,
+			int levelCount,
+			bool isRenderTarget
+		) {
+			IntPtr texDesc = mtlMakeTextureCubeDescriptor(
+				XNAToMTL.TextureFormat[(int) format],
+				(ulong) size,
+				levelCount > 1
+			);
+
+			if (isRenderTarget)
+			{
+				mtlSetStorageMode(
+					texDesc,
+					MTLResourceStorageMode.Private
+				);
+				mtlSetTextureUsage(
+					texDesc,
+					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+				);
+			}
+
+			return new MetalTexture(
+				mtlNewTextureWithDescriptor(device, texDesc),
+				size,
+				size,
+				format,
+				levelCount,
+				isRenderTarget
+			);
 		}
 
 		#endregion
@@ -3446,8 +3506,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				handle,
 				region,
 				(ulong) level,
+				0,
 				data,
-				(ulong) bytesPerRow
+				(ulong) bytesPerRow,
+				0
 			);
 
 			if (tex.IsPrivate)
@@ -3501,21 +3563,132 @@ namespace Microsoft.Xna.Framework.Graphics
 					(tex.texture as MetalTexture).Handle,
 					region,
 					0,
+					0,
 					ptr,
-					(ulong) tex.Width
+					(ulong) tex.Width,
+					0
 				);
 				ptr += tex.Width * tex.Height;
 			}
 		}
 
-		public void SetTextureData3D(IGLTexture texture, SurfaceFormat format, int level, int left, int top, int right, int bottom, int front, int back, IntPtr data, int dataLength)
-		{
-			throw new NotImplementedException();
+		public void SetTextureData3D(
+			IGLTexture texture,
+			SurfaceFormat format,
+			int level,
+			int left,
+			int top,
+			int right,
+			int bottom,
+			int front,
+			int back,
+			IntPtr data,
+			int dataLength
+		) {
+			int w = right - left;
+			int h = bottom - top;
+			int d = back - front;
+
+			MTLRegion region = new MTLRegion(
+				new MTLOrigin((ulong) left, (ulong) top, (ulong) front),
+				new MTLSize((ulong) w, (ulong) h, (ulong) d)
+			);
+			int bytesPerRow = w * Texture.GetFormatSize(format);
+			int bytesPerImage = bytesPerRow * h;
+
+			mtlReplaceRegion(
+				(texture as MetalTexture).Handle,
+				region,
+				(ulong) level,
+				0,
+				data,
+				(ulong) bytesPerRow,
+				(ulong) bytesPerImage
+			);
 		}
 
-		public void SetTextureDataCube(IGLTexture texture, SurfaceFormat format, int xOffset, int yOffset, int width, int height, CubeMapFace cubeMapFace, int level, IntPtr data, int dataLength)
-		{
-			throw new NotImplementedException();
+		public void SetTextureDataCube(
+			IGLTexture texture,
+			SurfaceFormat format,
+			int xOffset,
+			int yOffset,
+			int width,
+			int height,
+			CubeMapFace cubeMapFace,
+			int level,
+			IntPtr data,
+			int dataLength
+		) {
+			MetalTexture tex = texture as MetalTexture;
+			IntPtr handle = tex.Handle;
+
+			// Fetch a CPU-accessible texture
+			if (tex.IsPrivate)
+			{
+				handle = FetchTransientTexture(
+					format,
+					width,
+					height
+				);
+			}
+
+			// Calculate bytes per row
+			int bytesPerRow = width;
+			if (	format == SurfaceFormat.Dxt1 ||
+				format == SurfaceFormat.Dxt3 ||
+				format == SurfaceFormat.Dxt5	)
+			{
+				bytesPerRow = (width + 3) / 4;
+			}
+			bytesPerRow *= Texture.GetFormatSize(format);
+
+			// Write the data
+			MTLRegion region = new MTLRegion(
+				new MTLOrigin((ulong) xOffset, (ulong) yOffset, 0),
+				new MTLSize((ulong) width, (ulong) height, 1)
+			);
+			mtlReplaceRegion(
+				handle,
+				region,
+				(ulong) level,
+				(ulong) cubeMapFace,
+				data,
+				(ulong) bytesPerRow,
+				0
+			);
+
+			if (tex.IsPrivate)
+			{
+				// End the render pass
+				if (renderCommandEncoder != IntPtr.Zero)
+				{
+					mtlEndEncoding(renderCommandEncoder);
+					renderCommandEncoder = IntPtr.Zero;
+				}
+
+				// Blit the texture to the GPU-private texture
+				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
+				MTLOrigin origin = new MTLOrigin(0, 0, 0);
+				mtlBlitTextureToTexture(
+					blit,
+					handle,
+					0,
+					(ulong) level,
+					origin,
+					new MTLSize((ulong) width, (ulong) height, 1),
+					tex.Handle,
+					(ulong) cubeMapFace,
+					(ulong) level,
+					origin
+				);
+
+				// Submit the blit command to the GPU and wait...
+				mtlEndEncoding(blit);
+				mtlCommitCommandBuffer(commandBuffer);
+				mtlCommandBufferWaitUntilCompleted(commandBuffer);
+				commandBuffer = mtlMakeCommandBuffer(queue);
+				needNewRenderPass = true;
+			}
 		}
 
 		#endregion
@@ -3609,13 +3782,39 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
-		public void GetTextureData3D(IGLTexture texture, SurfaceFormat format, int left, int top, int front, int right, int bottom, int back, int level, IntPtr data, int startIndex, int elementCount, int elementSizeInBytes)
-		{
+		public void GetTextureData3D(
+			IGLTexture texture,
+			SurfaceFormat format,
+			int left,
+			int top,
+			int front,
+			int right,
+			int bottom,
+			int back,
+			int level,
+			IntPtr data,
+			int startIndex,
+			int elementCount,
+			int elementSizeInBytes
+		) {
 			throw new NotImplementedException();
 		}
 
-		public void GetTextureDataCube(IGLTexture texture, SurfaceFormat format, int size, CubeMapFace cubeMapFace, int level, int subX, int subY, int subW, int subH, IntPtr data, int startIndex, int elementCount, int elementSizeInBytes)
-		{
+		public void GetTextureDataCube(
+			IGLTexture texture,
+			SurfaceFormat format,
+			int size,
+			CubeMapFace cubeMapFace,
+			int level,
+			int subX,
+			int subY,
+			int subW,
+			int subH,
+			IntPtr data,
+			int startIndex,
+			int elementCount,
+			int elementSizeInBytes
+		) {
 			throw new NotImplementedException();
 		}
 
@@ -3758,28 +3957,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			int i;
 			for (i = 0; i < renderTargets.Length; i += 1)
 			{
-				IGLRenderbuffer colorBuffer = (renderTargets[i].RenderTarget as IRenderTarget).ColorBuffer;
-				if (colorBuffer != null)
+				IRenderTarget rt = renderTargets[i].RenderTarget as IRenderTarget;
+				if (rt.ColorBuffer != null)
 				{
-					currentAttachments[i] = (colorBuffer as MetalRenderbuffer).Handle;
-					currentAttachmentTypes[i] = AttachmentType.Renderbuffer;
-					currentColorFormats[i] = (colorBuffer as MetalRenderbuffer).PixelFormat;
-					currentSampleCount = (colorBuffer as MetalRenderbuffer).MultiSampleCount;
-					currentMSAttachments[i] = (colorBuffer as MetalRenderbuffer).MultiSampleHandle;
+					MetalRenderbuffer rb = rt.ColorBuffer as MetalRenderbuffer;
+					currentAttachments[i] = rb.Handle;
+					currentColorFormats[i] = rb.PixelFormat;
+					currentSampleCount = rb.MultiSampleCount;
+					currentMSAttachments[i] = rb.MultiSampleHandle;
 				}
 				else
 				{
-					currentAttachments[i] = (renderTargets[i].RenderTarget.texture as MetalTexture).Handle;
-					currentColorFormats[i] = (renderTargets[i].RenderTarget.texture as MetalTexture).Format;
+					MetalTexture tex = renderTargets[i].RenderTarget.texture as MetalTexture;
+					currentAttachments[i] = tex.Handle;
+					currentColorFormats[i] = tex.Format;
 					currentSampleCount = 0;
-					if (renderTargets[i].RenderTarget is RenderTarget2D)
-					{
-						currentAttachmentTypes[i] = AttachmentType.Texture2D;
-					}
-					else
-					{
-						currentAttachmentTypes[i] = AttachmentType.TextureCubeMapPositiveX + (int) renderTargets[i].CubeMapFace;
-					}
 				}
 			}
 
@@ -3789,11 +3981,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				handle = (renderbuffer as MetalRenderbuffer).Handle;
 			}
-			if (handle != currentDepthStencilBuffer)
-			{
-				currentDepthFormat = depthFormat;
-				currentDepthStencilBuffer = handle;
-			}
+			currentDepthStencilBuffer = handle;
+			currentDepthFormat = (
+				(currentDepthStencilBuffer == IntPtr.Zero) ?
+				DepthFormat.None :
+				depthFormat
+			);
 		}
 
 		private void ResetAttachments()
@@ -3801,7 +3994,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			for (int i = 0; i < currentAttachments.Length; i += 1)
 			{
 				currentAttachments[i] = IntPtr.Zero;
-				currentAttachmentTypes[i] = AttachmentType.None;
 				currentColorFormats[i] = MTLPixelFormat.Invalid;
 				currentMSAttachments[i] = IntPtr.Zero;
 			}
@@ -3815,7 +4007,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			MetalBackbuffer bb = (Backbuffer as MetalBackbuffer);
 			currentAttachments[0] = bb.ColorBuffer;
 			currentColorFormats[0] = bb.PixelFormat;
-			currentAttachmentTypes[0] = AttachmentType.Backbuffer;
 			currentDepthStencilBuffer = bb.DepthStencilBuffer;
 			currentDepthFormat = bb.DepthFormat;
 			currentSampleCount = bb.MultiSampleCount;

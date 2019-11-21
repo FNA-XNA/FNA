@@ -619,7 +619,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		public IGLTexture CreateTextureCube(
 			SurfaceFormat format,
 			int size,
-			int levelCount
+			int levelCount,
+			bool isRenderTarget
 		) {
 			IGLTexture result = null;
 			ForceToMainThread(() =>
@@ -627,7 +628,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				result = GLDevice.CreateTextureCube(
 					format,
 					size,
-					levelCount
+					levelCount,
+					isRenderTarget
 				);
 			}); // End ForceToMainThread
 			return result;

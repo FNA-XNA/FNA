@@ -93,7 +93,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, float arg1, float arg2, float arg3, float arg4);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
-		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, MTLRegion region, ulong level, IntPtr bytes, ulong bytesPerRow);
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, MTLRegion region, ulong level, ulong slice, IntPtr bytes, ulong bytesPerRow, ulong bytesPerImage);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr srcTexture, ulong srcSlice, ulong srcLevel, MTLOrigin srcOrigin, MTLSize srcSize, IntPtr dstTexture, ulong dstSlice, ulong dstLevel, MTLOrigin dstOrigin);
@@ -123,6 +123,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg1, IntPtr arg2);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, MTLPixelFormat arg1, ulong arg2, bool arg3);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, MTLPixelFormat arg1, ulong arg2, ulong arg3, bool arg4);
@@ -258,7 +261,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private enum MTLTextureType
 		{
 			Texture2D = 2,
-			Multisample2D = 4
+			Multisample2D = 4,
+			Texture3D = 7
 		}
 
 		private enum MTLResourceStorageMode
@@ -1306,6 +1310,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selTextureCubeDescriptor = Selector("textureCubeDescriptorWithPixelFormat:size:mipmapped:");
+		private static IntPtr mtlMakeTextureCubeDescriptor(
+			MTLPixelFormat pixelFormat,
+			ulong size,
+			bool mipmapped
+		) {
+			return intptr_objc_msgSend(
+				classTextureDescriptor,
+				selTextureCubeDescriptor,
+				pixelFormat,
+				size,
+				mipmapped
+			);
+		}
+
 		private static IntPtr selSetUsage = Selector("setUsage:");
 		private static void mtlSetTextureUsage(
 			IntPtr texDesc,
@@ -1338,20 +1357,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(texDesc, selSetPixelFormat, (ulong) format);
 		}
 
-		private static IntPtr selSetWidth = Selector("setWidth:");
-		private static void mtlSetTextureWidth(
+		private static IntPtr selSetDepth = Selector("setDepth:");
+		private static void mtlSetTextureDepth(
 			IntPtr texDesc,
-			int width
+			ulong depth
 		) {
-			objc_msgSend(texDesc, selSetWidth, (ulong) width);
-		}
-
-		private static IntPtr selSetHeight = Selector("setHeight:");
-		private static void mtlSetTextureHeight(
-			IntPtr texDesc,
-			int height
-		) {
-			objc_msgSend(texDesc, selSetHeight, (ulong) height);
+			objc_msgSend(texDesc, selSetDepth, depth);
 		}
 
 		private static IntPtr selSetMipmapLevelCount = Selector("setMipmapLevelCount:");
@@ -1364,21 +1375,25 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLTexture
 
-		private static IntPtr selReplaceRegion = Selector("replaceRegion:mipmapLevel:withBytes:bytesPerRow:");
+		private static IntPtr selReplaceRegion = Selector("replaceRegion:mipmapLevel:slice:withBytes:bytesPerRow:bytesPerImage:");
 		private static void mtlReplaceRegion(
 			IntPtr texture,
 			MTLRegion region,
 			ulong level,
+			ulong slice,
 			IntPtr pixelBytes,
-			ulong bytesPerRow
+			ulong bytesPerRow,
+			ulong bytesPerImage
 		) {
 			objc_msgSend(
 				texture,
 				selReplaceRegion,
 				region,
 				level,
+				slice,
 				pixelBytes,
-				bytesPerRow
+				bytesPerRow,
+				bytesPerImage
 			);
 		}
 

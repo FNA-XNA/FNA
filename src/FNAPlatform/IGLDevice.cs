@@ -172,7 +172,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		IGLTexture CreateTextureCube(
 			SurfaceFormat format,
 			int size,
-			int levelCount
+			int levelCount,
+			bool isRenderTarget
 		);
 		void AddDisposeTexture(IGLTexture texture);
 		void SetTextureData2D(
