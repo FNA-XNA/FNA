@@ -517,6 +517,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Metal State Variables
 
+		private IntPtr metalView;		// SDL_MetalView*
 		private IntPtr layer;			// CAMetalLayer*
 		private IntPtr device;			// MTLDevice*
 		private IntPtr queue;			// MTLCommandQueue*
@@ -704,12 +705,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public MetalDevice(
 			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter,
-			IntPtr metalView,
-			string platform
+			GraphicsAdapter adapter
 		) {
 			device = MTLCreateSystemDefaultDevice();
 			queue = mtlNewCommandQueue(device);
+
+			// Create the Metal View
+			metalView = SDL2.SDL.SDL_Metal_CreateView(
+				presentationParameters.DeviceWindowHandle
+			);
 
 			// Set up the CAMetalLayer
 			layer = mtlGetLayer(metalView);
@@ -732,7 +736,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			) == "1" ? MTLSamplerMinMagFilter.Nearest : MTLSamplerMinMagFilter.Linear;
 
 			// Set device properties
-			this.platform = platform;
+			this.platform = SDL2.SDL.SDL_GetPlatform();
 			SupportsS3tc = platform.Equals("Mac OS X");
 			SupportsDxt1 = SupportsS3tc;
 			SupportsHardwareInstancing = true;
@@ -835,6 +839,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Dispose the backbuffer
 			(Backbuffer as MetalBackbuffer).Dispose();
+
+			// Destroy the view
+			SDL2.SDL.SDL_Metal_DestroyView(metalView);
 		}
 
 		#endregion

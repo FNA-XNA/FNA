@@ -11,7 +11,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -37,12 +36,11 @@ namespace Microsoft.Xna.Framework
 
 		private static bool SupportsGlobalMouse;
 		private static string ForcedGLDevice;
+		private static string ActualGLDevice;
 
 		// For iOS high dpi support
 		private static int RetinaWidth;
 		private static int RetinaHeight;
-
-		private static IntPtr MetalView;
 
 		#endregion
 
@@ -183,11 +181,6 @@ namespace Microsoft.Xna.Framework
 			}
 			Media.MediaPlayer.DisposeIfNecessary();
 
-			if (MetalView != IntPtr.Zero)
-			{
-				SDL.SDL_Metal_DestroyView(MetalView);
-			}
-
 			// This _should_ be the last SDL call we make...
 			SDL.SDL_Quit();
 		}
@@ -204,26 +197,53 @@ namespace Microsoft.Xna.Framework
 
 		private static bool PrepareMTLAttributes()
 		{
-			// FIXME: Apple devices should default to Metal!
-			if (	String.IsNullOrEmpty(ForcedGLDevice) ||
+			if (	!String.IsNullOrEmpty(ForcedGLDevice) &&
 				!ForcedGLDevice.Equals("MetalDevice")	)
 			{
 				return false;
 			}
 
-			return (
-				OSVersion.Equals("Mac OS X") ||
-				OSVersion.Equals("iOS") ||
-				OSVersion.Equals("tvOS")
-			);
+			if (OSVersion.Equals("Mac OS X"))
+			{
+				// Let's find out if the OS supports Metal...
+				try
+				{
+					IntPtr device = MetalDevice.MTLCreateSystemDefaultDevice();
+					if (device != IntPtr.Zero)
+					{
+						// We're good to go!
+						return true;
+					}
+				}
+				catch
+				{
+					// The OS is too old for Metal!
+					return false;
+				}
+			}
+			else if (OSVersion.Equals("iOS") || OSVersion.Equals("tvOS"))
+			{
+				/* We only support iOS/tvOS 11.0+ so Metal is guaranteed
+				 * to be supported. However, older GPUs (A7 and A8) don't
+				 * have all the features we need. If the device is too
+				 * old, let's just fall back to OpenGL.
+				 * -caleb
+				 */
+				return MetalDevice.HasModernAppleGPU(
+					MetalDevice.MTLCreateSystemDefaultDevice()
+				);
+			}
+
+			// No Metal support. :(
+			return false;
 		}
 
 		private static bool PrepareGLAttributes()
 		{
 			if (	!String.IsNullOrEmpty(ForcedGLDevice) &&
 				!ForcedGLDevice.Equals("OpenGLDevice") &&
-				!ForcedGLDevice.Equals("ModernGLDevice")	)
-
+				!ForcedGLDevice.Equals("ModernGLDevice") &&
+				!ForcedGLDevice.Equals("ThreadedGLDevice")	)
 			{
 				return false;
 			}
@@ -357,6 +377,7 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
 			);
 
+			// Did the user force a particular GLDevice?
 			ForcedGLDevice = Environment.GetEnvironmentVariable(
 				"FNA_GRAPHICS_FORCE_GLDEVICE"
 			);
@@ -365,14 +386,26 @@ namespace Microsoft.Xna.Framework
 			if (vulkan = PrepareVKAttributes())
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN;
+				ActualGLDevice = "VulkanDevice";
 			}
 			else if (metal = PrepareMTLAttributes())
 			{
 				// FIXME: SDL doesn't have a METAL window flag. What to do here?
+				ActualGLDevice = "MetalDevice";
 			}
 			else if (opengl = PrepareGLAttributes())
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL;
+
+				if (	ForcedGLDevice == "ModernGLDevice" ||
+					ForcedGLDevice == "ThreadedGLDevice"	)
+				{
+					ActualGLDevice = ForcedGLDevice;
+				}
+				else
+				{
+					ActualGLDevice = "OpenGLDevice";
+				}
 			}
 
 			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
@@ -407,13 +440,22 @@ namespace Microsoft.Xna.Framework
 			// We hide the mouse cursor by default.
 			OnIsMouseVisibleChanged(false);
 
-			/* The Metal view needs to be created before
-			 * we get the drawable size. Otherwise the
-			 * high DPI settings will be ignored.
+			/* OpenGL:
+			 * iOS and tvOS require an active GL context
+			 * to get the drawable size of the screen.
+
+			 * Metal:
+			 * macOS, iOS, and tvOS require an active Metal
+			 * view to get the drawable size of the screen.
 			 */
-			if (metal)
+			IntPtr tempContext = IntPtr.Zero;
+			if (opengl && (OSVersion.Equals("iOS") || OSVersion.Equals("tvOS")))
 			{
-				MetalView = SDL.SDL_Metal_CreateView(window);
+				tempContext = SDL.SDL_GL_CreateContext(window);
+			}
+			else if (metal)
+			{
+				tempContext = SDL.SDL_Metal_CreateView(window);
 			}
 
 			/* If high DPI is not found, unset the HIGHDPI var.
@@ -428,7 +470,7 @@ namespace Microsoft.Xna.Framework
 			else if (metal)
 			{
 				// FIXME: hack!
-				MetalDevice.FNA_Metal_GetDrawableSize(MetalView, out drawX, out drawY);
+				MetalDevice.FNA_Metal_GetDrawableSize(tempContext, out drawX, out drawY);
 			}
 			else if (opengl)
 			{
@@ -448,6 +490,19 @@ namespace Microsoft.Xna.Framework
 				// Store the full retina resolution of the display
 				RetinaWidth = drawX;
 				RetinaHeight = drawY;
+			}
+
+			// We're done with that temporary context.
+			if (tempContext != IntPtr.Zero)
+			{
+				if (opengl)
+				{
+					SDL.SDL_GL_DeleteContext(tempContext);
+				}
+				else if (metal)
+				{
+					SDL.SDL_Metal_DestroyView(tempContext);
+				}
 			}
 
 			return new FNAWindow(
@@ -1174,28 +1229,28 @@ namespace Microsoft.Xna.Framework
 			PresentationParameters presentationParameters,
 			GraphicsAdapter adapter
 		) {
-			if (ForcedGLDevice == "MetalDevice")
+			switch (ActualGLDevice)
 			{
-				return new MetalDevice(
-					presentationParameters,
-					adapter,
-					MetalView,
-					SDL.SDL_GetPlatform()
-				);
+				case "OpenGLDevice":
+					return new OpenGLDevice(presentationParameters, adapter);
+
+				case "ModernGLDevice":
+					// FIXME: This is still experimental! -flibit
+					return new ModernGLDevice(presentationParameters, adapter);
+
+				case "ThreadedGLDevice":
+					// FIXME: This is still experimental! -flibit
+					return new ThreadedGLDevice(presentationParameters, adapter);
+
+				case "MetalDevice":
+					return new MetalDevice(presentationParameters, adapter);
+
+				case "VulkanDevice":
+					// Maybe someday!
+					break;
 			}
 
-			// This loads the OpenGL entry points.
-			if (ForcedGLDevice == "ModernGLDevice")
-			{
-				// FIXME: This is still experimental! -flibit
-				return new ModernGLDevice(presentationParameters, adapter);
-			}
-			if (ForcedGLDevice == "ThreadedGLDevice")
-			{
-				// FIXME: This is still experimental! -flibit
-				return new ThreadedGLDevice(presentationParameters, adapter);
-			}
-			return new OpenGLDevice(presentationParameters, adapter);
+			throw new InvalidOperationException("Gnmx? WebGPU? What?");
 		}
 
 		#endregion

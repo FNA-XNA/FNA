@@ -102,9 +102,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong primitiveType, ulong indexCount, ulong indexType, IntPtr indexBuffer, ulong indexBufferOffset, ulong instanceCount, int baseVertex, ulong baseInstance);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
-		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong primitiveType, ulong indexCount, ulong indexType, IntPtr indexBuffer, ulong indexBufferOffset);
-
-		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr pixelBytes, ulong bytesPerRow, ulong bytesPerImage, MTLRegion region, ulong level, ulong slice);
 
 		// IntPtr
@@ -134,9 +131,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, IntPtr arg2);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
-		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, IntPtr arg2, IntPtr arg3);
-
-		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, out IntPtr arg2);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -150,14 +144,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern ulong ulong_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
 
-		// Double
-		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
-		private static extern double double_objc_msgSend(IntPtr receiver, IntPtr selector);
-
 		// Bool
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, out IntPtr arg2);
@@ -177,12 +170,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Private Metal Entry Points
+		#region C-Style Metal Function Imports
 
 		const string metalLibrary = "/System/Library/Frameworks/Metal.framework/Metal";
 
 		[DllImport(metalLibrary)]
-		private static extern IntPtr MTLCreateSystemDefaultDevice();
+		internal static extern IntPtr MTLCreateSystemDefaultDevice();
 
 		#endregion
 
@@ -521,6 +514,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			return sel_registerName(System.Text.Encoding.UTF8.GetBytes(name));
 		}
 
+		private static IntPtr selRespondsToSelector = Selector("respondsToSelector:");
+		private static bool RespondsToSelector(IntPtr obj, IntPtr selector)
+		{
+			return bool_objc_msgSend(obj, selRespondsToSelector, selector);
+		}
+
 		#endregion
 
 		#region ObjC Class References
@@ -588,6 +587,31 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void DrainAutoreleasePool(IntPtr pool)
 		{
 			objc_msgSend(pool, selDrain);
+		}
+
+		#endregion
+
+		#region iOS/tvOS GPU Check
+
+		private static IntPtr selSupportsFamily = Selector("supportsFamily:");
+		private static IntPtr selSupportsFeatureSet = Selector("supportsFeatureSet:");
+		internal static bool HasModernAppleGPU(IntPtr device)
+		{
+			// The device must be an A9 chip or later.
+			const ulong GPUFamilyCommon2 = 3002;
+			const ulong iOS_GPUFamily3_v1 = 4;
+			const ulong tvOS_GPUFamily2_v1 = 30003;
+
+			// Can we use the GPUFamily API?
+			if (RespondsToSelector(device, selSupportsFamily))
+			{
+				return bool_objc_msgSend(device, selSupportsFamily, GPUFamilyCommon2);
+			}
+
+			// Fall back to checking FeatureSets
+			bool iosCompat = bool_objc_msgSend(device, selSupportsFeatureSet, iOS_GPUFamily3_v1);
+			bool tvosCompat = bool_objc_msgSend(device, selSupportsFeatureSet, tvOS_GPUFamily2_v1);
+			return iosCompat || tvosCompat;
 		}
 
 		#endregion
