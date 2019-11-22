@@ -60,7 +60,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public MTLPixelFormat Format;
+			public SurfaceFormat Format;
 			public TextureAddressMode WrapS;
 			public TextureAddressMode WrapT;
 			public TextureAddressMode WrapR;
@@ -80,7 +80,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				Handle = handle;
 				Width = width;
 				Height = height;
-				Format = XNAToMTL.TextureFormat[(int) format];
+				Format = format;
 				HasMipmaps = levelCount > 1;
 				IsPrivate = isPrivate;
 
@@ -2614,36 +2614,34 @@ namespace Microsoft.Xna.Framework.Graphics
 			return descriptor;
 		}
 
-		private IntPtr FetchTransientTexture(
-			SurfaceFormat format,
-			int width,
-			int height
-		) {
-			MTLPixelFormat pf = XNAToMTL.TextureFormat[(int) format];
+		private IntPtr FetchTransientTexture(MetalTexture fromTexture)
+		{
+			// Can we just reuse an existing texture?
 			for (int i = 0; i < transientTextures.Count; i += 1)
 			{
 				MetalTexture tex = transientTextures[i];
-				if (	tex.Format == pf &&
-					tex.Width == width &&
-					tex.Height == height
-				) {
+				if (	tex.Format == fromTexture.Format &&
+					tex.Width == fromTexture.Width &&
+					tex.Height == fromTexture.Height &&
+					tex.HasMipmaps == fromTexture.HasMipmaps	)
+				{
 					return tex.Handle;
 				}
 			}
 
 			// We have to make a new texture...
 			IntPtr texDesc = mtlMakeTexture2DDescriptor(
-				pf,
-				(ulong) width,
-				(ulong) height,
-				false // FIXME: Is this right?
+				XNAToMTL.TextureFormat[(int) fromTexture.Format],
+				(ulong) fromTexture.Width,
+				(ulong) fromTexture.Height,
+				fromTexture.HasMipmaps
 			);
 			MetalTexture ret = new MetalTexture(
 				mtlNewTextureWithDescriptor(device, texDesc),
-				width,
-				height,
-				format,
-				1,
+				fromTexture.Width,
+				fromTexture.Height,
+				fromTexture.Format,
+				fromTexture.HasMipmaps ? 2 : 0,
 				false
 			);
 			transientTextures.Add(ret);
@@ -3447,6 +3445,42 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Texture Data Helper Methods
+
+		private ulong BytesPerRow(int width, SurfaceFormat format)
+		{
+			int blocksPerRow = width;
+
+			if (	format == SurfaceFormat.Dxt1 ||
+				format == SurfaceFormat.Dxt3 ||
+				format == SurfaceFormat.Dxt5	)
+			{
+				blocksPerRow = (width + 3) / 4;
+			}
+
+			return (ulong) (blocksPerRow * Texture.GetFormatSize(format));
+		}
+
+		private ulong BytesPerImage(int width, int height, SurfaceFormat format)
+		{
+			int blocksPerRow = width;
+			int blocksPerColumn = height;
+			int formatSize = Texture.GetFormatSize(format);
+
+			// FIXME: Is this right?
+			if (	format == SurfaceFormat.Dxt1 ||
+				format == SurfaceFormat.Dxt3 ||
+				format == SurfaceFormat.Dxt5	)
+			{
+				blocksPerRow = (width + 3) / 4;
+				blocksPerColumn = (height + 3) / 4;
+			}
+
+			return (ulong) (blocksPerRow * blocksPerColumn * formatSize);
+		}
+
+		#endregion
+
 		#region SetTextureData Methods
 
 		public void SetTextureData2D(
@@ -3463,41 +3497,27 @@ namespace Microsoft.Xna.Framework.Graphics
 			MetalTexture tex = texture as MetalTexture;
 			IntPtr handle = tex.Handle;
 
-			// Fetch a CPU-accessible texture
+			MTLOrigin origin = new MTLOrigin((ulong) x, (ulong) y, 0);
+			MTLSize size = new MTLSize((ulong) w, (ulong) h, 1);
+
 			if (tex.IsPrivate)
 			{
-				handle = FetchTransientTexture(
-					format,
-					tex.Width,
-					tex.Height
-				);
+				// Fetch a CPU-accessible texture
+				handle = FetchTransientTexture(tex);
 			}
-
-			// Calculate bytes per row
-			int bytesPerRow = w;
-			if (	format == SurfaceFormat.Dxt1 ||
-				format == SurfaceFormat.Dxt3 ||
-				format == SurfaceFormat.Dxt5	)
-			{
-				bytesPerRow = (w + 3) / 4;
-			}
-			bytesPerRow *= Texture.GetFormatSize(format);
 
 			// Write the data
-			MTLRegion region = new MTLRegion(
-				new MTLOrigin((ulong) x, (ulong) y, 0),
-				new MTLSize((ulong) w, (ulong) h, 1)
-			);
 			mtlReplaceRegion(
 				handle,
-				region,
+				new MTLRegion(origin, size),
 				(ulong) level,
 				0,
 				data,
-				(ulong) bytesPerRow,
+				BytesPerRow(w, format),
 				0
 			);
 
+			// Blit the temp texture to the actual texture
 			if (tex.IsPrivate)
 			{
 				// End the render pass
@@ -3507,20 +3527,15 @@ namespace Microsoft.Xna.Framework.Graphics
 					renderCommandEncoder = IntPtr.Zero;
 				}
 
-				// Blit the texture to the GPU-private texture
+				// Blit!
 				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
-				MTLOrigin origin = new MTLOrigin(0, 0, 0);
 				mtlBlitTextureToTexture(
 					blit,
 					handle,
 					0,
 					(ulong) level,
 					origin,
-					new MTLSize(
-						(ulong) tex.Width,
-						(ulong) tex.Height,
-						1
-					),
+					size,
 					tex.Handle,
 					0,
 					(ulong) level,
@@ -3542,7 +3557,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				Texture2D tex = textures[i];
 				MTLRegion region = new MTLRegion(
-					new MTLOrigin(0, 0, 0),
+					MTLOrigin.Zero,
 					new MTLSize((ulong) tex.Width, (ulong) tex.Height, 1)
 				);
 				mtlReplaceRegion(
@@ -3579,17 +3594,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				new MTLOrigin((ulong) left, (ulong) top, (ulong) front),
 				new MTLSize((ulong) w, (ulong) h, (ulong) d)
 			);
-			int bytesPerRow = w * Texture.GetFormatSize(format);
-			int bytesPerImage = bytesPerRow * h;
-
 			mtlReplaceRegion(
 				(texture as MetalTexture).Handle,
 				region,
 				(ulong) level,
 				0,
 				data,
-				(ulong) bytesPerRow,
-				(ulong) bytesPerImage
+				BytesPerRow(w, format),
+				BytesPerImage(w, h, format)
 			);
 		}
 
@@ -3608,41 +3620,32 @@ namespace Microsoft.Xna.Framework.Graphics
 			MetalTexture tex = texture as MetalTexture;
 			IntPtr handle = tex.Handle;
 
-			// Fetch a CPU-accessible texture
+			MTLOrigin origin = new MTLOrigin((ulong) xOffset, (ulong) yOffset, 0);
+			MTLSize size = new MTLSize((ulong) width, (ulong) height, 1);
+
+			ulong slice = (ulong) cubeMapFace;
+
 			if (tex.IsPrivate)
 			{
-				handle = FetchTransientTexture(
-					format,
-					width,
-					height
-				);
-			}
+				// Fetch a CPU-accessible texture
+				handle = FetchTransientTexture(tex);
 
-			// Calculate bytes per row
-			int bytesPerRow = width;
-			if (	format == SurfaceFormat.Dxt1 ||
-				format == SurfaceFormat.Dxt3 ||
-				format == SurfaceFormat.Dxt5	)
-			{
-				bytesPerRow = (width + 3) / 4;
+				// Transient textures have no slices
+				slice = 0;
 			}
-			bytesPerRow *= Texture.GetFormatSize(format);
 
 			// Write the data
-			MTLRegion region = new MTLRegion(
-				new MTLOrigin((ulong) xOffset, (ulong) yOffset, 0),
-				new MTLSize((ulong) width, (ulong) height, 1)
-			);
 			mtlReplaceRegion(
 				handle,
-				region,
+				new MTLRegion(origin, size),
 				(ulong) level,
-				(ulong) cubeMapFace,
+				slice,
 				data,
-				(ulong) bytesPerRow,
+				BytesPerRow(width, format),
 				0
 			);
 
+			// Blit the temp texture to the actual texture
 			if (tex.IsPrivate)
 			{
 				// End the render pass
@@ -3652,18 +3655,17 @@ namespace Microsoft.Xna.Framework.Graphics
 					renderCommandEncoder = IntPtr.Zero;
 				}
 
-				// Blit the texture to the GPU-private texture
+				// Blit!
 				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
-				MTLOrigin origin = new MTLOrigin(0, 0, 0);
 				mtlBlitTextureToTexture(
 					blit,
 					handle,
-					0,
+					slice,
 					(ulong) level,
 					origin,
-					new MTLSize((ulong) width, (ulong) height, 1),
+					size,
 					tex.Handle,
-					(ulong) cubeMapFace,
+					slice,
 					(ulong) level,
 					origin
 				);
@@ -3696,23 +3698,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int elementSizeInBytes
 		) {
-			if (	format == SurfaceFormat.Dxt1 ||
-				format == SurfaceFormat.Dxt3 ||
-				format == SurfaceFormat.Dxt5	)
-			{
-				throw new NotImplementedException("GetData, CompressedTexture");
-			}
-
 			MetalTexture tex = texture as MetalTexture;
 			IntPtr handle = tex.Handle;
+
+			MTLSize size = new MTLSize((ulong) subW, (ulong) subH, 1);
+			MTLOrigin origin = new MTLOrigin((ulong) subX, (ulong) subY, 0);
+
 			if (tex.IsPrivate)
 			{
 				// Fetch a CPU-accessible texture
-				handle = FetchTransientTexture(
-					format,
-					tex.Width,
-					tex.Height
-				);
+				handle = FetchTransientTexture(tex);
 
 				// End the render pass
 				if (renderCommandEncoder != IntPtr.Zero)
@@ -3721,20 +3716,15 @@ namespace Microsoft.Xna.Framework.Graphics
 					renderCommandEncoder = IntPtr.Zero;
 				}
 
-				// Blit the texture to the CPU-accessible texture
+				// Blit the actual texture to a CPU-accessible texture
 				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
-				MTLOrigin origin = new MTLOrigin(0, 0, 0);
 				mtlBlitTextureToTexture(
 					blit,
 					tex.Handle,
 					0,
 					(ulong) level,
 					origin,
-					new MTLSize(
-						(ulong) tex.Width,
-						(ulong) tex.Height,
-						1
-					),
+					size,
 					handle,
 					0,
 					(ulong) level,
@@ -3755,16 +3745,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				needNewRenderPass = true;
 			}
 
-			MTLRegion region = new MTLRegion(
-				new MTLOrigin((ulong) subX, (ulong) subY, 0),
-				new MTLSize((ulong) subW, (ulong) subH, 1)
-			);
 			mtlGetTextureBytes(
 				handle,
 				data,
-				(ulong) (subW * Texture.GetFormatSize(format)),
-				region,
-				(ulong) level
+				BytesPerRow(subW, format),
+				0,
+				new MTLRegion(origin, size),
+				(ulong) level,
+				0
 			);
 		}
 
@@ -3783,7 +3771,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int elementSizeInBytes
 		) {
-			throw new NotImplementedException();
+			int w = right - left;
+			int h = bottom - top;
+			int d = back - front;
+
+			MTLRegion region = new MTLRegion(
+				new MTLOrigin((ulong) left, (ulong) top, (ulong) front),
+				new MTLSize((ulong) w, (ulong) h, (ulong) d)
+			);
+			mtlGetTextureBytes(
+				(texture as MetalTexture).Handle,
+				data,
+				(ulong) BytesPerRow(w, format),
+				(ulong) BytesPerImage(w, h, format),
+				region,
+				(ulong) level,
+				0
+			);
 		}
 
 		public void GetTextureDataCube(
@@ -3801,7 +3805,67 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int elementSizeInBytes
 		) {
-			throw new NotImplementedException();
+			MetalTexture tex = texture as MetalTexture;
+			IntPtr handle = tex.Handle;
+
+			MTLSize regionSize = new MTLSize((ulong) subW, (ulong) subH, 1);
+			MTLOrigin origin = new MTLOrigin((ulong) subX, (ulong) subY, 0);
+
+			ulong slice = (ulong) cubeMapFace;
+
+			if (tex.IsPrivate)
+			{
+				// Fetch a CPU-accessible texture
+				handle = FetchTransientTexture(tex);
+
+				// Transient textures have no slices
+				slice = 0;
+
+				// End the render pass
+				if (renderCommandEncoder != IntPtr.Zero)
+				{
+					mtlEndEncoding(renderCommandEncoder);
+					renderCommandEncoder = IntPtr.Zero;
+				}
+
+				// Blit the actual texture to a CPU-accessible texture
+				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
+				mtlBlitTextureToTexture(
+					blit,
+					tex.Handle,
+					(ulong) cubeMapFace,
+					(ulong) level,
+					origin,
+					regionSize,
+					handle,
+					slice,
+					(ulong) level,
+					origin
+				);
+
+				// Managed resources require explicit synchronization
+				if (platform.Equals("Mac OS X"))
+				{
+					mtlSynchronizeResource(blit, handle);
+				}
+
+				// Submit the blit command to the GPU and wait...
+				mtlEndEncoding(blit);
+				mtlCommitCommandBuffer(commandBuffer);
+				mtlCommandBufferWaitUntilCompleted(commandBuffer);
+				commandBuffer = mtlMakeCommandBuffer(queue);
+				needNewRenderPass = true;
+			}
+
+			mtlGetTextureBytes(
+				handle,
+				data,
+				BytesPerRow(subW, format),
+				0,
+				new MTLRegion(origin, regionSize),
+				(ulong) level,
+				slice
+			);
 		}
 
 		#endregion
@@ -3956,7 +4020,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					MetalTexture tex = renderTargets[i].RenderTarget.texture as MetalTexture;
 					currentAttachments[i] = tex.Handle;
-					currentColorFormats[i] = tex.Format;
+					currentColorFormats[i] = XNAToMTL.TextureFormat[(int) tex.Format];
 					currentSampleCount = 0;
 				}
 			}

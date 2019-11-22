@@ -105,7 +105,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong primitiveType, ulong indexCount, ulong indexType, IntPtr indexBuffer, ulong indexBufferOffset);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
-		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr pixelBytes, ulong bytesPerRow, MTLRegion region, ulong level);
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr pixelBytes, ulong bytesPerRow, ulong bytesPerImage, MTLRegion region, ulong level, ulong slice);
 
 		// IntPtr
 
@@ -472,6 +472,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				this.y = y;
 				this.z = z;
 			}
+
+			public static MTLOrigin Zero = new MTLOrigin(0, 0, 0);
 		}
 
 		[StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -1397,21 +1399,25 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
-		private static IntPtr selGetBytes = Selector("getBytes:bytesPerRow:fromRegion:mipmapLevel:");
+		private static IntPtr selGetBytes = Selector("getBytes:bytesPerRow:bytesPerImage:fromRegion:mipmapLevel:slice:");
 		private static void mtlGetTextureBytes(
 			IntPtr texture,
 			IntPtr pixelBytes,
 			ulong bytesPerRow,
+			ulong bytesPerImage,
 			MTLRegion region,
-			ulong level
+			ulong level,
+			ulong slice
 		) {
 			objc_msgSend(
 				texture,
 				selGetBytes,
 				pixelBytes,
 				bytesPerRow,
+				bytesPerImage,
 				region,
-				level
+				level,
+				slice
 			);
 		}
 
