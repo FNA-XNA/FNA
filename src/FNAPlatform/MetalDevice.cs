@@ -3264,7 +3264,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int elementSizeInBytes
 		) {
-			// We're assuming the buffer isn't private! -caleb
 			memcpy(
 				data + (startIndex * elementSizeInBytes),
 				(buffer as MetalBuffer).Contents + offsetInBytes,
@@ -3292,7 +3291,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				cpy = data + (startIndex * elementSizeInBytes);
 			}
 
-			// We're assuming the buffer isn't private! -caleb
 			memcpy(
 				cpy,
 				(buffer as MetalBuffer).Contents + offsetInBytes,
