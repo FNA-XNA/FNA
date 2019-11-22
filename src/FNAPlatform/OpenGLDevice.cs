@@ -697,7 +697,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Some users might want pixely upscaling...
 			backbufferScaleMode = Environment.GetEnvironmentVariable(
-				"FNA_OPENGL_BACKBUFFER_SCALE_NEAREST"
+				"FNA_GRAPHICS_BACKBUFFER_SCALE_NEAREST"
 			) == "1" ? GLenum.GL_NEAREST : GLenum.GL_LINEAR;
 
 			// Load the extension list, initialize extension-dependent components
