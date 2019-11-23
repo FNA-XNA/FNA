@@ -10,7 +10,6 @@
 #region Using Statements
 using System;
 using System.Runtime.InteropServices;
-using SDL2;
 #endregion
 
 /* =============================
@@ -128,9 +127,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, MTLPixelFormat arg1, ulong arg2, ulong arg3, bool arg4);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
-		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, IntPtr arg2);
-
-		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, out IntPtr arg2);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -157,9 +153,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, NSOperatingSystemVersion arg);
-
-		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
-		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, out IntPtr arg2);
 
 		// CGSize
 
@@ -253,23 +246,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private enum MTLTextureUsage
 		{
-			Unknown = 0,
 			ShaderRead = 1,
-			ShaderWrite = 2,
 			RenderTarget = 4
 		}
 
 		private enum MTLTextureType
 		{
-			Texture2D = 2,
 			Multisample2D = 4,
 			Texture3D = 7
 		}
 
 		private enum MTLResourceStorageMode
 		{
-			Shared = 0,
-			Managed = 1, /* macOS only */
 			Private = 2
 		}
 
@@ -287,9 +275,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			OneMinusDestinationAlpha = 9,
 			SourceAlphaSaturated = 10,
 			BlendColor = 11,
-			OneMinusBlendColor = 12,
-			BlendAlpha = 13,
-			OneMinusBlendAlpha = 14,
+			OneMinusBlendColor = 12
 		}
 
 		private enum MTLBlendOperation
@@ -308,12 +294,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			Back = 2
 		}
 
-		private enum MTLWinding
-		{
-			Clockwise = 0,
-			CounterClockwise = 1
-		}
-
 		private enum MTLTriangleFillMode
 		{
 			Fill = 0,
@@ -329,7 +309,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private enum MTLSamplerMipFilter
 		{
-			NotMipmapped = 0,
 			Nearest = 1,
 			Linear = 2
 		}
@@ -377,14 +356,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			Invert = 5,
 			IncrementWrap = 6,
 			DecrementWrap = 7
-		}
-
-		private enum MTLPurgeableState
-		{
-			KeepCurrent = 1,
-			NonVolatile = 2,
-			Volatile = 3,
-			Empty = 4
 		}
 
 		private enum MTLVisibilityResultMode
@@ -545,20 +516,15 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr classStencilDescriptor = objc_getClass("MTLStencilDescriptor");
 		private static IntPtr classMTLSamplerDescriptor = objc_getClass("MTLSamplerDescriptor");
 		private static IntPtr classMTLVertexDescriptor = objc_getClass("MTLVertexDescriptor");
-		private static IntPtr classMTLCaptureManager = objc_getClass("MTLCaptureManager");
-		private static IntPtr classMTLCaptureDescriptor = objc_getClass("MTLCaptureDescriptor");
 		private static IntPtr classNSAutoreleasePool = objc_getClass("NSAutoreleasePool");
-		private static IntPtr classNSURL = objc_getClass("NSURL");
 		private static IntPtr classNSProcessInfo = objc_getClass("NSProcessInfo");
+		private static IntPtr classNSString = objc_getClass("NSString");
 
 		#endregion
 
 		#region NSString <-> C# String
 
 		private static IntPtr selUtf8 = Selector("UTF8String");
-		private static IntPtr selInitWithUtf8 = Selector("initWithUTF8String:");
-		private static IntPtr classNSString = objc_getClass("NSString");
-
 		private static string NSStringToUTF8(IntPtr nsstr)
 		{
 			return Marshal.PtrToStringAnsi(
@@ -567,6 +533,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		private static IntPtr selAlloc = Selector("alloc");
+		private static IntPtr selInitWithUtf8 = Selector("initWithUTF8String:");
 		private static IntPtr UTF8ToNSString(string str)
 		{
 			return intptr_objc_msgSend(
@@ -612,7 +579,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSupportsFeatureSet = Selector("supportsFeatureSet:");
 		internal static bool HasModernAppleGPU(IntPtr device)
 		{
-			// The device must be an A9 chip or later.
+			// We require an A9 chip or later.
 			const ulong GPUFamilyCommon2 = 3002;
 			const ulong iOS_GPUFamily3_v1 = 4;
 			const ulong tvOS_GPUFamily2_v1 = 30003;
@@ -691,7 +658,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				device,
 				selNewBufferWithLength,
 				length,
-				IntPtr.Zero // FIXME: Do we need this?
+				IntPtr.Zero
 			);
 		}
 
@@ -723,7 +690,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private static bool mtlSupportsDepth16(bool isMac)
 		{
-			// D16 requires macOS 10.12+ or iOS/tvOS 13.0+
+			// Depth16Unorm requires macOS 10.12+ or iOS/tvOS 13.0+
 			return (
 				isMac ?
 				OperatingSystemAtLeast(10, 12, 0) :
@@ -741,80 +708,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			return intptr_objc_msgSend(buffer, selContents);
 		}
 
-		private static IntPtr selSetLabel = Selector("setLabel:");
-		private static void mtlSetLabel(IntPtr handle, string label)
-		{
-			objc_msgSend(handle, selSetLabel, UTF8ToNSString(label));
-		}
-
-		private static IntPtr selSetPurgeableState = Selector("setPurgeableState:");
-		private static MTLPurgeableState mtlSetPurgeableState(IntPtr resource, MTLPurgeableState state)
-		{
-			return (MTLPurgeableState) ulong_objc_msgSend(
-				resource,
-				selSetPurgeableState,
-				(ulong) state
-			);
-		}
-
 		private static IntPtr selLength = Selector("length");
 		private static ulong mtlGetBufferLength(IntPtr buffer)
 		{
 			return ulong_objc_msgSend(buffer, selLength);
-		}
-
-		#endregion
-
-		// FIXME: This is no longer needed!
-		#region MTLCapture
-
-		private static IntPtr selSharedCaptureManager = Selector("sharedCaptureManager");
-		private static IntPtr mtlGetSharedCaptureManager()
-		{
-			return intptr_objc_msgSend(classMTLCaptureManager, selSharedCaptureManager);
-		}
-
-		private static IntPtr selStartCaptureWithDescriptor = Selector("startCaptureWithDescriptor:error:");
-		private static IntPtr selSetCaptureObject = Selector("setCaptureObject:");
-		private static IntPtr selSetDestination = Selector("setDestination:");
-		private static IntPtr selSetOutputURL = Selector("setOutputURL:");
-		private static IntPtr selFileURLWithPath = Selector("fileURLWithPath:isDirectory:");
-		private static void mtlStartCapture(IntPtr device, string url)
-		{
-			IntPtr desc = intptr_objc_msgSend(classMTLCaptureDescriptor, selNew);
-			objc_msgSend(desc, selSetCaptureObject, device);
-			objc_msgSend(desc, selSetDestination, 2);
-			objc_msgSend(
-				desc,
-				selSetOutputURL,
-				intptr_objc_msgSend(
-					classNSURL,
-					selFileURLWithPath,
-					UTF8ToNSString(url),
-					IntPtr.Zero
-				)
-			);
-			IntPtr error = IntPtr.Zero;
-			bool success = bool_objc_msgSend(
-				mtlGetSharedCaptureManager(),
-				selStartCaptureWithDescriptor,
-				desc,
-				out error
-			);
-			if (!success)
-			{
-				throw new Exception(GetNSErrorDescription(error));
-			}
-			ObjCRelease(desc);
-		}
-
-		private static IntPtr selStopCapture = Selector("stopCapture");
-		private static void mtlStopCapture()
-		{
-			objc_msgSend(
-				mtlGetSharedCaptureManager(),
-				selStopCapture
-			);
 		}
 
 		#endregion
@@ -985,7 +882,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(colorAttachment, selSetAlphaBlendOperation, (ulong) op);
 		}
 
-		private static IntPtr selSetRGBBlendOperation = Selector("setRgbBlendOperation:"); // FIXME: Is this right?
+		private static IntPtr selSetRGBBlendOperation = Selector("setRgbBlendOperation:");
 		private static void mtlSetAttachmentRGBBlendOperation(
 			IntPtr colorAttachment,
 			MTLBlendOperation op
@@ -1157,18 +1054,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				renderCommandEncoder,
 				selSetCullMode,
 				(ulong) cullMode
-			);
-		}
-
-		private static IntPtr selSetFrontFacingWinding = Selector("setFrontFacingWinding:");
-		private static void mtlSetFrontFacingWinding(
-			IntPtr renderCommandEncoder,
-			MTLWinding winding
-		) {
-			objc_msgSend(
-				renderCommandEncoder,
-				selSetFrontFacingWinding,
-				(ulong) winding
 			);
 		}
 
@@ -1462,26 +1347,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(texDesc, selSetSampleCount, (ulong) sampleCount);
 		}
 
-		// selSetPixelFormat already defined
-		private static void mtlSetTexturePixelFormat(
-			IntPtr texDesc,
-			MTLPixelFormat format
-		) {
-			objc_msgSend(texDesc, selSetPixelFormat, (ulong) format);
-		}
-
 		private static IntPtr selSetDepth = Selector("setDepth:");
 		private static void mtlSetTextureDepth(
 			IntPtr texDesc,
 			ulong depth
 		) {
 			objc_msgSend(texDesc, selSetDepth, depth);
-		}
-
-		private static IntPtr selSetMipmapLevelCount = Selector("setMipmapLevelCount:");
-		private static ulong mtlSetMipmapLevelCount(IntPtr texDesc, int levelCount)
-		{
-			return ulong_objc_msgSend(texDesc, selSetMipmapLevelCount, (ulong) levelCount);
 		}
 
 		#endregion

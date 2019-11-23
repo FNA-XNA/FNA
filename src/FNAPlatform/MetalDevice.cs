@@ -3505,7 +3505,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					currentAttachments[i] = IntPtr.Zero;
 				}
 			}
-			mtlSetPurgeableState(handle, MTLPurgeableState.Empty);
 			ObjCRelease(handle);
 		}
 
