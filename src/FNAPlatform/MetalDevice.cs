@@ -531,7 +531,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private ulong currentAttachmentWidth;
 		private ulong currentAttachmentHeight;
 
-		private IntPtr currentVisibilityBuffer;
+		private IntPtr currentVisibilityBuffer; // MTLBuffer*
 
 		private bool needNewRenderPass = false;
 		private bool shouldClearColor = false;
@@ -539,7 +539,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private bool shouldClearStencil = false;
 
 		private readonly int backingBufferCount = 2;
-		private Queue<IntPtr> submittedCommandBuffers;
+		private Queue<IntPtr> submittedCommandBuffers; // Queue<MTLCommandBuffer*>
 
 		private int mainThreadID;
 		private string platform;
@@ -556,7 +556,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Objective-C Memory Management Variables
 
-		private IntPtr pool;			// NSAutoreleasePool*
+		private IntPtr pool; // NSAutoreleasePool*
 
 		#endregion
 
@@ -4259,22 +4259,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TESSFACTOR		// VertexElementUsage.TessellateFactor
 			};
 
-			public static readonly int[] VertexAttribSize = new int[]
-			{
-					1,	// VertexElementFormat.Single
-					2,	// VertexElementFormat.Vector2
-					3,	// VertexElementFormat.Vector3
-					4,	// VertexElementFormat.Vector4
-					4,	// VertexElementFormat.Color
-					4,	// VertexElementFormat.Byte4
-					2,	// VertexElementFormat.Short2
-					4,	// VertexElementFormat.Short4
-					2,	// VertexElementFormat.NormalizedShort2
-					4,	// VertexElementFormat.NormalizedShort4
-					2,	// VertexElementFormat.HalfVector2
-					4	// VertexElementFormat.HalfVector4
-			};
-
 			public static readonly MTLVertexFormat[] VertexAttribType = new MTLVertexFormat[]
 			{
 				MTLVertexFormat.Float,			// VertexElementFormat.Single
@@ -4290,15 +4274,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLVertexFormat.Half2,			// VertexElementFormat.HalfVector2
 				MTLVertexFormat.Half4			// VertexElementFormat.HalfVector4
 			};
-
-			public static bool VertexAttribNormalized(VertexElement element)
-			{
-				return (
-					element.VertexElementUsage == VertexElementUsage.Color ||
-					element.VertexElementFormat == VertexElementFormat.NormalizedShort2 ||
-					element.VertexElementFormat == VertexElementFormat.NormalizedShort4
-				);
-			}
 
 			public static readonly MTLIndexType[] IndexType = new MTLIndexType[]
 			{
