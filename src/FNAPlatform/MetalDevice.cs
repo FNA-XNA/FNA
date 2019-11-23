@@ -4176,27 +4176,27 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			public static readonly MTLPixelFormat[] TextureFormat = new MTLPixelFormat[]
 			{
-				MTLPixelFormat.RGBA8Unorm,		// SurfaceFormat.Color
-				MTLPixelFormat.B5G6R5Unorm,		// SurfaceFormat.Bgr565
-				MTLPixelFormat.BGR5A1Unorm,		// SurfaceFormat.Bgra5551
-				MTLPixelFormat.ABGR4Unorm,		// SurfaceFormat.Bgra4444
-				MTLPixelFormat.BC1_RGBA,		// SurfaceFormat.Dxt1
-				MTLPixelFormat.BC2_RGBA,		// SurfaceFormat.Dxt3
-				MTLPixelFormat.BC3_RGBA,		// SurfaceFormat.Dxt5
-				MTLPixelFormat.RG8Snorm,		// SurfaceFormat.NormalizedByte2
-				MTLPixelFormat.RG16Snorm,		// SurfaceFormat.NormalizedByte4
-				MTLPixelFormat.RGB10A2Unorm,		// SurfaceFormat.Rgba1010102
-				MTLPixelFormat.RG16Unorm,		// SurfaceFormat.Rg32
-				MTLPixelFormat.RGBA16Unorm,		// SurfaceFormat.Rgba64
-				MTLPixelFormat.A8Unorm,			// SurfaceFormat.Alpha8
-				MTLPixelFormat.R32Float,		// SurfaceFormat.Single
-				MTLPixelFormat.RG32Float,		// SurfaceFormat.Vector2
-				MTLPixelFormat.RGBA32Float,		// SurfaceFormat.Vector4
-				MTLPixelFormat.R16Float,		// SurfaceFormat.HalfSingle
-				MTLPixelFormat.RG16Float,		// SurfaceFormat.HalfVector2
-				MTLPixelFormat.RGBA16Float,		// SurfaceFormat.HalfVector4
-				MTLPixelFormat.RGBA16Float,		// SurfaceFormat.HdrBlendable
-				MTLPixelFormat.BGRA8Unorm		// SurfaceFormat.ColorBgraEXT
+				MTLPixelFormat.RGBA8Unorm,	// SurfaceFormat.Color
+				MTLPixelFormat.B5G6R5Unorm,	// SurfaceFormat.Bgr565
+				MTLPixelFormat.BGR5A1Unorm,	// SurfaceFormat.Bgra5551
+				MTLPixelFormat.ABGR4Unorm,	// SurfaceFormat.Bgra4444
+				MTLPixelFormat.BC1_RGBA,	// SurfaceFormat.Dxt1
+				MTLPixelFormat.BC2_RGBA,	// SurfaceFormat.Dxt3
+				MTLPixelFormat.BC3_RGBA,	// SurfaceFormat.Dxt5
+				MTLPixelFormat.RG8Snorm,	// SurfaceFormat.NormalizedByte2
+				MTLPixelFormat.RG16Snorm,	// SurfaceFormat.NormalizedByte4
+				MTLPixelFormat.RGB10A2Unorm,	// SurfaceFormat.Rgba1010102
+				MTLPixelFormat.RG16Unorm,	// SurfaceFormat.Rg32
+				MTLPixelFormat.RGBA16Unorm,	// SurfaceFormat.Rgba64
+				MTLPixelFormat.A8Unorm,		// SurfaceFormat.Alpha8
+				MTLPixelFormat.R32Float,	// SurfaceFormat.Single
+				MTLPixelFormat.RG32Float,	// SurfaceFormat.Vector2
+				MTLPixelFormat.RGBA32Float,	// SurfaceFormat.Vector4
+				MTLPixelFormat.R16Float,	// SurfaceFormat.HalfSingle
+				MTLPixelFormat.RG16Float,	// SurfaceFormat.HalfVector2
+				MTLPixelFormat.RGBA16Float,	// SurfaceFormat.HalfVector4
+				MTLPixelFormat.RGBA16Float,	// SurfaceFormat.HdrBlendable
+				MTLPixelFormat.BGRA8Unorm	// SurfaceFormat.ColorBgraEXT
 			};
 
 			public static readonly MTLPixelFormat[] DepthFormat = new MTLPixelFormat[]
@@ -4247,18 +4247,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public static readonly MTLVertexFormat[] VertexAttribType = new MTLVertexFormat[]
 			{
-				MTLVertexFormat.Float,		// VertexElementFormat.Single
-				MTLVertexFormat.Float2,		// VertexElementFormat.Vector2
-				MTLVertexFormat.Float3,		// VertexElementFormat.Vector3
-				MTLVertexFormat.Float4,		// VertexElementFormat.Vector4
+				MTLVertexFormat.Float,			// VertexElementFormat.Single
+				MTLVertexFormat.Float2,			// VertexElementFormat.Vector2
+				MTLVertexFormat.Float3,			// VertexElementFormat.Vector3
+				MTLVertexFormat.Float4,			// VertexElementFormat.Vector4
 				MTLVertexFormat.UChar4Normalized,	// VertexElementFormat.Color
-				MTLVertexFormat.UChar4,		// VertexElementFormat.Byte4
-				MTLVertexFormat.Short2,		// VertexElementFormat.Short2
-				MTLVertexFormat.Short4,		// VertexElementFormat.Short4
+				MTLVertexFormat.UChar4,			// VertexElementFormat.Byte4
+				MTLVertexFormat.Short2,			// VertexElementFormat.Short2
+				MTLVertexFormat.Short4,			// VertexElementFormat.Short4
 				MTLVertexFormat.Short2Normalized,	// VertexElementFormat.NormalizedShort2
 				MTLVertexFormat.Short4Normalized,	// VertexElementFormat.NormalizedShort4
-				MTLVertexFormat.Half2,		// VertexElementFormat.HalfVector2
-				MTLVertexFormat.Half4		// VertexElementFormat.HalfVector4
+				MTLVertexFormat.Half2,			// VertexElementFormat.HalfVector2
+				MTLVertexFormat.Half4			// VertexElementFormat.HalfVector4
 			};
 
 			public static bool VertexAttribNormalized(VertexElement element)
