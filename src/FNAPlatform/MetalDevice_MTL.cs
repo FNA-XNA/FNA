@@ -147,10 +147,16 @@ namespace Microsoft.Xna.Framework.Graphics
 		// Bool
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, NSOperatingSystemVersion arg);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern bool bool_objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, out IntPtr arg2);
@@ -233,7 +239,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			BC1_RGBA		= 130,
 			BC2_RGBA		= 132,
 			BC3_RGBA		= 134,
+			Depth16Unorm		= 250,
 			Depth32Float		= 252,
+			Depth24Unorm_Stencil8	= 255,
 			Depth32Float_Stencil8	= 260,
 		}
 
@@ -541,6 +549,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr classMTLCaptureDescriptor = objc_getClass("MTLCaptureDescriptor");
 		private static IntPtr classNSAutoreleasePool = objc_getClass("NSAutoreleasePool");
 		private static IntPtr classNSURL = objc_getClass("NSURL");
+		private static IntPtr classNSProcessInfo = objc_getClass("NSProcessInfo");
 
 		#endregion
 
@@ -622,6 +631,39 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region OS Version Check
+
+		[StructLayout(LayoutKind.Sequential, Pack = 1)]
+		private struct NSOperatingSystemVersion
+		{
+			public long major;
+			public long minor;
+			public long patch;
+		}
+
+		private static IntPtr selOperatingSystemAtLeast = Selector("isOperatingSystemAtLeastVersion:");
+		private static IntPtr selProcessInfo = Selector("processInfo");
+		private static bool OperatingSystemAtLeast(long major, long minor, long patch)
+		{
+			NSOperatingSystemVersion version = new NSOperatingSystemVersion
+			{
+				major = major,
+				minor = minor,
+				patch = patch
+			};
+			IntPtr processInfo = intptr_objc_msgSend(
+				classNSProcessInfo,
+				selProcessInfo
+			);
+			return bool_objc_msgSend(
+				processInfo,
+				selOperatingSystemAtLeast,
+				version
+			);
+		}
+
+		#endregion
+
 		#region MTLDevice
 
 		private static IntPtr selName = Selector("name");
@@ -673,6 +715,22 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
+		private static IntPtr selSupportsDepth24Stencil8 = Selector("isDepth24Stencil8PixelFormatSupported");
+		private static bool mtlSupportsDepth24Stencil8(IntPtr device)
+		{
+			return bool_objc_msgSend(device, selSupportsDepth24Stencil8);
+		}
+
+		private static bool mtlSupportsDepth16(bool isMac)
+		{
+			// D16 requires macOS 10.12+ or iOS/tvOS 13.0+
+			return (
+				isMac ?
+				OperatingSystemAtLeast(10, 12, 0) :
+				OperatingSystemAtLeast(13, 0, 0)
+			);
+		}
+
 		#endregion
 
 		#region MTLBuffer
@@ -707,6 +765,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		// FIXME: This is no longer needed!
 		#region MTLCapture
 
 		private static IntPtr selSharedCaptureManager = Selector("sharedCaptureManager");

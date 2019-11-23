@@ -546,6 +546,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Depth PixelFormats
+
+		private MTLPixelFormat D16Format;
+		private MTLPixelFormat D24Format;
+		private MTLPixelFormat D24S8Format;
+
+		#endregion
+
 		#region Objective-C Memory Management Variables
 
 		private IntPtr pool;			// NSAutoreleasePool*
@@ -740,6 +748,25 @@ namespace Microsoft.Xna.Framework.Graphics
 			SupportsHardwareInstancing = true;
 			MaxTextureSlots = 16;
 			MaxMultiSampleCount = mtlSupportsSampleCount(device, 8) ? 8 : 4;
+
+			// Determine supported depth formats
+			D16Format = MTLPixelFormat.Depth32Float;
+			D24Format = MTLPixelFormat.Depth32Float;
+			D24S8Format = MTLPixelFormat.Depth32Float_Stencil8;
+
+			if (mtlSupportsDepth24Stencil8(device))
+			{
+				D24S8Format = MTLPixelFormat.Depth24Unorm_Stencil8;
+
+				// FIXME: Does this work?
+				D24Format = MTLPixelFormat.Depth24Unorm_Stencil8;
+				D16Format = MTLPixelFormat.Depth24Unorm_Stencil8;
+			}
+			if (mtlSupportsDepth16(platform.Equals("Mac OS X")))
+			{
+				// Now that's more like it!
+				D16Format = MTLPixelFormat.Depth16Unorm;
+			}
 
 			// Initialize texture and sampler collections
 			Textures = new MetalTexture[MaxTextureSlots];
@@ -1786,9 +1813,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				SetEncoderFillMode(); // Dynamic state!
 			}
 
-			float realDepthBias = rasterizerState.DepthBias * XNAToMTL.DepthBiasScale[
-				(int) currentDepthFormat
-			];
+			float realDepthBias = rasterizerState.DepthBias;
+			realDepthBias *= XNAToMTL.DepthBiasScale(
+				GetDepthFormat(currentDepthFormat),
+				depthBias
+			);
 			if (	realDepthBias != depthBias ||
 				rasterizerState.SlopeScaleDepthBias != slopeScaleDepthBias	)
 			{
@@ -2077,13 +2106,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			mtlSetDepthAttachmentPixelFormat(
 				pipelineDesc,
-				XNAToMTL.DepthFormat[(int) currentDepthFormat]
+				GetDepthFormat(currentDepthFormat)
 			);
 			if (currentDepthFormat == DepthFormat.Depth24Stencil8)
 			{
 				mtlSetStencilAttachmentPixelFormat(
 					pipelineDesc,
-					XNAToMTL.DepthFormat[(int) currentDepthFormat]
+					GetDepthFormat(currentDepthFormat)
 				);
 			}
 			mtlSetPipelineSampleCount(
@@ -2674,6 +2703,21 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region DepthFormat Conversion Method
+
+		private MTLPixelFormat GetDepthFormat(DepthFormat format)
+		{
+			switch (format)
+			{
+				case DepthFormat.Depth16:		return D16Format;
+				case DepthFormat.Depth24:		return D24Format;
+				case DepthFormat.Depth24Stencil8:	return D24S8Format;
+				default:				return MTLPixelFormat.Invalid;
+			}
+		}
+
+		#endregion
+
 		#region Effect Methods
 
 		public IGLEffect CreateEffect(byte[] effectCode)
@@ -3170,7 +3214,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			DepthFormat format,
 			int multiSampleCount
 		) {
-			MTLPixelFormat pixelFormat = XNAToMTL.DepthFormat[(int) format];
+			MTLPixelFormat pixelFormat = GetDepthFormat(format);
 
 			// Generate a depth texture
 			IntPtr desc = mtlMakeTexture2DDescriptor(
@@ -4199,19 +4243,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLPixelFormat.BGRA8Unorm	// SurfaceFormat.ColorBgraEXT
 			};
 
-			public static readonly MTLPixelFormat[] DepthFormat = new MTLPixelFormat[]
-			{
-				/* FIXME: Depth32Float is the only cross-platform depth format
-				 * in Metal. Maybe we should check for feature set support so
-				 * that we could use Depth24UnormStencil8 and Depth16Unorm.
-				 */
-
-				MTLPixelFormat.Invalid,			// NOPE
-				MTLPixelFormat.Depth32Float,		// DepthFormat.Depth16
-				MTLPixelFormat.Depth32Float,		// DepthFormat.Depth24
-				MTLPixelFormat.Depth32Float_Stencil8	// DepthFormat.Depth24Stencil8
-			};
-
 			public static readonly MojoShader.MOJOSHADER_usage[] VertexAttribUsage = new MojoShader.MOJOSHADER_usage[]
 			{
 				MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_POSITION,		// VertexElementUsage.Position
@@ -4369,20 +4400,30 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLTriangleFillMode.Lines	// FillMode.WireFrame
 			};
 
-			// FIXME: This is definitely wrong for float32 depth formats. -caleb
-			public static readonly float[] DepthBiasScale = new float[]
+			public static float DepthBiasScale(MTLPixelFormat format, float scale)
 			{
-				0.0f,				// DepthFormat.None
-				(float) ((1 << 16) - 1),	// DepthFormat.Depth16
-				(float) ((1 << 24) - 1),	// DepthFormat.Depth24
-				(float) ((1 << 24) - 1)		// DepthFormat.Depth24Stencil8
-			};
+				switch (format)
+				{
+					case MTLPixelFormat.Depth16Unorm:
+						return (float) ((1 << 16) - 1);
+
+					case MTLPixelFormat.Depth24Unorm_Stencil8:
+						return (float) ((1 << 24) - 1);
+
+					// Float formats are gross, don't even bother.
+					case MTLPixelFormat.Depth32Float:
+					case MTLPixelFormat.Depth32Float_Stencil8:
+						return 1f;
+				}
+
+				return 0.0f;
+			}
 
 			public static readonly MTLCullMode[] CullingEnabled = new MTLCullMode[]
 			{
-				MTLCullMode.None,		// CullMode.None
-				MTLCullMode.Front,		// CullMode.CullClockwiseFace
-				MTLCullMode.Back		// CullMode.CullCounterClockwiseFace
+				MTLCullMode.None,	// CullMode.None
+				MTLCullMode.Front,	// CullMode.CullClockwiseFace
+				MTLCullMode.Back	// CullMode.CullCounterClockwiseFace
 			};
 
 			public static readonly MTLSamplerAddressMode[] Wrap = new MTLSamplerAddressMode[]
@@ -4594,7 +4635,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (DepthFormat != DepthFormat.None)
 				{
 					IntPtr depthStencilBufferDesc = mtlMakeTexture2DDescriptor(
-						XNAToMTL.DepthFormat[(int) DepthFormat],
+						mtlDevice.GetDepthFormat(DepthFormat),
 						(uint) Width,
 						(uint) Height,
 						false
