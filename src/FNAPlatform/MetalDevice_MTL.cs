@@ -379,6 +379,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			Empty = 4
 		}
 
+		private enum MTLVisibilityResultMode
+		{
+			Disabled = 0,
+			Counting = 2
+		}
+
 		#endregion
 
 		#region Private MTL Structs
@@ -978,6 +984,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			return intptr_objc_msgSend(classRenderPassDescriptor, selRenderPassDescriptor);
 		}
 
+		private static IntPtr selSetVisibilityBuffer = Selector("setVisibilityResultBuffer:");
+		private static void mtlSetVisibilityResultBuffer(
+			IntPtr renderPassDesc,
+			IntPtr buffer
+		) {
+			objc_msgSend(renderPassDesc, selSetVisibilityBuffer, buffer);
+		}
+
 		#endregion
 
 		#region MTLRenderCommandEncoder
@@ -1244,6 +1258,20 @@ namespace Microsoft.Xna.Framework.Graphics
 				selSetFragmentSamplerState,
 				samplerState,
 				index
+			);
+		}
+
+		private static IntPtr selSetVisibilityResultMode = Selector("setVisibilityResultMode:offset:");
+		private static void mtlSetVisibilityResultMode(
+			IntPtr renderCommandEncoder,
+			MTLVisibilityResultMode mode,
+			ulong offset
+		) {
+			objc_msgSend(
+				renderCommandEncoder,
+				selSetVisibilityResultMode,
+				(ulong) mode,
+				offset
 			);
 		}
 

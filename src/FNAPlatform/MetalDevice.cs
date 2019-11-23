@@ -531,6 +531,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private ulong currentAttachmentWidth;
 		private ulong currentAttachmentHeight;
 
+		private IntPtr currentVisibilityBuffer;
+
 		private bool needNewRenderPass = false;
 		private bool shouldClearColor = false;
 		private bool shouldClearDepth = false;
@@ -1293,6 +1295,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				currentAttachments[0]
 			);
 
+			// Attach the visibility buffer, if needed
+			if (currentVisibilityBuffer != IntPtr.Zero)
+			{
+				mtlSetVisibilityResultBuffer(
+					passDesc,
+					currentVisibilityBuffer
+				);
+			}
+
 			// Make a new encoder
 			renderCommandEncoder = mtlMakeRenderCommandEncoder(
 				commandBuffer,
@@ -1313,6 +1324,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			SetEncoderCullMode();
 			SetEncoderFillMode();
 			SetEncoderDepthBias();
+
+			// Start visibility buffer counting
+			if (currentVisibilityBuffer != IntPtr.Zero)
+			{
+				mtlSetVisibilityResultMode(
+					renderCommandEncoder,
+					MTLVisibilityResultMode.Counting,
+					0
+				);
+			}
 
 			// Reset the bindings
 			for (int i = 0; i < MaxTextureSlots; i += 1)
@@ -4070,32 +4091,81 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public IGLQuery CreateQuery()
 		{
-			throw new NotImplementedException();
+			return new MetalQuery(
+				mtlNewBufferWithLength(device, sizeof(ulong))
+			);
 		}
 
 		private void DeleteQuery(IGLQuery query)
 		{
-			throw new NotImplementedException();
+			ObjCRelease((query as MetalQuery).Handle);
 		}
 
 		public void QueryBegin(IGLQuery query)
 		{
-			throw new NotImplementedException();
+			// Stop the current pass
+			if (renderCommandEncoder != IntPtr.Zero)
+			{
+				mtlEndEncoding(renderCommandEncoder);
+				renderCommandEncoder = IntPtr.Zero;
+			}
+
+			// Attach the visibility buffer to a new render pass
+			currentVisibilityBuffer = (query as MetalQuery).Handle;
+			needNewRenderPass = true;
 		}
 
 		public bool QueryComplete(IGLQuery query)
 		{
-			throw new NotImplementedException();
+			/* FIXME:
+			 * There's no easy way to check for completion
+			 * of the query. The only accurate way would be
+			 * to monitor the completion of the command buffer
+			 * associated with each query, but that gets tricky
+			 * since we can't use completion callbacks.
+			 * (Thank Objective-C and its stupid "block" lambdas.)
+			 *
+			 * Futhermore, I don't know how visibility queries
+			 * work across command buffers, in the event of a
+			 * stalled buffer overwrite or something similar.
+			 *
+			 * The below code is obviously wrong, but it happens
+			 * to work for the Lens Flare XNA sample. Maybe it'll
+			 * work for your game too?
+			 *
+			 * (Although if you're making a new game with FNA,
+			 * you really shouldn't be using queries anyway...)
+			 *
+			 * -caleb
+			 */
+			return true;
 		}
 
 		public void QueryEnd(IGLQuery query)
 		{
-			throw new NotImplementedException();
+			if (renderCommandEncoder != IntPtr.Zero)
+			{
+				// Stop counting.
+				mtlSetVisibilityResultMode(
+					renderCommandEncoder,
+					MTLVisibilityResultMode.Disabled,
+					0
+				);
+			}
+			currentVisibilityBuffer = IntPtr.Zero;
 		}
 
 		public int QueryPixelCount(IGLQuery query)
 		{
-			throw new NotImplementedException();
+			IntPtr contents = mtlGetBufferContentsPtr(
+				(query as MetalQuery).Handle
+			);
+			ulong result;
+			unsafe
+			{
+				result = *((ulong *) contents);
+			}
+			return (int) result;
 		}
 
 		#endregion
