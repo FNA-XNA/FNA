@@ -662,20 +662,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr currentTechnique = IntPtr.Zero;
 		private uint currentPass = 0;
 
-		private IntPtr currentVertexShader = IntPtr.Zero;
-		private IntPtr currentFragmentShader = IntPtr.Zero;
-		private IntPtr currentVertUniformBuffer = IntPtr.Zero;
-		private IntPtr currentFragUniformBuffer = IntPtr.Zero;
-		private int currentVertUniformOffset = 0;
-		private int currentFragUniformOffset = 0;
-
 		private IntPtr prevEffect = IntPtr.Zero;
-		private IntPtr prevVertexShader = IntPtr.Zero;
-		private IntPtr prevFragmentShader = IntPtr.Zero;
-		private IntPtr prevVertUniformBuffer = IntPtr.Zero;
-		private IntPtr prevFragUniformBuffer = IntPtr.Zero;
-		private int prevVertUniformOffset = 0;
-		private int prevFragUniformOffset = 0;
+
+		private MojoShader.MOJOSHADER_mtlShaderState shaderState = new MojoShader.MOJOSHADER_mtlShaderState();
+		private MojoShader.MOJOSHADER_mtlShaderState prevShaderState;
 
 		#endregion
 
@@ -2066,8 +2056,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			// Can we just reuse an existing pipeline?
 			RenderPipelineStateHash hash = new RenderPipelineStateHash(
-				currentVertexShader,
-				currentFragmentShader,
+				shaderState.vertexShader,
+				shaderState.fragmentShader,
 				currentVertexDescriptor,
 				PipelineCache.GetBlendHash(blendState).GetHashCode(),
 				currentColorFormats[0],
@@ -2087,10 +2077,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			// We have to make a new pipeline...
 			IntPtr pipelineDesc = mtlNewRenderPipelineDescriptor();
 			IntPtr vertHandle = MojoShader.MOJOSHADER_mtlGetFunctionHandle(
-				currentVertexShader
+				shaderState.vertexShader
 			);
 			IntPtr fragHandle = MojoShader.MOJOSHADER_mtlGetFunctionHandle(
-				currentFragmentShader
+				shaderState.fragmentShader
 			);
 			mtlSetPipelineVertexFunction(
 				pipelineDesc,
@@ -2460,7 +2450,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					(ulong) e.VertexElementUsage;
 			}
 			hash += (ulong) declaration.VertexStride;
-			hash += (ulong) currentVertexShader;
+			hash += (ulong) shaderState.vertexShader;
 			return hash;
 		}
 
@@ -2525,7 +2515,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 					attrUse[usage, index] = true;
 					int attribLoc = MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
-						currentVertexShader,
+						shaderState.vertexShader,
 						XNAToMTL.VertexAttribUsage[usage],
 						index
 					);
@@ -2626,7 +2616,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				attrUse[usage, index] = true;
 				int attribLoc = MojoShader.MOJOSHADER_mtlGetVertexAttribLocation(
-					currentVertexShader,
+					shaderState.vertexShader,
 					XNAToMTL.VertexAttribUsage[usage],
 					index
 				);
@@ -2785,22 +2775,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				MojoShader.MOJOSHADER_mtlEffectEndPass(currentEffect);
 				MojoShader.MOJOSHADER_mtlEffectEnd(
 					currentEffect,
-					out currentVertexShader,
-					out currentFragmentShader,
-					out currentVertUniformBuffer,
-					out currentFragUniformBuffer,
-					out currentVertUniformOffset,
-					out currentFragUniformOffset
+					ref shaderState
 				);
 				currentEffect = IntPtr.Zero;
 				currentTechnique = IntPtr.Zero;
 				currentPass = 0;
-				currentVertexShader = IntPtr.Zero;
-				currentFragmentShader = IntPtr.Zero;
-				currentVertUniformBuffer = IntPtr.Zero;
-				currentFragUniformBuffer = IntPtr.Zero;
-				currentVertUniformOffset = 0;
-				currentFragUniformOffset = 0;
+				shaderState = new MojoShader.MOJOSHADER_mtlShaderState();
 			}
 			MojoShader.MOJOSHADER_mtlDeleteEffect(mtlEffectData);
 			MojoShader.MOJOSHADER_freeEffect(effect.EffectData);
@@ -2840,12 +2820,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					MojoShader.MOJOSHADER_mtlEffectCommitChanges(
 						currentEffect,
-						out currentVertexShader,
-						out currentFragmentShader,
-						out currentVertUniformBuffer,
-						out currentFragUniformBuffer,
-						out currentVertUniformOffset,
-						out currentFragUniformOffset
+						ref shaderState
 					);
 					return;
 				}
@@ -2853,12 +2828,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				MojoShader.MOJOSHADER_mtlEffectBeginPass(
 					currentEffect,
 					pass,
-					out currentVertexShader,
-					out currentFragmentShader,
-					out currentVertUniformBuffer,
-					out currentFragUniformBuffer,
-					out currentVertUniformOffset,
-					out currentFragUniformOffset
+					ref shaderState
 				);
 				currentTechnique = technique;
 				currentPass = pass;
@@ -2869,12 +2839,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				MojoShader.MOJOSHADER_mtlEffectEndPass(currentEffect);
 				MojoShader.MOJOSHADER_mtlEffectEnd(
 					currentEffect,
-					out currentVertexShader,
-					out currentFragmentShader,
-					out currentVertUniformBuffer,
-					out currentFragUniformBuffer,
-					out currentVertUniformOffset,
-					out currentFragUniformOffset
+					ref shaderState
 				);
 			}
 			uint whatever;
@@ -2887,12 +2852,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			MojoShader.MOJOSHADER_mtlEffectBeginPass(
 				mtlEffectData,
 				pass,
-				out currentVertexShader,
-				out currentFragmentShader,
-				out currentVertUniformBuffer,
-				out currentFragUniformBuffer,
-				out currentVertUniformOffset,
-				out currentFragUniformOffset
+				ref shaderState
 			);
 			currentEffect = mtlEffectData;
 			currentTechnique = technique;
@@ -2903,12 +2863,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			// Store the current data
 			prevEffect = currentEffect;
-			prevVertexShader = currentVertexShader;
-			prevFragmentShader = currentFragmentShader;
-			prevVertUniformBuffer = currentVertUniformBuffer;
-			prevFragUniformBuffer = currentFragUniformBuffer;
-			prevVertUniformOffset = currentVertUniformOffset;
-			prevFragUniformOffset = currentFragUniformOffset;
+			prevShaderState = shaderState;
 
 			IntPtr mtlEffectData = (effect as MetalEffect).MTLEffectData;
 			uint whatever;
@@ -2921,12 +2876,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			MojoShader.MOJOSHADER_mtlEffectBeginPass(
 				mtlEffectData,
 				0,
-				out currentVertexShader,
-				out currentFragmentShader,
-				out currentVertUniformBuffer,
-				out currentFragUniformBuffer,
-				out currentVertUniformOffset,
-				out currentFragUniformOffset
+				ref shaderState
 			);
 			currentEffect = mtlEffectData;
 		}
@@ -2937,21 +2887,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			MojoShader.MOJOSHADER_mtlEffectEndPass(mtlEffectData);
 			MojoShader.MOJOSHADER_mtlEffectEnd(
 				mtlEffectData,
-				out currentVertexShader,
-				out currentFragmentShader,
-				out currentVertUniformBuffer,
-				out currentFragUniformBuffer,
-				out currentVertUniformOffset,
-				out currentFragUniformOffset
+				ref shaderState
 			);
 
 			// Restore the old data
-			currentVertexShader = prevVertexShader;
-			currentFragmentShader = prevFragmentShader;
-			currentVertUniformBuffer = prevVertUniformBuffer;
-			currentFragUniformBuffer = prevFragUniformBuffer;
-			currentVertUniformOffset = prevVertUniformOffset;
-			currentFragUniformOffset = prevFragUniformOffset;
+			shaderState = prevShaderState;
 			currentEffect = prevEffect;
 		}
 
@@ -2986,46 +2926,51 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Bind the uniform buffers
 			const int UNIFORM_REG = 16; // In MojoShader output it's always 16
-			if (currentVertUniformBuffer != ldVertUniformBuffer)
+
+			IntPtr vUniform = shaderState.vertexUniformBuffer;
+			int vOff = shaderState.vertexUniformOffset;
+			if (vUniform != ldVertUniformBuffer)
 			{
 				mtlSetVertexBuffer(
 					renderCommandEncoder,
-					currentVertUniformBuffer,
-					(ulong) currentVertUniformOffset,
+					vUniform,
+					(ulong) vOff,
 					UNIFORM_REG
 				);
-				ldVertUniformBuffer = currentVertUniformBuffer;
-				ldVertUniformOffset = currentVertUniformOffset;
+				ldVertUniformBuffer = vUniform;
+				ldVertUniformOffset = vOff;
 			}
-			else if (currentVertUniformOffset != ldVertUniformOffset)
+			else if (vOff != ldVertUniformOffset)
 			{
 				mtlSetVertexBufferOffset(
 					renderCommandEncoder,
-					(ulong) currentVertUniformOffset,
+					(ulong) vOff,
 					UNIFORM_REG
 				);
-				ldVertUniformOffset = currentVertUniformOffset;
+				ldVertUniformOffset = vOff;
 			}
 
-			if (currentFragUniformBuffer != ldFragUniformBuffer)
+			IntPtr fUniform = shaderState.fragmentUniformBuffer;
+			int fOff = shaderState.fragmentUniformOffset;
+			if (fUniform != ldFragUniformBuffer)
 			{
 				mtlSetFragmentBuffer(
 					renderCommandEncoder,
-					currentFragUniformBuffer,
-					(ulong) currentFragUniformOffset,
+					fUniform,
+					(ulong) fOff,
 					UNIFORM_REG
 				);
-				ldFragUniformBuffer = currentFragUniformBuffer;
-				ldFragUniformOffset = currentFragUniformOffset;
+				ldFragUniformBuffer = fUniform;
+				ldFragUniformOffset = fOff;
 			}
-			else if (currentFragUniformOffset != ldFragUniformOffset)
+			else if (fOff != ldFragUniformOffset)
 			{
 				mtlSetFragmentBufferOffset(
 					renderCommandEncoder,
-					(ulong) currentFragUniformOffset,
+					(ulong) fOff,
 					UNIFORM_REG
 				);
-				ldFragUniformOffset = currentFragUniformOffset;
+				ldFragUniformOffset = fOff;
 			}
 
 			// Bind the depth-stencil state
