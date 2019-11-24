@@ -359,7 +359,6 @@ namespace Microsoft.Xna.Framework
 			else if (opengl = PrepareGLAttributes())
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL;
-
 				if (	ForcedGLDevice == "ModernGLDevice" ||
 					ForcedGLDevice == "ThreadedGLDevice"	)
 				{
