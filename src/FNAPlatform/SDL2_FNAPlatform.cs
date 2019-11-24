@@ -440,13 +440,12 @@ namespace Microsoft.Xna.Framework
 			// We hide the mouse cursor by default.
 			OnIsMouseVisibleChanged(false);
 
-			/* OpenGL:
-			 * iOS and tvOS require an active GL context
-			 * to get the drawable size of the screen.
-
-			 * Metal:
-			 * macOS, iOS, and tvOS require an active Metal
-			 * view to get the drawable size of the screen.
+			/* When using OpenGL, iOS and tvOS require
+			 * an active GL context to get the drawable
+			 * size of the screen.
+			 *
+			 * When using Metal, all Apple platforms
+			 * require a view to get the drawable size.
 			 */
 			IntPtr tempContext = IntPtr.Zero;
 			if (opengl && (OSVersion.Equals("iOS") || OSVersion.Equals("tvOS")))
