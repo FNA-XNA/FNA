@@ -578,7 +578,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			SurfaceFormat format,
 			int width,
 			int height,
-			int levelCount
+			int levelCount,
+			bool isRenderTarget
 		) {
 			IGLTexture result = null;
 			ForceToMainThread(() =>
@@ -587,7 +588,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					format,
 					width,
 					height,
-					levelCount
+					levelCount,
+					isRenderTarget
 				);
 			}); // End ForceToMainThread
 			return result;
@@ -617,7 +619,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		public IGLTexture CreateTextureCube(
 			SurfaceFormat format,
 			int size,
-			int levelCount
+			int levelCount,
+			bool isRenderTarget
 		) {
 			IGLTexture result = null;
 			ForceToMainThread(() =>
@@ -625,7 +628,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				result = GLDevice.CreateTextureCube(
 					format,
 					size,
-					levelCount
+					levelCount,
+					isRenderTarget
 				);
 			}); // End ForceToMainThread
 			return result;
@@ -844,7 +848,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int width,
 			int height,
 			SurfaceFormat format,
-			int multiSampleCount
+			int multiSampleCount,
+			IGLTexture texture
 		) {
 			IGLRenderbuffer result = null;
 			ForceToMainThread(() =>
@@ -853,7 +858,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					width,
 					height,
 					format,
-					multiSampleCount
+					multiSampleCount,
+					texture
 				);
 			}); // End ForceToMainThread
 			return result;

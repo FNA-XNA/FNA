@@ -2656,7 +2656,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			SurfaceFormat format,
 			int width,
 			int height,
-			int levelCount
+			int levelCount,
+			bool isRenderTarget
 		) {
 			OpenGLTexture result = null;
 
@@ -2762,7 +2763,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		public IGLTexture CreateTextureCube(
 			SurfaceFormat format,
 			int size,
-			int levelCount
+			int levelCount,
+			bool isRenderTarget
 		) {
 			OpenGLTexture result = null;
 
@@ -3600,7 +3602,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int width,
 			int height,
 			SurfaceFormat format,
-			int multiSampleCount
+			int multiSampleCount,
+			IGLTexture texture
 		) {
 			uint handle = 0;
 
