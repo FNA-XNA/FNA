@@ -290,7 +290,6 @@ namespace Microsoft.Xna.Framework.Graphics
 						if (sizeNeeded >= internalBufferSize)
 						{
 							// Increase capacity when we're out of room
-							FNALoggerEXT.LogWarn("We need more space! Increasing internal buffer size!");
 							internalBufferSize = Math.Max(
 								internalBufferSize * 2,
 								internalBufferSize + dataLength
