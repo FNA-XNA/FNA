@@ -353,7 +353,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal = PrepareMTLAttributes())
 			{
-				// FIXME: SDL_WindowFlags.SDL_WINDOW_METAL?
+				// FIXME: SDL_WINDOW_METAL?
 				ActualGLDevice = "MetalDevice";
 			}
 			else if (opengl = PrepareGLAttributes())
@@ -1198,7 +1198,6 @@ namespace Microsoft.Xna.Framework
 					// Maybe someday!
 					break;
 			}
-
 			throw new InvalidOperationException("Gnmx? WebGPU? What?");
 		}
 
