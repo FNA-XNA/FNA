@@ -71,7 +71,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			texture = GraphicsDevice.GLDevice.CreateTextureCube(
 				Format,
 				Size,
-				LevelCount
+				LevelCount,
+				(this is IRenderTarget)
 			);
 		}
 
