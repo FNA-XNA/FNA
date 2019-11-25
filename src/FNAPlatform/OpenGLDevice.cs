@@ -556,6 +556,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Private ANGLE Bug Hack
+
+		/* FIXME: THIS CHECK ABSOLUTELY SHOULD NOT EXIST! FIX THIS BUG:
+		 *
+		 * https://bugs.chromium.org/p/angleproject/issues/detail?id=3402
+		 *
+		 * -flibit
+		 */
+		private bool BUG_HACK_NOTANGLE;
+
+		#endregion
+
 		#region memcpy Export
 
 		/* This is used a lot for GetData/Read calls... -flibit */
@@ -655,6 +667,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNALoggerEXT.LogInfo("OpenGL Device: " + renderer);
 			FNALoggerEXT.LogInfo("OpenGL Driver: " + version);
 			FNALoggerEXT.LogInfo("OpenGL Vendor: " + vendor);
+
+			// FIXME: REMOVE ME ASAP!
+			BUG_HACK_NOTANGLE = !renderer.Contains("Direct3D11");
 
 			// Initialize entry points
 			LoadGLEntryPoints(string.Format(
@@ -834,7 +849,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				glGenVertexArrays(1, out vao);
 				glBindVertexArray(vao);
 			}
-			else if (glTexEnvi != null)
+			else if (!useES3)
 			{
 				// Compat-only, but needed for PSIZE0 accuracy
 				glTexEnvi(GLenum.GL_POINT_SPRITE, GLenum.GL_COORD_REPLACE, 1);

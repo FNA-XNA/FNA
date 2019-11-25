@@ -154,24 +154,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
-		private StateHash GetBlendHash()
-		{
-			return GetBlendHash(
-				AlphaBlendFunction,
-				AlphaDestinationBlend,
-				AlphaSourceBlend,
-				ColorBlendFunction,
-				ColorDestinationBlend,
-				ColorSourceBlend,
-				ColorWriteChannels,
-				ColorWriteChannels1,
-				ColorWriteChannels2,
-				ColorWriteChannels3,
-				BlendFactor,
-				MultiSampleMask
-			);
-		}
-
 		/* Public Functions */
 
 		public static StateHash GetBlendHash(BlendState state)
@@ -216,7 +198,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplyBlend()
 		{
-			StateHash hash = GetBlendHash();
+			StateHash hash = GetBlendHash(
+				AlphaBlendFunction,
+				AlphaDestinationBlend,
+				AlphaSourceBlend,
+				ColorBlendFunction,
+				ColorDestinationBlend,
+				ColorSourceBlend,
+				ColorWriteChannels,
+				ColorWriteChannels1,
+				ColorWriteChannels2,
+				ColorWriteChannels3,
+				BlendFactor,
+				MultiSampleMask
+			);
 			BlendState newBlend;
 			if (!blendCache.TryGetValue(hash, out newBlend))
 			{
@@ -329,28 +324,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
-		private StateHash GetDepthStencilHash()
-		{
-			return GetDepthStencilHash(
-				DepthBufferEnable,
-				DepthBufferWriteEnable,
-				DepthBufferFunction,
-				StencilEnable,
-				StencilFunction,
-				StencilPass,
-				StencilFail,
-				StencilDepthBufferFail,
-				TwoSidedStencilMode,
-				CCWStencilFunction,
-				CCWStencilPass,
-				CCWStencilFail,
-				CCWStencilDepthBufferFail,
-				StencilMask,
-				StencilWriteMask,
-				ReferenceStencil
-			);
-		}
-
 		/* Public Functions */
 
 		public static StateHash GetDepthStencilHash(DepthStencilState state)
@@ -399,7 +372,24 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplyDepthStencil()
 		{
-			StateHash hash = GetDepthStencilHash();
+			StateHash hash = GetDepthStencilHash(
+				DepthBufferEnable,
+				DepthBufferWriteEnable,
+				DepthBufferFunction,
+				StencilEnable,
+				StencilFunction,
+				StencilPass,
+				StencilFail,
+				StencilDepthBufferFail,
+				TwoSidedStencilMode,
+				CCWStencilFunction,
+				CCWStencilPass,
+				CCWStencilFail,
+				CCWStencilDepthBufferFail,
+				StencilMask,
+				StencilWriteMask,
+				ReferenceStencil
+			);
 			DepthStencilState newDepthStencil;
 			if (!depthStencilCache.TryGetValue(hash, out newDepthStencil))
 			{
@@ -485,18 +475,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
-		private StateHash GetRasterizerHash()
-		{
-			return GetRasterizerHash(
-				CullMode,
-				FillMode,
-				DepthBias,
-				MultiSampleAntiAlias,
-				ScissorTestEnable,
-				SlopeScaleDepthBias
-			);
-		}
-
 		/* Public Functions */
 
 		public static StateHash GetRasterizerHash(RasterizerState state)
@@ -525,7 +503,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplyRasterizer()
 		{
-			StateHash hash = GetRasterizerHash();
+			StateHash hash = GetRasterizerHash(
+				CullMode,
+				FillMode,
+				DepthBias,
+				MultiSampleAntiAlias,
+				ScissorTestEnable,
+				SlopeScaleDepthBias
+			);
 			RasterizerState newRasterizer;
 			if (!rasterizerCache.TryGetValue(hash, out newRasterizer))
 			{
@@ -599,19 +584,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
-		private StateHash GetSamplerHash()
-		{
-			return GetSamplerHash(
-				AddressU,
-				AddressV,
-				AddressW,
-				MaxAnisotropy,
-				MaxMipLevel,
-				MipMapLODBias,
-				Filter
-			);
-		}
-
 		/* Public Functions */
 
 		public static StateHash GetSamplerHash(SamplerState state)
@@ -642,7 +614,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplySampler(SamplerStateCollection samplers, int register)
 		{
-			StateHash hash = GetSamplerHash();
+			StateHash hash = GetSamplerHash(
+				AddressU,
+				AddressV,
+				AddressW,
+				MaxAnisotropy,
+				MaxMipLevel,
+				MipMapLODBias,
+				Filter
+			);
 			SamplerState newSampler;
 			if (!samplerCache.TryGetValue(hash, out newSampler))
 			{

@@ -44,6 +44,16 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Graphics Backend String Constants
+
+		private const string OPENGL = "OpenGLDevice";
+		private const string MODERNGL = "ModernGLDevice";
+		private const string THREADEDGL = "ThreadedGLDevice";
+		private const string METAL = "MetalDevice";
+		private const string VULKAN = "VulkanDevice";
+
+		#endregion
+
 		#region Game Objects
 
 		/* This is needed for asynchronous window events */
@@ -241,9 +251,9 @@ namespace Microsoft.Xna.Framework
 		private static bool PrepareGLAttributes()
 		{
 			if (	!String.IsNullOrEmpty(ForcedGLDevice) &&
-				!ForcedGLDevice.Equals("OpenGLDevice") &&
-				!ForcedGLDevice.Equals("ModernGLDevice") &&
-				!ForcedGLDevice.Equals("ThreadedGLDevice")	)
+				!ForcedGLDevice.Equals(OPENGL) &&
+				!ForcedGLDevice.Equals(MODERNGL) &&
+				!ForcedGLDevice.Equals(THREADEDGL)	)
 			{
 				return false;
 			}
@@ -386,25 +396,24 @@ namespace Microsoft.Xna.Framework
 			if (vulkan = PrepareVKAttributes())
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN;
-				ActualGLDevice = "VulkanDevice";
+				ActualGLDevice = VULKAN;
 			}
 			else if (metal = PrepareMTLAttributes())
 			{
-				// FIXME: SDL doesn't have a METAL window flag. What to do here?
-				ActualGLDevice = "MetalDevice";
+				// FIXME: SDL_WINDOW_METAL?
+				ActualGLDevice = METAL;
 			}
 			else if (opengl = PrepareGLAttributes())
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL;
-
-				if (	ForcedGLDevice == "ModernGLDevice" ||
-					ForcedGLDevice == "ThreadedGLDevice"	)
+				if (	ForcedGLDevice == MODERNGL ||
+					ForcedGLDevice == THREADEDGL	)
 				{
 					ActualGLDevice = ForcedGLDevice;
 				}
 				else
 				{
-					ActualGLDevice = "OpenGLDevice";
+					ActualGLDevice = OPENGL;
 				}
 			}
 
@@ -468,7 +477,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal)
 			{
-				// FIXME: hack!
+				// FIXME: SDL_Metal_GetDrawableSize()?
 				MetalDevice.FNA_Metal_GetDrawableSize(tempContext, out drawX, out drawY);
 			}
 			else if (opengl)
@@ -1230,25 +1239,24 @@ namespace Microsoft.Xna.Framework
 		) {
 			switch (ActualGLDevice)
 			{
-				case "OpenGLDevice":
+				case OPENGL:
 					return new OpenGLDevice(presentationParameters, adapter);
 
-				case "ModernGLDevice":
+				case MODERNGL:
 					// FIXME: This is still experimental! -flibit
 					return new ModernGLDevice(presentationParameters, adapter);
 
-				case "ThreadedGLDevice":
+				case THREADEDGL:
 					// FIXME: This is still experimental! -flibit
 					return new ThreadedGLDevice(presentationParameters, adapter);
 
-				case "MetalDevice":
+				case METAL:
 					return new MetalDevice(presentationParameters, adapter);
 
-				case "VulkanDevice":
+				case VULKAN:
 					// Maybe someday!
 					break;
 			}
-
 			throw new InvalidOperationException("Gnmx? WebGPU? What?");
 		}
 

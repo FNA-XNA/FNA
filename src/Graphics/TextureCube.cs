@@ -72,7 +72,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				Format,
 				Size,
 				LevelCount,
-				this is IRenderTarget
+				(this is IRenderTarget)
 			);
 		}
 
