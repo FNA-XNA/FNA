@@ -11,7 +11,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -36,10 +35,22 @@ namespace Microsoft.Xna.Framework
 		) == "1";
 
 		private static bool SupportsGlobalMouse;
+		private static string ForcedGLDevice;
+		private static string ActualGLDevice;
 
 		// For iOS high dpi support
 		private static int RetinaWidth;
 		private static int RetinaHeight;
+
+		#endregion
+
+		#region Graphics Backend String Constants
+
+		private const string OPENGL = "OpenGLDevice";
+		private const string MODERNGL = "ModernGLDevice";
+		private const string THREADEDGL = "ThreadedGLDevice";
+		private const string METAL = "MetalDevice";
+		private const string VULKAN = "VulkanDevice";
 
 		#endregion
 
@@ -194,11 +205,21 @@ namespace Microsoft.Xna.Framework
 			return false;
 		}
 
+		private static bool PrepareMTLAttributes()
+		{
+			// Coming soon to an FNA near you!
+			return false;
+		}
+
 		private static bool PrepareGLAttributes()
 		{
-			/* TODO: For platforms not using OpenGL (Vulkan/Metal),
-			 * return false to avoid OpenGL WSI calls.
-			 */
+			if (	!String.IsNullOrEmpty(ForcedGLDevice) &&
+				!ForcedGLDevice.Equals(OPENGL) &&
+				!ForcedGLDevice.Equals(MODERNGL) &&
+				!ForcedGLDevice.Equals(THREADEDGL)	)
+			{
+				return false;
+			}
 
 			// GLContext environment variables
 			bool forceES3 = Environment.GetEnvironmentVariable(
@@ -329,14 +350,34 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
 			);
 
-			bool vulkan = false, opengl = false;
+			// Did the user force a particular GLDevice?
+			ForcedGLDevice = Environment.GetEnvironmentVariable(
+				"FNA_GRAPHICS_FORCE_GLDEVICE"
+			);
+
+			bool vulkan = false, metal = false, opengl = false;
 			if (vulkan = PrepareVKAttributes())
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN;
+				ActualGLDevice = VULKAN;
+			}
+			else if (metal = PrepareMTLAttributes())
+			{
+				// FIXME: SDL_WINDOW_METAL?
+				ActualGLDevice = METAL;
 			}
 			else if (opengl = PrepareGLAttributes())
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL;
+				if (	ForcedGLDevice == MODERNGL ||
+					ForcedGLDevice == THREADEDGL	)
+				{
+					ActualGLDevice = ForcedGLDevice;
+				}
+				else
+				{
+					ActualGLDevice = OPENGL;
+				}
 			}
 
 			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
@@ -371,14 +412,14 @@ namespace Microsoft.Xna.Framework
 			// We hide the mouse cursor by default.
 			OnIsMouseVisibleChanged(false);
 
-			/* iOS requires a GL context to get the drawable size
-			 * of the screen, so we create a temporary one here.
+			/* iOS and tvOS require an active GL context
+			 * to get the drawable size of the screen.
 			 * -caleb
 			 */
-			IntPtr tempGLContext = IntPtr.Zero;
-			if (OSVersion.Equals("iOS"))
+			IntPtr tempContext = IntPtr.Zero;
+			if (opengl && (OSVersion.Equals("iOS") || OSVersion.Equals("tvOS")))
 			{
-				tempGLContext = SDL.SDL_GL_CreateContext(window);
+				tempContext = SDL.SDL_GL_CreateContext(window);
 			}
 
 			/* If high DPI is not found, unset the HIGHDPI var.
@@ -390,13 +431,18 @@ namespace Microsoft.Xna.Framework
 			{
 				SDL.SDL_Vulkan_GetDrawableSize(window, out drawX, out drawY);
 			}
+			else if (metal)
+			{
+				// FIXME: This will be fixed when MetalDevice gets here.
+				drawX = drawY = 0;
+			}
 			else if (opengl)
 			{
 				SDL.SDL_GL_GetDrawableSize(window, out drawX, out drawY);
 			}
 			else
 			{
-				throw new InvalidOperationException("Metal? Glide? What?");
+				throw new InvalidOperationException("DirectX? Glide? What?");
 			}
 			if (	drawX == GraphicsDeviceManager.DefaultBackBufferWidth &&
 				drawY == GraphicsDeviceManager.DefaultBackBufferHeight	)
@@ -410,10 +456,10 @@ namespace Microsoft.Xna.Framework
 				RetinaHeight = drawY;
 			}
 
-			// We're done with that temporary GL context.
-			if (tempGLContext != IntPtr.Zero)
+			// We're done with that temporary context.
+			if (tempContext != IntPtr.Zero)
 			{
-				SDL.SDL_GL_DeleteContext(tempGLContext);
+				SDL.SDL_GL_DeleteContext(tempContext);
 			}
 
 			return new FNAWindow(
@@ -1140,19 +1186,28 @@ namespace Microsoft.Xna.Framework
 			PresentationParameters presentationParameters,
 			GraphicsAdapter adapter
 		) {
-			// This loads the OpenGL entry points.
-			string glDevice = Environment.GetEnvironmentVariable("FNA_GRAPHICS_FORCE_GLDEVICE");
-			if (glDevice == "ModernGLDevice")
+			switch (ActualGLDevice)
 			{
-				// FIXME: This is still experimental! -flibit
-				return new ModernGLDevice(presentationParameters, adapter);
+				case OPENGL:
+					return new OpenGLDevice(presentationParameters, adapter);
+
+				case MODERNGL:
+					// FIXME: This is still experimental! -flibit
+					return new ModernGLDevice(presentationParameters, adapter);
+
+				case THREADEDGL:
+					// FIXME: This is still experimental! -flibit
+					return new ThreadedGLDevice(presentationParameters, adapter);
+
+				case METAL:
+					// Coming soon!
+					break;
+
+				case VULKAN:
+					// Maybe someday!
+					break;
 			}
-			if (glDevice == "ThreadedGLDevice")
-			{
-				// FIXME: This is still experimental! -flibit
-				return new ThreadedGLDevice(presentationParameters, adapter);
-			}
-			return new OpenGLDevice(presentationParameters, adapter);
+			throw new InvalidOperationException("Gnmx? WebGPU? What?");
 		}
 
 		#endregion
