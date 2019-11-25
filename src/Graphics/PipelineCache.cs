@@ -232,15 +232,21 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				blendCache.Add(hash, newBlend);
 #if VERBOSE_PIPELINECACHE
-				FNALoggerEXT.LogInfo("New BlendState added to pipeline cache with hash:\n"
-							+ hash.ToString());
-				FNALoggerEXT.LogInfo("Updated size of BlendState cache: "
-							+ blendCache.Count);
+				FNALoggerEXT.LogInfo(
+					"New BlendState added to pipeline cache with hash:\n" +
+					hash.ToString()
+				);
+				FNALoggerEXT.LogInfo(
+					"Updated size of BlendState cache: " +
+					blendCache.Count
+				);
 			}
 			else
 			{
-				FNALoggerEXT.LogInfo("Retrieved BlendState from pipeline cache with hash:\n"
-							+ hash.ToString());
+				FNALoggerEXT.LogInfo(
+					"Retrieved BlendState from pipeline cache with hash:\n" +
+					hash.ToString()
+				);
 #endif
 			}
 
@@ -302,18 +308,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			int twoSided = twoSidedStencil ? 1 : 0;
 
 			int packedProperties =
-				  ((int) zEnable	<< 32 - 2)
-				| ((int) zWriteEnable	<< 32 - 3)
-				| ((int) sEnable	<< 32 - 4)
-				| ((int) twoSided	<< 32 - 5)
-				| ((int) depthFunc	<< 32 - 8)
-				| ((int) stencilFunc	<< 32 - 11)
-				| ((int) ccwStencilFunc	<< 32 - 14)
-				| ((int) stencilPass	<< 32 - 17)
-				| ((int) stencilFail	<< 32 - 20)
+				  ((int) zEnable		<< 32 - 2)
+				| ((int) zWriteEnable		<< 32 - 3)
+				| ((int) sEnable		<< 32 - 4)
+				| ((int) twoSided		<< 32 - 5)
+				| ((int) depthFunc		<< 32 - 8)
+				| ((int) stencilFunc		<< 32 - 11)
+				| ((int) ccwStencilFunc		<< 32 - 14)
+				| ((int) stencilPass		<< 32 - 17)
+				| ((int) stencilFail		<< 32 - 20)
 				| ((int) stencilDepthFail	<< 32 - 23)
-				| ((int) ccwStencilFail	<< 32 - 26)
-				| ((int) ccwStencilPass	<< 32 - 29)
+				| ((int) ccwStencilFail		<< 32 - 26)
+				| ((int) ccwStencilPass		<< 32 - 29)
 				| ((int) ccwStencilDepthFail);
 
 			return new StateHash(
@@ -414,15 +420,21 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				depthStencilCache.Add(hash, newDepthStencil);
 #if VERBOSE_PIPELINECACHE
-				FNALoggerEXT.LogInfo("New DepthStencilState added to pipeline cache with hash:\n"
-							+ hash.ToString());
-				FNALoggerEXT.LogInfo("Updated size of DepthStencilState cache: "
-							+ depthStencilCache.Count);
+				FNALoggerEXT.LogInfo(
+					"New DepthStencilState added to pipeline cache with hash:\n" +
+					hash.ToString()
+				);
+				FNALoggerEXT.LogInfo(
+					"Updated size of DepthStencilState cache: " +
+					depthStencilCache.Count
+				);
 			}
 			else
 			{
-				FNALoggerEXT.LogInfo("Retrieved DepthStencilState from pipeline cache with hash:\n"
-							+ hash.ToString());
+				FNALoggerEXT.LogInfo(
+					"Retrieved DepthStencilState from pipeline cache with hash:\n" +
+					hash.ToString()
+				);
 #endif
 			}
 
@@ -525,15 +537,21 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				rasterizerCache.Add(hash, newRasterizer);
 #if VERBOSE_PIPELINECACHE
-				FNALoggerEXT.LogInfo("New RasterizerState added to pipeline cache with hash:\n"
-							+ hash.ToString());
-				FNALoggerEXT.LogInfo("Updated size of RasterizerState cache: "
-							+ rasterizerCache.Count);
+				FNALoggerEXT.LogInfo(
+					"New RasterizerState added to pipeline cache with hash:\n" +
+					hash.ToString()
+				);
+				FNALoggerEXT.LogInfo(
+					"Updated size of RasterizerState cache: " +
+					rasterizerCache.Count
+				);
 			}
 			else
 			{
-				FNALoggerEXT.LogInfo("Retrieved RasterizerState from pipeline cache with hash:\n"
-							+ hash.ToString());
+				FNALoggerEXT.LogInfo(
+					"Retrieved RasterizerState from pipeline cache with hash:\n" +
+					hash.ToString()
+				);
 #endif
 			}
 
@@ -638,15 +656,21 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				samplerCache.Add(hash, newSampler);
 #if VERBOSE_PIPELINECACHE
-				FNALoggerEXT.LogInfo("New SamplerState added to pipeline cache with hash:\n"
-							+ hash.ToString());
-				FNALoggerEXT.LogInfo("Updated size of SamplerState cache: "
-							+ samplerCache.Count);
+				FNALoggerEXT.LogInfo(
+					"New SamplerState added to pipeline cache with hash:\n" +
+					hash.ToString()
+				);
+				FNALoggerEXT.LogInfo(
+					"Updated size of SamplerState cache: " +
+					samplerCache.Count
+				);
 			}
 			else
 			{
-				FNALoggerEXT.LogInfo("Retrieved SamplerState from pipeline cache with hash:\n"
-							+ hash.ToString());
+				FNALoggerEXT.LogInfo(
+					"Retrieved SamplerState from pipeline cache with hash:\n" +
+					hash.ToString()
+				);
 #endif
 			}
 
