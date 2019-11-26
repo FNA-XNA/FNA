@@ -1237,27 +1237,48 @@ namespace Microsoft.Xna.Framework
 			PresentationParameters presentationParameters,
 			GraphicsAdapter adapter
 		) {
+			if (string.IsNullOrEmpty(ActualGLDevice))
+			{
+				/* This may be a GraphicsDevice with no Game.
+				 * in that case, try this var one last time.
+				 */
+				ActualGLDevice = Environment.GetEnvironmentVariable(
+					"FNA_GRAPHICS_FORCE_GLDEVICE"
+				);
+			}
+			if (string.IsNullOrEmpty(ActualGLDevice))
+			{
+				// No device requested at all? Try to guess.
+				SDL.SDL_WindowFlags flags = (SDL.SDL_WindowFlags) SDL.SDL_GetWindowFlags(
+					presentationParameters.DeviceWindowHandle
+				);
+				if ((flags & SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN) == SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN)
+				{
+					ActualGLDevice = VULKAN;
+				}
+				else if ((flags & SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL) == SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL)
+				{
+					ActualGLDevice = OPENGL;
+				}
+			}
+
 			switch (ActualGLDevice)
 			{
-				case OPENGL:
-					return new OpenGLDevice(presentationParameters, adapter);
-
-				case MODERNGL:
-					// FIXME: This is still experimental! -flibit
-					return new ModernGLDevice(presentationParameters, adapter);
-
-				case THREADEDGL:
-					// FIXME: This is still experimental! -flibit
-					return new ThreadedGLDevice(presentationParameters, adapter);
-
-				case METAL:
-					return new MetalDevice(presentationParameters, adapter);
-
-				case VULKAN:
-					// Maybe someday!
-					break;
+			case VULKAN:	break; // Maybe some day!
+			case METAL:
+				return new MetalDevice(presentationParameters, adapter);
+			case MODERNGL:
+				// FIXME: This is still experimental! -flibit
+				return new ModernGLDevice(presentationParameters, adapter);
+			case THREADEDGL:
+				// FIXME: This is still experimental! -flibit
+				return new ThreadedGLDevice(presentationParameters, adapter);
+			case OPENGL:
+				return new OpenGLDevice(presentationParameters, adapter);
 			}
-			throw new InvalidOperationException("Gnmx? WebGPU? What?");
+			throw new NotSupportedException(
+				"The requested GLDevice is not present!"
+			);
 		}
 
 		#endregion
