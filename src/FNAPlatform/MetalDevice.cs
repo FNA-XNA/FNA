@@ -51,6 +51,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
+			public int FramesTillDeletion;
+
 			public SurfaceFormat Format;
 			public TextureAddressMode WrapS;
 			public TextureAddressMode WrapT;
@@ -121,6 +123,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
+			public int FramesTillDeletion;
+
 			public MetalRenderbuffer(
 				IntPtr handle,
 				MTLPixelFormat pixelFormat,
@@ -167,6 +171,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				get;
 				private set;
 			}
+
+			public int FramesTillDeletion;
 
 			private MetalDevice device;
 			private IntPtr mtlDevice = IntPtr.Zero;
@@ -363,6 +369,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
+			public int FramesTillDeletion;
+
 			public MetalEffect(IntPtr effect, IntPtr mtlEffect)
 			{
 				EffectData = effect;
@@ -381,6 +389,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				get;
 				private set;
 			}
+
+			public int FramesTillDeletion;
 
 			public MetalQuery(IntPtr handle)
 			{
@@ -659,14 +669,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Private Graphics Object Disposal Queues
+		#region Private Graphics Object Disposal Lists
 
-		private Queue<IGLTexture> GCTextures = new Queue<IGLTexture>();
-		private Queue<IGLRenderbuffer> GCDepthBuffers = new Queue<IGLRenderbuffer>();
-		private Queue<IGLBuffer> GCVertexBuffers = new Queue<IGLBuffer>();
-		private Queue<IGLBuffer> GCIndexBuffers = new Queue<IGLBuffer>();
-		private Queue<IGLEffect> GCEffects = new Queue<IGLEffect>();
-		private Queue<IGLQuery> GCQueries = new Queue<IGLQuery>();
+		private List<IGLTexture> GCTextures = new List<IGLTexture>();
+		private List<IGLRenderbuffer> GCDepthBuffers = new List<IGLRenderbuffer>();
+		private List<IGLBuffer> GCBuffers = new List<IGLBuffer>();
+		private List<IGLEffect> GCEffects = new List<IGLEffect>();
+		private List<IGLQuery> GCQueries = new List<IGLQuery>();
 
 		#endregion
 
@@ -800,7 +809,36 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlEndEncoding(renderCommandEncoder);
 			}
 
-			DrainAutoreleasePool(pool);
+			// Delete all pending GC* resources
+			foreach (MetalBuffer buf in GCBuffers)
+			{
+				DeleteBuffer(buf);
+			}
+			GCBuffers.Clear();
+
+			foreach (MetalTexture tex in GCTextures)
+			{
+				DeleteTexture(tex);
+			}
+			GCTextures.Clear();
+
+			foreach (MetalQuery query in GCQueries)
+			{
+				DeleteQuery(query);
+			}
+			GCQueries.Clear();
+
+			foreach (MetalEffect effect in GCEffects)
+			{
+				DeleteEffect(effect);
+			}
+			GCEffects.Clear();
+
+			foreach (MetalRenderbuffer rb in GCDepthBuffers)
+			{
+				DeleteRenderbuffer(rb);
+			}
+			GCDepthBuffers.Clear();
 
 			// Release vertex descriptors
 			foreach (IntPtr vdesc in VertexDescriptorCache.Values)
@@ -1002,7 +1040,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			submittedCommandBuffers.Enqueue(commandBuffer);
 			ObjCRetain(commandBuffer);
 
-			// Release allocations from this frame
+			// Release allocations from the past frame
 			DrainAutoreleasePool(pool);
 
 			// Wait until we can submit another command buffer
@@ -1013,30 +1051,58 @@ namespace Microsoft.Xna.Framework.Graphics
 				ObjCRelease(cmdbuf);
 			}
 
-			// Clear out all the deleted resources
-			while (GCTextures.Count > 0)
+			/* Decrement the lifespan of all resources marked
+			 * for deletion, or kill them outright if needed.
+			 */
+			for (int i = GCTextures.Count - 1; i >= 0; i -= 1)
 			{
-				DeleteTexture(GCTextures.Dequeue());
+				MetalTexture tex = GCTextures[i] as MetalTexture;
+				tex.FramesTillDeletion -= 1;
+				if (tex.FramesTillDeletion == 0)
+				{
+					DeleteTexture(tex);
+					GCTextures.RemoveAt(i);
+				}
 			}
-			while (GCDepthBuffers.Count > 0)
+			for (int i = GCDepthBuffers.Count - 1; i >= 0; i -= 1)
 			{
-				DeleteRenderbuffer(GCDepthBuffers.Dequeue());
+				MetalRenderbuffer rb = GCDepthBuffers[i] as MetalRenderbuffer;
+				rb.FramesTillDeletion -= 1;
+				if (rb.FramesTillDeletion == 0)
+				{
+					DeleteRenderbuffer(rb);
+					GCDepthBuffers.RemoveAt(i);
+				}
 			}
-			while (GCVertexBuffers.Count > 0)
+			for (int i = GCBuffers.Count - 1; i >= 0; i -= 1)
 			{
-				DeleteBuffer(GCVertexBuffers.Dequeue());
+				MetalBuffer buf = GCBuffers[i] as MetalBuffer;
+				buf.FramesTillDeletion -= 1;
+				if (buf.FramesTillDeletion == 0)
+				{
+					DeleteBuffer(buf);
+					GCBuffers.RemoveAt(i);
+				}
 			}
-			while (GCIndexBuffers.Count > 0)
+			for (int i = GCEffects.Count - 1; i >= 0; i -= 1)
 			{
-				DeleteBuffer(GCIndexBuffers.Dequeue());
+				MetalEffect eff = GCEffects[i] as MetalEffect;
+				eff.FramesTillDeletion -= 1;
+				if (eff.FramesTillDeletion == 0)
+				{
+					DeleteEffect(eff);
+					GCEffects.RemoveAt(i);
+				}
 			}
-			while (GCEffects.Count > 0)
+			for (int i = GCQueries.Count - 1; i >= 0; i -= 1)
 			{
-				DeleteEffect(GCEffects.Dequeue());
-			}
-			while (GCQueries.Count > 0)
-			{
-				DeleteQuery(GCQueries.Dequeue());
+				MetalQuery query = GCQueries[i] as MetalQuery;
+				query.FramesTillDeletion -= 1;
+				if (query.FramesTillDeletion == 0)
+				{
+					DeleteQuery(query);
+					GCQueries.RemoveAt(i);
+				}
 			}
 
 			// The cycle begins anew...
@@ -1477,32 +1543,38 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void AddDisposeEffect(IGLEffect effect)
 		{
-			GCEffects.Enqueue(effect);
+			(effect as MetalEffect).FramesTillDeletion = backingBufferCount;
+			GCEffects.Add(effect);
 		}
 
 		public void AddDisposeIndexBuffer(IGLBuffer buffer)
 		{
-			GCIndexBuffers.Enqueue(buffer);
+			(buffer as MetalBuffer).FramesTillDeletion = backingBufferCount;
+			GCBuffers.Add(buffer);
 		}
 
 		public void AddDisposeQuery(IGLQuery query)
 		{
-			GCQueries.Enqueue(query);
+			(query as MetalQuery).FramesTillDeletion = backingBufferCount;
+			GCQueries.Add(query);
 		}
 
 		public void AddDisposeRenderbuffer(IGLRenderbuffer renderbuffer)
 		{
-			GCDepthBuffers.Enqueue(renderbuffer);
+			(renderbuffer as MetalRenderbuffer).FramesTillDeletion = backingBufferCount;
+			GCDepthBuffers.Add(renderbuffer);
 		}
 
 		public void AddDisposeTexture(IGLTexture texture)
 		{
-			GCTextures.Enqueue(texture);
+			(texture as MetalTexture).FramesTillDeletion = backingBufferCount;
+			GCTextures.Add(texture);
 		}
 
 		public void AddDisposeVertexBuffer(IGLBuffer buffer)
 		{
-			GCVertexBuffers.Enqueue(buffer);
+			(buffer as MetalBuffer).FramesTillDeletion = backingBufferCount;
+			GCBuffers.Add(buffer);
 		}
 
 		#endregion
