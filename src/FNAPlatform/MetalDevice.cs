@@ -207,10 +207,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 *
 				 * -caleb
 				 */
-				internalBufferSize = (
-					(int) bufferSize *
-					(dynamic ? 8 : 1)
-				);
+				internalBufferSize = (int) bufferSize * (dynamic ? 8 : 1);
 				internalBuffers = new IntPtr[device.backingBufferCount];
 				for (int i = 0; i < internalBuffers.Length; i += 1)
 				{
@@ -305,7 +302,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 						device.commandBuffer = mtlMakeCommandBuffer(device.queue);
 						device.needNewRenderPass = true;
-						device.UpdateRenderPass();
 						InternalOffset = 0;
 					}
 				}
