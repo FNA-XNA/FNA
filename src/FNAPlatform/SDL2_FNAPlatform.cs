@@ -1245,20 +1245,26 @@ namespace Microsoft.Xna.Framework
 				ActualGLDevice = Environment.GetEnvironmentVariable(
 					"FNA_GRAPHICS_FORCE_GLDEVICE"
 				);
-			}
-			if (string.IsNullOrEmpty(ActualGLDevice))
-			{
-				// No device requested at all? Try to guess.
-				SDL.SDL_WindowFlags flags = (SDL.SDL_WindowFlags) SDL.SDL_GetWindowFlags(
-					presentationParameters.DeviceWindowHandle
-				);
-				if ((flags & SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN) == SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN)
+				if (string.IsNullOrEmpty(ActualGLDevice))
 				{
-					ActualGLDevice = VULKAN;
-				}
-				else if ((flags & SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL) == SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL)
-				{
-					ActualGLDevice = OPENGL;
+					// No device requested at all? Try to guess.
+					SDL.SDL_WindowFlags flags = (SDL.SDL_WindowFlags) SDL.SDL_GetWindowFlags(
+						presentationParameters.DeviceWindowHandle
+					);
+					if ((flags & SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN) == SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN)
+					{
+						ActualGLDevice = VULKAN;
+					}
+					else if ((flags & SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL) == SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL)
+					{
+						ActualGLDevice = OPENGL;
+					}
+					else if (	OSVersion.Equals("Mac OS X") ||
+							OSVersion.Equals("iOS") ||
+							OSVersion.Equals("tvOS")	)
+					{
+						ActualGLDevice = METAL;
+					}
 				}
 			}
 
