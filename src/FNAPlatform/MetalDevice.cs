@@ -181,7 +181,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			private int prevDataLength = 0;
 			private int frame = 0;
 			private int copiesNeeded = 0;
-			private bool writtenThisFrame = false;
 			private bool dynamic = false;
 			private bool variableDataSize = false;
 
@@ -261,7 +260,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 
 				copiesNeeded = device.backingBufferCount - 1;
-				writtenThisFrame = true;
 				prevDataLength = len;
 			}
 
@@ -307,13 +305,19 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
-			public void CopyIfNeeded()
+			public void EndFrame()
 			{
-				if (!writtenThisFrame && copiesNeeded > 0)
+				int oldFrame = frame;
+				InternalOffset = 0;
+				frame = (frame + 1) % internalBuffers.Length;
+				prevDataLength = 0;
+
+				if (copiesNeeded > 0)
 				{
-					// Copy the last frame's contents to the current one
-					int numf = internalBuffers.Length;
-					int lastFrame = (((frame - 1) % numf) + (numf)) % numf;
+					/* FIXME: Do we have to memcpy the whole thing?
+					 * Or could we just copy the modified regions?
+					 * -caleb
+					 */
 					int dstLen = (int) mtlGetBufferLength(Handle);
 					if (dstLen < internalBufferSize)
 					{
@@ -321,19 +325,11 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 					memcpy(
 						mtlGetBufferContentsPtr(Handle),
-						mtlGetBufferContentsPtr(internalBuffers[lastFrame]),
+						mtlGetBufferContentsPtr(internalBuffers[oldFrame]),
 						(IntPtr) internalBufferSize
 					);
 					copiesNeeded -= 1;
 				}
-			}
-
-			public void EndFrame()
-			{
-				InternalOffset = 0;
-				frame = (frame + 1) % internalBuffers.Length;
-				prevDataLength = 0;
-				writtenThisFrame = false;
 			}
 
 			public void Dispose()
@@ -944,12 +940,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				mtlEndEncoding(renderCommandEncoder);
 				renderCommandEncoder = IntPtr.Zero;
-			}
-
-			// Copy buffer contents from the last frame, if needed
-			for (int i = 0; i < Buffers.Count; i += 1)
-			{
-				Buffers[i].CopyIfNeeded();
 			}
 
 			// Get the next drawable
