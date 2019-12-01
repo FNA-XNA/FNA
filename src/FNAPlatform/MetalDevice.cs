@@ -51,8 +51,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public int FramesTillDeletion;
-
 			public SurfaceFormat Format;
 			public TextureAddressMode WrapS;
 			public TextureAddressMode WrapT;
@@ -91,6 +89,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				Handle = IntPtr.Zero;
 			}
 			public static readonly MetalTexture NullTexture = new MetalTexture();
+
+			public void Dispose()
+			{
+				ObjCRelease(Handle);
+				Handle = IntPtr.Zero;
+			}
 		}
 
 		#endregion
@@ -123,8 +127,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public int FramesTillDeletion;
-
 			public MetalRenderbuffer(
 				IntPtr handle,
 				MTLPixelFormat pixelFormat,
@@ -135,6 +137,25 @@ namespace Microsoft.Xna.Framework.Graphics
 				PixelFormat = pixelFormat;
 				MultiSampleCount = multiSampleCount;
 				MultiSampleHandle = multiSampleHandle;
+			}
+
+			public void Dispose()
+			{
+				if (MultiSampleHandle == IntPtr.Zero)
+				{
+					ObjCRelease(Handle);
+					Handle = IntPtr.Zero;
+				}
+				else
+				{
+					ObjCRelease(MultiSampleHandle);
+					MultiSampleHandle = IntPtr.Zero;
+
+					/* Don't release the regular Handle since
+					 * it's owned by the associated IGLTexture.
+					 */
+					Handle = IntPtr.Zero;
+				}
 			}
 		}
 
@@ -172,7 +193,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public int FramesTillDeletion;
 			public bool BoundThisFrame;
 
 			private MetalDevice device;
@@ -372,8 +392,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public int FramesTillDeletion;
-
 			public MetalEffect(IntPtr effect, IntPtr mtlEffect)
 			{
 				EffectData = effect;
@@ -393,11 +411,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public int FramesTillDeletion;
-
 			public MetalQuery(IntPtr handle)
 			{
 				Handle = handle;
+			}
+
+			public void Dispose()
+			{
+				ObjCRelease(Handle);
+				Handle = IntPtr.Zero;
 			}
 		}
 
@@ -672,16 +694,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Private Graphics Object Disposal Lists
-
-		private List<IGLTexture> GCTextures = new List<IGLTexture>();
-		private List<IGLRenderbuffer> GCDepthBuffers = new List<IGLRenderbuffer>();
-		private List<IGLBuffer> GCBuffers = new List<IGLBuffer>();
-		private List<IGLEffect> GCEffects = new List<IGLEffect>();
-		private List<IGLQuery> GCQueries = new List<IGLQuery>();
-
-		#endregion
-
 		#region memcpy Export
 
 		/* This is used a lot for GetData/Read calls... -flibit */
@@ -811,37 +823,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				mtlEndEncoding(renderCommandEncoder);
 			}
-
-			// Delete all pending GC* resources
-			foreach (MetalBuffer buf in GCBuffers)
-			{
-				DeleteBuffer(buf);
-			}
-			GCBuffers.Clear();
-
-			foreach (MetalTexture tex in GCTextures)
-			{
-				DeleteTexture(tex);
-			}
-			GCTextures.Clear();
-
-			foreach (MetalQuery query in GCQueries)
-			{
-				DeleteQuery(query);
-			}
-			GCQueries.Clear();
-
-			foreach (MetalEffect effect in GCEffects)
-			{
-				DeleteEffect(effect);
-			}
-			GCEffects.Clear();
-
-			foreach (MetalRenderbuffer rb in GCDepthBuffers)
-			{
-				DeleteRenderbuffer(rb);
-			}
-			GCDepthBuffers.Clear();
 
 			// Release vertex descriptors
 			foreach (IntPtr vdesc in VertexDescriptorCache.Values)
@@ -1046,60 +1027,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr cmdbuf = submittedCommandBuffers.Dequeue();
 				mtlCommandBufferWaitUntilCompleted(cmdbuf);
 				ObjCRelease(cmdbuf);
-			}
-
-			/* Decrement the lifespan of all resources marked
-			 * for deletion, or kill them outright if needed.
-			 */
-			for (int i = GCTextures.Count - 1; i >= 0; i -= 1)
-			{
-				MetalTexture tex = GCTextures[i] as MetalTexture;
-				tex.FramesTillDeletion -= 1;
-				if (tex.FramesTillDeletion == 0)
-				{
-					DeleteTexture(tex);
-					GCTextures.RemoveAt(i);
-				}
-			}
-			for (int i = GCDepthBuffers.Count - 1; i >= 0; i -= 1)
-			{
-				MetalRenderbuffer rb = GCDepthBuffers[i] as MetalRenderbuffer;
-				rb.FramesTillDeletion -= 1;
-				if (rb.FramesTillDeletion == 0)
-				{
-					DeleteRenderbuffer(rb);
-					GCDepthBuffers.RemoveAt(i);
-				}
-			}
-			for (int i = GCBuffers.Count - 1; i >= 0; i -= 1)
-			{
-				MetalBuffer buf = GCBuffers[i] as MetalBuffer;
-				buf.FramesTillDeletion -= 1;
-				if (buf.FramesTillDeletion == 0)
-				{
-					DeleteBuffer(buf);
-					GCBuffers.RemoveAt(i);
-				}
-			}
-			for (int i = GCEffects.Count - 1; i >= 0; i -= 1)
-			{
-				MetalEffect eff = GCEffects[i] as MetalEffect;
-				eff.FramesTillDeletion -= 1;
-				if (eff.FramesTillDeletion == 0)
-				{
-					DeleteEffect(eff);
-					GCEffects.RemoveAt(i);
-				}
-			}
-			for (int i = GCQueries.Count - 1; i >= 0; i -= 1)
-			{
-				MetalQuery query = GCQueries[i] as MetalQuery;
-				query.FramesTillDeletion -= 1;
-				if (query.FramesTillDeletion == 0)
-				{
-					DeleteQuery(query);
-					GCQueries.RemoveAt(i);
-				}
 			}
 
 			// The cycle begins anew...
@@ -1539,38 +1466,32 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void AddDisposeEffect(IGLEffect effect)
 		{
-			(effect as MetalEffect).FramesTillDeletion = backingBufferCount;
-			GCEffects.Add(effect);
+			DeleteEffect(effect);
 		}
 
 		public void AddDisposeIndexBuffer(IGLBuffer buffer)
 		{
-			(buffer as MetalBuffer).FramesTillDeletion = backingBufferCount;
-			GCBuffers.Add(buffer);
+			DeleteBuffer(buffer);
 		}
 
 		public void AddDisposeQuery(IGLQuery query)
 		{
-			(query as MetalQuery).FramesTillDeletion = backingBufferCount;
-			GCQueries.Add(query);
+			DeleteQuery(query);
 		}
 
 		public void AddDisposeRenderbuffer(IGLRenderbuffer renderbuffer)
 		{
-			(renderbuffer as MetalRenderbuffer).FramesTillDeletion = backingBufferCount;
-			GCDepthBuffers.Add(renderbuffer);
+			DeleteRenderbuffer(renderbuffer);
 		}
 
 		public void AddDisposeTexture(IGLTexture texture)
 		{
-			(texture as MetalTexture).FramesTillDeletion = backingBufferCount;
-			GCTextures.Add(texture);
+			DeleteTexture(texture);
 		}
 
 		public void AddDisposeVertexBuffer(IGLBuffer buffer)
 		{
-			(buffer as MetalBuffer).FramesTillDeletion = backingBufferCount;
-			GCBuffers.Add(buffer);
+			DeleteBuffer(buffer);
 		}
 
 		#endregion
@@ -3273,7 +3194,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					currentDepthStencilBuffer = IntPtr.Zero;
 				}
-				ObjCRelease(rb.Handle);
 			}
 			else
 			{
@@ -3284,12 +3204,9 @@ namespace Microsoft.Xna.Framework.Graphics
 						currentMSAttachments[i] = IntPtr.Zero;
 					}
 				}
-				ObjCRelease(rb.MultiSampleHandle);
-
-				/* We don't release the regular Handle since
-				 * it's owned by the associated IGLTexture!
-				 */
 			}
+
+			rb.Dispose();
 		}
 
 		#endregion
@@ -3503,15 +3420,23 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void DeleteTexture(IGLTexture texture)
 		{
-			IntPtr handle = (texture as MetalTexture).Handle;
+			MetalTexture tex = texture as MetalTexture;
 			for (int i = 0; i < currentAttachments.Length; i += 1)
 			{
-				if (handle == currentAttachments[i])
+				if (tex.Handle == currentAttachments[i])
 				{
 					currentAttachments[i] = IntPtr.Zero;
 				}
 			}
-			ObjCRelease(handle);
+			for (int i = 0; i < Textures.Length; i += 1)
+			{
+				if (tex.Handle == Textures[i].Handle)
+				{
+					Textures[i] = MetalTexture.NullTexture;
+					textureNeedsUpdate[i] = true;
+				}
+			}
+			tex.Dispose();
 		}
 
 		#endregion
@@ -4147,7 +4072,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void DeleteQuery(IGLQuery query)
 		{
-			ObjCRelease((query as MetalQuery).Handle);
+			(query as MetalQuery).Dispose();
 		}
 
 		public void QueryBegin(IGLQuery query)
