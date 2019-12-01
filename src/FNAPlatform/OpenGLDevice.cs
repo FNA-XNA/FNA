@@ -551,6 +551,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private bool useES3;
 		private bool useCoreProfile;
+		private bool togglePointSprite;
 		private DepthFormat windowDepthFormat;
 		private uint vao;
 
@@ -843,16 +844,28 @@ namespace Microsoft.Xna.Framework.Graphics
 			glGenFramebuffers(1, out resolveFramebufferRead);
 			glGenFramebuffers(1, out resolveFramebufferDraw);
 
-			// Generate and bind a VAO, to shut Core up
+			togglePointSprite = false;
 			if (useCoreProfile)
 			{
+				// Generate and bind a VAO, to shut Core up
 				glGenVertexArrays(1, out vao);
 				glBindVertexArray(vao);
 			}
 			else if (!useES3)
 			{
-				// Compat-only, but needed for PSIZE0 accuracy
-				glEnable(GLenum.GL_POINT_SPRITE);
+				/* Compatibility contexts require that point sprites be enabled
+				 * explicitly. However, Apple's drivers have a blantant spec
+				 * violation that disallows a simple glEnable. So, here we are.
+				 * -flibit
+				 */
+				if (SDL.SDL_GetPlatform().Equals("Mac OS X"))
+				{
+					togglePointSprite = true;
+				}
+				else
+				{
+					glEnable(GLenum.GL_POINT_SPRITE);
+				}
 				glTexEnvi(GLenum.GL_POINT_SPRITE, GLenum.GL_COORD_REPLACE, 1);
 			}
 		}
@@ -1231,6 +1244,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Bind the index buffer
 			BindIndexBuffer(indices.buffer);
 
+			bool tps = togglePointSprite && primitiveType == PrimitiveType.PointListEXT;
+			if (tps)
+			{
+				glEnable(GLenum.GL_POINT_SPRITE);
+			}
+
 			// Draw!
 			glDrawRangeElementsBaseVertex(
 				XNAToGL.Primitive[(int) primitiveType],
@@ -1241,6 +1260,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				(IntPtr) (startIndex * XNAToGL.IndexSize[(int) indices.IndexElementSize]),
 				baseVertex
 			);
+
+			if (tps)
+			{
+				glDisable(GLenum.GL_POINT_SPRITE);
+			}
 		}
 
 		public void DrawInstancedPrimitives(
@@ -1258,6 +1282,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Bind the index buffer
 			BindIndexBuffer(indices.buffer);
 
+			bool tps = togglePointSprite && primitiveType == PrimitiveType.PointListEXT;
+			if (tps)
+			{
+				glEnable(GLenum.GL_POINT_SPRITE);
+			}
+
 			// Draw!
 			glDrawElementsInstancedBaseVertex(
 				XNAToGL.Primitive[(int) primitiveType],
@@ -1267,6 +1297,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				instanceCount,
 				baseVertex
 			);
+
+			if (tps)
+			{
+				glDisable(GLenum.GL_POINT_SPRITE);
+			}
 		}
 
 		public void DrawPrimitives(
@@ -1274,12 +1309,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexStart,
 			int primitiveCount
 		) {
+			bool tps = togglePointSprite && primitiveType == PrimitiveType.PointListEXT;
+			if (tps)
+			{
+				glEnable(GLenum.GL_POINT_SPRITE);
+			}
+
 			// Draw!
 			glDrawArrays(
 				XNAToGL.Primitive[(int) primitiveType],
 				vertexStart,
 				XNAToGL.PrimitiveVerts(primitiveType, primitiveCount)
 			);
+
+			if (tps)
+			{
+				glDisable(GLenum.GL_POINT_SPRITE);
+			}
 		}
 
 		public void DrawUserIndexedPrimitives(
@@ -1295,6 +1341,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Unbind current index buffer.
 			BindIndexBuffer(OpenGLBuffer.NullBuffer);
 
+			bool tps = togglePointSprite && primitiveType == PrimitiveType.PointListEXT;
+			if (tps)
+			{
+				glEnable(GLenum.GL_POINT_SPRITE);
+			}
+
 			// Draw!
 			glDrawRangeElements(
 				XNAToGL.Primitive[(int) primitiveType],
@@ -1307,6 +1359,11 @@ namespace Microsoft.Xna.Framework.Graphics
 					(indexOffset * XNAToGL.IndexSize[(int) indexElementSize])
 				)
 			);
+
+			if (tps)
+			{
+				glDisable(GLenum.GL_POINT_SPRITE);
+			}
 		}
 
 		public void DrawUserPrimitives(
@@ -1315,12 +1372,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexOffset,
 			int primitiveCount
 		) {
+			bool tps = togglePointSprite && primitiveType == PrimitiveType.PointListEXT;
+			if (tps)
+			{
+				glEnable(GLenum.GL_POINT_SPRITE);
+			}
+
 			// Draw!
 			glDrawArrays(
 				XNAToGL.Primitive[(int) primitiveType],
 				vertexOffset,
 				XNAToGL.PrimitiveVerts(primitiveType, primitiveCount)
 			);
+
+			if (tps)
+			{
+				glDisable(GLenum.GL_POINT_SPRITE);
+			}
 		}
 
 		#endregion
