@@ -173,6 +173,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			public int FramesTillDeletion;
+			public bool BoundThisFrame;
 
 			private MetalDevice device;
 			private IntPtr mtlDevice = IntPtr.Zero;
@@ -291,15 +292,24 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 					else
 					{
-						// Stall until we can rewrite this buffer
-						mtlEndEncoding(device.renderCommandEncoder);
-						device.renderCommandEncoder = IntPtr.Zero;
+						if (BoundThisFrame)
+						{
+							// Stall until we can rewrite this buffer
+							mtlEndEncoding(device.renderCommandEncoder);
+							device.renderCommandEncoder = IntPtr.Zero;
 
-						mtlCommitCommandBuffer(device.commandBuffer);
-						mtlCommandBufferWaitUntilCompleted(device.commandBuffer);
+							mtlCommitCommandBuffer(device.commandBuffer);
+							mtlCommandBufferWaitUntilCompleted(device.commandBuffer);
 
-						device.commandBuffer = mtlMakeCommandBuffer(device.queue);
-						device.needNewRenderPass = true;
+							device.commandBuffer = mtlMakeCommandBuffer(device.queue);
+							device.needNewRenderPass = true;
+
+							foreach (MetalBuffer buf in device.Buffers)
+							{
+								BoundThisFrame = false;
+							}
+						}
+
 						InternalOffset = 0;
 					}
 				}
@@ -309,6 +319,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				int oldFrame = frame;
 				InternalOffset = 0;
+				BoundThisFrame = false;
 				frame = (frame + 1) % internalBuffers.Length;
 				prevDataLength = 0;
 
@@ -1297,7 +1308,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					depthAttachment,
 					currentDepthStencilBuffer
 				);
-
 				if (shouldClearDepth)
 				{
 					mtlSetAttachmentLoadAction(
@@ -1610,16 +1620,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			int instanceCount,
 			IndexBuffer indices
 		) {
+			MetalBuffer indexBuffer = indices.buffer as MetalBuffer;
+			indexBuffer.BoundThisFrame = true;
 			ulong totalIndexOffset = (ulong) (
 				(startIndex * XNAToMTL.IndexSize[(int) indices.IndexElementSize]) +
-				(indices.buffer as MetalBuffer).InternalOffset
+				indexBuffer.InternalOffset
 			);
 			mtlDrawIndexedPrimitives(
 				renderCommandEncoder,
 				XNAToMTL.Primitive[(int) primitiveType],
 				XNAToMTL.PrimitiveVerts(primitiveType, primitiveCount),
 				XNAToMTL.IndexType[(int) indices.IndexElementSize],
-				(indices.buffer as MetalBuffer).Handle,
+				indexBuffer.Handle,
 				totalIndexOffset,
 				(ulong) instanceCount,
 				baseVertex,
@@ -3074,6 +3086,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 
 					IntPtr handle = (vertexBuffer.buffer as MetalBuffer).Handle;
+					(vertexBuffer.buffer as MetalBuffer).BoundThisFrame = true;
 					if (ldVertexBuffers[i] != handle)
 					{
 						mtlSetVertexBuffer(
