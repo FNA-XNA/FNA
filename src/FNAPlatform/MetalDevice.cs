@@ -315,8 +315,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						if (BoundThisFrame)
 						{
 							// Stall until we can rewrite this buffer
-							mtlEndEncoding(device.renderCommandEncoder);
-							device.renderCommandEncoder = IntPtr.Zero;
+							device.EndPass();
 
 							mtlCommitCommandBuffer(device.commandBuffer);
 							mtlCommandBufferWaitUntilCompleted(device.commandBuffer);
@@ -819,10 +818,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void Dispose()
 		{
-			if (renderCommandEncoder != IntPtr.Zero)
-			{
-				mtlEndEncoding(renderCommandEncoder);
-			}
+			EndPass();
 
 			// Release vertex descriptors
 			foreach (IntPtr vdesc in VertexDescriptorCache.Values)
@@ -934,38 +930,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				renderCommandEncoder = IntPtr.Zero;
 			}
 
-			// Get the next drawable
-			IntPtr drawable = mtlNextDrawable(layer);
-
-			// Perform a pass for the MSAA resolve texture, if applicable
-			IntPtr colorBuffer = (Backbuffer as MetalBackbuffer).ColorBuffer;
-			if (Backbuffer.MultiSampleCount > 0)
-			{
-				IntPtr resolveRenderPass = mtlMakeRenderPassDescriptor();
-				IntPtr colorAttachment = mtlGetColorAttachment(
-					resolveRenderPass,
-					0
-				);
-				mtlSetAttachmentStoreAction(
-					colorAttachment,
-					MTLStoreAction.MultisampleResolve
-				);
-				mtlSetAttachmentTexture(
-					colorAttachment,
-					(Backbuffer as MetalBackbuffer).MultiSampleColorBuffer
-				);
-				mtlSetAttachmentResolveTexture(
-					colorAttachment,
-					(Backbuffer as MetalBackbuffer).ColorBuffer
-				);
-
-				// Resolve!
-				IntPtr rce = mtlMakeRenderCommandEncoder(
-					commandBuffer,
-					resolveRenderPass
-				);
-				mtlEndEncoding(rce);
-			}
+			// Bind the backbuffer
+			ResetAttachments();
+			BindBackbuffer();
 
 			// Determine the regions to present
 			int srcX, srcY, srcW, srcH;
@@ -1002,9 +969,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
+			// Get the next drawable
+			IntPtr drawable = mtlNextDrawable(layer);
+
 			// "Blit" the backbuffer to the drawable
 			CopyTextureRegion(
-				colorBuffer,
+				currentAttachments[0],
 				new Rectangle(srcX, srcY, srcW, srcH),
 				mtlGetTextureFromDrawable(drawable),
 				new Rectangle(dstX, dstY, dstW, dstH)
@@ -1155,6 +1125,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Render Command Encoder Methods
 
+		private void EndPass()
+		{
+			if (renderCommandEncoder != IntPtr.Zero)
+			{
+				mtlEndEncoding(renderCommandEncoder);
+				renderCommandEncoder = IntPtr.Zero;
+			}
+		}
+
 		private void UpdateRenderPass()
 		{
 			if (!needNewRenderPass)
@@ -1164,10 +1143,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Wrap up rendering with the old encoder
-			if (renderCommandEncoder != IntPtr.Zero)
-			{
-				mtlEndEncoding(renderCommandEncoder);
-			}
+			EndPass();
 
 			// Generate the descriptor
 			IntPtr passDesc = mtlMakeRenderPassDescriptor();
@@ -1250,7 +1226,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					mtlSetAttachmentLoadAction(
 						depthAttachment,
-						MTLLoadAction.Load
+						MTLLoadAction.DontCare
 					);
 				}
 			}
@@ -1278,7 +1254,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					mtlSetAttachmentLoadAction(
 						stencilAttachment,
-						MTLLoadAction.Load
+						MTLLoadAction.DontCare
 					);
 				}
 			}
@@ -3517,11 +3493,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (tex.IsPrivate)
 			{
 				// End the render pass
-				if (renderCommandEncoder != IntPtr.Zero)
-				{
-					mtlEndEncoding(renderCommandEncoder);
-					renderCommandEncoder = IntPtr.Zero;
-				}
+				EndPass();
 
 				// Blit!
 				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
@@ -3645,11 +3617,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (tex.IsPrivate)
 			{
 				// End the render pass
-				if (renderCommandEncoder != IntPtr.Zero)
-				{
-					mtlEndEncoding(renderCommandEncoder);
-					renderCommandEncoder = IntPtr.Zero;
-				}
+				EndPass();
 
 				// Blit!
 				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
@@ -3706,11 +3674,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				handle = FetchTransientTexture(tex);
 
 				// End the render pass
-				if (renderCommandEncoder != IntPtr.Zero)
-				{
-					mtlEndEncoding(renderCommandEncoder);
-					renderCommandEncoder = IntPtr.Zero;
-				}
+				EndPass();
 
 				// Blit the actual texture to a CPU-accessible texture
 				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
@@ -3818,11 +3782,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				slice = 0;
 
 				// End the render pass
-				if (renderCommandEncoder != IntPtr.Zero)
-				{
-					mtlEndEncoding(renderCommandEncoder);
-					renderCommandEncoder = IntPtr.Zero;
-				}
+				EndPass();
 
 				// Blit the actual texture to a CPU-accessible texture
 				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
@@ -3925,11 +3885,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// If the target has mipmaps, regenerate them now
 			if (target.RenderTarget.LevelCount > 1)
 			{
-				if (renderCommandEncoder != IntPtr.Zero)
-				{
-					mtlEndEncoding(renderCommandEncoder);
-					renderCommandEncoder = IntPtr.Zero;
-				}
+				EndPass();
 
 				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
 				mtlGenerateMipmapsForTexture(
@@ -3937,6 +3893,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					(target.RenderTarget.texture as MetalTexture).Handle
 				);
 				mtlEndEncoding(blit);
+
+				needNewRenderPass = true;
 			}
 		}
 
@@ -4078,11 +4036,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void QueryBegin(IGLQuery query)
 		{
 			// Stop the current pass
-			if (renderCommandEncoder != IntPtr.Zero)
-			{
-				mtlEndEncoding(renderCommandEncoder);
-				renderCommandEncoder = IntPtr.Zero;
-			}
+			EndPass();
 
 			// Attach the visibility buffer to a new render pass
 			currentVisibilityBuffer = (query as MetalQuery).Handle;
