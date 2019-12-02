@@ -118,7 +118,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
-		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg1, IntPtr arg2);
+		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, ulong arg1, ulong arg2);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern IntPtr intptr_objc_msgSend(IntPtr receiver, IntPtr selector, MTLPixelFormat arg1, ulong arg2, bool arg3);
@@ -587,12 +587,24 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Can we use the GPUFamily API?
 			if (RespondsToSelector(device, selSupportsFamily))
 			{
-				return bool_objc_msgSend(device, selSupportsFamily, GPUFamilyCommon2);
+				return bool_objc_msgSend(
+					device,
+					selSupportsFamily,
+					GPUFamilyCommon2
+				);
 			}
 
-			// Fall back to checking FeatureSets
-			bool iosCompat = bool_objc_msgSend(device, selSupportsFeatureSet, iOS_GPUFamily3_v1);
-			bool tvosCompat = bool_objc_msgSend(device, selSupportsFeatureSet, tvOS_GPUFamily2_v1);
+			// Fall back to checking FeatureSets...
+			bool iosCompat = bool_objc_msgSend(
+				device,
+				selSupportsFeatureSet,
+				iOS_GPUFamily3_v1
+			);
+			bool tvosCompat = bool_objc_msgSend(
+				device,
+				selSupportsFeatureSet,
+				tvOS_GPUFamily2_v1
+			);
 			return iosCompat || tvosCompat;
 		}
 
@@ -658,7 +670,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				device,
 				selNewBufferWithLength,
 				length,
-				IntPtr.Zero
+				0
 			);
 		}
 
@@ -1515,7 +1527,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			if (error != IntPtr.Zero)
 			{
-				FNALoggerEXT.LogError("Metal Error: " + GetNSErrorDescription(error));
 				throw new Exception("Metal Error: " + GetNSErrorDescription(error));
 			}
 			return pipeline;
@@ -1870,14 +1881,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Error Handling
 
 		private static IntPtr selLocalizedDescription = Selector("localizedDescription");
-		private static IntPtr mtlGetErrorLocalizedDescription(IntPtr error)
-		{
-			return intptr_objc_msgSend(error, selLocalizedDescription);
-		}
-
 		private static string GetNSErrorDescription(IntPtr error)
 		{
-			return NSStringToUTF8(mtlGetErrorLocalizedDescription(error));
+			return NSStringToUTF8(intptr_objc_msgSend(error, selLocalizedDescription));
 		}
 
 		#endregion
