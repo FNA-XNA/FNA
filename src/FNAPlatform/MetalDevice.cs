@@ -1685,16 +1685,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetPresentationInterval(PresentInterval interval)
 		{
-			if (platform.Equals("iOS") || platform.Equals("tvOS"))
+			// Toggling vsync is only supported on macOS 10.13+
+			if (!RespondsToSelector(layer, selDisplaySyncEnabled))
 			{
 				FNALoggerEXT.LogWarn(
-					"Cannot set presentation interval on iOS/tvOS! " +
+					"Cannot set presentation interval! " +
 					"Only vsync is supported."
 				);
 				return;
 			}
 
-			// macOS-only options
 			if (interval == PresentInterval.Default || interval == PresentInterval.One)
 			{
 				mtlSetDisplaySyncEnabled(layer, true);
@@ -1705,8 +1705,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else if (interval == PresentInterval.Two)
 			{
-				/* There is no support for present-every-other-frame
-				 * in Metal. We *could* work around this, but do
+				/* FIXME: There is no built-in support for
+				 * present-every-other-frame in Metal.
+				 * We could work around this, but do
 				 * any games actually use this mode...?
 				 * -caleb
 				 */
