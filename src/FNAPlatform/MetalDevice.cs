@@ -930,9 +930,33 @@ namespace Microsoft.Xna.Framework.Graphics
 				renderCommandEncoder = IntPtr.Zero;
 			}
 
-			// Bind the backbuffer
-			ResetAttachments();
-			BindBackbuffer();
+			// Perform a final pass to resolve MSAA, if applicable
+			if (Backbuffer.MultiSampleCount > 0)
+			{
+				IntPtr resolveRenderPass = mtlMakeRenderPassDescriptor();
+				IntPtr colorAttachment = mtlGetColorAttachment(
+					resolveRenderPass,
+					0
+				);
+				mtlSetAttachmentStoreAction(
+					colorAttachment,
+					MTLStoreAction.MultisampleResolve
+				);
+				mtlSetAttachmentTexture(
+					colorAttachment,
+					(Backbuffer as MetalBackbuffer).MultiSampleColorBuffer
+				);
+				mtlSetAttachmentResolveTexture(
+					colorAttachment,
+					(Backbuffer as MetalBackbuffer).ColorBuffer
+				);
+				// Resolve!
+				IntPtr rce = mtlMakeRenderCommandEncoder(
+					commandBuffer,
+					resolveRenderPass
+				);
+				mtlEndEncoding(rce);
+			}
 
 			// Determine the regions to present
 			int srcX, srcY, srcW, srcH;
@@ -973,7 +997,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr drawable = mtlNextDrawable(layer);
 
 			// "Blit" the backbuffer to the drawable
-			CopyTextureRegion(
+			BlitFramebuffer(
 				currentAttachments[0],
 				new Rectangle(srcX, srcY, srcW, srcH),
 				mtlGetTextureFromDrawable(drawable),
@@ -1015,7 +1039,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			SetRenderTargets(null, null, DepthFormat.None);
 		}
 
-		private void CopyTextureRegion(
+		private void BlitFramebuffer(
 			IntPtr srcTex,
 			Rectangle srcRect,
 			IntPtr dstTex,
