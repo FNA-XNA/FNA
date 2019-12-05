@@ -912,19 +912,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			Rectangle? destinationRectangle,
 			IntPtr overrideWindowHandle
 		) {
-			/* Sometimes clearing a render target is the last draw
-			 * operation. In that situation, we perform one final
-			 * render pass before blitting the faux-backbuffer.
-			 * -caleb
-			 */
-			UpdateRenderPass();
-
-			// Finish the render pass, if there is one
-			if (renderCommandEncoder != IntPtr.Zero)
-			{
-				mtlEndEncoding(renderCommandEncoder);
-				renderCommandEncoder = IntPtr.Zero;
-			}
+			// Bind the backbuffer and finalize rendering.
+			SetRenderTargets(null, null, DepthFormat.None);
+			EndPass();
 
 			// Perform a final pass to resolve MSAA, if applicable
 			if (Backbuffer.MultiSampleCount > 0)
@@ -933,6 +923,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr colorAttachment = mtlGetColorAttachment(
 					resolveRenderPass,
 					0
+				);
+				mtlSetAttachmentLoadAction(
+					colorAttachment,
+					MTLLoadAction.Load
 				);
 				mtlSetAttachmentStoreAction(
 					colorAttachment,
@@ -946,6 +940,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					colorAttachment,
 					(Backbuffer as MetalBackbuffer).ColorBuffer
 				);
+
 				// Resolve!
 				IntPtr rce = mtlMakeRenderCommandEncoder(
 					commandBuffer,
@@ -1018,9 +1013,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				Buffers[i].EndFrame();
 			}
 			MojoShader.MOJOSHADER_mtlEndFrame();
-
-			// Bind the faux-backbuffer
-			SetRenderTargets(null, null, DepthFormat.None);
 		}
 
 		private void BlitFramebuffer(
@@ -1176,14 +1168,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					mtlSetAttachmentTexture(
 						colorAttachment,
 						currentMSAttachments[i]
-					);
-					mtlSetAttachmentResolveTexture(
-						colorAttachment,
-						currentAttachments[i]
-					);
-					mtlSetAttachmentStoreAction(
-						colorAttachment,
-						MTLStoreAction.MultisampleResolve
 					);
 				}
 
@@ -3901,7 +3885,34 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void ResolveTarget(RenderTargetBinding target)
 		{
-			// The target gets resolved at the end of the render pass.
+			IRenderTarget rt = target.RenderTarget as IRenderTarget;
+			if (rt.MultiSampleCount > 0)
+			{
+				// Finish the current pass, if there is one
+				EndPass();
+
+				/* Perform a render pass to resolve the target.
+				 *
+				 * (Yes, I know, it's "bad practice" to perform
+				 * a render pass without encoding any commands,
+				 * but the alternative is resolving on every single
+				 * render pass, which is super wasteful and slows
+				 * games down to a crawl on lower-end devices.)
+				 *
+				 * -caleb
+				 */
+				MetalRenderbuffer rb = rt.ColorBuffer as MetalRenderbuffer;
+				IntPtr pass = mtlMakeRenderPassDescriptor();
+				IntPtr att = mtlGetColorAttachment(pass, 0);
+				mtlSetAttachmentTexture(att, rb.MultiSampleHandle);
+				mtlSetAttachmentResolveTexture(att, rb.Handle);
+				mtlSetAttachmentLoadAction(att, MTLLoadAction.Load);
+				mtlSetAttachmentStoreAction(att, MTLStoreAction.MultisampleResolve);
+
+				renderCommandEncoder = mtlMakeRenderCommandEncoder(commandBuffer, pass);
+				mtlEndEncoding(renderCommandEncoder);
+				renderCommandEncoder = IntPtr.Zero;
+			}
 
 			// If the target has mipmaps, regenerate them now
 			if (target.RenderTarget.LevelCount > 1)
