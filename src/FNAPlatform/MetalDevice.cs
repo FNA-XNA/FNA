@@ -1211,7 +1211,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
-			// Clear depth
+			// Bind depth attachment
 			if (currentDepthFormat != DepthFormat.None)
 			{
 				IntPtr depthAttachment = mtlGetDepthAttachment(passDesc);
@@ -1219,6 +1219,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					depthAttachment,
 					currentDepthStencilBuffer
 				);
+				mtlSetAttachmentStoreAction(
+					depthAttachment,
+					MTLStoreAction.Store
+				);
+
+				// Clear?
 				if (shouldClearDepth)
 				{
 					mtlSetAttachmentLoadAction(
@@ -1234,12 +1240,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					mtlSetAttachmentLoadAction(
 						depthAttachment,
-						MTLLoadAction.DontCare
+						MTLLoadAction.Load
 					);
 				}
 			}
 
-			// Clear stencil
+			// Bind stencil buffer
 			if (currentDepthFormat == DepthFormat.Depth24Stencil8)
 			{
 				IntPtr stencilAttachment = mtlGetStencilAttachment(passDesc);
@@ -1247,6 +1253,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					stencilAttachment,
 					currentDepthStencilBuffer
 				);
+				mtlSetAttachmentStoreAction(
+					stencilAttachment,
+					MTLStoreAction.Store
+				);
+
+				// Clear?
 				if (shouldClearStencil)
 				{
 					mtlSetAttachmentLoadAction(
@@ -1262,7 +1274,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					mtlSetAttachmentLoadAction(
 						stencilAttachment,
-						MTLLoadAction.DontCare
+						MTLLoadAction.Load
 					);
 				}
 			}
