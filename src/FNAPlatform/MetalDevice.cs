@@ -228,7 +228,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * -caleb
 				 */
 				internalBufferSize = (int) bufferSize * (dynamic ? 8 : 1);
-				internalBuffers = new IntPtr[device.backingBufferCount];
+				internalBuffers = new IntPtr[MAX_FRAMES_IN_FLIGHT];
 				for (int i = 0; i < internalBuffers.Length; i += 1)
 				{
 					CreateBackingBuffer(i);
@@ -280,7 +280,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					(IntPtr) dataLength
 				);
 
-				copiesNeeded = device.backingBufferCount - 1;
+				copiesNeeded = MAX_FRAMES_IN_FLIGHT - 1;
 				prevDataLength = len;
 			}
 
@@ -562,8 +562,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private bool shouldClearDepth = false;
 		private bool shouldClearStencil = false;
 
-		private readonly int backingBufferCount = 2;
-		private Queue<IntPtr> submittedCommandBuffers; // Queue<MTLCommandBuffer*>
+		private const int MAX_FRAMES_IN_FLIGHT = 3;
 
 		private int mainThreadID;
 		private string platform;
@@ -791,9 +790,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			ldVertexBuffers = new IntPtr[MAX_BOUND_VERTEX_BUFFERS];
 			ldVertexBufferOffsets = new int[MAX_BOUND_VERTEX_BUFFERS];
 
-			// Initialize submitted command buffer synchronization queue
-			submittedCommandBuffers = new Queue<IntPtr>(backingBufferCount);
-
 			// Store the main thread ID
 			mainThreadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
 
@@ -1004,24 +1000,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				new Rectangle(dstX, dstY, dstW, dstH)
 			);
 
-			// Submit the command buffer for presentation
+			// Commit the command buffer for presentation
 			mtlPresentDrawable(commandBuffer, drawable);
 			mtlCommitCommandBuffer(commandBuffer);
 
-			// Put it in the queue so we can track it
-			submittedCommandBuffers.Enqueue(commandBuffer);
-			ObjCRetain(commandBuffer);
-
 			// Release allocations from the past frame
 			DrainAutoreleasePool(pool);
-
-			// Wait until we can submit another command buffer
-			if (submittedCommandBuffers.Count >= backingBufferCount)
-			{
-				IntPtr cmdbuf = submittedCommandBuffers.Dequeue();
-				mtlCommandBufferWaitUntilCompleted(cmdbuf);
-				ObjCRelease(cmdbuf);
-			}
 
 			// The cycle begins anew...
 			pool = StartAutoreleasePool();
@@ -2737,7 +2721,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(
 				effect,
 				device,
-				backingBufferCount
+				MAX_FRAMES_IN_FLIGHT
 			);
 			if (mtlEffect == IntPtr.Zero)
 			{
@@ -2777,7 +2761,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(
 				effect,
 				device,
-				backingBufferCount
+				MAX_FRAMES_IN_FLIGHT
 			);
 			if (mtlEffect == IntPtr.Zero)
 			{
