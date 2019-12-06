@@ -565,7 +565,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private const int MAX_FRAMES_IN_FLIGHT = 3;
 
 		private int mainThreadID;
-		private string platform;
+		private bool isMac;
 
 		#endregion
 
@@ -744,9 +744,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			) == "1" ? MTLSamplerMinMagFilter.Nearest : MTLSamplerMinMagFilter.Linear;
 
 			// Set device properties
-			this.platform = SDL2.SDL.SDL_GetPlatform();
-			SupportsS3tc = platform.Equals("Mac OS X");
-			SupportsDxt1 = SupportsS3tc;
+			isMac = SDL2.SDL.SDL_GetPlatform().Equals("Mac OS X");
+			SupportsS3tc = SupportsDxt1 = isMac;
 			SupportsHardwareInstancing = true;
 			MaxTextureSlots = 16;
 			MaxMultiSampleCount = mtlSupportsSampleCount(device, 8) ? 8 : 4;
@@ -760,13 +759,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				D24S8Format = MTLPixelFormat.Depth24Unorm_Stencil8;
 
-				// FIXME: Does this work?
+				// Gross, but at least it's a unorm format! -caleb
 				D24Format = MTLPixelFormat.Depth24Unorm_Stencil8;
 				D16Format = MTLPixelFormat.Depth24Unorm_Stencil8;
 			}
-			if (mtlSupportsDepth16(platform.Equals("Mac OS X")))
+			if (	(isMac && OperatingSystemAtLeast(10, 12, 0)) ||
+				(!isMac && OperatingSystemAtLeast(13, 0, 0))	)
 			{
-				// Now that's more like it!
+				// Let's use the real D16 format!
 				D16Format = MTLPixelFormat.Depth16Unorm;
 			}
 
@@ -3697,7 +3697,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 
 				// Managed resources require explicit synchronization
-				if (platform.Equals("Mac OS X"))
+				if (isMac)
 				{
 					mtlSynchronizeResource(blit, handle);
 				}
@@ -3805,7 +3805,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 
 				// Managed resources require explicit synchronization
-				if (platform.Equals("Mac OS X"))
+				if (isMac)
 				{
 					mtlSynchronizeResource(blit, handle);
 				}
