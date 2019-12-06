@@ -1032,26 +1032,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			/* Metal doesn't have a way to blit to a destination rect,
-			 * so we get to render it ourselves instead. Yayyy...
-			 * -caleb
-			 */
-
-			IntPtr backbufferRenderPass = mtlMakeRenderPassDescriptor();
-			mtlSetAttachmentTexture(
-				mtlGetColorAttachment(backbufferRenderPass, 0),
-				dstTex
-			);
-
-			IntPtr rce = mtlMakeRenderCommandEncoder(
-				commandBuffer,
-				backbufferRenderPass
-			);
-			mtlSetRenderPipelineState(
-				rce,
-				fauxBackbufferRenderPipeline
-			);
-
 			// Update cached vertex buffer if needed
 			if (fauxBackbufferDestBounds != dstRect || fauxBackbufferSizeChanged)
 			{
@@ -1060,11 +1040,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Scale the coordinates to (-1, 1)
 				int dw, dh;
-				GetDrawableSize(
-					layer,
-					out dw,
-					out dh
-				);
+				GetDrawableSize(layer, out dw, out dh);
 				float sx = -1 + (dstRect.X / (float) dw);
 				float sy = -1 + (dstRect.Y / (float) dh);
 				float sw = (dstRect.Width / (float) dw) * 2;
@@ -1087,25 +1063,20 @@ namespace Microsoft.Xna.Framework.Graphics
 				handle.Free();
 			}
 
-			mtlSetVertexBuffer(
-				rce,
-				fauxBackbufferDrawBuffer,
-				0,
-				0
+			// Render the source texture to the destination texture
+			IntPtr backbufferRenderPass = mtlMakeRenderPassDescriptor();
+			mtlSetAttachmentTexture(
+				mtlGetColorAttachment(backbufferRenderPass, 0),
+				dstTex
 			);
-
-			mtlSetFragmentTexture(
-				rce,
-				srcTex,
-				0
+			IntPtr rce = mtlMakeRenderCommandEncoder(
+				commandBuffer,
+				backbufferRenderPass
 			);
-
-			mtlSetFragmentSamplerState(
-				rce,
-				fauxBackbufferSamplerState,
-				0
-			);
-
+			mtlSetRenderPipelineState(rce, fauxBackbufferRenderPipeline);
+			mtlSetVertexBuffer(rce, fauxBackbufferDrawBuffer, 0, 0);
+			mtlSetFragmentTexture(rce, srcTex, 0);
+			mtlSetFragmentSamplerState(rce, fauxBackbufferSamplerState, 0);
 			mtlDrawIndexedPrimitives(
 				rce,
 				MTLPrimitiveType.Triangle,
@@ -1117,7 +1088,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				0,
 				0
 			);
-
 			mtlEndEncoding(rce);
 		}
 
