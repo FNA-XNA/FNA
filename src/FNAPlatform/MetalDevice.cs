@@ -1764,6 +1764,15 @@ namespace Microsoft.Xna.Framework.Graphics
 					Textures[index] = MetalTexture.NullTexture;
 					textureNeedsUpdate[index] = true;
 				}
+				if (Samplers[index] == IntPtr.Zero)
+				{
+					/* Some shaders require non-null samplers
+					 * even if they aren't actually used.
+					 * -caleb
+					 */
+					Samplers[index] = FetchSamplerState(sampler, false);
+					samplerNeedsUpdate[index] = true;
+				}
 				return;
 			}
 
