@@ -213,21 +213,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			) {
 				this.device = device;
 				this.mtlDevice = device.device;
-				BufferSize = bufferSize;
 				this.dynamic = dynamic;
 				this.variableDataSize = variableDataSize;
 
-				/* Since dynamic buffers will likely be overwritten
-				 * in a single frame, allocate more space up-front.
-				 *
-				 * Note that in the case of a dynamic buffer set with
-				 * SetDataOptions.None (e.g. immediate mode SpriteBatch),
-				 * the bigger this number, the faster the performance
-				 * since there's more batching between CPU stalls.
-				 *
-				 * -caleb
-				 */
-				internalBufferSize = (int) bufferSize * (dynamic ? 8 : 1);
+				BufferSize = bufferSize;
+				internalBufferSize = (int) bufferSize;
 				internalBuffers = new IntPtr[MAX_FRAMES_IN_FLIGHT];
 				for (int i = 0; i < internalBuffers.Length; i += 1)
 				{
