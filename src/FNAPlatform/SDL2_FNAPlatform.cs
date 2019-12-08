@@ -400,7 +400,8 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal = PrepareMTLAttributes())
 			{
-				// FIXME: SDL_WINDOW_METAL?
+				// Metal doesn't require a window flag
+				SDL.SDL_SetHint(SDL.SDL_HINT_VIDEO_EXTERNAL_CONTEXT, "1");
 				ActualGLDevice = METAL;
 			}
 			else if (opengl = PrepareGLAttributes())
