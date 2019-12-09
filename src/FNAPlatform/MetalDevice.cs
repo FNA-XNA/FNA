@@ -167,10 +167,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			public IntPtr Handle
 			{
-				get
-				{
-					return internalBuffers[frame];
-				}
+				get;
+				private set;
 			}
 
 			public IntPtr Contents
@@ -197,11 +195,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			private MetalDevice device;
 			private IntPtr mtlDevice = IntPtr.Zero;
-			private IntPtr[] internalBuffers;
 			private int internalBufferSize = 0;
 			private int prevDataLength = 0;
-			private int frame = 0;
-			private int copiesNeeded = 0;
 			private bool dynamic = false;
 			private bool variableDataSize = false;
 
@@ -218,21 +213,17 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				BufferSize = bufferSize;
 				internalBufferSize = (int) bufferSize;
-				internalBuffers = new IntPtr[MAX_FRAMES_IN_FLIGHT];
-				for (int i = 0; i < internalBuffers.Length; i += 1)
-				{
-					CreateBackingBuffer(i);
-				}
+				CreateBackingBuffer();
 			}
 
-			private void CreateBackingBuffer(int f)
+			private void CreateBackingBuffer()
 			{
-				IntPtr oldBuffer = internalBuffers[f];
+				IntPtr oldBuffer = Handle;
 				IntPtr newBuffer = mtlNewBufferWithLength(
 					mtlDevice,
 					(uint) internalBufferSize
 				);
-				internalBuffers[f] = newBuffer;
+				Handle = newBuffer;
 				if (oldBuffer != IntPtr.Zero)
 				{
 					// Copy over data from old buffer
@@ -270,7 +261,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					(IntPtr) dataLength
 				);
 
-				copiesNeeded = MAX_FRAMES_IN_FLIGHT - 1;
 				prevDataLength = len;
 			}
 
@@ -298,7 +288,7 @@ namespace Microsoft.Xna.Framework.Graphics
 								internalBufferSize + dataLength
 							);
 						}
-						CreateBackingBuffer(frame);
+						CreateBackingBuffer();
 					}
 					else
 					{
@@ -318,7 +308,6 @@ namespace Microsoft.Xna.Framework.Graphics
 								BoundThisFrame = false;
 							}
 						}
-
 						InternalOffset = 0;
 					}
 				}
@@ -326,40 +315,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public void EndFrame()
 			{
-				int oldFrame = frame;
 				InternalOffset = 0;
 				BoundThisFrame = false;
-				frame = (frame + 1) % internalBuffers.Length;
 				prevDataLength = 0;
-
-				if (copiesNeeded > 0)
-				{
-					/* FIXME: Do we have to memcpy the whole thing?
-					 * Or could we just copy the modified regions?
-					 * -caleb
-					 */
-					int dstLen = (int) mtlGetBufferLength(Handle);
-					if (dstLen < internalBufferSize)
-					{
-						CreateBackingBuffer(frame);
-					}
-					memcpy(
-						mtlGetBufferContentsPtr(Handle),
-						mtlGetBufferContentsPtr(internalBuffers[oldFrame]),
-						(IntPtr) internalBufferSize
-					);
-					copiesNeeded -= 1;
-				}
 			}
 
 			public void Dispose()
 			{
-				for (int i = 0; i < internalBuffers.Length; i += 1)
-				{
-					ObjCRelease(internalBuffers[i]);
-					internalBuffers[i] = IntPtr.Zero;
-				}
-				internalBuffers = null;
+				ObjCRelease(Handle);
+				Handle = IntPtr.Zero;
 			}
 		}
 
@@ -988,6 +952,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Commit the command buffer for presentation
 			mtlPresentDrawable(commandBuffer, drawable);
 			mtlCommitCommandBuffer(commandBuffer);
+			mtlCommandBufferWaitUntilCompleted(commandBuffer);
 
 			// Release allocations from the past frame
 			DrainAutoreleasePool(pool);
