@@ -213,27 +213,27 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				BufferSize = bufferSize;
 				internalBufferSize = (int) bufferSize;
-				CreateBackingBuffer();
+
+				CreateBackingBuffer(-1);
 			}
 
-			private void CreateBackingBuffer()
+			private void CreateBackingBuffer(int prevSize)
 			{
 				IntPtr oldBuffer = Handle;
 				IntPtr newBuffer = mtlNewBufferWithLength(
 					mtlDevice,
-					(uint) internalBufferSize
+					(ulong) internalBufferSize
 				);
 				Handle = newBuffer;
+
+				// Copy over data from old buffer
 				if (oldBuffer != IntPtr.Zero)
 				{
-					// Copy over data from old buffer
 					memcpy(
 						mtlGetBufferContentsPtr(newBuffer),
 						mtlGetBufferContentsPtr(oldBuffer),
-						(IntPtr) mtlGetBufferLength(oldBuffer)
+						(IntPtr) prevSize
 					);
-
-					// Free the old buffer
 					ObjCRelease(oldBuffer);
 				}
 			}
@@ -269,7 +269,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				InternalOffset += prevDataLength;
 
 				int sizeNeeded = InternalOffset + dataLength;
-				if (sizeNeeded > (int) mtlGetBufferLength(Handle))
+				if (sizeNeeded > internalBufferSize)
 				{
 					/* We can't stall if we're on a background thread.
 					 * Let's just expand the buffer instead. It'll use
@@ -280,15 +280,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 					if (shouldExpand)
 					{
-						if (sizeNeeded >= internalBufferSize)
-						{
-							// Increase capacity when we're out of room
-							internalBufferSize = Math.Max(
-								internalBufferSize * 2,
-								internalBufferSize + dataLength
-							);
-						}
-						CreateBackingBuffer();
+						// Increase capacity when we're out of room
+						int prevSize = internalBufferSize;
+						internalBufferSize = Math.Max(
+							internalBufferSize * 2,
+							internalBufferSize + dataLength
+						);
+						CreateBackingBuffer(prevSize);
 					}
 					else
 					{
