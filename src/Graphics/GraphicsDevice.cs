@@ -85,7 +85,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					return new DisplayMode(
 						GLDevice.Backbuffer.Width,
 						GLDevice.Backbuffer.Height,
-						SurfaceFormat.Color
+						SurfaceFormat.Color,
+						0
 					);
 				}
 				return Adapter.CurrentDisplayMode;

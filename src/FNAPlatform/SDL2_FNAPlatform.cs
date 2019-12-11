@@ -7,6 +7,19 @@
  */
 #endregion
 
+#region DISPLAYMODE_KEEP_DUPLICATES Option
+// #define DISPLAYMODE_KEEP_DUPLICATES
+/* By default, FNA will remove all duplicates from the list
+ * of available DisplayModes if they only vary by their
+ * refresh rate or format. This mimics XNA 4.0 behavior.
+ *
+ * However, in some cases it may be beneficial to receive
+ * an unaltered list of available DisplayModes so that you
+ * can filter them by their support for certain refresh rates.
+ * -caleb
+ */
+#endregion
+
 #region Using Statements
 using System;
 using System.IO;
@@ -1251,6 +1264,7 @@ namespace Microsoft.Xna.Framework
 				{
 					SDL.SDL_GetDisplayMode(i, j, out filler);
 
+#if !DISPLAYMODE_KEEP_DUPLICATES
 					// Check for dupes caused by varying refresh rates.
 					bool dupe = false;
 					foreach (DisplayMode mode in modes)
@@ -1261,12 +1275,14 @@ namespace Microsoft.Xna.Framework
 						}
 					}
 					if (!dupe)
+#endif
 					{
 						modes.Add(
 							new DisplayMode(
 								filler.w,
 								filler.h,
-								SurfaceFormat.Color // FIXME: Assumption!
+								SurfaceFormat.Color, // FIXME: Assumption!
+								filler.refresh_rate
 							)
 						);
 					}
@@ -1296,7 +1312,8 @@ namespace Microsoft.Xna.Framework
 			return new DisplayMode(
 				filler.w,
 				filler.h,
-				SurfaceFormat.Color // FIXME: Assumption!
+				SurfaceFormat.Color, // FIXME: Assumption!
+				filler.refresh_rate
 			);
 		}
 

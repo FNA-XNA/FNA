@@ -57,15 +57,26 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		public int RefreshRateEXT
+		{
+			get;
+			private set;
+		}
+
 		#endregion
 
 		#region Internal Constructor
 
-		internal DisplayMode(int width, int height, SurfaceFormat format)
-		{
+		internal DisplayMode(
+			int width,
+			int height,
+			SurfaceFormat format,
+			int refreshRate
+		) {
 			Width = width;
 			Height = height;
 			Format = format;
+			RefreshRateEXT = refreshRate;
 		}
 
 		#endregion
