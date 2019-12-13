@@ -514,8 +514,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private bool shouldClearDepth = false;
 		private bool shouldClearStencil = false;
 
-		private const int MAX_FRAMES_IN_FLIGHT = 3;
-
 		private int mainThreadID;
 		private bool isMac;
 
@@ -752,12 +750,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Create and setup the faux-backbuffer
 			InitializeFauxBackbuffer(presentationParameters);
-
-			// Begin the autorelease pool
-			pool = StartAutoreleasePool();
-
-			// Create the inaugural command buffer!
-			commandBuffer = mtlMakeCommandBuffer(queue);
 		}
 
 		#endregion
@@ -859,6 +851,21 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Window SwapBuffers Method
 
+		public void BeginFrame()
+		{
+			// Wait...
+			if (commandBuffer != IntPtr.Zero)
+			{
+				mtlCommandBufferWaitUntilCompleted(commandBuffer);
+				ObjCRelease(commandBuffer);
+			}
+
+			// The cycle begins anew...
+			pool = StartAutoreleasePool();
+			commandBuffer = mtlMakeCommandBuffer(queue);
+			renderCommandEncoder = IntPtr.Zero;
+		}
+
 		public void SwapBuffers(
 			Rectangle? sourceRectangle,
 			Rectangle? destinationRectangle,
@@ -950,15 +957,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Commit the command buffer for presentation
 			mtlPresentDrawable(commandBuffer, drawable);
 			mtlCommitCommandBuffer(commandBuffer);
-			mtlCommandBufferWaitUntilCompleted(commandBuffer);
+			ObjCRetain(commandBuffer);
 
 			// Release allocations from the past frame
 			DrainAutoreleasePool(pool);
-
-			// The cycle begins anew...
-			pool = StartAutoreleasePool();
-			commandBuffer = mtlMakeCommandBuffer(queue);
-			renderCommandEncoder = IntPtr.Zero;
 
 			// Reset all buffers
 			for (int i = 0; i < Buffers.Count; i += 1)
@@ -2649,7 +2651,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(
 				effect,
 				device,
-				MAX_FRAMES_IN_FLIGHT
+				1
 			);
 			if (mtlEffect == IntPtr.Zero)
 			{
@@ -2689,7 +2691,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(
 				effect,
 				device,
-				MAX_FRAMES_IN_FLIGHT
+				1
 			);
 			if (mtlEffect == IntPtr.Zero)
 			{

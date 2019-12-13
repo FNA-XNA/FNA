@@ -525,6 +525,8 @@ namespace Microsoft.Xna.Framework
 				 */
 				if (BeginDraw())
 				{
+					// FIXME
+					(GraphicsDevice.GLDevice as MetalDevice).BeginFrame();
 					Draw(gameTime);
 					EndDraw();
 				}
