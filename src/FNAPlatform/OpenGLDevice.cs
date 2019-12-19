@@ -85,7 +85,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				uint handle,
 				GLenum target,
 				int levelCount
-			) {
+			)
+			{
 				Handle = handle;
 				Target = target;
 				HasMipmaps = levelCount > 1;
@@ -154,7 +155,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				uint handle,
 				IntPtr bufferSize,
 				GLenum dynamic
-			) {
+			)
+			{
 				Handle = handle;
 				BufferSize = bufferSize;
 				Dynamic = dynamic;
@@ -361,7 +363,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		 * force apply this when the GraphicsDevice is initialized.
 		 * -flibit
 		 */
-		private Rectangle scissorRectangle =  new Rectangle(
+		private Rectangle scissorRectangle = new Rectangle(
 			0,
 			0,
 			0,
@@ -595,7 +597,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		public OpenGLDevice(
 			PresentationParameters presentationParameters,
 			GraphicsAdapter adapter
-		) {
+		)
+		{
 			// Create OpenGL context
 			glContext = SDL.SDL_GL_CreateContext(
 				presentationParameters.DeviceWindowHandle
@@ -909,7 +912,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void ResetBackbuffer(
 			PresentationParameters presentationParameters,
 			GraphicsAdapter adapter
-		) {
+		)
+		{
 			if (UseFauxBackbuffer(presentationParameters, adapter.CurrentDisplayMode))
 			{
 				if (Backbuffer is NullBackbuffer)
@@ -964,7 +968,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			Rectangle? sourceRectangle,
 			Rectangle? destinationRectangle,
 			IntPtr overrideWindowHandle
-		) {
+		)
+		{
 			/* Only the faux-backbuffer supports presenting
 			 * specific regions given to Present().
 			 * -flibit
@@ -1010,8 +1015,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					glDisable(GLenum.GL_SCISSOR_TEST);
 				}
 
-				if (	Backbuffer.MultiSampleCount > 0 &&
-					(srcX != dstX || srcY != dstY || srcW != dstW || srcH != dstH)	)
+				if (Backbuffer.MultiSampleCount > 0 &&
+					(srcX != dstX || srcY != dstY || srcW != dstW || srcH != dstH))
 				{
 					/* We have to resolve the renderbuffer to a texture first.
 					 * For whatever reason, we can't blit a multisample renderbuffer
@@ -1240,7 +1245,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int primitiveCount,
 			IndexBuffer indices
-		) {
+		)
+		{
 			// Bind the index buffer
 			BindIndexBuffer(indices.buffer);
 
@@ -1276,7 +1282,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int primitiveCount,
 			int instanceCount,
 			IndexBuffer indices
-		) {
+		)
+		{
 			// Note that minVertexIndex and numVertices are NOT used!
 
 			// Bind the index buffer
@@ -1308,7 +1315,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			PrimitiveType primitiveType,
 			int vertexStart,
 			int primitiveCount
-		) {
+		)
+		{
 			bool tps = togglePointSprite && primitiveType == PrimitiveType.PointListEXT;
 			if (tps)
 			{
@@ -1337,7 +1345,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int indexOffset,
 			IndexElementSize indexElementSize,
 			int primitiveCount
-		) {
+		)
+		{
 			// Unbind current index buffer.
 			BindIndexBuffer(OpenGLBuffer.NullBuffer);
 
@@ -1371,7 +1380,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr vertexData,
 			int vertexOffset,
 			int primitiveCount
-		) {
+		)
+		{
 			bool tps = togglePointSprite && primitiveType == PrimitiveType.PointListEXT;
 			if (tps)
 			{
@@ -1487,10 +1497,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void SetBlendState(BlendState blendState)
 		{
 			bool newEnable = (
-				!(	blendState.ColorSourceBlend == Blend.One &&
+				!(blendState.ColorSourceBlend == Blend.One &&
 					blendState.ColorDestinationBlend == Blend.Zero &&
 					blendState.AlphaSourceBlend == Blend.One &&
-					blendState.AlphaDestinationBlend == Blend.Zero	)
+					blendState.AlphaDestinationBlend == Blend.Zero)
 			);
 			if (newEnable != alphaBlendEnable)
 			{
@@ -1511,10 +1521,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 				}
 
-				if (	blendState.ColorSourceBlend != srcBlend ||
+				if (blendState.ColorSourceBlend != srcBlend ||
 					blendState.ColorDestinationBlend != dstBlend ||
 					blendState.AlphaSourceBlend != srcBlendAlpha ||
-					blendState.AlphaDestinationBlend != dstBlendAlpha	)
+					blendState.AlphaDestinationBlend != dstBlendAlpha)
 				{
 					srcBlend = blendState.ColorSourceBlend;
 					dstBlend = blendState.ColorDestinationBlend;
@@ -1528,8 +1538,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 				}
 
-				if (	blendState.ColorBlendFunction != blendOp ||
-					blendState.AlphaBlendFunction != blendOpAlpha	)
+				if (blendState.ColorBlendFunction != blendOp ||
+					blendState.AlphaBlendFunction != blendOpAlpha)
 				{
 					blendOp = blendState.ColorBlendFunction;
 					blendOpAlpha = blendState.AlphaBlendFunction;
@@ -1650,7 +1660,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// TODO: Can we split StencilFunc/StencilOp up nicely? -flibit
-				if (	depthStencilState.TwoSidedStencilMode != separateStencilEnable ||
+				if (depthStencilState.TwoSidedStencilMode != separateStencilEnable ||
 					depthStencilState.ReferenceStencil != stencilRef ||
 					depthStencilState.StencilMask != stencilMask ||
 					depthStencilState.StencilFunction != stencilFunc ||
@@ -1660,7 +1670,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					depthStencilState.StencilPass != stencilPass ||
 					depthStencilState.CounterClockwiseStencilFail != ccwStencilFail ||
 					depthStencilState.CounterClockwiseStencilDepthBufferFail != ccwStencilZFail ||
-					depthStencilState.CounterClockwiseStencilPass != ccwStencilPass	)
+					depthStencilState.CounterClockwiseStencilPass != ccwStencilPass)
 				{
 					separateStencilEnable = depthStencilState.TwoSidedStencilMode;
 					stencilRef = depthStencilState.ReferenceStencil;
@@ -1774,10 +1784,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					(int) currentDepthStencilFormat :
 					(int) Backbuffer.DepthFormat
 			];
-			if (	realDepthBias != depthBias ||
-				rasterizerState.SlopeScaleDepthBias != slopeScaleDepthBias	)
+			if (realDepthBias != depthBias ||
+				rasterizerState.SlopeScaleDepthBias != slopeScaleDepthBias)
 			{
-				if (	realDepthBias == 0.0f &&
+				if (realDepthBias == 0.0f &&
 					rasterizerState.SlopeScaleDepthBias == 0.0f)
 				{
 					// We're changing to disabled bias, disable!
@@ -1843,14 +1853,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			OpenGLTexture tex = texture.texture as OpenGLTexture;
 
-			if (	tex == Textures[index] &&
+			if (tex == Textures[index] &&
 				sampler.AddressU == tex.WrapS &&
 				sampler.AddressV == tex.WrapT &&
 				sampler.AddressW == tex.WrapR &&
 				sampler.Filter == tex.Filter &&
 				sampler.MaxAnisotropy == tex.Anistropy &&
 				sampler.MaxMipLevel == tex.MaxMipmapLevel &&
-				sampler.MipMapLevelOfDetailBias == tex.LODBias	)
+				sampler.MipMapLevelOfDetailBias == tex.LODBias)
 			{
 				// Nothing's changing, forget it.
 				return;
@@ -1902,8 +1912,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					XNAToGL.Wrap[(int) tex.WrapR]
 				);
 			}
-			if (	sampler.Filter != tex.Filter ||
-				sampler.MaxAnisotropy != tex.Anistropy	)
+			if (sampler.Filter != tex.Filter ||
+				sampler.MaxAnisotropy != tex.Anistropy)
 			{
 				tex.Filter = sampler.Filter;
 				tex.Anistropy = sampler.MaxAnisotropy;
@@ -1966,50 +1976,50 @@ namespace Microsoft.Xna.Framework.Graphics
 			ForceToMainThread(() => {
 #endif
 
-			effect = MojoShader.MOJOSHADER_parseEffect(
-				shaderProfile,
-				effectCode,
-				(uint) effectCode.Length,
-				null,
-				0,
-				null,
-				0,
-				null,
-				null,
-				IntPtr.Zero
-			);
+				effect = MojoShader.MOJOSHADER_parseEffect(
+					shaderProfile,
+					effectCode,
+					(uint) effectCode.Length,
+					null,
+					0,
+					null,
+					0,
+					null,
+					null,
+					IntPtr.Zero
+				);
 
 #if DEBUG
-			unsafe
-			{
-				MojoShader.MOJOSHADER_effect *effectPtr = (MojoShader.MOJOSHADER_effect*) effect;
-				MojoShader.MOJOSHADER_error* err = (MojoShader.MOJOSHADER_error*) effectPtr->errors;
-				for (int i = 0; i < effectPtr->error_count; i += 1)
+				unsafe
 				{
-					// From the SDL2# LPToUtf8StringMarshaler
-					byte* endPtr = (byte*) err[i].error;
-					while (*endPtr != 0)
+					MojoShader.MOJOSHADER_effect* effectPtr = (MojoShader.MOJOSHADER_effect*) effect;
+					MojoShader.MOJOSHADER_error* err = (MojoShader.MOJOSHADER_error*) effectPtr->errors;
+					for (int i = 0; i < effectPtr->error_count; i += 1)
 					{
-						endPtr++;
-					}
-					byte[] bytes = new byte[endPtr - (byte*) err[i].error];
-					Marshal.Copy(err[i].error, bytes, 0, bytes.Length);
+						// From the SDL2# LPToUtf8StringMarshaler
+						byte* endPtr = (byte*) err[i].error;
+						while (*endPtr != 0)
+						{
+							endPtr++;
+						}
+						byte[] bytes = new byte[endPtr - (byte*) err[i].error];
+						Marshal.Copy(err[i].error, bytes, 0, bytes.Length);
 
-					FNALoggerEXT.LogError(
-						"MOJOSHADER_parseEffect Error: " +
-						System.Text.Encoding.UTF8.GetString(bytes)
-					);
+						FNALoggerEXT.LogError(
+							"MOJOSHADER_parseEffect Error: " +
+							System.Text.Encoding.UTF8.GetString(bytes)
+						);
+					}
 				}
-			}
 #endif
 
-			glEffect = MojoShader.MOJOSHADER_glCompileEffect(effect);
-			if (glEffect == IntPtr.Zero)
-			{
-				throw new InvalidOperationException(
-					MojoShader.MOJOSHADER_glGetError()
-				);
-			}
+				glEffect = MojoShader.MOJOSHADER_glCompileEffect(effect);
+				if (glEffect == IntPtr.Zero)
+				{
+					throw new InvalidOperationException(
+						MojoShader.MOJOSHADER_glGetError()
+					);
+				}
 
 #if !DISABLE_THREADING
 			});
@@ -2042,14 +2052,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			ForceToMainThread(() => {
 #endif
 
-			effect = MojoShader.MOJOSHADER_cloneEffect(cloneSource.EffectData);
-			glEffect = MojoShader.MOJOSHADER_glCompileEffect(effect);
-			if (glEffect == IntPtr.Zero)
-			{
-				throw new InvalidOperationException(
-					MojoShader.MOJOSHADER_glGetError()
-				);
-			}
+				effect = MojoShader.MOJOSHADER_cloneEffect(cloneSource.EffectData);
+				glEffect = MojoShader.MOJOSHADER_glCompileEffect(effect);
+				if (glEffect == IntPtr.Zero)
+				{
+					throw new InvalidOperationException(
+						MojoShader.MOJOSHADER_glGetError()
+					);
+				}
 
 #if !DISABLE_THREADING
 			});
@@ -2063,7 +2073,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr technique,
 			uint pass,
 			IntPtr stateChanges
-		) {
+		)
+		{
 			effectApplied = true;
 			IntPtr glEffectData = (effect as OpenGLEffect).GLEffectData;
 			if (glEffectData == currentEffect)
@@ -2134,18 +2145,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			int numBindings,
 			bool bindingsUpdated,
 			int baseVertex
-		) {
+		)
+		{
 			if (supportsBaseVertex)
 			{
 				baseVertex = 0;
 			}
 
-			if (	bindingsUpdated ||
+			if (bindingsUpdated ||
 				baseVertex != ldBaseVertex ||
 				currentEffect != ldEffect ||
 				currentTechnique != ldTechnique ||
 				currentPass != ldPass ||
-				effectApplied	)
+				effectApplied)
 			{
 				/* There's this weird case where you can have overlapping
 				 * vertex usage/index combinations. It seems like the first
@@ -2199,11 +2211,11 @@ namespace Microsoft.Xna.Framework.Graphics
 						IntPtr ptr = basePtr + element.Offset;
 						VertexElementFormat format = element.VertexElementFormat;
 						bool normalized = XNAToGL.VertexAttribNormalized(element);
-						if (	attr.CurrentBuffer != buffer ||
+						if (attr.CurrentBuffer != buffer ||
 							attr.CurrentPointer != ptr ||
 							attr.CurrentFormat != element.VertexElementFormat ||
 							attr.CurrentNormalized != normalized ||
-							attr.CurrentStride != vertexDeclaration.VertexStride	)
+							attr.CurrentStride != vertexDeclaration.VertexStride)
 						{
 							glVertexAttribPointer(
 								attribLoc,
@@ -2248,16 +2260,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			VertexDeclaration vertexDeclaration,
 			IntPtr ptr,
 			int vertexOffset
-		) {
+		)
+		{
 			BindVertexBuffer(OpenGLBuffer.NullBuffer);
 			IntPtr basePtr = ptr + (vertexDeclaration.VertexStride * vertexOffset);
 
-			if (	vertexDeclaration != ldVertexDeclaration ||
+			if (vertexDeclaration != ldVertexDeclaration ||
 				basePtr != ldPointer ||
 				currentEffect != ldEffect ||
 				currentTechnique != ldTechnique ||
 				currentPass != ldPass ||
-				effectApplied	)
+				effectApplied)
 			{
 				/* There's this weird case where you can have overlapping
 				 * vertex usage/index combinations. It seems like the first
@@ -2301,11 +2314,11 @@ namespace Microsoft.Xna.Framework.Graphics
 					VertexAttribute attr = attributes[attribLoc];
 					IntPtr finalPtr = basePtr + element.Offset;
 					bool normalized = XNAToGL.VertexAttribNormalized(element);
-					if (	attr.CurrentBuffer != 0 ||
+					if (attr.CurrentBuffer != 0 ||
 						attr.CurrentPointer != finalPtr ||
 						attr.CurrentFormat != element.VertexElementFormat ||
 						attr.CurrentNormalized != normalized ||
-						attr.CurrentStride != vertexDeclaration.VertexStride	)
+						attr.CurrentStride != vertexDeclaration.VertexStride)
 					{
 						glVertexAttribPointer(
 							attribLoc,
@@ -2378,29 +2391,30 @@ namespace Microsoft.Xna.Framework.Graphics
 			bool dynamic,
 			int vertexCount,
 			int vertexStride
-		) {
+		)
+		{
 			OpenGLBuffer result = null;
 
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			uint handle;
-			glGenBuffers(1, out handle);
+				uint handle;
+				glGenBuffers(1, out handle);
 
-			result = new OpenGLBuffer(
-				handle,
-				(IntPtr) (vertexStride * vertexCount),
-				dynamic ? GLenum.GL_STREAM_DRAW : GLenum.GL_STATIC_DRAW
-			);
+				result = new OpenGLBuffer(
+					handle,
+					(IntPtr) (vertexStride * vertexCount),
+					dynamic ? GLenum.GL_STREAM_DRAW : GLenum.GL_STATIC_DRAW
+				);
 
-			BindVertexBuffer(result);
-			glBufferData(
-				GLenum.GL_ARRAY_BUFFER,
-				result.BufferSize,
-				IntPtr.Zero,
-				result.Dynamic
-			);
+				BindVertexBuffer(result);
+				glBufferData(
+					GLenum.GL_ARRAY_BUFFER,
+					result.BufferSize,
+					IntPtr.Zero,
+					result.Dynamic
+				);
 
 #if !DISABLE_THREADING
 			});
@@ -2413,29 +2427,30 @@ namespace Microsoft.Xna.Framework.Graphics
 			bool dynamic,
 			int indexCount,
 			IndexElementSize indexElementSize
-		) {
+		)
+		{
 			OpenGLBuffer result = null;
 
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			uint handle;
-			glGenBuffers(1, out handle);
+				uint handle;
+				glGenBuffers(1, out handle);
 
-			result = new OpenGLBuffer(
-				handle,
-				(IntPtr) (indexCount * XNAToGL.IndexSize[(int) indexElementSize]),
-				dynamic ? GLenum.GL_STREAM_DRAW : GLenum.GL_STATIC_DRAW
-			);
+				result = new OpenGLBuffer(
+					handle,
+					(IntPtr) (indexCount * XNAToGL.IndexSize[(int) indexElementSize]),
+					dynamic ? GLenum.GL_STREAM_DRAW : GLenum.GL_STATIC_DRAW
+				);
 
-			BindIndexBuffer(result);
-			glBufferData(
-				GLenum.GL_ELEMENT_ARRAY_BUFFER,
-				result.BufferSize,
-				IntPtr.Zero,
-				result.Dynamic
-			);
+				BindIndexBuffer(result);
+				glBufferData(
+					GLenum.GL_ELEMENT_ARRAY_BUFFER,
+					result.BufferSize,
+					IntPtr.Zero,
+					result.Dynamic
+				);
 
 #if !DISABLE_THREADING
 			});
@@ -2478,29 +2493,30 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			int dataLength,
 			SetDataOptions options
-		) {
+		)
+		{
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			BindVertexBuffer(buffer);
+				BindVertexBuffer(buffer);
 
-			if (options == SetDataOptions.Discard)
-			{
-				glBufferData(
+				if (options == SetDataOptions.Discard)
+				{
+					glBufferData(
+						GLenum.GL_ARRAY_BUFFER,
+						buffer.BufferSize,
+						IntPtr.Zero,
+						(buffer as OpenGLBuffer).Dynamic
+					);
+				}
+
+				glBufferSubData(
 					GLenum.GL_ARRAY_BUFFER,
-					buffer.BufferSize,
-					IntPtr.Zero,
-					(buffer as OpenGLBuffer).Dynamic
+					(IntPtr) offsetInBytes,
+					(IntPtr) dataLength,
+					data
 				);
-			}
-
-			glBufferSubData(
-				GLenum.GL_ARRAY_BUFFER,
-				(IntPtr) offsetInBytes,
-				(IntPtr) dataLength,
-				data
-			);
 
 #if !DISABLE_THREADING
 			});
@@ -2513,29 +2529,30 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			int dataLength,
 			SetDataOptions options
-		) {
+		)
+		{
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			BindIndexBuffer(buffer);
+				BindIndexBuffer(buffer);
 
-			if (options == SetDataOptions.Discard)
-			{
-				glBufferData(
+				if (options == SetDataOptions.Discard)
+				{
+					glBufferData(
+						GLenum.GL_ELEMENT_ARRAY_BUFFER,
+						buffer.BufferSize,
+						IntPtr.Zero,
+						(buffer as OpenGLBuffer).Dynamic
+					);
+				}
+
+				glBufferSubData(
 					GLenum.GL_ELEMENT_ARRAY_BUFFER,
-					buffer.BufferSize,
-					IntPtr.Zero,
-					(buffer as OpenGLBuffer).Dynamic
+					(IntPtr) offsetInBytes,
+					(IntPtr) dataLength,
+					data
 				);
-			}
-
-			glBufferSubData(
-				GLenum.GL_ELEMENT_ARRAY_BUFFER,
-				(IntPtr) offsetInBytes,
-				(IntPtr) dataLength,
-				data
-			);
 
 #if !DISABLE_THREADING
 			});
@@ -2554,7 +2571,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int elementSizeInBytes,
 			int vertexStride
-		) {
+		)
+		{
 			IntPtr cpy;
 			bool useStagingBuffer = elementSizeInBytes < vertexStride;
 			if (useStagingBuffer)
@@ -2570,14 +2588,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			ForceToMainThread(() => {
 #endif
 
-			BindVertexBuffer(buffer);
+				BindVertexBuffer(buffer);
 
-			glGetBufferSubData(
-				GLenum.GL_ARRAY_BUFFER,
-				(IntPtr) offsetInBytes,
-				(IntPtr) (elementCount * vertexStride),
-				cpy
-			);
+				glGetBufferSubData(
+					GLenum.GL_ARRAY_BUFFER,
+					(IntPtr) offsetInBytes,
+					(IntPtr) (elementCount * vertexStride),
+					cpy
+				);
 
 #if !DISABLE_THREADING
 			});
@@ -2604,19 +2622,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount,
 			int elementSizeInBytes
-		) {
+		)
+		{
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			BindIndexBuffer(buffer);
+				BindIndexBuffer(buffer);
 
-			glGetBufferSubData(
-				GLenum.GL_ELEMENT_ARRAY_BUFFER,
-				(IntPtr) offsetInBytes,
-				(IntPtr) (elementCount * elementSizeInBytes),
-				data + (startIndex * elementSizeInBytes)
-			);
+				glGetBufferSubData(
+					GLenum.GL_ELEMENT_ARRAY_BUFFER,
+					(IntPtr) offsetInBytes,
+					(IntPtr) (elementCount * elementSizeInBytes),
+					data + (startIndex * elementSizeInBytes)
+				);
 
 #if !DISABLE_THREADING
 			});
@@ -2664,7 +2683,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private OpenGLTexture CreateTexture(
 			GLenum target,
 			int levelCount
-		) {
+		)
+		{
 			uint handle;
 			glGenTextures(1, out handle);
 			OpenGLTexture result = new OpenGLTexture(
@@ -2727,56 +2747,57 @@ namespace Microsoft.Xna.Framework.Graphics
 			int height,
 			int levelCount,
 			bool isRenderTarget
-		) {
+		)
+		{
 			OpenGLTexture result = null;
 
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			result = CreateTexture(
-				GLenum.GL_TEXTURE_2D,
-				levelCount
-			);
+				result = CreateTexture(
+					GLenum.GL_TEXTURE_2D,
+					levelCount
+				);
 
-			GLenum glFormat = XNAToGL.TextureFormat[(int) format];
-			GLenum glInternalFormat = XNAToGL.TextureInternalFormat[(int) format];
-			if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
-			{
-				for (int i = 0; i < levelCount; i += 1)
+				GLenum glFormat = XNAToGL.TextureFormat[(int) format];
+				GLenum glInternalFormat = XNAToGL.TextureInternalFormat[(int) format];
+				if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
 				{
-					int levelWidth = Math.Max(width >> i, 1);
-					int levelHeight = Math.Max(height >> i, 1);
-					glCompressedTexImage2D(
-						GLenum.GL_TEXTURE_2D,
-						i,
-						(int) glInternalFormat,
-						levelWidth,
-						levelHeight,
-						0,
-						((levelWidth + 3) / 4) * ((levelHeight + 3) / 4) * Texture.GetFormatSize(format),
-						IntPtr.Zero
-					);
+					for (int i = 0; i < levelCount; i += 1)
+					{
+						int levelWidth = Math.Max(width >> i, 1);
+						int levelHeight = Math.Max(height >> i, 1);
+						glCompressedTexImage2D(
+							GLenum.GL_TEXTURE_2D,
+							i,
+							(int) glInternalFormat,
+							levelWidth,
+							levelHeight,
+							0,
+							((levelWidth + 3) / 4) * ((levelHeight + 3) / 4) * Texture.GetFormatSize(format),
+							IntPtr.Zero
+						);
+					}
 				}
-			}
-			else
-			{
-				GLenum glType = XNAToGL.TextureDataType[(int) format];
-				for (int i = 0; i < levelCount; i += 1)
+				else
 				{
-					glTexImage2D(
-						GLenum.GL_TEXTURE_2D,
-						i,
-						(int) glInternalFormat,
-						Math.Max(width >> i, 1),
-						Math.Max(height >> i, 1),
-						0,
-						glFormat,
-						glType,
-						IntPtr.Zero
-					);
+					GLenum glType = XNAToGL.TextureDataType[(int) format];
+					for (int i = 0; i < levelCount; i += 1)
+					{
+						glTexImage2D(
+							GLenum.GL_TEXTURE_2D,
+							i,
+							(int) glInternalFormat,
+							Math.Max(width >> i, 1),
+							Math.Max(height >> i, 1),
+							0,
+							glFormat,
+							glType,
+							IntPtr.Zero
+						);
+					}
 				}
-			}
 
 #if !DISABLE_THREADING
 			});
@@ -2791,36 +2812,37 @@ namespace Microsoft.Xna.Framework.Graphics
 			int height,
 			int depth,
 			int levelCount
-		) {
+		)
+		{
 			OpenGLTexture result = null;
 
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			result = CreateTexture(
-				GLenum.GL_TEXTURE_3D,
-				levelCount
-			);
-
-			GLenum glFormat = XNAToGL.TextureFormat[(int) format];
-			GLenum glInternalFormat = XNAToGL.TextureInternalFormat[(int) format];
-			GLenum glType = XNAToGL.TextureDataType[(int) format];
-			for (int i = 0; i < levelCount; i += 1)
-			{
-				glTexImage3D(
+				result = CreateTexture(
 					GLenum.GL_TEXTURE_3D,
-					i,
-					(int) glInternalFormat,
-					Math.Max(width >> i, 1),
-					Math.Max(height >> i, 1),
-					Math.Max(depth >> i, 1),
-					0,
-					glFormat,
-					glType,
-					IntPtr.Zero
+					levelCount
 				);
-			}
+
+				GLenum glFormat = XNAToGL.TextureFormat[(int) format];
+				GLenum glInternalFormat = XNAToGL.TextureInternalFormat[(int) format];
+				GLenum glType = XNAToGL.TextureDataType[(int) format];
+				for (int i = 0; i < levelCount; i += 1)
+				{
+					glTexImage3D(
+						GLenum.GL_TEXTURE_3D,
+						i,
+						(int) glInternalFormat,
+						Math.Max(width >> i, 1),
+						Math.Max(height >> i, 1),
+						Math.Max(depth >> i, 1),
+						0,
+						glFormat,
+						glType,
+						IntPtr.Zero
+					);
+				}
 
 #if !DISABLE_THREADING
 			});
@@ -2834,62 +2856,63 @@ namespace Microsoft.Xna.Framework.Graphics
 			int size,
 			int levelCount,
 			bool isRenderTarget
-		) {
+		)
+		{
 			OpenGLTexture result = null;
 
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			result = CreateTexture(
-				GLenum.GL_TEXTURE_CUBE_MAP,
-				levelCount
-			);
+				result = CreateTexture(
+					GLenum.GL_TEXTURE_CUBE_MAP,
+					levelCount
+				);
 
-			GLenum glFormat = XNAToGL.TextureFormat[(int) format];
-			GLenum glInternalFormat = XNAToGL.TextureInternalFormat[(int) format];
-			if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
-			{
-				for (int i = 0; i < 6; i += 1)
+				GLenum glFormat = XNAToGL.TextureFormat[(int) format];
+				GLenum glInternalFormat = XNAToGL.TextureInternalFormat[(int) format];
+				if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
 				{
-					for (int l = 0; l < levelCount; l += 1)
+					for (int i = 0; i < 6; i += 1)
 					{
-						int levelSize = Math.Max(size >> l, 1);
-						glCompressedTexImage2D(
-							GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-							l,
-							(int) glInternalFormat,
-							levelSize,
-							levelSize,
-							0,
-							((levelSize + 3) / 4) * ((levelSize + 3) / 4) * Texture.GetFormatSize(format),
-							IntPtr.Zero
-						);
+						for (int l = 0; l < levelCount; l += 1)
+						{
+							int levelSize = Math.Max(size >> l, 1);
+							glCompressedTexImage2D(
+								GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+								l,
+								(int) glInternalFormat,
+								levelSize,
+								levelSize,
+								0,
+								((levelSize + 3) / 4) * ((levelSize + 3) / 4) * Texture.GetFormatSize(format),
+								IntPtr.Zero
+							);
+						}
 					}
 				}
-			}
-			else
-			{
-				GLenum glType = XNAToGL.TextureDataType[(int) format];
-				for (int i = 0; i < 6; i += 1)
+				else
 				{
-					for (int l = 0; l < levelCount; l += 1)
+					GLenum glType = XNAToGL.TextureDataType[(int) format];
+					for (int i = 0; i < 6; i += 1)
 					{
-						int levelSize = Math.Max(size >> l, 1);
-						glTexImage2D(
-							GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-							l,
-							(int) glInternalFormat,
-							levelSize,
-							levelSize,
-							0,
-							glFormat,
-							glType,
-							IntPtr.Zero
-						);
+						for (int l = 0; l < levelCount; l += 1)
+						{
+							int levelSize = Math.Max(size >> l, 1);
+							glTexImage2D(
+								GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+								l,
+								(int) glInternalFormat,
+								levelSize,
+								levelSize,
+								0,
+								glFormat,
+								glType,
+								IntPtr.Zero
+							);
+						}
 					}
 				}
-			}
 
 #if !DISABLE_THREADING
 			});
@@ -2912,66 +2935,67 @@ namespace Microsoft.Xna.Framework.Graphics
 			int level,
 			IntPtr data,
 			int dataLength
-		) {
+		)
+		{
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
-			BindTexture(texture);
+				BindTexture(texture);
 
-			GLenum glFormat = XNAToGL.TextureFormat[(int) format];
-			if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
-			{
-				/* Note that we're using glInternalFormat, not glFormat.
-				 * In this case, they should actually be the same thing,
-				 * but we use glFormat somewhat differently for
-				 * compressed textures.
-				 * -flibit
-				 */
-				glCompressedTexSubImage2D(
-					GLenum.GL_TEXTURE_2D,
-					level,
-					x,
-					y,
-					w,
-					h,
-					XNAToGL.TextureInternalFormat[(int) format],
-					dataLength,
-					data
-				);
-			}
-			else
-			{
-				// Set pixel alignment to match texel size in bytes.
-				int packSize = Texture.GetPixelStoreAlignment(format);
-				if (packSize != 4)
+				GLenum glFormat = XNAToGL.TextureFormat[(int) format];
+				if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
 				{
-					glPixelStorei(
-						GLenum.GL_UNPACK_ALIGNMENT,
-						packSize
+					/* Note that we're using glInternalFormat, not glFormat.
+					 * In this case, they should actually be the same thing,
+					 * but we use glFormat somewhat differently for
+					 * compressed textures.
+					 * -flibit
+					 */
+					glCompressedTexSubImage2D(
+						GLenum.GL_TEXTURE_2D,
+						level,
+						x,
+						y,
+						w,
+						h,
+						XNAToGL.TextureInternalFormat[(int) format],
+						dataLength,
+						data
 					);
 				}
-
-				glTexSubImage2D(
-					GLenum.GL_TEXTURE_2D,
-					level,
-					x,
-					y,
-					w,
-					h,
-					glFormat,
-					XNAToGL.TextureDataType[(int) format],
-					data
-				);
-
-				// Keep this state sane -flibit
-				if (packSize != 4)
+				else
 				{
-					glPixelStorei(
-						GLenum.GL_UNPACK_ALIGNMENT,
-						4
+					// Set pixel alignment to match texel size in bytes.
+					int packSize = Texture.GetPixelStoreAlignment(format);
+					if (packSize != 4)
+					{
+						glPixelStorei(
+							GLenum.GL_UNPACK_ALIGNMENT,
+							packSize
+						);
+					}
+
+					glTexSubImage2D(
+						GLenum.GL_TEXTURE_2D,
+						level,
+						x,
+						y,
+						w,
+						h,
+						glFormat,
+						XNAToGL.TextureDataType[(int) format],
+						data
 					);
+
+					// Keep this state sane -flibit
+					if (packSize != 4)
+					{
+						glPixelStorei(
+							GLenum.GL_UNPACK_ALIGNMENT,
+							4
+						);
+					}
 				}
-			}
 
 #if !DISABLE_THREADING
 			});
@@ -2990,25 +3014,26 @@ namespace Microsoft.Xna.Framework.Graphics
 			int back,
 			IntPtr data,
 			int dataLength
-		) {
+		)
+		{
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
-			BindTexture(texture);
+				BindTexture(texture);
 
-			glTexSubImage3D(
-				GLenum.GL_TEXTURE_3D,
-				level,
-				left,
-				top,
-				front,
-				right - left,
-				bottom - top,
-				back - front,
-				XNAToGL.TextureFormat[(int) format],
-				XNAToGL.TextureDataType[(int) format],
-				data
-			);
+				glTexSubImage3D(
+					GLenum.GL_TEXTURE_3D,
+					level,
+					left,
+					top,
+					front,
+					right - left,
+					bottom - top,
+					back - front,
+					XNAToGL.TextureFormat[(int) format],
+					XNAToGL.TextureDataType[(int) format],
+					data
+				);
 
 #if !DISABLE_THREADING
 			});
@@ -3026,47 +3051,48 @@ namespace Microsoft.Xna.Framework.Graphics
 			int level,
 			IntPtr data,
 			int dataLength
-		) {
+		)
+		{
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
-			BindTexture(texture);
+				BindTexture(texture);
 
-			GLenum glFormat = XNAToGL.TextureFormat[(int) format];
-			if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
-			{
-				/* Note that we're using glInternalFormat, not glFormat.
-				 * In this case, they should actually be the same thing,
-				 * but we use glFormat somewhat differently for
-				 * compressed textures.
-				 * -flibit
-				 */
-				glCompressedTexSubImage2D(
-					GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
-					level,
-					xOffset,
-					yOffset,
-					width,
-					height,
-					XNAToGL.TextureInternalFormat[(int) format],
-					dataLength,
-					data
-				);
-			}
-			else
-			{
-				glTexSubImage2D(
-					GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
-					level,
-					xOffset,
-					yOffset,
-					width,
-					height,
-					glFormat,
-					XNAToGL.TextureDataType[(int) format],
-					data
-				);
-			}
+				GLenum glFormat = XNAToGL.TextureFormat[(int) format];
+				if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
+				{
+					/* Note that we're using glInternalFormat, not glFormat.
+					 * In this case, they should actually be the same thing,
+					 * but we use glFormat somewhat differently for
+					 * compressed textures.
+					 * -flibit
+					 */
+					glCompressedTexSubImage2D(
+						GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
+						level,
+						xOffset,
+						yOffset,
+						width,
+						height,
+						XNAToGL.TextureInternalFormat[(int) format],
+						dataLength,
+						data
+					);
+				}
+				else
+				{
+					glTexSubImage2D(
+						GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
+						level,
+						xOffset,
+						yOffset,
+						width,
+						height,
+						glFormat,
+						XNAToGL.TextureDataType[(int) format],
+						data
+					);
+				}
 
 #if !DISABLE_THREADING
 			});
@@ -3114,81 +3140,83 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount,
 			int elementSizeInBytes
-		) {
+		)
+		{
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			if (level == 0 && ReadTargetIfApplicable(
-				texture,
-				width,
-				height,
-				level,
-				data,
-				subX,
-				subY,
-				subW,
-				subH
-			)) {
-				return;
-			}
-
-			BindTexture(texture);
-			GLenum glFormat = XNAToGL.TextureFormat[(int) format];
-			if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
-			{
-				throw new NotImplementedException("GetData, CompressedTexture");
-			}
-			else if (subX == 0 && subY == 0 && subW == width && subH == height)
-			{
-				// Just throw the whole texture into the user array.
-				glGetTexImage(
-					GLenum.GL_TEXTURE_2D,
+				if (level == 0 && ReadTargetIfApplicable(
+					texture,
+					width,
+					height,
 					level,
-					glFormat,
-					XNAToGL.TextureDataType[(int) format],
-					data
-				);
-			}
-			else
-			{
-				// Get the whole texture...
-				IntPtr texData = Marshal.AllocHGlobal(width * height * elementSizeInBytes);
-				glGetTexImage(
-					GLenum.GL_TEXTURE_2D,
-					level,
-					glFormat,
-					XNAToGL.TextureDataType[(int) format],
-					texData
-				);
-
-				// Now, blit the rect region into the user array.
-				int curPixel = -1;
-				for (int row = subY; row < subY + subH; row += 1)
+					data,
+					subX,
+					subY,
+					subW,
+					subH
+				))
 				{
-					for (int col = subX; col < subX + subW; col += 1)
-					{
-						curPixel += 1;
-						if (curPixel < startIndex)
-						{
-							// If we're not at the start yet, just keep going...
-							continue;
-						}
-						if (curPixel > elementCount)
-						{
-							// If we're past the end, we're done!
-							return;
-						}
-						// FIXME: Can we copy via pitch instead, or something? -flibit
-						memcpy(
-							data + ((curPixel - startIndex) * elementSizeInBytes),
-							texData + (((row * width) + col) * elementSizeInBytes),
-							(IntPtr) elementSizeInBytes
-						);
-					}
+					return;
 				}
-				Marshal.FreeHGlobal(texData);
-			}
+
+				BindTexture(texture);
+				GLenum glFormat = XNAToGL.TextureFormat[(int) format];
+				if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
+				{
+					throw new NotImplementedException("GetData, CompressedTexture");
+				}
+				else if (subX == 0 && subY == 0 && subW == width && subH == height)
+				{
+					// Just throw the whole texture into the user array.
+					glGetTexImage(
+						GLenum.GL_TEXTURE_2D,
+						level,
+						glFormat,
+						XNAToGL.TextureDataType[(int) format],
+						data
+					);
+				}
+				else
+				{
+					// Get the whole texture...
+					IntPtr texData = Marshal.AllocHGlobal(width * height * elementSizeInBytes);
+					glGetTexImage(
+						GLenum.GL_TEXTURE_2D,
+						level,
+						glFormat,
+						XNAToGL.TextureDataType[(int) format],
+						texData
+					);
+
+					// Now, blit the rect region into the user array.
+					int curPixel = -1;
+					for (int row = subY; row < subY + subH; row += 1)
+					{
+						for (int col = subX; col < subX + subW; col += 1)
+						{
+							curPixel += 1;
+							if (curPixel < startIndex)
+							{
+								// If we're not at the start yet, just keep going...
+								continue;
+							}
+							if (curPixel > elementCount)
+							{
+								// If we're past the end, we're done!
+								return;
+							}
+							// FIXME: Can we copy via pitch instead, or something? -flibit
+							memcpy(
+								data + ((curPixel - startIndex) * elementSizeInBytes),
+								texData + (((row * width) + col) * elementSizeInBytes),
+								(IntPtr) elementSizeInBytes
+							);
+						}
+					}
+					Marshal.FreeHGlobal(texData);
+				}
 
 #if !DISABLE_THREADING
 			});
@@ -3209,7 +3237,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount,
 			int elementSizeInBytes
-		) {
+		)
+		{
 			throw new NotImplementedException();
 		}
 
@@ -3227,67 +3256,68 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount,
 			int elementSizeInBytes
-		) {
+		)
+		{
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			BindTexture(texture);
-			GLenum glFormat = XNAToGL.TextureFormat[(int) format];
-			if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
-			{
-				throw new NotImplementedException("GetData, CompressedTexture");
-			}
-			else if (subX == 0 && subY == 0 && subW == size && subH == size)
-			{
-				// Just throw the whole texture into the user array.
-				glGetTexImage(
-					GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
-					level,
-					glFormat,
-					XNAToGL.TextureDataType[(int) format],
-					data
-				);
-			}
-			else
-			{
-				// Get the whole texture...
-				IntPtr texData = Marshal.AllocHGlobal(size * size * elementSizeInBytes);
-				glGetTexImage(
-					GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
-					level,
-					glFormat,
-					XNAToGL.TextureDataType[(int) format],
-					texData
-				);
-
-				// Now, blit the rect region into the user array.
-				int curPixel = -1;
-				for (int row = subY; row < subY + subH; row += 1)
+				BindTexture(texture);
+				GLenum glFormat = XNAToGL.TextureFormat[(int) format];
+				if (glFormat == GLenum.GL_COMPRESSED_TEXTURE_FORMATS)
 				{
-					for (int col = subX; col < subX + subW; col += 1)
-					{
-						curPixel += 1;
-						if (curPixel < startIndex)
-						{
-							// If we're not at the start yet, just keep going...
-							continue;
-						}
-						if (curPixel > elementCount)
-						{
-							// If we're past the end, we're done!
-							return;
-						}
-						// FIXME: Can we copy via pitch instead, or something? -flibit
-						memcpy(
-							data + ((curPixel - startIndex) * elementSizeInBytes),
-							texData + (((row * size) + col) * elementSizeInBytes),
-							(IntPtr) elementSizeInBytes
-						);
-					}
+					throw new NotImplementedException("GetData, CompressedTexture");
 				}
-				Marshal.FreeHGlobal(texData);
-			}
+				else if (subX == 0 && subY == 0 && subW == size && subH == size)
+				{
+					// Just throw the whole texture into the user array.
+					glGetTexImage(
+						GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
+						level,
+						glFormat,
+						XNAToGL.TextureDataType[(int) format],
+						data
+					);
+				}
+				else
+				{
+					// Get the whole texture...
+					IntPtr texData = Marshal.AllocHGlobal(size * size * elementSizeInBytes);
+					glGetTexImage(
+						GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int) cubeMapFace,
+						level,
+						glFormat,
+						XNAToGL.TextureDataType[(int) format],
+						texData
+					);
+
+					// Now, blit the rect region into the user array.
+					int curPixel = -1;
+					for (int row = subY; row < subY + subH; row += 1)
+					{
+						for (int col = subX; col < subX + subW; col += 1)
+						{
+							curPixel += 1;
+							if (curPixel < startIndex)
+							{
+								// If we're not at the start yet, just keep going...
+								continue;
+							}
+							if (curPixel > elementCount)
+							{
+								// If we're past the end, we're done!
+								return;
+							}
+							// FIXME: Can we copy via pitch instead, or something? -flibit
+							memcpy(
+								data + ((curPixel - startIndex) * elementSizeInBytes),
+								texData + (((row * size) + col) * elementSizeInBytes),
+								(IntPtr) elementSizeInBytes
+							);
+						}
+					}
+					Marshal.FreeHGlobal(texData);
+				}
 
 #if !DISABLE_THREADING
 			});
@@ -3347,7 +3377,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int subY,
 			int subW,
 			int subH
-		) {
+		)
+		{
 			/* FIXME: Right now we're expecting one of the following:
 			 * - byte[]
 			 * - int[]
@@ -3465,9 +3496,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			int subY,
 			int subW,
 			int subH
-		) {
-			bool texUnbound = (	currentDrawBuffers != 1 ||
-						currentAttachments[0] != (texture as OpenGLTexture).Handle	);
+		)
+		{
+			bool texUnbound = (currentDrawBuffers != 1 ||
+						currentAttachments[0] != (texture as OpenGLTexture).Handle);
 			if (texUnbound && !useES3)
 			{
 				return false;
@@ -3613,8 +3645,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void BindFramebuffer(uint handle)
 		{
-			if (	currentReadFramebuffer != handle &&
-				currentDrawFramebuffer != handle	)
+			if (currentReadFramebuffer != handle &&
+				currentDrawFramebuffer != handle)
 			{
 				glBindFramebuffer(
 					GLenum.GL_FRAMEBUFFER,
@@ -3673,41 +3705,42 @@ namespace Microsoft.Xna.Framework.Graphics
 			SurfaceFormat format,
 			int multiSampleCount,
 			IGLTexture texture
-		) {
+		)
+		{
 			uint handle = 0;
 
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			glGenRenderbuffers(1, out handle);
-			glBindRenderbuffer(
-				GLenum.GL_RENDERBUFFER,
-				handle
-			);
-			if (multiSampleCount > 0)
-			{
-				glRenderbufferStorageMultisample(
+				glGenRenderbuffers(1, out handle);
+				glBindRenderbuffer(
 					GLenum.GL_RENDERBUFFER,
-					multiSampleCount,
-					XNAToGL.TextureInternalFormat[(int) format],
-					width,
-					height
+					handle
 				);
-			}
-			else
-			{
-				glRenderbufferStorage(
+				if (multiSampleCount > 0)
+				{
+					glRenderbufferStorageMultisample(
+						GLenum.GL_RENDERBUFFER,
+						multiSampleCount,
+						XNAToGL.TextureInternalFormat[(int) format],
+						width,
+						height
+					);
+				}
+				else
+				{
+					glRenderbufferStorage(
+						GLenum.GL_RENDERBUFFER,
+						XNAToGL.TextureInternalFormat[(int) format],
+						width,
+						height
+					);
+				}
+				glBindRenderbuffer(
 					GLenum.GL_RENDERBUFFER,
-					XNAToGL.TextureInternalFormat[(int) format],
-					width,
-					height
+					realBackbufferRBO
 				);
-			}
-			glBindRenderbuffer(
-				GLenum.GL_RENDERBUFFER,
-				realBackbufferRBO
-			);
 
 #if !DISABLE_THREADING
 			});
@@ -3721,41 +3754,42 @@ namespace Microsoft.Xna.Framework.Graphics
 			int height,
 			DepthFormat format,
 			int multiSampleCount
-		) {
+		)
+		{
 			uint handle = 0;
 
 #if !DISABLE_THREADING
 			ForceToMainThread(() => {
 #endif
 
-			glGenRenderbuffers(1, out handle);
-			glBindRenderbuffer(
-				GLenum.GL_RENDERBUFFER,
-				handle
-			);
-			if (multiSampleCount > 0)
-			{
-				glRenderbufferStorageMultisample(
+				glGenRenderbuffers(1, out handle);
+				glBindRenderbuffer(
 					GLenum.GL_RENDERBUFFER,
-					multiSampleCount,
-					XNAToGL.DepthStorage[(int) format],
-					width,
-					height
+					handle
 				);
-			}
-			else
-			{
-				glRenderbufferStorage(
+				if (multiSampleCount > 0)
+				{
+					glRenderbufferStorageMultisample(
+						GLenum.GL_RENDERBUFFER,
+						multiSampleCount,
+						XNAToGL.DepthStorage[(int) format],
+						width,
+						height
+					);
+				}
+				else
+				{
+					glRenderbufferStorage(
+						GLenum.GL_RENDERBUFFER,
+						XNAToGL.DepthStorage[(int) format],
+						width,
+						height
+					);
+				}
+				glBindRenderbuffer(
 					GLenum.GL_RENDERBUFFER,
-					XNAToGL.DepthStorage[(int) format],
-					width,
-					height
+					realBackbufferRBO
 				);
-			}
-			glBindRenderbuffer(
-				GLenum.GL_RENDERBUFFER,
-				realBackbufferRBO
-			);
 
 #if !DISABLE_THREADING
 			});
@@ -3909,7 +3943,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			RenderTargetBinding[] renderTargets,
 			IGLRenderbuffer renderbuffer,
 			DepthFormat depthFormat
-		) {
+		)
+		{
 			// Bind the right framebuffer, if needed
 			if (renderTargets == null)
 			{
@@ -3957,8 +3992,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					if (currentAttachments[i] != 0)
 					{
-						if (	attachmentTypes[i] != GLenum.GL_RENDERBUFFER &&
-							currentAttachmentTypes[i] == GLenum.GL_RENDERBUFFER	)
+						if (attachmentTypes[i] != GLenum.GL_RENDERBUFFER &&
+							currentAttachmentTypes[i] == GLenum.GL_RENDERBUFFER)
 						{
 							glFramebufferRenderbuffer(
 								GLenum.GL_FRAMEBUFFER,
@@ -3967,8 +4002,8 @@ namespace Microsoft.Xna.Framework.Graphics
 								0
 							);
 						}
-						else if (	attachmentTypes[i] == GLenum.GL_RENDERBUFFER &&
-								currentAttachmentTypes[i] != GLenum.GL_RENDERBUFFER	)
+						else if (attachmentTypes[i] == GLenum.GL_RENDERBUFFER &&
+								currentAttachmentTypes[i] != GLenum.GL_RENDERBUFFER)
 						{
 							glFramebufferTexture2D(
 								GLenum.GL_FRAMEBUFFER,
@@ -4418,9 +4453,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public static bool VertexAttribNormalized(VertexElement element)
 			{
-				return (	element.VertexElementUsage == VertexElementUsage.Color ||
+				return (element.VertexElementUsage == VertexElementUsage.Color ||
 						element.VertexElementFormat == VertexElementFormat.NormalizedShort2 ||
-						element.VertexElementFormat == VertexElementFormat.NormalizedShort4	);
+						element.VertexElementFormat == VertexElementFormat.NormalizedShort4);
 			}
 
 			public static readonly GLenum[] IndexType = new GLenum[]
@@ -4475,8 +4510,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				out drawX,
 				out drawY
 			);
-			bool displayMismatch = (	drawX != presentationParameters.BackBufferWidth ||
-							drawY != presentationParameters.BackBufferHeight	);
+			bool displayMismatch = (drawX != presentationParameters.BackBufferWidth ||
+							drawY != presentationParameters.BackBufferHeight);
 			return displayMismatch || (presentationParameters.MultiSampleCount > 0);
 		}
 
@@ -4524,7 +4559,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				int height,
 				DepthFormat depthFormat,
 				int multiSampleCount
-			) {
+			)
+			{
 				Width = width;
 				Height = height;
 
@@ -4647,7 +4683,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public void ResetFramebuffer(
 				PresentationParameters presentationParameters
-			) {
+			)
+			{
 				Width = presentationParameters.BackBufferWidth;
 				Height = presentationParameters.BackBufferHeight;
 
@@ -4757,7 +4794,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						glDevice.glRenderbufferStorageMultisample(
 							GLenum.GL_RENDERBUFFER,
 							MultiSampleCount,
-							XNAToGL.DepthStorage[(int)depthFormat],
+							XNAToGL.DepthStorage[(int) depthFormat],
 							Width,
 							Height
 						);
@@ -4766,7 +4803,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						glDevice.glRenderbufferStorage(
 							GLenum.GL_RENDERBUFFER,
-							XNAToGL.DepthStorage[(int)depthFormat],
+							XNAToGL.DepthStorage[(int) depthFormat],
 							Width,
 							Height
 						);
@@ -4847,7 +4884,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public void ResetFramebuffer(
 				PresentationParameters presentationParameters
-			) {
+			)
+			{
 				Width = presentationParameters.BackBufferWidth;
 				Height = presentationParameters.BackBufferHeight;
 			}
