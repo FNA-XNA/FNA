@@ -273,6 +273,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			}); // End ForceToMainThread
 		}
 
+		public void BeginFrame()
+		{
+			ForceToMainThread(() =>
+			{
+				GLDevice.BeginFrame();
+			}); // End ForceToMainThread
+		}
+
 		public void SwapBuffers(
 			Rectangle? sourceRectangle,
 			Rectangle? destinationRectangle,

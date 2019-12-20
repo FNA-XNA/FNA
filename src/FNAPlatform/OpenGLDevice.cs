@@ -1139,6 +1139,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		public void BeginFrame()
+		{
+			// Do nothing.
+		}
+
 		#endregion
 
 		#region GL Object Disposal Wrappers
