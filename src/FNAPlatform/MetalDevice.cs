@@ -3825,16 +3825,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Finish the current pass, if there is one
 				EndPass();
 
-				/* Perform a render pass to resolve the target.
-				 *
-				 * (Yes, I know, it's "bad practice" to perform
-				 * a render pass without encoding any commands,
-				 * but the alternative is resolving on every single
-				 * render pass, which is super wasteful and slows
-				 * games down to a crawl on lower-end devices.)
-				 *
-				 * -caleb
-				 */
+				// Perform a render pass to resolve the target
 				MetalRenderbuffer rb = rt.ColorBuffer as MetalRenderbuffer;
 				IntPtr pass = mtlMakeRenderPassDescriptor();
 				IntPtr att = mtlGetColorAttachment(pass, 0);
@@ -3842,6 +3833,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlSetAttachmentResolveTexture(att, rb.Handle);
 				mtlSetAttachmentLoadAction(att, MTLLoadAction.Load);
 				mtlSetAttachmentStoreAction(att, MTLStoreAction.MultisampleResolve);
+				if (target.RenderTarget is RenderTargetCube)
+				{
+					mtlSetAttachmentResolveSlice(
+						att,
+						(ulong) target.CubeMapFace
+					);
+				}
 
 				renderCommandEncoder = mtlMakeRenderCommandEncoder(commandBuffer, pass);
 				mtlEndEncoding(renderCommandEncoder);

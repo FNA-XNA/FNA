@@ -844,6 +844,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(attachment, selSetResolveTexture, resolveTexture);
 		}
 
+		private static IntPtr selSetResolveSlice = Selector("setResolveSlice:");
+		private static void mtlSetAttachmentResolveSlice(
+			IntPtr attachment,
+			ulong resolveSlice
+		) {
+			objc_msgSend(attachment, selSetResolveSlice, resolveSlice);
+		}
+
 		private static IntPtr selSetClearColor = Selector("setClearColor:");
 		private static void mtlSetColorAttachmentClearColor(
 			IntPtr colorAttachment,
