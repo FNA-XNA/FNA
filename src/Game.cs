@@ -525,8 +525,6 @@ namespace Microsoft.Xna.Framework
 				 */
 				if (BeginDraw())
 				{
-					// FIXME: Is this right? -caleb
-					GraphicsDevice.GLDevice.BeginFrame();
 					Draw(gameTime);
 					EndDraw();
 				}
@@ -559,6 +557,7 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual bool BeginDraw()
 		{
+			GraphicsDevice.GLDevice.BeginFrame();
 			return true;
 		}
 
