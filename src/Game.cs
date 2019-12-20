@@ -557,7 +557,6 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual bool BeginDraw()
 		{
-			GraphicsDevice.GLDevice.BeginFrame();
 			return true;
 		}
 

@@ -851,21 +851,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Window SwapBuffers Method
 
-		public void BeginFrame()
-		{
-			// Wait...
-			if (commandBuffer != IntPtr.Zero)
-			{
-				mtlCommandBufferWaitUntilCompleted(commandBuffer);
-				ObjCRelease(commandBuffer);
-			}
-
-			// The cycle begins anew...
-			pool = StartAutoreleasePool();
-			commandBuffer = mtlMakeCommandBuffer(queue);
-			renderCommandEncoder = IntPtr.Zero;
-		}
-
 		public void SwapBuffers(
 			Rectangle? sourceRectangle,
 			Rectangle? destinationRectangle,
@@ -968,6 +953,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				Buffers[i].EndFrame();
 			}
 			MojoShader.MOJOSHADER_mtlEndFrame();
+
+			// Wait for command buffer completion
+			mtlCommandBufferWaitUntilCompleted(commandBuffer);
+			ObjCRelease(commandBuffer);
+			commandBuffer = IntPtr.Zero;
+
+			// The cycle begins anew...
+			pool = StartAutoreleasePool();
+			commandBuffer = mtlMakeCommandBuffer(queue);
+			renderCommandEncoder = IntPtr.Zero;
 		}
 
 		private void BlitFramebuffer(
