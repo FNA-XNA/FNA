@@ -112,6 +112,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			buffer = GraphicsDevice.GLDevice.GenIndexBuffer(
 				dynamic,
+				usage,
 				IndexCount,
 				IndexElementSize
 			);
