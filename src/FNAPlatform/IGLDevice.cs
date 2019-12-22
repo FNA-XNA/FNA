@@ -48,6 +48,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			get;
 		}
 
+		bool SupportsNoOverwrite
+		{
+			get;
+		}
+
 		int MaxTextureSlots
 		{
 			get;

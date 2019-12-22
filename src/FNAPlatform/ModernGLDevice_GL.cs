@@ -177,8 +177,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Buffer objects
 			GL_ARRAY_BUFFER =			0x8892,
 			GL_ELEMENT_ARRAY_BUFFER =		0x8893,
-			GL_STREAM_DRAW =			0x88E0,
 			GL_STATIC_DRAW =			0x88E4,
+			GL_MAP_READ_BIT =			0x0001,
+			GL_MAP_WRITE_BIT =			0x0002,
+			GL_MAP_PERSISTENT_BIT =			0x0040,
+			GL_MAP_COHERENT_BIT =			0x0080,
+			GL_DYNAMIC_STORAGE_BIT =		0x0100,
 			GL_MAX_VERTEX_ATTRIBS =			0x8869,
 			// Render targets
 			GL_FRAMEBUFFER =			0x8D40,
@@ -617,6 +621,32 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data
 		);
 		private GetNamedBufferSubData glGetNamedBufferSubData;
+
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+		private delegate void NamedBufferStorage(
+			uint buffer,
+			IntPtr size,
+			IntPtr data,
+			GLenum flags // Technically uint, but...
+		);
+		private NamedBufferStorage glNamedBufferStorage;
+
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+		private delegate IntPtr MapNamedBufferRange(
+			uint buffer,
+			IntPtr offset,
+			IntPtr length,
+			GLenum access
+		);
+		private MapNamedBufferRange glMapNamedBufferRange;
+
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+		private delegate void UnmapNamedBuffer(uint buffer);
+		private UnmapNamedBuffer glUnmapNamedBuffer;
+
+		[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+		private delegate void InvalidateBufferData(uint buffer);
+		private InvalidateBufferData glInvalidateBufferData;
 
 		/* END BUFFER FUNCTIONS */
 
@@ -1167,6 +1197,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				glGetNamedBufferSubData = (GetNamedBufferSubData) Marshal.GetDelegateForFunctionPointer(
 					SDL.SDL_GL_GetProcAddress("glGetNamedBufferSubData"),
 					typeof(GetNamedBufferSubData)
+				);
+				glNamedBufferStorage = (NamedBufferStorage) Marshal.GetDelegateForFunctionPointer(
+					SDL.SDL_GL_GetProcAddress("glNamedBufferStorage"),
+					typeof(NamedBufferStorage)
+				);
+				glMapNamedBufferRange = (MapNamedBufferRange) Marshal.GetDelegateForFunctionPointer(
+					SDL.SDL_GL_GetProcAddress("glMapNamedBufferRange"),
+					typeof(MapNamedBufferRange)
+				);
+				glUnmapNamedBuffer = (UnmapNamedBuffer) Marshal.GetDelegateForFunctionPointer(
+					SDL.SDL_GL_GetProcAddress("glUnmapNamedBuffer"),
+					typeof(UnmapNamedBuffer)
+				);
+				glInvalidateBufferData = (InvalidateBufferData) Marshal.GetDelegateForFunctionPointer(
+					SDL.SDL_GL_GetProcAddress("glInvalidateBufferData"),
+					typeof(InvalidateBufferData)
 				);
 				glClearColor = (ClearColor) Marshal.GetDelegateForFunctionPointer(
 					SDL.SDL_GL_GetProcAddress("glClearColor"),

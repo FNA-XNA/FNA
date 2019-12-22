@@ -469,6 +469,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
+		public bool SupportsNoOverwrite
+		{
+			get
+			{
+				// MAP_UNSYNCHRONIZED sucks, oh well!
+				return false;
+			}
+		}
+
 		public int MaxTextureSlots
 		{
 			get;
