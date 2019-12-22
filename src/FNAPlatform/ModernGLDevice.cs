@@ -459,6 +459,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
+		public bool SupportsNoOverwrite
+		{
+			get
+			{
+				return false;
+			}
+		}
+
 		public int MaxTextureSlots
 		{
 			get;

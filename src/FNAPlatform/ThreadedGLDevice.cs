@@ -119,6 +119,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		public bool SupportsNoOverwrite
+		{
+			get
+			{
+				bool result = false;
+				ForceToMainThread(() =>
+				{
+					result = GLDevice.SupportsNoOverwrite;
+				}); // End ForceToMainThread
+				return result;
+			}
+		}
+
 		public int MaxTextureSlots
 		{
 			get
