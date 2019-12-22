@@ -2376,6 +2376,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public IGLBuffer GenVertexBuffer(
 			bool dynamic,
+			BufferUsage usage,
 			int vertexCount,
 			int vertexStride
 		) {
@@ -2411,6 +2412,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public IGLBuffer GenIndexBuffer(
 			bool dynamic,
+			BufferUsage usage,
 			int indexCount,
 			IndexElementSize indexElementSize
 		) {

@@ -192,6 +192,7 @@ namespace Microsoft.Xna.Framework
 		private List<IDrawable> currentlyDrawingComponents;
 
 		private IGraphicsDeviceService graphicsDeviceService;
+		private IGraphicsDeviceManager graphicsDeviceManager;
 		private bool hasInitialized;
 		private bool suppressDraw;
 		private bool isDisposed;
@@ -557,14 +558,18 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual bool BeginDraw()
 		{
+			if (graphicsDeviceManager != null)
+			{
+				return graphicsDeviceManager.BeginDraw();
+			}
 			return true;
 		}
 
 		protected virtual void EndDraw()
 		{
-			if (GraphicsDevice != null)
+			if (graphicsDeviceManager != null)
 			{
-				GraphicsDevice.Present();
+				graphicsDeviceManager.EndDraw();
 			}
 		}
 
@@ -795,7 +800,15 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
-			// This will call IGraphicsDeviceManager.CreateDevice
+			graphicsDeviceManager = (IGraphicsDeviceManager)
+				Services.GetService(typeof(IGraphicsDeviceManager));
+
+			if (graphicsDeviceManager != null)
+			{
+				graphicsDeviceManager.CreateDevice();
+			}
+
+			// This should have been filled by CreateDevice!
 			return graphicsDeviceService.GraphicsDevice;
 		}
 

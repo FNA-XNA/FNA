@@ -103,6 +103,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			buffer = GraphicsDevice.GLDevice.GenVertexBuffer(
 				dynamic,
+				bufferUsage,
 				VertexCount,
 				VertexDeclaration.VertexStride
 			);
