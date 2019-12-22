@@ -719,19 +719,37 @@ namespace Microsoft.Xna.Framework.Graphics
 			D24Format = MTLPixelFormat.Depth32Float;
 			D24S8Format = MTLPixelFormat.Depth32Float_Stencil8;
 
-			if (mtlSupportsDepth24Stencil8(device))
+			if (isMac)
 			{
-				D24S8Format = MTLPixelFormat.Depth24Unorm_Stencil8;
+				bool supportsD24S8 = mtlSupportsDepth24Stencil8(device);
+				if (supportsD24S8)
+				{
+					D24S8Format = MTLPixelFormat.Depth24Unorm_Stencil8;
 
-				// Gross, but at least it's a unorm format! -caleb
-				D24Format = MTLPixelFormat.Depth24Unorm_Stencil8;
-				D16Format = MTLPixelFormat.Depth24Unorm_Stencil8;
+					// Gross, but at least it's a unorm format! -caleb
+					D24Format = MTLPixelFormat.Depth24Unorm_Stencil8;
+					D16Format = MTLPixelFormat.Depth24Unorm_Stencil8;
+				}
+
+				// Depth16Unorm requires macOS 10.12+
+				if (OperatingSystemAtLeast(10, 12, 0))
+				{
+					D16Format = MTLPixelFormat.Depth16Unorm;
+					if (!supportsD24S8)
+					{
+						// Less precision, but oh well!
+						D24Format = MTLPixelFormat.Depth16Unorm;
+					}
+				}
 			}
-			if (	(isMac && OperatingSystemAtLeast(10, 12, 0)) ||
-				(!isMac && OperatingSystemAtLeast(13, 0, 0))	)
+			else
 			{
-				// Let's use the real D16 format!
-				D16Format = MTLPixelFormat.Depth16Unorm;
+				// Depth16Unorm requires iOS 13+
+				if (OperatingSystemAtLeast(13, 0, 0))
+				{
+					D16Format = MTLPixelFormat.Depth16Unorm;
+					D24Format = MTLPixelFormat.Depth16Unorm;
+				}
 			}
 
 			// Initialize texture and sampler collections
