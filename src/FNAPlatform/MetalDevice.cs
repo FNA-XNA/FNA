@@ -198,17 +198,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			private int internalBufferSize = 0;
 			private int prevDataLength = 0;
 			private bool dynamic = false;
+			private BufferUsage usage;
 			private bool variableDataSize = false;
 
 			public MetalBuffer(
 				MetalDevice device,
-				IntPtr bufferSize,
 				bool dynamic,
+				BufferUsage usage,
+				IntPtr bufferSize,
 				bool variableDataSize
 			) {
 				this.device = device;
 				this.mtlDevice = device.device;
 				this.dynamic = dynamic;
+				this.usage = usage;
 				this.variableDataSize = variableDataSize;
 
 				BufferSize = bufferSize;
@@ -222,7 +225,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr oldBuffer = Handle;
 				IntPtr newBuffer = mtlNewBufferWithLength(
 					mtlDevice,
-					(ulong) internalBufferSize
+					(ulong) internalBufferSize,
+					(usage == BufferUsage.WriteOnly) ?
+						(ulong) MTLResourceOptions.CPUCacheModeWriteCombined :
+						(ulong) MTLResourceOptions.CPUCacheModeDefaultCache
 				);
 				Handle = newBuffer;
 
@@ -1476,8 +1482,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				userIndexBuffer = new MetalBuffer(
 					this,
-					(IntPtr) len,
 					true,
+					BufferUsage.WriteOnly,
+					(IntPtr) len,
 					true
 				);
 				Buffers.Add(userIndexBuffer);
@@ -1540,8 +1547,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				userVertexBuffer = new MetalBuffer(
 					this,
-					(IntPtr) len,
 					true,
+					BufferUsage.WriteOnly,
+					(IntPtr) len,
 					true
 				);
 				Buffers.Add(userVertexBuffer);
@@ -2940,6 +2948,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public IGLBuffer GenIndexBuffer(
 			bool dynamic,
+			BufferUsage usage,
 			int indexCount,
 			IndexElementSize indexElementSize
 		) {
@@ -2947,8 +2956,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr size = (IntPtr) (indexCount * elementSize);
 			MetalBuffer newbuf = new MetalBuffer(
 				this,
-				size,
 				dynamic,
+				usage,
+				size,
 				false
 			);
 			Buffers.Add(newbuf);
@@ -2957,14 +2967,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public IGLBuffer GenVertexBuffer(
 			bool dynamic,
+			BufferUsage usage,
 			int vertexCount,
 			int vertexStride
 		) {
 			IntPtr size = (IntPtr) (vertexCount * vertexStride);
 			MetalBuffer newbuf = new MetalBuffer(
 				this,
-				size,
 				dynamic,
+				usage,
+				size,
 				false
 			);
 			Buffers.Add(newbuf);
@@ -2993,7 +3005,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			mtlSetStorageMode(
 				desc,
-				MTLResourceStorageMode.Private
+				MTLStorageMode.Private
 			);
 			mtlSetTextureUsage(
 				desc,
@@ -3038,7 +3050,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			mtlSetStorageMode(
 				desc,
-				MTLResourceStorageMode.Private
+				MTLStorageMode.Private
 			);
 			mtlSetTextureUsage(
 				desc,
@@ -3220,7 +3232,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				mtlSetStorageMode(
 					texDesc,
-					MTLResourceStorageMode.Private
+					MTLStorageMode.Private
 				);
 				mtlSetTextureUsage(
 					texDesc,
@@ -3282,7 +3294,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				mtlSetStorageMode(
 					texDesc,
-					MTLResourceStorageMode.Private
+					MTLStorageMode.Private
 				);
 				mtlSetTextureUsage(
 					texDesc,
@@ -3934,7 +3946,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		public IGLQuery CreateQuery()
 		{
 			return new MetalQuery(
-				mtlNewBufferWithLength(device, sizeof(ulong))
+				mtlNewBufferWithLength(
+					device,
+					sizeof(ulong),
+					0
+				)
 			);
 		}
 
@@ -4374,7 +4390,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 				mtlSetStorageMode(
 					colorBufferDesc,
-					MTLResourceStorageMode.Private
+					MTLStorageMode.Private
 				);
 				mtlSetTextureUsage(
 					colorBufferDesc,
@@ -4411,7 +4427,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 					mtlSetStorageMode(
 						depthStencilBufferDesc,
-						MTLResourceStorageMode.Private
+						MTLStorageMode.Private
 					);
 					mtlSetTextureUsage(
 						depthStencilBufferDesc,
@@ -4465,7 +4481,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			 */
 			fauxBackbufferDrawBuffer = mtlNewBufferWithLength(
 				device,
-				(16 * sizeof(float)) + (6 * sizeof(ushort))
+				(16 * sizeof(float)) + (6 * sizeof(ushort)),
+				(ulong) MTLResourceOptions.CPUCacheModeWriteCombined
 			);
 
 			ushort[] indices = new ushort[]

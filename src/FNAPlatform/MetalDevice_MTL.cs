@@ -256,7 +256,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Texture3D = 7
 		}
 
-		private enum MTLResourceStorageMode
+		private enum MTLStorageMode
 		{
 			Private = 2
 		}
@@ -362,6 +362,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			Disabled = 0,
 			Counting = 2
+		}
+
+		private enum MTLResourceOptions
+		{
+			CPUCacheModeDefaultCache = 0,
+			CPUCacheModeWriteCombined = 1
 		}
 
 		#endregion
@@ -664,13 +670,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		private static IntPtr selNewBufferWithLength = Selector("newBufferWithLength:options:");
-		private static IntPtr mtlNewBufferWithLength(IntPtr device, ulong length)
+		private static IntPtr mtlNewBufferWithLength(IntPtr device, ulong length, ulong options)
 		{
 			return intptr_objc_msgSend(
 				device,
 				selNewBufferWithLength,
 				length,
-				0
+				options
 			);
 		}
 
@@ -1730,7 +1736,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetStorageMode = Selector("setStorageMode:");
 		private static void mtlSetStorageMode(
 			IntPtr resource,
-			MTLResourceStorageMode mode
+			MTLStorageMode mode
 		) {
 			objc_msgSend(resource, selSetStorageMode, (ulong) mode);
 		}
