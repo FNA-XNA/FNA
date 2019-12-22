@@ -111,6 +111,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		// How many sprites are in the current batch?
 		private int numSprites;
 
+		// Where are we in the vertex buffer ring?
+		private int bufferOffset;
+
 		// Matrix to be used when creating the projection matrix
 		private Matrix transformMatrix;
 
@@ -1066,6 +1069,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (sortMode == SpriteSortMode.Immediate)
 			{
+				int offset;
 				fixed (VertexPositionColorTexture4* sprite = &vertexInfo[0])
 				{
 					GenerateVertexInfo(
@@ -1087,22 +1091,30 @@ namespace Microsoft.Xna.Framework.Graphics
 						effects
 					);
 
-					/* We do NOT use Discard here because
-					 * it would be stupid to reallocate the
-					 * whole buffer just for one sprite.
-					 *
-					 * Unless you're using this to blit a
-					 * target, stop using Immediate ya donut
-					 * -flibit
-					 */
-					vertexBuffer.SetDataPointerEXT(
-						0,
-						(IntPtr) sprite,
-						VertexPositionColorTexture4.RealStride,
-						SetDataOptions.None
-					);
+					if (GraphicsDevice.GLDevice.SupportsNoOverwrite)
+					{
+						offset = UpdateVertexBuffer(1);
+					}
+					else
+					{
+						/* We do NOT use Discard here because
+						 * it would be stupid to reallocate the
+						 * whole buffer just for one sprite.
+						 *
+						 * Unless you're using this to blit a
+						 * target, stop using Immediate ya donut
+						 * -flibit
+						 */
+						offset = 0;
+						vertexBuffer.SetDataPointerEXT(
+							0,
+							(IntPtr) sprite,
+							VertexPositionColorTexture4.RealStride,
+							SetDataOptions.None
+						);
+					}
 				}
-				DrawPrimitives(texture, 0, 1);
+				DrawPrimitives(texture, offset, 1);
 			}
 			else if (sortMode == SpriteSortMode.Deferred)
 			{
@@ -1226,6 +1238,39 @@ namespace Microsoft.Xna.Framework.Graphics
 				}}}
 			}
 
+			int baseOff = UpdateVertexBuffer(numSprites);
+
+			curTexture = textureInfo[0];
+			for (int i = 1; i < numSprites; i += 1)
+			{
+				if (textureInfo[i] != curTexture)
+				{
+					DrawPrimitives(curTexture, baseOff + offset, i - offset);
+					curTexture = textureInfo[i];
+					offset = i;
+				}
+			}
+			DrawPrimitives(curTexture, baseOff + offset, numSprites - offset);
+
+			numSprites = 0;
+		}
+
+		private unsafe int UpdateVertexBuffer(int count)
+		{
+			int offset;
+			SetDataOptions options;
+			if (	(bufferOffset + count) > MAX_SPRITES ||
+				!GraphicsDevice.GLDevice.SupportsNoOverwrite	)
+			{
+				offset = 0;
+				options = SetDataOptions.Discard;
+			}
+			else
+			{
+				offset = bufferOffset;
+				options = SetDataOptions.NoOverwrite;
+			}
+
 			fixed (VertexPositionColorTexture4* p = &vertexInfo[0])
 			{
 				/* We use Discard here because the last batch
@@ -1238,26 +1283,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * -flibit
 				 */
 				vertexBuffer.SetDataPointerEXT(
-					0,
+					offset * VertexPositionColorTexture4.RealStride,
 					(IntPtr) p,
-					numSprites * VertexPositionColorTexture4.RealStride,
-					SetDataOptions.Discard
+					count * VertexPositionColorTexture4.RealStride,
+					options
 				);
 			}
-
-			curTexture = textureInfo[0];
-			for (int i = 1; i < numSprites; i += 1)
-			{
-				if (textureInfo[i] != curTexture)
-				{
-					DrawPrimitives(curTexture, offset, i - offset);
-					curTexture = textureInfo[i];
-					offset = i;
-				}
-			}
-			DrawPrimitives(curTexture, offset, numSprites - offset);
-
-			numSprites = 0;
+			bufferOffset = offset + count;
+			return offset;
 		}
 
 		private static unsafe void GenerateVertexInfo(
