@@ -752,6 +752,17 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
+			// Add fallbacks for missing texture formats on macOS
+			if (isMac)
+			{
+				XNAToMTL.TextureFormat[(int) SurfaceFormat.Bgr565]
+					= MTLPixelFormat.BGRA8Unorm;
+				XNAToMTL.TextureFormat[(int) SurfaceFormat.Bgra5551]
+					= MTLPixelFormat.BGRA8Unorm;
+				XNAToMTL.TextureFormat[(int) SurfaceFormat.Bgra4444]
+					= MTLPixelFormat.BGRA8Unorm;
+			}
+
 			// Initialize texture and sampler collections
 			Textures = new MetalTexture[MaxTextureSlots];
 			Samplers = new IntPtr[MaxTextureSlots];
