@@ -856,42 +856,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			Rectangle? destinationRectangle,
 			IntPtr overrideWindowHandle
 		) {
-			// Bind the backbuffer and finalize rendering.
+			// Bind the backbuffer and finalize rendering
 			SetRenderTargets(null, null, DepthFormat.None);
 			EndPass();
-
-			// Perform a final pass to resolve MSAA, if applicable
-			if (Backbuffer.MultiSampleCount > 0)
-			{
-				IntPtr resolveRenderPass = mtlMakeRenderPassDescriptor();
-				IntPtr colorAttachment = mtlGetColorAttachment(
-					resolveRenderPass,
-					0
-				);
-				mtlSetAttachmentLoadAction(
-					colorAttachment,
-					MTLLoadAction.Load
-				);
-				mtlSetAttachmentStoreAction(
-					colorAttachment,
-					MTLStoreAction.MultisampleResolve
-				);
-				mtlSetAttachmentTexture(
-					colorAttachment,
-					(Backbuffer as MetalBackbuffer).MultiSampleColorBuffer
-				);
-				mtlSetAttachmentResolveTexture(
-					colorAttachment,
-					(Backbuffer as MetalBackbuffer).ColorBuffer
-				);
-
-				// Resolve!
-				IntPtr rce = mtlMakeRenderCommandEncoder(
-					commandBuffer,
-					resolveRenderPass
-				);
-				mtlEndEncoding(rce);
-			}
 
 			// Determine the regions to present
 			int srcX, srcY, srcW, srcH;
@@ -1089,6 +1056,15 @@ namespace Microsoft.Xna.Framework.Graphics
 						colorAttachment,
 						currentMSAttachments[i]
 					);
+					mtlSetAttachmentResolveTexture(
+						colorAttachment,
+						currentAttachments[i]
+					);
+					mtlSetAttachmentStoreAction(
+						colorAttachment,
+						MTLStoreAction.MultisampleResolve
+					);
+					// FIXME: Need to handle cube render targets! -caleb
 				}
 
 				// Clear color
@@ -3814,32 +3790,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void ResolveTarget(RenderTargetBinding target)
 		{
-			IRenderTarget rt = target.RenderTarget as IRenderTarget;
-			if (rt.MultiSampleCount > 0)
-			{
-				// Finish the current pass, if there is one
-				EndPass();
-
-				// Perform a render pass to resolve the target
-				MetalRenderbuffer rb = rt.ColorBuffer as MetalRenderbuffer;
-				IntPtr pass = mtlMakeRenderPassDescriptor();
-				IntPtr att = mtlGetColorAttachment(pass, 0);
-				mtlSetAttachmentTexture(att, rb.MultiSampleHandle);
-				mtlSetAttachmentResolveTexture(att, rb.Handle);
-				mtlSetAttachmentLoadAction(att, MTLLoadAction.Load);
-				mtlSetAttachmentStoreAction(att, MTLStoreAction.MultisampleResolve);
-				if (target.RenderTarget is RenderTargetCube)
-				{
-					mtlSetAttachmentResolveSlice(
-						att,
-						(ulong) target.CubeMapFace
-					);
-				}
-
-				renderCommandEncoder = mtlMakeRenderCommandEncoder(commandBuffer, pass);
-				mtlEndEncoding(renderCommandEncoder);
-				renderCommandEncoder = IntPtr.Zero;
-			}
+			// The target is resolved at the end of each render pass.
 
 			// If the target has mipmaps, regenerate them now
 			if (target.RenderTarget.LevelCount > 1)
