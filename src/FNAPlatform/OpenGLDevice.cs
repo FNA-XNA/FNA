@@ -473,6 +473,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				// MAP_UNSYNCHRONIZED sucks, oh well!
 				return false;
 			}
 		}
