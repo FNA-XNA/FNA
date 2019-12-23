@@ -86,6 +86,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, MTLClearColor color);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, NSRange range);
+
+		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, float arg1, float arg2, float arg3);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -367,7 +370,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private enum MTLResourceOptions
 		{
 			CPUCacheModeDefaultCache = 0,
-			CPUCacheModeWriteCombined = 1
+			CPUCacheModeWriteCombined = 1,
+			ResourceStorageModeManaged = 1 << 4
 		}
 
 		#endregion
@@ -493,6 +497,19 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			public double width;
 			public double height;
+		}
+
+		[StructLayout(LayoutKind.Sequential, Pack = 1)]
+		private struct NSRange
+		{
+			public ulong loc;
+			public ulong len;
+
+			public NSRange(int loc, int len)
+			{
+				this.loc = (ulong) loc;
+				this.len = (ulong) len;
+			}
 		}
 
 		#endregion
@@ -724,6 +741,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr mtlGetBufferContentsPtr(IntPtr buffer)
 		{
 			return intptr_objc_msgSend(buffer, selContents);
+		}
+
+		private static IntPtr selDidModifyRange = Selector("didModifyRange:");
+		private static void mtlDidModifyRange(IntPtr buffer, NSRange range)
+		{
+			objc_msgSend(buffer, selDidModifyRange, range);
 		}
 
 		#endregion

@@ -191,28 +191,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public bool BoundThisFrame;
-
 			private MetalDevice device;
 			private IntPtr mtlDevice = IntPtr.Zero;
 			private int internalBufferSize = 0;
 			private int prevDataLength = 0;
-			private bool dynamic = false;
 			private BufferUsage usage;
-			private bool variableDataSize = false;
+			private bool boundThisFrame;
 
 			public MetalBuffer(
 				MetalDevice device,
 				bool dynamic,
 				BufferUsage usage,
-				IntPtr bufferSize,
-				bool variableDataSize
+				IntPtr bufferSize
 			) {
 				this.device = device;
 				this.mtlDevice = device.device;
-				this.dynamic = dynamic;
 				this.usage = usage;
-				this.variableDataSize = variableDataSize;
 
 				BufferSize = bufferSize;
 				internalBufferSize = (int) bufferSize;
@@ -222,25 +216,40 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			private void CreateBackingBuffer(int prevSize)
 			{
-				IntPtr oldBuffer = Handle;
-				IntPtr newBuffer = mtlNewBufferWithLength(
-					mtlDevice,
-					internalBufferSize,
-					(usage == BufferUsage.WriteOnly) ?
+				MTLResourceOptions options = (
+					usage == BufferUsage.WriteOnly ?
 						MTLResourceOptions.CPUCacheModeWriteCombined :
 						MTLResourceOptions.CPUCacheModeDefaultCache
 				);
-				Handle = newBuffer;
+				if (device.isMac)
+				{
+					options |= MTLResourceOptions.ResourceStorageModeManaged;
+				}
+
+				IntPtr oldBuffer = Handle;
+				Handle = mtlNewBufferWithLength(
+					mtlDevice,
+					internalBufferSize,
+					options
+				);
 
 				// Copy over data from old buffer
 				if (oldBuffer != IntPtr.Zero)
 				{
 					memcpy(
-						mtlGetBufferContentsPtr(newBuffer),
+						mtlGetBufferContentsPtr(Handle),
 						mtlGetBufferContentsPtr(oldBuffer),
 						(IntPtr) prevSize
 					);
 					ObjCRelease(oldBuffer);
+
+					if (device.isMac)
+					{
+						mtlDidModifyRange(
+							Handle,
+							new NSRange(0, prevSize)
+						);
+					}
 				}
 			}
 
@@ -250,14 +259,36 @@ namespace Microsoft.Xna.Framework.Graphics
 				int dataLength,
 				SetDataOptions options
 			) {
-				int len = variableDataSize ? dataLength : (int) BufferSize;
-				if (options == SetDataOptions.Discard)
+				// Prepare for overwriting...
+				int lastOffset = InternalOffset;
+				if (boundThisFrame && options == SetDataOptions.None)
 				{
-					HandleOverwrite(dynamic, len);
+					// Stall until we can overwrite the buffer
+					device.Stall();
+					boundThisFrame = true;
 				}
-				else if (options == SetDataOptions.None)
+				else if (boundThisFrame && options == SetDataOptions.Discard)
 				{
-					HandleOverwrite(false, len);
+					InternalOffset += (int) BufferSize;
+
+					// Expand if needed
+					if (InternalOffset + dataLength > internalBufferSize)
+					{
+						int prevSize = internalBufferSize;
+						internalBufferSize *= 2;
+						CreateBackingBuffer(prevSize);
+					}
+				}
+
+				// Copy previous contents, if needed
+				if (lastOffset != InternalOffset)
+				{
+					// FIXME: Would a blit copy be faster? -caleb
+					memcpy(
+						Contents + InternalOffset,
+						Contents + lastOffset,
+						BufferSize
+					);
 				}
 
 				// Copy the data into the buffer
@@ -267,60 +298,79 @@ namespace Microsoft.Xna.Framework.Graphics
 					(IntPtr) dataLength
 				);
 
-				prevDataLength = len;
-			}
-
-			private void HandleOverwrite(bool shouldExpand, int dataLength)
-			{
-				InternalOffset += prevDataLength;
-
-				int sizeNeeded = InternalOffset + dataLength;
-				if (sizeNeeded > internalBufferSize)
+				// Managed resources require explicit synchronization
+				if (device.isMac)
 				{
-					/* We can't stall if we're on a background thread.
-					 * Let's just expand the buffer instead. It'll use
-					 * a bit more memory, but that's better than crashing!
-					 * -caleb
-					 */
-					shouldExpand |= !device.OnMainThread();
-
-					if (shouldExpand)
+					if (lastOffset == InternalOffset)
 					{
-						// Increase capacity when we're out of room
-						int prevSize = internalBufferSize;
-						internalBufferSize = Math.Max(
-							internalBufferSize * 2,
-							internalBufferSize + dataLength
+						// Modified a subregion
+						NSRange range = new NSRange(
+							InternalOffset + offsetInBytes,
+							dataLength
 						);
-						CreateBackingBuffer(prevSize);
+						mtlDidModifyRange(Handle, range);
 					}
 					else
 					{
-						if (BoundThisFrame)
-						{
-							// Stall until we can rewrite this buffer
-							device.EndPass();
-
-							mtlCommitCommandBuffer(device.commandBuffer);
-							mtlCommandBufferWaitUntilCompleted(device.commandBuffer);
-
-							device.commandBuffer = mtlMakeCommandBuffer(device.queue);
-							device.needNewRenderPass = true;
-
-							foreach (MetalBuffer buf in device.Buffers)
-							{
-								BoundThisFrame = false;
-							}
-						}
-						InternalOffset = 0;
+						// Modified the entire buffer
+						NSRange range = new NSRange(
+							InternalOffset,
+							(int) BufferSize
+						);
+						mtlDidModifyRange(Handle, range);
 					}
 				}
 			}
 
-			public void EndFrame()
+			/* This form of SetData allows us to advance through
+			 * the buffer by arbitrary amounts, rather than be
+			 * limited by multiples of BufferSize.
+			 */
+			public void SetUserData(IntPtr data, int dataLength)
+			{
+				InternalOffset += prevDataLength;
+
+				// Expand if needed
+				int sizeNeeded = InternalOffset + dataLength;
+				if (sizeNeeded > internalBufferSize)
+				{
+					int prevSize = internalBufferSize;
+					internalBufferSize = Math.Max(
+						internalBufferSize * 2,
+						internalBufferSize + dataLength
+					);
+					CreateBackingBuffer(prevSize);
+				}
+
+				// Copy the data into the buffer
+				memcpy(
+					Contents + InternalOffset,
+					data,
+					(IntPtr) dataLength
+				);
+
+				// Managed resources need explicit synchronization
+				if (device.isMac)
+				{
+					mtlDidModifyRange(
+						Handle,
+						new NSRange(InternalOffset, dataLength)
+					);
+				}
+
+				// Remember length so we can add it to InternalOffset
+				prevDataLength = dataLength;
+			}
+
+			public void Bound()
+			{
+				boundThisFrame = true;
+			}
+
+			public void Reset()
 			{
 				InternalOffset = 0;
-				BoundThisFrame = false;
+				boundThisFrame = false;
 				prevDataLength = 0;
 			}
 
@@ -962,7 +1012,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Reset all buffers
 			for (int i = 0; i < Buffers.Count; i += 1)
 			{
-				Buffers[i].EndFrame();
+				Buffers[i].Reset();
 			}
 			MojoShader.MOJOSHADER_mtlEndFrame();
 
@@ -1417,6 +1467,24 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Pipeline Stall Method
+
+		private void Stall()
+		{
+			EndPass();
+			mtlCommitCommandBuffer(commandBuffer);
+			mtlCommandBufferWaitUntilCompleted(commandBuffer);
+
+			commandBuffer = mtlMakeCommandBuffer(queue);
+			needNewRenderPass = true;
+			foreach (MetalBuffer buf in Buffers)
+			{
+				buf.Reset();
+			}
+		}
+
+		#endregion
+
 		#region String Marker Method
 
 		public void SetStringMarker(string text)
@@ -1463,7 +1531,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IndexBuffer indices
 		) {
 			MetalBuffer indexBuffer = indices.buffer as MetalBuffer;
-			indexBuffer.BoundThisFrame = true;
+			indexBuffer.Bound();
 			int totalIndexOffset = (
 				(startIndex * XNAToMTL.IndexSize[(int) indices.IndexElementSize]) +
 				indexBuffer.InternalOffset
@@ -1523,16 +1591,13 @@ namespace Microsoft.Xna.Framework.Graphics
 					this,
 					true,
 					BufferUsage.WriteOnly,
-					(IntPtr) len,
-					true
+					(IntPtr) len
 				);
 				Buffers.Add(userIndexBuffer);
 			}
-			userIndexBuffer.SetData(
-				0,
+			userIndexBuffer.SetUserData(
 				indexData,
-				len,
-				SetDataOptions.Discard
+				len
 			);
 			int totalIndexOffset = (
 				(indexOffset * indexSize) +
@@ -1588,16 +1653,13 @@ namespace Microsoft.Xna.Framework.Graphics
 					this,
 					true,
 					BufferUsage.WriteOnly,
-					(IntPtr) len,
-					true
+					(IntPtr) len
 				);
 				Buffers.Add(userVertexBuffer);
 			}
-			userVertexBuffer.SetData(
-				0,
+			userVertexBuffer.SetUserData(
 				vertexData,
-				len,
-				SetDataOptions.Discard
+				len
 			);
 
 			int offset = userVertexBuffer.InternalOffset;
@@ -2940,7 +3002,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 
 					IntPtr handle = (vertexBuffer.buffer as MetalBuffer).Handle;
-					(vertexBuffer.buffer as MetalBuffer).BoundThisFrame = true;
+					(vertexBuffer.buffer as MetalBuffer).Bound();
 					if (ldVertexBuffers[i] != handle)
 					{
 						mtlSetVertexBuffer(
@@ -2992,13 +3054,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			IndexElementSize indexElementSize
 		) {
 			int elementSize = XNAToMTL.IndexSize[(int) indexElementSize];
-			IntPtr size = (IntPtr) (indexCount * elementSize);
 			MetalBuffer newbuf = new MetalBuffer(
 				this,
 				dynamic,
 				usage,
-				size,
-				false
+				(IntPtr) (indexCount * elementSize)
 			);
 			Buffers.Add(newbuf);
 			return newbuf;
@@ -3010,13 +3070,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexCount,
 			int vertexStride
 		) {
-			IntPtr size = (IntPtr) (vertexCount * vertexStride);
 			MetalBuffer newbuf = new MetalBuffer(
 				this,
 				dynamic,
 				usage,
-				size,
-				false
+				(IntPtr) (vertexCount * vertexStride)
 			);
 			Buffers.Add(newbuf);
 			return newbuf;
@@ -3490,10 +3548,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Submit the blit command to the GPU and wait...
 				mtlEndEncoding(blit);
-				mtlCommitCommandBuffer(commandBuffer);
-				mtlCommandBufferWaitUntilCompleted(commandBuffer);
-				commandBuffer = mtlMakeCommandBuffer(queue);
-				needNewRenderPass = true;
+				Stall();
 			}
 		}
 
@@ -3613,10 +3668,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Submit the blit command to the GPU and wait...
 				mtlEndEncoding(blit);
-				mtlCommitCommandBuffer(commandBuffer);
-				mtlCommandBufferWaitUntilCompleted(commandBuffer);
-				commandBuffer = mtlMakeCommandBuffer(queue);
-				needNewRenderPass = true;
+				Stall();
 			}
 		}
 
@@ -3676,10 +3728,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Submit the blit command to the GPU and wait...
 				mtlEndEncoding(blit);
-				mtlCommitCommandBuffer(commandBuffer);
-				mtlCommandBufferWaitUntilCompleted(commandBuffer);
-				commandBuffer = mtlMakeCommandBuffer(queue);
-				needNewRenderPass = true;
+				Stall();
 			}
 
 			mtlGetTextureBytes(
@@ -3783,10 +3832,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Submit the blit command to the GPU and wait...
 				mtlEndEncoding(blit);
-				mtlCommitCommandBuffer(commandBuffer);
-				mtlCommandBufferWaitUntilCompleted(commandBuffer);
-				commandBuffer = mtlMakeCommandBuffer(queue);
-				needNewRenderPass = true;
+				Stall();
 			}
 
 			mtlGetTextureBytes(
