@@ -1157,6 +1157,8 @@ namespace Microsoft.Xna.Framework
 						game.RunApplication = false;
 						break;
 					}
+
+					game.OnSDLEvent(ref evt);
 				}
 				// Text Input Controls Key Handling
 				for (int i = 0; i < textInputCharacters.Length; i += 1)
