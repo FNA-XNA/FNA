@@ -277,6 +277,11 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
+		public virtual void OnSDLEvent(ref SDL2.SDL.SDL_Event e)
+		{
+
+		}
+
 		protected virtual void Dispose(bool disposing)
 		{
 			if (!isDisposed)
@@ -428,7 +433,7 @@ namespace Microsoft.Xna.Framework
 				 * accurate enough for frame limiting purposes if some
 				 * fluctuation is an acceptable result.
 				 */
-				System.Threading.Thread.Sleep(sleepTime);
+				System.Threading.Thread.Sleep(sleepTime > 0 ? 1 : 0);
 
 				goto RetryTick;
 			}
