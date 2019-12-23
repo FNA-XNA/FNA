@@ -3420,7 +3420,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * multisample count, halve it until we find a
 			 * value that is supported.
 			 */
-			while (!mtlSupportsSampleCount(device, sampleCount))
+			while (sampleCount > 0 && !mtlSupportsSampleCount(device, sampleCount))
 			{
 				sampleCount = MathHelper.ClosestMSAAPower(
 					sampleCount / 2
