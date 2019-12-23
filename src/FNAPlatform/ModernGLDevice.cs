@@ -1945,6 +1945,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			else
 			{
 				ForceToMainThread(() => {
+
 					effect = MojoShader.MOJOSHADER_cloneEffect(cloneSource.EffectData);
 					glEffect = MojoShader.MOJOSHADER_glCompileEffect(effect);
 					if (glEffect == IntPtr.Zero)
@@ -1953,6 +1954,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							MojoShader.MOJOSHADER_glGetError()
 						);
 					}
+
 				});
 			}
 #endif
@@ -2706,11 +2708,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 #endif
 					glGetNamedBufferSubData(
-							buf.Handle,
-							(IntPtr) offsetInBytes,
-							(IntPtr) (elementCount * vertexStride),
-							cpy
-						);
+						buf.Handle,
+						(IntPtr) offsetInBytes,
+						(IntPtr) (elementCount * vertexStride),
+						cpy
+					);
 #if !DISABLE_THREADING
 				}
 				else
@@ -2769,11 +2771,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 #endif
 					glGetNamedBufferSubData(
-							buf.Handle,
-							(IntPtr) offsetInBytes,
-							(IntPtr) (elementCount * elementSizeInBytes),
-							data + (startIndex * elementSizeInBytes)
-						);
+						buf.Handle,
+						(IntPtr) offsetInBytes,
+						(IntPtr) (elementCount * elementSizeInBytes),
+						data + (startIndex * elementSizeInBytes)
+					);
 #if !DISABLE_THREADING
 				}
 				else
@@ -3061,9 +3063,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 #endif
 				result = CreateTexture(
-						GLenum.GL_TEXTURE_CUBE_MAP,
-						levelCount
-					);
+					GLenum.GL_TEXTURE_CUBE_MAP,
+					levelCount
+				);
 
 				glTextureStorage2D(
 					result.Handle,
@@ -3307,18 +3309,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 #endif
 				glTextureSubImage3D(
-						(texture as OpenGLTexture).Handle,
-						level,
-						left,
-						top,
-						front,
-						right - left,
-						bottom - top,
-						back - front,
-						XNAToGL.TextureFormat[(int) format],
-						XNAToGL.TextureDataType[(int) format],
-						data
-					);
+					(texture as OpenGLTexture).Handle,
+					level,
+					left,
+					top,
+					front,
+					right - left,
+					bottom - top,
+					back - front,
+					XNAToGL.TextureFormat[(int) format],
+					XNAToGL.TextureDataType[(int) format],
+					data
+				);
 #if !DISABLE_THREADING
 
 			}
@@ -3500,16 +3502,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 #endif
 				if (level == 0 && ReadTargetIfApplicable(
-						texture,
-						width,
-						height,
-						level,
-						data,
-						subX,
-						subY,
-						subW,
-						subH
-					))
+					texture,
+					width,
+					height,
+					level,
+					data,
+					subX,
+					subY,
+					subW,
+					subH
+				))
 				{
 					return;
 				}
@@ -3590,19 +3592,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 #endif
 				glGetTextureSubImage(
-						(texture as OpenGLTexture).Handle,
-						level,
-						left,
-						top,
-						front,
-						right - left,
-						bottom - top,
-						back - front,
-						XNAToGL.TextureFormat[(int) format],
-						XNAToGL.TextureDataType[(int) format],
-						elementCount * elementSizeInBytes,
-						data
-					);
+					(texture as OpenGLTexture).Handle,
+					level,
+					left,
+					top,
+					front,
+					right - left,
+					bottom - top,
+					back - front,
+					XNAToGL.TextureFormat[(int) format],
+					XNAToGL.TextureDataType[(int) format],
+					elementCount * elementSizeInBytes,
+					data
+				);
 #if !DISABLE_THREADING
 			}
 			else
@@ -3649,19 +3651,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 #endif
 				glGetTextureSubImage(
-						(texture as OpenGLTexture).Handle,
-						level,
-						subX,
-						subY,
-						(int) cubeMapFace,
-						subW,
-						subH,
-						1,
-						XNAToGL.TextureFormat[(int) format],
-						XNAToGL.TextureDataType[(int) format],
-						elementCount * elementSizeInBytes,
-						data
-					);
+					(texture as OpenGLTexture).Handle,
+					level,
+					subX,
+					subY,
+					(int) cubeMapFace,
+					subW,
+					subH,
+					1,
+					XNAToGL.TextureFormat[(int) format],
+					XNAToGL.TextureDataType[(int) format],
+					elementCount * elementSizeInBytes,
+					data
+				);
 #if !DISABLE_THREADING
 
 			}
