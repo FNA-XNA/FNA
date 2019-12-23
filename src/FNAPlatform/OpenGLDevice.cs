@@ -1976,17 +1976,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 #endif
 				effect = MojoShader.MOJOSHADER_parseEffect(
-	shaderProfile,
-	effectCode,
-	(uint) effectCode.Length,
-	null,
-	0,
-	null,
-	0,
-	null,
-	null,
-	IntPtr.Zero
-);
+					shaderProfile,
+					effectCode,
+					(uint) effectCode.Length,
+					null,
+					0,
+					null,
+					0,
+					null,
+					null,
+					IntPtr.Zero
+				);
 
 #if DEBUG
 			unsafe
@@ -3583,16 +3583,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 #endif
 				if (level == 0 && ReadTargetIfApplicable(
-						texture,
-						width,
-						height,
-						level,
-						data,
-						subX,
-						subY,
-						subW,
-						subH
-					))
+					texture,
+					width,
+					height,
+					level,
+					data,
+					subX,
+					subY,
+					subW,
+					subH
+				))
 				{
 					return;
 				}
