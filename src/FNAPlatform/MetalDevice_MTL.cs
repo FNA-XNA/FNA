@@ -431,15 +431,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			ulong height;
 
 			public MTLScissorRect(
-				ulong x,
-				ulong y,
-				ulong width,
-				ulong height
+				int x,
+				int y,
+				int width,
+				int height
 			) {
-				this.x = x;
-				this.y = y;
-				this.width = width;
-				this.height = height;
+				this.x = (ulong) x;
+				this.y = (ulong) y;
+				this.width = (ulong) width;
+				this.height = (ulong) height;
 			}
 		}
 
@@ -450,11 +450,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			ulong y;
 			ulong z;
 
-			public MTLOrigin(ulong x, ulong y, ulong z)
+			public MTLOrigin(int x, int y, int z)
 			{
-				this.x = x;
-				this.y = y;
-				this.z = z;
+				this.x = (ulong) x;
+				this.y = (ulong) y;
+				this.z = (ulong) z;
 			}
 
 			public static MTLOrigin Zero = new MTLOrigin(0, 0, 0);
@@ -467,11 +467,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			ulong height;
 			ulong depth;
 
-			public MTLSize(ulong width, ulong height, ulong depth)
+			public MTLSize(int width, int height, int depth)
 			{
-				this.width = width;
-				this.height = height;
-				this.depth = depth;
+				this.width = (ulong) width;
+				this.height = (ulong) height;
+				this.depth = (ulong) depth;
 			}
 		}
 
@@ -658,9 +658,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		private static IntPtr selSupportsSampleCount = Selector("supportsSampleCount:");
-		private static bool mtlSupportsSampleCount(IntPtr device, ulong count)
+		private static bool mtlSupportsSampleCount(IntPtr device, int count)
 		{
-			return bool_objc_msgSend(device, selSupportsSampleCount, count);
+			return bool_objc_msgSend(device, selSupportsSampleCount, (ulong) count);
 		}
 
 		private static IntPtr selCommandQueue = Selector("newCommandQueue");
@@ -670,13 +670,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		private static IntPtr selNewBufferWithLength = Selector("newBufferWithLength:options:");
-		private static IntPtr mtlNewBufferWithLength(IntPtr device, ulong length, ulong options)
+		private static IntPtr mtlNewBufferWithLength(IntPtr device, int length, MTLResourceOptions options)
 		{
 			return intptr_objc_msgSend(
 				device,
 				selNewBufferWithLength,
-				length,
-				options
+				(ulong) length,
+				(ulong) options
 			);
 		}
 
@@ -782,10 +782,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private static IntPtr selColorAttachments = Selector("colorAttachments");
 		private static IntPtr selObjectAtIndexedSubscript = Selector("objectAtIndexedSubscript:");
-		private static IntPtr mtlGetColorAttachment(
-			IntPtr desc,
-			ulong index
-		) {
+		private static IntPtr mtlGetColorAttachment(IntPtr desc, int index)
+		{
 			IntPtr attachments = intptr_objc_msgSend(
 				desc,
 				selColorAttachments
@@ -794,7 +792,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			return intptr_objc_msgSend(
 				attachments, 
 				selObjectAtIndexedSubscript,
-				index
+				(ulong) index
 			);
 		}
 
@@ -1008,10 +1006,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetScissorRect = Selector("setScissorRect:");
 		private static void mtlSetScissorRect(
 			IntPtr renderCommandEncoder,
-			ulong x,
-			ulong y,
-			ulong w,
-			ulong h
+			int x,
+			int y,
+			int w,
+			int h
 		) {
 			MTLScissorRect rect = new MTLScissorRect(x, y, w, h);
 			objc_msgSend(renderCommandEncoder, selSetScissorRect, rect);
@@ -1027,25 +1025,25 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlDrawIndexedPrimitives(
 			IntPtr renderCommandEncoder,
 			MTLPrimitiveType primitiveType,
-			ulong indexCount,
+			int indexCount,
 			MTLIndexType indexType,
 			IntPtr indexBuffer,
-			ulong indexBufferOffset,
-			ulong instanceCount,
+			int indexBufferOffset,
+			int instanceCount,
 			int baseVertex,
-			ulong baseInstance
+			int baseInstance
 		) {
 			objc_msgSend(
 				renderCommandEncoder,
 				selDrawIndexedPrimitives,
 				(ulong) primitiveType,
-				indexCount,
+				(ulong) indexCount,
 				(ulong) indexType,
 				indexBuffer,
-				indexBufferOffset,
-				instanceCount,
+				(ulong) indexBufferOffset,
+				(ulong) instanceCount,
 				baseVertex,
-				baseInstance
+				(ulong) baseInstance
 			);
 		}
 
@@ -1053,15 +1051,15 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlDrawPrimitives(
 			IntPtr renderCommandEncoder,
 			MTLPrimitiveType primitive,
-			ulong vertexStart,
-			ulong vertexCount
+			int vertexStart,
+			int vertexCount
 		) {
 			objc_msgSend(
 				renderCommandEncoder,
 				selDrawPrimitives,
 				(ulong) primitive,
-				vertexStart,
-				vertexCount
+				(ulong) vertexStart,
+				(ulong) vertexCount
 			);
 		}
 
@@ -1141,29 +1139,29 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlSetVertexBuffer(
 			IntPtr renderCommandEncoder,
 			IntPtr vertexBuffer,
-			ulong offset,
-			ulong index
+			int offset,
+			int index
 		) {
 			objc_msgSend(
 				renderCommandEncoder,
 				selSetVertexBuffer,
 				vertexBuffer,
-				offset,
-				index
+				(ulong) offset,
+				(ulong) index
 			);
 		}
 
 		private static IntPtr selSetVertexBufferOffset = Selector("setVertexBufferOffset:atIndex:");
 		private static void mtlSetVertexBufferOffset(
 			IntPtr renderCommandEncoder,
-			ulong offset,
-			ulong index
+			int offset,
+			int index
 		) {
 			objc_msgSend(
 				renderCommandEncoder,
 				selSetVertexBufferOffset,
-				offset,
-				index
+				(ulong) offset,
+				(ulong) index
 			);
 		}
 
@@ -1171,29 +1169,29 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlSetFragmentBuffer(
 			IntPtr renderCommandEncoder,
 			IntPtr fragmentBuffer,
-			ulong offset,
-			ulong index
+			int offset,
+			int index
 		) {
 			objc_msgSend(
 				renderCommandEncoder,
 				selSetFragmentBuffer,
 				fragmentBuffer,
-				offset,
-				index
+				(ulong) offset,
+				(ulong) index
 			);
 		}
 
 		private static IntPtr selSetFragmentBufferOffset = Selector("setFragmentBufferOffset:atIndex:");
 		private static void mtlSetFragmentBufferOffset(
 			IntPtr renderCommandEncoder,
-			ulong offset,
-			ulong index
+			int offset,
+			int index
 		) {
 			objc_msgSend(
 				renderCommandEncoder,
 				selSetFragmentBufferOffset,
-				offset,
-				index
+				(ulong) offset,
+				(ulong) index
 			);
 		}
 
@@ -1201,13 +1199,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlSetFragmentTexture(
 			IntPtr renderCommandEncoder,
 			IntPtr fragmentTexture,
-			ulong index
+			int index
 		) {
 			objc_msgSend(
 				renderCommandEncoder,
 				selSetFragmentTexture,
 				fragmentTexture,
-				index
+				(ulong) index
 			);
 		}
 
@@ -1215,13 +1213,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlSetFragmentSamplerState(
 			IntPtr renderCommandEncoder,
 			IntPtr samplerState,
-			ulong index
+			int index
 		) {
 			objc_msgSend(
 				renderCommandEncoder,
 				selSetFragmentSamplerState,
 				samplerState,
-				index
+				(ulong) index
 			);
 		}
 
@@ -1229,13 +1227,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlSetVisibilityResultMode(
 			IntPtr renderCommandEncoder,
 			MTLVisibilityResultMode mode,
-			ulong offset
+			int offset
 		) {
 			objc_msgSend(
 				renderCommandEncoder,
 				selSetVisibilityResultMode,
 				(ulong) mode,
-				offset
+				(ulong) offset
 			);
 		}
 
@@ -1314,16 +1312,16 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selTexture2DDescriptor = Selector("texture2DDescriptorWithPixelFormat:width:height:mipmapped:");
 		private static IntPtr mtlMakeTexture2DDescriptor(
 			MTLPixelFormat pixelFormat,
-			ulong width,
-			ulong height,
+			int width,
+			int height,
 			bool mipmapped
 		) {
 			return intptr_objc_msgSend(
 				classTextureDescriptor,
 				selTexture2DDescriptor,
 				pixelFormat,
-				width,
-				height,
+				(ulong) width,
+				(ulong) height,
 				mipmapped
 			);
 		}
@@ -1331,14 +1329,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selTextureCubeDescriptor = Selector("textureCubeDescriptorWithPixelFormat:size:mipmapped:");
 		private static IntPtr mtlMakeTextureCubeDescriptor(
 			MTLPixelFormat pixelFormat,
-			ulong size,
+			int size,
 			bool mipmapped
 		) {
 			return intptr_objc_msgSend(
 				classTextureDescriptor,
 				selTextureCubeDescriptor,
 				pixelFormat,
-				size,
+				(ulong) size,
 				mipmapped
 			);
 		}
@@ -1370,9 +1368,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetDepth = Selector("setDepth:");
 		private static void mtlSetTextureDepth(
 			IntPtr texDesc,
-			ulong depth
+			int depth
 		) {
-			objc_msgSend(texDesc, selSetDepth, depth);
+			objc_msgSend(texDesc, selSetDepth, (ulong) depth);
 		}
 
 		#endregion
@@ -1383,21 +1381,21 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlReplaceRegion(
 			IntPtr texture,
 			MTLRegion region,
-			ulong level,
-			ulong slice,
+			int level,
+			int slice,
 			IntPtr pixelBytes,
-			ulong bytesPerRow,
-			ulong bytesPerImage
+			int bytesPerRow,
+			int bytesPerImage
 		) {
 			objc_msgSend(
 				texture,
 				selReplaceRegion,
 				region,
-				level,
-				slice,
+				(ulong) level,
+				(ulong) slice,
 				pixelBytes,
-				bytesPerRow,
-				bytesPerImage
+				(ulong) bytesPerRow,
+				(ulong) bytesPerImage
 			);
 		}
 
@@ -1405,21 +1403,21 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlGetTextureBytes(
 			IntPtr texture,
 			IntPtr pixelBytes,
-			ulong bytesPerRow,
-			ulong bytesPerImage,
+			int bytesPerRow,
+			int bytesPerImage,
 			MTLRegion region,
-			ulong level,
-			ulong slice
+			int level,
+			int slice
 		) {
 			objc_msgSend(
 				texture,
 				selGetBytes,
 				pixelBytes,
-				bytesPerRow,
-				bytesPerImage,
+				(ulong) bytesPerRow,
+				(ulong) bytesPerImage,
 				region,
-				level,
-				slice
+				(ulong) level,
+				(ulong) slice
 			);
 		}
 
@@ -1447,26 +1445,26 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static void mtlBlitTextureToTexture(
 			IntPtr blitCommandEncoder,
 			IntPtr srcTexture,
-			ulong srcSlice,
-			ulong srcLevel,
+			int srcSlice,
+			int srcLevel,
 			MTLOrigin srcOrigin,
 			MTLSize srcSize,
 			IntPtr dstTexture,
-			ulong dstSlice,
-			ulong dstLevel,
+			int dstSlice,
+			int dstLevel,
 			MTLOrigin dstOrigin
 		) {
 			objc_msgSend(
 				blitCommandEncoder,
 				selCopyFromTexture,
 				srcTexture,
-				srcSlice,
-				srcLevel,
+				(ulong) srcSlice,
+				(ulong) srcLevel,
 				srcOrigin,
 				srcSize,
 				dstTexture,
-				dstSlice,
-				dstLevel,
+				(ulong) dstSlice,
+				(ulong) dstLevel,
 				dstOrigin
 			);
 		}
@@ -1558,9 +1556,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private static void mtlSetPipelineSampleCount(
 			IntPtr pipelineDescriptor,
-			ulong sampleCount
+			int sampleCount
 		) {
-			objc_msgSend(pipelineDescriptor, selSetSampleCount, sampleCount);
+			objc_msgSend(pipelineDescriptor, selSetSampleCount, (ulong) sampleCount);
 		}
 
 		#endregion
@@ -1608,9 +1606,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetMaxAnisotropy = Selector("setMaxAnisotropy:");
 		private static void mtlSetSamplerMaxAnisotropy(
 			IntPtr samplerDesc,
-			ulong maxAnisotropy
+			int maxAnisotropy
 		) {
-			objc_msgSend(samplerDesc, selSetMaxAnisotropy, maxAnisotropy);
+			objc_msgSend(samplerDesc, selSetMaxAnisotropy, (ulong) maxAnisotropy);
 		}
 
 		private static IntPtr selSetRAddressMode = Selector("setRAddressMode:");

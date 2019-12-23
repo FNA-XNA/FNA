@@ -225,10 +225,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr oldBuffer = Handle;
 				IntPtr newBuffer = mtlNewBufferWithLength(
 					mtlDevice,
-					(ulong) internalBufferSize,
+					internalBufferSize,
 					(usage == BufferUsage.WriteOnly) ?
-						(ulong) MTLResourceOptions.CPUCacheModeWriteCombined :
-						(ulong) MTLResourceOptions.CPUCacheModeDefaultCache
+						MTLResourceOptions.CPUCacheModeWriteCombined :
+						MTLResourceOptions.CPUCacheModeDefaultCache
 				);
 				Handle = newBuffer;
 
@@ -510,8 +510,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr currentVertexDescriptor;	// MTLVertexDescriptor*
 		private IntPtr defaultDepthStencilState; // MTLDepthStencilState*
 
-		private ulong currentAttachmentWidth;
-		private ulong currentAttachmentHeight;
+		private int currentAttachmentWidth;
+		private int currentAttachmentHeight;
 
 		private IntPtr currentVisibilityBuffer; // MTLBuffer*
 
@@ -1081,7 +1081,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr passDesc = mtlMakeRenderPassDescriptor();
 
 			// Bind color attachments
-			for (ulong i = 0; i < (ulong) currentAttachments.Length; i += 1)
+			for (int i = 0; i < currentAttachments.Length; i += 1)
 			{
 				if (currentAttachments[i] == IntPtr.Zero)
 				{
@@ -1205,10 +1205,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Get attachment size
-			currentAttachmentWidth = mtlGetTextureWidth(
+			currentAttachmentWidth = (int) mtlGetTextureWidth(
 				currentAttachments[0]
 			);
-			currentAttachmentHeight = mtlGetTextureHeight(
+			currentAttachmentHeight = (int) mtlGetTextureHeight(
 				currentAttachments[0]
 			);
 
@@ -1372,10 +1372,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					mtlSetScissorRect(
 						renderCommandEncoder,
-						(uint) scissorRectangle.X,
-						(uint) scissorRectangle.Y,
-						(uint) scissorRectangle.Width,
-						(uint) scissorRectangle.Height
+						scissorRectangle.X,
+						scissorRectangle.Y,
+						scissorRectangle.Width,
+						scissorRectangle.Height
 					);
 				}
 			}
@@ -1464,7 +1464,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			MetalBuffer indexBuffer = indices.buffer as MetalBuffer;
 			indexBuffer.BoundThisFrame = true;
-			ulong totalIndexOffset = (ulong) (
+			int totalIndexOffset = (
 				(startIndex * XNAToMTL.IndexSize[(int) indices.IndexElementSize]) +
 				indexBuffer.InternalOffset
 			);
@@ -1475,7 +1475,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				XNAToMTL.IndexType[(int) indices.IndexElementSize],
 				indexBuffer.Handle,
 				totalIndexOffset,
-				(ulong) instanceCount,
+				instanceCount,
 				baseVertex,
 				0
 			);
@@ -1489,7 +1489,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlDrawPrimitives(
 				renderCommandEncoder,
 				XNAToMTL.Primitive[(int) primitiveType],
-				(ulong) vertexStart,
+				vertexStart,
 				XNAToMTL.PrimitiveVerts(primitiveType, primitiveCount)
 			);
 		}
@@ -1511,7 +1511,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Bind user index buffer
-			ulong numIndices = XNAToMTL.PrimitiveVerts(
+			int numIndices = XNAToMTL.PrimitiveVerts(
 				primitiveType,
 				primitiveCount
 			);
@@ -1534,7 +1534,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				len,
 				SetDataOptions.Discard
 			);
-			ulong totalIndexOffset = (ulong) (
+			int totalIndexOffset = (
 				(indexOffset * indexSize) +
 				userIndexBuffer.InternalOffset
 			);
@@ -1559,7 +1559,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexOffset,
 			int primitiveCount
 		) {
-			ulong numVerts = XNAToMTL.PrimitiveVerts(
+			int numVerts = XNAToMTL.PrimitiveVerts(
 				primitiveType,
 				primitiveCount
 			);
@@ -1570,7 +1570,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlDrawPrimitives(
 				renderCommandEncoder,
 				XNAToMTL.Primitive[(int) primitiveType],
-				(ulong) vertexOffset,
+				vertexOffset,
 				numVerts
 			);
 		}
@@ -1607,8 +1607,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlSetVertexBuffer(
 					renderCommandEncoder,
 					handle,
-					(ulong) offset,
-					(ulong) 0
+					offset,
+					0
 				);
 				ldVertexBuffers[0] = handle;
 				ldVertexBufferOffsets[0] = offset;
@@ -1617,8 +1617,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				mtlSetVertexBufferOffset(
 					renderCommandEncoder,
-					(ulong) offset,
-					(ulong) 0
+					offset,
+					0
 				);
 				ldVertexBufferOffsets[0] = offset;
 			}
@@ -2021,7 +2021,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			mtlSetPipelineSampleCount(
 				pipelineDesc,
-				(ulong) Math.Max(1, currentSampleCount)
+				Math.Max(1, currentSampleCount)
 			);
 
 			// Apply the blend state
@@ -2041,7 +2041,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				IntPtr colorAttachment = mtlGetColorAttachment(
 					pipelineDesc,
-					(ulong) i
+					i
 				);
 				mtlSetAttachmentPixelFormat(
 					colorAttachment,
@@ -2321,7 +2321,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlSetSamplerMaxAnisotropy(
 				samplerDesc,
 				(samplerState.Filter == TextureFilter.Anisotropic) ?
-					(ulong) Math.Max(1, samplerState.MaxAnisotropy) :
+					Math.Max(1, samplerState.MaxAnisotropy) :
 					1
 			);
 
@@ -2589,8 +2589,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			// We have to make a new texture...
 			IntPtr texDesc = mtlMakeTexture2DDescriptor(
 				XNAToMTL.TextureFormat[(int) fromTexture.Format],
-				(ulong) fromTexture.Width,
-				(ulong) fromTexture.Height,
+				fromTexture.Width,
+				fromTexture.Height,
 				fromTexture.HasMipmaps
 			);
 			MetalTexture ret = new MetalTexture(
@@ -2823,7 +2823,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					mtlSetFragmentTexture(
 						renderCommandEncoder,
 						Textures[i].Handle,
-						(ulong) i
+						i
 					);
 					textureNeedsUpdate[i] = false;
 				}
@@ -2832,7 +2832,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					mtlSetFragmentSamplerState(
 						renderCommandEncoder,
 						Samplers[i],
-						(ulong) i
+						i
 					);
 					samplerNeedsUpdate[i] = false;
 				}
@@ -2848,7 +2848,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlSetVertexBuffer(
 					renderCommandEncoder,
 					vUniform,
-					(ulong) vOff,
+					vOff,
 					UNIFORM_REG
 				);
 				ldVertUniformBuffer = vUniform;
@@ -2858,7 +2858,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				mtlSetVertexBufferOffset(
 					renderCommandEncoder,
-					(ulong) vOff,
+					vOff,
 					UNIFORM_REG
 				);
 				ldVertUniformOffset = vOff;
@@ -2871,7 +2871,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlSetFragmentBuffer(
 					renderCommandEncoder,
 					fUniform,
-					(ulong) fOff,
+					fOff,
 					UNIFORM_REG
 				);
 				ldFragUniformBuffer = fUniform;
@@ -2881,7 +2881,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				mtlSetFragmentBufferOffset(
 					renderCommandEncoder,
-					(ulong) fOff,
+					fOff,
 					UNIFORM_REG
 				);
 				ldFragUniformOffset = fOff;
@@ -2946,8 +2946,8 @@ namespace Microsoft.Xna.Framework.Graphics
 						mtlSetVertexBuffer(
 							renderCommandEncoder,
 							handle,
-							(ulong) offset,
-							(ulong) i
+							offset,
+							i
 						);
 						ldVertexBuffers[i] = handle;
 						ldVertexBufferOffsets[i] = offset;
@@ -2956,8 +2956,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						mtlSetVertexBufferOffset(
 							renderCommandEncoder,
-							(ulong) offset,
-							(ulong) i
+							offset,
+							i
 						);
 						ldVertexBufferOffsets[i] = offset;
 					}
@@ -3038,8 +3038,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Generate a multisample texture
 			IntPtr desc = mtlMakeTexture2DDescriptor(
 				pixelFormat,
-				(ulong) width,
-				(ulong) height,
+				width,
+				height,
 				false
 			);
 			mtlSetStorageMode(
@@ -3083,8 +3083,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Generate a depth texture
 			IntPtr desc = mtlMakeTexture2DDescriptor(
 				pixelFormat,
-				(ulong) width,
-				(ulong) height,
+				width,
+				height,
 				false
 			);
 			mtlSetStorageMode(
@@ -3262,8 +3262,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			IntPtr texDesc = mtlMakeTexture2DDescriptor(
 				XNAToMTL.TextureFormat[(int) format],
-				(ulong) width,
-				(ulong) height,
+				width,
+				height,
 				levelCount > 1
 			);
 
@@ -3298,13 +3298,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			IntPtr texDesc = mtlMakeTexture2DDescriptor(
 				XNAToMTL.TextureFormat[(int) format],
-				(ulong) width,
-				(ulong) height,
+				width,
+				height,
 				levelCount > 1
 			);
 
 			// Make it 3D!
-			mtlSetTextureDepth(texDesc, (ulong) depth);
+			mtlSetTextureDepth(texDesc, depth);
 			mtlSetTextureType(texDesc, MTLTextureType.Texture3D);
 
 			return new MetalTexture(
@@ -3325,7 +3325,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			IntPtr texDesc = mtlMakeTextureCubeDescriptor(
 				XNAToMTL.TextureFormat[(int) format],
-				(ulong) size,
+				size,
 				levelCount > 1
 			);
 
@@ -3380,7 +3380,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Texture Data Helper Methods
 
-		private ulong BytesPerRow(int width, SurfaceFormat format)
+		private int BytesPerRow(int width, SurfaceFormat format)
 		{
 			int blocksPerRow = width;
 
@@ -3391,10 +3391,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				blocksPerRow = (width + 3) / 4;
 			}
 
-			return (ulong) (blocksPerRow * Texture.GetFormatSize(format));
+			return blocksPerRow * Texture.GetFormatSize(format);
 		}
 
-		private ulong BytesPerImage(int width, int height, SurfaceFormat format)
+		private int BytesPerImage(int width, int height, SurfaceFormat format)
 		{
 			int blocksPerRow = width;
 			int blocksPerColumn = height;
@@ -3409,7 +3409,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				blocksPerColumn = (height + 3) / 4;
 			}
 
-			return (ulong) (blocksPerRow * blocksPerColumn * formatSize);
+			return blocksPerRow * blocksPerColumn * formatSize;
 		}
 
 		#endregion
@@ -3430,8 +3430,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			MetalTexture tex = texture as MetalTexture;
 			IntPtr handle = tex.Handle;
 
-			MTLOrigin origin = new MTLOrigin((ulong) x, (ulong) y, 0);
-			MTLSize size = new MTLSize((ulong) w, (ulong) h, 1);
+			MTLOrigin origin = new MTLOrigin(x, y, 0);
+			MTLSize size = new MTLSize(w, h, 1);
 
 			if (tex.IsPrivate)
 			{
@@ -3443,7 +3443,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlReplaceRegion(
 				handle,
 				new MTLRegion(origin, size),
-				(ulong) level,
+				level,
 				0,
 				data,
 				BytesPerRow(w, format),
@@ -3462,12 +3462,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					blit,
 					handle,
 					0,
-					(ulong) level,
+					level,
 					origin,
 					size,
 					tex.Handle,
 					0,
-					(ulong) level,
+					level,
 					origin
 				);
 
@@ -3487,7 +3487,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				Texture2D tex = textures[i];
 				MTLRegion region = new MTLRegion(
 					MTLOrigin.Zero,
-					new MTLSize((ulong) tex.Width, (ulong) tex.Height, 1)
+					new MTLSize(tex.Width, tex.Height, 1)
 				);
 				mtlReplaceRegion(
 					(tex.texture as MetalTexture).Handle,
@@ -3495,7 +3495,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					0,
 					0,
 					ptr,
-					(ulong) tex.Width,
+					tex.Width,
 					0
 				);
 				ptr += tex.Width * tex.Height;
@@ -3520,13 +3520,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			int d = back - front;
 
 			MTLRegion region = new MTLRegion(
-				new MTLOrigin((ulong) left, (ulong) top, (ulong) front),
-				new MTLSize((ulong) w, (ulong) h, (ulong) d)
+				new MTLOrigin(left, top, front),
+				new MTLSize(w, h, d)
 			);
 			mtlReplaceRegion(
 				(texture as MetalTexture).Handle,
 				region,
-				(ulong) level,
+				level,
 				0,
 				data,
 				BytesPerRow(w, format),
@@ -3549,10 +3549,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			MetalTexture tex = texture as MetalTexture;
 			IntPtr handle = tex.Handle;
 
-			MTLOrigin origin = new MTLOrigin((ulong) xOffset, (ulong) yOffset, 0);
-			MTLSize size = new MTLSize((ulong) width, (ulong) height, 1);
-
-			ulong slice = (ulong) cubeMapFace;
+			MTLOrigin origin = new MTLOrigin(xOffset, yOffset, 0);
+			MTLSize size = new MTLSize(width, height, 1);
+			int slice = (int) cubeMapFace;
 
 			if (tex.IsPrivate)
 			{
@@ -3567,7 +3566,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlReplaceRegion(
 				handle,
 				new MTLRegion(origin, size),
-				(ulong) level,
+				level,
 				slice,
 				data,
 				BytesPerRow(width, format),
@@ -3586,12 +3585,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					blit,
 					handle,
 					slice,
-					(ulong) level,
+					level,
 					origin,
 					size,
 					tex.Handle,
 					slice,
-					(ulong) level,
+					level,
 					origin
 				);
 
@@ -3626,8 +3625,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			MetalTexture tex = texture as MetalTexture;
 			IntPtr handle = tex.Handle;
 
-			MTLSize size = new MTLSize((ulong) subW, (ulong) subH, 1);
-			MTLOrigin origin = new MTLOrigin((ulong) subX, (ulong) subY, 0);
+			MTLSize size = new MTLSize(subW, subH, 1);
+			MTLOrigin origin = new MTLOrigin(subX, subY, 0);
 
 			if (tex.IsPrivate)
 			{
@@ -3643,12 +3642,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					blit,
 					tex.Handle,
 					0,
-					(ulong) level,
+					level,
 					origin,
 					size,
 					handle,
 					0,
-					(ulong) level,
+					level,
 					origin
 				);
 
@@ -3672,7 +3671,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				BytesPerRow(subW, format),
 				0,
 				new MTLRegion(origin, size),
-				(ulong) level,
+				level,
 				0
 			);
 		}
@@ -3697,16 +3696,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			int d = back - front;
 
 			MTLRegion region = new MTLRegion(
-				new MTLOrigin((ulong) left, (ulong) top, (ulong) front),
-				new MTLSize((ulong) w, (ulong) h, (ulong) d)
+				new MTLOrigin(left, top, front),
+				new MTLSize(w, h, d)
 			);
 			mtlGetTextureBytes(
 				(texture as MetalTexture).Handle,
 				data,
-				(ulong) BytesPerRow(w, format),
-				(ulong) BytesPerImage(w, h, format),
+				BytesPerRow(w, format),
+				BytesPerImage(w, h, format),
 				region,
-				(ulong) level,
+				level,
 				0
 			);
 		}
@@ -3729,10 +3728,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			MetalTexture tex = texture as MetalTexture;
 			IntPtr handle = tex.Handle;
 
-			MTLSize regionSize = new MTLSize((ulong) subW, (ulong) subH, 1);
-			MTLOrigin origin = new MTLOrigin((ulong) subX, (ulong) subY, 0);
-
-			ulong slice = (ulong) cubeMapFace;
+			MTLSize regionSize = new MTLSize(subW, subH, 1);
+			MTLOrigin origin = new MTLOrigin(subX, subY, 0);
+			int slice = (int) cubeMapFace;
 
 			if (tex.IsPrivate)
 			{
@@ -3750,13 +3748,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlBlitTextureToTexture(
 					blit,
 					tex.Handle,
-					(ulong) cubeMapFace,
-					(ulong) level,
+					(int) cubeMapFace,
+					level,
 					origin,
 					regionSize,
 					handle,
 					slice,
-					(ulong) level,
+					level,
 					origin
 				);
 
@@ -3780,7 +3778,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				BytesPerRow(subW, format),
 				0,
 				new MTLRegion(origin, regionSize),
-				(ulong) level,
+				level,
 				slice
 			);
 		}
@@ -3984,13 +3982,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public IGLQuery CreateQuery()
 		{
-			return new MetalQuery(
-				mtlNewBufferWithLength(
-					device,
-					sizeof(ulong),
-					0
-				)
-			);
+			IntPtr buf = mtlNewBufferWithLength(device, sizeof(ulong), 0);
+			return new MetalQuery(buf);
 		}
 
 		private void DeleteQuery(IGLQuery query)
@@ -4305,20 +4298,20 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLPrimitiveType.Point		// PrimitiveType.PointListEXT
 			};
 
-			public static ulong PrimitiveVerts(PrimitiveType primitiveType, int primitiveCount)
+			public static int PrimitiveVerts(PrimitiveType primitiveType, int primitiveCount)
 			{
 				switch (primitiveType)
 				{
 					case PrimitiveType.TriangleList:
-						return (ulong) (primitiveCount * 3);
+						return primitiveCount * 3;
 					case PrimitiveType.TriangleStrip:
-						return (ulong) (primitiveCount + 2);
+						return primitiveCount + 2;
 					case PrimitiveType.LineList:
-						return (ulong) (primitiveCount * 2);
+						return primitiveCount * 2;
 					case PrimitiveType.LineStrip:
-						return (ulong) (primitiveCount + 1);
+						return primitiveCount + 1;
 					case PrimitiveType.PointListEXT:
-						return (ulong) primitiveCount;
+						return primitiveCount;
 				}
 				throw new NotSupportedException();
 			}
@@ -4404,6 +4397,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			public void ResetFramebuffer(
 				PresentationParameters presentationParameters
 			) {
+				// Update the backbuffer size
 				int newWidth = presentationParameters.BackBufferWidth;
 				int newHeight = presentationParameters.BackBufferHeight;
 				if (Width != newWidth || Height != newHeight)
@@ -4423,8 +4417,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Update color buffer to the new resolution.
 				IntPtr colorBufferDesc = mtlMakeTexture2DDescriptor(
 					PixelFormat,
-					(uint) Width,
-					(uint) Height,
+					Width,
+					Height,
 					false
 				);
 				mtlSetStorageMode(
@@ -4460,8 +4454,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					IntPtr depthStencilBufferDesc = mtlMakeTexture2DDescriptor(
 						mtlDevice.GetDepthFormat(DepthFormat),
-						(uint) Width,
-						(uint) Height,
+						Width,
+						Height,
 						false
 					);
 					mtlSetStorageMode(
@@ -4521,7 +4515,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			fauxBackbufferDrawBuffer = mtlNewBufferWithLength(
 				device,
 				(16 * sizeof(float)) + (6 * sizeof(ushort)),
-				(ulong) MTLResourceOptions.CPUCacheModeWriteCombined
+				MTLResourceOptions.CPUCacheModeWriteCombined
 			);
 
 			ushort[] indices = new ushort[]
