@@ -24,8 +24,9 @@ namespace Microsoft.Xna.Framework
 		 * accepted and what it didn't.
 		 *
 		 * Aside from what you see below, all I could rule out was that
-		 * it doesn't let you do two args as one param. As an example,
-		 * "-r:FNA.dll" works, "-r FNA.dll" does not.
+		 * it doesn't let you do two args as one param, and '=' is not a
+		 * valid value separator either. As an example, "-r:FNA.dll"
+		 * will work, "-r FNA.dll" and "-r=FNA.dll" will not.
 		 *
 		 * The part that bothers me the most, however, is the flag
 		 * indicator. It seems to let anything through as long as : is
