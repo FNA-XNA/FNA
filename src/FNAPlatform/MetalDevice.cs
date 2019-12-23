@@ -3034,6 +3034,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IGLTexture texture
 		) {
 			MTLPixelFormat pixelFormat = XNAToMTL.TextureFormat[(int) format];
+			int sampleCount = GetCompatibleSampleCount(multiSampleCount);
 
 			// Generate a multisample texture
 			IntPtr desc = mtlMakeTexture2DDescriptor(
@@ -3056,7 +3057,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			mtlSetTextureSampleCount(
 				desc,
-				multiSampleCount
+				sampleCount
 			);
 			IntPtr multisampleTexture = mtlNewTextureWithDescriptor(
 				device,
@@ -3067,7 +3068,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			return new MetalRenderbuffer(
 				(texture as MetalTexture).Handle,
 				pixelFormat,
-				multiSampleCount,
+				sampleCount,
 				multisampleTexture
 			);
 		}
@@ -3079,6 +3080,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int multiSampleCount
 		) {
 			MTLPixelFormat pixelFormat = GetDepthFormat(format);
+			int sampleCount = GetCompatibleSampleCount(multiSampleCount);
 
 			// Generate a depth texture
 			IntPtr desc = mtlMakeTexture2DDescriptor(
@@ -3103,7 +3105,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 				mtlSetTextureSampleCount(
 					desc,
-					multiSampleCount
+					sampleCount
 				);
 			}
 			IntPtr handle = mtlNewTextureWithDescriptor(
@@ -3115,7 +3117,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			return new MetalRenderbuffer(
 				handle,
 				pixelFormat,
-				multiSampleCount,
+				sampleCount,
 				IntPtr.Zero
 			);
 		}
@@ -3410,6 +3412,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			return blocksPerRow * blocksPerColumn * formatSize;
+		}
+
+		private int GetCompatibleSampleCount(int sampleCount)
+		{
+			/* If the device does not support the requested
+			 * multisample count, halve it until we find a
+			 * value that is supported.
+			 */
+			while (!mtlSupportsSampleCount(device, sampleCount))
+			{
+				sampleCount = MathHelper.ClosestMSAAPower(
+					sampleCount / 2
+				);
+			}
+			return sampleCount;
 		}
 
 		#endregion
@@ -4397,6 +4414,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			public void ResetFramebuffer(
 				PresentationParameters presentationParameters
 			) {
+				// Release the existing buffers
+				Dispose();
+
 				// Update the backbuffer size
 				int newWidth = presentationParameters.BackBufferWidth;
 				int newHeight = presentationParameters.BackBufferHeight;
@@ -4404,15 +4424,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					mtlDevice.fauxBackbufferSizeChanged = true;
 				}
-
-				// Update from presentation parameters
 				Width = newWidth;
 				Height = newHeight;
-				DepthFormat = presentationParameters.DepthStencilFormat;
-				MultiSampleCount = presentationParameters.MultiSampleCount;
 
-				// Release the existing buffers
-				Dispose();
+				// Update other presentation parameters
+				DepthFormat = presentationParameters.DepthStencilFormat;
+				MultiSampleCount = mtlDevice.GetCompatibleSampleCount(
+					presentationParameters.MultiSampleCount
+				);
 
 				// Update color buffer to the new resolution.
 				IntPtr colorBufferDesc = mtlMakeTexture2DDescriptor(
