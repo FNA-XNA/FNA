@@ -574,8 +574,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public bool SupportsHardwareInstancing
 		{
-			get;
-			private set;
+			get
+			{
+				return true;
+			}
 		}
 
 		public bool SupportsNoOverwrite
@@ -588,8 +590,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public int MaxTextureSlots
 		{
-			get;
-			private set;
+			get
+			{
+				return 16;
+			}
 		}
 
 		public int MaxMultiSampleCount
@@ -710,8 +714,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Set device properties
 			isMac = SDL2.SDL.SDL_GetPlatform().Equals("Mac OS X");
 			SupportsS3tc = SupportsDxt1 = isMac;
-			SupportsHardwareInstancing = true;
-			MaxTextureSlots = 16;
 			MaxMultiSampleCount = mtlSupportsSampleCount(device, 8) ? 8 : 4;
 
 			// Determine supported depth formats
