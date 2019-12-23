@@ -94,8 +94,47 @@ namespace Microsoft.Xna.Framework
 				FNALoggerEXT.LogError = Console.WriteLine;
 			}
 
+			// Built-in command line arguments
+			LaunchParameters args = new LaunchParameters();
+			string arg;
+			if (args.TryGetValue("enablehighdpi", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_GRAPHICS_ENABLE_HIGHDPI",
+					"1"
+				);
+			}
+			if (args.TryGetValue("gldevice", out arg))
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_GRAPHICS_FORCE_GLDEVICE",
+					arg
+				);
+			}
+			if (args.TryGetValue("mojoshaderprofile", out arg))
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_GRAPHICS_MOJOSHADER_PROFILE",
+					arg
+				);
+			}
+			if (args.TryGetValue("backbufferscalenearest", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_GRAPHICS_BACKBUFFER_SCALE_NEAREST",
+					"1"
+				);
+			}
+			if (args.TryGetValue("usescancodes", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_KEYBOARD_USE_SCANCODES",
+					"1"
+				);
+			}
+
 			AppDomain.CurrentDomain.ProcessExit += SDL2_FNAPlatform.ProgramExit;
-			TitleLocation = SDL2_FNAPlatform.ProgramInit();
+			TitleLocation = SDL2_FNAPlatform.ProgramInit(args);
 		}
 
 		#endregion

@@ -63,7 +63,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Init/Exit Methods
 
-		public static string ProgramInit()
+		public static string ProgramInit(LaunchParameters args)
 		{
 			// This is how we can weed out cases where fnalibs is missing
 			try
@@ -139,6 +139,51 @@ namespace Microsoft.Xna.Framework
 			{
 				SDL.SDL_GameControllerAddMappingsFromFile(
 					mappingsDB
+				);
+			}
+
+			// Built-in SDL2 command line arguments
+			string arg;
+			if (args.TryGetValue("disablelateswaptear", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_OPENGL_DISABLE_LATESWAPTEAR",
+					"1"
+				);
+			}
+			if (args.TryGetValue("glprofile", out arg))
+			{
+				if (arg == "es3")
+				{
+					Environment.SetEnvironmentVariable(
+						"FNA_OPENGL_FORCE_ES3",
+						"1"
+					);
+				}
+				else if (arg == "core")
+				{
+					Environment.SetEnvironmentVariable(
+						"FNA_OPENGL_FORCE_CORE_PROFILE",
+						"1"
+					);
+				}
+				else if (arg == "compatibility")
+				{
+					Environment.SetEnvironmentVariable(
+						"FNA_OPENGL_FORCE_COMPATIBILITY_PROFILE",
+						"1"
+					);
+				}
+			}
+			if (args.TryGetValue("angle", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_OPENGL_FORCE_ES3",
+					"1"
+				);
+				Environment.SetEnvironmentVariable(
+					"SDL_OPENGL_ES_DRIVER",
+					"1"
 				);
 			}
 
