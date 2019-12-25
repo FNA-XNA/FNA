@@ -1409,23 +1409,26 @@ namespace Microsoft.Xna.Framework
 
 		private static string GetBaseDirectory()
 		{
-			if (	OSVersion.Equals("Windows") ||
-				OSVersion.Equals("Mac OS X") ||
-				OSVersion.Equals("Linux") ||
-				OSVersion.Equals("FreeBSD") ||
-				OSVersion.Equals("OpenBSD") ||
-				OSVersion.Equals("NetBSD")	)
+			if (Environment.GetEnvironmentVariable("FNA_PREFER_SDL2_BASE_PATH") != "1")
 			{
-				/* This is mostly here for legacy compatibility.
-				 * For most platforms this should be the same as
-				 * SDL_GetBasePath, but some platforms (Apple's)
-				 * will have a separate Resources folder that is
-				 * the "base" directory for applications.
-				 *
-				 * TODO: Remove this and endure the breakage.
-				 * -flibit
-				 */
-				return AppDomain.CurrentDomain.BaseDirectory;
+				if (	OSVersion.Equals("Windows") ||
+					OSVersion.Equals("Mac OS X") ||
+					OSVersion.Equals("Linux") ||
+					OSVersion.Equals("FreeBSD") ||
+					OSVersion.Equals("OpenBSD") ||
+					OSVersion.Equals("NetBSD")	)
+				{
+					/* This is mostly here for legacy compatibility.
+					* For most platforms this should be the same as
+					* SDL_GetBasePath, but some platforms (Apple's)
+					* will have a separate Resources folder that is
+					* the "base" directory for applications.
+					*
+					* TODO: Remove this and endure the breakage.
+					* -flibit
+					*/
+					return AppDomain.CurrentDomain.BaseDirectory;
+				}
 			}
 			string result = SDL.SDL_GetBasePath();
 			if (string.IsNullOrEmpty(result))
