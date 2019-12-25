@@ -556,22 +556,29 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr commandBuffer;		// MTLCommandBuffer*
 		private IntPtr renderCommandEncoder;	// MTLRenderCommandEncoder*
 
-		private IntPtr currentDepthStencilBuffer; // MTLTexture*
-		private IntPtr currentVertexDescriptor;	// MTLVertexDescriptor*
-		private IntPtr defaultDepthStencilState; // MTLDepthStencilState*
+		private IntPtr currentDepthStencilBuffer;	// MTLTexture*
+		private IntPtr currentVertexDescriptor;		// MTLVertexDescriptor*
+		private IntPtr currentVisibilityBuffer;		// MTLBuffer*
+		private IntPtr defaultDepthStencilState;	// MTLDepthStencilState*
 
 		private int currentAttachmentWidth;
 		private int currentAttachmentHeight;
-
-		private IntPtr currentVisibilityBuffer; // MTLBuffer*
 
 		private bool needNewRenderPass = false;
 		private bool shouldClearColor = false;
 		private bool shouldClearDepth = false;
 		private bool shouldClearStencil = false;
 
-		private int mainThreadID;
 		private bool isMac;
+
+		#endregion
+
+		#region Frame Tracking Variables
+
+		private const int MAX_FRAMES_IN_FLIGHT = 1;
+
+		private bool frameInProgress = false;
+		private Queue<IntPtr> committedCommandBuffers = new Queue<IntPtr>();
 
 		#endregion
 
@@ -835,9 +842,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			ldVertexBuffers = new IntPtr[MAX_BOUND_VERTEX_BUFFERS];
 			ldVertexBufferOffsets = new int[MAX_BOUND_VERTEX_BUFFERS];
 
-			// Store the main thread ID
-			mainThreadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
-
 			// Create a default depth stencil state
 			IntPtr defDS = mtlNewDepthStencilDescriptor();
 			defaultDepthStencilState = mtlNewDepthStencilStateWithDescriptor(device, defDS);
@@ -853,6 +857,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void Dispose()
 		{
+			// Stop rendering
 			EndPass();
 
 			// Release vertex descriptors
@@ -944,6 +949,36 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region BeginFrame Method
+
+		public void BeginFrameIfApplicable()
+		{
+			if (frameInProgress) return;
+
+			// Wait for command buffers to complete...
+			while (committedCommandBuffers.Count >= MAX_FRAMES_IN_FLIGHT)
+			{
+				IntPtr cmdbuf = committedCommandBuffers.Dequeue();
+				mtlCommandBufferWaitUntilCompleted(cmdbuf);
+				ObjCRelease(cmdbuf);
+			}
+
+			// The cycle begins anew!
+			frameInProgress = true;
+			pool = StartAutoreleasePool();
+			commandBuffer = mtlMakeCommandBuffer(queue);
+
+			for (int i = 0; i < Buffers.Count; i += 1)
+			{
+				Buffers[i].Reset();
+			}
+
+			// FIXME: Rename this! -caleb
+			MojoShader.MOJOSHADER_mtlEndFrame();
+		}
+
+		#endregion
+
 		#region Window SwapBuffers Method
 
 		public void SwapBuffers(
@@ -1004,27 +1039,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Commit the command buffer for presentation
 			mtlPresentDrawable(commandBuffer, drawable);
 			mtlCommitCommandBuffer(commandBuffer);
+
+			// Enqueue the command buffer for tracking
 			ObjCRetain(commandBuffer);
+			committedCommandBuffers.Enqueue(commandBuffer);
+			commandBuffer = IntPtr.Zero;
 
 			// Release allocations from the past frame
 			DrainAutoreleasePool(pool);
 
-			// Reset all buffers
-			for (int i = 0; i < Buffers.Count; i += 1)
-			{
-				Buffers[i].Reset();
-			}
-			MojoShader.MOJOSHADER_mtlEndFrame();
-
-			// Wait for command buffer completion
-			mtlCommandBufferWaitUntilCompleted(commandBuffer);
-			ObjCRelease(commandBuffer);
-			commandBuffer = IntPtr.Zero;
-
-			// The cycle begins anew...
-			pool = StartAutoreleasePool();
-			commandBuffer = mtlMakeCommandBuffer(queue);
-			renderCommandEncoder = IntPtr.Zero;
+			// We're done here.
+			frameInProgress = false;
 		}
 
 		private void BlitFramebuffer(
@@ -1118,11 +1143,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void UpdateRenderPass()
 		{
-			if (!needNewRenderPass)
-			{
-				// Nothing to do
-				return;
-			}
+			if (!needNewRenderPass) return;
+
+			// If we weren't drawing before, we are now!
+			BeginFrameIfApplicable();
 
 			// Wrap up rendering with the old encoder
 			EndPass();
@@ -1477,9 +1501,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			commandBuffer = mtlMakeCommandBuffer(queue);
 			needNewRenderPass = true;
-			foreach (MetalBuffer buf in Buffers)
+			committedCommandBuffers.Clear();
+
+			for (int i = 0; i < Buffers.Count; i += 1)
 			{
-				buf.Reset();
+				Buffers[i].Reset();
 			}
 		}
 
@@ -4682,15 +4708,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			ObjCRelease(pipelineDesc);
 			ObjCRelease(vertexFunc);
 			ObjCRelease(fragFunc);
-		}
-
-		#endregion
-
-		#region Threading Helper Method
-
-		private bool OnMainThread()
-		{
-			return System.Threading.Thread.CurrentThread.ManagedThreadId == mainThreadID;
 		}
 
 		#endregion
