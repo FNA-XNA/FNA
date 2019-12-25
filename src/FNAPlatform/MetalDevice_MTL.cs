@@ -370,8 +370,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private enum MTLResourceOptions
 		{
 			CPUCacheModeDefaultCache = 0,
-			CPUCacheModeWriteCombined = 1,
-			ResourceStorageModeManaged = 1 << 4
+			CPUCacheModeWriteCombined = 1
 		}
 
 		#endregion

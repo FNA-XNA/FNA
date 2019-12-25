@@ -216,21 +216,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			private void CreateBackingBuffer(int prevSize)
 			{
-				MTLResourceOptions options = (
-					usage == BufferUsage.WriteOnly ?
-						MTLResourceOptions.CPUCacheModeWriteCombined :
-						MTLResourceOptions.CPUCacheModeDefaultCache
-				);
-				if (device.isMac)
-				{
-					options |= MTLResourceOptions.ResourceStorageModeManaged;
-				}
-
 				IntPtr oldBuffer = Handle;
 				Handle = mtlNewBufferWithLength(
 					mtlDevice,
 					internalBufferSize,
-					options
+					usage == BufferUsage.WriteOnly ?
+						MTLResourceOptions.CPUCacheModeWriteCombined :
+						MTLResourceOptions.CPUCacheModeDefaultCache
 				);
 
 				// Copy over data from old buffer
@@ -242,14 +234,6 @@ namespace Microsoft.Xna.Framework.Graphics
 						(IntPtr) prevSize
 					);
 					ObjCRelease(oldBuffer);
-
-					if (device.isMac)
-					{
-						mtlDidModifyRange(
-							Handle,
-							new NSRange(0, prevSize)
-						);
-					}
 				}
 			}
 
@@ -297,29 +281,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					data,
 					(IntPtr) dataLength
 				);
-
-				// Managed resources require explicit synchronization
-				if (device.isMac)
-				{
-					if (lastOffset == InternalOffset)
-					{
-						// Modified a subregion
-						NSRange range = new NSRange(
-							InternalOffset + offsetInBytes,
-							dataLength
-						);
-						mtlDidModifyRange(Handle, range);
-					}
-					else
-					{
-						// Modified the entire buffer
-						NSRange range = new NSRange(
-							InternalOffset,
-							(int) BufferSize
-						);
-						mtlDidModifyRange(Handle, range);
-					}
-				}
 			}
 
 			/* This form of SetData allows us to advance through
@@ -348,15 +309,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					data,
 					(IntPtr) dataLength
 				);
-
-				// Managed resources need explicit synchronization
-				if (device.isMac)
-				{
-					mtlDidModifyRange(
-						Handle,
-						new NSRange(InternalOffset, dataLength)
-					);
-				}
 
 				// Remember length so we can add it to InternalOffset
 				prevDataLength = dataLength;
