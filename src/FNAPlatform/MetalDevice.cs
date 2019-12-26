@@ -243,21 +243,18 @@ namespace Microsoft.Xna.Framework.Graphics
 				int dataLength,
 				SetDataOptions options
 			) {
-				// Prepare for overwriting...
-				int lastOffset = InternalOffset;
-				if (boundThisFrame && options == SetDataOptions.None)
+				int lastInternalOffset = InternalOffset;
+				if (options == SetDataOptions.None && boundThisFrame)
 				{
-					// Stall until we can overwrite the buffer
 					device.Stall();
 					boundThisFrame = true;
 				}
-				else if (boundThisFrame && options == SetDataOptions.Discard)
+				else if (options == SetDataOptions.Discard && boundThisFrame)
 				{
 					InternalOffset += (int) BufferSize;
-
-					// Expand if needed
 					if (InternalOffset + dataLength > internalBufferSize)
 					{
+						// Expand!
 						int prevSize = internalBufferSize;
 						internalBufferSize *= 2;
 						CreateBackingBuffer(prevSize);
@@ -265,22 +262,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Copy previous contents, if needed
-				if (lastOffset != InternalOffset)
+				if (lastInternalOffset != InternalOffset)
 				{
 					// FIXME: Would a blit copy be faster? -caleb
 					memcpy(
 						Contents + InternalOffset,
-						Contents + lastOffset,
+						Contents + lastInternalOffset,
 						BufferSize
 					);
 				}
 
-				// Copy the data into the buffer
 				memcpy(
 					Contents + InternalOffset + offsetInBytes,
 					data,
 					(IntPtr) dataLength
 				);
+				prevDataLength = (int) BufferSize;
 			}
 
 			/* This form of SetData allows us to advance through
@@ -290,11 +287,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			public void SetUserData(IntPtr data, int dataLength)
 			{
 				InternalOffset += prevDataLength;
-
-				// Expand if needed
-				int sizeNeeded = InternalOffset + dataLength;
-				if (sizeNeeded > internalBufferSize)
+				if (InternalOffset + dataLength > internalBufferSize)
 				{
+					// Expand!
 					int prevSize = internalBufferSize;
 					internalBufferSize = Math.Max(
 						internalBufferSize * 2,
@@ -321,6 +316,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public void Reset()
 			{
+				if (InternalOffset != 0)
+				{
+					memcpy(
+						Contents,
+						Contents + InternalOffset,
+						(IntPtr) prevDataLength
+					);
+				}
 				InternalOffset = 0;
 				boundThisFrame = false;
 				prevDataLength = 0;
@@ -1750,8 +1753,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			float realDepthBias = rasterizerState.DepthBias;
 			realDepthBias *= XNAToMTL.DepthBiasScale(
-				GetDepthFormat(currentDepthFormat),
-				depthBias
+				GetDepthFormat(currentDepthFormat)
 			);
 			if (	realDepthBias != depthBias ||
 				rasterizerState.SlopeScaleDepthBias != slopeScaleDepthBias	)
@@ -2709,7 +2711,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlEffect = MojoShader.MOJOSHADER_mtlCompileEffect(
 				effect,
 				device,
-				1
+				MAX_FRAMES_IN_FLIGHT
 			);
 			if (mtlEffect == IntPtr.Zero)
 			{
@@ -3488,6 +3490,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
+				// We need an initialized command buffer for blitting
+				BeginFrameIfApplicable();
+
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 			}
@@ -3605,6 +3610,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
+				// We need an initialized command buffer for blitting
+				BeginFrameIfApplicable();
+
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 
@@ -3677,6 +3685,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
+				// We need an initialized command buffer for blitting
+				BeginFrameIfApplicable();
+
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 
@@ -3778,6 +3789,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
+				// We need an initialized command buffer for blitting
+				BeginFrameIfApplicable();
+
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 
@@ -3940,6 +3954,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			IGLRenderbuffer renderbuffer,
 			DepthFormat depthFormat
 		) {
+			BeginFrameIfApplicable();
+
 			// Perform any pending clears before switching render targets
 			if (shouldClearColor || shouldClearDepth || shouldClearStencil)
 			{
@@ -4258,7 +4274,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLTriangleFillMode.Lines	// FillMode.WireFrame
 			};
 
-			public static float DepthBiasScale(MTLPixelFormat format, float scale)
+			public static float DepthBiasScale(MTLPixelFormat format)
 			{
 				switch (format)
 				{
