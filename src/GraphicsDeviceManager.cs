@@ -337,6 +337,13 @@ namespace Microsoft.Xna.Framework
 					}
 				}
 			}
+
+			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
+			{
+				gdi.PresentationParameters.BackBufferWidth *= 2;
+				gdi.PresentationParameters.BackBufferHeight *= 2;
+			}
+
 			gdi.PresentationParameters.DepthStencilFormat =
 				PreferredDepthStencilFormat;
 			gdi.PresentationParameters.IsFullScreen =
@@ -470,11 +477,6 @@ namespace Microsoft.Xna.Framework
 			Rectangle size = (sender as GameWindow).ClientBounds;
 			resizedBackBufferWidth = size.Width;
 			resizedBackBufferHeight = size.Height;
-			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
-			{
-				resizedBackBufferWidth *= 2;
-				resizedBackBufferHeight *= 2;
-			}
 			useResizedBackBuffer = true;
 			ApplyChanges();
 		}
