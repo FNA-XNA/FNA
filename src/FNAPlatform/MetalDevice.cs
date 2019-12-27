@@ -3481,6 +3481,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
+				// FIXME: Make sure a command buffer is active!
+
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 			}
@@ -3598,6 +3600,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
+				// FIXME: Make sure a command buffer is active!
+
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 
@@ -3670,6 +3674,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
+				// FIXME: Make sure a command buffer is active!
+
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 
@@ -3771,6 +3777,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
+				// FIXME: Make sure a command buffer is active!
+
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 
