@@ -195,6 +195,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			private IntPtr mtlDevice = IntPtr.Zero;
 			private int internalBufferSize = 0;
 			private int prevDataLength = 0;
+			private int prevInternalOffset;
 			private BufferUsage usage;
 			private bool boundThisFrame;
 
@@ -243,7 +244,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				int dataLength,
 				SetDataOptions options
 			) {
-				int lastInternalOffset = InternalOffset;
 				if (options == SetDataOptions.None && boundThisFrame)
 				{
 					device.Stall();
@@ -262,21 +262,24 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Copy previous contents, if needed
-				if (lastInternalOffset != InternalOffset)
+				if (prevInternalOffset != InternalOffset && dataLength < (int) BufferSize)
 				{
 					// FIXME: Would a blit copy be faster? -caleb
 					memcpy(
 						Contents + InternalOffset,
-						Contents + lastInternalOffset,
+						Contents + prevInternalOffset,
 						BufferSize
 					);
 				}
 
+				// Copy the data into the buffer
 				memcpy(
 					Contents + InternalOffset + offsetInBytes,
 					data,
 					(IntPtr) dataLength
 				);
+
+				prevInternalOffset = InternalOffset;
 				prevDataLength = (int) BufferSize;
 			}
 
@@ -316,14 +319,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public void Reset()
 			{
-				if (InternalOffset != 0)
-				{
-					memcpy(
-						Contents,
-						Contents + InternalOffset,
-						(IntPtr) prevDataLength
-					);
-				}
 				InternalOffset = 0;
 				boundThisFrame = false;
 				prevDataLength = 0;
@@ -922,14 +917,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			frameInProgress = true;
 			pool = StartAutoreleasePool();
 			commandBuffer = mtlMakeCommandBuffer(queue);
-
-			for (int i = 0; i < Buffers.Count; i += 1)
-			{
-				Buffers[i].Reset();
-			}
-
-			// FIXME: Rename this! -caleb
-			MojoShader.MOJOSHADER_mtlEndFrame();
 		}
 
 		#endregion
@@ -1002,6 +989,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Release allocations from the past frame
 			DrainAutoreleasePool(pool);
+
+			// Reset buffers
+			for (int i = 0; i < Buffers.Count; i += 1)
+			{
+				Buffers[i].Reset();
+			}
+			MojoShader.MOJOSHADER_mtlEndFrame();
 
 			// We're done here.
 			frameInProgress = false;
@@ -1099,9 +1093,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private void UpdateRenderPass()
 		{
 			if (!needNewRenderPass) return;
-
-			// If we weren't drawing before, we are now!
-			BeginFrameIfApplicable();
 
 			// Wrap up rendering with the old encoder
 			EndPass();
@@ -3490,9 +3481,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
-				// We need an initialized command buffer for blitting
-				BeginFrameIfApplicable();
-
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 			}
@@ -3610,9 +3598,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
-				// We need an initialized command buffer for blitting
-				BeginFrameIfApplicable();
-
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 
@@ -3685,9 +3670,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
-				// We need an initialized command buffer for blitting
-				BeginFrameIfApplicable();
-
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 
@@ -3789,9 +3771,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
-				// We need an initialized command buffer for blitting
-				BeginFrameIfApplicable();
-
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
 
@@ -3922,6 +3901,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			float depth,
 			int stencil
 		) {
+			BeginFrameIfApplicable();
+
 			bool clearTarget = (options & ClearOptions.Target) == ClearOptions.Target;
 			bool clearDepth = (options & ClearOptions.DepthBuffer) == ClearOptions.DepthBuffer;
 			bool clearStencil = (options & ClearOptions.Stencil) == ClearOptions.Stencil;
