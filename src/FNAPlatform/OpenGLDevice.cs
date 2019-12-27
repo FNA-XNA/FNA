@@ -703,7 +703,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 
 				/* SPIR-V is very new and not really necessary. */
-				if (shaderProfile == "spirv")
+				if (shaderProfile == "spirv" && !useCoreProfile)
 				{
 					shaderProfile = "glsl120";
 				}

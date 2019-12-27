@@ -641,6 +641,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					null,
 					IntPtr.Zero
 				);
+
+				/* SPIR-V is very new and not really necessary. */
+				if (shaderProfile == "spirv" && !useCoreProfile)
+				{
+					shaderProfile = "glsl120";
+				}
 			}
 			shaderContext = MojoShader.MOJOSHADER_glCreateContext(
 				shaderProfile,
