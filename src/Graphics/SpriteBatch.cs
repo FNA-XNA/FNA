@@ -182,7 +182,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!IsDisposed && disposing)
+			if (!IsDisposed)
 			{
 				spriteEffect.Dispose();
 				indexBuffer.Dispose();
