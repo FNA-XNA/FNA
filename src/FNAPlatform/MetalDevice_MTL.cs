@@ -965,7 +965,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetWriteMask = Selector("setWriteMask:");
 		private static void mtlSetAttachmentWriteMask(
 			IntPtr colorAttachment,
-			ulong mask
+			int mask
 		) {
 			objc_msgSend(colorAttachment, selSetWriteMask, (ulong) mask);
 		}

@@ -4202,7 +4202,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLBlendOperation.Min			// BlendFunction.Min
 			};
 
-			public static ulong ColorWriteMask(ColorWriteChannels channels)
+			public static int ColorWriteMask(ColorWriteChannels channels)
 			{
 				if (channels == ColorWriteChannels.None)
 				{
@@ -4213,7 +4213,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					return 0xf;
 				}
 
-				ulong ret = 0;
+				int ret = 0;
 				if ((channels & ColorWriteChannels.Red) != 0)
 				{
 					ret |= (0x1 << 3);
