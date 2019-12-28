@@ -229,8 +229,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					GraphicsDevice.GLDevice.AddDisposeRenderbuffer(glDepthStencilBuffer);
 				}
-				base.Dispose(disposing);
 			}
+			base.Dispose(disposing);
 		}
 
 		#endregion
