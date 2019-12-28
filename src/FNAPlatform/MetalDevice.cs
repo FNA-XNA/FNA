@@ -1461,10 +1461,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetStringMarker(string text)
 		{
+#if DEBUG
 			if (renderCommandEncoder != IntPtr.Zero)
 			{
 				mtlInsertDebugSignpost(renderCommandEncoder, text);
 			}
+#endif
 		}
 
 		#endregion
