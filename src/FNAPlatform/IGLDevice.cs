@@ -74,6 +74,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			PresentationParameters presentationParameters,
 			GraphicsAdapter adapter
 		);
+		void BeginFrame();
 		void SwapBuffers(
 			Rectangle? sourceRectangle,
 			Rectangle? destinationRectangle,

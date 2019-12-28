@@ -529,6 +529,7 @@ namespace Microsoft.Xna.Framework
 				return false;
 			}
 
+			graphicsDevice.GLDevice.BeginFrame();
 			drawBegun = true;
 			return true;
 		}

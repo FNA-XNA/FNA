@@ -271,6 +271,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region BeginFrame Operations
+
+		public void BeginFrame()
+		{
+			ForceToMainThread(() =>
+			{
+				GLDevice.BeginFrame();
+			}); // End ForceToMainThread
+		}
+
+		#endregion
+
 		#region Backbuffer Operations
 
 		public void ResetBackbuffer(

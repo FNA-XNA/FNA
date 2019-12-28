@@ -901,7 +901,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region BeginFrame Method
 
-		public void BeginFrameIfApplicable()
+		public void BeginFrame()
 		{
 			if (frameInProgress) return;
 
@@ -1093,6 +1093,15 @@ namespace Microsoft.Xna.Framework.Graphics
 		private void UpdateRenderPass()
 		{
 			if (!needNewRenderPass) return;
+
+			/* Normally the frame begins in BeginDraw(),
+			 * but some games perform drawing outside
+			 * of the Draw method (e.g. initializing
+			 * render targets in LoadContent). This call
+			 * ensures that we catch any unexpected draws.
+			 * -caleb
+			 */
+			BeginFrame();
 
 			// Wrap up rendering with the old encoder
 			EndPass();
@@ -3918,8 +3927,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			float depth,
 			int stencil
 		) {
-			BeginFrameIfApplicable();
-
 			bool clearTarget = (options & ClearOptions.Target) == ClearOptions.Target;
 			bool clearDepth = (options & ClearOptions.DepthBuffer) == ClearOptions.DepthBuffer;
 			bool clearStencil = (options & ClearOptions.Stencil) == ClearOptions.Stencil;
@@ -3952,8 +3959,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			IGLRenderbuffer renderbuffer,
 			DepthFormat depthFormat
 		) {
-			BeginFrameIfApplicable();
-
 			// Perform any pending clears before switching render targets
 			if (shouldClearColor || shouldClearDepth || shouldClearStencil)
 			{
