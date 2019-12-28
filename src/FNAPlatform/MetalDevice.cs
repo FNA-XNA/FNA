@@ -1480,15 +1480,22 @@ namespace Microsoft.Xna.Framework.Graphics
 			int primitiveCount,
 			IndexBuffer indices
 		) {
-			DrawInstancedPrimitives(
-				primitiveType,
-				baseVertex,
-				minVertexIndex,
-				numVertices,
-				startIndex,
-				primitiveCount,
+			MetalBuffer indexBuffer = indices.buffer as MetalBuffer;
+			indexBuffer.Bound();
+			int totalIndexOffset = (
+				(startIndex * XNAToMTL.IndexSize[(int) indices.IndexElementSize]) +
+				indexBuffer.InternalOffset
+			);
+			mtlDrawIndexedPrimitives(
+				renderCommandEncoder,
+				XNAToMTL.Primitive[(int) primitiveType],
+				XNAToMTL.PrimitiveVerts(primitiveType, primitiveCount),
+				XNAToMTL.IndexType[(int) indices.IndexElementSize],
+				indexBuffer.Handle,
+				totalIndexOffset,
 				1,
-				indices
+				baseVertex,
+				0
 			);
 		}
 
