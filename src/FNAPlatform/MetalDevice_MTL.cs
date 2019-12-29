@@ -1456,9 +1456,15 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		private static IntPtr selSetPurgeableState = Selector("setPurgeableState:");
-		private static void mtlSetPurgeableState(IntPtr resource, MTLPurgeableState state)
-		{
-			objc_msgSend(resource, selSetPurgeableState, (ulong) state);
+		private static MTLPurgeableState mtlSetPurgeableState(
+			IntPtr resource,
+			MTLPurgeableState state
+		) {
+			return (MTLPurgeableState) ulong_objc_msgSend(
+				resource,
+				selSetPurgeableState,
+				(ulong) state
+			);
 		}
 
 		#region MTLBlitCommandEncoder
