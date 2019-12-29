@@ -45,12 +45,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				private set;
 			}
 
-			public bool IsPrivate
-			{
-				get;
-				private set;
-			}
-
 			public SurfaceFormat Format;
 			public TextureAddressMode WrapS;
 			public TextureAddressMode WrapT;
@@ -65,15 +59,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				int width,
 				int height,
 				SurfaceFormat format,
-				int levelCount,
-				bool isPrivate
+				int levelCount
 			) {
 				Handle = handle;
 				Width = width;
 				Height = height;
 				Format = format;
 				HasMipmaps = levelCount > 1;
-				IsPrivate = isPrivate;
 
 				WrapS = TextureAddressMode.Wrap;
 				WrapT = TextureAddressMode.Wrap;
@@ -812,6 +804,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Create and setup the faux-backbuffer
 			InitializeFauxBackbuffer(presentationParameters);
+
+			// Grab the main thread ID
+			mainThreadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
 		}
 
 		#endregion
@@ -1459,7 +1454,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Pipeline Stall Method
+		#region Pipeline Stall Methods
 
 		private void Stall()
 		{
@@ -1475,6 +1470,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				Buffers[i].Reset();
 			}
+		}
+
+		private void StallThread(IntPtr cmdbuf)
+		{
+			if (OnMainThread())
+			{
+				Stall();
+				return;
+			}
+
+			mtlCommitCommandBuffer(cmdbuf);
+			mtlCommandBufferWaitUntilCompleted(cmdbuf);
 		}
 
 		#endregion
@@ -2547,8 +2554,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				fromTexture.Width,
 				fromTexture.Height,
 				fromTexture.Format,
-				fromTexture.HasMipmaps ? 2 : 0,
-				false
+				fromTexture.HasMipmaps ? 2 : 0
 			);
 			transientTextures.Add(ret);
 			return ret.Handle;
@@ -3214,12 +3220,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				levelCount > 1
 			);
 
-			if (isRenderTarget)
+			/* Since video content is dynamic, YUV textures
+			 * should be CPU-accessible, not GPU-private.
+			 *
+			 * FIXME: Is there a better way to check for this? -caleb
+			 */
+			bool isYUV = (format == SurfaceFormat.Alpha8);
+			if (!isYUV)
 			{
 				mtlSetStorageMode(
 					texDesc,
 					MTLStorageMode.Private
 				);
+			}
+
+			if (isRenderTarget)
+			{
 				mtlSetTextureUsage(
 					texDesc,
 					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
@@ -3231,8 +3247,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				width,
 				height,
 				format,
-				levelCount,
-				isRenderTarget
+				levelCount
 			);
 		}
 
@@ -3249,6 +3264,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				height,
 				levelCount > 1
 			);
+			mtlSetStorageMode(
+				texDesc,
+				MTLStorageMode.Private
+			);
 
 			// Make it 3D!
 			mtlSetTextureDepth(texDesc, depth);
@@ -3259,8 +3278,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				width,
 				height,
 				format,
-				levelCount,
-				false
+				levelCount
 			);
 		}
 
@@ -3275,13 +3293,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				size,
 				levelCount > 1
 			);
+			mtlSetStorageMode(
+				texDesc,
+				MTLStorageMode.Private
+			);
 
 			if (isRenderTarget)
 			{
-				mtlSetStorageMode(
-					texDesc,
-					MTLStorageMode.Private
-				);
 				mtlSetTextureUsage(
 					texDesc,
 					MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
@@ -3293,8 +3311,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				size,
 				size,
 				format,
-				levelCount,
-				isRenderTarget
+				levelCount
 			);
 		}
 
@@ -3376,6 +3393,34 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region FetchBlitCommandBuffer Method
+
+		/* To avoid data races with Get/SetData methods
+		 * called from background threads, we may need
+		 * to create a command buffer specifically for
+		 * the calling thread.
+		 * -caleb
+		 */
+		private IntPtr FetchBlitCommandBuffer()
+		{
+			// Use the main thread commandBuffer if possible
+			if (OnMainThread())
+			{
+				// Make sure the command buffer is initialized
+				BeginFrame();
+
+				// Stop whatever we were doing
+				EndPass();
+
+				return commandBuffer;
+			}
+
+			// Create a thread-specific command buffer
+			return mtlMakeCommandBuffer(queue);
+		}
+
+		#endregion
+
 		#region SetTextureData Methods
 
 		public void SetTextureData2D(
@@ -3389,24 +3434,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			int dataLength
 		) {
-			MetalTexture tex = texture as MetalTexture;
-			IntPtr handle = tex.Handle;
-
 			MTLOrigin origin = new MTLOrigin(x, y, 0);
 			MTLSize size = new MTLSize(w, h, 1);
+			MTLRegion region = new MTLRegion(origin, size);
 
-			if (tex.IsPrivate)
-			{
-				// FIXME: Make sure a command buffer is active!
+			// Fetch a CPU-accessible texture
+			MetalTexture tex = texture as MetalTexture;
+			IntPtr tempHandle = FetchTransientTexture(tex);
 
-				// Fetch a CPU-accessible texture
-				handle = FetchTransientTexture(tex);
-			}
-
-			// Write the data
+			// Write the data to the temp texture
 			mtlReplaceRegion(
-				handle,
-				new MTLRegion(origin, size),
+				tempHandle,
+				region,
 				level,
 				0,
 				data,
@@ -3414,31 +3453,25 @@ namespace Microsoft.Xna.Framework.Graphics
 				0
 			);
 
+			// Get a command buffer for the blit
+			IntPtr cmdbuf = FetchBlitCommandBuffer();
+
 			// Blit the temp texture to the actual texture
-			if (tex.IsPrivate)
-			{
-				// End the render pass
-				EndPass();
-
-				// Blit!
-				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
-				mtlBlitTextureToTexture(
-					blit,
-					handle,
-					0,
-					level,
-					origin,
-					size,
-					tex.Handle,
-					0,
-					level,
-					origin
-				);
-
-				// Submit the blit command to the GPU and wait...
-				mtlEndEncoding(blit);
-				Stall();
-			}
+			IntPtr blit = mtlMakeBlitCommandEncoder(cmdbuf);
+			mtlBlitTextureToTexture(
+				blit,
+				tempHandle,
+				0,
+				level,
+				origin,
+				size,
+				tex.Handle,
+				0,
+				level,
+				origin
+			);
+			mtlEndEncoding(blit);
+			StallThread(cmdbuf);
 		}
 
 		public void SetTextureDataYUV(Texture2D[] textures, IntPtr ptr)
@@ -3480,19 +3513,50 @@ namespace Microsoft.Xna.Framework.Graphics
 			int h = bottom - top;
 			int d = back - front;
 
-			MTLRegion region = new MTLRegion(
-				new MTLOrigin(left, top, front),
-				new MTLSize(w, h, d)
-			);
-			mtlReplaceRegion(
-				(texture as MetalTexture).Handle,
-				region,
-				level,
-				0,
-				data,
-				BytesPerRow(w, format),
-				BytesPerImage(w, h, format)
-			);
+			MTLOrigin origin = new MTLOrigin(left, top, front);
+			MTLSize layerSize = new MTLSize(w, h, 1);
+			MTLRegion layerRegion = new MTLRegion(origin, layerSize);
+
+			// Fetch a CPU-accessible texture
+			MetalTexture tex = texture as MetalTexture;
+			IntPtr tempHandle = FetchTransientTexture(tex);
+
+			// Get a command buffer for the blit
+			IntPtr cmdbuf = FetchBlitCommandBuffer();
+
+			// For each layer...
+			for (int i = 0; i < d; i += 1)
+			{
+				// Write the data to the temp texture
+				int bytesPerImage = BytesPerImage(w, h, format);
+				mtlReplaceRegion(
+					tempHandle,
+					layerRegion,
+					level,
+					0,
+					data + (i * bytesPerImage),
+					BytesPerRow(w, format),
+					bytesPerImage
+				);
+
+				// Blit the temp texture to the actual texture
+				IntPtr blit = mtlMakeBlitCommandEncoder(cmdbuf);
+				MTLOrigin dstOrigin = new MTLOrigin(left, top, front + i);
+				mtlBlitTextureToTexture(
+					blit,
+					tempHandle,
+					0,
+					level,
+					origin,
+					layerSize,
+					tex.Handle,
+					0,
+					level,
+					dstOrigin
+				);
+				mtlEndEncoding(blit);
+			}
+			StallThread(cmdbuf);
 		}
 
 		public void SetTextureDataCube(
@@ -3507,60 +3571,44 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			int dataLength
 		) {
-			MetalTexture tex = texture as MetalTexture;
-			IntPtr handle = tex.Handle;
-
 			MTLOrigin origin = new MTLOrigin(xOffset, yOffset, 0);
 			MTLSize size = new MTLSize(width, height, 1);
-			int slice = (int) cubeMapFace;
+			MTLRegion region = new MTLRegion(origin, size);
 
-			if (tex.IsPrivate)
-			{
-				// FIXME: Make sure a command buffer is active!
+			// Fetch a CPU-accessible texture
+			MetalTexture tex = texture as MetalTexture;
+			IntPtr handle = FetchTransientTexture(tex);
 
-				// Fetch a CPU-accessible texture
-				handle = FetchTransientTexture(tex);
-
-				// Transient textures have no slices
-				slice = 0;
-			}
-
-			// Write the data
+			// Write the data to the temp texture
 			mtlReplaceRegion(
 				handle,
-				new MTLRegion(origin, size),
+				region,
 				level,
-				slice,
+				0,
 				data,
 				BytesPerRow(width, format),
 				0
 			);
 
+			// Get a command buffer for the blit
+			IntPtr cmdbuf = FetchBlitCommandBuffer();
+
 			// Blit the temp texture to the actual texture
-			if (tex.IsPrivate)
-			{
-				// End the render pass
-				EndPass();
-
-				// Blit!
-				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
-				mtlBlitTextureToTexture(
-					blit,
-					handle,
-					slice,
-					level,
-					origin,
-					size,
-					tex.Handle,
-					slice,
-					level,
-					origin
-				);
-
-				// Submit the blit command to the GPU and wait...
-				mtlEndEncoding(blit);
-				Stall();
-			}
+			IntPtr blit = mtlMakeBlitCommandEncoder(cmdbuf);
+			mtlBlitTextureToTexture(
+				blit,
+				handle,
+				0,
+				level,
+				origin,
+				size,
+				tex.Handle,
+				(int) cubeMapFace,
+				level,
+				origin
+			);
+			mtlEndEncoding(blit);
+			StallThread(cmdbuf);
 		}
 
 		#endregion
@@ -3582,54 +3630,43 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int elementSizeInBytes
 		) {
-			MetalTexture tex = texture as MetalTexture;
-			IntPtr handle = tex.Handle;
-
-			MTLSize size = new MTLSize(subW, subH, 1);
 			MTLOrigin origin = new MTLOrigin(subX, subY, 0);
+			MTLSize size = new MTLSize(subW, subH, 1);
+			MTLRegion region = new MTLRegion(origin, size);
 
-			if (tex.IsPrivate)
-			{
-				// FIXME: Make sure a command buffer is active!
+			// Fetch a CPU-accessible texture
+			MetalTexture tex = texture as MetalTexture;
+			IntPtr tempHandle = FetchTransientTexture(tex);
 
-				// Fetch a CPU-accessible texture
-				handle = FetchTransientTexture(tex);
+			// Get a command buffer for the blit
+			IntPtr cmdbuf = FetchBlitCommandBuffer();
 
-				// End the render pass
-				EndPass();
+			// Blit the actual texture to the temp texture
+			IntPtr blit = mtlMakeBlitCommandEncoder(cmdbuf);
+			mtlBlitTextureToTexture(
+				blit,
+				tex.Handle,
+				0,
+				level,
+				origin,
+				size,
+				tempHandle,
+				0,
+				level,
+				origin
+			);
+			mtlEndEncoding(blit);
 
-				// Blit the actual texture to a CPU-accessible texture
-				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
-				mtlBlitTextureToTexture(
-					blit,
-					tex.Handle,
-					0,
-					level,
-					origin,
-					size,
-					handle,
-					0,
-					level,
-					origin
-				);
+			// Wait for completion...
+			StallThread(cmdbuf);
 
-				// Managed resources require explicit synchronization
-				if (isMac)
-				{
-					mtlSynchronizeResource(blit, handle);
-				}
-
-				// Submit the blit command to the GPU and wait...
-				mtlEndEncoding(blit);
-				Stall();
-			}
-
+			// Get the data from the temp texture
 			mtlGetTextureBytes(
-				handle,
+				tempHandle,
 				data,
 				BytesPerRow(subW, format),
 				0,
-				new MTLRegion(origin, size),
+				region,
 				level,
 				0
 			);
@@ -3654,19 +3691,52 @@ namespace Microsoft.Xna.Framework.Graphics
 			int h = bottom - top;
 			int d = back - front;
 
-			MTLRegion region = new MTLRegion(
-				new MTLOrigin(left, top, front),
-				new MTLSize(w, h, d)
-			);
-			mtlGetTextureBytes(
-				(texture as MetalTexture).Handle,
-				data,
-				BytesPerRow(w, format),
-				BytesPerImage(w, h, format),
-				region,
-				level,
-				0
-			);
+			MTLOrigin layerOrigin = new MTLOrigin(left, top, 0);
+			MTLSize layerSize = new MTLSize(w, h, 1);
+			MTLRegion layerRegion = new MTLRegion(layerOrigin, layerSize);
+
+			// Fetch a CPU-accessible texture
+			MetalTexture tex = texture as MetalTexture;
+			IntPtr handle = FetchTransientTexture(tex);
+
+			// Get a command buffer for the blit
+			IntPtr cmdbuf = FetchBlitCommandBuffer();
+
+			// For each layer...
+			for (int i = 0; i < d; i += 1)
+			{
+				// Blit the actual texture to the temp texture
+				IntPtr blit = mtlMakeBlitCommandEncoder(cmdbuf);
+				MTLOrigin srcOrigin = new MTLOrigin(left, top, front + i);
+				mtlBlitTextureToTexture(
+					blit,
+					tex.Handle,
+					0,
+					level,
+					srcOrigin,
+					layerSize,
+					handle,
+					0,
+					level,
+					layerOrigin
+				);
+				mtlEndEncoding(blit);
+
+				// Wait for completion...
+				StallThread(cmdbuf);
+
+				// Get the data from the temp texture
+				int bytesPerImage = BytesPerImage(w, h, format);
+				mtlGetTextureBytes(
+					(texture as MetalTexture).Handle,
+					data + (i * bytesPerImage),
+					BytesPerRow(w, format),
+					bytesPerImage,
+					layerRegion,
+					level,
+					0
+				);
+			}
 		}
 
 		public void GetTextureDataCube(
@@ -3684,60 +3754,45 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int elementSizeInBytes
 		) {
-			MetalTexture tex = texture as MetalTexture;
-			IntPtr handle = tex.Handle;
-
-			MTLSize regionSize = new MTLSize(subW, subH, 1);
 			MTLOrigin origin = new MTLOrigin(subX, subY, 0);
-			int slice = (int) cubeMapFace;
+			MTLSize regionSize = new MTLSize(subW, subH, 1);
+			MTLRegion region = new MTLRegion(origin, regionSize);
 
-			if (tex.IsPrivate)
-			{
-				// FIXME: Make sure a command buffer is active!
+			// Fetch a CPU-accessible texture
+			MetalTexture tex = texture as MetalTexture;
+			IntPtr tempHandle = FetchTransientTexture(tex);
 
-				// Fetch a CPU-accessible texture
-				handle = FetchTransientTexture(tex);
+			// Get a command buffer for the blit
+			IntPtr cmdbuf = FetchBlitCommandBuffer();
 
-				// Transient textures have no slices
-				slice = 0;
+			// Blit the actual texture to a CPU-accessible texture
+			IntPtr blit = mtlMakeBlitCommandEncoder(cmdbuf);
+			mtlBlitTextureToTexture(
+				blit,
+				tex.Handle,
+				(int) cubeMapFace,
+				level,
+				origin,
+				regionSize,
+				tempHandle,
+				0,
+				level,
+				origin
+			);
+			mtlEndEncoding(blit);
 
-				// End the render pass
-				EndPass();
+			// Wait for completion...
+			StallThread(cmdbuf);
 
-				// Blit the actual texture to a CPU-accessible texture
-				IntPtr blit = mtlMakeBlitCommandEncoder(commandBuffer);
-				mtlBlitTextureToTexture(
-					blit,
-					tex.Handle,
-					(int) cubeMapFace,
-					level,
-					origin,
-					regionSize,
-					handle,
-					slice,
-					level,
-					origin
-				);
-
-				// Managed resources require explicit synchronization
-				if (isMac)
-				{
-					mtlSynchronizeResource(blit, handle);
-				}
-
-				// Submit the blit command to the GPU and wait...
-				mtlEndEncoding(blit);
-				Stall();
-			}
-
+			// Get the data from the temp texture
 			mtlGetTextureBytes(
-				handle,
+				tempHandle,
 				data,
 				BytesPerRow(subW, format),
 				0,
-				new MTLRegion(origin, regionSize),
+				region,
 				level,
-				slice
+				0
 			);
 		}
 
@@ -4449,8 +4504,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					Width,
 					Height,
 					SurfaceFormat.Color,
-					1,
-					true
+					1
 				);
 
 				// This is the default render target
@@ -4577,6 +4631,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			ObjCRelease(pipelineDesc);
 			ObjCRelease(vertexFunc);
 			ObjCRelease(fragFunc);
+		}
+
+		#endregion
+
+		#region Threading Helper Methods
+
+		private int mainThreadID;
+		private bool OnMainThread()
+		{
+			return System.Threading.Thread.CurrentThread.ManagedThreadId == mainThreadID;
 		}
 
 		#endregion
