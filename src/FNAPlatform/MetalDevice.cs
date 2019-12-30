@@ -3525,9 +3525,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			int h = bottom - top;
 			int d = back - front;
 
-			MTLOrigin origin = new MTLOrigin(left, top, front);
+			MTLOrigin layerOrigin = new MTLOrigin(left, top, 0);
 			MTLSize layerSize = new MTLSize(w, h, 1);
-			MTLRegion layerRegion = new MTLRegion(origin, layerSize);
+			MTLRegion layerRegion = new MTLRegion(layerOrigin, layerSize);
 
 			// Fetch a CPU-accessible texture
 			MetalTexture tex = texture as MetalTexture;
@@ -3559,7 +3559,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					tempHandle,
 					0,
 					level,
-					origin,
+					layerOrigin,
 					layerSize,
 					tex.Handle,
 					0,
