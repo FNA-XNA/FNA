@@ -2538,10 +2538,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					tex.Height == fromTexture.Height &&
 					tex.HasMipmaps == fromTexture.HasMipmaps	)
 				{
-					mtlSetPurgeableState(
-						tex.Handle,
-						MTLPurgeableState.NonVolatile
-					);
 					return tex.Handle;
 				}
 			}
@@ -2561,11 +2557,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				fromTexture.HasMipmaps ? 2 : 0
 			);
 			transientTextures.Add(ret);
-
-			mtlSetPurgeableState(
-				ret.Handle,
-				MTLPurgeableState.NonVolatile
-			);
 			return ret.Handle;
 		}
 
@@ -3481,9 +3472,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			mtlEndEncoding(blit);
 			StallThread(cmdbuf);
-
-			// We're done with the temp texture
-			mtlSetPurgeableState(tempHandle, MTLPurgeableState.Empty);
 		}
 
 		public void SetTextureDataYUV(Texture2D[] textures, IntPtr ptr)
@@ -3569,9 +3557,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlEndEncoding(blit);
 			}
 			StallThread(cmdbuf);
-
-			// We're done with the temp texture
-			mtlSetPurgeableState(tempHandle, MTLPurgeableState.Empty);
 		}
 
 		public void SetTextureDataCube(
@@ -3592,11 +3577,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Fetch a CPU-accessible texture
 			MetalTexture tex = texture as MetalTexture;
-			IntPtr tempHandle = FetchTransientTexture(tex);
+			IntPtr handle = FetchTransientTexture(tex);
 
 			// Write the data to the temp texture
 			mtlReplaceRegion(
-				tempHandle,
+				handle,
 				region,
 				level,
 				0,
@@ -3612,7 +3597,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr blit = mtlMakeBlitCommandEncoder(cmdbuf);
 			mtlBlitTextureToTexture(
 				blit,
-				tempHandle,
+				handle,
 				0,
 				level,
 				origin,
@@ -3624,9 +3609,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			mtlEndEncoding(blit);
 			StallThread(cmdbuf);
-
-			// We're done with the temp texture
-			mtlSetPurgeableState(tempHandle, MTLPurgeableState.Empty);
 		}
 
 		#endregion
@@ -3688,9 +3670,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				level,
 				0
 			);
-
-			// We're done with the temp texture
-			mtlSetPurgeableState(tempHandle, MTLPurgeableState.Empty);
 		}
 
 		public void GetTextureData3D(
@@ -3718,7 +3697,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Fetch a CPU-accessible texture
 			MetalTexture tex = texture as MetalTexture;
-			IntPtr tempHandle = FetchTransientTexture(tex);
+			IntPtr handle = FetchTransientTexture(tex);
 
 			// Get a command buffer for the blit
 			IntPtr cmdbuf = FetchBlitCommandBuffer();
@@ -3736,7 +3715,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					level,
 					srcOrigin,
 					layerSize,
-					tempHandle,
+					handle,
 					0,
 					level,
 					layerOrigin
@@ -3758,9 +3737,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					0
 				);
 			}
-
-			// We're done with the temp texture
-			mtlSetPurgeableState(tempHandle, MTLPurgeableState.Empty);
 		}
 
 		public void GetTextureDataCube(
@@ -3818,9 +3794,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				level,
 				0
 			);
-
-			// We're done with the temp texture
-			mtlSetPurgeableState(tempHandle, MTLPurgeableState.Empty);
 		}
 
 		#endregion
