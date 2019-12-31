@@ -373,6 +373,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			CPUCacheModeWriteCombined = 1
 		}
 
+		private enum MTLPurgeableState
+		{
+			NonVolatile = 2,
+			Empty = 4
+		}
+
 		#endregion
 
 		#region Private MTL Structs
@@ -1453,6 +1459,18 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static ulong mtlGetTextureHeight(IntPtr texture)
 		{
 			return ulong_objc_msgSend(texture, selHeight);
+		}
+
+		private static IntPtr selSetPurgeableState = Selector("setPurgeableState:");
+		private static MTLPurgeableState mtlSetPurgeableState(
+			IntPtr resource,
+			MTLPurgeableState state
+		) {
+			return (MTLPurgeableState) ulong_objc_msgSend(
+				resource,
+				selSetPurgeableState,
+				(ulong) state
+			);
 		}
 
 		#region MTLBlitCommandEncoder

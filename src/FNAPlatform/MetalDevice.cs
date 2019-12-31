@@ -2531,6 +2531,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					tex.Height == fromTexture.Height &&
 					tex.HasMipmaps == fromTexture.HasMipmaps	)
 				{
+					mtlSetPurgeableState(
+						tex.Handle,
+						MTLPurgeableState.NonVolatile
+					);
 					return tex.Handle;
 				}
 			}
@@ -3397,7 +3401,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
-				// FIXME: Make sure a command buffer is active!
+				// We need an active command buffer
+				BeginFrame();
 
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
@@ -3438,6 +3443,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Submit the blit command to the GPU and wait...
 				mtlEndEncoding(blit);
 				Stall();
+
+				// We're done with the temp texture
+				mtlSetPurgeableState(
+					handle,
+					MTLPurgeableState.Empty
+				);
 			}
 		}
 
@@ -3516,7 +3527,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
-				// FIXME: Make sure a command buffer is active!
+				// We need an active command buffer
+				BeginFrame();
 
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
@@ -3560,6 +3572,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Submit the blit command to the GPU and wait...
 				mtlEndEncoding(blit);
 				Stall();
+
+				// We're done with the temp texture
+				mtlSetPurgeableState(
+					handle,
+					MTLPurgeableState.Empty
+				);
 			}
 		}
 
@@ -3590,7 +3608,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
-				// FIXME: Make sure a command buffer is active!
+				// We need an active command buffer
+				BeginFrame();
 
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
@@ -3633,6 +3652,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				level,
 				0
 			);
+
+			if (tex.IsPrivate)
+			{
+				// We're done with the temp texture
+				mtlSetPurgeableState(
+					handle,
+					MTLPurgeableState.Empty
+				);
+			}
 		}
 
 		public void GetTextureData3D(
@@ -3693,7 +3721,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (tex.IsPrivate)
 			{
-				// FIXME: Make sure a command buffer is active!
+				// We need an active command buffer
+				BeginFrame();
 
 				// Fetch a CPU-accessible texture
 				handle = FetchTransientTexture(tex);
@@ -3739,6 +3768,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				level,
 				slice
 			);
+
+			if (tex.IsPrivate)
+			{
+				// We're done with the temp texture
+				mtlSetPurgeableState(
+					handle,
+					MTLPurgeableState.Empty
+				);
+			}
 		}
 
 		#endregion
