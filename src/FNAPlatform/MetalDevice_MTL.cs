@@ -742,6 +742,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			return intptr_objc_msgSend(buffer, selContents);
 		}
 
+		private static IntPtr selDidModifyRange = Selector("didModifyRange:");
+		private static void mtlDidModifyRange(IntPtr buffer, NSRange range)
+		{
+			objc_msgSend(buffer, selDidModifyRange, range);
+		}
+
 		#endregion
 
 		#region MTLCommandBuffer
@@ -1483,6 +1489,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				(ulong) dstLevel,
 				dstOrigin
 			);
+		}
+
+		private static IntPtr selSynchronizeResource = Selector("synchronizeResource:");
+		private static void mtlSynchronizeResource(
+			IntPtr blitCommandEncoder,
+			IntPtr resource
+		) {
+			objc_msgSend(blitCommandEncoder, selSynchronizeResource, resource);
 		}
 
 		private static IntPtr selGenerateMipmaps = Selector("generateMipmapsForTexture:");
