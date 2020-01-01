@@ -1,5 +1,5 @@
 /* FNA - XNA4 Reimplementation for Desktop Platforms
- * Copyright 2009-2019 Ethan Lee and the MonoGame Team
+ * Copyright 2009-2020 Ethan Lee and the MonoGame Team
  *
  * Released under the Microsoft Public License.
  * See LICENSE for details.
