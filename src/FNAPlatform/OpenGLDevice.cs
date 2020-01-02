@@ -8,7 +8,7 @@
 #endregion
 
 #region THREADED_GL Option
-// #define THREADED_GL
+#define THREADED_GL
 /* Ah, so I see you've run into some issues with threaded GL...
  *
  * This class is designed to handle rendering coming from multiple threads, but
