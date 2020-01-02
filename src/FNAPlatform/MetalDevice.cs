@@ -2998,7 +2998,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			mtlSetTextureUsage(
 				desc,
-				MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+				MTLTextureUsage.RenderTarget
 			);
 			mtlSetTextureType(
 				desc,
@@ -3051,6 +3051,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				mtlSetTextureType(
 					desc,
 					MTLTextureType.Multisample2D
+				);
+				mtlSetTextureUsage(
+					desc,
+					MTLTextureUsage.RenderTarget
 				);
 				mtlSetTextureSampleCount(
 					desc,
@@ -4441,6 +4445,10 @@ namespace Microsoft.Xna.Framework.Graphics
 						colorBufferDesc,
 						MultiSampleCount
 					);
+					mtlSetTextureUsage(
+						colorBufferDesc,
+						MTLTextureUsage.RenderTarget
+					);
 					MultiSampleColorBuffer = mtlNewTextureWithDescriptor(
 						mtlDevice.device,
 						colorBufferDesc
@@ -4462,7 +4470,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 					mtlSetTextureUsage(
 						depthStencilBufferDesc,
-						MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+						MTLTextureUsage.RenderTarget
 					);
 					if (MultiSampleCount > 0)
 					{
