@@ -173,10 +173,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public IntPtr Contents
 			{
-				get
-				{
-					return mtlGetBufferContentsPtr(Handle);
-				}
+				get;
+				private set;
 			}
 
 			public IntPtr BufferSize
@@ -218,6 +216,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			private void CreateBackingBuffer(int prevSize)
 			{
 				IntPtr oldBuffer = Handle;
+				IntPtr oldContents = Contents;
+
 				Handle = mtlNewBufferWithLength(
 					mtlDevice,
 					internalBufferSize,
@@ -225,13 +225,14 @@ namespace Microsoft.Xna.Framework.Graphics
 						MTLResourceOptions.CPUCacheModeWriteCombined :
 						MTLResourceOptions.CPUCacheModeDefaultCache
 				);
+				Contents = mtlGetBufferContentsPtr(Handle);
 
 				// Copy over data from old buffer
 				if (oldBuffer != IntPtr.Zero)
 				{
 					memcpy(
-						mtlGetBufferContentsPtr(Handle),
-						mtlGetBufferContentsPtr(oldBuffer),
+						Contents,
+						oldContents,
 						(IntPtr) prevSize
 					);
 					objc_release(oldBuffer);
@@ -255,9 +256,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					if (InternalOffset + dataLength > internalBufferSize)
 					{
 						// Expand!
-						int prevSize = internalBufferSize;
 						internalBufferSize *= 2;
-						CreateBackingBuffer(prevSize);
+						CreateBackingBuffer(internalBufferSize);
 					}
 				}
 
