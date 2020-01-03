@@ -3044,17 +3044,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 			mtlSetTextureUsage(
 				desc,
-				MTLTextureUsage.RenderTarget | MTLTextureUsage.ShaderRead
+				MTLTextureUsage.RenderTarget
 			);
 			if (multiSampleCount > 0)
 			{
 				mtlSetTextureType(
 					desc,
 					MTLTextureType.Multisample2D
-				);
-				mtlSetTextureUsage(
-					desc,
-					MTLTextureUsage.RenderTarget
 				);
 				mtlSetTextureSampleCount(
 					desc,
