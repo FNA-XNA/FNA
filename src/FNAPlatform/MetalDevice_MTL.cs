@@ -556,7 +556,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr classStencilDescriptor = objc_getClass("MTLStencilDescriptor");
 		private static IntPtr classMTLSamplerDescriptor = objc_getClass("MTLSamplerDescriptor");
 		private static IntPtr classMTLVertexDescriptor = objc_getClass("MTLVertexDescriptor");
-		private static IntPtr classNSAutoreleasePool = objc_getClass("NSAutoreleasePool");
 		private static IntPtr classNSProcessInfo = objc_getClass("NSProcessInfo");
 		private static IntPtr classNSString = objc_getClass("NSString");
 
@@ -710,16 +709,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static bool mtlSupportsDepth24Stencil8(IntPtr device)
 		{
 			return bool_objc_msgSend(device, selSupportsDepth24Stencil8);
-		}
-
-		private static bool mtlSupportsDepth16(bool isMac)
-		{
-			// Depth16Unorm requires macOS 10.12+ or iOS/tvOS 13.0+
-			return (
-				isMac ?
-				OperatingSystemAtLeast(10, 12, 0) :
-				OperatingSystemAtLeast(13, 0, 0)
-			);
 		}
 
 		#endregion
