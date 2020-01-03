@@ -256,8 +256,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					if (InternalOffset + dataLength > internalBufferSize)
 					{
 						// Expand!
+						int prevSize = internalBufferSize;
 						internalBufferSize *= 2;
-						CreateBackingBuffer(internalBufferSize);
+						CreateBackingBuffer(prevSize);
 					}
 				}
 
