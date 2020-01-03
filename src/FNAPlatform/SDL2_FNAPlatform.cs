@@ -1411,6 +1411,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (Environment.GetEnvironmentVariable("FNA_SDL2_FORCE_BASE_PATH") != "1")
 			{
+				// If your platform uses a CLR, you want to be in this list!
 				if (	OSVersion.Equals("Windows") ||
 					OSVersion.Equals("Mac OS X") ||
 					OSVersion.Equals("Linux") ||
@@ -1418,15 +1419,6 @@ namespace Microsoft.Xna.Framework
 					OSVersion.Equals("OpenBSD") ||
 					OSVersion.Equals("NetBSD")	)
 				{
-					/* This is mostly here for legacy compatibility.
-					 * For most platforms this should be the same as
-					 * SDL_GetBasePath, but some platforms (Apple's)
-					 * will have a separate Resources folder that is
-					 * the "base" directory for applications.
-					 *
-					 * TODO: Remove this and endure the breakage.
-					 * -flibit
-					 */
 					return AppDomain.CurrentDomain.BaseDirectory;
 				}
 			}
