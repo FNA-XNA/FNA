@@ -732,12 +732,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			return intptr_objc_msgSend(buffer, selContents);
 		}
 
-		private static IntPtr selDidModifyRange = Selector("didModifyRange:");
-		private static void mtlDidModifyRange(IntPtr buffer, NSRange range)
-		{
-			objc_msgSend(buffer, selDidModifyRange, range);
-		}
-
 		#endregion
 
 		#region MTLCommandBuffer
