@@ -92,7 +92,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public void Dispose()
 			{
-				ObjCRelease(Handle);
+				objc_release(Handle);
 				Handle = IntPtr.Zero;
 			}
 		}
@@ -143,12 +143,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				if (MultiSampleHandle == IntPtr.Zero)
 				{
-					ObjCRelease(Handle);
+					objc_release(Handle);
 					Handle = IntPtr.Zero;
 				}
 				else
 				{
-					ObjCRelease(MultiSampleHandle);
+					objc_release(MultiSampleHandle);
 					MultiSampleHandle = IntPtr.Zero;
 
 					/* Don't release the regular Handle since
@@ -234,7 +234,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						mtlGetBufferContentsPtr(oldBuffer),
 						(IntPtr) prevSize
 					);
-					ObjCRelease(oldBuffer);
+					objc_release(oldBuffer);
 				}
 			}
 
@@ -326,7 +326,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public void Dispose()
 			{
-				ObjCRelease(Handle);
+				objc_release(Handle);
 				Handle = IntPtr.Zero;
 			}
 		}
@@ -375,7 +375,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public void Dispose()
 			{
-				ObjCRelease(Handle);
+				objc_release(Handle);
 				Handle = IntPtr.Zero;
 			}
 		}
@@ -808,7 +808,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Create a default depth stencil state
 			IntPtr defDS = mtlNewDepthStencilDescriptor();
 			defaultDepthStencilState = mtlNewDepthStencilStateWithDescriptor(device, defDS);
-			ObjCRelease(defDS);
+			objc_release(defDS);
 
 			// Create and setup the faux-backbuffer
 			InitializeFauxBackbuffer(presentationParameters);
@@ -826,7 +826,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Release vertex descriptors
 			foreach (IntPtr vdesc in VertexDescriptorCache.Values)
 			{
-				ObjCRelease(vdesc);
+				objc_release(vdesc);
 			}
 			VertexDescriptorCache.Clear();
 			VertexDescriptorCache = null;
@@ -834,7 +834,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Release depth stencil states
 			foreach (IntPtr ds in DepthStencilStateCache.Values)
 			{
-				ObjCRelease(ds);
+				objc_release(ds);
 			}
 			DepthStencilStateCache.Clear();
 			DepthStencilStateCache = null;
@@ -842,7 +842,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Release pipeline states
 			foreach (IntPtr pso in PipelineStateCache.Values)
 			{
-				ObjCRelease(pso);
+				objc_release(pso);
 			}
 			PipelineStateCache.Clear();
 			PipelineStateCache = null;
@@ -850,7 +850,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Release sampler states
 			foreach (IntPtr ss in SamplerStateCache.Values)
 			{
-				ObjCRelease(ss);
+				objc_release(ss);
 			}
 			SamplerStateCache.Clear();
 			SamplerStateCache = null;
@@ -858,7 +858,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Release transient textures
 			foreach (MetalTexture tex in transientTextures)
 			{
-				ObjCRelease(tex.Handle);
+				objc_release(tex.Handle);
 			}
 			transientTextures.Clear();
 			transientTextures = null;
@@ -923,12 +923,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				IntPtr cmdbuf = committedCommandBuffers.Dequeue();
 				mtlCommandBufferWaitUntilCompleted(cmdbuf);
-				ObjCRelease(cmdbuf);
+				objc_release(cmdbuf);
 			}
 
 			// The cycle begins anew!
 			frameInProgress = true;
-			pool = StartAutoreleasePool();
+			pool = objc_autoreleasePoolPush();
 			commandBuffer = mtlMakeCommandBuffer(queue);
 		}
 
@@ -996,12 +996,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			mtlCommitCommandBuffer(commandBuffer);
 
 			// Enqueue the command buffer for tracking
-			ObjCRetain(commandBuffer);
+			objc_retain(commandBuffer);
 			committedCommandBuffers.Enqueue(commandBuffer);
 			commandBuffer = IntPtr.Zero;
 
 			// Release allocations from the past frame
-			DrainAutoreleasePool(pool);
+			objc_autoreleasePoolPop(pool);
 
 			// Reset buffers
 			for (int i = 0; i < Buffers.Count; i += 1)
@@ -2051,9 +2051,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			PipelineStateCache[hash] = pipelineState;
 
 			// Clean up
-			ObjCRelease(pipelineDesc);
-			ObjCRelease(vertHandle);
-			ObjCRelease(fragHandle);
+			objc_release(pipelineDesc);
+			objc_release(vertHandle);
+			objc_release(fragHandle);
 
 			// Return the pipeline!
 			return pipelineState;
@@ -2203,7 +2203,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			DepthStencilStateCache[hash] = state;
 
 			// Clean up
-			ObjCRelease(dsDesc);
+			objc_release(dsDesc);
 
 			// Return the state!
 			return state;
@@ -2296,7 +2296,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			SamplerStateCache[hash] = state;
 
 			// Clean up
-			ObjCRelease(samplerDesc);
+			objc_release(samplerDesc);
 
 			// Return the sampler state!
 			return state;
@@ -2342,7 +2342,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// We have to make a new vertex descriptor...
 			descriptor = mtlMakeVertexDescriptor();
-			ObjCRetain(descriptor); // Make sure this doesn't get drained
+			objc_retain(descriptor);
 
 			/* There's this weird case where you can have overlapping
 			 * vertex usage/index combinations. It seems like the first
@@ -2447,7 +2447,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// We have to make a new vertex descriptor...
 			descriptor = mtlMakeVertexDescriptor();
-			ObjCRetain(descriptor); // Make sure this doesn't get drained
+			objc_retain(descriptor);
 
 			/* There's this weird case where you can have overlapping
 			 * vertex usage/index combinations. It seems like the first
@@ -4384,13 +4384,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public void Dispose()
 			{
-				ObjCRelease(ColorBuffer);
+				objc_release(ColorBuffer);
 				ColorBuffer = IntPtr.Zero;
 
-				ObjCRelease(MultiSampleColorBuffer);
+				objc_release(MultiSampleColorBuffer);
 				MultiSampleColorBuffer = IntPtr.Zero;
 
-				ObjCRelease(DepthStencilBuffer);
+				objc_release(DepthStencilBuffer);
 				DepthStencilBuffer = IntPtr.Zero;
 			}
 
@@ -4594,9 +4594,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				nsFragmentShader
 			);
 
-			ObjCRelease(nsShaderSource);
-			ObjCRelease(nsVertexShader);
-			ObjCRelease(nsFragmentShader);
+			objc_release(nsShaderSource);
+			objc_release(nsVertexShader);
+			objc_release(nsFragmentShader);
 
 			// Create a sampler state
 			IntPtr samplerDescriptor = mtlNewSamplerDescriptor();
@@ -4606,7 +4606,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				device,
 				samplerDescriptor
 			);
-			ObjCRelease(samplerDescriptor);
+			objc_release(samplerDescriptor);
 
 			// Create a render pipeline for rendering the backbuffer
 			IntPtr pipelineDesc = mtlNewRenderPipelineDescriptor();
@@ -4620,9 +4620,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				device,
 				pipelineDesc
 			);
-			ObjCRelease(pipelineDesc);
-			ObjCRelease(vertexFunc);
-			ObjCRelease(fragFunc);
+			objc_release(pipelineDesc);
+			objc_release(vertexFunc);
+			objc_release(fragFunc);
 		}
 
 		#endregion

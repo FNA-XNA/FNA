@@ -44,6 +44,26 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		const string objcLibrary = "/usr/lib/libobjc.A.dylib";
 
+		[DllImport(objcLibrary)]
+		private static extern IntPtr objc_getClass(string name);
+
+		[DllImport(objcLibrary)]
+		private static extern void objc_release(IntPtr obj);
+
+		[DllImport(objcLibrary)]
+		private static extern IntPtr objc_retain(IntPtr obj);
+
+		[DllImport(objcLibrary)]
+		private static extern IntPtr objc_autoreleasePoolPush();
+
+		[DllImport(objcLibrary)]
+		private static extern void objc_autoreleasePoolPop(IntPtr pool);
+
+		[DllImport(objcLibrary)]
+		private static extern IntPtr sel_registerName(byte[] name);
+
+		/* Here come the obj_msgSend overloads... */
+
 		// Void
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
@@ -161,14 +181,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern CGSize cgsize_objc_msgSend(IntPtr receiver, IntPtr selector);
-
-		// Utilities
-
-		[DllImport(objcLibrary)]
-		private static extern IntPtr objc_getClass(string name);
-
-		[DllImport(objcLibrary)]
-		private static extern IntPtr sel_registerName(byte[] name);
 
 		#endregion
 
@@ -569,34 +581,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				selInitWithUtf8,
 				str
 			);
-		}
-
-		#endregion
-
-		#region Objective-C Memory Management Utilities
-
-		private static IntPtr selRelease = Selector("release");
-		private static void ObjCRelease(IntPtr obj)
-		{
-			objc_msgSend(obj, selRelease);
-		}
-
-		private static IntPtr selRetain = Selector("retain");
-		private static void ObjCRetain(IntPtr obj)
-		{
-			objc_msgSend(obj, selRetain);
-		}
-
-		private static IntPtr selNew = Selector("new");
-		private static IntPtr StartAutoreleasePool()
-		{
-			return intptr_objc_msgSend(classNSAutoreleasePool, selNew);
-		}
-
-		private static IntPtr selDrain = Selector("drain");
-		private static void DrainAutoreleasePool(IntPtr pool)
-		{
-			objc_msgSend(pool, selDrain);
 		}
 
 		#endregion
@@ -1529,7 +1513,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region MTLRenderPipelineState
 
-		// selNew already defined
+		private static IntPtr selNew = Selector("new");
 		private static IntPtr mtlNewRenderPipelineDescriptor()
 		{
 			return intptr_objc_msgSend(classRenderPipelineDescriptor, selNew);
