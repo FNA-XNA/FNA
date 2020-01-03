@@ -2681,6 +2681,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			uint pass,
 			IntPtr stateChanges
 		) {
+			/* If a frame isn't already in progress,
+			 * wait until one begins to avoid overwriting
+			 * the previous frame's uniform buffers.
+			 */
+			BeginFrame();
+
 			IntPtr mtlEffectData = (effect as MetalEffect).MTLEffectData;
 			if (mtlEffectData == currentEffect)
 			{
@@ -2729,6 +2735,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void BeginPassRestore(IGLEffect effect, IntPtr stateChanges)
 		{
+			/* If a frame isn't already in progress,
+			 * wait until one begins to avoid overwriting
+			 * the previous frame's uniform buffers.
+			 */
+			BeginFrame();
+
 			// Store the current data
 			prevEffect = currentEffect;
 			prevShaderState = shaderState;
