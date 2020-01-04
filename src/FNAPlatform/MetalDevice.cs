@@ -1019,10 +1019,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				dstRect.Width == 0 ||
 				dstRect.Height == 0	)
 			{
-				// FIXME: OpenGL lets this slide, but what does XNA do here?
-				throw new InvalidOperationException(
-					"sourceRectangle and destinationRectangle must have non-zero width and height!"
-				);
+				// Enjoy that bright red window!
+				return;
 			}
 
 			// Update cached vertex buffer if needed
