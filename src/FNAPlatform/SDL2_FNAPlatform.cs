@@ -478,8 +478,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal)
 			{
-				// FIXME: SDL_Metal_GetDrawableSize()?
-				MetalDevice.FNA_Metal_GetDrawableSize(tempContext, out drawX, out drawY);
+				MetalDevice.GetDrawableSize(tempContext, out drawX, out drawY);
 			}
 			else if (opengl)
 			{

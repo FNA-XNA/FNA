@@ -265,7 +265,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Copy previous contents, if needed
 				if (prevInternalOffset != InternalOffset && dataLength < (int) BufferSize)
 				{
-					// FIXME: Would a blit copy be faster? -caleb
 					memcpy(
 						Contents + InternalOffset,
 						Contents + prevInternalOffset,
@@ -400,7 +399,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		// FIXME: This feature is unsupported in Metal! Workarounds...?
+		// FIXME: This feature is unsupported in Metal
 		private int multisampleMask = -1; // AKA 0xFFFFFFFF
 		public int MultiSampleMask
 		{
@@ -455,6 +454,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		private float depthRangeMin = 0.0f;
 		private float depthRangeMax = 1.0f;
 
+		/* Used for resetting scissor rectangle */
+		private int currentAttachmentWidth;
+		private int currentAttachmentHeight;
+
 		#endregion
 
 		#region Sampler State Variables
@@ -463,6 +466,20 @@ namespace Microsoft.Xna.Framework.Graphics
 		private IntPtr[] Samplers;
 		private bool[] textureNeedsUpdate;
 		private bool[] samplerNeedsUpdate;
+
+		#endregion
+
+		#region Depth Stencil State Variables
+
+		private DepthStencilState depthStencilState;
+
+		private IntPtr defaultDepthStencilState;	// MTLDepthStencilState*
+		private IntPtr currentDepthStencilBuffer;	// MTLTexture*
+		private IntPtr ldDepthStencilState;		// MTLDepthStencilState*
+
+		private MTLPixelFormat D16Format;
+		private MTLPixelFormat D24Format;
+		private MTLPixelFormat D24S8Format;
 
 		#endregion
 
@@ -495,29 +512,28 @@ namespace Microsoft.Xna.Framework.Graphics
 		private float clearDepth = 1.0f;
 		private int clearStencil = 0;
 
+		private bool shouldClearColor = false;
+		private bool shouldClearDepth = false;
+		private bool shouldClearStencil = false;
+
 		#endregion
 
 		#region Private Metal State Variables
 
-		private IntPtr metalView;		// SDL_MetalView*
-		private IntPtr layer;			// CAMetalLayer*
-		private IntPtr device;			// MTLDevice*
-		private IntPtr queue;			// MTLCommandQueue*
-		private IntPtr commandBuffer;		// MTLCommandBuffer*
-		private IntPtr renderCommandEncoder;	// MTLRenderCommandEncoder*
-
-		private IntPtr currentDepthStencilBuffer;	// MTLTexture*
+		private IntPtr view;				// SDL_MetalView*
+		private IntPtr layer;				// CAMetalLayer*
+		private IntPtr device;				// MTLDevice*
+		private IntPtr queue;				// MTLCommandQueue*
+		private IntPtr commandBuffer;			// MTLCommandBuffer*
+		private IntPtr renderCommandEncoder;		// MTLRenderCommandEncoder*
 		private IntPtr currentVertexDescriptor;		// MTLVertexDescriptor*
 		private IntPtr currentVisibilityBuffer;		// MTLBuffer*
-		private IntPtr defaultDepthStencilState;	// MTLDepthStencilState*
 
-		private int currentAttachmentWidth;
-		private int currentAttachmentHeight;
+		private bool needNewRenderPass;
 
-		private bool needNewRenderPass = false;
-		private bool shouldClearColor = false;
-		private bool shouldClearDepth = false;
-		private bool shouldClearStencil = false;
+		#endregion
+
+		#region Operating System Variables
 
 		private bool isMac;
 
@@ -529,14 +545,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private bool frameInProgress = false;
 		private Queue<IntPtr> committedCommandBuffers = new Queue<IntPtr>();
-
-		#endregion
-
-		#region Depth PixelFormats
-
-		private MTLPixelFormat D16Format;
-		private MTLPixelFormat D24Format;
-		private MTLPixelFormat D24S8Format;
 
 		#endregion
 
@@ -646,9 +654,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Private Render Pipeline State Variables
 
 		private BlendState blendState;
-		private DepthStencilState depthStencilState;
-
-		private IntPtr ldDepthStencilState = IntPtr.Zero;
 		private IntPtr ldPipelineState = IntPtr.Zero;
 
 		#endregion
@@ -711,12 +716,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			queue = mtlNewCommandQueue(device);
 
 			// Create the Metal View
-			metalView = SDL2.SDL.SDL_Metal_CreateView(
+			view = SDL2.SDL.SDL_Metal_CreateView(
 				presentationParameters.DeviceWindowHandle
 			);
 
 			// Set up the CAMetalLayer
-			layer = mtlGetLayer(metalView);
+			layer = mtlGetLayer(view);
 			mtlSetLayerDevice(layer, device);
 			mtlSetLayerFramebufferOnly(layer, true);
 			mtlSetLayerMagnificationFilter(layer, UTF8ToNSString("nearest"));
@@ -867,32 +872,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			(Backbuffer as MetalBackbuffer).Dispose();
 
 			// Destroy the view
-			SDL2.SDL.SDL_Metal_DestroyView(metalView);
+			SDL2.SDL.SDL_Metal_DestroyView(view);
 		}
 
 		#endregion
 
-		#region GetDrawableSize Methods
+		#region GetDrawableSize Method
 
-		/* FIXME: This should be replaced by its SDL2
-		 * equivalent if/when this patch gets merged:
-		 * https://bugzilla.libsdl.org/show_bug.cgi?id=4796
-		 * -caleb
-		 */
-		public static void FNA_Metal_GetDrawableSize(
+		public static void GetDrawableSize(
 			IntPtr view,
 			out int w,
 			out int h
 		) {
-			GetDrawableSize(mtlGetLayer(view), out w, out h);
-		}
-
-		private static void GetDrawableSize(
-			IntPtr layer,
-			out int w,
-			out int h
-		) {
-			CGSize size = mtlGetDrawableSize(layer);
+			CGSize size = mtlGetDrawableSize(
+				mtlGetLayer(view)
+			);
 			w = (int) size.width;
 			h = (int) size.height;
 		}
@@ -974,7 +968,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				dstX = 0;
 				dstY = 0;
 				GetDrawableSize(
-					layer,
+					view,
 					out dstW,
 					out dstH
 				);
@@ -1039,7 +1033,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Scale the coordinates to (-1, 1)
 				int dw, dh;
-				GetDrawableSize(layer, out dw, out dh);
+				GetDrawableSize(view, out dw, out dh);
 				float sx = -1 + (dstRect.X / (float) dw);
 				float sy = -1 + (dstRect.Y / (float) dh);
 				float sw = (dstRect.Width / (float) dw) * 2;
@@ -1719,7 +1713,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else if (interval == PresentInterval.Two)
 			{
-				/* FIXME: There is no built-in support for
+				/* FIXME:
+				 * There is no built-in support for
 				 * present-every-other-frame in Metal.
 				 * We could work around this, but do
 				 * any games actually use this mode...?
@@ -3371,7 +3366,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			int blocksPerColumn = height;
 			int formatSize = Texture.GetFormatSize(format);
 
-			// FIXME: Is this right?
 			if (	format == SurfaceFormat.Dxt1 ||
 				format == SurfaceFormat.Dxt3 ||
 				format == SurfaceFormat.Dxt5	)
