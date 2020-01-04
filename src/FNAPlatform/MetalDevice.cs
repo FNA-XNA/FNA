@@ -2109,7 +2109,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// We have to make a new DepthStencilState...
 			IntPtr dsDesc = mtlNewDepthStencilDescriptor();
-			if (depthStencilState.DepthBufferEnable)
+			if (zEnable)
 			{
 				mtlSetDepthCompareFunction(
 					dsDesc,
@@ -2125,7 +2125,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr front = IntPtr.Zero;
 			IntPtr back = IntPtr.Zero;
 
-			if (depthStencilState.StencilEnable)
+			if (sEnable)
 			{
 				front = mtlNewStencilDescriptor();
 				mtlSetStencilFailureOperation(
