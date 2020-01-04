@@ -474,7 +474,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		private DepthStencilState depthStencilState;
 
 		private IntPtr defaultDepthStencilState;	// MTLDepthStencilState*
-		private IntPtr currentDepthStencilBuffer;	// MTLTexture*
 		private IntPtr ldDepthStencilState;		// MTLDepthStencilState*
 
 		private MTLPixelFormat D16Format;
@@ -500,8 +499,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private readonly IntPtr[] currentAttachments;
 		private readonly MTLPixelFormat[] currentColorFormats;
-		private DepthFormat currentDepthFormat;
 		private readonly IntPtr[] currentMSAttachments;
+		private readonly byte[] currentMSAttachmentResolveSlices;
+		private IntPtr currentDepthStencilBuffer;
+		private DepthFormat currentDepthFormat;
 		private int currentSampleCount;
 
 		#endregion
@@ -802,9 +803,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			samplerNeedsUpdate = new bool[MaxTextureSlots];
 
 			// Initialize attachment arrays
-			currentAttachments = new IntPtr[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
-			currentColorFormats = new MTLPixelFormat[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
-			currentMSAttachments = new IntPtr[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
+			int numAttachments = GraphicsDevice.MAX_RENDERTARGET_BINDINGS;
+			currentAttachments = new IntPtr[numAttachments];
+			currentColorFormats = new MTLPixelFormat[numAttachments];
+			currentMSAttachments = new IntPtr[numAttachments];
+			currentMSAttachmentResolveSlices = new byte[numAttachments];
 
 			// Initialize vertex buffer cache
 			ldVertexBuffers = new IntPtr[MAX_BOUND_VERTEX_BUFFERS];
@@ -1143,7 +1146,10 @@ namespace Microsoft.Xna.Framework.Graphics
 						colorAttachment,
 						MTLStoreAction.MultisampleResolve
 					);
-					// FIXME: Need to handle cube render targets! -caleb
+					mtlSetAttachmentResolveSlice(
+						colorAttachment,
+						currentMSAttachmentResolveSlices[i]
+					);
 				}
 
 				// Clear color
@@ -3936,6 +3942,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					currentColorFormats[i] = rb.PixelFormat;
 					currentSampleCount = rb.MultiSampleCount;
 					currentMSAttachments[i] = rb.MultiSampleHandle;
+					currentMSAttachmentResolveSlices[i] = (
+						(byte) renderTargets[i].CubeMapFace
+					);
 				}
 				else
 				{

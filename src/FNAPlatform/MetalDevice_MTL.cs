@@ -846,9 +846,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static IntPtr selSetResolveSlice = Selector("setResolveSlice:");
 		private static void mtlSetAttachmentResolveSlice(
 			IntPtr attachment,
-			ulong resolveSlice
+			int resolveSlice
 		) {
-			objc_msgSend(attachment, selSetResolveSlice, resolveSlice);
+			objc_msgSend(attachment, selSetResolveSlice, (ulong) resolveSlice);
 		}
 
 		private static IntPtr selSetClearColor = Selector("setClearColor:");
