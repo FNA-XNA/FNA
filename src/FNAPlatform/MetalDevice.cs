@@ -284,12 +284,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				prevDataLength = (int) BufferSize;
 			}
 
-			/* This form of SetData allows us to advance through
-			 * the buffer by arbitrary amounts, rather than be
-			 * limited by multiples of BufferSize.
-			 */
-			public void SetUserData(IntPtr data, int dataLength)
-			{
+			public void SetData(
+				int offsetInBytes,
+				IntPtr data,
+				int dataLength
+			) {
 				InternalOffset += prevDataLength;
 				if (InternalOffset + dataLength > internalBufferSize)
 				{
@@ -305,11 +304,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Copy the data into the buffer
 				memcpy(
 					Contents + InternalOffset,
-					data,
+					data + offsetInBytes,
 					(IntPtr) dataLength
 				);
 
-				// Remember length so we can add it to InternalOffset
 				prevDataLength = dataLength;
 			}
 
@@ -471,9 +469,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Buffer Binding Cache Variables
 
 		private List<MetalBuffer> Buffers = new List<MetalBuffer>();
-		private VertexDeclaration userVertexDeclaration = null;
+
 		private MetalBuffer userVertexBuffer = null;
 		private MetalBuffer userIndexBuffer = null;
+		private int userVertexStride = 0;
 
 		// Some vertex declarations may have overlapping attributes :/
 		private bool[,] attrUse = new bool[(int) MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TOTAL, 10];
@@ -1566,91 +1565,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 		}
 
-		public void DrawUserIndexedPrimitives(
-			PrimitiveType primitiveType,
-			IntPtr vertexData,
-			int vertexOffset,
-			int numVertices,
-			IntPtr indexData,
-			int indexOffset,
-			IndexElementSize indexElementSize,
-			int primitiveCount
-		) {
-			// Bind user vertex buffer
-			BindUserVertexBuffer(
-				vertexData,
-				(int) numVertices
-			);
-
-			// Bind user index buffer
-			int numIndices = XNAToMTL.PrimitiveVerts(
-				primitiveType,
-				primitiveCount
-			);
-			int indexSize = XNAToMTL.IndexSize[(int) indexElementSize];
-			int len = (int) numIndices * indexSize;
-			if (userIndexBuffer == null)
-			{
-				userIndexBuffer = new MetalBuffer(
-					this,
-					true,
-					BufferUsage.WriteOnly,
-					(IntPtr) len
-				);
-				Buffers.Add(userIndexBuffer);
-			}
-			userIndexBuffer.SetUserData(
-				indexData,
-				len
-			);
-			int totalIndexOffset = (
-				(indexOffset * indexSize) +
-				userIndexBuffer.InternalOffset
-			);
-
-			// Draw!
-			mtlDrawIndexedPrimitives(
-				renderCommandEncoder,
-				XNAToMTL.Primitive[(int) primitiveType],
-				numIndices,
-				XNAToMTL.IndexType[(int) indexElementSize],
-				userIndexBuffer.Handle,
-				totalIndexOffset,
-				1,
-				vertexOffset,
-				0
-			);
-		}
-
-		public void DrawUserPrimitives(
-			PrimitiveType primitiveType,
-			IntPtr vertexData,
-			int vertexOffset,
-			int primitiveCount
-		) {
-			int numVerts = XNAToMTL.PrimitiveVerts(
-				primitiveType,
-				primitiveCount
-			);
-			BindUserVertexBuffer(
-				vertexData,
-				(int) numVerts
-			);
-			mtlDrawPrimitives(
-				renderCommandEncoder,
-				XNAToMTL.Primitive[(int) primitiveType],
-				vertexOffset,
-				numVerts
-			);
-		}
-
 		private void BindUserVertexBuffer(
 			IntPtr vertexData,
-			int vertexCount
+			int vertexCount,
+			int vertexOffset
 		) {
-			UpdateRenderPass();
-
-			int len = vertexCount * userVertexDeclaration.VertexStride;
+			// Update the buffer contents
+			int len = vertexCount * userVertexStride;
 			if (userVertexBuffer == null)
 			{
 				userVertexBuffer = new MetalBuffer(
@@ -1661,11 +1582,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 				Buffers.Add(userVertexBuffer);
 			}
-			userVertexBuffer.SetUserData(
+			userVertexBuffer.SetData(
+				vertexOffset * userVertexStride,
 				vertexData,
 				len
 			);
 
+			// Bind the buffer
 			int offset = userVertexBuffer.InternalOffset;
 			IntPtr handle = userVertexBuffer.Handle;
 			if (ldVertexBuffers[0] != handle)
@@ -1688,8 +1611,86 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 				ldVertexBufferOffsets[0] = offset;
 			}
+		}
 
-			BindResources();
+		public void DrawUserIndexedPrimitives(
+			PrimitiveType primitiveType,
+			IntPtr vertexData,
+			int vertexOffset,
+			int numVertices,
+			IntPtr indexData,
+			int indexOffset,
+			IndexElementSize indexElementSize,
+			int primitiveCount
+		) {
+			// Bind the vertex buffer
+			BindUserVertexBuffer(
+				vertexData,
+				numVertices,
+				vertexOffset
+			);
+
+			// Prepare the index buffer
+			int numIndices = XNAToMTL.PrimitiveVerts(
+				primitiveType,
+				primitiveCount
+			);
+			int indexSize = XNAToMTL.IndexSize[(int) indexElementSize];
+			int len = (int) numIndices * indexSize;
+			if (userIndexBuffer == null)
+			{
+				userIndexBuffer = new MetalBuffer(
+					this,
+					true,
+					BufferUsage.WriteOnly,
+					(IntPtr) len
+				);
+				Buffers.Add(userIndexBuffer);
+			}
+			userIndexBuffer.SetData(
+				indexOffset * indexSize,
+				indexData,
+				len
+			);
+
+			// Draw!
+			mtlDrawIndexedPrimitives(
+				renderCommandEncoder,
+				XNAToMTL.Primitive[(int) primitiveType],
+				numIndices,
+				XNAToMTL.IndexType[(int) indexElementSize],
+				userIndexBuffer.Handle,
+				userIndexBuffer.InternalOffset,
+				1,
+				0,
+				0
+			);
+		}
+
+		public void DrawUserPrimitives(
+			PrimitiveType primitiveType,
+			IntPtr vertexData,
+			int vertexOffset,
+			int primitiveCount
+		) {
+			// Bind the vertex buffer
+			int numVerts = XNAToMTL.PrimitiveVerts(
+				primitiveType,
+				primitiveCount
+			);
+			BindUserVertexBuffer(
+				vertexData,
+				numVerts,
+				vertexOffset
+			);
+
+			// Draw!
+			mtlDrawPrimitives(
+				renderCommandEncoder,
+				XNAToMTL.Primitive[(int) primitiveType],
+				0,
+				numVerts
+			);
 		}
 
 		#endregion
@@ -2894,6 +2895,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Prepare for rendering
 			UpdateRenderPass();
+			BindResources();
+
+			// Bind the vertex buffers
 			for (int i = 0; i < bindings.Length; i += 1)
 			{
 				VertexBuffer vertexBuffer = bindings[i].VertexBuffer;
@@ -2929,7 +2933,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 				}
 			}
-			BindResources();
 		}
 
 		public void ApplyVertexAttributes(
@@ -2942,8 +2945,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				vertexDeclaration,
 				vertexOffset
 			);
+			userVertexStride = vertexDeclaration.VertexStride;
 
-			userVertexDeclaration = vertexDeclaration;
+			// Prepare for rendering
+			UpdateRenderPass();
+			BindResources();
+
 			// The rest happens in DrawUser[Indexed]Primitives.
 		}
 
