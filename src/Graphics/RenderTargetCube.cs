@@ -1,6 +1,6 @@
 #region License
 /* FNA - XNA4 Reimplementation for Desktop Platforms
- * Copyright 2009-2019 Ethan Lee and the MonoGame Team
+ * Copyright 2009-2020 Ethan Lee and the MonoGame Team
  *
  * Released under the Microsoft Public License.
  * See LICENSE for details.
@@ -222,15 +222,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				if (glColorBuffer != null)
 				{
-					GraphicsDevice.GLDevice.AddDisposeRenderbuffer(glDepthStencilBuffer);
+					GraphicsDevice.GLDevice.AddDisposeRenderbuffer(glColorBuffer);
 				}
 
 				if (glDepthStencilBuffer != null)
 				{
 					GraphicsDevice.GLDevice.AddDisposeRenderbuffer(glDepthStencilBuffer);
 				}
-				base.Dispose(disposing);
 			}
+			base.Dispose(disposing);
 		}
 
 		#endregion

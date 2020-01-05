@@ -1,6 +1,6 @@
 #region License
 /* FNA - XNA4 Reimplementation for Desktop Platforms
- * Copyright 2009-2019 Ethan Lee and the MonoGame Team
+ * Copyright 2009-2020 Ethan Lee and the MonoGame Team
  *
  * Released under the Microsoft Public License.
  * See LICENSE for details.
@@ -703,7 +703,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 
 				/* SPIR-V is very new and not really necessary. */
-				if (shaderProfile == "spirv")
+				if (shaderProfile == "glspirv" && !useCoreProfile)
 				{
 					shaderProfile = "glsl120";
 				}
@@ -4406,18 +4406,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public static readonly int[] VertexAttribSize = new int[]
 			{
-					1,	// VertexElementFormat.Single
-					2,	// VertexElementFormat.Vector2
-					3,	// VertexElementFormat.Vector3
-					4,	// VertexElementFormat.Vector4
-					4,	// VertexElementFormat.Color
-					4,	// VertexElementFormat.Byte4
-					2,	// VertexElementFormat.Short2
-					4,	// VertexElementFormat.Short4
-					2,	// VertexElementFormat.NormalizedShort2
-					4,	// VertexElementFormat.NormalizedShort4
-					2,	// VertexElementFormat.HalfVector2
-					4	// VertexElementFormat.HalfVector4
+				1,	// VertexElementFormat.Single
+				2,	// VertexElementFormat.Vector2
+				3,	// VertexElementFormat.Vector3
+				4,	// VertexElementFormat.Vector4
+				4,	// VertexElementFormat.Color
+				4,	// VertexElementFormat.Byte4
+				2,	// VertexElementFormat.Short2
+				4,	// VertexElementFormat.Short4
+				2,	// VertexElementFormat.NormalizedShort2
+				4,	// VertexElementFormat.NormalizedShort4
+				2,	// VertexElementFormat.HalfVector2
+				4	// VertexElementFormat.HalfVector4
 			};
 
 			public static readonly GLenum[] VertexAttribType = new GLenum[]

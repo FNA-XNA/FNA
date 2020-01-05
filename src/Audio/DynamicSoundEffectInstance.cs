@@ -1,6 +1,6 @@
 #region License
 /* FNA - XNA4 Reimplementation for Desktop Platforms
- * Copyright 2009-2019 Ethan Lee and the MonoGame Team
+ * Copyright 2009-2020 Ethan Lee and the MonoGame Team
  *
  * Released under the Microsoft Public License.
  * See LICENSE for details.
@@ -146,26 +146,29 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			IntPtr next = Marshal.AllocHGlobal(count);
 			Marshal.Copy(buffer, offset, next, count);
-			queuedBuffers.Add(next);
-			if (State != SoundState.Stopped)
+			lock (queuedBuffers)
 			{
-				FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
-				buf.AudioBytes = (uint) count;
-				buf.pAudioData = next;
-				buf.PlayLength = (
-					buf.AudioBytes /
-					(uint) channels /
-					(uint) (format.wBitsPerSample / 8)
-				);
-				FAudio.FAudioSourceVoice_SubmitSourceBuffer(
-					handle,
-					ref buf,
-					IntPtr.Zero
-				);
-			}
-			else
-			{
-				queuedSizes.Add((uint) count);
+				queuedBuffers.Add(next);
+				if (State != SoundState.Stopped)
+				{
+					FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
+					buf.AudioBytes = (uint) count;
+					buf.pAudioData = next;
+					buf.PlayLength = (
+						buf.AudioBytes /
+						(uint) channels /
+						(uint) (format.wBitsPerSample / 8)
+					);
+					FAudio.FAudioSourceVoice_SubmitSourceBuffer(
+						handle,
+						ref buf,
+						IntPtr.Zero
+					);
+				}
+				else
+				{
+					queuedSizes.Add((uint) count);
+				}
 			}
 		}
 
@@ -193,26 +196,29 @@ namespace Microsoft.Xna.Framework.Audio
 
 			IntPtr next = Marshal.AllocHGlobal(count * sizeof(float));
 			Marshal.Copy(buffer, offset, next, count);
-			queuedBuffers.Add(next);
-			if (State != SoundState.Stopped)
+			lock (queuedBuffers)
 			{
-				FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
-				buf.AudioBytes = (uint) count * sizeof(float);
-				buf.pAudioData = next;
-				buf.PlayLength = (
-					buf.AudioBytes /
-					(uint) channels /
-					(uint) (format.wBitsPerSample / 8)
-				);
-				FAudio.FAudioSourceVoice_SubmitSourceBuffer(
-					handle,
-					ref buf,
-					IntPtr.Zero
-				);
-			}
-			else
-			{
-				queuedSizes.Add((uint) count * sizeof(float));
+				queuedBuffers.Add(next);
+				if (State != SoundState.Stopped)
+				{
+					FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
+					buf.AudioBytes = (uint) count * sizeof(float);
+					buf.pAudioData = next;
+					buf.PlayLength = (
+						buf.AudioBytes /
+						(uint) channels /
+						(uint) (format.wBitsPerSample / 8)
+					);
+					FAudio.FAudioSourceVoice_SubmitSourceBuffer(
+						handle,
+						ref buf,
+						IntPtr.Zero
+					);
+				}
+				else
+				{
+					queuedSizes.Add((uint) count * sizeof(float));
+				}
 			}
 		}
 
@@ -233,32 +239,38 @@ namespace Microsoft.Xna.Framework.Audio
 		internal void QueueInitialBuffers()
 		{
 			FAudio.FAudioBuffer buffer = new FAudio.FAudioBuffer();
-			for (int i = 0; i < queuedBuffers.Count; i += 1)
+			lock (queuedBuffers)
 			{
-				buffer.AudioBytes = queuedSizes[i];
-				buffer.pAudioData = queuedBuffers[i];
-				buffer.PlayLength = (
-					buffer.AudioBytes /
-					(uint) channels /
-					(uint) (format.wBitsPerSample / 8)
-				);
-				FAudio.FAudioSourceVoice_SubmitSourceBuffer(
-					handle,
-					ref buffer,
-					IntPtr.Zero
-				);
+				for (int i = 0; i < queuedBuffers.Count; i += 1)
+				{
+					buffer.AudioBytes = queuedSizes[i];
+					buffer.pAudioData = queuedBuffers[i];
+					buffer.PlayLength = (
+						buffer.AudioBytes /
+						(uint) channels /
+						(uint) (format.wBitsPerSample / 8)
+					);
+					FAudio.FAudioSourceVoice_SubmitSourceBuffer(
+						handle,
+						ref buffer,
+						IntPtr.Zero
+					);
+				}
+				queuedSizes.Clear();
 			}
-			queuedSizes.Clear();
 		}
 
 		internal void ClearBuffers()
 		{
-			foreach (IntPtr buf in queuedBuffers)
+			lock (queuedBuffers)
 			{
-				Marshal.FreeHGlobal(buf);
+				foreach (IntPtr buf in queuedBuffers)
+				{
+					Marshal.FreeHGlobal(buf);
+				}
+				queuedBuffers.Clear();
+				queuedSizes.Clear();
 			}
-			queuedBuffers.Clear();
-			queuedSizes.Clear();
 		}
 
 		internal void Update()
@@ -278,6 +290,7 @@ namespace Microsoft.Xna.Framework.Audio
 					FAudio.FAUDIO_VOICE_NOSAMPLESPLAYED
 				);
 				while (PendingBufferCount > state.BuffersQueued)
+				lock (queuedBuffers)
 				{
 					Marshal.FreeHGlobal(queuedBuffers[0]);
 					queuedBuffers.RemoveAt(0);

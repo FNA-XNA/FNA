@@ -1,6 +1,6 @@
 #region License
 /* FNA - XNA4 Reimplementation for Desktop Platforms
- * Copyright 2009-2019 Ethan Lee and the MonoGame Team
+ * Copyright 2009-2020 Ethan Lee and the MonoGame Team
  *
  * Released under the Microsoft Public License.
  * See LICENSE for details.
@@ -36,7 +36,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * lifetime. But only one GraphicsDevice should
 				 * retain ownership.
 				 */
-				if (graphicsDevice != null)
+				if (graphicsDevice != null && selfReference != null)
 				{
 					graphicsDevice.RemoveResourceReference(selfReference);
 					selfReference = null;
@@ -91,9 +91,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		~GraphicsResource()
 		{
-			// Pass false so the managed objects are not released
-			// FIXME: This can lock up your game from the GC! -flibit
-			// Dispose(false);
+			// FIXME: We really should call Dispose() here! -flibit
 		}
 
 		#endregion
@@ -102,8 +100,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void Dispose()
 		{
-			// Dispose of managed objects as well
+			// Dispose of unmanaged objects as well
 			Dispose(true);
+
 			// Since we have been manually disposed, do not call the finalizer on this object
 			GC.SuppressFinalize(this);
 		}
@@ -155,13 +154,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Remove from the list of graphics resources
-				if (graphicsDevice != null)
+				if (graphicsDevice != null && selfReference != null)
 				{
 					graphicsDevice.RemoveResourceReference(selfReference);
+					selfReference = null;
 				}
 
-				selfReference = null;
-				graphicsDevice = null;
 				IsDisposed = true;
 			}
 		}

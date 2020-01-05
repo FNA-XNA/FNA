@@ -1,6 +1,6 @@
 #region License
 /* FNA - XNA4 Reimplementation for Desktop Platforms
- * Copyright 2009-2019 Ethan Lee and the MonoGame Team
+ * Copyright 2009-2020 Ethan Lee and the MonoGame Team
  *
  * Released under the Microsoft Public License.
  * See LICENSE for details.
@@ -63,7 +63,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Init/Exit Methods
 
-		public static string ProgramInit()
+		public static string ProgramInit(LaunchParameters args)
 		{
 			// This is how we can weed out cases where fnalibs is missing
 			try
@@ -139,6 +139,51 @@ namespace Microsoft.Xna.Framework
 			{
 				SDL.SDL_GameControllerAddMappingsFromFile(
 					mappingsDB
+				);
+			}
+
+			// Built-in SDL2 command line arguments
+			string arg;
+			if (args.TryGetValue("disablelateswaptear", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_OPENGL_DISABLE_LATESWAPTEAR",
+					"1"
+				);
+			}
+			if (args.TryGetValue("glprofile", out arg))
+			{
+				if (arg == "es3")
+				{
+					Environment.SetEnvironmentVariable(
+						"FNA_OPENGL_FORCE_ES3",
+						"1"
+					);
+				}
+				else if (arg == "core")
+				{
+					Environment.SetEnvironmentVariable(
+						"FNA_OPENGL_FORCE_CORE_PROFILE",
+						"1"
+					);
+				}
+				else if (arg == "compatibility")
+				{
+					Environment.SetEnvironmentVariable(
+						"FNA_OPENGL_FORCE_COMPATIBILITY_PROFILE",
+						"1"
+					);
+				}
+			}
+			if (args.TryGetValue("angle", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_OPENGL_FORCE_ES3",
+					"1"
+				);
+				Environment.SetEnvironmentVariable(
+					"SDL_OPENGL_ES_DRIVER",
+					"1"
 				);
 			}
 
@@ -1410,23 +1455,18 @@ namespace Microsoft.Xna.Framework
 
 		private static string GetBaseDirectory()
 		{
-			if (	OSVersion.Equals("Windows") ||
-				OSVersion.Equals("Mac OS X") ||
-				OSVersion.Equals("Linux") ||
-				OSVersion.Equals("FreeBSD") ||
-				OSVersion.Equals("OpenBSD") ||
-				OSVersion.Equals("NetBSD")	)
+			if (Environment.GetEnvironmentVariable("FNA_SDL2_FORCE_BASE_PATH") != "1")
 			{
-				/* This is mostly here for legacy compatibility.
-				 * For most platforms this should be the same as
-				 * SDL_GetBasePath, but some platforms (Apple's)
-				 * will have a separate Resources folder that is
-				 * the "base" directory for applications.
-				 *
-				 * TODO: Remove this and endure the breakage.
-				 * -flibit
-				 */
-				return AppDomain.CurrentDomain.BaseDirectory;
+				// If your platform uses a CLR, you want to be in this list!
+				if (	OSVersion.Equals("Windows") ||
+					OSVersion.Equals("Mac OS X") ||
+					OSVersion.Equals("Linux") ||
+					OSVersion.Equals("FreeBSD") ||
+					OSVersion.Equals("OpenBSD") ||
+					OSVersion.Equals("NetBSD")	)
+				{
+					return AppDomain.CurrentDomain.BaseDirectory;
+				}
 			}
 			string result = SDL.SDL_GetBasePath();
 			if (string.IsNullOrEmpty(result))

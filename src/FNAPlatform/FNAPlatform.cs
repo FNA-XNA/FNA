@@ -1,6 +1,6 @@
 #region License
 /* FNA - XNA4 Reimplementation for Desktop Platforms
- * Copyright 2009-2019 Ethan Lee and the MonoGame Team
+ * Copyright 2009-2020 Ethan Lee and the MonoGame Team
  *
  * Released under the Microsoft Public License.
  * See LICENSE for details.
@@ -36,6 +36,45 @@ namespace Microsoft.Xna.Framework
 			 */
 
 			// Environment.GetEnvironmentVariable("FNA_PLATFORM_BACKEND");
+
+			// Built-in command line arguments
+			LaunchParameters args = new LaunchParameters();
+			string arg;
+			if (args.TryGetValue("enablehighdpi", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_GRAPHICS_ENABLE_HIGHDPI",
+					"1"
+				);
+			}
+			if (args.TryGetValue("gldevice", out arg))
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_GRAPHICS_FORCE_GLDEVICE",
+					arg
+				);
+			}
+			if (args.TryGetValue("mojoshaderprofile", out arg))
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_GRAPHICS_MOJOSHADER_PROFILE",
+					arg
+				);
+			}
+			if (args.TryGetValue("backbufferscalenearest", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_GRAPHICS_BACKBUFFER_SCALE_NEAREST",
+					"1"
+				);
+			}
+			if (args.TryGetValue("usescancodes", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_KEYBOARD_USE_SCANCODES",
+					"1"
+				);
+			}
 
 			CreateWindow =			SDL2_FNAPlatform.CreateWindow;
 			DisposeWindow =			SDL2_FNAPlatform.DisposeWindow;
@@ -95,7 +134,7 @@ namespace Microsoft.Xna.Framework
 			}
 
 			AppDomain.CurrentDomain.ProcessExit += SDL2_FNAPlatform.ProgramExit;
-			TitleLocation = SDL2_FNAPlatform.ProgramInit();
+			TitleLocation = SDL2_FNAPlatform.ProgramInit(args);
 		}
 
 		#endregion
