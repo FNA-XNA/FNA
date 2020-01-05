@@ -399,7 +399,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		// FIXME: This feature is unsupported in Metal
 		private int multisampleMask = -1; // AKA 0xFFFFFFFF
 		public int MultiSampleMask
 		{
@@ -410,6 +409,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			set
 			{
 				multisampleMask = value;
+				// FIXME: Metal does not support multisample masks. Workarounds...?
 			}
 		}
 
@@ -1792,7 +1792,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (rasterizerState.MultiSampleAntiAlias != multiSampleEnable)
 			{
 				multiSampleEnable = rasterizerState.MultiSampleAntiAlias;
-				// FIXME: What should we do with this...?
+				// FIXME: Metal does not support toggling MSAA. Workarounds...?
 			}
 		}
 
