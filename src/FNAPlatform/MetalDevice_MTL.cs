@@ -827,6 +827,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(attachment, selSetTexture, texture);
 		}
 
+		private static IntPtr selSetSlice = Selector("setSlice:");
+		private static void mtlSetAttachmentSlice(
+			IntPtr attachment,
+			int slice
+		) {
+			objc_msgSend(attachment, selSetSlice, (ulong) slice);
+		}
+
 		private static IntPtr selSetPixelFormat = Selector("setPixelFormat:");
 		private static void mtlSetAttachmentPixelFormat(
 			IntPtr attachment,

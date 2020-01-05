@@ -500,7 +500,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private readonly IntPtr[] currentAttachments;
 		private readonly MTLPixelFormat[] currentColorFormats;
 		private readonly IntPtr[] currentMSAttachments;
-		private readonly byte[] currentMSAttachmentResolveSlices;
+		private readonly CubeMapFace[] currentAttachmentSlices;
 		private IntPtr currentDepthStencilBuffer;
 		private DepthFormat currentDepthFormat;
 		private int currentSampleCount;
@@ -807,7 +807,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			currentAttachments = new IntPtr[numAttachments];
 			currentColorFormats = new MTLPixelFormat[numAttachments];
 			currentMSAttachments = new IntPtr[numAttachments];
-			currentMSAttachmentResolveSlices = new byte[numAttachments];
+			currentAttachmentSlices = new CubeMapFace[numAttachments];
 
 			// Initialize vertex buffer cache
 			ldVertexBuffers = new IntPtr[MAX_BOUND_VERTEX_BUFFERS];
@@ -1130,6 +1130,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					colorAttachment,
 					currentAttachments[i]
 				);
+				mtlSetAttachmentSlice(
+					colorAttachment,
+					(int) currentAttachmentSlices[i]
+				);
 
 				// Multisample?
 				if (currentSampleCount > 0)
@@ -1137,6 +1141,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					mtlSetAttachmentTexture(
 						colorAttachment,
 						currentMSAttachments[i]
+					);
+					mtlSetAttachmentSlice(
+						colorAttachment,
+						0
 					);
 					mtlSetAttachmentResolveTexture(
 						colorAttachment,
@@ -1148,7 +1156,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 					mtlSetAttachmentResolveSlice(
 						colorAttachment,
-						currentMSAttachmentResolveSlices[i]
+						(int) currentAttachmentSlices[i]
 					);
 				}
 
@@ -3935,6 +3943,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			for (i = 0; i < renderTargets.Length; i += 1)
 			{
 				IRenderTarget rt = renderTargets[i].RenderTarget as IRenderTarget;
+				currentAttachmentSlices[i] = renderTargets[i].CubeMapFace;
 				if (rt.ColorBuffer != null)
 				{
 					MetalRenderbuffer rb = rt.ColorBuffer as MetalRenderbuffer;
@@ -3942,9 +3951,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					currentColorFormats[i] = rb.PixelFormat;
 					currentSampleCount = rb.MultiSampleCount;
 					currentMSAttachments[i] = rb.MultiSampleHandle;
-					currentMSAttachmentResolveSlices[i] = (
-						(byte) renderTargets[i].CubeMapFace
-					);
 				}
 				else
 				{
@@ -3976,6 +3982,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				currentAttachments[i] = IntPtr.Zero;
 				currentColorFormats[i] = MTLPixelFormat.Invalid;
 				currentMSAttachments[i] = IntPtr.Zero;
+				currentAttachmentSlices[i] = (CubeMapFace) 0;
 			}
 			currentDepthStencilBuffer = IntPtr.Zero;
 			currentDepthFormat = DepthFormat.None;
@@ -3984,13 +3991,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void BindBackbuffer()
 		{
-			MetalBackbuffer bb = (Backbuffer as MetalBackbuffer);
+			MetalBackbuffer bb = Backbuffer as MetalBackbuffer;
 			currentAttachments[0] = bb.ColorBuffer;
 			currentColorFormats[0] = bb.PixelFormat;
 			currentDepthStencilBuffer = bb.DepthStencilBuffer;
 			currentDepthFormat = bb.DepthFormat;
 			currentSampleCount = bb.MultiSampleCount;
 			currentMSAttachments[0] = bb.MultiSampleColorBuffer;
+			currentAttachmentSlices[0] = (CubeMapFace) 0;
 		}
 
 		#endregion
