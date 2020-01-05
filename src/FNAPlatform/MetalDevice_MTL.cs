@@ -121,7 +121,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr srcTexture, ulong srcSlice, ulong srcLevel, MTLOrigin srcOrigin, MTLSize srcSize, IntPtr dstTexture, ulong dstSlice, ulong dstLevel, MTLOrigin dstOrigin);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
-		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong primitiveType, ulong indexCount, ulong indexType, IntPtr indexBuffer, ulong indexBufferOffset, ulong instanceCount, int baseVertex, ulong baseInstance);
+		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, ulong primitiveType, ulong indexCount, ulong indexType, IntPtr indexBuffer, ulong indexBufferOffset, ulong instanceCount);
 
 		[DllImport(objcLibrary, EntryPoint = "objc_msgSend")]
 		private static extern void objc_msgSend(IntPtr receiver, IntPtr selector, IntPtr pixelBytes, ulong bytesPerRow, ulong bytesPerImage, MTLRegion region, ulong level, ulong slice);
@@ -588,9 +588,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private static IntPtr selSupportsFamily = Selector("supportsFamily:");
 		private static IntPtr selSupportsFeatureSet = Selector("supportsFeatureSet:");
-		internal static bool HasModernAppleGPU(IntPtr device)
+		private bool HasModernAppleGPU()
 		{
-			// We require an A9 chip or later.
+			// "Modern" = A9 or later
 			const ulong GPUFamilyCommon2 = 3002;
 			const ulong iOS_GPUFamily3_v1 = 4;
 			const ulong tvOS_GPUFamily2_v1 = 30003;
@@ -1024,7 +1024,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			objc_msgSend(commandEncoder, selEndEncoding);
 		}
 
-		private static IntPtr selDrawIndexedPrimitives = Selector("drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:instanceCount:baseVertex:baseInstance:");
+		private static IntPtr selDrawIndexedPrimitives = Selector("drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:instanceCount:");
 		private static void mtlDrawIndexedPrimitives(
 			IntPtr renderCommandEncoder,
 			MTLPrimitiveType primitiveType,
@@ -1032,9 +1032,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			MTLIndexType indexType,
 			IntPtr indexBuffer,
 			int indexBufferOffset,
-			int instanceCount,
-			int baseVertex,
-			int baseInstance
+			int instanceCount
 		) {
 			objc_msgSend(
 				renderCommandEncoder,
@@ -1044,9 +1042,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				(ulong) indexType,
 				indexBuffer,
 				(ulong) indexBufferOffset,
-				(ulong) instanceCount,
-				baseVertex,
-				(ulong) baseInstance
+				(ulong) instanceCount
 			);
 		}
 

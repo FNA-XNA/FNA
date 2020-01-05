@@ -618,6 +618,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
+		private bool supportsOcclusionQueries;
+
 		#endregion
 
 		#region Private Hashing Utilities
@@ -741,6 +743,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			isMac = SDL2.SDL.SDL_GetPlatform().Equals("Mac OS X");
 			SupportsS3tc = SupportsDxt1 = isMac;
 			MaxMultiSampleCount = mtlSupportsSampleCount(device, 8) ? 8 : 4;
+			supportsOcclusionQueries = isMac || HasModernAppleGPU();
 
 			// Determine supported depth formats
 			D16Format = MTLPixelFormat.Depth32Float;
@@ -1078,9 +1081,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				MTLIndexType.UInt16,
 				fauxBackbufferDrawBuffer,
 				16 * sizeof(float),
-				1,
-				0,
-				0
+				1
 			);
 			mtlEndEncoding(rce);
 		}
@@ -1523,9 +1524,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				XNAToMTL.IndexType[(int) indices.IndexElementSize],
 				indexBuffer.Handle,
 				totalIndexOffset,
-				1,
-				baseVertex,
-				0
+				1
 			);
 		}
 
@@ -1552,9 +1551,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				XNAToMTL.IndexType[(int) indices.IndexElementSize],
 				indexBuffer.Handle,
 				totalIndexOffset,
-				instanceCount,
-				baseVertex,
-				0
+				instanceCount
 			);
 		}
 
@@ -1667,9 +1664,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				XNAToMTL.IndexType[(int) indexElementSize],
 				userIndexBuffer.Handle,
 				userIndexBuffer.InternalOffset,
-				1,
-				0,
-				0
+				1
 			);
 		}
 
@@ -2912,7 +2907,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					int stride = bindings[i].VertexBuffer.VertexDeclaration.VertexStride;
 					int offset = (
-						(bindings[i].VertexOffset * stride) +
+						((bindings[i].VertexOffset + baseVertex) * stride) +
 						(vertexBuffer.buffer as MetalBuffer).InternalOffset
 					);
 
@@ -4007,6 +4002,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public IGLQuery CreateQuery()
 		{
+			if (!supportsOcclusionQueries)
+			{
+				throw new NotSupportedException(
+					"Occlusion queries are not supported on this device!"
+				);
+			}
+
 			IntPtr buf = mtlNewBufferWithLength(device, sizeof(ulong), 0);
 			return new MetalQuery(buf);
 		}

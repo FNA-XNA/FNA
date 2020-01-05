@@ -218,8 +218,7 @@ namespace Microsoft.Xna.Framework
 				// Let's find out if the OS supports Metal...
 				try
 				{
-					IntPtr device = MetalDevice.MTLCreateSystemDefaultDevice();
-					if (device != IntPtr.Zero)
+					if (MetalDevice.MTLCreateSystemDefaultDevice() != IntPtr.Zero)
 					{
 						// We're good to go!
 						return true;
@@ -233,18 +232,13 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (OSVersion.Equals("iOS") || OSVersion.Equals("tvOS"))
 			{
-				/* We only support iOS/tvOS 11.0+ so Metal is guaranteed
-				 * to be supported. However, older GPUs (A7 and A8) don't
-				 * have all the features we need. If the device is too
-				 * old, let's just fall back to OpenGL.
-				 * -caleb
+				/* We only support iOS/tvOS 11.0+ so
+				 * Metal is guaranteed to be supported.
 				 */
-				return MetalDevice.HasModernAppleGPU(
-					MetalDevice.MTLCreateSystemDefaultDevice()
-				);
+				return true;
 			}
 
-			// No Metal support. :(
+			// Oh well, to OpenGL we go!
 			return false;
 		}
 
