@@ -29,10 +29,10 @@ namespace Microsoft.Xna.Framework.Graphics
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct StateHash : IEquatable<StateHash>
 	{
-		readonly ulong a;
-		readonly ulong b;
+		readonly long a;
+		readonly long b;
 
-		public StateHash(ulong a, ulong b)
+		public StateHash(long a, long b)
 		{
 			this.a = a;
 			this.b = b;
@@ -40,8 +40,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public override string ToString()
 		{
-			return	Convert.ToString((long) a, 2).PadLeft(64, '0') +
-				Convert.ToString((long) b, 2).PadLeft(64, '0');
+			return	Convert.ToString(a, 2).PadLeft(64, '0') + "|" +
+				Convert.ToString(b, 2).PadLeft(64, '0');
 		}
 
 		bool IEquatable<StateHash>.Equals(StateHash hash)
@@ -141,11 +141,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) channels1	<< (32 - 24))
 				| ((int) channels2	<< (32 - 28))
 				| ((int) channels3);
-			uint mask = (uint) multisampleMask;
 
 			return new StateHash(
-				(ulong) blendsAndColorWriteChannels | (ulong) (funcs << 32),
-				(ulong) blendFactor.PackedValue | (ulong) (mask << 32)
+				((long) funcs << 32) | ((long) blendsAndColorWriteChannels << 0),
+				((long) multisampleMask << 32) | ((long) blendFactor.PackedValue << 0)
 			);
 		}
 
@@ -303,23 +302,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			int twoSided = twoSidedStencil ? 1 : 0;
 
 			int packedProperties =
-				  ((int) zEnable		<< 32 - 2)
-				| ((int) zWriteEnable		<< 32 - 3)
-				| ((int) sEnable		<< 32 - 4)
-				| ((int) twoSided		<< 32 - 5)
-				| ((int) depthFunc		<< 32 - 8)
-				| ((int) stencilFunc		<< 32 - 11)
-				| ((int) ccwStencilFunc		<< 32 - 14)
-				| ((int) stencilPass		<< 32 - 17)
-				| ((int) stencilFail		<< 32 - 20)
-				| ((int) stencilDepthFail	<< 32 - 23)
-				| ((int) ccwStencilFail		<< 32 - 26)
-				| ((int) ccwStencilPass		<< 32 - 29)
+				  ((int) zEnable		<< 30)
+				| ((int) zWriteEnable		<< 29)
+				| ((int) sEnable		<< 28)
+				| ((int) twoSided		<< 27)
+				| ((int) depthFunc		<< 24)
+				| ((int) stencilFunc		<< 31)
+				| ((int) ccwStencilFunc		<< 18)
+				| ((int) stencilPass		<< 15)
+				| ((int) stencilFail		<< 12)
+				| ((int) stencilDepthFail	<< 9)
+				| ((int) ccwStencilFail		<< 6)
+				| ((int) ccwStencilPass		<< 3)
 				| ((int) ccwStencilDepthFail);
 
 			return new StateHash(
-				(ulong) packedProperties | (ulong) (stencilMask << 32),
-				(ulong) stencilWriteMask | (ulong) (referenceStencil << 32)
+				((long) stencilMask << 32) | ((long) packedProperties << 0),
+				((long) referenceStencil << 32) | ((long) stencilWriteMask << 0)
 			);
 		}
 
@@ -473,8 +472,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) fillMode);
 
 			return new StateHash(
-				(ulong) packedProperties,
-				FloatToUInt64(depthBias) | (FloatToUInt64(slopeScaleDepthBias) << 32)
+				(long) packedProperties,
+				(FloatToLong(slopeScaleDepthBias) << 32) | FloatToLong(depthBias)
 			);
 		}
 
@@ -579,17 +578,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			float mipLODBias,
 			TextureFilter filter
 		) {
-			uint filterAndAddresses =
-				  ((uint) filter	<< 6)
-				| ((uint) addressU	<< 4)
-				| ((uint) addressV	<< 2)
-				| ((uint) addressW);
-			uint maxAnis = (uint) maxAnisotropy;
-			uint maxMip = (uint) maxMipLevel;
+			int filterAndAddresses =
+				  ((int) filter		<< 6)
+				| ((int) addressU	<< 4)
+				| ((int) addressV	<< 2)
+				| ((int) addressW);
 
 			return new StateHash(
-				(ulong) filterAndAddresses | ((ulong) maxAnis << 32),
-				(ulong) maxMip | (FloatToUInt64(mipLODBias) << 32)
+				((long) maxAnisotropy << 32) | ((long) filterAndAddresses << 0),
+				(FloatToLong(mipLODBias) << 32) | ((long) maxMipLevel << 0)
 			);
 		}
 
@@ -672,9 +669,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Helper Methods
 
-		private static unsafe ulong FloatToUInt64(float f)
+		private static unsafe long FloatToLong(float f)
 		{
-			return *((ulong *) &f);
+			int intRep = *((int *) &f);
+			return (long) intRep;
 		}
 
 		#endregion
