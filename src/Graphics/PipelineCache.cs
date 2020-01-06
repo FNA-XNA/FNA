@@ -133,13 +133,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			int funcs = ((int) alphaBlendFunc << 4) | ((int) colorBlendFunc);
 			int blendsAndColorWriteChannels =
-				  ((int) alphaDestBlend	<< (32 - 4))
-				| ((int) alphaSrcBlend	<< (32 - 8))
-				| ((int) colorDestBlend	<< (32 - 12))
-				| ((int) colorSrcBlend	<< (32 - 16))
-				| ((int) channels	<< (32 - 20))
-				| ((int) channels1	<< (32 - 24))
-				| ((int) channels2	<< (32 - 28))
+				  ((int) alphaDestBlend	<< 28)
+				| ((int) alphaSrcBlend	<< 24)
+				| ((int) colorDestBlend	<< 20)
+				| ((int) colorSrcBlend	<< 16)
+				| ((int) channels	<< 12)
+				| ((int) channels1	<< 8)
+				| ((int) channels2	<< 4)
 				| ((int) channels3);
 
 			return new StateHash(
