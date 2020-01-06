@@ -26,33 +26,27 @@ namespace Microsoft.Xna.Framework.Graphics
 {
 	#region Internal PSO Hash Struct
 
-	[StructLayout(LayoutKind.Sequential, Pack = 4, Size = 128)]
+	[StructLayout(LayoutKind.Sequential)]
 	internal struct StateHash : IEquatable<StateHash>
 	{
-		readonly int i1;
-		readonly int i2;
-		readonly int i3;
-		readonly int i4;
+		readonly ulong a;
+		readonly ulong b;
 
-		public StateHash(int i1, int i2, int i3, int i4)
+		public StateHash(ulong a, ulong b)
 		{
-			this.i1 = i1;
-			this.i2 = i2;
-			this.i3 = i3;
-			this.i4 = i4;
+			this.a = a;
+			this.b = b;
 		}
 
 		public override string ToString()
 		{
-			return	Convert.ToString(i1, 2).PadLeft(32, '0') +
-				Convert.ToString(i2, 2).PadLeft(32, '0') +
-				Convert.ToString(i3, 2).PadLeft(32, '0') +
-				Convert.ToString(i4, 2).PadLeft(32, '0');
+			return	Convert.ToString((long) a, 2).PadLeft(64, '0') +
+				Convert.ToString((long) b, 2).PadLeft(64, '0');
 		}
 
 		bool IEquatable<StateHash>.Equals(StateHash hash)
 		{
-			return i1 == hash.i1 && i2 == hash.i2 && i3 == hash.i3 && i4 == hash.i4;
+			return a == hash.a && b == hash.b;
 		}
 
 		public override bool Equals(object obj)
@@ -63,12 +57,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			StateHash hash = (StateHash) obj;
-			return i1 == hash.i1 && i2 == hash.i2 && i3 == hash.i3 && i4 == hash.i4;
+			return a == hash.a && b == hash.b;
 		}
 
 		public override int GetHashCode()
 		{
-			return unchecked(i1 + i2 + i3 + i4);
+			int i1 = (int) (a ^ (a >> 32));
+			int i2 = (int) (b ^ (b >> 32));
+			return i1 + i2;
 		}
 	}
 
@@ -145,12 +141,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) channels1	<< (32 - 24))
 				| ((int) channels2	<< (32 - 28))
 				| ((int) channels3);
+			uint mask = (uint) multisampleMask;
 
 			return new StateHash(
-				funcs,
-				blendsAndColorWriteChannels,
-				(int) blendFactor.PackedValue,
-				multisampleMask
+				(ulong) blendsAndColorWriteChannels | (ulong) (funcs << 32),
+				(ulong) blendFactor.PackedValue | (ulong) (mask << 32)
 			);
 		}
 
@@ -323,10 +318,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) ccwStencilDepthFail);
 
 			return new StateHash(
-				packedProperties,
-				stencilMask,
-				stencilWriteMask,
-				referenceStencil
+				(ulong) packedProperties | (ulong) (stencilMask << 32),
+				(ulong) stencilWriteMask | (ulong) (referenceStencil << 32)
 			);
 		}
 
@@ -480,10 +473,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) fillMode);
 
 			return new StateHash(
-				0,
-				packedProperties,
-				FloatToInt32(depthBias),
-				FloatToInt32(slopeScaleDepthBias)
+				(ulong) packedProperties,
+				FloatToUInt64(depthBias) | (FloatToUInt64(slopeScaleDepthBias) << 32)
 			);
 		}
 
@@ -588,17 +579,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			float mipLODBias,
 			TextureFilter filter
 		) {
-			int filterAndAddresses =
-				  ((int) filter		<< 6)
-				| ((int) addressU	<< 4)
-				| ((int) addressV	<< 2)
-				| ((int) addressW);
+			uint filterAndAddresses =
+				  ((uint) filter	<< 6)
+				| ((uint) addressU	<< 4)
+				| ((uint) addressV	<< 2)
+				| ((uint) addressW);
+			uint maxAnis = (uint) maxAnisotropy;
+			uint maxMip = (uint) maxMipLevel;
 
 			return new StateHash(
-				filterAndAddresses,
-				maxAnisotropy,
-				maxMipLevel,
-				FloatToInt32(mipLODBias)
+				(ulong) filterAndAddresses | ((ulong) maxAnis << 32),
+				(ulong) maxMip | (FloatToUInt64(mipLODBias) << 32)
 			);
 		}
 
@@ -681,9 +672,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Helper Methods
 
-		private static unsafe int FloatToInt32(float f)
+		private static unsafe ulong FloatToUInt64(float f)
 		{
-			return *((int *) &f);
+			return *((ulong *) &f);
 		}
 
 		#endregion
