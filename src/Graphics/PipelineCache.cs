@@ -307,7 +307,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) sEnable		<< 28)
 				| ((int) twoSided		<< 27)
 				| ((int) depthFunc		<< 24)
-				| ((int) stencilFunc		<< 31)
+				| ((int) stencilFunc		<< 21)
 				| ((int) ccwStencilFunc		<< 18)
 				| ((int) stencilPass		<< 15)
 				| ((int) stencilFail		<< 12)
