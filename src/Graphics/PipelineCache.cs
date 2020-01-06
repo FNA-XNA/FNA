@@ -29,10 +29,10 @@ namespace Microsoft.Xna.Framework.Graphics
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct StateHash : IEquatable<StateHash>
 	{
-		readonly long a;
-		readonly long b;
+		readonly ulong a;
+		readonly ulong b;
 
-		public StateHash(long a, long b)
+		public StateHash(ulong a, ulong b)
 		{
 			this.a = a;
 			this.b = b;
@@ -40,8 +40,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public override string ToString()
 		{
-			return	Convert.ToString(a, 2).PadLeft(64, '0') + "|" +
-				Convert.ToString(b, 2).PadLeft(64, '0');
+			return	Convert.ToString((long) a, 2).PadLeft(64, '0') + "|" +
+				Convert.ToString((long) b, 2).PadLeft(64, '0');
 		}
 
 		bool IEquatable<StateHash>.Equals(StateHash hash)
@@ -62,9 +62,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public override int GetHashCode()
 		{
-			int i1 = (int) (a ^ (a >> 32));
-			int i2 = (int) (b ^ (b >> 32));
-			return i1 + i2;
+			unchecked
+			{
+				int i1 = (int) (a ^ (a >> 32));
+				int i2 = (int) (b ^ (b >> 32));
+				return i1 + i2;
+			}
 		}
 	}
 
@@ -142,10 +145,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) channels2	<< 4)
 				| ((int) channels3);
 
-			return new StateHash(
-				((long) funcs << 32) | ((long) blendsAndColorWriteChannels << 0),
-				((long) multisampleMask << 32) | ((long) blendFactor.PackedValue << 0)
-			);
+			unchecked
+			{
+				return new StateHash(
+					((ulong) funcs << 32) | ((ulong) blendsAndColorWriteChannels << 0),
+					((ulong) multisampleMask << 32) | ((ulong) blendFactor.PackedValue << 0)
+				);
+			}
 		}
 
 		/* Public Functions */
@@ -316,10 +322,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) ccwStencilPass		<< 3)
 				| ((int) ccwStencilDepthFail);
 
-			return new StateHash(
-				((long) stencilMask << 32) | ((long) packedProperties << 0),
-				((long) referenceStencil << 32) | ((long) stencilWriteMask << 0)
-			);
+			unchecked
+			{
+				return new StateHash(
+					((ulong) stencilMask << 32) | ((ulong) packedProperties << 0),
+					((ulong) referenceStencil << 32) | ((ulong) stencilWriteMask << 0)
+				);
+			}
 		}
 
 		/* Public Functions */
@@ -471,10 +480,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) cullMode		<< 1)
 				| ((int) fillMode);
 
-			return new StateHash(
-				(long) packedProperties,
-				(FloatToLong(slopeScaleDepthBias) << 32) | FloatToLong(depthBias)
-			);
+			unchecked
+			{
+				return new StateHash(
+					(ulong) packedProperties,
+					(FloatToULong(slopeScaleDepthBias) << 32) | FloatToULong(depthBias)
+				);
+			}
 		}
 
 		/* Public Functions */
@@ -584,10 +596,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) addressV	<< 2)
 				| ((int) addressW);
 
-			return new StateHash(
-				((long) maxAnisotropy << 32) | ((long) filterAndAddresses << 0),
-				(FloatToLong(mipLODBias) << 32) | ((long) maxMipLevel << 0)
-			);
+			unchecked
+			{
+				return new StateHash(
+					((ulong) maxAnisotropy << 32) | ((ulong) filterAndAddresses << 0),
+					(FloatToULong(mipLODBias) << 32) | ((ulong) maxMipLevel << 0)
+				);
+			}
 		}
 
 		/* Public Functions */
@@ -669,10 +684,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Helper Methods
 
-		private static unsafe long FloatToLong(float f)
+		private static unsafe ulong FloatToULong(float f)
 		{
-			int intRep = *((int *) &f);
-			return (long) intRep;
+			uint uintRep = *((uint *) &f);
+			return unchecked((ulong) uintRep);
 		}
 
 		#endregion
