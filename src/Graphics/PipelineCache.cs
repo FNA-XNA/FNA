@@ -17,63 +17,11 @@
 #endregion
 
 #region Using Statements
-using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
 {
-	#region Internal PSO Hash Struct
-
-	[StructLayout(LayoutKind.Sequential, Pack = 4, Size = 128)]
-	internal struct StateHash : IEquatable<StateHash>
-	{
-		readonly int i1;
-		readonly int i2;
-		readonly int i3;
-		readonly int i4;
-
-		public StateHash(int i1, int i2, int i3, int i4)
-		{
-			this.i1 = i1;
-			this.i2 = i2;
-			this.i3 = i3;
-			this.i4 = i4;
-		}
-
-		public override string ToString()
-		{
-			return	Convert.ToString(i1, 2).PadLeft(32, '0') +
-				Convert.ToString(i2, 2).PadLeft(32, '0') +
-				Convert.ToString(i3, 2).PadLeft(32, '0') +
-				Convert.ToString(i4, 2).PadLeft(32, '0');
-		}
-
-		bool IEquatable<StateHash>.Equals(StateHash hash)
-		{
-			return i1 == hash.i1 && i2 == hash.i2 && i3 == hash.i3 && i4 == hash.i4;
-		}
-
-		public override bool Equals(object obj)
-		{
-			if (obj == null || obj.GetType() != GetType())
-			{
-				return false;
-			}
-
-			StateHash hash = (StateHash) obj;
-			return i1 == hash.i1 && i2 == hash.i2 && i3 == hash.i3 && i4 == hash.i4;
-		}
-
-		public override int GetHashCode()
-		{
-			return unchecked(i1 + i2 + i3 + i4);
-		}
-	}
-
-	#endregion
-
 	internal class PipelineCache
 	{
 		#region Private Variables
@@ -88,6 +36,21 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			device = graphicsDevice;
 		}
+
+		#endregion
+
+		#region Public Hashing Constants
+
+		/* The hashing algorithm in this class
+		 * is based on an implementation from
+		 * Josh Bloch's "Effective Java".
+		 * (https://stackoverflow.com/a/113600)
+		 *
+		 * -caleb
+		 */
+
+		public const uint HASH_START = 17;
+		public const uint HASH_FACTOR = 37;
 
 		#endregion
 
@@ -116,12 +79,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* Private Cache Storage */
 
-		private Dictionary<StateHash, BlendState> blendCache =
-			new Dictionary<StateHash, BlendState>();
+		private Dictionary<uint, BlendState> blendCache =
+			new Dictionary<uint, BlendState>();
 
 		/* Private Hashing Functions */
 
-		private static StateHash GetBlendHash(
+		private static uint GetBlendHash(
 			BlendFunction alphaBlendFunc,
 			Blend alphaDestBlend,
 			Blend alphaSrcBlend,
@@ -135,28 +98,25 @@ namespace Microsoft.Xna.Framework.Graphics
 			Color blendFactor,
 			int multisampleMask
 		) {
-			int funcs = ((int) alphaBlendFunc << 4) | ((int) colorBlendFunc);
-			int blendsAndColorWriteChannels =
-				  ((int) alphaDestBlend	<< (32 - 4))
-				| ((int) alphaSrcBlend	<< (32 - 8))
-				| ((int) colorDestBlend	<< (32 - 12))
-				| ((int) colorSrcBlend	<< (32 - 16))
-				| ((int) channels	<< (32 - 20))
-				| ((int) channels1	<< (32 - 24))
-				| ((int) channels2	<< (32 - 28))
-				| ((int) channels3);
-
-			return new StateHash(
-				funcs,
-				blendsAndColorWriteChannels,
-				(int) blendFactor.PackedValue,
-				multisampleMask
-			);
+			uint hash = HASH_START;
+			hash = hash * HASH_FACTOR + (uint) alphaBlendFunc;
+			hash = hash * HASH_FACTOR + (uint) alphaDestBlend;
+			hash = hash * HASH_FACTOR + (uint) alphaSrcBlend;
+			hash = hash * HASH_FACTOR + (uint) colorBlendFunc;
+			hash = hash * HASH_FACTOR + (uint) colorSrcBlend;
+			hash = hash * HASH_FACTOR + (uint) colorDestBlend;
+			hash = hash * HASH_FACTOR + (uint) channels;
+			hash = hash * HASH_FACTOR + (uint) channels1;
+			hash = hash * HASH_FACTOR + (uint) channels2;
+			hash = hash * HASH_FACTOR + (uint) channels3;
+			hash = hash * HASH_FACTOR + (uint) blendFactor.GetHashCode();
+			hash = hash * HASH_FACTOR + (uint) multisampleMask;
+			return hash;
 		}
 
 		/* Public Functions */
 
-		public static StateHash GetBlendHash(BlendState state)
+		public static uint GetBlendHash(BlendState state)
 		{
 			return GetBlendHash(
 				state.AlphaBlendFunction,
@@ -198,7 +158,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplyBlend()
 		{
-			StateHash hash = GetBlendHash(
+			uint hash = GetBlendHash(
 				AlphaBlendFunction,
 				AlphaDestinationBlend,
 				AlphaSourceBlend,
@@ -278,12 +238,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* Private Cache Storage */
 
-		private Dictionary<StateHash, DepthStencilState> depthStencilCache =
-			new Dictionary<StateHash, DepthStencilState>();
+		private Dictionary<uint, DepthStencilState> depthStencilCache =
+			new Dictionary<uint, DepthStencilState>();
 
 		/* Private Hashing Functions */
 
-		private static StateHash GetDepthStencilHash(
+		private static uint GetDepthStencilHash(
 			bool depthBufferEnable,
 			bool depthWriteEnable,
 			CompareFunction depthFunc,
@@ -301,38 +261,29 @@ namespace Microsoft.Xna.Framework.Graphics
 			int stencilWriteMask,
 			int referenceStencil
 		) {
-			// Bool -> Int32 conversion
-			int zEnable = depthBufferEnable ? 1 : 0;
-			int zWriteEnable = depthWriteEnable ? 1 : 0;
-			int sEnable = stencilEnable ? 1 : 0;
-			int twoSided = twoSidedStencil ? 1 : 0;
-
-			int packedProperties =
-				  ((int) zEnable		<< 32 - 2)
-				| ((int) zWriteEnable		<< 32 - 3)
-				| ((int) sEnable		<< 32 - 4)
-				| ((int) twoSided		<< 32 - 5)
-				| ((int) depthFunc		<< 32 - 8)
-				| ((int) stencilFunc		<< 32 - 11)
-				| ((int) ccwStencilFunc		<< 32 - 14)
-				| ((int) stencilPass		<< 32 - 17)
-				| ((int) stencilFail		<< 32 - 20)
-				| ((int) stencilDepthFail	<< 32 - 23)
-				| ((int) ccwStencilFail		<< 32 - 26)
-				| ((int) ccwStencilPass		<< 32 - 29)
-				| ((int) ccwStencilDepthFail);
-
-			return new StateHash(
-				packedProperties,
-				stencilMask,
-				stencilWriteMask,
-				referenceStencil
-			);
+			uint hash = HASH_START;
+			hash = hash * HASH_FACTOR + (uint) (depthBufferEnable ? 1 : 0);
+			hash = hash * HASH_FACTOR + (uint) (depthWriteEnable ? 1 : 0);
+			hash = hash * HASH_FACTOR + (uint) depthFunc;
+			hash = hash * HASH_FACTOR + (uint) (stencilEnable ? 1 : 0);
+			hash = hash * HASH_FACTOR + (uint) stencilFunc;
+			hash = hash * HASH_FACTOR + (uint) stencilPass;
+			hash = hash * HASH_FACTOR + (uint) stencilFail;
+			hash = hash * HASH_FACTOR + (uint) stencilDepthFail;
+			hash = hash * HASH_FACTOR + (uint) (twoSidedStencil ? 1 : 0);
+			hash = hash * HASH_FACTOR + (uint) ccwStencilFunc;
+			hash = hash * HASH_FACTOR + (uint) ccwStencilPass;
+			hash = hash * HASH_FACTOR + (uint) ccwStencilFail;
+			hash = hash * HASH_FACTOR + (uint) ccwStencilDepthFail;
+			hash = hash * HASH_FACTOR + (uint) stencilMask;
+			hash = hash * HASH_FACTOR + (uint) stencilWriteMask;
+			hash = hash * HASH_FACTOR + (uint) referenceStencil;
+			return hash;
 		}
 
 		/* Public Functions */
 
-		public static StateHash GetDepthStencilHash(DepthStencilState state)
+		public static uint GetDepthStencilHash(DepthStencilState state)
 		{
 			return GetDepthStencilHash(
 				state.DepthBufferEnable,
@@ -378,7 +329,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplyDepthStencil()
 		{
-			StateHash hash = GetDepthStencilHash(
+			uint hash = GetDepthStencilHash(
 				DepthBufferEnable,
 				DepthBufferWriteEnable,
 				DepthBufferFunction,
@@ -456,12 +407,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* Private Cache Storage */
 
-		private Dictionary<StateHash, RasterizerState> rasterizerCache =
-			new Dictionary<StateHash, RasterizerState>();
+		private Dictionary<uint, RasterizerState> rasterizerCache =
+			new Dictionary<uint, RasterizerState>();
 
 		/* Private Hashing Functions */
 
-		private static StateHash GetRasterizerHash(
+		private static uint GetRasterizerHash(
 			CullMode cullMode,
 			FillMode fillMode,
 			float depthBias,
@@ -469,27 +420,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			bool scissor,
 			float slopeScaleDepthBias
 		) {
-			// Bool -> Int32 conversion
-			int multiSampleAntiAlias = (msaa ? 1 : 0);
-			int scissorTestEnable = (scissor ? 1 : 0);
-
-			int packedProperties =
-				  ((int) multiSampleAntiAlias	<< 4)
-				| ((int) scissorTestEnable	<< 3)
-				| ((int) cullMode		<< 1)
-				| ((int) fillMode);
-
-			return new StateHash(
-				0,
-				packedProperties,
-				FloatToInt32(depthBias),
-				FloatToInt32(slopeScaleDepthBias)
-			);
+			uint hash = HASH_START;
+			hash = hash * HASH_FACTOR + (uint) cullMode;
+			hash = hash * HASH_FACTOR + (uint) fillMode;
+			hash = hash * HASH_FACTOR + FloatToUInt(depthBias);
+			hash = hash * HASH_FACTOR + (uint) (msaa ? 1 : 0);
+			hash = hash * HASH_FACTOR + (uint) (scissor ? 1 : 0);
+			hash = hash * HASH_FACTOR + FloatToUInt(slopeScaleDepthBias);
+			return hash;
 		}
 
 		/* Public Functions */
 
-		public static StateHash GetRasterizerHash(RasterizerState state)
+		public static uint GetRasterizerHash(RasterizerState state)
 		{
 			return GetRasterizerHash(
 				state.CullMode,
@@ -515,7 +458,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplyRasterizer()
 		{
-			StateHash hash = GetRasterizerHash(
+			uint hash = GetRasterizerHash(
 				CullMode,
 				FillMode,
 				DepthBias,
@@ -574,12 +517,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* Private Cache Storage */
 
-		private Dictionary<StateHash, SamplerState> samplerCache =
-			new Dictionary<StateHash, SamplerState>();
+		private Dictionary<uint, SamplerState> samplerCache =
+			new Dictionary<uint, SamplerState>();
 
 		/* Private Hashing Functions */
 
-		private static StateHash GetSamplerHash(
+		private static uint GetSamplerHash(
 			TextureAddressMode addressU,
 			TextureAddressMode addressV,
 			TextureAddressMode addressW,
@@ -588,23 +531,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			float mipLODBias,
 			TextureFilter filter
 		) {
-			int filterAndAddresses =
-				  ((int) filter		<< 6)
-				| ((int) addressU	<< 4)
-				| ((int) addressV	<< 2)
-				| ((int) addressW);
-
-			return new StateHash(
-				filterAndAddresses,
-				maxAnisotropy,
-				maxMipLevel,
-				FloatToInt32(mipLODBias)
-			);
+			uint hash = HASH_START;
+			hash = hash * HASH_FACTOR + (uint) addressU;
+			hash = hash * HASH_FACTOR + (uint) addressV;
+			hash = hash * HASH_FACTOR + (uint) addressW;
+			hash = hash * HASH_FACTOR + (uint) maxAnisotropy;
+			hash = hash * HASH_FACTOR + (uint) maxMipLevel;
+			hash = hash * HASH_FACTOR + FloatToUInt(mipLODBias);
+			hash = hash * HASH_FACTOR + (uint) filter;
+			return hash;
 		}
 
 		/* Public Functions */
 
-		public static StateHash GetSamplerHash(SamplerState state)
+		public static uint GetSamplerHash(SamplerState state)
 		{
 			return GetSamplerHash(
 				state.AddressU,
@@ -632,7 +572,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void EndApplySampler(SamplerStateCollection samplers, int register)
 		{
-			StateHash hash = GetSamplerHash(
+			uint hash = GetSamplerHash(
 				AddressU,
 				AddressV,
 				AddressW,
@@ -681,9 +621,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Helper Methods
 
-		private static unsafe int FloatToInt32(float f)
+		private static unsafe uint FloatToUInt(float f)
 		{
-			return *((int *) &f);
+			return *((uint *) &f);
 		}
 
 		#endregion
