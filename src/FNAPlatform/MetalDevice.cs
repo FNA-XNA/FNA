@@ -542,10 +542,27 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Frame Tracking Variables
 
+		/* FIXME:
+		 * In theory, double- or even triple-buffering could
+		 * significantly help performance by reducing CPU idle
+		 * time. The trade-off is that buffer synchronization
+		 * becomes much more complicated and error-prone.
+		 *
+		 * I've attempted a few implementations of multi-
+		 * buffering, but they all had serious issues and
+		 * typically performed worse than single buffering.
+		 *
+		 * I'm leaving these variables here in case any brave
+		 * souls want to attempt a multi-buffer implementation.
+		 * This could be a huge win for performance, but it'll
+		 * take someone smarter than me to figure this out. ;)
+		 *
+		 * -caleb
+		 */
 		private const int MAX_FRAMES_IN_FLIGHT = 1;
+		private Queue<IntPtr> committedCommandBuffers = new Queue<IntPtr>();
 
 		private bool frameInProgress = false;
-		private Queue<IntPtr> committedCommandBuffers = new Queue<IntPtr>();
 
 		#endregion
 
