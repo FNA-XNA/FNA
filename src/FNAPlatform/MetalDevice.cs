@@ -622,32 +622,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Private Hashing Utilities
-
-		private const int HASH_START = 17;
-		private const int HASH_FACTOR = 39;
-
-		private uint HashIntPtr(IntPtr ptr)
-		{
-			long l = (long) ptr;
-			return (uint) l ^ (uint) (l >> 32);
-		}
-
-		#endregion
-
 		#region Private State Object Caches
 
-		private Dictionary<uint, IntPtr> VertexDescriptorCache =
-			new Dictionary<uint, IntPtr>();
+		private Dictionary<ulong, IntPtr> VertexDescriptorCache =
+			new Dictionary<ulong, IntPtr>();
 
-		private Dictionary<uint, IntPtr> PipelineStateCache =
-			new Dictionary<uint, IntPtr>();
+		private Dictionary<ulong, IntPtr> PipelineStateCache =
+			new Dictionary<ulong, IntPtr>();
 
-		private Dictionary<uint, IntPtr> DepthStencilStateCache =
-			new Dictionary<uint, IntPtr>();
+		private Dictionary<StateHash, IntPtr> DepthStencilStateCache =
+			new Dictionary<StateHash, IntPtr>();
 
-		private Dictionary<uint, IntPtr> SamplerStateCache =
-			new Dictionary<uint, IntPtr>();
+		private Dictionary<StateHash, IntPtr> SamplerStateCache =
+			new Dictionary<StateHash, IntPtr>();
 
 		private List<MetalTexture> transientTextures =
 			new List<MetalTexture>();
@@ -1872,36 +1859,29 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region State Creation/Retrieval Methods
 
-		private uint GetRenderPipelineHash()
+		private ulong GetRenderPipelineHash()
 		{
-			uint hash = HASH_START;
-			hash = hash * HASH_FACTOR + HashIntPtr(shaderState.vertexShader);
-			hash = hash * HASH_FACTOR + HashIntPtr(shaderState.fragmentShader);
-			hash = hash * HASH_FACTOR + HashIntPtr(currentVertexDescriptor);
-			hash = hash * HASH_FACTOR + (uint) currentColorFormats[0];
-			hash = hash * HASH_FACTOR + (uint) currentColorFormats[1];
-			hash = hash * HASH_FACTOR + (uint) currentColorFormats[2];
-			hash = hash * HASH_FACTOR + (uint) currentColorFormats[3];
-			hash = hash * HASH_FACTOR + (uint) currentDepthFormat;
-			hash = hash * HASH_FACTOR + (uint) currentSampleCount;
-			/* Non-dynamic blend state */
-			hash = hash * HASH_FACTOR + (uint) blendState.AlphaBlendFunction;
-			hash = hash * HASH_FACTOR + (uint) blendState.AlphaDestinationBlend;
-			hash = hash * HASH_FACTOR + (uint) blendState.AlphaSourceBlend;
-			hash = hash * HASH_FACTOR + (uint) blendState.ColorBlendFunction;
-			hash = hash * HASH_FACTOR + (uint) blendState.ColorDestinationBlend;
-			hash = hash * HASH_FACTOR + (uint) blendState.ColorSourceBlend;
-			hash = hash * HASH_FACTOR + (uint) blendState.ColorWriteChannels;
-			hash = hash * HASH_FACTOR + (uint) blendState.ColorWriteChannels1;
-			hash = hash * HASH_FACTOR + (uint) blendState.ColorWriteChannels2;
-			hash = hash * HASH_FACTOR + (uint) blendState.ColorWriteChannels3;
+			// FIXME: Could this be extracted to PipelineCache? -caleb
+			ulong hash = PipelineCache.HASH_START;
+			hash = hash * PipelineCache.HASH_FACTOR + (ulong) shaderState.vertexShader;
+			hash = hash * PipelineCache.HASH_FACTOR + (ulong) shaderState.fragmentShader;
+			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentVertexDescriptor;
+			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentColorFormats[0];
+			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentColorFormats[1];
+			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentColorFormats[2];
+			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentColorFormats[3];
+			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentDepthFormat;
+			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentSampleCount;
+			hash = hash * PipelineCache.HASH_FACTOR + (
+				(ulong) PipelineCache.GetBlendHash(blendState).GetHashCode()
+			);
 			return hash;
 		}
 
 		private IntPtr FetchRenderPipeline()
 		{
 			// Can we just reuse an existing pipeline?
-			uint hash = GetRenderPipelineHash();
+			ulong hash = GetRenderPipelineHash();
 			IntPtr pipeline = IntPtr.Zero;
 			if (PipelineStateCache.TryGetValue(hash, out pipeline))
 			{
@@ -2063,27 +2043,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			return pipelineState;
 		}
 
-		private uint GetDepthStencilHash(DepthStencilState state)
-		{
-			uint hash = HASH_START;
-			hash = hash * HASH_FACTOR + (uint) state.CounterClockwiseStencilDepthBufferFail;
-			hash = hash * HASH_FACTOR + (uint) state.CounterClockwiseStencilFail;
-			hash = hash * HASH_FACTOR + (uint) state.CounterClockwiseStencilFunction;
-			hash = hash * HASH_FACTOR + (uint) state.CounterClockwiseStencilPass;
-			hash = hash * HASH_FACTOR + (uint) (state.DepthBufferEnable ? 1 : 0);
-			hash = hash * HASH_FACTOR + (uint) state.DepthBufferFunction;
-			hash = hash * HASH_FACTOR + (uint) (state.DepthBufferWriteEnable ? 1 : 0);
-			hash = hash * HASH_FACTOR + (uint) state.StencilDepthBufferFail;
-			hash = hash * HASH_FACTOR + (uint) (state.StencilEnable ? 1 : 0);
-			hash = hash * HASH_FACTOR + (uint) state.StencilFail;
-			hash = hash * HASH_FACTOR + (uint) state.StencilFunction;
-			hash = hash * HASH_FACTOR + (uint) state.StencilMask;
-			hash = hash * HASH_FACTOR + (uint) state.StencilPass;
-			hash = hash * HASH_FACTOR + (uint) state.StencilWriteMask;
-			hash = hash * HASH_FACTOR + (uint) (state.TwoSidedStencilMode ? 1 : 0);
-			return hash;
-		}
-
 		private IntPtr FetchDepthStencilState()
 		{
 			/* Just use the default depth-stencil state
@@ -2101,7 +2060,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Can we just reuse an existing state?
-			uint hash = GetDepthStencilHash(depthStencilState);
+			StateHash hash = PipelineCache.GetDepthStencilHash(depthStencilState);
 			IntPtr state = IntPtr.Zero;
 			if (DepthStencilStateCache.TryGetValue(hash, out state))
 			{
@@ -2213,23 +2172,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			return state;
 		}
 
-		private uint GetSamplerHash(SamplerState state)
-		{
-			uint hash = HASH_START;
-			hash = hash * HASH_FACTOR + (uint) state.AddressU;
-			hash = hash * HASH_FACTOR + (uint) state.AddressV;
-			hash = hash * HASH_FACTOR + (uint) state.AddressW;
-			hash = hash * HASH_FACTOR + (uint) state.Filter;
-			hash = hash * HASH_FACTOR + (uint) state.MaxAnisotropy;
-			hash = hash * HASH_FACTOR + (uint) state.MaxMipLevel;
-			hash = hash * HASH_FACTOR + (uint) state.MipMapLevelOfDetailBias;
-			return hash;
-		}
-
 		private IntPtr FetchSamplerState(SamplerState samplerState, bool hasMipmaps)
 		{
 			// Can we just reuse an existing state?
-			uint hash = GetSamplerHash(samplerState);
+			StateHash hash = PipelineCache.GetSamplerHash(samplerState);
 			IntPtr state = IntPtr.Zero;
 			if (SamplerStateCache.TryGetValue(hash, out state))
 			{
@@ -2306,37 +2252,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			return state;
 		}
 
-		private uint GetVertexDeclarationHash(VertexDeclaration declaration)
-		{
-			uint hash = HASH_START;
-			for (int i = 0; i < declaration.elements.Length; i += 1)
-			{
-				VertexElement e = declaration.elements[i];
-				hash = hash * HASH_FACTOR + (uint) e.UsageIndex;
-				hash = hash * HASH_FACTOR + (uint) e.VertexElementFormat;
-				hash = hash * HASH_FACTOR + (uint) e.VertexElementUsage;
-			}
-			hash = hash * HASH_FACTOR + (uint) declaration.VertexStride;
-			hash = hash * HASH_FACTOR + HashIntPtr(shaderState.vertexShader);
-			return hash;
-		}
-
 		private IntPtr FetchVertexDescriptor(
 			VertexBufferBinding[] bindings,
 			int numBindings
 		) {
-			// Get the binding hash value
-			uint hash = HASH_START;
-			for (uint i = 0; i < numBindings; i += 1)
-			{
-				VertexBufferBinding binding = bindings[i];
-				hash = hash * HASH_FACTOR + (uint) binding.InstanceFrequency;
-				hash = hash * HASH_FACTOR + GetVertexDeclarationHash(
-					binding.VertexBuffer.VertexDeclaration
-				);
-			}
-
 			// Can we just reuse an existing descriptor?
+			ulong hash = PipelineCache.GetVertexBindingHash(bindings, numBindings);
 			IntPtr descriptor;
 			if (VertexDescriptorCache.TryGetValue(hash, out descriptor))
 			{
@@ -2438,10 +2359,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			VertexDeclaration vertexDeclaration,
 			int vertexOffset
 		) {
-			// Get the binding hash value
-			uint hash = GetVertexDeclarationHash(vertexDeclaration);
-
 			// Can we just reuse an existing descriptor?
+			ulong hash = PipelineCache.GetVertexDeclarationHash(vertexDeclaration);
 			IntPtr descriptor;
 			if (VertexDescriptorCache.TryGetValue(hash, out descriptor))
 			{
