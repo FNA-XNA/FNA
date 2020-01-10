@@ -644,8 +644,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private Dictionary<ulong, IntPtr> VertexDescriptorCache =
 			new Dictionary<ulong, IntPtr>();
 
-		private Dictionary<ulong, IntPtr> PipelineStateCache =
-			new Dictionary<ulong, IntPtr>();
+		private Dictionary<PipelineHash, IntPtr> PipelineStateCache =
+			new Dictionary<PipelineHash, IntPtr>();
 
 		private Dictionary<StateHash, IntPtr> DepthStencilStateCache =
 			new Dictionary<StateHash, IntPtr>();
@@ -1876,29 +1876,142 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region State Creation/Retrieval Methods
 
-		private ulong GetRenderPipelineHash()
+		private struct PipelineHash : IEquatable<PipelineHash>
 		{
-			// FIXME: Could this be extracted to PipelineCache? -caleb
-			ulong hash = PipelineCache.HASH_START;
-			hash = hash * PipelineCache.HASH_FACTOR + (ulong) shaderState.vertexShader;
-			hash = hash * PipelineCache.HASH_FACTOR + (ulong) shaderState.fragmentShader;
-			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentVertexDescriptor;
-			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentColorFormats[0];
-			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentColorFormats[1];
-			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentColorFormats[2];
-			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentColorFormats[3];
-			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentDepthFormat;
-			hash = hash * PipelineCache.HASH_FACTOR + (ulong) currentSampleCount;
-			hash = hash * PipelineCache.HASH_FACTOR + (
-				(ulong) PipelineCache.GetBlendHash(blendState).GetHashCode()
-			);
-			return hash;
+			readonly ulong a;
+			readonly ulong b;
+			readonly ulong c;
+			readonly ulong d;
+
+			public PipelineHash(
+				ulong vertexShader,
+				ulong fragmentShader,
+				ulong vertexDescriptor,
+				MTLPixelFormat[] formats,
+				DepthFormat depthFormat,
+				int sampleCount,
+				BlendState blendState
+			) {
+				this.a = vertexShader;
+				this.b = fragmentShader;
+				this.c = vertexDescriptor;
+
+				unchecked
+				{
+					this.d = (
+						((ulong) blendState.GetHashCode() << 32) |
+						((ulong) sampleCount << 22) |
+						((ulong) depthFormat << 20) |
+						((ulong) HashFormat(formats[3]) << 15) |
+						((ulong) HashFormat(formats[2]) << 10) |
+						((ulong) HashFormat(formats[1]) << 5) |
+						((ulong) HashFormat(formats[0]))
+					);
+				}
+			}
+
+			private static uint HashFormat(MTLPixelFormat format)
+			{
+				switch (format)
+				{
+					case MTLPixelFormat.Invalid:
+						return 0;
+					case MTLPixelFormat.R16Float:
+						return 1;
+					case MTLPixelFormat.R32Float:
+						return 2;
+					case MTLPixelFormat.RG16Float:
+						return 3;
+					case MTLPixelFormat.RG16Snorm:
+						return 4;
+					case MTLPixelFormat.RG16Unorm:
+						return 5;
+					case MTLPixelFormat.RG32Float:
+						return 6;
+					case MTLPixelFormat.RG8Snorm:
+						return 7;
+					case MTLPixelFormat.RGB10A2Unorm:
+						return 8;
+					case MTLPixelFormat.RGBA16Float:
+						return 9;
+					case MTLPixelFormat.RGBA16Unorm:
+						return 10;
+					case MTLPixelFormat.RGBA32Float:
+						return 11;
+					case MTLPixelFormat.RGBA8Unorm:
+						return 12;
+					case MTLPixelFormat.A8Unorm:
+						return 13;
+					case MTLPixelFormat.ABGR4Unorm:
+						return 14;
+					case MTLPixelFormat.B5G6R5Unorm:
+						return 15;
+					case MTLPixelFormat.BC1_RGBA:
+						return 16;
+					case MTLPixelFormat.BC2_RGBA:
+						return 17;
+					case MTLPixelFormat.BC3_RGBA:
+						return 18;
+					case MTLPixelFormat.BGR5A1Unorm:
+						return 19;
+					case MTLPixelFormat.BGRA8Unorm:
+						return 20;
+				}
+
+				throw new NotSupportedException();
+			}
+
+			public override int GetHashCode()
+			{
+				unchecked
+				{
+					int i1 = (int) (a ^ (a >> 32));
+					int i2 = (int) (b ^ (b >> 32));
+					int i3 = (int) (c ^ (c >> 32));
+					int i4 = (int) (d ^ (d >> 32));
+					return i1 + i2 + i3 + i4;
+				}
+			}
+
+			public bool Equals(PipelineHash other)
+			{
+				return (
+					a == other.a &&
+					b == other.b &&
+					c == other.c &&
+					d == other.d
+				);
+			}
+
+			public override bool Equals(object obj)
+			{
+				if (obj == null || obj.GetType() != GetType())
+				{
+					return false;
+				}
+
+				PipelineHash hash = (PipelineHash) obj;
+				return (
+					a == hash.a &&
+					b == hash.b &&
+					c == hash.c &&
+					d == hash.d
+				);
+			}
 		}
 
 		private IntPtr FetchRenderPipeline()
 		{
 			// Can we just reuse an existing pipeline?
-			ulong hash = GetRenderPipelineHash();
+			PipelineHash hash = new PipelineHash(
+				(ulong) shaderState.vertexShader,
+				(ulong) shaderState.fragmentShader,
+				(ulong) currentVertexDescriptor,
+				currentColorFormats,
+				currentDepthFormat,
+				currentSampleCount,
+				blendState
+			);
 			IntPtr pipeline = IntPtr.Zero;
 			if (PipelineStateCache.TryGetValue(hash, out pipeline))
 			{
@@ -2274,7 +2387,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			int numBindings
 		) {
 			// Can we just reuse an existing descriptor?
-			ulong hash = PipelineCache.GetVertexBindingHash(bindings, numBindings);
+			ulong hash = PipelineCache.GetVertexBindingHash(
+				bindings,
+				numBindings,
+				(ulong) shaderState.vertexShader
+			);
 			IntPtr descriptor;
 			if (VertexDescriptorCache.TryGetValue(hash, out descriptor))
 			{
@@ -2377,7 +2494,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexOffset
 		) {
 			// Can we just reuse an existing descriptor?
-			ulong hash = PipelineCache.GetVertexDeclarationHash(vertexDeclaration);
+			ulong hash = PipelineCache.GetVertexDeclarationHash(
+				vertexDeclaration,
+				(ulong) shaderState.vertexShader
+			);
 			IntPtr descriptor;
 			if (VertexDescriptorCache.TryGetValue(hash, out descriptor))
 			{

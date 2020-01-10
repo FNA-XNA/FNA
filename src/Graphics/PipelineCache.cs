@@ -684,54 +684,53 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Vertex Declaration Hashing Methods
 
-		/* These hashing methods are intended for use with
-		 * MetalDevice and VulkanDevice. The general algorithm
+		/* The algorithm for these hashing methods
 		 * is taken from Josh Bloch's "Effective Java".
 		 * (https://stackoverflow.com/a/113600/12492383)
 		 *
-		 * FIXME: Is there a better way to hash these? This
-		 * method is fast but I worry about collisions...
-		 *
+		 * FIXME: Is there a better way to hash this?
 		 * -caleb
 		 */
 
-		public const ulong HASH_START = 17;
 		public const ulong HASH_FACTOR = 39;
 
-		public static ulong GetVertexDeclarationHash(VertexDeclaration declaration)
-		{
+		public static ulong GetVertexDeclarationHash(
+			VertexDeclaration declaration,
+			ulong vertexShader
+		) {
+			ulong hash = vertexShader;
 			unchecked
 			{
-				ulong hash = HASH_START;
 				for (int i = 0; i < declaration.elements.Length; i += 1)
 				{
-					VertexElement e = declaration.elements[i];
-					hash = hash * HASH_FACTOR + (ulong) e.UsageIndex;
-					hash = hash * HASH_FACTOR + (ulong) e.VertexElementFormat;
-					hash = hash * HASH_FACTOR + (ulong) e.VertexElementUsage;
+					hash = hash * HASH_FACTOR + (
+						(ulong) declaration.elements[i].GetHashCode()
+					);
 				}
 				hash = hash * HASH_FACTOR + (ulong) declaration.VertexStride;
-				return hash;
 			}
+			return hash;
 		}
 
 		public static ulong GetVertexBindingHash(
 			VertexBufferBinding[] bindings,
-			int numBindings
+			int numBindings,
+			ulong vertexShader
 		) {
+			ulong hash = vertexShader;
 			unchecked
 			{
-				ulong hash = HASH_START;
 				for (int i = 0; i < numBindings; i += 1)
 				{
 					VertexBufferBinding binding = bindings[i];
 					hash = hash * HASH_FACTOR + (ulong) binding.InstanceFrequency;
 					hash = hash * HASH_FACTOR + GetVertexDeclarationHash(
-						binding.VertexBuffer.VertexDeclaration
+						binding.VertexBuffer.VertexDeclaration,
+						vertexShader
 					);
 				}
-				return hash;
 			}
+			return hash;
 		}
 
 		#endregion
