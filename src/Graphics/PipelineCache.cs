@@ -692,7 +692,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		 * -caleb
 		 */
 
-		public const ulong HASH_FACTOR = 39;
+		private const ulong HASH_FACTOR = 39;
 
 		public static ulong GetVertexDeclarationHash(
 			VertexDeclaration declaration,
