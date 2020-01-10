@@ -252,7 +252,7 @@ namespace Microsoft.Xna.Framework
 
 		private static bool PrepareMTLAttributes()
 		{
-			if (	!String.IsNullOrEmpty(ForcedGLDevice) &&
+			if (	String.IsNullOrEmpty(ForcedGLDevice) ||
 				!ForcedGLDevice.Equals(METAL)		)
 			{
 				return false;
