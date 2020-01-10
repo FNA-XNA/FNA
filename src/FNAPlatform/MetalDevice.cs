@@ -4310,7 +4310,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					case MTLPixelFormat.Depth24Unorm_Stencil8:
 						return (float) ((1 << 24) - 1);
 
-					// Float formats are gross, don't even bother.
 					case MTLPixelFormat.Depth32Float:
 					case MTLPixelFormat.Depth32Float_Stencil8:
 						return (float) ((1 << 23) - 1);
