@@ -4313,7 +4313,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					// Float formats are gross, don't even bother.
 					case MTLPixelFormat.Depth32Float:
 					case MTLPixelFormat.Depth32Float_Stencil8:
-						return 1f;
+						return (float) ((1 << 23) - 1);
 				}
 
 				return 0.0f;
