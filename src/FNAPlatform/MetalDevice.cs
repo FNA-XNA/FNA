@@ -521,9 +521,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Metal State Variables
 
-		// FIXME: Uncomment after SDL 2.0.12!
-		// private IntPtr view;				// SDL_MetalView*
+		// FIXME: Remove this after SDL 2.0.12!
+		private IntPtr renderer;			// SDL_Renderer*
 
+		private IntPtr view;				// SDL_MetalView*
 		private IntPtr layer;				// CAMetalLayer*
 		private IntPtr device;				// MTLDevice*
 		private IntPtr queue;				// MTLCommandQueue*
@@ -715,6 +716,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region SDL 2.0.12 Metal Imports
+
+		// FIXME: Remove this section after SDL 2.0.12 releases!
+
+		[DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
+		public static extern IntPtr SDL_Metal_CreateView(IntPtr window);
+
+		[DllImport("SDL2", CallingConvention = CallingConvention.Cdecl)]
+		public static extern IntPtr SDL_Metal_DestroyView(IntPtr view);
+
+		public const string SDL_HINT_VIDEO_EXTERNAL_CONTEXT = "SDL_VIDEO_EXTERNAL_CONTEXT";
+
+		#endregion
+
 		#region Public Constructor
 
 		public MetalDevice(
@@ -724,27 +739,28 @@ namespace Microsoft.Xna.Framework.Graphics
 			device = MTLCreateSystemDefaultDevice();
 			queue = mtlNewCommandQueue(device);
 
-			/* Create a temporary renderer and grab the layer from it.
-			 * FIXME: Remove this after SDL 2.0.12!
-			 */
-			SDL2.SDL.SDL_SetHint(SDL2.SDL.SDL_HINT_RENDER_DRIVER, "metal");
-			IntPtr renderer = SDL2.SDL.SDL_CreateRenderer(
-				presentationParameters.DeviceWindowHandle,
-				-1,
-				SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED
-			);
-			layer = SDL2.SDL.SDL_RenderGetMetalLayer(renderer);
-			SDL2.SDL.SDL_DestroyRenderer(renderer);
-
-			/* FIXME: Uncomment after SDL 2.0.12!
-				// Create the Metal View
-				view = SDL2.SDL.SDL_Metal_CreateView(
+			if (SDL2.SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+			{
+				// Create the Metal view
+				view = SDL_Metal_CreateView(
 					presentationParameters.DeviceWindowHandle
 				);
 
-				// Set up the CAMetalLayer
+				// Get the layer from the view
 				layer = mtlGetLayer(view);
-			*/
+			}
+			else
+			{
+				// Create a renderer and grab the layer from it.
+				SDL2.SDL.SDL_SetHint(SDL2.SDL.SDL_HINT_RENDER_DRIVER, "metal");
+				renderer = SDL2.SDL.SDL_CreateRenderer(
+					presentationParameters.DeviceWindowHandle,
+					-1,
+					SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED
+				);
+				layer = SDL2.SDL.SDL_RenderGetMetalLayer(renderer);
+				SDL2.SDL.SDL_DestroyRenderer(renderer);
+			}
 
 			// Set up the CAMetalLayer
 			mtlSetLayerDevice(layer, device);
@@ -899,15 +915,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Dispose the backbuffer
 			(Backbuffer as MetalBackbuffer).Dispose();
 
-			/* FIXME: Uncomment after SDL 2.0.12!
+			if (SDL2.SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+			{
 				// Destroy the view
-				SDL2.SDL.SDL_Metal_DestroyView(view);
-			*/
+				SDL_Metal_DestroyView(view);
+			}
+			else
+			{
+				// Destroy the renderer
+				SDL2.SDL.SDL_DestroyRenderer(renderer);
+			}
 		}
 
 		#endregion
 
-		#region GetDrawableSize Method
+		#region GetDrawableSize Methods
 
 		public static void GetDrawableSize(
 			IntPtr layer,
@@ -919,15 +941,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			h = (int) size.height;
 		}
 
-		/* FIXME: Uncomment after SDL 2.0.12!
-			public static void GetDrawableSizeFromView(
-				IntPtr view,
-				out int w,
-				out int h
-			) {
-				GetDrawableSize(mtlGetLayer(view), out w, out h);
-			}
-		*/
+		public static void GetDrawableSizeFromView(
+			IntPtr view,
+			out int w,
+			out int h
+		) {
+			GetDrawableSize(mtlGetLayer(view), out w, out h);
+		}
 
 		#endregion
 

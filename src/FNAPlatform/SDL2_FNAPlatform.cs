@@ -439,11 +439,12 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal = PrepareMTLAttributes())
 			{
+				if (SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+				{
+					SDL.SDL_SetHint(MetalDevice.SDL_HINT_VIDEO_EXTERNAL_CONTEXT, "1");
+				}
+
 				// Metal doesn't require a window flag
-
-				// FIXME: Uncomment after SDL 2.0.12!
-				// SDL.SDL_SetHint(SDL.SDL_HINT_VIDEO_EXTERNAL_CONTEXT, "1");
-
 				ActualGLDevice = METAL;
 			}
 			else if (opengl = PrepareGLAttributes())
@@ -506,16 +507,19 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal)
 			{
-				// FIXME: Uncomment after SDL 2.0.12!
-				// tempContext = SDL.SDL_Metal_CreateView(window);
-
-				// FIXME: Remove this after SDL 2.0.12!
-				SDL.SDL_SetHint(SDL.SDL_HINT_RENDER_DRIVER, "metal");
-				tempContext = SDL.SDL_CreateRenderer(
-					window,
-					-1,
-					SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED
-				);
+				if (SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+				{
+					tempContext = MetalDevice.SDL_Metal_CreateView(window);
+				}
+				else
+				{
+					SDL.SDL_SetHint(SDL.SDL_HINT_RENDER_DRIVER, "metal");
+					tempContext = SDL.SDL_CreateRenderer(
+						window,
+						-1,
+						SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED
+					);
+				}
 			}
 
 			/* If high DPI is not found, unset the HIGHDPI var.
@@ -529,12 +533,15 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal)
 			{
-				// FIXME: Uncomment after SDL 2.0.12!
-				// MetalDevice.GetDrawableSizeFromView(tempContext, out drawX, out drawY);
-
-				// FIXME: Remove this after SDL 2.0.12!
-				IntPtr layer = SDL.SDL_RenderGetMetalLayer(tempContext);
-				MetalDevice.GetDrawableSize(layer, out drawX, out drawY);
+				if (SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+				{
+					MetalDevice.GetDrawableSizeFromView(tempContext, out drawX, out drawY);
+				}
+				else
+				{
+					IntPtr layer = SDL.SDL_RenderGetMetalLayer(tempContext);
+					MetalDevice.GetDrawableSize(layer, out drawX, out drawY);
+				}
 			}
 			else if (opengl)
 			{
@@ -565,11 +572,14 @@ namespace Microsoft.Xna.Framework
 				}
 				else if (metal)
 				{
-					// FIXME: Uncomment after SDL 2.0.12!
-					// SDL.SDL_Metal_DestroyView(tempContext);
-
-					// FIXME: Remove this after SDL 2.0.12!
-					SDL.SDL_DestroyRenderer(tempContext);
+					if (SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+					{
+						MetalDevice.SDL_Metal_DestroyView(tempContext);
+					}
+					else
+					{
+						SDL.SDL_DestroyRenderer(tempContext);
+					}
 				}
 			}
 
