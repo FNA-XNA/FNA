@@ -439,7 +439,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal = PrepareMTLAttributes())
 			{
-				if (SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+				if (MetalDevice.UsingSDL2_0_11())
 				{
 					SDL.SDL_SetHint(MetalDevice.SDL_HINT_VIDEO_EXTERNAL_CONTEXT, "1");
 				}
@@ -507,7 +507,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal)
 			{
-				if (SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+				if (MetalDevice.UsingSDL2_0_11())
 				{
 					tempContext = MetalDevice.SDL_Metal_CreateView(window);
 				}
@@ -533,7 +533,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal)
 			{
-				if (SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+				if (MetalDevice.UsingSDL2_0_11())
 				{
 					MetalDevice.GetDrawableSizeFromView(tempContext, out drawX, out drawY);
 				}
@@ -572,7 +572,7 @@ namespace Microsoft.Xna.Framework
 				}
 				else if (metal)
 				{
-					if (SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+					if (MetalDevice.UsingSDL2_0_11())
 					{
 						MetalDevice.SDL_Metal_DestroyView(tempContext);
 					}

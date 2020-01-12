@@ -716,7 +716,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region SDL 2.0.12 Metal Imports
+		#region SDL Metal Imports
 
 		// FIXME: Remove this section after SDL 2.0.12 releases!
 
@@ -727,6 +727,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern IntPtr SDL_Metal_DestroyView(IntPtr view);
 
 		public const string SDL_HINT_VIDEO_EXTERNAL_CONTEXT = "SDL_VIDEO_EXTERNAL_CONTEXT";
+
+		public static bool UsingSDL2_0_11()
+		{
+			SDL2.SDL.SDL_version version;
+			SDL2.SDL.SDL_GetVersion(out version);
+			return (version.major >= 2 && version.patch >= 11);
+		}
 
 		#endregion
 
@@ -739,7 +746,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			device = MTLCreateSystemDefaultDevice();
 			queue = mtlNewCommandQueue(device);
 
-			if (SDL2.SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+			if (UsingSDL2_0_11())
 			{
 				// Create the Metal view
 				view = SDL_Metal_CreateView(
@@ -914,7 +921,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Dispose the backbuffer
 			(Backbuffer as MetalBackbuffer).Dispose();
 
-			if (SDL2.SDL.SDL_VERSION_ATLEAST(2, 0, 12))
+			if (UsingSDL2_0_11())
 			{
 				// Destroy the view
 				SDL_Metal_DestroyView(view);
