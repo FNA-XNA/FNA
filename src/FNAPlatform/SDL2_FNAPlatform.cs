@@ -440,7 +440,10 @@ namespace Microsoft.Xna.Framework
 			else if (metal = PrepareMTLAttributes())
 			{
 				// Metal doesn't require a window flag
-				SDL.SDL_SetHint(SDL.SDL_HINT_VIDEO_EXTERNAL_CONTEXT, "1");
+
+				// FIXME: Uncomment after SDL 2.0.12!
+				// SDL.SDL_SetHint(SDL.SDL_HINT_VIDEO_EXTERNAL_CONTEXT, "1");
+
 				ActualGLDevice = METAL;
 			}
 			else if (opengl = PrepareGLAttributes())
@@ -503,7 +506,16 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal)
 			{
-				tempContext = SDL.SDL_Metal_CreateView(window);
+				// FIXME: Uncomment after SDL 2.0.12!
+				// tempContext = SDL.SDL_Metal_CreateView(window);
+
+				// FIXME: Remove this after SDL 2.0.12!
+				SDL.SDL_SetHint(SDL.SDL_HINT_RENDER_DRIVER, "metal");
+				tempContext = SDL.SDL_CreateRenderer(
+					window,
+					-1,
+					SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED
+				);
 			}
 
 			/* If high DPI is not found, unset the HIGHDPI var.
@@ -517,7 +529,12 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (metal)
 			{
-				MetalDevice.GetDrawableSize(tempContext, out drawX, out drawY);
+				// FIXME: Uncomment after SDL 2.0.12!
+				// MetalDevice.GetDrawableSizeFromView(tempContext, out drawX, out drawY);
+
+				// FIXME: Remove this after SDL 2.0.12!
+				IntPtr layer = SDL.SDL_RenderGetMetalLayer(tempContext);
+				MetalDevice.GetDrawableSize(layer, out drawX, out drawY);
 			}
 			else if (opengl)
 			{
@@ -548,7 +565,11 @@ namespace Microsoft.Xna.Framework
 				}
 				else if (metal)
 				{
-					SDL.SDL_Metal_DestroyView(tempContext);
+					// FIXME: Uncomment after SDL 2.0.12!
+					// SDL.SDL_Metal_DestroyView(tempContext);
+
+					// FIXME: Remove this after SDL 2.0.12!
+					SDL.SDL_DestroyRenderer(tempContext);
 				}
 			}
 

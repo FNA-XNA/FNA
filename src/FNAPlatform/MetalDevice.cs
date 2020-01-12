@@ -722,13 +722,29 @@ namespace Microsoft.Xna.Framework.Graphics
 			device = MTLCreateSystemDefaultDevice();
 			queue = mtlNewCommandQueue(device);
 
-			// Create the Metal View
-			view = SDL2.SDL.SDL_Metal_CreateView(
-				presentationParameters.DeviceWindowHandle
+			/* Create a temporary renderer and grab the layer from it.
+			 * FIXME: Remove this after SDL 2.0.12!
+			 */
+			SDL2.SDL.SDL_SetHint(SDL2.SDL.SDL_HINT_RENDER_DRIVER, "metal");
+			IntPtr renderer = SDL2.SDL.SDL_CreateRenderer(
+				presentationParameters.DeviceWindowHandle,
+				-1,
+				SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED
 			);
+			layer = SDL2.SDL.SDL_RenderGetMetalLayer(renderer);
+			SDL2.SDL.SDL_DestroyRenderer(renderer);
+
+			/* FIXME: Uncomment after SDL 2.0.12!
+				// Create the Metal View
+				view = SDL2.SDL.SDL_Metal_CreateView(
+					presentationParameters.DeviceWindowHandle
+				);
+
+				// Set up the CAMetalLayer
+				layer = mtlGetLayer(view);
+			*/
 
 			// Set up the CAMetalLayer
-			layer = mtlGetLayer(view);
 			mtlSetLayerDevice(layer, device);
 			mtlSetLayerFramebufferOnly(layer, true);
 			mtlSetLayerMagnificationFilter(layer, UTF8ToNSString("nearest"));
@@ -881,8 +897,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Dispose the backbuffer
 			(Backbuffer as MetalBackbuffer).Dispose();
 
-			// Destroy the view
-			SDL2.SDL.SDL_Metal_DestroyView(view);
+			/* FIXME: Uncomment after SDL 2.0.12!
+				// Destroy the view
+				SDL2.SDL.SDL_Metal_DestroyView(view);
+			*/
 		}
 
 		#endregion
@@ -890,16 +908,24 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region GetDrawableSize Method
 
 		public static void GetDrawableSize(
-			IntPtr view,
+			IntPtr layer,
 			out int w,
 			out int h
 		) {
-			CGSize size = mtlGetDrawableSize(
-				mtlGetLayer(view)
-			);
+			CGSize size = mtlGetDrawableSize(layer);
 			w = (int) size.width;
 			h = (int) size.height;
 		}
+
+		/* FIXME: Uncomment after SDL 2.0.12!
+			public static void GetDrawableSizeFromView(
+				IntPtr view,
+				out int w,
+				out int h
+			) {
+				GetDrawableSize(mtlGetLayer(view), out w, out h);
+			}
+		*/
 
 		#endregion
 
@@ -978,7 +1004,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				dstX = 0;
 				dstY = 0;
 				GetDrawableSize(
-					view,
+					layer,
 					out dstW,
 					out dstH
 				);
@@ -1041,7 +1067,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Scale the coordinates to (-1, 1)
 				int dw, dh;
-				GetDrawableSize(view, out dw, out dh);
+				GetDrawableSize(layer, out dw, out dh);
 				float sx = -1 + (dstRect.X / (float) dw);
 				float sy = -1 + (dstRect.Y / (float) dh);
 				float sw = (dstRect.Width / (float) dw) * 2;
