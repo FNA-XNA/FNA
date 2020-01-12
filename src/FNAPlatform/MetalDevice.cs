@@ -759,7 +759,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED
 				);
 				layer = SDL2.SDL.SDL_RenderGetMetalLayer(renderer);
-				SDL2.SDL.SDL_DestroyRenderer(renderer);
 			}
 
 			// Set up the CAMetalLayer
