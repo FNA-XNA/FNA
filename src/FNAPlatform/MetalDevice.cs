@@ -521,7 +521,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Metal State Variables
 
-		private IntPtr view;				// SDL_MetalView*
+		// FIXME: Uncomment after SDL 2.0.12!
+		// private IntPtr view;				// SDL_MetalView*
+
 		private IntPtr layer;				// CAMetalLayer*
 		private IntPtr device;				// MTLDevice*
 		private IntPtr queue;				// MTLCommandQueue*
