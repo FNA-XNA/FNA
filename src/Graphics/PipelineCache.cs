@@ -682,6 +682,59 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Vertex Declaration Hashing Methods
+
+		/* The algorithm for these hashing methods
+		 * is taken from Josh Bloch's "Effective Java".
+		 * (https://stackoverflow.com/a/113600/12492383)
+		 *
+		 * FIXME: Is there a better way to hash this?
+		 * -caleb
+		 */
+
+		private const ulong HASH_FACTOR = 39;
+
+		public static ulong GetVertexDeclarationHash(
+			VertexDeclaration declaration,
+			ulong vertexShader
+		) {
+			ulong hash = vertexShader;
+			unchecked
+			{
+				for (int i = 0; i < declaration.elements.Length; i += 1)
+				{
+					hash = hash * HASH_FACTOR + (
+						(ulong) declaration.elements[i].GetHashCode()
+					);
+				}
+				hash = hash * HASH_FACTOR + (ulong) declaration.VertexStride;
+			}
+			return hash;
+		}
+
+		public static ulong GetVertexBindingHash(
+			VertexBufferBinding[] bindings,
+			int numBindings,
+			ulong vertexShader
+		) {
+			ulong hash = vertexShader;
+			unchecked
+			{
+				for (int i = 0; i < numBindings; i += 1)
+				{
+					VertexBufferBinding binding = bindings[i];
+					hash = hash * HASH_FACTOR + (ulong) binding.InstanceFrequency;
+					hash = hash * HASH_FACTOR + GetVertexDeclarationHash(
+						binding.VertexBuffer.VertexDeclaration,
+						vertexShader
+					);
+				}
+			}
+			return hash;
+		}
+
+		#endregion
+
 		#region Private Helper Methods
 
 		private static unsafe ulong FloatToULong(float f)

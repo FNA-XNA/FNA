@@ -129,6 +129,8 @@
 		<Compile Include="src\FNAPlatform\FNAPlatform.cs" />
 		<Compile Include="src\FNAPlatform\FNAWindow.cs" />
 		<Compile Include="src\FNAPlatform\IGLDevice.cs" />
+		<Compile Include="src\FNAPlatform\MetalDevice.cs" />
+		<Compile Include="src\FNAPlatform\MetalDevice_MTL.cs" />
 		<Compile Include="src\FNAPlatform\ModernGLDevice.cs" />
 		<Compile Include="src\FNAPlatform\ModernGLDevice_GL.cs" />
 		<Compile Include="src\FNAPlatform\OpenGLDevice.cs" />

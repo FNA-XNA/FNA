@@ -967,6 +967,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region BeginFrame Method
+
+		public void BeginFrame()
+		{
+			// Do nothing.
+		}
+
+		#endregion
+
 		#region Window SwapBuffers Method
 
 		public void SwapBuffers(
