@@ -11,6 +11,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+
+using SDL2;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
@@ -230,7 +232,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Copy over data from old buffer
 				if (oldBuffer != IntPtr.Zero)
 				{
-					memcpy(
+					SDL.SDL_memcpy(
 						Contents,
 						oldContents,
 						(IntPtr) prevSize
@@ -265,7 +267,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Copy previous contents, if needed
 				if (prevInternalOffset != InternalOffset && dataLength < (int) BufferSize)
 				{
-					memcpy(
+					SDL.SDL_memcpy(
 						Contents + InternalOffset,
 						Contents + prevInternalOffset,
 						BufferSize
@@ -273,7 +275,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Copy the data into the buffer
-				memcpy(
+				SDL.SDL_memcpy(
 					Contents + InternalOffset + offsetInBytes,
 					data,
 					(IntPtr) dataLength
@@ -301,7 +303,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Copy the data into the buffer
-				memcpy(
+				SDL.SDL_memcpy(
 					Contents + InternalOffset,
 					data + offsetInBytes,
 					(IntPtr) dataLength
@@ -695,27 +697,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region memcpy Export
-
-		/* This is used a lot for GetData/Read calls... -flibit */
-#if NETSTANDARD2_0
-		private static unsafe void memcpy(IntPtr dst, IntPtr src, IntPtr len)
-		{
-			long size = len.ToInt64();
-			Buffer.MemoryCopy(
-				(void*) src,
-				(void*) dst,
-				size,
-				size
-			);
-		}
-#else
-		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
-		private static extern void memcpy(IntPtr dst, IntPtr src, IntPtr len);
-#endif
-
-		#endregion
-
 		#region SDL Metal Imports
 
 		// FIXME: Remove this section after SDL 2.0.12 releases!
@@ -730,8 +711,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public static bool UsingSDL2_0_11()
 		{
-			SDL2.SDL.SDL_version version;
-			SDL2.SDL.SDL_GetVersion(out version);
+			SDL.SDL_version version;
+			SDL.SDL_GetVersion(out version);
 			return (version.major >= 2 && version.patch >= 11);
 		}
 
@@ -759,13 +740,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			else
 			{
 				// Create a renderer and grab the layer from it.
-				SDL2.SDL.SDL_SetHint(SDL2.SDL.SDL_HINT_RENDER_DRIVER, "metal");
-				renderer = SDL2.SDL.SDL_CreateRenderer(
+				SDL.SDL_SetHint(SDL.SDL_HINT_RENDER_DRIVER, "metal");
+				renderer = SDL.SDL_CreateRenderer(
 					presentationParameters.DeviceWindowHandle,
 					-1,
-					SDL2.SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED
+					SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED
 				);
-				layer = SDL2.SDL.SDL_RenderGetMetalLayer(renderer);
+				layer = SDL.SDL_RenderGetMetalLayer(renderer);
 			}
 
 			// Set up the CAMetalLayer
@@ -784,7 +765,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			) == "1" ? MTLSamplerMinMagFilter.Nearest : MTLSamplerMinMagFilter.Linear;
 
 			// Set device properties
-			isMac = SDL2.SDL.SDL_GetPlatform().Equals("Mac OS X");
+			isMac = SDL.SDL_GetPlatform().Equals("Mac OS X");
 			SupportsS3tc = SupportsDxt1 = isMac;
 			MaxMultiSampleCount = mtlSupportsSampleCount(device, 8) ? 8 : 4;
 			supportsOcclusionQueries = isMac || HasModernAppleGPU();
@@ -929,7 +910,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			else
 			{
 				// Destroy the renderer
-				SDL2.SDL.SDL_DestroyRenderer(renderer);
+				SDL.SDL_DestroyRenderer(renderer);
 			}
 		}
 
@@ -1110,7 +1091,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					sx, sy + sh,		0, 1
 				};
 				GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-				memcpy(
+				SDL.SDL_memcpy(
 					mtlGetBufferContentsPtr(fauxBackbufferDrawBuffer),
 					handle.AddrOfPinnedObject(),
 					(IntPtr) (16 * sizeof(float))
@@ -3275,7 +3256,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			int elementSizeInBytes
 		) {
-			memcpy(
+			SDL.SDL_memcpy(
 				data + (startIndex * elementSizeInBytes),
 				(buffer as MetalBuffer).Contents + offsetInBytes,
 				(IntPtr) (elementCount * elementSizeInBytes)
@@ -3302,7 +3283,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				cpy = data + (startIndex * elementSizeInBytes);
 			}
 
-			memcpy(
+			SDL.SDL_memcpy(
 				cpy,
 				(buffer as MetalBuffer).Contents + offsetInBytes,
 				(IntPtr) (elementCount * vertexStride)
@@ -3314,7 +3295,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr dst = data + (startIndex * elementSizeInBytes);
 				for (int i = 0; i < elementCount; i += 1)
 				{
-					memcpy(dst, src, (IntPtr) elementSizeInBytes);
+					SDL.SDL_memcpy(dst, src, (IntPtr) elementSizeInBytes);
 					dst += elementSizeInBytes;
 					src += vertexStride;
 				}
@@ -4666,7 +4647,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				1, 2, 3
 			};
 			GCHandle indicesPinned = GCHandle.Alloc(indices, GCHandleType.Pinned);
-			memcpy(
+			SDL.SDL_memcpy(
 				mtlGetBufferContentsPtr(fauxBackbufferDrawBuffer) + (16 * sizeof(float)),
 				indicesPinned.AddrOfPinnedObject(),
 				(IntPtr) (6 * sizeof(ushort))

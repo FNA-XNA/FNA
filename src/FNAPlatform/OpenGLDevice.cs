@@ -578,27 +578,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region memcpy Export
-
-		/* This is used a lot for GetData/Read calls... -flibit */
-#if NETSTANDARD2_0
-		private static unsafe void memcpy(IntPtr dst, IntPtr src, IntPtr len)
-		{
-			long size = len.ToInt64();
-			Buffer.MemoryCopy(
-				(void*) src,
-				(void*) dst,
-				size,
-				size
-			);
-		}
-#else
-		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
-		private static extern void memcpy(IntPtr dst, IntPtr src, IntPtr len);
-#endif
-
-		#endregion
-
 		#region Public Constructor
 
 		public OpenGLDevice(
@@ -2609,7 +2588,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr dst = data + (startIndex * elementSizeInBytes);
 				for (int i = 0; i < elementCount; i += 1)
 				{
-					memcpy(dst, src, (IntPtr) elementSizeInBytes);
+					SDL.SDL_memcpy(dst, src, (IntPtr) elementSizeInBytes);
 					dst += elementSizeInBytes;
 					src += vertexStride;
 				}
@@ -3200,7 +3179,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							return;
 						}
 						// FIXME: Can we copy via pitch instead, or something? -flibit
-						memcpy(
+						SDL.SDL_memcpy(
 							data + ((curPixel - startIndex) * elementSizeInBytes),
 							texData + (((row * width) + col) * elementSizeInBytes),
 							(IntPtr) elementSizeInBytes
@@ -3299,7 +3278,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							return;
 						}
 						// FIXME: Can we copy via pitch instead, or something? -flibit
-						memcpy(
+						SDL.SDL_memcpy(
 							data + ((curPixel - startIndex) * elementSizeInBytes),
 							texData + (((row * size) + col) * elementSizeInBytes),
 							(IntPtr) elementSizeInBytes
@@ -3457,9 +3436,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			for (int row = 0; row < subH / 2; row += 1)
 			{
 				// Top to temp, bottom to top, temp to bottom
-				memcpy(temp, data + (row * pitch), (IntPtr) pitch);
-				memcpy(data + (row * pitch), data + ((subH - row - 1) * pitch), (IntPtr) pitch);
-				memcpy(data + ((subH - row - 1) * pitch), temp, (IntPtr) pitch);
+				SDL.SDL_memcpy(temp, data + (row * pitch), (IntPtr) pitch);
+				SDL.SDL_memcpy(data + (row * pitch), data + ((subH - row - 1) * pitch), (IntPtr) pitch);
+				SDL.SDL_memcpy(data + ((subH - row - 1) * pitch), temp, (IntPtr) pitch);
 			}
 			Marshal.FreeHGlobal(temp);
 		}
