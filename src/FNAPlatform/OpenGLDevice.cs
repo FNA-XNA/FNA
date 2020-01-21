@@ -1,6 +1,6 @@
 #region License
 /* FNA - XNA4 Reimplementation for Desktop Platforms
- * Copyright 2009-2020 Ethan Lee and the MonoGame Team
+ * Copyright 2009-2019 Ethan Lee and the MonoGame Team
  *
  * Released under the Microsoft Public License.
  * See LICENSE for details.
@@ -578,6 +578,27 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region memcpy Export
+
+		/* This is used a lot for GetData/Read calls... -flibit */
+#if NETSTANDARD2_0
+		private static unsafe void memcpy(IntPtr dst, IntPtr src, IntPtr len)
+		{
+			long size = len.ToInt64();
+			Buffer.MemoryCopy(
+				(void*) src,
+				(void*) dst,
+				size,
+				size
+			);
+		}
+#else
+		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void memcpy(IntPtr dst, IntPtr src, IntPtr len);
+#endif
+
+		#endregion
+
 		#region Public Constructor
 
 		public OpenGLDevice(
@@ -682,7 +703,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 
 				/* SPIR-V is very new and not really necessary. */
-				if (shaderProfile == "glspirv" && !useCoreProfile)
+				if (shaderProfile == "spirv")
 				{
 					shaderProfile = "glsl120";
 				}
@@ -942,15 +963,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 				}
 			}
-		}
-
-		#endregion
-
-		#region BeginFrame Method
-
-		public void BeginFrame()
-		{
-			// Do nothing.
 		}
 
 		#endregion
@@ -2760,7 +2772,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr dst = data + (startIndex * elementSizeInBytes);
 				for (int i = 0; i < elementCount; i += 1)
 				{
-					SDL.SDL_memcpy(dst, src, (IntPtr) elementSizeInBytes);
+					memcpy(dst, src, (IntPtr) elementSizeInBytes);
 					dst += elementSizeInBytes;
 					src += vertexStride;
 				}
@@ -3691,33 +3703,33 @@ namespace Microsoft.Xna.Framework.Graphics
 							texData
 						);
 
-				// Now, blit the rect region into the user array.
-				int curPixel = -1;
-				for (int row = subY; row < subY + subH; row += 1)
-				{
-					for (int col = subX; col < subX + subW; col += 1)
-					{
-						curPixel += 1;
-						if (curPixel < startIndex)
+						// Now, blit the rect region into the user array.
+						int curPixel = -1;
+						for (int row = subY; row < subY + subH; row += 1)
 						{
-							// If we're not at the start yet, just keep going...
-							continue;
+							for (int col = subX; col < subX + subW; col += 1)
+							{
+								curPixel += 1;
+								if (curPixel < startIndex)
+								{
+									// If we're not at the start yet, just keep going...
+									continue;
+								}
+								if (curPixel > elementCount)
+								{
+									// If we're past the end, we're done!
+									return;
+								}
+								// FIXME: Can we copy via pitch instead, or something? -flibit
+								memcpy(
+									data + ((curPixel - startIndex) * elementSizeInBytes),
+									texData + (((row * width) + col) * elementSizeInBytes),
+									(IntPtr) elementSizeInBytes
+								);
+							}
 						}
-						if (curPixel > elementCount)
-						{
-							// If we're past the end, we're done!
-							return;
-						}
-						// FIXME: Can we copy via pitch instead, or something? -flibit
-						SDL.SDL_memcpy(
-							data + ((curPixel - startIndex) * elementSizeInBytes),
-							texData + (((row * width) + col) * elementSizeInBytes),
-							(IntPtr) elementSizeInBytes
-						);
+						Marshal.FreeHGlobal(texData);
 					}
-				}
-				Marshal.FreeHGlobal(texData);
-			}
 
 				});
 			}
@@ -3853,33 +3865,33 @@ namespace Microsoft.Xna.Framework.Graphics
 							texData
 						);
 
-				// Now, blit the rect region into the user array.
-				int curPixel = -1;
-				for (int row = subY; row < subY + subH; row += 1)
-				{
-					for (int col = subX; col < subX + subW; col += 1)
-					{
-						curPixel += 1;
-						if (curPixel < startIndex)
+						// Now, blit the rect region into the user array.
+						int curPixel = -1;
+						for (int row = subY; row < subY + subH; row += 1)
 						{
-							// If we're not at the start yet, just keep going...
-							continue;
+							for (int col = subX; col < subX + subW; col += 1)
+							{
+								curPixel += 1;
+								if (curPixel < startIndex)
+								{
+									// If we're not at the start yet, just keep going...
+									continue;
+								}
+								if (curPixel > elementCount)
+								{
+									// If we're past the end, we're done!
+									return;
+								}
+								// FIXME: Can we copy via pitch instead, or something? -flibit
+								memcpy(
+									data + ((curPixel - startIndex) * elementSizeInBytes),
+									texData + (((row * size) + col) * elementSizeInBytes),
+									(IntPtr) elementSizeInBytes
+								);
+							}
 						}
-						if (curPixel > elementCount)
-						{
-							// If we're past the end, we're done!
-							return;
-						}
-						// FIXME: Can we copy via pitch instead, or something? -flibit
-						SDL.SDL_memcpy(
-							data + ((curPixel - startIndex) * elementSizeInBytes),
-							texData + (((row * size) + col) * elementSizeInBytes),
-							(IntPtr) elementSizeInBytes
-						);
+						Marshal.FreeHGlobal(texData);
 					}
-				}
-				Marshal.FreeHGlobal(texData);
-			}
 
 				});
 			}
@@ -4029,9 +4041,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			for (int row = 0; row < subH / 2; row += 1)
 			{
 				// Top to temp, bottom to top, temp to bottom
-				SDL.SDL_memcpy(temp, data + (row * pitch), (IntPtr) pitch);
-				SDL.SDL_memcpy(data + (row * pitch), data + ((subH - row - 1) * pitch), (IntPtr) pitch);
-				SDL.SDL_memcpy(data + ((subH - row - 1) * pitch), temp, (IntPtr) pitch);
+				memcpy(temp, data + (row * pitch), (IntPtr) pitch);
+				memcpy(data + (row * pitch), data + ((subH - row - 1) * pitch), (IntPtr) pitch);
+				memcpy(data + ((subH - row - 1) * pitch), temp, (IntPtr) pitch);
 			}
 			Marshal.FreeHGlobal(temp);
 		}
@@ -5046,18 +5058,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public static readonly int[] VertexAttribSize = new int[]
 			{
-				1,	// VertexElementFormat.Single
-				2,	// VertexElementFormat.Vector2
-				3,	// VertexElementFormat.Vector3
-				4,	// VertexElementFormat.Vector4
-				4,	// VertexElementFormat.Color
-				4,	// VertexElementFormat.Byte4
-				2,	// VertexElementFormat.Short2
-				4,	// VertexElementFormat.Short4
-				2,	// VertexElementFormat.NormalizedShort2
-				4,	// VertexElementFormat.NormalizedShort4
-				2,	// VertexElementFormat.HalfVector2
-				4	// VertexElementFormat.HalfVector4
+					1,	// VertexElementFormat.Single
+					2,	// VertexElementFormat.Vector2
+					3,	// VertexElementFormat.Vector3
+					4,	// VertexElementFormat.Vector4
+					4,	// VertexElementFormat.Color
+					4,	// VertexElementFormat.Byte4
+					2,	// VertexElementFormat.Short2
+					4,	// VertexElementFormat.Short4
+					2,	// VertexElementFormat.NormalizedShort2
+					4,	// VertexElementFormat.NormalizedShort4
+					2,	// VertexElementFormat.HalfVector2
+					4	// VertexElementFormat.HalfVector4
 			};
 
 			public static readonly GLenum[] VertexAttribType = new GLenum[]
