@@ -26,33 +26,27 @@ namespace Microsoft.Xna.Framework.Graphics
 {
 	#region Internal PSO Hash Struct
 
-	[StructLayout(LayoutKind.Sequential, Pack = 4, Size = 128)]
+	[StructLayout(LayoutKind.Sequential)]
 	internal struct StateHash : IEquatable<StateHash>
 	{
-		readonly int i1;
-		readonly int i2;
-		readonly int i3;
-		readonly int i4;
+		readonly ulong a;
+		readonly ulong b;
 
-		public StateHash(int i1, int i2, int i3, int i4)
+		public StateHash(ulong a, ulong b)
 		{
-			this.i1 = i1;
-			this.i2 = i2;
-			this.i3 = i3;
-			this.i4 = i4;
+			this.a = a;
+			this.b = b;
 		}
 
 		public override string ToString()
 		{
-			return	Convert.ToString(i1, 2).PadLeft(32, '0') +
-				Convert.ToString(i2, 2).PadLeft(32, '0') +
-				Convert.ToString(i3, 2).PadLeft(32, '0') +
-				Convert.ToString(i4, 2).PadLeft(32, '0');
+			return	Convert.ToString((long) a, 2).PadLeft(64, '0') + "|" +
+				Convert.ToString((long) b, 2).PadLeft(64, '0');
 		}
 
 		bool IEquatable<StateHash>.Equals(StateHash hash)
 		{
-			return i1 == hash.i1 && i2 == hash.i2 && i3 == hash.i3 && i4 == hash.i4;
+			return a == hash.a && b == hash.b;
 		}
 
 		public override bool Equals(object obj)
@@ -63,12 +57,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			StateHash hash = (StateHash) obj;
-			return i1 == hash.i1 && i2 == hash.i2 && i3 == hash.i3 && i4 == hash.i4;
+			return a == hash.a && b == hash.b;
 		}
 
 		public override int GetHashCode()
 		{
-			return unchecked(i1 + i2 + i3 + i4);
+			unchecked
+			{
+				int i1 = (int) (a ^ (a >> 32));
+				int i2 = (int) (b ^ (b >> 32));
+				return i1 + i2;
+			}
 		}
 	}
 
@@ -137,21 +136,22 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			int funcs = ((int) alphaBlendFunc << 4) | ((int) colorBlendFunc);
 			int blendsAndColorWriteChannels =
-				  ((int) alphaDestBlend	<< (32 - 4))
-				| ((int) alphaSrcBlend	<< (32 - 8))
-				| ((int) colorDestBlend	<< (32 - 12))
-				| ((int) colorSrcBlend	<< (32 - 16))
-				| ((int) channels	<< (32 - 20))
-				| ((int) channels1	<< (32 - 24))
-				| ((int) channels2	<< (32 - 28))
+				  ((int) alphaDestBlend	<< 28)
+				| ((int) alphaSrcBlend	<< 24)
+				| ((int) colorDestBlend	<< 20)
+				| ((int) colorSrcBlend	<< 16)
+				| ((int) channels	<< 12)
+				| ((int) channels1	<< 8)
+				| ((int) channels2	<< 4)
 				| ((int) channels3);
 
-			return new StateHash(
-				funcs,
-				blendsAndColorWriteChannels,
-				(int) blendFactor.PackedValue,
-				multisampleMask
-			);
+			unchecked
+			{
+				return new StateHash(
+					((ulong) funcs << 32) | ((ulong) blendsAndColorWriteChannels << 0),
+					((ulong) multisampleMask << 32) | ((ulong) blendFactor.PackedValue << 0)
+				);
+			}
 		}
 
 		/* Public Functions */
@@ -308,26 +308,27 @@ namespace Microsoft.Xna.Framework.Graphics
 			int twoSided = twoSidedStencil ? 1 : 0;
 
 			int packedProperties =
-				  ((int) zEnable		<< 32 - 2)
-				| ((int) zWriteEnable		<< 32 - 3)
-				| ((int) sEnable		<< 32 - 4)
-				| ((int) twoSided		<< 32 - 5)
-				| ((int) depthFunc		<< 32 - 8)
-				| ((int) stencilFunc		<< 32 - 11)
-				| ((int) ccwStencilFunc		<< 32 - 14)
-				| ((int) stencilPass		<< 32 - 17)
-				| ((int) stencilFail		<< 32 - 20)
-				| ((int) stencilDepthFail	<< 32 - 23)
-				| ((int) ccwStencilFail		<< 32 - 26)
-				| ((int) ccwStencilPass		<< 32 - 29)
+				  ((int) zEnable		<< 30)
+				| ((int) zWriteEnable		<< 29)
+				| ((int) sEnable		<< 28)
+				| ((int) twoSided		<< 27)
+				| ((int) depthFunc		<< 24)
+				| ((int) stencilFunc		<< 21)
+				| ((int) ccwStencilFunc		<< 18)
+				| ((int) stencilPass		<< 15)
+				| ((int) stencilFail		<< 12)
+				| ((int) stencilDepthFail	<< 9)
+				| ((int) ccwStencilFail		<< 6)
+				| ((int) ccwStencilPass		<< 3)
 				| ((int) ccwStencilDepthFail);
 
-			return new StateHash(
-				packedProperties,
-				stencilMask,
-				stencilWriteMask,
-				referenceStencil
-			);
+			unchecked
+			{
+				return new StateHash(
+					((ulong) stencilMask << 32) | ((ulong) packedProperties << 0),
+					((ulong) referenceStencil << 32) | ((ulong) stencilWriteMask << 0)
+				);
+			}
 		}
 
 		/* Public Functions */
@@ -479,12 +480,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) cullMode		<< 1)
 				| ((int) fillMode);
 
-			return new StateHash(
-				0,
-				packedProperties,
-				FloatToInt32(depthBias),
-				FloatToInt32(slopeScaleDepthBias)
-			);
+			unchecked
+			{
+				return new StateHash(
+					(ulong) packedProperties,
+					(FloatToULong(slopeScaleDepthBias) << 32) | FloatToULong(depthBias)
+				);
+			}
 		}
 
 		/* Public Functions */
@@ -594,12 +596,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				| ((int) addressV	<< 2)
 				| ((int) addressW);
 
-			return new StateHash(
-				filterAndAddresses,
-				maxAnisotropy,
-				maxMipLevel,
-				FloatToInt32(mipLODBias)
-			);
+			unchecked
+			{
+				return new StateHash(
+					((ulong) maxAnisotropy << 32) | ((ulong) filterAndAddresses << 0),
+					(FloatToULong(mipLODBias) << 32) | ((ulong) maxMipLevel << 0)
+				);
+			}
 		}
 
 		/* Public Functions */
@@ -679,11 +682,65 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Vertex Declaration Hashing Methods
+
+		/* The algorithm for these hashing methods
+		 * is taken from Josh Bloch's "Effective Java".
+		 * (https://stackoverflow.com/a/113600/12492383)
+		 *
+		 * FIXME: Is there a better way to hash this?
+		 * -caleb
+		 */
+
+		private const ulong HASH_FACTOR = 39;
+
+		public static ulong GetVertexDeclarationHash(
+			VertexDeclaration declaration,
+			ulong vertexShader
+		) {
+			ulong hash = vertexShader;
+			unchecked
+			{
+				for (int i = 0; i < declaration.elements.Length; i += 1)
+				{
+					hash = hash * HASH_FACTOR + (
+						(ulong) declaration.elements[i].GetHashCode()
+					);
+				}
+				hash = hash * HASH_FACTOR + (ulong) declaration.VertexStride;
+			}
+			return hash;
+		}
+
+		public static ulong GetVertexBindingHash(
+			VertexBufferBinding[] bindings,
+			int numBindings,
+			ulong vertexShader
+		) {
+			ulong hash = vertexShader;
+			unchecked
+			{
+				for (int i = 0; i < numBindings; i += 1)
+				{
+					VertexBufferBinding binding = bindings[i];
+					hash = hash * HASH_FACTOR + (ulong) binding.InstanceFrequency;
+					hash = hash * HASH_FACTOR + GetVertexDeclarationHash(
+						binding.VertexBuffer.VertexDeclaration,
+						vertexShader
+					);
+				}
+			}
+			return hash;
+		}
+
+		#endregion
+
 		#region Private Helper Methods
 
-		private static unsafe int FloatToInt32(float f)
+		private static unsafe ulong FloatToULong(float f)
 		{
-			return *((int *) &f);
+			uint uintRep = *((uint *) &f);
+			return unchecked((ulong) uintRep);
 		}
 
 		#endregion

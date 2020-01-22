@@ -44,15 +44,6 @@ namespace Microsoft.Xna.Framework.Input
 		}
 
 		/// <summary>
-		/// Gets state of the middle mouse button.
-		/// </summary>
-		public ButtonState MiddleButton
-		{
-			get;
-			internal set;
-		}
-
-		/// <summary>
 		/// Gets state of the right mouse button.
 		/// </summary>
 		public ButtonState RightButton
@@ -62,9 +53,9 @@ namespace Microsoft.Xna.Framework.Input
 		}
 
 		/// <summary>
-		/// Returns cumulative scroll wheel value since the game start.
+		/// Gets state of the middle mouse button.
 		/// </summary>
-		public int ScrollWheelValue
+		public ButtonState MiddleButton
 		{
 			get;
 			internal set;
@@ -83,6 +74,15 @@ namespace Microsoft.Xna.Framework.Input
 		/// Gets state of the XButton2.
 		/// </summary>
 		public ButtonState XButton2
+		{
+			get;
+			internal set;
+		}
+
+		/// <summary>
+		/// Returns cumulative scroll wheel value since the game start.
+		/// </summary>
+		public int ScrollWheelValue
 		{
 			get;
 			internal set;

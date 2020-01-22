@@ -558,27 +558,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region memcpy Export
-
-		/* This is used a lot for GetData/Read calls... -flibit */
-#if NETSTANDARD2_0
-		private static unsafe void memcpy(IntPtr dst, IntPtr src, IntPtr len)
-		{
-			long size = len.ToInt64();
-			Buffer.MemoryCopy(
-				(void*) src,
-				(void*) dst,
-				size,
-				size
-			);
-		}
-#else
-		[DllImport("msvcrt", CallingConvention = CallingConvention.Cdecl)]
-		private static extern void memcpy(IntPtr dst, IntPtr src, IntPtr len);
-#endif
-
-		#endregion
-
 		#region Public Constructor
 
 		public ModernGLDevice(
@@ -901,6 +880,15 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 				}
 			}
+		}
+
+		#endregion
+
+		#region BeginFrame Method
+
+		public void BeginFrame()
+		{
+			// Do nothing.
 		}
 
 		#endregion
@@ -2397,7 +2385,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 			}
 
-			memcpy(
+			SDL.SDL_memcpy(
 				buf.Pin + offsetInBytes,
 				data,
 				(IntPtr) dataLength
@@ -2454,7 +2442,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 			}
 
-			memcpy(
+			SDL.SDL_memcpy(
 				buf.Pin + offsetInBytes,
 				data,
 				(IntPtr) dataLength
@@ -2491,7 +2479,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				/* Buffers can't get written to by anyone other than the
 				 * application, so we can just memcpy here... right?
 				 */
-				memcpy(
+				SDL.SDL_memcpy(
 					cpy,
 					buf.Pin + offsetInBytes,
 					(IntPtr) (elementCount * elementSizeInBytes)
@@ -2519,7 +2507,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr dst = data + (startIndex * elementSizeInBytes);
 				for (int i = 0; i < elementCount; i += 1)
 				{
-					memcpy(dst, src, (IntPtr) elementSizeInBytes);
+					SDL.SDL_memcpy(dst, src, (IntPtr) elementSizeInBytes);
 					dst += elementSizeInBytes;
 					src += vertexStride;
 				}
@@ -2541,7 +2529,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				/* Buffers can't get written to by anyone other than the
 				 * application, so we can just memcpy here... right?
 				 */
-				memcpy(
+				SDL.SDL_memcpy(
 					data + (startIndex * elementSizeInBytes),
 					(buffer as ModernGLBuffer).Pin + offsetInBytes,
 					(IntPtr) (elementCount * elementSizeInBytes)
@@ -3233,9 +3221,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			for (int row = 0; row < subH / 2; row += 1)
 			{
 				// Top to temp, bottom to top, temp to bottom
-				memcpy(temp, data + (row * pitch), (IntPtr) pitch);
-				memcpy(data + (row * pitch), data + ((subH - row - 1) * pitch), (IntPtr) pitch);
-				memcpy(data + ((subH - row - 1) * pitch), temp, (IntPtr) pitch);
+				SDL.SDL_memcpy(temp, data + (row * pitch), (IntPtr) pitch);
+				SDL.SDL_memcpy(data + (row * pitch), data + ((subH - row - 1) * pitch), (IntPtr) pitch);
+				SDL.SDL_memcpy(data + ((subH - row - 1) * pitch), temp, (IntPtr) pitch);
 			}
 			Marshal.FreeHGlobal(temp);
 		}
