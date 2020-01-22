@@ -54,7 +54,15 @@ namespace Microsoft.Xna.Framework
 			{
 				if (graphicsDeviceService == null)
 				{
-					return InitializeGraphicsService();
+					graphicsDeviceService = (IGraphicsDeviceService)
+						Services.GetService(typeof(IGraphicsDeviceService));
+
+					if (graphicsDeviceService == null)
+					{
+						throw new InvalidOperationException(
+							"No Graphics Device Service"
+						);
+					}
 				}
 				return graphicsDeviceService.GraphicsDevice;
 			}
