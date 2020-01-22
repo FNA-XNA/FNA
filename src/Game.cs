@@ -616,10 +616,15 @@ namespace Microsoft.Xna.Framework
 				Components[i].Initialize();
 			}
 
-			/* FIXME: If this test fails, is LoadContent ever called?
-			 * This seems like a condition that warrants an exception more
-			 * than a silent failure.
+			/* This seems like a condition that warrants a major
+			 * exception more than a silent failure, but for some
+			 * reason it's okay... but only sort of. You can get
+			 * away with initializing just before base.Initialize(),
+			 * but everything gets super broken on the IManager side
+			 * (IService doesn't seem to matter anywhere else).
 			 */
+			graphicsDeviceService = (IGraphicsDeviceService)
+				Services.GetService(typeof(IGraphicsDeviceService));
 			if (	graphicsDeviceService != null &&
 				graphicsDeviceService.GraphicsDevice != null	)
 			{
@@ -727,16 +732,14 @@ namespace Microsoft.Xna.Framework
 		{
 			AssertNotDisposed();
 
-			graphicsDeviceService = (IGraphicsDeviceService)
-				Services.GetService(typeof(IGraphicsDeviceService));
+			/* If this is late, you can still create it yourself.
+			 * In fact, you can even go as far as creating the
+			 * _manager_ before base.Initialize(), but Begin/EndDraw
+			 * will not get called. Just... please, make the service
+			 * before calling Run().
+			 */
 			graphicsDeviceManager = (IGraphicsDeviceManager)
 				Services.GetService(typeof(IGraphicsDeviceManager));
-			if (graphicsDeviceService == null)
-			{
-				throw new InvalidOperationException(
-					"No Graphics Device Service"
-				);
-			}
 			if (graphicsDeviceManager != null)
 			{
 				graphicsDeviceManager.CreateDevice();
