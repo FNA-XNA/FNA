@@ -73,7 +73,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data
 		) {
 			Name = name;
-			Semantic = semantic;
+			Semantic = semantic ?? string.Empty;
 			RowCount = rowCount;
 			ColumnCount = columnCount;
 			ParameterClass = parameterClass;

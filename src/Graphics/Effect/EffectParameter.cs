@@ -105,7 +105,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			Name = name;
-			Semantic = semantic;
+			Semantic = semantic ?? string.Empty;
 			RowCount = rowCount;
 			ColumnCount = columnCount;
 			if (elementCount > 0)
