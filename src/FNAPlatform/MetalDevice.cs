@@ -980,6 +980,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			Rectangle? destinationRectangle,
 			IntPtr overrideWindowHandle
 		) {
+			/* Just in case Present() is called
+			 * before any rendering happens...
+			 */
+			BeginFrame();
+
 			// Bind the backbuffer and finalize rendering
 			SetRenderTargets(null, null, DepthFormat.None);
 			EndPass();
