@@ -3778,14 +3778,23 @@ namespace Microsoft.Xna.Framework.Graphics
 							0
 						);
 					}
-					else
+					else if (currentAttachmentTypes[i] == GLenum.GL_TEXTURE_2D)
 					{
-						// FIXME: Do we use layer for unbinding cubes? -flibit
 						glNamedFramebufferTexture(
 							targetFramebuffer,
 							GLenum.GL_COLOR_ATTACHMENT0 + i,
 							0,
 							0
+						);
+					}
+					else
+					{
+						glNamedFramebufferTextureLayer(
+							targetFramebuffer,
+							GLenum.GL_COLOR_ATTACHMENT0 + i,
+							0,
+							0,
+							(int) currentAttachmentTypes[i] - (int) GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X
 						);
 					}
 					currentAttachments[i] = 0;
