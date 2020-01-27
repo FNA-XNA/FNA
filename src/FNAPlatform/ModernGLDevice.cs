@@ -402,7 +402,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private uint ldPass = 0;
 
 		// Some vertex declarations may have overlapping attributes :/
-		private bool[,] attrUse = new bool[(int) MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TOTAL, 10];
+		private bool[,] attrUse = new bool[(int) MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TOTAL, 16];
 
 		#endregion
 
@@ -1999,7 +1999,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						if (attrUse[usage, index])
 						{
 							index = -1;
-							for (int j = 0; j < 10; j += 1)
+							for (int j = 0; j < 16; j += 1)
 							{
 								if (!attrUse[usage, j])
 								{
@@ -2102,7 +2102,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					if (attrUse[usage, index])
 					{
 						index = -1;
-						for (int j = 0; j < 10; j += 1)
+						for (int j = 0; j < 16; j += 1)
 						{
 							if (!attrUse[usage, j])
 							{
