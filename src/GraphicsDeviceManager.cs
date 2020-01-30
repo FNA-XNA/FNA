@@ -265,9 +265,13 @@ namespace Microsoft.Xna.Framework
 
 		public void ApplyChanges()
 		{
-			// Calling ApplyChanges() before CreateDevice() should have no effect.
+			/* Calling ApplyChanges() before CreateDevice() forces CreateDevice.
+			 * We can then return early since CreateDevice will call this again!
+			 * -flibit
+			 */
 			if (graphicsDevice == null)
 			{
+				(this as IGraphicsDeviceManager).CreateDevice();
 				return;
 			}
 

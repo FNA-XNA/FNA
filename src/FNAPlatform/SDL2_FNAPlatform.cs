@@ -1694,14 +1694,11 @@ namespace Microsoft.Xna.Framework
 
 		#region Image I/O Methods
 
-		public static void TextureDataFromStream(
+		private static IntPtr TextureDataFromStreamInternal(
 			Stream stream,
-			out int width,
-			out int height,
-			out byte[] pixels,
-			int reqWidth = -1,
-			int reqHeight = -1,
-			bool zoom = false
+			int reqWidth,
+			int reqHeight,
+			bool zoom
 		) {
 			// Load the SDL_Surface* from RWops, get the image data
 			IntPtr surface = SDL_image.IMG_Load_RW(
@@ -1715,10 +1712,7 @@ namespace Microsoft.Xna.Framework
 					"TextureDataFromStream: " +
 					SDL.SDL_GetError()
 				);
-				width = 0;
-				height = 0;
-				pixels = null;
-				return;
+				return IntPtr.Zero;
 			}
 			surface = INTERNAL_convertSurfaceFormat(surface);
 
@@ -1821,6 +1815,52 @@ namespace Microsoft.Xna.Framework
 				surface = newSurface;
 			}
 
+			return surface;
+		}
+
+		private static unsafe void TextureDataClearAlpha(
+			byte* pixels,
+			int len
+		) {
+			/* Ensure that the alpha pixels are... well, actual alpha.
+			 * You think this looks stupid, but be assured: Your paint program is
+			 * almost certainly even stupider.
+			 * -flibit
+			 */
+			for (int i = 0; i < len; i += 4, pixels += 4)
+			{
+				if (pixels[3] == 0)
+				{
+					pixels[0] = 0;
+					pixels[1] = 0;
+					pixels[2] = 0;
+				}
+			}
+		}
+
+		public static void TextureDataFromStream(
+			Stream stream,
+			out int width,
+			out int height,
+			out byte[] pixels,
+			int reqWidth = -1,
+			int reqHeight = -1,
+			bool zoom = false
+		) {
+			IntPtr surface = TextureDataFromStreamInternal(
+				stream,
+				reqWidth,
+				reqHeight,
+				zoom
+			);
+			if (surface == IntPtr.Zero)
+			{
+				width = 0;
+				height = 0;
+				pixels = null;
+				return;
+			}
+
 			// Copy surface data to output managed byte array
 			unsafe
 			{
@@ -1828,24 +1868,54 @@ namespace Microsoft.Xna.Framework
 				width = surPtr->w;
 				height = surPtr->h;
 				pixels = new byte[width * height * 4]; // MUST be SurfaceFormat.Color!
-				Marshal.Copy(surPtr->pixels, pixels, 0, pixels.Length);
-			}
-			SDL.SDL_FreeSurface(surface);
 
-			/* Ensure that the alpha pixels are... well, actual alpha.
-			 * You think this looks stupid, but be assured: Your paint program is
-			 * almost certainly even stupider.
-			 * -flibit
-			 */
-			for (int i = 0; i < pixels.Length; i += 4)
-			{
-				if (pixels[i + 3] == 0)
+				Marshal.Copy(surPtr->pixels, pixels, 0, pixels.Length);
+				fixed (byte* pixPtr = &pixels[0])
 				{
-					pixels[i] = 0;
-					pixels[i + 1] = 0;
-					pixels[i + 2] = 0;
+					TextureDataClearAlpha(pixPtr, pixels.Length);
 				}
 			}
+			SDL.SDL_FreeSurface(surface);
+		}
+
+		public static void TextureDataFromStreamPtr(
+			Stream stream,
+			out int width,
+			out int height,
+			out IntPtr pixels,
+			out int len,
+			int reqWidth = -1,
+			int reqHeight = -1,
+			bool zoom = false
+		) {
+			IntPtr surface = TextureDataFromStreamInternal(
+				stream,
+				reqWidth,
+				reqHeight,
+				zoom
+			);
+			if (surface == IntPtr.Zero)
+			{
+				width = 0;
+				height = 0;
+				pixels = IntPtr.Zero;
+				len = 0;
+				return;
+			}
+
+			// Copy surface data to output managed byte array
+			unsafe
+			{
+				SDL.SDL_Surface* surPtr = (SDL.SDL_Surface*) surface;
+				width = surPtr->w;
+				height = surPtr->h;
+				len = width * height * 4;
+				pixels = Marshal.AllocHGlobal(len); // MUST be SurfaceFormat.Color!
+
+				SDL.SDL_memcpy(pixels, surPtr->pixels, (IntPtr) len);
+				TextureDataClearAlpha((byte*) pixels, len);
+			}
+			SDL.SDL_FreeSurface(surface);
 		}
 
 		public static void SavePNG(

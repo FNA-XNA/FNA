@@ -107,6 +107,7 @@ namespace Microsoft.Xna.Framework
 			GetDriveInfo =			SDL2_FNAPlatform.GetDriveInfo;
 			ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
 			TextureDataFromStream =		SDL2_FNAPlatform.TextureDataFromStream;
+			TextureDataFromStreamPtr =	SDL2_FNAPlatform.TextureDataFromStreamPtr;
 			SavePNG =			SDL2_FNAPlatform.SavePNG;
 			SaveJPG =			SDL2_FNAPlatform.SaveJPG;
 			GetMicrophones =		SDL2_FNAPlatform.GetMicrophones;
@@ -277,6 +278,18 @@ namespace Microsoft.Xna.Framework
 			bool zoom = false
 		);
 		public static readonly TextureDataFromStreamFunc TextureDataFromStream;
+
+		public delegate void TextureDataFromStreamPtrFunc(
+			Stream stream,
+			out int width,
+			out int height,
+			out IntPtr pixels,
+			out int len,
+			int reqWidth = -1,
+			int reqHeight = -1,
+			bool zoom = false
+		);
+		public static readonly TextureDataFromStreamPtrFunc TextureDataFromStreamPtr;
 
 		public delegate void SavePNGFunc(
 			Stream stream,

@@ -402,7 +402,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private uint ldPass = 0;
 
 		// Some vertex declarations may have overlapping attributes :/
-		private bool[,] attrUse = new bool[(int) MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TOTAL, 10];
+		private bool[,] attrUse = new bool[(int) MojoShader.MOJOSHADER_usage.MOJOSHADER_USAGE_TOTAL, 16];
 
 		#endregion
 
@@ -1999,7 +1999,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						if (attrUse[usage, index])
 						{
 							index = -1;
-							for (int j = 0; j < 10; j += 1)
+							for (int j = 0; j < 16; j += 1)
 							{
 								if (!attrUse[usage, j])
 								{
@@ -2102,7 +2102,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					if (attrUse[usage, index])
 					{
 						index = -1;
-						for (int j = 0; j < 10; j += 1)
+						for (int j = 0; j < 16; j += 1)
 						{
 							if (!attrUse[usage, j])
 							{
@@ -3778,14 +3778,23 @@ namespace Microsoft.Xna.Framework.Graphics
 							0
 						);
 					}
-					else
+					else if (currentAttachmentTypes[i] == GLenum.GL_TEXTURE_2D)
 					{
-						// FIXME: Do we use layer for unbinding cubes? -flibit
 						glNamedFramebufferTexture(
 							targetFramebuffer,
 							GLenum.GL_COLOR_ATTACHMENT0 + i,
 							0,
 							0
+						);
+					}
+					else
+					{
+						glNamedFramebufferTextureLayer(
+							targetFramebuffer,
+							GLenum.GL_COLOR_ATTACHMENT0 + i,
+							0,
+							0,
+							(int) currentAttachmentTypes[i] - (int) GLenum.GL_TEXTURE_CUBE_MAP_POSITIVE_X
 						);
 					}
 					currentAttachments[i] = 0;
