@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 /* FNA - XNA4 Reimplementation for Desktop Platforms
  * Copyright 2009-2020 Ethan Lee and the MonoGame Team
  *
@@ -259,6 +259,11 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			throw new NotSupportedException("Only one listener is supported.");
 		}
+
+        public void ApplyReverb(float gain)
+        {
+            INTERNAL_applyReverb(gain);
+        }
 
 		public virtual void Play()
 		{
