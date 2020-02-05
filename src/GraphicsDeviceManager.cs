@@ -480,6 +480,11 @@ namespace Microsoft.Xna.Framework
 
 		void IGraphicsDeviceManager.CreateDevice()
 		{
+			if (graphicsDevice != null)
+			{
+				return;
+			}
+
 			// Set the default device information
 			GraphicsDeviceInformation gdi = new GraphicsDeviceInformation();
 			gdi.Adapter = GraphicsAdapter.DefaultAdapter;
