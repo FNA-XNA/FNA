@@ -26,6 +26,7 @@
     <DebugType>none</DebugType>
     <Optimize>True</Optimize>
     <OutputPath>bin\Release</OutputPath>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>False</ConsolePause>
@@ -42,7 +43,18 @@
 
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
   </PropertyGroup>
-  
+
+  <PropertyGroup>
+    <FNASettingsPropsFilePath>$(SolutionDir)FNA.Settings.props</FNASettingsPropsFilePath>
+  </PropertyGroup>
+
+  <Import Project="$(FNASettingsPropsFilePath)" Condition="Exists('$(FNASettingsPropsFilePath)')" />
+
+  <Target Name="ValidatePropsFilePath" BeforeTargets="BeforeBuild">
+    <Message Importance="High" Text="No property overrides found at '$(FNASettingsPropsFilePath)'" Condition="!Exists('$(FNASettingsPropsFilePath)')" />
+    <Message Importance="High" Text="Loaded property overrides from '$(FNASettingsPropsFilePath)'" Condition="Exists('$(FNASettingsPropsFilePath)')" />
+  </Target>
+
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
