@@ -4489,19 +4489,17 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			public MetalBackbuffer(
 				MetalDevice device,
-				int width,
-				int height,
-				DepthFormat depthFormat,
-				int multiSampleCount
+				PresentationParameters presentationParameters
 			) {
-				Width = width;
-				Height = height;
-
 				mtlDevice = device;
-				DepthFormat = depthFormat;
-				MultiSampleCount = multiSampleCount;
-
 				PixelFormat = MTLPixelFormat.RGBA8Unorm;
+
+				/* Set these now to prevent a changed event in Create!
+				 * The rest will be set and don't have checks anywhere.
+				 * -flibit
+				 */
+				Width = presentationParameters.BackBufferWidth;
+				Height = presentationParameters.BackBufferHeight;
 			}
 
 			public void Dispose()
@@ -4519,9 +4517,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			public void ResetFramebuffer(
 				PresentationParameters presentationParameters
 			) {
-				// Release the existing buffers
+				// Just destroy and recreate from scratch
 				Dispose();
+				CreateFramebuffer(presentationParameters);
+			}
 
+			public void CreateFramebuffer(
+				PresentationParameters presentationParameters
+			) {
 				// Update the backbuffer size
 				int newWidth = presentationParameters.BackBufferWidth;
 				int newHeight = presentationParameters.BackBufferHeight;
@@ -4629,13 +4632,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		private void InitializeFauxBackbuffer(
 			PresentationParameters presentationParameters
 		) {
-			Backbuffer = new MetalBackbuffer(
+			MetalBackbuffer mtlBackbuffer = new MetalBackbuffer(
 				this,
-				presentationParameters.BackBufferWidth,
-				presentationParameters.BackBufferHeight,
-				presentationParameters.DepthStencilFormat,
-				presentationParameters.MultiSampleCount
+				presentationParameters
 			);
+			Backbuffer = mtlBackbuffer;
+			mtlBackbuffer.CreateFramebuffer(presentationParameters);
 
 			/* Create a combined vertex/index buffer
 			 * for rendering the faux-backbuffer.
