@@ -258,6 +258,14 @@ namespace Microsoft.Xna.Framework
 				return false;
 			}
 
+#if DEBUG
+			// Always enable the validation layer in debug mode
+			Environment.SetEnvironmentVariable(
+				"METAL_DEVICE_WRAPPER_TYPE",
+				"1"
+			);
+#endif
+
 			if (OSVersion.Equals("Mac OS X"))
 			{
 				// Let's find out if the OS supports Metal...
