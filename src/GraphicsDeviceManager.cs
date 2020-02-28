@@ -155,6 +155,7 @@ namespace Microsoft.Xna.Framework
 		private bool drawBegun;
 		private bool disposed;
 		private bool prefsChanged;
+		private bool supportsOrientations;
 		private bool useResizedBackBuffer;
 		private int resizedBackBufferWidth;
 		private int resizedBackBufferHeight;
@@ -217,6 +218,7 @@ namespace Microsoft.Xna.Framework
 
 			prefsChanged = true;
 			useResizedBackBuffer = false;
+			supportsOrientations = FNAPlatform.SupportsOrientationChanges();
 			game.Window.ClientSizeChanged += INTERNAL_OnClientSizeChanged;
 		}
 
@@ -266,7 +268,13 @@ namespace Microsoft.Xna.Framework
 		public void ApplyChanges()
 		{
 			/* Calling ApplyChanges() before CreateDevice() forces CreateDevice.
-			 * We can then return early since CreateDevice will call this again!
+			 * We can then return early since CreateDevice basically does all of
+			 * this work for us anyway.
+			 *
+			 * Note that if you hit this block, it's probably because you called
+			 * ApplyChanges in the constructor. The device created here gets
+			 * destroyed and recreated by the game, so maybe don't do that!
+			 *
 			 * -flibit
 			 */
 			if (graphicsDevice == null)
@@ -284,86 +292,10 @@ namespace Microsoft.Xna.Framework
 			// Recreate device information before resetting
 			GraphicsDeviceInformation gdi = new GraphicsDeviceInformation();
 			gdi.Adapter = graphicsDevice.Adapter;
-			gdi.GraphicsProfile = graphicsDevice.GraphicsProfile;
 			gdi.PresentationParameters = graphicsDevice.PresentationParameters.Clone();
+			INTERNAL_CreateGraphicsDeviceInformation(gdi);
 
-			bool supportsOrientations = FNAPlatform.SupportsOrientationChanges();
-
-			/* Apply the GraphicsDevice changes to the new Parameters.
-			 * Note that PreparingDeviceSettings can override any of these!
-			 * -flibit
-			 */
-			gdi.PresentationParameters.BackBufferFormat =
-				PreferredBackBufferFormat;
-			if (useResizedBackBuffer)
-			{
-				gdi.PresentationParameters.BackBufferWidth =
-					resizedBackBufferWidth;
-				gdi.PresentationParameters.BackBufferHeight =
-					resizedBackBufferHeight;
-				useResizedBackBuffer = false;
-			}
-			else
-			{
-				if (!supportsOrientations)
-				{
-					gdi.PresentationParameters.BackBufferWidth =
-						PreferredBackBufferWidth;
-					gdi.PresentationParameters.BackBufferHeight =
-						PreferredBackBufferHeight;
-				}
-				else
-				{
-					/* Flip the backbuffer dimensions to scale
-					 * appropriately to the current orientation.
-					 */
-					int min = Math.Min(PreferredBackBufferWidth, PreferredBackBufferHeight);
-					int max = Math.Max(PreferredBackBufferWidth, PreferredBackBufferHeight);
-
-					if (gdi.PresentationParameters.DisplayOrientation == DisplayOrientation.Portrait)
-					{
-						gdi.PresentationParameters.BackBufferWidth = min;
-						gdi.PresentationParameters.BackBufferHeight = max;
-					}
-					else
-					{
-						gdi.PresentationParameters.BackBufferWidth = max;
-						gdi.PresentationParameters.BackBufferHeight = min;
-					}
-				}
-			}
-			gdi.PresentationParameters.DepthStencilFormat =
-				PreferredDepthStencilFormat;
-			gdi.PresentationParameters.IsFullScreen =
-				IsFullScreen;
-			gdi.PresentationParameters.PresentationInterval =
-				SynchronizeWithVerticalRetrace ?
-					PresentInterval.One :
-					PresentInterval.Immediate;
-			if (!PreferMultiSampling)
-			{
-				gdi.PresentationParameters.MultiSampleCount = 0;
-			}
-			else if (gdi.PresentationParameters.MultiSampleCount == 0)
-			{
-				/* XNA4 seems to have an upper limit of 8, but I'm willing to
-				 * limit this only in GraphicsDeviceManager's default setting.
-				 * If you want even higher values, Reset() with a custom value.
-				 * -flibit
-				 */
-				gdi.PresentationParameters.MultiSampleCount = Math.Min(
-					graphicsDevice.GLDevice.MaxMultiSampleCount,
-					8
-				);
-			}
-
-			// Give the user a chance to override the above settings.
-			OnPreparingDeviceSettings(
-				this,
-				new PreparingDeviceSettingsEventArgs(gdi)
-			);
-
-			// Reset!
+			// Prepare the window...
 			if (supportsOrientations)
 			{
 				game.Window.SetSupportedOrientations(
@@ -378,7 +310,10 @@ namespace Microsoft.Xna.Framework
 				gdi.PresentationParameters.BackBufferWidth,
 				gdi.PresentationParameters.BackBufferHeight
 			);
-			// FIXME: This should be before EndScreenDeviceChange! -flibit
+
+			// FIXME: Everything below should be before EndScreenDeviceChange! -flibit
+
+			// Reset!
 			graphicsDevice.Reset(
 				gdi.PresentationParameters,
 				gdi.Adapter
@@ -474,31 +409,127 @@ namespace Microsoft.Xna.Framework
 			ApplyChanges();
 		}
 
+		private void INTERNAL_CreateGraphicsDeviceInformation(
+			GraphicsDeviceInformation gdi
+		) {
+			/* Apply the GraphicsDevice changes to the new Parameters.
+			 * Note that PreparingDeviceSettings can override any of these!
+			 * -flibit
+			 */
+			if (useResizedBackBuffer)
+			{
+				gdi.PresentationParameters.BackBufferWidth =
+					resizedBackBufferWidth;
+				gdi.PresentationParameters.BackBufferHeight =
+					resizedBackBufferHeight;
+				useResizedBackBuffer = false;
+			}
+			else
+			{
+				if (!supportsOrientations)
+				{
+					gdi.PresentationParameters.BackBufferWidth =
+						PreferredBackBufferWidth;
+					gdi.PresentationParameters.BackBufferHeight =
+						PreferredBackBufferHeight;
+				}
+				else
+				{
+					/* Flip the backbuffer dimensions to scale
+					 * appropriately to the current orientation.
+					 */
+					int min = Math.Min(PreferredBackBufferWidth, PreferredBackBufferHeight);
+					int max = Math.Max(PreferredBackBufferWidth, PreferredBackBufferHeight);
+
+					if (gdi.PresentationParameters.DisplayOrientation == DisplayOrientation.Portrait)
+					{
+						gdi.PresentationParameters.BackBufferWidth = min;
+						gdi.PresentationParameters.BackBufferHeight = max;
+					}
+					else
+					{
+						gdi.PresentationParameters.BackBufferWidth = max;
+						gdi.PresentationParameters.BackBufferHeight = min;
+					}
+				}
+			}
+			gdi.PresentationParameters.BackBufferFormat =
+				PreferredBackBufferFormat;
+			gdi.PresentationParameters.DepthStencilFormat =
+				PreferredDepthStencilFormat;
+			gdi.PresentationParameters.IsFullScreen =
+				IsFullScreen;
+			gdi.PresentationParameters.PresentationInterval =
+				SynchronizeWithVerticalRetrace ?
+					PresentInterval.One :
+					PresentInterval.Immediate;
+			if (!PreferMultiSampling)
+			{
+				gdi.PresentationParameters.MultiSampleCount = 0;
+			}
+			else if (gdi.PresentationParameters.MultiSampleCount == 0)
+			{
+				/* XNA4 seems to have an upper limit of 8, but I'm willing to
+				 * limit this only in GraphicsDeviceManager's default setting.
+				 * If you want even higher values, Reset() with a custom value.
+				 * -flibit
+				 */
+				int maxMultiSampleCount = 0;
+				if (graphicsDevice != null)
+				{
+					maxMultiSampleCount = graphicsDevice.GLDevice.MaxMultiSampleCount;
+				}
+				gdi.PresentationParameters.MultiSampleCount = Math.Min(
+					maxMultiSampleCount,
+					8
+				);
+			}
+			gdi.GraphicsProfile = GraphicsProfile;
+
+			// Give the user a chance to override the above settings.
+			OnPreparingDeviceSettings(
+				this,
+				new PreparingDeviceSettingsEventArgs(gdi)
+			);
+		}
+
 		#endregion
 
 		#region IGraphicsDeviceManager Methods
 
 		void IGraphicsDeviceManager.CreateDevice()
 		{
+			// This function can recreate the device from scratch!
+			if (graphicsDevice != null)
+			{
+				graphicsDevice.Dispose();
+				graphicsDevice = null;
+			}
+
 			// Set the default device information
 			GraphicsDeviceInformation gdi = new GraphicsDeviceInformation();
 			gdi.Adapter = GraphicsAdapter.DefaultAdapter;
-			gdi.GraphicsProfile = GraphicsProfile;
 			gdi.PresentationParameters = new PresentationParameters();
 			gdi.PresentationParameters.DeviceWindowHandle = game.Window.Handle;
-			gdi.PresentationParameters.DepthStencilFormat = PreferredDepthStencilFormat;
-			gdi.PresentationParameters.IsFullScreen = false;
+			INTERNAL_CreateGraphicsDeviceInformation(gdi);
 
-			// Give the user a chance to change the initial settings
-			OnPreparingDeviceSettings(
-				this,
-				new PreparingDeviceSettingsEventArgs(gdi)
+			// Prepare the window...
+			if (supportsOrientations)
+			{
+				game.Window.SetSupportedOrientations(
+					INTERNAL_supportedOrientations
+				);
+			}
+			game.Window.BeginScreenDeviceChange(
+				gdi.PresentationParameters.IsFullScreen
+			);
+			game.Window.EndScreenDeviceChange(
+				gdi.Adapter.DeviceName,
+				gdi.PresentationParameters.BackBufferWidth,
+				gdi.PresentationParameters.BackBufferHeight
 			);
 
-			// Apply these settings to this GraphicsDeviceManager
-			GraphicsProfile = gdi.GraphicsProfile;
-			PreferredBackBufferFormat = gdi.PresentationParameters.BackBufferFormat;
-			PreferredDepthStencilFormat = gdi.PresentationParameters.DepthStencilFormat;
+			// FIXME: Everything below should be before EndScreenDeviceChange! -flibit
 
 			// Create the GraphicsDevice, hook the callbacks
 			graphicsDevice = new GraphicsDevice(
@@ -509,9 +540,6 @@ namespace Microsoft.Xna.Framework
 			graphicsDevice.Disposing += OnDeviceDisposing;
 			graphicsDevice.DeviceResetting += OnDeviceResetting;
 			graphicsDevice.DeviceReset += OnDeviceReset;
-
-			// Set device defaults
-			ApplyChanges();
 
 			// Call the DeviceCreated Event
 			OnDeviceCreated(this, EventArgs.Empty);

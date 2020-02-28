@@ -353,12 +353,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Resume()
 		{
+			SoundState state = State; // Triggers a query, update
 			if (handle == IntPtr.Zero)
 			{
 				// XNA4 just plays if we've not started yet.
 				Play();
 			}
-			else if (State == SoundState.Paused)
+			else if (state == SoundState.Paused)
 			{
 				FAudio.FAudioSourceVoice_Start(handle, 0, 0);
 				INTERNAL_state = SoundState.Playing;
