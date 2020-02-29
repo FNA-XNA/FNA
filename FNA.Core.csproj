@@ -10,6 +10,14 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
+	<PropertyGroup>
+		<FNASettingsPropsFilePath>$(SolutionDir)FNA.Settings.props</FNASettingsPropsFilePath>
+	</PropertyGroup>
+	<Import Project="$(FNASettingsPropsFilePath)" Condition="Exists('$(FNASettingsPropsFilePath)')" />
+	<Target Name="ValidatePropsFilePath" BeforeTargets="BeforeBuild">
+		<Message Importance="High" Text="No property overrides found at '$(FNASettingsPropsFilePath)'" Condition="!Exists('$(FNASettingsPropsFilePath)')" />
+		<Message Importance="High" Text="Loaded property overrides from '$(FNASettingsPropsFilePath)'" Condition="Exists('$(FNASettingsPropsFilePath)')" />
+	</Target>
 	<ItemGroup>
 		<Compile Include="src\Audio\AudioCategory.cs" />
 		<Compile Include="src\Audio\AudioChannels.cs" />

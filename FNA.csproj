@@ -74,6 +74,14 @@
     <ConsolePause>False</ConsolePause>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup>
+    <FNASettingsPropsFilePath>$(SolutionDir)FNA.Settings.props</FNASettingsPropsFilePath>
+  </PropertyGroup>
+  <Import Project="$(FNASettingsPropsFilePath)" Condition="Exists('$(FNASettingsPropsFilePath)')" />
+  <Target Name="ValidatePropsFilePath" BeforeTargets="BeforeBuild">
+    <Message Importance="High" Text="No property overrides found at '$(FNASettingsPropsFilePath)'" Condition="!Exists('$(FNASettingsPropsFilePath)')" />
+    <Message Importance="High" Text="Loaded property overrides from '$(FNASettingsPropsFilePath)'" Condition="Exists('$(FNASettingsPropsFilePath)')" />
+  </Target>
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
