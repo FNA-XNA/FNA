@@ -433,6 +433,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			Viewport = new Viewport(PresentationParameters.Bounds);
 			ScissorRectangle = Viewport.Bounds;
 
+			// Set the initial swap interval
+			GLDevice.SetPresentationInterval(
+				PresentationParameters.PresentationInterval
+			);
+
 			// Allocate the pipeline cache to be used by Effects
 			PipelineCache = new PipelineCache(this);
 #if WIIU_GAMEPAD
