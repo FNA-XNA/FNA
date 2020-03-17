@@ -55,30 +55,6 @@ namespace Microsoft.Xna.Framework.Input
 
 		#endregion
 
-		#region Internal Constructor
-
-		internal GamePadDPad(Buttons buttons) : this()
-		{
-			if ((buttons & Buttons.DPadUp) == Buttons.DPadUp)
-			{
-				Up = ButtonState.Pressed;
-			}
-			if ((buttons & Buttons.DPadDown) == Buttons.DPadDown)
-			{
-				Down = ButtonState.Pressed;
-			}
-			if ((buttons & Buttons.DPadLeft) == Buttons.DPadLeft)
-			{
-				Left = ButtonState.Pressed;
-			}
-			if ((buttons & Buttons.DPadRight) == Buttons.DPadRight)
-			{
-				Right = ButtonState.Pressed;
-			}
-		}
-
-		#endregion
-
 		#region Internal Static Methods
 
 		/* Used by GamePadState public constructor, DO NOT USE !*/

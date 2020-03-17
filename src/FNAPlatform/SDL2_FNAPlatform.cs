@@ -2428,21 +2428,31 @@ namespace Microsoft.Xna.Framework
 			{
 				gc_buttonState |= Buttons.RightShoulder;
 			}
+
+			// DPad
+			ButtonState dpadUp = ButtonState.Released;
+			ButtonState dpadDown = ButtonState.Released;
+			ButtonState dpadLeft = ButtonState.Released;
+			ButtonState dpadRight = ButtonState.Released;
 			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP) != 0)
 			{
 				gc_buttonState |= Buttons.DPadUp;
+				dpadUp = ButtonState.Pressed;
 			}
 			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_DOWN) != 0)
 			{
 				gc_buttonState |= Buttons.DPadDown;
+				dpadDown = ButtonState.Pressed;
 			}
 			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_LEFT) != 0)
 			{
 				gc_buttonState |= Buttons.DPadLeft;
+				dpadLeft = ButtonState.Pressed;
 			}
 			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_RIGHT) != 0)
 			{
 				gc_buttonState |= Buttons.DPadRight;
+				dpadRight = ButtonState.Pressed;
 			}
 
 			// Build the GamePadState, increment PacketNumber if state changed.
@@ -2450,7 +2460,7 @@ namespace Microsoft.Xna.Framework
 				new GamePadThumbSticks(stickLeft, stickRight, deadZoneMode),
 				new GamePadTriggers(triggerLeft, triggerRight, deadZoneMode),
 				new GamePadButtons(gc_buttonState),
-				new GamePadDPad(gc_buttonState)
+				new GamePadDPad(dpadUp, dpadDown, dpadLeft, dpadRight)
 			);
 			gc_builtState.IsConnected = true;
 			gc_builtState.PacketNumber = INTERNAL_states[index].PacketNumber;
