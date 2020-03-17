@@ -172,8 +172,8 @@ namespace Microsoft.Xna.Framework.Input
 		/// <param name="right">Object on the right of the equal sign.</param>
 		public static bool operator ==(GamePadState left, GamePadState right)
 		{
-			/* Compare everything EXCEPT the packet number! */
 			return (	(left.IsConnected == right.IsConnected) &&
+					(left.PacketNumber == right.PacketNumber) &&
 					(left.Buttons == right.Buttons) &&
 					(left.DPad == right.DPad) &&
 					(left.ThumbSticks == right.ThumbSticks) &&
