@@ -127,8 +127,8 @@ namespace Microsoft.Xna.Framework.Input
 		) : this(
 			new GamePadThumbSticks(leftThumbStick, rightThumbStick),
 			new GamePadTriggers(leftTrigger, rightTrigger),
-			new GamePadButtons(buttons),
-			new GamePadDPad(buttons)
+			GamePadButtons.FromButtonArray(buttons),
+			GamePadDPad.FromButtonArray(buttons)
 		) {
 		}
 

@@ -140,14 +140,17 @@ namespace Microsoft.Xna.Framework.Input
 
 		#endregion
 
-		#region Internal Constructor
+		#region Internal Static Methods
 
-		internal GamePadButtons(params Buttons[] buttons) : this()
+		/* Used by GamePadState public constructor, DO NOT USE! */
+		internal static GamePadButtons FromButtonArray(params Buttons[] buttons)
 		{
+			Buttons mask = (Buttons) 0;
 			foreach (Buttons b in buttons)
 			{
-				this.buttons |= b;
+				mask |= b;
 			}
+			return new GamePadButtons(mask);
 		}
 
 		#endregion
