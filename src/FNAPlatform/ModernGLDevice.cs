@@ -560,10 +560,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Constructor
 
-		public ModernGLDevice(
-			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter
-		) {
+		public ModernGLDevice(PresentationParameters presentationParameters)
+		{
 			// Create OpenGL context
 			glContext = SDL.SDL_GL_CreateContext(
 				presentationParameters.DeviceWindowHandle
@@ -687,7 +685,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Initialize the faux-backbuffer
-			if (UseFauxBackbuffer(presentationParameters, adapter.CurrentDisplayMode))
+			if (UseFauxBackbuffer(presentationParameters))
 			{
 				Backbuffer = new OpenGLBackbuffer(
 					this,
@@ -839,11 +837,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Window Backbuffer Reset Method
 
-		public void ResetBackbuffer(
-			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter
-		) {
-			if (UseFauxBackbuffer(presentationParameters, adapter.CurrentDisplayMode))
+		public void ResetBackbuffer(PresentationParameters presentationParameters)
+		{
+			if (UseFauxBackbuffer(presentationParameters))
 			{
 				if (Backbuffer is NullBackbuffer)
 				{
@@ -4231,7 +4227,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region The Faux-Backbuffer
 
-		private bool UseFauxBackbuffer(PresentationParameters presentationParameters, DisplayMode mode)
+		private bool UseFauxBackbuffer(PresentationParameters presentationParameters)
 		{
 			int drawX, drawY;
 			SDL.SDL_GL_GetDrawableSize(

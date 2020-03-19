@@ -232,10 +232,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Constructor/Disposal
 
-		public ThreadedGLDevice(
-			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter
-		) {
+		public ThreadedGLDevice(PresentationParameters presentationParameters)
+		{
 			csThread = new Thread(new ThreadStart(csThreadProc));
 			csThread.Start();
 
@@ -246,15 +244,13 @@ namespace Microsoft.Xna.Framework.Graphics
 					"FNA_THREADEDGLDEVICE_GLDEVICE"
 				) == "OpenGLDevice") {
 					GLDevice = new OpenGLDevice(
-						presentationParameters,
-						adapter
+						presentationParameters
 					);
 				}
 				else
 				{
 					GLDevice = new ModernGLDevice(
-						presentationParameters,
-						adapter
+						presentationParameters
 					);
 				}
 			}); // End ForceToMainThread
@@ -285,15 +281,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Backbuffer Operations
 
-		public void ResetBackbuffer(
-			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter
-		) {
+		public void ResetBackbuffer(PresentationParameters presentationParameters)
+		{
 			ForceToMainThread(() =>
 			{
 				GLDevice.ResetBackbuffer(
-					presentationParameters,
-					adapter
+					presentationParameters
 				);
 			}); // End ForceToMainThread
 		}
