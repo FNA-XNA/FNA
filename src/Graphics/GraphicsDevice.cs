@@ -1112,7 +1112,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				numVertices,
 				startIndex,
 				primitiveCount,
-				Indices
+				Indices.buffer,
+				Indices.IndexElementSize
 			);
 		}
 
@@ -1150,7 +1151,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				startIndex,
 				primitiveCount,
 				instanceCount,
-				Indices
+				Indices.buffer,
+				Indices.IndexElementSize
 			);
 		}
 
