@@ -696,9 +696,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Constructor
 
-		public MetalDevice(
-			PresentationParameters presentationParameters
-		) {
+		public MetalDevice(PresentationParameters presentationParameters)
+		{
 			device = MTLCreateSystemDefaultDevice();
 			queue = mtlNewCommandQueue(device);
 
