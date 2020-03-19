@@ -71,8 +71,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		void Dispose();
 
 		void ResetBackbuffer(
-			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter
+			PresentationParameters presentationParameters
 		);
 		void BeginFrame();
 		void SwapBuffers(

@@ -697,8 +697,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Public Constructor
 
 		public MetalDevice(
-			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter
+			PresentationParameters presentationParameters
 		) {
 			device = MTLCreateSystemDefaultDevice();
 			queue = mtlNewCommandQueue(device);
@@ -894,13 +893,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Window Backbuffer Reset Method
 
-		public void ResetBackbuffer(
-			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter
-		) {
-			Backbuffer.ResetFramebuffer(
-				presentationParameters
-			);
+		public void ResetBackbuffer(PresentationParameters presentationParameters)
+		{
+			Backbuffer.ResetFramebuffer(presentationParameters);
 		}
 
 		#endregion

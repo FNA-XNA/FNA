@@ -1330,15 +1330,15 @@ namespace Microsoft.Xna.Framework
 			{
 			case VULKAN:	break; // Maybe some day!
 			case METAL:
-				return new MetalDevice(presentationParameters, adapter);
+				return new MetalDevice(presentationParameters);
 			case MODERNGL:
 				// FIXME: This is still experimental! -flibit
-				return new ModernGLDevice(presentationParameters, adapter);
+				return new ModernGLDevice(presentationParameters);
 			case THREADEDGL:
 				// FIXME: This is still experimental! -flibit
-				return new ThreadedGLDevice(presentationParameters, adapter);
+				return new ThreadedGLDevice(presentationParameters);
 			case OPENGL:
-				return new OpenGLDevice(presentationParameters, adapter);
+				return new OpenGLDevice(presentationParameters);
 			}
 			throw new NotSupportedException(
 				"The requested GLDevice is not present!"

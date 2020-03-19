@@ -658,10 +658,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * The GLDevice needs to know what we're up to right away.
 			 * -flibit
 			 */
-			GLDevice.ResetBackbuffer(
-				PresentationParameters,
-				Adapter
-			);
+			GLDevice.ResetBackbuffer(PresentationParameters);
 
 			// The mouse needs to know this for faux-backbuffer mouse scaling.
 			Input.Mouse.INTERNAL_BackBufferWidth = PresentationParameters.BackBufferWidth;
