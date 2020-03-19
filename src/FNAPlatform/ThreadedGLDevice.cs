@@ -359,7 +359,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int numVertices,
 			int startIndex,
 			int primitiveCount,
-			IndexBuffer indices
+			IGLBuffer indices,
+			IndexElementSize indexElementSize
 		) {
 			ForceToMainThread(() =>
 			{
@@ -370,7 +371,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					numVertices,
 					startIndex,
 					primitiveCount,
-					indices
+					indices,
+					indexElementSize
 				);
 			}); // End ForceToMainThread
 		}
@@ -383,7 +385,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int primitiveCount,
 			int instanceCount,
-			IndexBuffer indices
+			IGLBuffer indices,
+			IndexElementSize indexElementSize
 		) {
 			ForceToMainThread(() =>
 			{
@@ -395,7 +398,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					startIndex,
 					primitiveCount,
 					instanceCount,
-					indices
+					indices,
+					indexElementSize
 				);
 			}); // End ForceToMainThread
 		}

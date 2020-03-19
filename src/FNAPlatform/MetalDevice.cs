@@ -1502,19 +1502,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			int numVertices,
 			int startIndex,
 			int primitiveCount,
-			IndexBuffer indices
+			IGLBuffer indices,
+			IndexElementSize indexElementSize
 		) {
-			MetalBuffer indexBuffer = indices.buffer as MetalBuffer;
+			MetalBuffer indexBuffer = indices as MetalBuffer;
 			indexBuffer.Bound();
 			int totalIndexOffset = (
-				(startIndex * XNAToMTL.IndexSize[(int) indices.IndexElementSize]) +
+				(startIndex * XNAToMTL.IndexSize[(int) indexElementSize]) +
 				indexBuffer.InternalOffset
 			);
 			mtlDrawIndexedPrimitives(
 				renderCommandEncoder,
 				XNAToMTL.Primitive[(int) primitiveType],
 				XNAToMTL.PrimitiveVerts(primitiveType, primitiveCount),
-				XNAToMTL.IndexType[(int) indices.IndexElementSize],
+				XNAToMTL.IndexType[(int) indexElementSize],
 				indexBuffer.Handle,
 				totalIndexOffset,
 				1
@@ -1529,19 +1530,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int primitiveCount,
 			int instanceCount,
-			IndexBuffer indices
+			IGLBuffer indices,
+			IndexElementSize indexElementSize
 		) {
-			MetalBuffer indexBuffer = indices.buffer as MetalBuffer;
+			MetalBuffer indexBuffer = indices as MetalBuffer;
 			indexBuffer.Bound();
 			int totalIndexOffset = (
-				(startIndex * XNAToMTL.IndexSize[(int) indices.IndexElementSize]) +
+				(startIndex * XNAToMTL.IndexSize[(int) indexElementSize]) +
 				indexBuffer.InternalOffset
 			);
 			mtlDrawIndexedPrimitives(
 				renderCommandEncoder,
 				XNAToMTL.Primitive[(int) primitiveType],
 				XNAToMTL.PrimitiveVerts(primitiveType, primitiveCount),
-				XNAToMTL.IndexType[(int) indices.IndexElementSize],
+				XNAToMTL.IndexType[(int) indexElementSize],
 				indexBuffer.Handle,
 				totalIndexOffset,
 				instanceCount

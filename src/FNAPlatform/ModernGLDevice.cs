@@ -1155,10 +1155,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			int numVertices,
 			int startIndex,
 			int primitiveCount,
-			IndexBuffer indices
+			IGLBuffer indices,
+			IndexElementSize indexElementSize
 		) {
 			// Bind the index buffer
-			BindIndexBuffer(indices.buffer);
+			BindIndexBuffer(indices);
 
 			// Draw!
 			glDrawRangeElementsBaseVertex(
@@ -1166,8 +1167,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				minVertexIndex,
 				minVertexIndex + numVertices - 1,
 				XNAToGL.PrimitiveVerts(primitiveType, primitiveCount),
-				XNAToGL.IndexType[(int) indices.IndexElementSize],
-				(IntPtr) (startIndex * XNAToGL.IndexSize[(int) indices.IndexElementSize]),
+				XNAToGL.IndexType[(int) indexElementSize],
+				(IntPtr) (startIndex * XNAToGL.IndexSize[(int) indexElementSize]),
 				baseVertex
 			);
 		}
@@ -1180,19 +1181,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int primitiveCount,
 			int instanceCount,
-			IndexBuffer indices
+			IGLBuffer indices,
+			IndexElementSize indexElementSize
 		) {
 			// Note that minVertexIndex and numVertices are NOT used!
 
 			// Bind the index buffer
-			BindIndexBuffer(indices.buffer);
+			BindIndexBuffer(indices);
 
 			// Draw!
 			glDrawElementsInstancedBaseVertex(
 				XNAToGL.Primitive[(int) primitiveType],
 				XNAToGL.PrimitiveVerts(primitiveType, primitiveCount),
-				XNAToGL.IndexType[(int) indices.IndexElementSize],
-				(IntPtr) (startIndex * XNAToGL.IndexSize[(int) indices.IndexElementSize]),
+				XNAToGL.IndexType[(int) indexElementSize],
+				(IntPtr) (startIndex * XNAToGL.IndexSize[(int) indexElementSize]),
 				instanceCount,
 				baseVertex
 			);
