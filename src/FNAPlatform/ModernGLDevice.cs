@@ -3614,8 +3614,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				// FIXME: ColorWriteChannels1/2/3? -flibit
 				glColorMask(
 					(colorWriteEnable & ColorWriteChannels.Red) != 0,
-					(colorWriteEnable & ColorWriteChannels.Blue) != 0,
 					(colorWriteEnable & ColorWriteChannels.Green) != 0,
+					(colorWriteEnable & ColorWriteChannels.Blue) != 0,
 					(colorWriteEnable & ColorWriteChannels.Alpha) != 0
 				);
 			}
