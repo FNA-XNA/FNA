@@ -203,7 +203,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Constructor
 
-		public BlendState ()
+		public BlendState()
 		{
 			AlphaBlendFunction = BlendFunction.Add;
 			AlphaDestinationBlend = Blend.Zero;

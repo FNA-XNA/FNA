@@ -156,7 +156,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Constructors
 
-		public PresentationParameters ()
+		public PresentationParameters()
 		{
 			BackBufferFormat = SurfaceFormat.Color;
 			BackBufferWidth = GraphicsDeviceManager.DefaultBackBufferWidth;
