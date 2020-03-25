@@ -15,74 +15,146 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public BlendFunction AlphaBlendFunction
 		{
-			get;
-			set;
+			get
+			{
+				return state.blendFuncAlpha;
+			}
+			set
+			{
+				state.blendFuncAlpha = value;
+			}
 		}
 
 		public Blend AlphaDestinationBlend
 		{
-			get;
-			set;
+			get
+			{
+				return state.dstBlendAlpha;
+			}
+			set
+			{
+				state.dstBlendAlpha = value;
+			}
 		}
 
 		public Blend AlphaSourceBlend
 		{
-			get;
-			set;
+			get
+			{
+				return state.srcBlendAlpha;
+			}
+			set
+			{
+				state.srcBlendAlpha = value;
+			}
 		}
 
 		public BlendFunction ColorBlendFunction
 		{
-			get;
-			set;
+			get
+			{
+				return state.blendFunc;
+			}
+			set
+			{
+				state.blendFunc = value;
+			}
 		}
 
 		public Blend ColorDestinationBlend
 		{
-			get;
-			set;
+			get
+			{
+				return state.dstBlend;
+			}
+			set
+			{
+				state.dstBlend = value;
+			}
 		}
 
 		public Blend ColorSourceBlend
 		{
-			get;
-			set;
+			get
+			{
+				return state.srcBlend;
+			}
+			set
+			{
+				state.srcBlend = value;
+			}
 		}
 
 		public ColorWriteChannels ColorWriteChannels
 		{
-			get;
-			set;
+			get
+			{
+				return state.colorWriteEnable;
+			}
+			set
+			{
+				state.colorWriteEnable = value;
+			}
 		}
 
 		public ColorWriteChannels ColorWriteChannels1
 		{
-			get;
-			set;
+			get
+			{
+				return state.colorWriteEnable1;
+			}
+			set
+			{
+				state.colorWriteEnable1 = value;
+			}
 		}
 
 		public ColorWriteChannels ColorWriteChannels2
 		{
-			get;
-			set;
+			get
+			{
+				return state.colorWriteEnable2;
+			}
+			set
+			{
+				state.colorWriteEnable2 = value;
+			}
 		}
 
 		public ColorWriteChannels ColorWriteChannels3
 		{
-			get;
-			set;
+			get
+			{
+				return state.colorWriteEnable3;
+			}
+			set
+			{
+				state.colorWriteEnable3 = value;
+			}
 		}
 
 		public Color BlendFactor
 		{
-			get;
-			set;
+			get
+			{
+				return state.blendColor;
+			}
+			set
+			{
+				state.blendColor = value;
+			}
 		}
 
 		public int MultiSampleMask
 		{
-			get;
-			set;
+			get
+			{
+				return state.multisampleMask;
+			}
+			set
+			{
+				state.multisampleMask = value;
+			}
 		}
 
 		#endregion
@@ -123,9 +195,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Internal FNA3D Variables
+
+		internal FNA3D.FNA3D_BlendState state;
+
+		#endregion
+
 		#region Public Constructor
 
-		public BlendState()
+		public BlendState ()
 		{
 			AlphaBlendFunction = BlendFunction.Add;
 			AlphaDestinationBlend = Blend.Zero;

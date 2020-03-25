@@ -35,22 +35,10 @@ namespace Microsoft.Xna.Framework
 		) == "1";
 
 		private static bool SupportsGlobalMouse;
-		private static string ForcedGLDevice;
-		private static string ActualGLDevice;
 
 		// For iOS high dpi support
 		private static int RetinaWidth;
 		private static int RetinaHeight;
-
-		#endregion
-
-		#region Graphics Backend String Constants
-
-		private const string OPENGL = "OpenGLDevice";
-		private const string MODERNGL = "ModernGLDevice";
-		private const string THREADEDGL = "ThreadedGLDevice";
-		private const string METAL = "MetalDevice";
-		private const string VULKAN = "VulkanDevice";
 
 		#endregion
 
@@ -254,187 +242,6 @@ namespace Microsoft.Xna.Framework
 
 		#region Window Methods
 
-		private static bool PrepareVKAttributes()
-		{
-			// Who will write the VulkanDevice.. will it be YOU?
-			return false;
-		}
-
-		private static bool PrepareMTLAttributes()
-		{
-			if (	String.IsNullOrEmpty(ForcedGLDevice) ||
-				!ForcedGLDevice.Equals(METAL)		)
-			{
-				return false;
-			}
-
-#if DEBUG
-			// Always enable the validation layer in debug mode
-			Environment.SetEnvironmentVariable(
-				"METAL_DEVICE_WRAPPER_TYPE",
-				"1"
-			);
-#endif
-
-			if (OSVersion.Equals("Mac OS X"))
-			{
-				// Let's find out if the OS supports Metal...
-				try
-				{
-					if (MetalDevice.MTLCreateSystemDefaultDevice() != IntPtr.Zero)
-					{
-						// We're good to go!
-						return true;
-					}
-				}
-				catch
-				{
-					// The OS is too old for Metal!
-					return false;
-				}
-			}
-			else if (OSVersion.Equals("iOS") || OSVersion.Equals("tvOS"))
-			{
-				/* We only support iOS/tvOS 11.0+ so
-				 * Metal is guaranteed to be supported.
-				 */
-				return true;
-			}
-
-			// Oh well, to OpenGL we go!
-			return false;
-		}
-
-		private static bool PrepareGLAttributes()
-		{
-			if (	!String.IsNullOrEmpty(ForcedGLDevice) &&
-				!ForcedGLDevice.Equals(OPENGL) &&
-				!ForcedGLDevice.Equals(MODERNGL) &&
-				!ForcedGLDevice.Equals(THREADEDGL)	)
-			{
-				return false;
-			}
-
-			// GLContext environment variables
-			bool forceES3 = Environment.GetEnvironmentVariable(
-				"FNA_OPENGL_FORCE_ES3"
-			) == "1";
-			bool forceCoreProfile = Environment.GetEnvironmentVariable(
-				"FNA_OPENGL_FORCE_CORE_PROFILE"
-			) == "1";
-			bool forceCompatProfile = Environment.GetEnvironmentVariable(
-				"FNA_OPENGL_FORCE_COMPATIBILITY_PROFILE"
-			) == "1";
-
-			// Some platforms are GLES only
-			forceES3 |= (
-				OSVersion.Equals("WinRT") ||
-				OSVersion.Equals("iOS") ||
-				OSVersion.Equals("tvOS") ||
-				OSVersion.Equals("Stadia") ||
-				OSVersion.Equals("Android") ||
-				OSVersion.Equals("Emscripten")
-			);
-
-			int depthSize = 24;
-			int stencilSize = 8;
-			DepthFormat windowDepthFormat;
-			if (Enum.TryParse(
-				Environment.GetEnvironmentVariable("FNA_OPENGL_WINDOW_DEPTHSTENCILFORMAT"),
-				true,
-				out windowDepthFormat
-			)) {
-				if (windowDepthFormat == DepthFormat.None)
-				{
-					depthSize = 0;
-					stencilSize = 0;
-				}
-				else if (windowDepthFormat == DepthFormat.Depth16)
-				{
-					depthSize = 16;
-					stencilSize = 0;
-				}
-				else if (windowDepthFormat == DepthFormat.Depth24)
-				{
-					depthSize = 24;
-					stencilSize = 0;
-				}
-				else if (windowDepthFormat == DepthFormat.Depth24Stencil8)
-				{
-					depthSize = 24;
-					stencilSize = 8;
-				}
-			}
-
-			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_RED_SIZE, 8);
-			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_GREEN_SIZE, 8);
-			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_BLUE_SIZE, 8);
-			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_ALPHA_SIZE, 8);
-			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_DEPTH_SIZE, depthSize);
-			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_STENCIL_SIZE, stencilSize);
-			SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_DOUBLEBUFFER, 1);
-			if (forceES3)
-			{
-				SDL.SDL_GL_SetAttribute(
-					SDL.SDL_GLattr.SDL_GL_RETAINED_BACKING,
-					0
-				);
-				SDL.SDL_GL_SetAttribute(
-					SDL.SDL_GLattr.SDL_GL_ACCELERATED_VISUAL,
-					1
-				);
-				SDL.SDL_GL_SetAttribute(
-					SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION,
-					3
-				);
-				SDL.SDL_GL_SetAttribute(
-					SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION,
-					0
-				);
-				SDL.SDL_GL_SetAttribute(
-					SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
-					(int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_ES
-				);
-			}
-			else if (forceCoreProfile)
-			{
-				SDL.SDL_GL_SetAttribute(
-					SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION,
-					4
-				);
-				SDL.SDL_GL_SetAttribute(
-					SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION,
-					6
-				);
-				SDL.SDL_GL_SetAttribute(
-					SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
-					(int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE
-				);
-			}
-			else if (forceCompatProfile)
-			{
-				SDL.SDL_GL_SetAttribute(
-					SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION,
-					2
-				);
-				SDL.SDL_GL_SetAttribute(
-					SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION,
-					1
-				);
-				SDL.SDL_GL_SetAttribute(
-					SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK,
-					(int) SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_COMPATIBILITY
-				);
-			}
-#if DEBUG
-			SDL.SDL_GL_SetAttribute(
-				SDL.SDL_GLattr.SDL_GL_CONTEXT_FLAGS,
-				(int) SDL.SDL_GLcontext.SDL_GL_CONTEXT_DEBUG_FLAG
-			);
-#endif
-			return true;
-		}
-
 		public static GameWindow CreateWindow()
 		{
 			// Set and initialize the SDL2 window
@@ -442,39 +249,13 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_WindowFlags.SDL_WINDOW_HIDDEN |
 				SDL.SDL_WindowFlags.SDL_WINDOW_INPUT_FOCUS |
 				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
+			) | (SDL.SDL_WindowFlags) FNA3D.FNA3D_PrepareWindowAttributes(
+#if DEBUG
+				1
+#else
+				0
+#endif
 			);
-
-			// Did the user force a particular GLDevice?
-			ForcedGLDevice = Environment.GetEnvironmentVariable(
-				"FNA_GRAPHICS_FORCE_GLDEVICE"
-			);
-
-			bool vulkan = false, metal = false, opengl = false;
-			if (vulkan = PrepareVKAttributes())
-			{
-				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN;
-				ActualGLDevice = VULKAN;
-			}
-			else if (metal = PrepareMTLAttributes())
-			{
-				SDL.SDL_SetHint(SDL.SDL_HINT_VIDEO_EXTERNAL_CONTEXT, "1");
-
-				// Metal doesn't require a window flag
-				ActualGLDevice = METAL;
-			}
-			else if (opengl = PrepareGLAttributes())
-			{
-				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL;
-				if (	ForcedGLDevice == MODERNGL ||
-					ForcedGLDevice == THREADEDGL	)
-				{
-					ActualGLDevice = ForcedGLDevice;
-				}
-				else
-				{
-					ActualGLDevice = OPENGL;
-				}
-			}
 
 			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
 			{
@@ -508,44 +289,12 @@ namespace Microsoft.Xna.Framework
 			// We hide the mouse cursor by default.
 			OnIsMouseVisibleChanged(false);
 
-			/* When using OpenGL, iOS and tvOS require
-			 * an active GL context to get the drawable
-			 * size of the screen.
-			 *
-			 * When using Metal, all Apple platforms
-			 * require a view to get the drawable size.
-			 */
-			IntPtr tempContext = IntPtr.Zero;
-			if (opengl && (OSVersion.Equals("iOS") || OSVersion.Equals("tvOS")))
-			{
-				tempContext = SDL.SDL_GL_CreateContext(window);
-			}
-			else if (metal)
-			{
-				tempContext = SDL.SDL_Metal_CreateView(window);
-			}
-
 			/* If high DPI is not found, unset the HIGHDPI var.
 			 * This is our way to communicate that it failed...
 			 * -flibit
 			 */
 			int drawX, drawY;
-			if (vulkan)
-			{
-				SDL.SDL_Vulkan_GetDrawableSize(window, out drawX, out drawY);
-			}
-			else if (metal)
-			{
-				MetalDevice.GetDrawableSizeFromView(tempContext, out drawX, out drawY);
-			}
-			else if (opengl)
-			{
-				SDL.SDL_GL_GetDrawableSize(window, out drawX, out drawY);
-			}
-			else
-			{
-				throw new InvalidOperationException("DirectX? Glide? What?");
-			}
+			FNA3D.FNA3D_GetDrawableSize(window, out drawX, out drawY);
 			if (	drawX == GraphicsDeviceManager.DefaultBackBufferWidth &&
 				drawY == GraphicsDeviceManager.DefaultBackBufferHeight	)
 			{
@@ -556,19 +305,6 @@ namespace Microsoft.Xna.Framework
 				// Store the full retina resolution of the display
 				RetinaWidth = drawX;
 				RetinaHeight = drawY;
-			}
-
-			// We're done with that temporary context.
-			if (tempContext != IntPtr.Zero)
-			{
-				if (opengl)
-				{
-					SDL.SDL_GL_DeleteContext(tempContext);
-				}
-				else if (metal)
-				{
-					SDL.SDL_Metal_DestroyView(tempContext);
-				}
 			}
 
 			return new FNAWindow(
@@ -1285,64 +1021,6 @@ namespace Microsoft.Xna.Framework
 
 			// We out.
 			game.Exit();
-		}
-
-		#endregion
-
-		#region IGL/IAL Methods
-
-		public static IGLDevice CreateGLDevice(
-			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter
-		) {
-			if (string.IsNullOrEmpty(ActualGLDevice))
-			{
-				/* This may be a GraphicsDevice with no Game.
-				 * in that case, try this var one last time.
-				 */
-				ActualGLDevice = Environment.GetEnvironmentVariable(
-					"FNA_GRAPHICS_FORCE_GLDEVICE"
-				);
-				if (string.IsNullOrEmpty(ActualGLDevice))
-				{
-					// No device requested at all? Try to guess.
-					SDL.SDL_WindowFlags flags = (SDL.SDL_WindowFlags) SDL.SDL_GetWindowFlags(
-						presentationParameters.DeviceWindowHandle
-					);
-					if ((flags & SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN) == SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN)
-					{
-						ActualGLDevice = VULKAN;
-					}
-					else if ((flags & SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL) == SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL)
-					{
-						ActualGLDevice = OPENGL;
-					}
-					else if (	OSVersion.Equals("Mac OS X") ||
-							OSVersion.Equals("iOS") ||
-							OSVersion.Equals("tvOS")	)
-					{
-						ActualGLDevice = METAL;
-					}
-				}
-			}
-
-			switch (ActualGLDevice)
-			{
-			case VULKAN:	break; // Maybe some day!
-			case METAL:
-				return new MetalDevice(presentationParameters);
-			case MODERNGL:
-				// FIXME: This is still experimental! -flibit
-				return new ModernGLDevice(presentationParameters);
-			case THREADEDGL:
-				// FIXME: This is still experimental! -flibit
-				return new ThreadedGLDevice(presentationParameters);
-			case OPENGL:
-				return new OpenGLDevice(presentationParameters);
-			}
-			throw new NotSupportedException(
-				"The requested GLDevice is not present!"
-			);
 		}
 
 		#endregion

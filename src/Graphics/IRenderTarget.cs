@@ -7,6 +7,10 @@
  */
 #endregion
 
+#region Using Statements
+using System;
+#endregion
+
 namespace Microsoft.Xna.Framework.Graphics
 {
 	/// <summary>
@@ -54,7 +58,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// Gets the handle of the depth-stencil buffer.
 		/// </summary>
 		/// <value>The depth-stencil buffer handle.</value>
-		IGLRenderbuffer DepthStencilBuffer
+		IntPtr DepthStencilBuffer
 		{
 			get;
 		}
@@ -63,7 +67,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// Gets the handle of the color buffer.
 		/// </summary>
 		/// <value>The color buffer handle.</value>
-		IGLRenderbuffer ColorBuffer
+		IntPtr ColorBuffer
 		{
 			get;
 		}

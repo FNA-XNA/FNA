@@ -29,7 +29,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			set
 			{
 				MojoShader.MOJOSHADER_effectSetTechnique(
-					glEffect.EffectData,
+					FNA3D.FNA3D_GetEffectData(GraphicsDevice.GLDevice, glEffect),
 					value.TechniquePointer
 				);
 				INTERNAL_currentTechnique = value;
@@ -50,9 +50,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Internal Variables
+		#region Internal FNA3D Variables
 
-		internal IGLEffect glEffect;
+		internal IntPtr glEffect;
 
 		#endregion
 
@@ -217,7 +217,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			GraphicsDevice = graphicsDevice;
 
 			// Send the blob to the GLDevice to be parsed/compiled
-			glEffect = graphicsDevice.GLDevice.CreateEffect(effectCode);
+			glEffect = FNA3D.FNA3D_CreateEffect(graphicsDevice.GLDevice, effectCode);
 
 			// This is where it gets ugly...
 			INTERNAL_parseEffectStruct();
@@ -248,7 +248,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			GraphicsDevice = cloneSource.GraphicsDevice;
 
 			// Send the parsed data to be cloned and recompiled by MojoShader
-			glEffect = GraphicsDevice.GLDevice.CloneEffect(
+			glEffect = FNA3D.FNA3D_CloneEffect(
+				GraphicsDevice.GLDevice,
 				cloneSource.glEffect
 			);
 
@@ -301,9 +302,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				if (glEffect != null)
+				if (glEffect != IntPtr.Zero)
 				{
-					GraphicsDevice.GLDevice.AddDisposeEffect(glEffect);
+					FNA3D.FNA3D_AddDisposeEffect(
+						GraphicsDevice.GLDevice,
+						glEffect
+					);
 				}
 				if (stateChangesPtr != IntPtr.Zero)
 				{
@@ -324,7 +328,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal unsafe void INTERNAL_applyEffect(uint pass)
 		{
-			GraphicsDevice.GLDevice.ApplyEffect(
+			FNA3D.FNA3D_ApplyEffect(
+				GraphicsDevice.GLDevice,
 				glEffect,
 				CurrentTechnique.TechniquePointer,
 				pass,
@@ -860,7 +865,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private unsafe void INTERNAL_parseEffectStruct()
 		{
-			MojoShader.MOJOSHADER_effect* effectPtr = (MojoShader.MOJOSHADER_effect*) glEffect.EffectData;
+			MojoShader.MOJOSHADER_effect* effectPtr = (MojoShader.MOJOSHADER_effect*)
+				FNA3D.FNA3D_GetEffectData(GraphicsDevice.GLDevice, glEffect);
 
 			// Set up Parameters
 			MojoShader.MOJOSHADER_effectParam* paramPtr = (MojoShader.MOJOSHADER_effectParam*) effectPtr->parameters;

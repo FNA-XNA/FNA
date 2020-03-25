@@ -86,7 +86,6 @@ namespace Microsoft.Xna.Framework
 			SetWindowBorderless =		SDL2_FNAPlatform.SetWindowBorderless;
 			SetWindowTitle =		SDL2_FNAPlatform.SetWindowTitle;
 			RunLoop =			SDL2_FNAPlatform.RunLoop;
-			CreateGLDevice =		SDL2_FNAPlatform.CreateGLDevice;
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
 			GetCurrentDisplayMode =		SDL2_FNAPlatform.GetCurrentDisplayMode;
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
@@ -184,12 +183,6 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void RunLoopFunc(Game game);
 		public static readonly RunLoopFunc RunLoop;
-
-		public delegate IGLDevice CreateGLDeviceFunc(
-			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter
-		);
-		public static readonly CreateGLDeviceFunc CreateGLDevice;
 
 		public delegate GraphicsAdapter[] GetGraphicsAdaptersFunc();
 		public static readonly GetGraphicsAdaptersFunc GetGraphicsAdapters;

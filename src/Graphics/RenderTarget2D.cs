@@ -48,7 +48,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region IRenderTarget Properties
 
 		/// <inheritdoc/>
-		IGLRenderbuffer IRenderTarget.DepthStencilBuffer
+		IntPtr IRenderTarget.DepthStencilBuffer
 		{
 			get
 			{
@@ -57,7 +57,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		/// <inheritdoc/>
-		IGLRenderbuffer IRenderTarget.ColorBuffer
+		IntPtr IRenderTarget.ColorBuffer
 		{
 			get
 			{
@@ -67,10 +67,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Private Variables
+		#region Private FNA3D Variables
 
-		private IGLRenderbuffer glDepthStencilBuffer;
-		private IGLRenderbuffer glColorBuffer;
+		private IntPtr glDepthStencilBuffer;
+		private IntPtr glColorBuffer;
 
 		#endregion
 
@@ -139,13 +139,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			DepthStencilFormat = preferredDepthFormat;
 			MultiSampleCount = Math.Min(
 				MathHelper.ClosestMSAAPower(preferredMultiSampleCount),
-				graphicsDevice.GLDevice.MaxMultiSampleCount
+				FNA3D.FNA3D_GetMaxMultiSampleCount(graphicsDevice.GLDevice)
 			);
 			RenderTargetUsage = usage;
 
 			if (MultiSampleCount > 0)
 			{
-				glColorBuffer = graphicsDevice.GLDevice.GenRenderbuffer(
+				glColorBuffer = FNA3D.FNA3D_GenColorRenderbuffer(
+					graphicsDevice.GLDevice,
 					Width,
 					Height,
 					Format,
@@ -160,7 +161,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				return;
 			}
 
-			glDepthStencilBuffer = graphicsDevice.GLDevice.GenRenderbuffer(
+			glDepthStencilBuffer = FNA3D.FNA3D_GenDepthStencilRenderbuffer(
+				graphicsDevice.GLDevice,
 				Width,
 				Height,
 				DepthStencilFormat,
@@ -176,14 +178,20 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				if (glColorBuffer != null)
+				if (glColorBuffer != IntPtr.Zero)
 				{
-					GraphicsDevice.GLDevice.AddDisposeRenderbuffer(glColorBuffer);
+					FNA3D.FNA3D_AddDisposeRenderbuffer(
+						GraphicsDevice.GLDevice,
+						glColorBuffer
+					);
 				}
 
-				if (glDepthStencilBuffer != null)
+				if (glDepthStencilBuffer != IntPtr.Zero)
 				{
-					GraphicsDevice.GLDevice.AddDisposeRenderbuffer(glDepthStencilBuffer);
+					FNA3D.FNA3D_AddDisposeRenderbuffer(
+						GraphicsDevice.GLDevice,
+						glDepthStencilBuffer
+					);
 				}
 			}
 			base.Dispose(disposing);

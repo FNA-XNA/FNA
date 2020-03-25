@@ -19,56 +19,110 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public bool DepthBufferEnable
 		{
-			get;
-			set;
+			get
+			{
+				return state.zEnable == 1;
+			}
+			set
+			{
+				state.zEnable = (byte) (value ? 1 : 0);
+			}
 		}
 
 		public bool DepthBufferWriteEnable
 		{
-			get;
-			set;
+			get
+			{
+				return state.zWriteEnable == 1;
+			}
+			set
+			{
+				state.zWriteEnable = (byte) (value ? 1 : 0);
+			}
 		}
 
 		public StencilOperation CounterClockwiseStencilDepthBufferFail
 		{
-			get;
-			set;
+			get
+			{
+				return state.ccwStencilZFail;
+			}
+			set
+			{
+				state.ccwStencilZFail = value;
+			}
 		}
 
 		public StencilOperation CounterClockwiseStencilFail	
 		{
-			get;
-			set;
+			get
+			{
+				return state.ccwStencilFail;
+			}
+			set
+			{
+				state.ccwStencilFail = value;
+			}
 		}
 
 		public CompareFunction CounterClockwiseStencilFunction	
 		{
-			get;
-			set;
+			get
+			{
+				return state.ccwStencilFunc;
+			}
+			set
+			{
+				state.ccwStencilFunc = value;
+			}
 		}
 
 		public StencilOperation CounterClockwiseStencilPass	
 		{
-			get;
-			set;
+			get
+			{
+				return state.ccwStencilPass;
+			}
+			set
+			{
+				state.ccwStencilPass = value;
+			}
 		}
 
 		public CompareFunction DepthBufferFunction	
 		{
-			get;
-			set;
+			get
+			{
+				return state.depthFunc;
+			}
+			set
+			{
+				state.depthFunc = value;
+			}
 		}
 
 		public int ReferenceStencil	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilRef;
+			}
+			set
+			{
+				state.stencilRef = value;
+			}
 		}
 
 		public StencilOperation StencilDepthBufferFail	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilZFail;
+			}
+			set
+			{
+				state.stencilZFail = value;
+			}
 		}
 
 		public bool StencilEnable	
@@ -79,38 +133,74 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public StencilOperation StencilFail	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilFail;
+			}
+			set
+			{
+				state.stencilFail = value;
+			}
 		}
 
 		public CompareFunction StencilFunction	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilFunc;
+			}
+			set
+			{
+				state.stencilFunc = value;
+			}
 		}
 
 		public int StencilMask	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilMask;
+			}
+			set
+			{
+				state.stencilMask = value;
+			}
 		}
 
 		public StencilOperation StencilPass	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilPass;
+			}
+			set
+			{
+				state.stencilPass = value;
+			}
 		}
 
 		public int StencilWriteMask	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilWriteMask;
+			}
+			set
+			{
+				state.stencilWriteMask = value;
+			}
 		}
 
 		public bool TwoSidedStencilMode	
 		{
-			get;
-			set;
+			get
+			{
+				return state.separateStencilEnable == 1;
+			}
+			set
+			{
+				state.separateStencilEnable = (byte) (value ? 1 : 0);
+			}
 		}
 
 		#endregion
@@ -134,6 +224,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			false,
 			false
 		);
+
+		#endregion
+
+		#region Internal FNA3D Variables
+
+		internal FNA3D.FNA3D_DepthStencilState state;
 
 		#endregion
 

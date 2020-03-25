@@ -1,13 +1,9 @@
 This is FNAPlatform, the platform abstraction layer and implementations for FNA.
 
-The way FNA platforms are written is by implementing the following interfaces:
+The way FNA platforms are written is very simple:
 
-1. FNAPlatform
-	- Write implementations of the delegate types listed in FNAPlatform.cs
-	- Assign the new functions in the FNAPlatform static constructor
-2. IGLDevice
-	- Implement the interfaces listed in IGLDevice.cs
-	- When implementing FNAPlatform.CreateGLDevice, use your new GLDevice
+1. Write implementations of the delegate types listed in FNAPlatform.cs
+2. Assign the new functions in the FNAPlatform static constructor
 
 Determining platform backends at runtime allows us to have portability across
 all targets with a single binary, which is convenient for targeting multiple

@@ -1091,8 +1091,9 @@ namespace Microsoft.Xna.Framework.Graphics
 						effects
 					);
 
-					if (GraphicsDevice.GLDevice.SupportsNoOverwrite)
-					{
+					if (FNA3D.FNA3D_SupportsNoOverwrite(
+						GraphicsDevice.GLDevice
+					) == 1) {
 						offset = UpdateVertexBuffer(1);
 					}
 					else
@@ -1260,7 +1261,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int offset;
 			SetDataOptions options;
 			if (	(bufferOffset + count) > MAX_SPRITES ||
-				!GraphicsDevice.GLDevice.SupportsNoOverwrite	)
+				FNA3D.FNA3D_SupportsNoOverwrite(GraphicsDevice.GLDevice) == 0	)
 			{
 				offset = 0;
 				options = SetDataOptions.Discard;

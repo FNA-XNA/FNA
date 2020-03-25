@@ -204,14 +204,6 @@
     <Compile Include="src\FNALoggerEXT.cs" />
     <Compile Include="src\FNAPlatform\FNAPlatform.cs" />
     <Compile Include="src\FNAPlatform\FNAWindow.cs" />
-    <Compile Include="src\FNAPlatform\IGLDevice.cs" />
-    <Compile Include="src\FNAPlatform\MetalDevice.cs" />
-    <Compile Include="src\FNAPlatform\MetalDevice_MTL.cs" />
-    <Compile Include="src\FNAPlatform\ModernGLDevice.cs" />
-    <Compile Include="src\FNAPlatform\ModernGLDevice_GL.cs" />
-    <Compile Include="src\FNAPlatform\OpenGLDevice.cs" />
-    <Compile Include="src\FNAPlatform\OpenGLDevice_GL.cs" />
-    <Compile Include="src\FNAPlatform\ThreadedGLDevice.cs" />
     <Compile Include="src\FNAPlatform\SDL2_FNAPlatform.cs" />
     <Compile Include="src\FrameworkDispatcher.cs" />
     <Compile Include="src\Game.cs" />
@@ -254,6 +246,7 @@
     <Compile Include="src\Graphics\Effect\StockEffects\EnvironmentMapEffect.cs" />
     <Compile Include="src\Graphics\Effect\StockEffects\SkinnedEffect.cs" />
     <Compile Include="src\Graphics\Effect\StockEffects\SpriteEffect.cs" />
+    <Compile Include="src\Graphics\FNA3D.cs" />
     <Compile Include="src\Graphics\GraphicsAdapter.cs" />
     <Compile Include="src\Graphics\GraphicsDevice.cs" />
     <Compile Include="src\Graphics\GraphicsDeviceStatus.cs" />

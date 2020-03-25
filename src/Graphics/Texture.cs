@@ -31,9 +31,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Internal Variables
+		#region Internal FNA3D Variables
 
-		internal IGLTexture texture;
+		internal IntPtr texture;
 
 		#endregion
 
@@ -43,7 +43,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				GraphicsDevice.GLDevice.AddDisposeTexture(texture);
+				FNA3D.FNA3D_AddDisposeTexture(
+					GraphicsDevice.GLDevice,
+					texture
+				);
 			}
 			base.Dispose(disposing);
 		}

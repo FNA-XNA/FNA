@@ -28,11 +28,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return height;
+				return viewport.h;
 			}
 			set
 			{
-				height = value;
+				viewport.h = value;
 			}
 		}
 
@@ -43,11 +43,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return maxDepth;
+				return viewport.maxDepth;
 			}
 			set
 			{
-				maxDepth = value;
+				viewport.maxDepth = value;
 			}
 		}
 
@@ -58,11 +58,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return minDepth;
+				return viewport.minDepth;
 			}
 			set
 			{
-				minDepth = value;
+				viewport.minDepth = value;
 			}
 		}
 
@@ -73,11 +73,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return width;
+				return viewport.w;
 			}
 			set
 			{
-				width = value;
+				viewport.w = value;
 			}
 		}
 
@@ -88,12 +88,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return y;
+				return viewport.y;
 
 			}
 			set
 			{
-				y = value;
+				viewport.y = value;
 			}
 		}
 
@@ -104,11 +104,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return x;
+				return viewport.x;
 			}
 			set
 			{
-				x = value;
+				viewport.x = value;
 			}
 		}
 
@@ -119,9 +119,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				if ((height != 0) && (width != 0))
+				if ((viewport.h != 0) && (viewport.w != 0))
 				{
-					return (((float) width) / ((float) height));
+					return (((float) viewport.w) / ((float) viewport.h));
 				}
 				return 0.0f;
 			}
@@ -135,19 +135,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			get
 			{
 				return new Rectangle(
-					x,
-					y,
-					width,
-					height
+					viewport.x,
+					viewport.y,
+					viewport.w,
+					viewport.h
 				);
 			}
 
 			set
 			{
-				x = value.X;
-				y = value.Y;
-				width = value.Width;
-				height = value.Height;
+				viewport.x = value.X;
+				viewport.y = value.Y;
+				viewport.w = value.Width;
+				viewport.h = value.Height;
 			}
 		}
 
@@ -164,14 +164,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Private Variables
+		#region Internal FNA3D Variables
 
-		private int x;
-		private int y;
-		private int width;
-		private int height;
-		private float minDepth;
-		private float maxDepth;
+		internal FNA3D.FNA3D_Viewport viewport;
 
 		#endregion
 
@@ -186,12 +181,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <param name="height">The height of the view bounds in pixels.</param>
 		public Viewport(int x, int y, int width, int height)
 		{
-			this.x = x;
-			this.y = y;
-			this.width = width;
-			this.height = height;
-			minDepth = 0.0f;
-			maxDepth = 1.0f;
+			viewport.x = x;
+			viewport.y = y;
+			viewport.w = width;
+			viewport.h = height;
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
 		}
 
 		/// <summary>
@@ -200,12 +195,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <param name="bounds">A <see cref="Rectangle"/> that defines the location and size of the <see cref="Viewport"/> in a render target.</param>
 		public Viewport(Rectangle bounds)
 		{
-			x = bounds.X;
-			y = bounds.Y;
-			width = bounds.Width;
-			height = bounds.Height;
-			minDepth = 0.0f;
-			maxDepth = 1.0f;
+			viewport.x = bounds.X;
+			viewport.y = bounds.Y;
+			viewport.w = bounds.Width;
+			viewport.h = bounds.Height;
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
 		}
 
 		#endregion
@@ -290,12 +285,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			return (
 				"{" +
-				"X:" + x.ToString() +
-				" Y:" + y.ToString() +
-				" Width:" + width.ToString() +
-				" Height:" + height.ToString() +
-				" MinDepth:" + minDepth.ToString() +
-				" MaxDepth:" + maxDepth.ToString() +
+				"X:" + viewport.x.ToString() +
+				" Y:" + viewport.y.ToString() +
+				" Width:" + viewport.w.ToString() +
+				" Height:" + viewport.h.ToString() +
+				" MinDepth:" + viewport.minDepth.ToString() +
+				" MaxDepth:" + viewport.maxDepth.ToString() +
 				"}"
 			);
 		}

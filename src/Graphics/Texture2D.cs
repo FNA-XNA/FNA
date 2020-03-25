@@ -94,12 +94,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				Format = format;
 			}
 
-			texture = GraphicsDevice.GLDevice.CreateTexture2D(
+			texture = FNA3D.FNA3D_CreateTexture2D(
+				GraphicsDevice.GLDevice,
 				Format,
 				Width,
 				Height,
 				LevelCount,
-				(this is IRenderTarget)
+				(byte) ((this is IRenderTarget) ? 1 : 0)
 			);
 		}
 
@@ -161,7 +162,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			int elementSize = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.SetTextureData2D(
+			FNA3D.FNA3D_SetTextureData2D(
+				GraphicsDevice.GLDevice,
 				texture,
 				Format,
 				x,
@@ -202,7 +204,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				h = Math.Max(Height >> level, 1);
 			}
 
-			GraphicsDevice.GLDevice.SetTextureData2D(
+			FNA3D.FNA3D_SetTextureData2D(
+				GraphicsDevice.GLDevice,
 				texture,
 				Format,
 				x,
@@ -280,7 +283,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.GetTextureData2D(
+			FNA3D.FNA3D_GetTextureData2D(
+				GraphicsDevice.GLDevice,
 				texture,
 				Format,
 				Width >> level,

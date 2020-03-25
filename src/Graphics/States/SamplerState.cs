@@ -15,44 +15,86 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public TextureAddressMode AddressU
 		{
-			get;
-			set;
+			get
+			{
+				return state.addressU;
+			}
+			set
+			{
+				state.addressU = value;
+			}
 		}
 
 		public TextureAddressMode AddressV
 		{
-			get;
-			set;
+			get
+			{
+				return state.addressV;
+			}
+			set
+			{
+				state.addressV = value;
+			}
 		}
 
 		public TextureAddressMode AddressW
 		{
-			get;
-			set;
+			get
+			{
+				return state.addressW;
+			}
+			set
+			{
+				state.addressW = value;
+			}
 		}
 
 		public TextureFilter Filter
 		{
-			get;
-			set;
+			get
+			{
+				return state.filter;
+			}
+			set
+			{
+				state.filter = value;
+			}
 		}
 
 		public int MaxAnisotropy
 		{
-			get;
-			set;
+			get
+			{
+				return state.maxAnisotropy;
+			}
+			set
+			{
+				state.maxAnisotropy = value;
+			}
 		}
 
 		public int MaxMipLevel
 		{
-			get;
-			set;
+			get
+			{
+				return state.maxMipLevel;
+			}
+			set
+			{
+				state.maxMipLevel = value;
+			}
 		}
 
 		public float MipMapLevelOfDetailBias
 		{
-			get;
-			set;
+			get
+			{
+				return state.mipMapLevelOfDetailBias;
+			}
+			set
+			{
+				state.mipMapLevelOfDetailBias = value;
+			}
 		}
 
 		#endregion
@@ -106,6 +148,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			TextureAddressMode.Wrap,
 			TextureAddressMode.Wrap
 		);
+
+		#endregion
+
+		#region Internal FNA3D Variables
+
+		internal FNA3D.FNA3D_SamplerState state;
 
 		#endregion
 

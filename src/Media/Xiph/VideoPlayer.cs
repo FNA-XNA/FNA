@@ -158,7 +158,8 @@ namespace Microsoft.Xna.Framework.Media
 		private void GL_pushState()
 		{
 			// Begin the effect, flagging to restore previous state on end
-			currentDevice.GLDevice.BeginPassRestore(
+			FNA3D.FNA3D_BeginPassRestore(
+				currentDevice.GLDevice,
 				shaderProgram.glEffect,
 				stateChangesPtr
 			);
@@ -178,11 +179,13 @@ namespace Microsoft.Xna.Framework.Media
 
 			// Prep target bindings
 			oldTargets = currentDevice.GetRenderTargets();
+			/* FIXME: Oh shit -flibit
 			currentDevice.GLDevice.SetRenderTargets(
 				videoTexture,
 				null,
 				DepthFormat.None
 			);
+			*/
 
 			// Prep render state
 			prevBlend = currentDevice.BlendState;
@@ -194,13 +197,19 @@ namespace Microsoft.Xna.Framework.Media
 
 			// Prep viewport
 			prevViewport = currentDevice.Viewport;
-			currentDevice.GLDevice.SetViewport(viewport);
+			FNA3D.FNA3D_SetViewport(
+				currentDevice.GLDevice,
+				ref viewport.viewport
+			);
 		}
 
 		private void GL_popState()
 		{
 			// End the effect, restoring the previous shader state
-			currentDevice.GLDevice.EndPassRestore(shaderProgram.glEffect);
+			FNA3D.FNA3D_EndPassRestore(
+				currentDevice.GLDevice,
+				shaderProgram.glEffect
+			);
 
 			// Restore GL state
 			currentDevice.BlendState = prevBlend;
@@ -213,6 +222,7 @@ namespace Microsoft.Xna.Framework.Media
 			/* Restore targets using GLDevice directly.
 			 * This prevents accidental clearing of previously bound targets.
 			 */
+			/* FIXME: Oh shit -flibit
 			if (oldTargets == null || oldTargets.Length == 0)
 			{
 				currentDevice.GLDevice.SetRenderTargets(
@@ -230,10 +240,14 @@ namespace Microsoft.Xna.Framework.Media
 					oldTarget.DepthStencilFormat
 				);
 			}
+			*/
 			oldTargets = null;
 
 			// Set viewport AFTER setting targets!
-			currentDevice.GLDevice.SetViewport(prevViewport);
+			FNA3D.FNA3D_SetViewport(
+				currentDevice.GLDevice,
+				ref prevViewport.viewport
+			);
 
 			// Restore buffers
 			currentDevice.SetVertexBuffers(oldBuffers);
@@ -712,8 +726,13 @@ namespace Microsoft.Xna.Framework.Media
 		private void UpdateTexture()
 		{
 			// Prepare YUV GL textures with our current frame data
-			currentDevice.GLDevice.SetTextureDataYUV(
-				yuvTextures,
+			FNA3D.FNA3D_SetTextureDataYUV(
+				currentDevice.GLDevice,
+				yuvTextures[0].texture,
+				yuvTextures[1].texture,
+				yuvTextures[2].texture,
+				Video.Width,
+				Video.Height,
 				yuvData
 			);
 

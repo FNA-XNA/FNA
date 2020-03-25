@@ -38,9 +38,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Internal Properties
+		#region Internal FNA3D Variables
 
-		internal IGLBuffer buffer;
+		internal IntPtr buffer;
 
 		#endregion
 
@@ -101,8 +101,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				vertexDeclaration.GraphicsDevice = graphicsDevice;
 			}
 
-			buffer = GraphicsDevice.GLDevice.GenVertexBuffer(
-				dynamic,
+			buffer = FNA3D.FNA3D_GenVertexBuffer(
+				GraphicsDevice.GLDevice,
+				(byte) (dynamic ? 1 : 0),
 				bufferUsage,
 				VertexCount,
 				VertexDeclaration.VertexStride
@@ -117,7 +118,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				GraphicsDevice.GLDevice.AddDisposeVertexBuffer(buffer);
+				FNA3D.FNA3D_AddDisposeVertexBuffer(
+					GraphicsDevice.GLDevice,
+					buffer
+				);
 			}
 			base.Dispose(disposing);
 		}
@@ -193,7 +197,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.GetVertexBufferData(
+			FNA3D.FNA3D_GetVertexBufferData(
+				GraphicsDevice.GLDevice,
 				buffer,
 				offsetInBytes,
 				handle.AddrOfPinnedObject(),
@@ -214,7 +219,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			ErrorCheck(data, 0, data.Length, Marshal.SizeOf(typeof(T)));
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.SetVertexBufferData(
+			FNA3D.FNA3D_SetVertexBufferData(
+				GraphicsDevice.GLDevice,
 				buffer,
 				0,
 				handle.AddrOfPinnedObject(),
@@ -232,7 +238,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			ErrorCheck(data, startIndex, elementCount, Marshal.SizeOf(typeof(T)));
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.SetVertexBufferData(
+			FNA3D.FNA3D_SetVertexBufferData(
+				GraphicsDevice.GLDevice,
 				buffer,
 				0,
 				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
@@ -252,7 +259,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			ErrorCheck(data, startIndex, elementCount, vertexStride);
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.SetVertexBufferData(
+			FNA3D.FNA3D_SetVertexBufferData(
+				GraphicsDevice.GLDevice,
 				buffer,
 				offsetInBytes,
 				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
@@ -272,7 +280,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int dataLength,
 			SetDataOptions options
 		) {
-			GraphicsDevice.GLDevice.SetVertexBufferData(
+			FNA3D.FNA3D_SetVertexBufferData(
+				GraphicsDevice.GLDevice,
 				buffer,
 				offsetInBytes,
 				data,
@@ -304,8 +313,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					" data requested."
 				);
 			}
+			IntPtr bufSize = FNA3D.FNA3D_GetBufferSize(
+				GraphicsDevice.GLDevice,
+				buffer
+			);
 			if (	elementCount > 1 &&
-				(elementCount * vertexStride > (int) buffer.BufferSize)	)
+				(elementCount * vertexStride > (int) bufSize)	)
 			{
 				throw new InvalidOperationException(
 					"The vertex stride is larger than the vertex buffer."
