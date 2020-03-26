@@ -21,11 +21,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.zEnable == 1;
+				return state.depthBufferEnable == 1;
 			}
 			set
 			{
-				state.zEnable = (byte) (value ? 1 : 0);
+				state.depthBufferEnable = (byte) (value ? 1 : 0);
 			}
 		}
 
@@ -33,11 +33,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.zWriteEnable == 1;
+				return state.depthBufferWriteEnable == 1;
 			}
 			set
 			{
-				state.zWriteEnable = (byte) (value ? 1 : 0);
+				state.depthBufferWriteEnable = (byte) (value ? 1 : 0);
 			}
 		}
 
@@ -45,11 +45,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.ccwStencilZFail;
+				return state.ccwStencilDepthBufferFail;
 			}
 			set
 			{
-				state.ccwStencilZFail = value;
+				state.ccwStencilDepthBufferFail = value;
 			}
 		}
 
@@ -69,11 +69,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.ccwStencilFunc;
+				return state.ccwStencilFunction;
 			}
 			set
 			{
-				state.ccwStencilFunc = value;
+				state.ccwStencilFunction = value;
 			}
 		}
 
@@ -93,11 +93,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.depthFunc;
+				return state.depthBufferFunction;
 			}
 			set
 			{
-				state.depthFunc = value;
+				state.depthBufferFunction = value;
 			}
 		}
 
@@ -105,11 +105,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.stencilRef;
+				return state.referenceStencil;
 			}
 			set
 			{
-				state.stencilRef = value;
+				state.referenceStencil = value;
 			}
 		}
 
@@ -117,18 +117,24 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.stencilZFail;
+				return state.stencilDepthBufferFail;
 			}
 			set
 			{
-				state.stencilZFail = value;
+				state.stencilDepthBufferFail = value;
 			}
 		}
 
 		public bool StencilEnable	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilEnable == 1;
+			}
+			set
+			{
+				state.stencilEnable = (byte) (value ? 1 : 0);
+			}
 		}
 
 		public StencilOperation StencilFail	
@@ -147,11 +153,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.stencilFunc;
+				return state.stencilFunction;
 			}
 			set
 			{
-				state.stencilFunc = value;
+				state.stencilFunction = value;
 			}
 		}
 
@@ -195,11 +201,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.separateStencilEnable == 1;
+				return state.twoSidedStencilMode == 1;
 			}
 			set
 			{
-				state.separateStencilEnable = (byte) (value ? 1 : 0);
+				state.twoSidedStencilMode = (byte) (value ? 1 : 0);
 			}
 		}
 

@@ -38,62 +38,62 @@ namespace Microsoft.Xna.Framework.Graphics
 		[StructLayout(LayoutKind.Sequential)]
 		public struct FNA3D_BlendState
 		{
-			public Color blendColor;
-			public int multisampleMask;
-			public BlendFunction blendFunc;
-			public BlendFunction blendFuncAlpha;
-			public Blend srcBlend;
-			public Blend dstBlend;
-			public Blend srcBlendAlpha;
-			public Blend dstBlendAlpha;
+			public Blend colorSourceBlend;
+			public Blend colorDestinationBlend;
+			public BlendFunction colorBlendFunction;
+			public Blend alphaSourceBlend;
+			public Blend alphaDestinationBlend;
+			public BlendFunction alphaBlendFunction;
 			public ColorWriteChannels colorWriteEnable;
 			public ColorWriteChannels colorWriteEnable1;
 			public ColorWriteChannels colorWriteEnable2;
 			public ColorWriteChannels colorWriteEnable3;
+			public Color blendFactor;
+			public int multiSampleMask;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
 		public struct FNA3D_DepthStencilState
 		{
-			public byte zEnable;
-			public byte zWriteEnable;
-			public CompareFunction depthFunc;
+			public byte depthBufferEnable;
+			public byte depthBufferWriteEnable;
+			public CompareFunction depthBufferFunction;
 			public byte stencilEnable;
-			public int stencilWriteMask;
-			public byte separateStencilEnable;
-			public int stencilRef;
 			public int stencilMask;
-			public CompareFunction stencilFunc;
+			public int stencilWriteMask;
+			public byte twoSidedStencilMode;
 			public StencilOperation stencilFail;
-			public StencilOperation stencilZFail;
+			public StencilOperation stencilDepthBufferFail;
 			public StencilOperation stencilPass;
-			public CompareFunction ccwStencilFunc;
+			public CompareFunction stencilFunction;
 			public StencilOperation ccwStencilFail;
-			public StencilOperation ccwStencilZFail;
+			public StencilOperation ccwStencilDepthBufferFail;
 			public StencilOperation ccwStencilPass;
+			public CompareFunction ccwStencilFunction;
+			public int referenceStencil;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
 		public struct FNA3D_RasterizerState
 		{
-			public byte scissorTestEnable;
-			public CullMode cullFrontFace;
 			public FillMode fillMode;
+			public CullMode cullMode;
 			public float depthBias;
 			public float slopeScaleDepthBias;
-			public byte multiSampleEnable;
+			public byte scissorTestEnable;
+			public byte multiSampleAntiAlias;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
 		public struct FNA3D_SamplerState
 		{
+			public TextureFilter filter;
 			public TextureAddressMode addressU;
 			public TextureAddressMode addressV;
 			public TextureAddressMode addressW;
-			public TextureFilter filter;
+			public float mipMapLevelOfDetailBias;
 			public int maxAnisotropy;
 			public int maxMipLevel;
-			public float mipMapLevelOfDetailBias;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
@@ -704,7 +704,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern IntPtr FNA3D_CreateEffect(
 			IntPtr device,
-			byte[] effectCode
+			byte[] effectCode,
+			int length
 		);
 
 		/* IntPtr refers to an FNA3D_Effect* */

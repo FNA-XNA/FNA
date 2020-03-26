@@ -17,11 +17,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.blendFuncAlpha;
+				return state.alphaBlendFunction;
 			}
 			set
 			{
-				state.blendFuncAlpha = value;
+				state.alphaBlendFunction = value;
 			}
 		}
 
@@ -29,11 +29,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.dstBlendAlpha;
+				return state.alphaDestinationBlend;
 			}
 			set
 			{
-				state.dstBlendAlpha = value;
+				state.alphaDestinationBlend = value;
 			}
 		}
 
@@ -41,11 +41,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.srcBlendAlpha;
+				return state.alphaSourceBlend;
 			}
 			set
 			{
-				state.srcBlendAlpha = value;
+				state.alphaSourceBlend = value;
 			}
 		}
 
@@ -53,11 +53,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.blendFunc;
+				return state.colorBlendFunction;
 			}
 			set
 			{
-				state.blendFunc = value;
+				state.colorBlendFunction = value;
 			}
 		}
 
@@ -65,11 +65,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.dstBlend;
+				return state.colorDestinationBlend;
 			}
 			set
 			{
-				state.dstBlend = value;
+				state.colorDestinationBlend = value;
 			}
 		}
 
@@ -77,11 +77,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.srcBlend;
+				return state.colorSourceBlend;
 			}
 			set
 			{
-				state.srcBlend = value;
+				state.colorSourceBlend = value;
 			}
 		}
 
@@ -137,11 +137,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.blendColor;
+				return state.blendFactor;
 			}
 			set
 			{
-				state.blendColor = value;
+				state.blendFactor = value;
 			}
 		}
 
@@ -149,11 +149,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.multisampleMask;
+				return state.multiSampleMask;
 			}
 			set
 			{
-				state.multisampleMask = value;
+				state.multiSampleMask = value;
 			}
 		}
 

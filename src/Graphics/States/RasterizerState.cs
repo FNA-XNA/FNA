@@ -17,11 +17,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.cullFrontFace;
+				return state.cullMode;
 			}
 			set
 			{
-				state.cullFrontFace = value;
+				state.cullMode = value;
 			}
 		}
 
@@ -53,11 +53,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return state.multiSampleEnable == 1;
+				return state.multiSampleAntiAlias == 1;
 			}
 			set
 			{
-				state.multiSampleEnable = (byte) (value ? 1 : 0);
+				state.multiSampleAntiAlias = (byte) (value ? 1 : 0);
 			}
 		}
 

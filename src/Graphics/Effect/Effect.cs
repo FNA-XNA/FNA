@@ -217,7 +217,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			GraphicsDevice = graphicsDevice;
 
 			// Send the blob to the GLDevice to be parsed/compiled
-			glEffect = FNA3D.FNA3D_CreateEffect(graphicsDevice.GLDevice, effectCode);
+			glEffect = FNA3D.FNA3D_CreateEffect(
+				graphicsDevice.GLDevice,
+				effectCode,
+				effectCode.Length
+			);
 
 			// This is where it gets ugly...
 			INTERNAL_parseEffectStruct();
