@@ -1163,13 +1163,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Set up the vertex buffers
 			PrepareVertexBindingArray();
-			FNA3D.FNA3D_ApplyVertexBufferBindings(
-				GLDevice,
-				nativeBindings,
-				vertexBufferCount,
-				(byte) (vertexBuffersUpdated ? 1 : 0),
-				baseVertex
-			);
+			unsafe
+			{
+				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBindings[0])
+				{
+					FNA3D.FNA3D_ApplyVertexBufferBindings(
+						GLDevice,
+						bindingsPtr,
+						vertexBufferCount,
+						(byte) (vertexBuffersUpdated ? 1 : 0),
+						baseVertex
+					);
+				}
+			}
 			vertexBuffersUpdated = false;
 
 			FNA3D.FNA3D_DrawIndexedPrimitives(
@@ -1204,13 +1210,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Set up the vertex buffers
 			PrepareVertexBindingArray();
-			FNA3D.FNA3D_ApplyVertexBufferBindings(
-				GLDevice,
-				nativeBindings,
-				vertexBufferCount,
-				(byte) (vertexBuffersUpdated ? 1 : 0),
-				baseVertex
-			);
+			unsafe
+			{
+				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBindings[0])
+				{
+					FNA3D.FNA3D_ApplyVertexBufferBindings(
+						GLDevice,
+						bindingsPtr,
+						vertexBufferCount,
+						(byte) (vertexBuffersUpdated ? 1 : 0),
+						baseVertex
+					);
+				}
+			}
 			vertexBuffersUpdated = false;
 
 			FNA3D.FNA3D_DrawInstancedPrimitives(
@@ -1240,13 +1252,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Set up the vertex buffers
 			PrepareVertexBindingArray();
-			FNA3D.FNA3D_ApplyVertexBufferBindings(
-				GLDevice,
-				nativeBindings,
-				vertexBufferCount,
-				(byte) (vertexBuffersUpdated ? 1 : 0),
-				0
-			);
+			unsafe
+			{
+				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBindings[0])
+				{
+					FNA3D.FNA3D_ApplyVertexBufferBindings(
+						GLDevice,
+						bindingsPtr,
+						vertexBufferCount,
+						(byte) (vertexBuffersUpdated ? 1 : 0),
+						0
+					);
+				}
+			}
 			vertexBuffersUpdated = false;
 
 			FNA3D.FNA3D_DrawPrimitives(

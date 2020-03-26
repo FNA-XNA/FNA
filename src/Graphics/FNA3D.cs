@@ -347,9 +347,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Vertex State
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void FNA3D_ApplyVertexBufferBindings(
+		public static extern unsafe void FNA3D_ApplyVertexBufferBindings(
 			IntPtr device,
-			FNA3D_VertexBufferBinding[] bindings,
+			FNA3D_VertexBufferBinding* bindings,
 			int numBindings,
 			byte bindingsUpdated,
 			int baseVertex
