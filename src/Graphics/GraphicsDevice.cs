@@ -256,9 +256,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Internal FNA3D_Device
+		#region FNA3D Interop
 
 		internal readonly IntPtr GLDevice;
+		private FNA3D.FNA3D_RenderTargetBinding[] FNA3D_rtBindings =
+			new FNA3D.FNA3D_RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
 
 		#endregion
 
@@ -932,12 +934,27 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
+			// Update FNA3D render target bindings
+			if (renderTargets != null)
+			{
+				for (int i = 0; i < renderTargets.Length; i += 1)
+				{
+					FNA3D_rtBindings[i] = renderTargets[i].ToFNA3D();
+				}
+			}
+
 			int newWidth;
 			int newHeight;
 			RenderTargetUsage clearTarget;
 			if (renderTargets == null || renderTargets.Length == 0)
 			{
-				// FIXME: Oh shit -flibit GLDevice.SetRenderTargets(null, null, DepthFormat.None);
+				FNA3D.FNA3D_SetRenderTargets(
+					GLDevice,
+					IntPtr.Zero,
+					0,
+					IntPtr.Zero,
+					DepthFormat.None
+				);
 
 				// Set the viewport/scissor to the size of the backbuffer.
 				newWidth = PresentationParameters.BackBufferWidth;
@@ -947,7 +964,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Resolve previous targets, if needed
 				for (int i = 0; i < renderTargetCount; i += 1)
 				{
-					// FIXME: Oh shit -flibit GLDevice.ResolveTarget(renderTargetBindings[i]);
+					FNA3D.FNA3D_ResolveTarget(GLDevice, ref FNA3D_rtBindings[i]);
 				}
 				Array.Clear(renderTargetBindings, 0, renderTargetBindings.Length);
 				renderTargetCount = 0;
@@ -955,13 +972,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			else
 			{
 				IRenderTarget target = renderTargets[0].RenderTarget as IRenderTarget;
-				/* FIXME: Oh shit -flibit
-				GLDevice.SetRenderTargets(
-					renderTargets,
+				GCHandle rtPin = GCHandle.Alloc(
+					FNA3D_rtBindings,
+					GCHandleType.Pinned
+				);
+				FNA3D.FNA3D_SetRenderTargets(
+					GLDevice,
+					Marshal.UnsafeAddrOfPinnedArrayElement(
+						FNA3D_rtBindings,
+						0
+					),
+					renderTargets.Length,
 					target.DepthStencilBuffer,
 					target.DepthStencilFormat
 				);
-				*/
+				rtPin.Free();
 
 				// Set the viewport/scissor to the size of the first render target.
 				newWidth = target.Width;
@@ -985,7 +1010,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						continue;
 					}
-					// FIXME: Oh shit -flibit GLDevice.ResolveTarget(renderTargetBindings[i]);
+					FNA3D.FNA3D_ResolveTarget(GLDevice, ref FNA3D_rtBindings[i]);
 				}
 				Array.Clear(renderTargetBindings, 0, renderTargetBindings.Length);
 				Array.Copy(renderTargets, renderTargetBindings, renderTargets.Length);

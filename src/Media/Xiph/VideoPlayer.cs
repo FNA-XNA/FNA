@@ -49,7 +49,7 @@ namespace Microsoft.Xna.Framework.Media
 		private VertexBufferBinding vertBuffer;
 
 		// Used to restore our previous GL state.
-		private Texture[] oldTextures= new Texture[3];
+		private Texture[] oldTextures = new Texture[3];
 		private SamplerState[] oldSamplers = new SamplerState[3];
 		private RenderTargetBinding[] oldTargets;
 		private VertexBufferBinding[] oldBuffers;
@@ -179,13 +179,27 @@ namespace Microsoft.Xna.Framework.Media
 
 			// Prep target bindings
 			oldTargets = currentDevice.GetRenderTargets();
-			/* FIXME: Oh shit -flibit
-			currentDevice.GLDevice.SetRenderTargets(
-				videoTexture,
-				null,
+
+			for (int i = 0; i < videoTexture.Length; i += 1)
+			{
+				FNA3D_videoTexture[i] = videoTexture[i].ToFNA3D();
+			}
+
+			GCHandle rtPin = GCHandle.Alloc(
+				FNA3D_videoTexture,
+				GCHandleType.Pinned
+			);
+			FNA3D.FNA3D_SetRenderTargets(
+				currentDevice.GLDevice,
+				Marshal.UnsafeAddrOfPinnedArrayElement(
+					FNA3D_videoTexture,
+					0
+				),
+				videoTexture.Length,
+				IntPtr.Zero,
 				DepthFormat.None
 			);
-			*/
+			rtPin.Free();
 
 			// Prep render state
 			prevBlend = currentDevice.BlendState;
@@ -222,25 +236,38 @@ namespace Microsoft.Xna.Framework.Media
 			/* Restore targets using GLDevice directly.
 			 * This prevents accidental clearing of previously bound targets.
 			 */
-			/* FIXME: Oh shit -flibit
 			if (oldTargets == null || oldTargets.Length == 0)
 			{
-				currentDevice.GLDevice.SetRenderTargets(
-					null,
-					null,
+				FNA3D.FNA3D_SetRenderTargets(
+					currentDevice.GLDevice,
+					IntPtr.Zero,
+					0,
+					IntPtr.Zero,
 					DepthFormat.None
 				);
 			}
 			else
 			{
 				IRenderTarget oldTarget = oldTargets[0].RenderTarget as IRenderTarget;
-				currentDevice.GLDevice.SetRenderTargets(
-					oldTargets,
+
+				for (int i = 0; i < oldTargets.Length; i += 1)
+				{
+					FNA3D_oldTargets[i] = oldTargets[i].ToFNA3D();
+				}
+
+				GCHandle rtPin = GCHandle.Alloc(FNA3D_oldTargets, GCHandleType.Pinned);
+				FNA3D.FNA3D_SetRenderTargets(
+					currentDevice.GLDevice,
+					Marshal.UnsafeAddrOfPinnedArrayElement(
+						FNA3D_oldTargets,
+						0
+					),
+					oldTargets.Length,
 					oldTarget.DepthStencilBuffer,
 					oldTarget.DepthStencilFormat
 				);
+				rtPin.Free();
 			}
-			*/
 			oldTargets = null;
 
 			// Set viewport AFTER setting targets!
@@ -354,6 +381,12 @@ namespace Microsoft.Xna.Framework.Media
 
 		// Store this to optimize things on our end.
 		private RenderTargetBinding[] videoTexture;
+
+		// FNA3D Interop
+		private FNA3D.FNA3D_RenderTargetBinding[] FNA3D_videoTexture =
+			new FNA3D.FNA3D_RenderTargetBinding[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
+		private FNA3D.FNA3D_RenderTargetBinding[] FNA3D_oldTargets =
+			new FNA3D.FNA3D_RenderTargetBinding[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 
 		// We need to access the GraphicsDevice frequently.
 		private GraphicsDevice currentDevice;

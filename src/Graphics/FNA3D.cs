@@ -114,6 +114,22 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
+		public struct FNA3D_RenderTargetBinding
+		{
+			public byte type;
+			public SurfaceFormat format;
+			public int levelCount;
+			public IntPtr texture;
+			public int width;
+			public int height;
+			public RenderTargetUsage renderTargetUsage;
+			public IntPtr colorBuffer;
+			public DepthFormat depthStencilFormat;
+			public int multiSampleCount;
+			public CubeMapFace cubeMapFace;
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
 		public struct FNA3D_PresentationParameters
 		{
 			public int backBufferWidth;
@@ -370,15 +386,16 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_SetRenderTargets(
 			IntPtr device,
-			/* FIXME: Oh shit RenderTargetBinding[] renderTargets, */
+			IntPtr renderTargets, /* FNA3D_RenderTargetBinding[] */
+			int numRenderTargets,
 			IntPtr renderbuffer, /* FNA3D_Renderbuffer */
 			DepthFormat depthFormat
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_ResolveTarget(
-			IntPtr device
-			/* FIXME: Oh shit RenderTargetBinding target */
+			IntPtr device,
+			ref FNA3D_RenderTargetBinding target
 		);
 
 		#endregion
