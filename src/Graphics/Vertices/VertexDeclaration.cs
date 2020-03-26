@@ -56,7 +56,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			this.elements = (VertexElement[]) elements.Clone();
-			handle = GCHandle.Alloc(this.elements);
+			handle = GCHandle.Alloc(this.elements, GCHandleType.Pinned);
 			elementsPin = handle.AddrOfPinnedObject();
 			VertexStride = vertexStride;
 		}
