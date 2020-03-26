@@ -97,20 +97,20 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public struct FNA3D_VertexElement
-		{
-			public int offset;
-			public VertexElementFormat vertexElementFormat;
-			public VertexElementUsage vertexElementUsage;
-			public int usageIndex;
-		}
-
-		[StructLayout(LayoutKind.Sequential)]
 		public struct FNA3D_VertexDeclaration
 		{
 			public int vertexStride;
 			public int elementCount;
 			public IntPtr elements; /* FNA3D_VertexElement* */
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		public struct FNA3D_VertexBufferBinding
+		{
+			public IntPtr vertexBuffer; /* FNA3D_Buffer* */
+			public FNA3D_VertexDeclaration vertexDeclaration;
+			public int vertexOffset;
+			public int instanceFrequency;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
@@ -349,7 +349,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_ApplyVertexBufferBindings(
 			IntPtr device,
-			/* FIXME: Oh shit VertexBufferBinding[] bindings, */
+			FNA3D_VertexBufferBinding[] bindings,
 			int numBindings,
 			byte bindingsUpdated,
 			int baseVertex

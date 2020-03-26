@@ -332,6 +332,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Private Buffer Object Variables
 
 		private readonly VertexBufferBinding[] vertexBufferBindings = new VertexBufferBinding[MAX_VERTEX_ATTRIBUTES];
+		private readonly FNA3D.FNA3D_VertexBufferBinding[] nativeBindings = new FNA3D.FNA3D_VertexBufferBinding[MAX_VERTEX_ATTRIBUTES];
 		private int vertexBufferCount = 0;
 		private bool vertexBuffersUpdated = false;
 
@@ -1161,14 +1162,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			ApplyState();
 
 			// Set up the vertex buffers
-			/* FIXME: Oh shit -flibit
-			GLDevice.ApplyVertexAttributes(
-				vertexBufferBindings,
+			PrepareVertexBindingArray();
+			FNA3D.FNA3D_ApplyVertexBufferBindings(
+				GLDevice,
+				nativeBindings,
 				vertexBufferCount,
-				vertexBuffersUpdated,
+				(byte) (vertexBuffersUpdated ? 1 : 0),
 				baseVertex
 			);
-			*/
 			vertexBuffersUpdated = false;
 
 			FNA3D.FNA3D_DrawIndexedPrimitives(
@@ -1202,14 +1203,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			ApplyState();
 
 			// Set up the vertex buffers
-			/* FIXME: Oh shit -flibit
-			GLDevice.ApplyVertexAttributes(
-				vertexBufferBindings,
+			PrepareVertexBindingArray();
+			FNA3D.FNA3D_ApplyVertexBufferBindings(
+				GLDevice,
+				nativeBindings,
 				vertexBufferCount,
-				vertexBuffersUpdated,
+				(byte) (vertexBuffersUpdated ? 1 : 0),
 				baseVertex
 			);
-			*/
 			vertexBuffersUpdated = false;
 
 			FNA3D.FNA3D_DrawInstancedPrimitives(
@@ -1238,14 +1239,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			ApplyState();
 
 			// Set up the vertex buffers
-			/* FIXME: Oh shit -flibit
-			GLDevice.ApplyVertexAttributes(
-				vertexBufferBindings,
+			PrepareVertexBindingArray();
+			FNA3D.FNA3D_ApplyVertexBufferBindings(
+				GLDevice,
+				nativeBindings,
 				vertexBufferCount,
-				vertexBuffersUpdated,
+				(byte) (vertexBuffersUpdated ? 1 : 0),
 				0
 			);
-			*/
 			vertexBuffersUpdated = false;
 
 			FNA3D.FNA3D_DrawPrimitives(
@@ -1280,13 +1281,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Setup the vertex declaration to point at the vertex data.
 			VertexDeclaration vertexDeclaration = VertexDeclarationCache<T>.VertexDeclaration;
 			vertexDeclaration.GraphicsDevice = this;
-			/* FIXME: Oh shit -flibit
-			GLDevice.ApplyVertexAttributes(
-				vertexDeclaration,
+			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
+			{
+				vertexStride = vertexDeclaration.VertexStride,
+				elementCount = vertexDeclaration.elements.Length,
+				elements = vertexDeclaration.elementsPin
+			};
+			FNA3D.FNA3D_ApplyVertexDeclaration(
+				GLDevice,
+				ref decl,
 				vbPtr,
 				vertexOffset
 			);
-			*/
 
 			FNA3D.FNA3D_DrawUserIndexedPrimitives(
 				GLDevice,
@@ -1325,13 +1331,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Setup the vertex declaration to point at the vertex data.
 			vertexDeclaration.GraphicsDevice = this;
-			/* FIXME: Oh shit -flibit
-			GLDevice.ApplyVertexAttributes(
-				vertexDeclaration,
+			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
+			{
+				vertexStride = vertexDeclaration.VertexStride,
+				elementCount = vertexDeclaration.elements.Length,
+				elements = vertexDeclaration.elementsPin
+			};
+			FNA3D.FNA3D_ApplyVertexDeclaration(
+				GLDevice,
+				ref decl,
 				vbPtr,
 				vertexOffset
 			);
-			*/
 
 			FNA3D.FNA3D_DrawUserIndexedPrimitives(
 				GLDevice,
@@ -1370,13 +1381,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Setup the vertex declaration to point at the vertex data.
 			VertexDeclaration vertexDeclaration = VertexDeclarationCache<T>.VertexDeclaration;
 			vertexDeclaration.GraphicsDevice = this;
-			/* FIXME: Oh shit -flibit
-			GLDevice.ApplyVertexAttributes(
-				vertexDeclaration,
+			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
+			{
+				vertexStride = vertexDeclaration.VertexStride,
+				elementCount = vertexDeclaration.elements.Length,
+				elements = vertexDeclaration.elementsPin
+			};
+			FNA3D.FNA3D_ApplyVertexDeclaration(
+				GLDevice,
+				ref decl,
 				vbPtr,
 				vertexOffset
 			);
-			*/
 
 			FNA3D.FNA3D_DrawUserIndexedPrimitives(
 				GLDevice,
@@ -1415,13 +1431,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Setup the vertex declaration to point at the vertex data.
 			vertexDeclaration.GraphicsDevice = this;
-			/* FIXME: Oh shit -flibit
-			GLDevice.ApplyVertexAttributes(
-				vertexDeclaration,
+			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
+			{
+				vertexStride = vertexDeclaration.VertexStride,
+				elementCount = vertexDeclaration.elements.Length,
+				elements = vertexDeclaration.elementsPin
+			};
+			FNA3D.FNA3D_ApplyVertexDeclaration(
+				GLDevice,
+				ref decl,
 				vbPtr,
 				vertexOffset
 			);
-			*/
 
 			FNA3D.FNA3D_DrawUserIndexedPrimitives(
 				GLDevice,
@@ -1459,13 +1480,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Setup the vertex declaration to point at the vertex data.
 			VertexDeclaration vertexDeclaration = VertexDeclarationCache<T>.VertexDeclaration;
 			vertexDeclaration.GraphicsDevice = this;
-			/* FIXME: Oh shit -flibit
-			GLDevice.ApplyVertexAttributes(
-				vertexDeclaration,
+			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
+			{
+				vertexStride = vertexDeclaration.VertexStride,
+				elementCount = vertexDeclaration.elements.Length,
+				elements = vertexDeclaration.elementsPin
+			};
+			FNA3D.FNA3D_ApplyVertexDeclaration(
+				GLDevice,
+				ref decl,
 				vbPtr,
 				0
 			);
-			*/
 
 			FNA3D.FNA3D_DrawUserPrimitives(
 				GLDevice,
@@ -1494,13 +1520,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Setup the vertex declaration to point at the vertex data.
 			vertexDeclaration.GraphicsDevice = this;
-			/* FIXME: Oh shit -flibit
-			GLDevice.ApplyVertexAttributes(
-				vertexDeclaration,
+			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
+			{
+				vertexStride = vertexDeclaration.VertexStride,
+				elementCount = vertexDeclaration.elements.Length,
+				elements = vertexDeclaration.elementsPin
+			};
+			FNA3D.FNA3D_ApplyVertexDeclaration(
+				GLDevice,
+				ref decl,
 				vbPtr,
 				0
 			);
-			*/
 
 			FNA3D.FNA3D_DrawUserPrimitives(
 				GLDevice,
@@ -1591,6 +1622,25 @@ namespace Microsoft.Xna.Framework.Graphics
 					VertexTextures[sampler].texture,
 					ref VertexSamplerStates[sampler].state
 				);
+			}
+		}
+
+		private void PrepareVertexBindingArray()
+		{
+			for (int i = 0; i < vertexBufferCount; i += 1)
+			{
+				nativeBindings[i].vertexBuffer =
+					vertexBufferBindings[i].VertexBuffer.buffer;
+				nativeBindings[i].vertexDeclaration.vertexStride =
+					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.VertexStride;
+				nativeBindings[i].vertexDeclaration.elementCount =
+					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.elements.Length;
+				nativeBindings[i].vertexDeclaration.elements =
+					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.elementsPin;
+				nativeBindings[i].vertexOffset =
+					vertexBufferBindings[i].VertexOffset;
+				nativeBindings[i].instanceFrequency =
+					vertexBufferBindings[i].InstanceFrequency;
 			}
 		}
 
