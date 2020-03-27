@@ -169,27 +169,27 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static readonly MOJOSHADER_textureFilterType[] XNAMag =
 			new MOJOSHADER_textureFilterType[]
 		{
-			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.Linear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.Linear
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.Point
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC,	// TextureFilter.Anisotropic
-			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.LinearMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.LinearMipPoint
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.PointMipLinear
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinLinearMagPointMipLinear
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinLinearMagPointMipPoint
-			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.MinPointMagLinearMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.MinPointMagLinearMipLinear
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR		// TextureFilter.MinPointMagLinearMipPoint
 		};
 
 		private static readonly MOJOSHADER_textureFilterType[] XNAMin =
 			new MOJOSHADER_textureFilterType[]
 		{
-			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.Linear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.Linear
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.Point
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC,	// TextureFilter.Anisotropic
-			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.LinearMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.LinearMipPoint
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.PointMipLinear
-			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.MinLinearMagPointMipLinear
-			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.MinLinearMagPointMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.MinLinearMagPointMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.MinLinearMagPointMipPoint
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinPointMagLinearMipLinear
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT		// TextureFilter.MinPointMagLinearMipPoint
 		};
@@ -197,14 +197,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static readonly MOJOSHADER_textureFilterType[] XNAMip =
 			new MOJOSHADER_textureFilterType[]
 		{
-			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.Linear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.Linear
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.Point
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC,	// TextureFilter.Anisotropic
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.LinearMipPoint
-			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.PointMipLinear
-			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.MinLinearMagPointMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.PointMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.MinLinearMagPointMipLinear
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinLinearMagPointMipPoint
-			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.MinPointMagLinearMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.MinPointMagLinearMipLinear
 			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT		// TextureFilter.MinPointMagLinearMipPoint
 		};
 
