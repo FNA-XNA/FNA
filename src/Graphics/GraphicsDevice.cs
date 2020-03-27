@@ -324,6 +324,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			new RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
 		private FNA3D.FNA3D_RenderTargetBinding[] nativeTargetBindings =
 			new FNA3D.FNA3D_RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
+		private FNA3D.FNA3D_RenderTargetBinding[] nativeTargetBindingsNext =
+			new FNA3D.FNA3D_RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
 
 		private int renderTargetCount = 0;
 
@@ -969,7 +971,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				IRenderTarget target = renderTargets[0].RenderTarget as IRenderTarget;
 				unsafe
 				{
-					fixed (FNA3D.FNA3D_RenderTargetBinding* rt = &nativeTargetBindings[0])
+					fixed (FNA3D.FNA3D_RenderTargetBinding* rt = &nativeTargetBindingsNext[0])
 					{
 						for (int i = 0; i < renderTargets.Length; i += 1)
 						{
@@ -1011,6 +1013,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				Array.Clear(renderTargetBindings, 0, renderTargetBindings.Length);
 				Array.Copy(renderTargets, renderTargetBindings, renderTargets.Length);
+				Array.Clear(nativeTargetBindings, 0, nativeTargetBindings.Length);
+				Array.Copy(nativeTargetBindingsNext, nativeTargetBindings, renderTargets.Length);
 				renderTargetCount = renderTargets.Length;
 			}
 
