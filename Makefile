@@ -321,7 +321,6 @@ SRC = \
 	lib/SDL2-CS/src/SDL2.cs \
 	lib/SDL2-CS/src/SDL2_image.cs \
 	lib/FAudio/csharp/FAudio.cs \
-	lib/MojoShader/csharp/MojoShader.cs \
 	lib/Theorafile/csharp/Theorafile.cs
 
 RESDIR = src/Graphics/Effect/StockEffects/FXB
