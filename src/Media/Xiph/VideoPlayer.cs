@@ -72,7 +72,7 @@ namespace Microsoft.Xna.Framework.Media
 			unsafe
 			{
 				stateChangesPtr = Marshal.AllocHGlobal(
-					sizeof(MojoShader.MOJOSHADER_effectStateChanges)
+					sizeof(Effect.MOJOSHADER_effectStateChanges)
 				);
 			}
 
