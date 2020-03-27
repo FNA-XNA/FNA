@@ -1640,7 +1640,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				FNA3D.FNA3D_VerifySampler(
 					GLDevice,
 					sampler,
-					Textures[sampler].texture,
+					(Textures[sampler] != null) ?
+						Textures[sampler].texture :
+						IntPtr.Zero,
 					ref SamplerStates[sampler].state
 				);
 			}
@@ -1663,7 +1665,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				FNA3D.FNA3D_VerifySampler(
 					GLDevice,
 					vertexSamplerStart + sampler,
-					VertexTextures[sampler].texture,
+					(VertexTextures[sampler] != null) ?
+						VertexTextures[sampler].texture :
+						IntPtr.Zero,
 					ref VertexSamplerStates[sampler].state
 				);
 			}
