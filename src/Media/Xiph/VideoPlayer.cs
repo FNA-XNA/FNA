@@ -57,6 +57,10 @@ namespace Microsoft.Xna.Framework.Media
 		private DepthStencilState prevDepthStencil;
 		private RasterizerState prevRasterizer;
 		private Viewport prevViewport;
+		private FNA3D.FNA3D_RenderTargetBinding[] nativeVideoTexture =
+			new FNA3D.FNA3D_RenderTargetBinding[3];
+		private FNA3D.FNA3D_RenderTargetBinding[] nativeOldTargets =
+			new FNA3D.FNA3D_RenderTargetBinding[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 
 		private void GL_initialize()
 		{
@@ -180,26 +184,23 @@ namespace Microsoft.Xna.Framework.Media
 			// Prep target bindings
 			oldTargets = currentDevice.GetRenderTargets();
 
-			for (int i = 0; i < videoTexture.Length; i += 1)
+			unsafe
 			{
-				FNA3D_videoTexture[i] = videoTexture[i].ToFNA3D();
+				fixed (FNA3D.FNA3D_RenderTargetBinding* rt = &nativeVideoTexture[0])
+				{
+					for (int i = 0; i < videoTexture.Length; i += 1)
+					{
+						rt[i] = videoTexture[i].ToFNA3D();
+					}
+					FNA3D.FNA3D_SetRenderTargets(
+						currentDevice.GLDevice,
+						rt,
+						videoTexture.Length,
+						IntPtr.Zero,
+						DepthFormat.None
+					);
+				}
 			}
-
-			GCHandle rtPin = GCHandle.Alloc(
-				FNA3D_videoTexture,
-				GCHandleType.Pinned
-			);
-			FNA3D.FNA3D_SetRenderTargets(
-				currentDevice.GLDevice,
-				Marshal.UnsafeAddrOfPinnedArrayElement(
-					FNA3D_videoTexture,
-					0
-				),
-				videoTexture.Length,
-				IntPtr.Zero,
-				DepthFormat.None
-			);
-			rtPin.Free();
 
 			// Prep render state
 			prevBlend = currentDevice.BlendState;
@@ -250,23 +251,23 @@ namespace Microsoft.Xna.Framework.Media
 			{
 				IRenderTarget oldTarget = oldTargets[0].RenderTarget as IRenderTarget;
 
-				for (int i = 0; i < oldTargets.Length; i += 1)
+				unsafe
 				{
-					FNA3D_oldTargets[i] = oldTargets[i].ToFNA3D();
+					fixed (FNA3D.FNA3D_RenderTargetBinding* rt = &nativeOldTargets[0])
+					{
+						for (int i = 0; i < oldTargets.Length; i += 1)
+						{
+							rt[i] = oldTargets[i].ToFNA3D();
+						}
+						FNA3D.FNA3D_SetRenderTargets(
+							currentDevice.GLDevice,
+							rt,
+							oldTargets.Length,
+							oldTarget.DepthStencilBuffer,
+							oldTarget.DepthStencilFormat
+						);
+					}
 				}
-
-				GCHandle rtPin = GCHandle.Alloc(FNA3D_oldTargets, GCHandleType.Pinned);
-				FNA3D.FNA3D_SetRenderTargets(
-					currentDevice.GLDevice,
-					Marshal.UnsafeAddrOfPinnedArrayElement(
-						FNA3D_oldTargets,
-						0
-					),
-					oldTargets.Length,
-					oldTarget.DepthStencilBuffer,
-					oldTarget.DepthStencilFormat
-				);
-				rtPin.Free();
 			}
 			oldTargets = null;
 
@@ -381,12 +382,6 @@ namespace Microsoft.Xna.Framework.Media
 
 		// Store this to optimize things on our end.
 		private RenderTargetBinding[] videoTexture;
-
-		// FNA3D Interop
-		private FNA3D.FNA3D_RenderTargetBinding[] FNA3D_videoTexture =
-			new FNA3D.FNA3D_RenderTargetBinding[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
-		private FNA3D.FNA3D_RenderTargetBinding[] FNA3D_oldTargets =
-			new FNA3D.FNA3D_RenderTargetBinding[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 
 		// We need to access the GraphicsDevice frequently.
 		private GraphicsDevice currentDevice;

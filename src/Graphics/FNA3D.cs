@@ -386,7 +386,16 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_SetRenderTargets(
 			IntPtr device,
-			IntPtr renderTargets, /* FNA3D_RenderTargetBinding[] */
+			IntPtr renderTargets, /* FNA3D_RenderTargetBinding* */
+			int numRenderTargets,
+			IntPtr renderbuffer, /* FNA3D_Renderbuffer */
+			DepthFormat depthFormat
+		);
+
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern unsafe void FNA3D_SetRenderTargets(
+			IntPtr device,
+			FNA3D_RenderTargetBinding* renderTargets,
 			int numRenderTargets,
 			IntPtr renderbuffer, /* FNA3D_Renderbuffer */
 			DepthFormat depthFormat

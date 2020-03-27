@@ -256,11 +256,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region FNA3D Interop
+		#region Internal FNA3D_Device
 
 		internal readonly IntPtr GLDevice;
-		private FNA3D.FNA3D_RenderTargetBinding[] FNA3D_rtBindings =
-			new FNA3D.FNA3D_RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
 
 		#endregion
 
@@ -322,7 +320,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private RenderTarget Variables
 
-		private readonly RenderTargetBinding[] renderTargetBindings = new RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
+		private readonly RenderTargetBinding[] renderTargetBindings =
+			new RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
+		private FNA3D.FNA3D_RenderTargetBinding[] nativeTargetBindings =
+			new FNA3D.FNA3D_RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
 
 		private int renderTargetCount = 0;
 
@@ -333,8 +334,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Buffer Object Variables
 
-		private readonly VertexBufferBinding[] vertexBufferBindings = new VertexBufferBinding[MAX_VERTEX_ATTRIBUTES];
-		private readonly FNA3D.FNA3D_VertexBufferBinding[] nativeBindings = new FNA3D.FNA3D_VertexBufferBinding[MAX_VERTEX_ATTRIBUTES];
+		private readonly VertexBufferBinding[] vertexBufferBindings =
+			new VertexBufferBinding[MAX_VERTEX_ATTRIBUTES];
+		private readonly FNA3D.FNA3D_VertexBufferBinding[] nativeBufferBindings =
+			new FNA3D.FNA3D_VertexBufferBinding[MAX_VERTEX_ATTRIBUTES];
 		private int vertexBufferCount = 0;
 		private bool vertexBuffersUpdated = false;
 
@@ -934,15 +937,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
-			// Update FNA3D render target bindings
-			if (renderTargets != null)
-			{
-				for (int i = 0; i < renderTargets.Length; i += 1)
-				{
-					FNA3D_rtBindings[i] = renderTargets[i].ToFNA3D();
-				}
-			}
-
 			int newWidth;
 			int newHeight;
 			RenderTargetUsage clearTarget;
@@ -964,29 +958,32 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Resolve previous targets, if needed
 				for (int i = 0; i < renderTargetCount; i += 1)
 				{
-					FNA3D.FNA3D_ResolveTarget(GLDevice, ref FNA3D_rtBindings[i]);
+					FNA3D.FNA3D_ResolveTarget(GLDevice, ref nativeTargetBindings[i]);
 				}
 				Array.Clear(renderTargetBindings, 0, renderTargetBindings.Length);
+				Array.Clear(nativeTargetBindings, 0, nativeTargetBindings.Length);
 				renderTargetCount = 0;
 			}
 			else
 			{
 				IRenderTarget target = renderTargets[0].RenderTarget as IRenderTarget;
-				GCHandle rtPin = GCHandle.Alloc(
-					FNA3D_rtBindings,
-					GCHandleType.Pinned
-				);
-				FNA3D.FNA3D_SetRenderTargets(
-					GLDevice,
-					Marshal.UnsafeAddrOfPinnedArrayElement(
-						FNA3D_rtBindings,
-						0
-					),
-					renderTargets.Length,
-					target.DepthStencilBuffer,
-					target.DepthStencilFormat
-				);
-				rtPin.Free();
+				unsafe
+				{
+					fixed (FNA3D.FNA3D_RenderTargetBinding* rt = &nativeTargetBindings[0])
+					{
+						for (int i = 0; i < renderTargets.Length; i += 1)
+						{
+							rt[i] = renderTargets[i].ToFNA3D();
+						}
+						FNA3D.FNA3D_SetRenderTargets(
+							GLDevice,
+							rt,
+							renderTargets.Length,
+							target.DepthStencilBuffer,
+							target.DepthStencilFormat
+						);
+					}
+				}
 
 				// Set the viewport/scissor to the size of the first render target.
 				newWidth = target.Width;
@@ -1010,7 +1007,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						continue;
 					}
-					FNA3D.FNA3D_ResolveTarget(GLDevice, ref FNA3D_rtBindings[i]);
+					FNA3D.FNA3D_ResolveTarget(GLDevice, ref nativeTargetBindings[i]);
 				}
 				Array.Clear(renderTargetBindings, 0, renderTargetBindings.Length);
 				Array.Copy(renderTargets, renderTargetBindings, renderTargets.Length);
@@ -1190,7 +1187,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			PrepareVertexBindingArray();
 			unsafe
 			{
-				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBindings[0])
+				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBufferBindings[0])
 				{
 					FNA3D.FNA3D_ApplyVertexBufferBindings(
 						GLDevice,
@@ -1237,7 +1234,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			PrepareVertexBindingArray();
 			unsafe
 			{
-				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBindings[0])
+				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBufferBindings[0])
 				{
 					FNA3D.FNA3D_ApplyVertexBufferBindings(
 						GLDevice,
@@ -1279,7 +1276,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			PrepareVertexBindingArray();
 			unsafe
 			{
-				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBindings[0])
+				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBufferBindings[0])
 				{
 					FNA3D.FNA3D_ApplyVertexBufferBindings(
 						GLDevice,
@@ -1672,17 +1669,17 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			for (int i = 0; i < vertexBufferCount; i += 1)
 			{
-				nativeBindings[i].vertexBuffer =
+				nativeBufferBindings[i].vertexBuffer =
 					vertexBufferBindings[i].VertexBuffer.buffer;
-				nativeBindings[i].vertexDeclaration.vertexStride =
+				nativeBufferBindings[i].vertexDeclaration.vertexStride =
 					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.VertexStride;
-				nativeBindings[i].vertexDeclaration.elementCount =
+				nativeBufferBindings[i].vertexDeclaration.elementCount =
 					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.elements.Length;
-				nativeBindings[i].vertexDeclaration.elements =
+				nativeBufferBindings[i].vertexDeclaration.elements =
 					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.elementsPin;
-				nativeBindings[i].vertexOffset =
+				nativeBufferBindings[i].vertexOffset =
 					vertexBufferBindings[i].VertexOffset;
-				nativeBindings[i].instanceFrequency =
+				nativeBufferBindings[i].instanceFrequency =
 					vertexBufferBindings[i].InstanceFrequency;
 			}
 		}
