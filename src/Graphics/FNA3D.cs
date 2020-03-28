@@ -149,7 +149,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Init/Quit
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern uint FNA3D_PrepareWindowAttributes(byte debugMode);
+		public static extern uint FNA3D_PrepareWindowAttributes();
 		
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_GetDrawableSize(
@@ -161,7 +161,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		/* IntPtr refers to an FNA3D_Device* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern IntPtr FNA3D_CreateDevice(
-			ref FNA3D_PresentationParameters presentationParameters
+			ref FNA3D_PresentationParameters presentationParameters,
+			byte debugMode
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]

@@ -249,13 +249,7 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_WindowFlags.SDL_WINDOW_HIDDEN |
 				SDL.SDL_WindowFlags.SDL_WINDOW_INPUT_FOCUS |
 				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
-			) | (SDL.SDL_WindowFlags) FNA3D.FNA3D_PrepareWindowAttributes(
-#if DEBUG
-				1
-#else
-				0
-#endif
-			);
+			) | (SDL.SDL_WindowFlags) FNA3D.FNA3D_PrepareWindowAttributes();
 
 			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
 			{

@@ -408,7 +408,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Set up the FNA3D Device
 			GLDevice = FNA3D.FNA3D_CreateDevice(
-				ref PresentationParameters.parameters
+				ref PresentationParameters.parameters,
+#if DEBUG
+				1
+#else
+				0
+#endif
 			);
 
 			// The mouse needs to know this for faux-backbuffer mouse scaling.
