@@ -146,7 +146,21 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Init/Quit
+		#region Logging
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void FNA3D_LogFunc(string msg);
+
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void FNA3D_HookLogFunctions(
+			FNA3D_LogFunc info,
+			FNA3D_LogFunc warn,
+			FNA3D_LogFunc error
+		);
+
+		#endregion
+
+		#region Driver Functions
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern uint FNA3D_PrepareWindowAttributes();
@@ -157,6 +171,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			out int w,
 			out int h
 		);
+
+		#endregion
+
+		#region Init/Quit
 
 		/* IntPtr refers to an FNA3D_Device* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]

@@ -119,19 +119,7 @@ namespace Microsoft.Xna.Framework
 			GetNumTouchFingers =		SDL2_FNAPlatform.GetNumTouchFingers;
 			SupportsOrientationChanges =	SDL2_FNAPlatform.SupportsOrientationChanges;
 
-			// Don't overwrite application log hooks!
-			if (FNALoggerEXT.LogInfo == null)
-			{
-				FNALoggerEXT.LogInfo = Console.WriteLine;
-			}
-			if (FNALoggerEXT.LogWarn == null)
-			{
-				FNALoggerEXT.LogWarn = Console.WriteLine;
-			}
-			if (FNALoggerEXT.LogError == null)
-			{
-				FNALoggerEXT.LogError = Console.WriteLine;
-			}
+			FNALoggerEXT.Initialize();
 
 			AppDomain.CurrentDomain.ProcessExit += SDL2_FNAPlatform.ProgramExit;
 			TitleLocation = SDL2_FNAPlatform.ProgramInit(args);

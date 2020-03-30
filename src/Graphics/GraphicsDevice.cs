@@ -407,14 +407,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Set up the FNA3D Device
-			GLDevice = FNA3D.FNA3D_CreateDevice(
-				ref PresentationParameters.parameters,
+			try
+			{
+				GLDevice = FNA3D.FNA3D_CreateDevice(
+					ref PresentationParameters.parameters,
 #if DEBUG
-				1
+					1
 #else
-				0
+					0
 #endif
-			);
+				);
+			}
+			catch(Exception e)
+			{
+				throw new NoSuitableGraphicsDeviceException(
+					e.Message
+				);
+			}
 
 			// The mouse needs to know this for faux-backbuffer mouse scaling.
 			Input.Mouse.INTERNAL_BackBufferWidth = PresentationParameters.BackBufferWidth;
