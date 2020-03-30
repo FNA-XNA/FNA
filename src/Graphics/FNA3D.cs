@@ -860,8 +860,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			[MarshalAs(UnmanagedType.LPStr)] string text
 		);
 
-		/* TODO: Debug callback function...? */
-
 		#endregion
 
 		#region Buffer Objects
