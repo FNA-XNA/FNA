@@ -61,7 +61,6 @@ namespace Microsoft.Xna.Framework
 			{
 				/* Nothing to see here... */
 			}
-
 		}
 
 		#endregion
