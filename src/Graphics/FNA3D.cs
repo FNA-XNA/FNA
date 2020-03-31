@@ -911,5 +911,76 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 
 		#endregion
+
+		#region Image Read API
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate int FNA3D_Image_ReadFunc(
+			IntPtr context,
+			IntPtr data,
+			int size
+		);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void FNA3D_Image_SkipFunc(
+			IntPtr context,
+			int n
+		);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate int FNA3D_Image_EOFFunc(IntPtr context);
+
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern IntPtr FNA3D_Image_Read(
+			FNA3D_Image_ReadFunc readFunc,
+			FNA3D_Image_SkipFunc skipFunc,
+			FNA3D_Image_EOFFunc eofFunc,
+			IntPtr context,
+			out int width,
+			out int height,
+			out int len,
+			int forceW,
+			int forceH,
+			byte zoom
+		);
+
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void FNA3D_Image_Free(IntPtr mem);
+
+		#endregion
+
+		#region Image Write API
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate void FNA3D_Image_WriteFunc(
+			IntPtr context,
+			IntPtr data,
+			int size
+		);
+
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void FNA3D_Image_SavePNG(
+			FNA3D_Image_WriteFunc writeFunc,
+			IntPtr context,
+			int srcW,
+			int srcH,
+			int dstW,
+			int dstH,
+			IntPtr data
+		);
+
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void FNA3D_Image_SaveJPG(
+			FNA3D_Image_WriteFunc writeFunc,
+			IntPtr context,
+			int srcW,
+			int srcH,
+			int dstW,
+			int dstH,
+			IntPtr data,
+			int quality
+		);
+
+		#endregion
 	}
 }

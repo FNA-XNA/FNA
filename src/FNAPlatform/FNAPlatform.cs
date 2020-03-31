@@ -105,10 +105,6 @@ namespace Microsoft.Xna.Framework
 			GetStorageRoot =		SDL2_FNAPlatform.GetStorageRoot;
 			GetDriveInfo =			SDL2_FNAPlatform.GetDriveInfo;
 			ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
-			TextureDataFromStream =		SDL2_FNAPlatform.TextureDataFromStream;
-			TextureDataFromStreamPtr =	SDL2_FNAPlatform.TextureDataFromStreamPtr;
-			SavePNG =			SDL2_FNAPlatform.SavePNG;
-			SaveJPG =			SDL2_FNAPlatform.SaveJPG;
 			GetMicrophones =		SDL2_FNAPlatform.GetMicrophones;
 			GetMicrophoneSamples =		SDL2_FNAPlatform.GetMicrophoneSamples;
 			GetMicrophoneQueuedBytes =	SDL2_FNAPlatform.GetMicrophoneQueuedBytes;
@@ -248,49 +244,6 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void ShowRuntimeErrorFunc(string title, string message);
 		public static readonly ShowRuntimeErrorFunc ShowRuntimeError;
-
-		public delegate void TextureDataFromStreamFunc(
-			Stream stream,
-			out int width,
-			out int height,
-			out byte[] pixels,
-			int reqWidth = -1,
-			int reqHeight = -1,
-			bool zoom = false
-		);
-		public static readonly TextureDataFromStreamFunc TextureDataFromStream;
-
-		public delegate void TextureDataFromStreamPtrFunc(
-			Stream stream,
-			out int width,
-			out int height,
-			out IntPtr pixels,
-			out int len,
-			int reqWidth = -1,
-			int reqHeight = -1,
-			bool zoom = false
-		);
-		public static readonly TextureDataFromStreamPtrFunc TextureDataFromStreamPtr;
-
-		public delegate void SavePNGFunc(
-			Stream stream,
-			int width,
-			int height,
-			int imgWidth,
-			int imgHeight,
-			byte[] data
-		);
-		public static readonly SavePNGFunc SavePNG;
-
-		public delegate void SaveJPGFunc(
-			Stream stream,
-			int width,
-			int height,
-			int imgWidth,
-			int imgHeight,
-			byte[] data
-		);
-		public static readonly SaveJPGFunc SaveJPG;
 
 		public delegate Microphone[] GetMicrophonesFunc();
 		public static readonly GetMicrophonesFunc GetMicrophones;
