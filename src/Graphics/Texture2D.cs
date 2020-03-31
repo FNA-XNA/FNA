@@ -362,6 +362,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 
+			FNA3D.WritePNGStream(
+				stream,
+				Width,
+				Height,
+				width,
+				height,
+				data
+			);
+
 			Marshal.FreeHGlobal(data);
 		}
 
