@@ -916,20 +916,20 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Image Read API
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate int FNA3D_Image_ReadFunc(
+		private delegate int FNA3D_Image_ReadFunc(
 			IntPtr context,
 			IntPtr data,
 			int size
 		);
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate void FNA3D_Image_SkipFunc(
+		private delegate void FNA3D_Image_SkipFunc(
 			IntPtr context,
 			int n
 		);
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate int FNA3D_Image_EOFFunc(IntPtr context);
+		private delegate int FNA3D_Image_EOFFunc(IntPtr context);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		private static extern IntPtr FNA3D_Image_Read(
@@ -1034,7 +1034,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Image Write API
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate void FNA3D_Image_WriteFunc(
+		private delegate void FNA3D_Image_WriteFunc(
 			IntPtr context,
 			IntPtr data,
 			int size
