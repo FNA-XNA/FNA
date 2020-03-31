@@ -306,28 +306,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Texture2D Save Methods
 
-		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D.FNA3D_Image_WriteFunc))]
-		private static void INTERNAL_Write(
-			IntPtr context,
-			IntPtr data,
-			int size
-		) {
-			Stream stream;
-			lock (writeStreams)
-			{
-				stream = writeStreams[context];
-			}
-			byte[] buf = new byte[size]; // FIXME: Preallocate!
-			Marshal.Copy(data, buf, 0, size);
-			stream.Write(buf, 0, size);
-		}
-
-		private static FNA3D.FNA3D_Image_WriteFunc writeFunc = INTERNAL_Write;
-
-		private static int writeGlobal = 0;
-		private static System.Collections.Generic.Dictionary<IntPtr, Stream> writeStreams =
-			new System.Collections.Generic.Dictionary<IntPtr, Stream>();
-
 		public void SaveAsJpeg(Stream stream, int width, int height)
 		{
 			int len = Width * Height * GetFormatSize(Format);
@@ -349,26 +327,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				1
 			);
 
-			IntPtr context;
-			lock (writeStreams)
-			{
-				context = (IntPtr) writeGlobal++;
-				writeStreams.Add(context, stream);
-			}
-			FNA3D.FNA3D_Image_SaveJPG(
-				writeFunc,
-				context,
+			FNA3D.WriteJPGStream(
+				stream,
 				Width,
-				height,
+				Height,
 				width,
 				height,
 				data,
 				100 // FIXME: What does XNA pick for quality? -flibit
 			);
-			lock (writeStreams)
-			{
-				writeStreams.Remove(context);
-			}
 
 			Marshal.FreeHGlobal(data);
 		}
@@ -394,25 +361,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				1
 			);
 
-			IntPtr context;
-			lock (writeStreams)
-			{
-				context = (IntPtr) writeGlobal++;
-				writeStreams.Add(context, stream);
-			}
-			FNA3D.FNA3D_Image_SavePNG(
-				writeFunc,
-				context,
-				Width,
-				height,
-				width,
-				height,
-				data
-			);
-			lock (writeStreams)
-			{
-				writeStreams.Remove(context);
-			}
 
 			Marshal.FreeHGlobal(data);
 		}
@@ -421,53 +369,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Static Texture2D Load Methods
 
-		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D.FNA3D_Image_ReadFunc))]
-		private static int INTERNAL_Read(
-			IntPtr context,
-			IntPtr data,
-			int size
-		) {
-			Stream stream;
-			lock (writeStreams)
-			{
-				stream = writeStreams[context];
-			}
-			byte[] buf = new byte[size]; // FIXME: Preallocate!
-			int result = stream.Read(buf, 0, size);
-			Marshal.Copy(buf, 0, data, result);
-			return result;
-		}
-
-		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D.FNA3D_Image_SkipFunc))]
-		private static void INTERNAL_Skip(IntPtr context, int n)
-		{
-			Stream stream;
-			lock (writeStreams)
-			{
-				stream = writeStreams[context];
-			}
-			stream.Seek(n, SeekOrigin.Current);
-		}
-
-		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D.FNA3D_Image_EOFFunc))]
-		private static int INTERNAL_EOF(IntPtr context)
-		{
-			Stream stream;
-			lock (writeStreams)
-			{
-				stream = writeStreams[context];
-			}
-			return (stream.Position == stream.Length) ? 1 : 0;
-		}
-
-		private static FNA3D.FNA3D_Image_ReadFunc readFunc = INTERNAL_Read;
-		private static FNA3D.FNA3D_Image_SkipFunc skipFunc = INTERNAL_Skip;
-		private static FNA3D.FNA3D_Image_EOFFunc eofFunc = INTERNAL_EOF;
-
-		private static int readGlobal = 0;
-		private static System.Collections.Generic.Dictionary<IntPtr, Stream> readStreams =
-			new System.Collections.Generic.Dictionary<IntPtr, Stream>();
-
 		public static Texture2D FromStream(GraphicsDevice graphicsDevice, Stream stream)
 		{
 			if (stream.CanSeek && stream.Position == stream.Length)
@@ -475,29 +376,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				stream.Seek(0, SeekOrigin.Begin);
 			}
 
-			IntPtr context;
 			int width, height, len;
-			lock (readStreams)
-			{
-				context = (IntPtr) readGlobal++;
-				readStreams.Add(context, stream);
-			}
-			IntPtr pixels = FNA3D.FNA3D_Image_Read(
-				readFunc,
-				skipFunc,
-				eofFunc,
-				context,
+			IntPtr pixels = FNA3D.ReadImageStream(
+				stream,
 				out width,
 				out height,
-				out len,
-				-1,
-				-1,
-				0
+				out len
 			);
-			lock (readStreams)
-			{
-				readStreams.Remove(context);
-			}
 
 			Texture2D result = new Texture2D(
 				graphicsDevice,
@@ -527,29 +412,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				stream.Seek(0, SeekOrigin.Begin);
 			}
 
-			IntPtr context;
 			int realWidth, realHeight, len;
-			lock (readStreams)
-			{
-				context = (IntPtr) readGlobal++;
-				readStreams.Add(context, stream);
-			}
-			IntPtr pixels = FNA3D.FNA3D_Image_Read(
-				readFunc,
-				skipFunc,
-				eofFunc,
-				context,
+			IntPtr pixels = FNA3D.ReadImageStream(
+				stream,
 				out realWidth,
 				out realHeight,
 				out len,
 				width,
 				height,
-				(byte) (zoom ? 1 : 0)
+				zoom
 			);
-			lock (readStreams)
-			{
-				readStreams.Remove(context);
-			}
 
 			Texture2D result = new Texture2D(
 				graphicsDevice,
@@ -600,29 +472,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				stream.Seek(0, SeekOrigin.Begin);
 			}
 
-			IntPtr context;
 			int len;
-			lock (readStreams)
-			{
-				context = (IntPtr) readGlobal++;
-				readStreams.Add(context, stream);
-			}
-			IntPtr pixPtr = FNA3D.FNA3D_Image_Read(
-				readFunc,
-				skipFunc,
-				eofFunc,
-				context,
+			IntPtr pixPtr = FNA3D.ReadImageStream(
+				stream,
 				out width,
 				out height,
 				out len,
 				requestedWidth,
 				requestedHeight,
-				(byte) (zoom ? 1 : 0)
+				zoom
 			);
-			lock (readStreams)
-			{
-				readStreams.Remove(context);
-			}
 
 			pixels = new byte[len];
 			Marshal.Copy(pixPtr, pixels, 0, len);

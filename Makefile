@@ -319,7 +319,6 @@ SRC = \
 	src/Vector3.cs \
 	src/Vector4.cs \
 	lib/SDL2-CS/src/SDL2.cs \
-	lib/SDL2-CS/src/SDL2_image.cs \
 	lib/FAudio/csharp/FAudio.cs \
 	lib/Theorafile/csharp/Theorafile.cs
 

@@ -527,9 +527,31 @@ namespace Microsoft.Xna.Framework
 				fileIn = INTERNAL_GetIconName(title + ".png");
 				if (!String.IsNullOrEmpty(fileIn))
 				{
-					IntPtr icon = SDL_image.IMG_Load(fileIn);
+					int w, h, len;
+					IntPtr pixels, icon;
+					using (Stream stream = TitleContainer.OpenStream(fileIn))
+					{
+						pixels = FNA3D.ReadImageStream(
+							stream,
+							out w,
+							out h,
+							out len
+						);
+						icon = SDL.SDL_CreateRGBSurfaceFrom(
+							pixels,
+							w,
+							h,
+							8 * 4,
+							w * 4,
+							0x000000FF,
+							0x0000FF00,
+							0x00FF0000,
+							0xFF000000
+						);
+					}
 					SDL.SDL_SetWindowIcon(window, icon);
 					SDL.SDL_FreeSurface(icon);
+					FNA3D.FNA3D_Image_Free(pixels);
 					return;
 				}
 			}

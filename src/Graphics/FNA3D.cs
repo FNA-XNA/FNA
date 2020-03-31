@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 #endregion
 
@@ -931,7 +932,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public delegate int FNA3D_Image_EOFFunc(IntPtr context);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern IntPtr FNA3D_Image_Read(
+		private static extern IntPtr FNA3D_Image_Read(
 			FNA3D_Image_ReadFunc readFunc,
 			FNA3D_Image_SkipFunc skipFunc,
 			FNA3D_Image_EOFFunc eofFunc,
@@ -947,6 +948,87 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_Image_Free(IntPtr mem);
 
+		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D_Image_ReadFunc))]
+		private static int INTERNAL_Read(
+			IntPtr context,
+			IntPtr data,
+			int size
+		) {
+			Stream stream;
+			lock (readStreams)
+			{
+				stream = readStreams[context];
+			}
+			byte[] buf = new byte[size]; // FIXME: Preallocate!
+			int result = stream.Read(buf, 0, size);
+			Marshal.Copy(buf, 0, data, result);
+			return result;
+		}
+
+		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D_Image_SkipFunc))]
+		private static void INTERNAL_Skip(IntPtr context, int n)
+		{
+			Stream stream;
+			lock (readStreams)
+			{
+				stream = readStreams[context];
+			}
+			stream.Seek(n, SeekOrigin.Current);
+		}
+
+		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D_Image_EOFFunc))]
+		private static int INTERNAL_EOF(IntPtr context)
+		{
+			Stream stream;
+			lock (readStreams)
+			{
+				stream = readStreams[context];
+			}
+			return (stream.Position == stream.Length) ? 1 : 0;
+		}
+
+		private static FNA3D_Image_ReadFunc readFunc = INTERNAL_Read;
+		private static FNA3D_Image_SkipFunc skipFunc = INTERNAL_Skip;
+		private static FNA3D_Image_EOFFunc eofFunc = INTERNAL_EOF;
+
+		private static int readGlobal = 0;
+		private static System.Collections.Generic.Dictionary<IntPtr, Stream> readStreams =
+			new System.Collections.Generic.Dictionary<IntPtr, Stream>();
+
+		public static IntPtr ReadImageStream(
+			Stream stream,
+			out int width,
+			out int height,
+			out int len,
+			int forceW = -1,
+			int forceH = -1,
+			bool zoom = false
+		) {
+			IntPtr context;
+			lock (readStreams)
+			{
+				context = (IntPtr) readGlobal++;
+				readStreams.Add(context, stream);
+			}
+			IntPtr pixels = FNA3D_Image_Read(
+				readFunc,
+				skipFunc,
+				eofFunc,
+				context,
+				out width,
+				out height,
+				out len,
+				forceW,
+				forceH,
+				(byte) (zoom ? 1 : 0)
+			);
+			lock (readStreams)
+			{
+				readStreams.Remove(context);
+			}
+			return pixels;
+		}
+
 		#endregion
 
 		#region Image Write API
@@ -959,7 +1041,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void FNA3D_Image_SavePNG(
+		private static extern void FNA3D_Image_SavePNG(
 			FNA3D_Image_WriteFunc writeFunc,
 			IntPtr context,
 			int srcW,
@@ -970,7 +1052,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void FNA3D_Image_SaveJPG(
+		private static extern void FNA3D_Image_SaveJPG(
 			FNA3D_Image_WriteFunc writeFunc,
 			IntPtr context,
 			int srcW,
@@ -980,6 +1062,88 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data,
 			int quality
 		);
+
+		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D_Image_WriteFunc))]
+		private static void INTERNAL_Write(
+			IntPtr context,
+			IntPtr data,
+			int size
+		) {
+			Stream stream;
+			lock (writeStreams)
+			{
+				stream = writeStreams[context];
+			}
+			byte[] buf = new byte[size]; // FIXME: Preallocate!
+			Marshal.Copy(data, buf, 0, size);
+			stream.Write(buf, 0, size);
+		}
+
+		private static FNA3D_Image_WriteFunc writeFunc = INTERNAL_Write;
+
+		private static int writeGlobal = 0;
+		private static System.Collections.Generic.Dictionary<IntPtr, Stream> writeStreams =
+			new System.Collections.Generic.Dictionary<IntPtr, Stream>();
+
+		public static void WritePNGStream(
+			Stream stream,
+			int srcW,
+			int srcH,
+			int dstW,
+			int dstH,
+			IntPtr data
+		) {
+			IntPtr context;
+			lock (writeStreams)
+			{
+				context = (IntPtr) writeGlobal++;
+				writeStreams.Add(context, stream);
+			}
+			FNA3D_Image_SavePNG(
+				writeFunc,
+				context,
+				srcW,
+				srcH,
+				dstW,
+				dstH,
+				data
+			);
+			lock (writeStreams)
+			{
+				writeStreams.Remove(context);
+			}
+		}
+
+		public static void WriteJPGStream(
+			Stream stream,
+			int srcW,
+			int srcH,
+			int dstW,
+			int dstH,
+			IntPtr data,
+			int quality
+		) {
+			IntPtr context;
+			lock (writeStreams)
+			{
+				context = (IntPtr) writeGlobal++;
+				writeStreams.Add(context, stream);
+			}
+			FNA3D_Image_SaveJPG(
+				writeFunc,
+				context,
+				srcW,
+				srcH,
+				dstW,
+				dstH,
+				data,
+				quality
+			);
+			lock (writeStreams)
+			{
+				writeStreams.Remove(context);
+			}
+		}
 
 		#endregion
 	}
