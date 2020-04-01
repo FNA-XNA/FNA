@@ -620,6 +620,10 @@ namespace Microsoft.Xna.Framework.Graphics
 						pipelineCache.AlphaBlendFunction = XNABlendOp[(int) *val];
 						blendStateChanged = true;
 					}
+					else if (type == (MojoShader.MOJOSHADER_renderStateType) 178)
+					{
+						/* Apparently this is "SetSampler"? */
+					}
 					else
 					{
 						throw new NotImplementedException("Unhandled render state! " + type);
