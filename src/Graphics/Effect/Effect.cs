@@ -620,7 +620,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						pipelineCache.AlphaBlendFunction = XNABlendOp[(int) *val];
 						blendStateChanged = true;
 					}
-					else if (type == (MojoShader.MOJOSHADER_renderStateType) 178)
+					else if (type == (MOJOSHADER_renderStateType) 178)
 					{
 						/* Apparently this is "SetSampler"? */
 					}
