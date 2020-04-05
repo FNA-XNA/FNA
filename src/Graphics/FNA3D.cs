@@ -932,7 +932,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private delegate int FNA3D_Image_EOFFunc(IntPtr context);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		private static extern IntPtr FNA3D_Image_Read(
+		private static extern IntPtr FNA3D_Image_Load(
 			FNA3D_Image_ReadFunc readFunc,
 			FNA3D_Image_SkipFunc skipFunc,
 			FNA3D_Image_EOFFunc eofFunc,
@@ -1010,7 +1010,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				context = (IntPtr) readGlobal++;
 				readStreams.Add(context, stream);
 			}
-			IntPtr pixels = FNA3D_Image_Read(
+			IntPtr pixels = FNA3D_Image_Load(
 				readFunc,
 				skipFunc,
 				eofFunc,
