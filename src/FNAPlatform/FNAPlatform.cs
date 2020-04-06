@@ -50,21 +50,21 @@ namespace Microsoft.Xna.Framework
 			if (args.TryGetValue("gldevice", out arg))
 			{
 				Environment.SetEnvironmentVariable(
-					"FNA_GRAPHICS_FORCE_GLDEVICE",
+					"FNA3D_FORCE_DRIVER",
 					arg
 				);
 			}
 			if (args.TryGetValue("mojoshaderprofile", out arg))
 			{
 				Environment.SetEnvironmentVariable(
-					"FNA_GRAPHICS_MOJOSHADER_PROFILE",
+					"FNA3D_MOJOSHADER_PROFILE",
 					arg
 				);
 			}
 			if (args.TryGetValue("backbufferscalenearest", out arg) && arg == "1")
 			{
 				Environment.SetEnvironmentVariable(
-					"FNA_GRAPHICS_BACKBUFFER_SCALE_NEAREST",
+					"FNA3D_BACKBUFFER_SCALE_NEAREST",
 					"1"
 				);
 			}
