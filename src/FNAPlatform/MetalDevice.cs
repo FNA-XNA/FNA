@@ -751,11 +751,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (OperatingSystemAtLeast(10, 12, 0))
 				{
 					D16Format = MTLPixelFormat.Depth16Unorm;
-					if (!supportsD24S8)
-					{
-						// Less precision, but oh well!
-						D24Format = MTLPixelFormat.Depth16Unorm;
-					}
 				}
 			}
 			else
@@ -764,7 +759,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (OperatingSystemAtLeast(13, 0, 0))
 				{
 					D16Format = MTLPixelFormat.Depth16Unorm;
-					D24Format = MTLPixelFormat.Depth16Unorm;
 				}
 			}
 
