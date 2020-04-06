@@ -776,7 +776,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern void FNA3D_ApplyEffect(
 			IntPtr device,
 			IntPtr effect,
-			IntPtr technique, /* MOJOSHADER_effectTechnique* */
 			uint pass,
 			IntPtr stateChanges /* MOJOSHADER_effectStateChanges* */
 		);

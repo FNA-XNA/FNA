@@ -342,7 +342,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_ApplyEffect(
 				GraphicsDevice.GLDevice,
 				glEffect,
-				CurrentTechnique.TechniquePointer,
 				pass,
 				stateChangesPtr
 			);
