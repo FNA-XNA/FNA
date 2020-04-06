@@ -875,34 +875,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Backbuffer Objects
-
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int FNA3D_GetBackbufferWidth(
-			IntPtr device,
-			IntPtr backbuffer /* FNA3D_Backbuffer* */
-		);
-
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int FNA3D_GetBackbufferHeight(
-			IntPtr device,
-			IntPtr backbuffer /* FNA3D_Backbuffer* */
-		);
-
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern DepthFormat FNA3D_GetBackbufferDepthFormat(
-			IntPtr device,
-			IntPtr backbuffer /* FNA3D_Backbuffer* */
-		);
-
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int FNA3D_GetBackbufferMultiSampleCount(
-			IntPtr device,
-			IntPtr backbuffer /* FNA3D_Backbuffer* */
-		);
-
-		#endregion
-
 		#region Image Read API
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
