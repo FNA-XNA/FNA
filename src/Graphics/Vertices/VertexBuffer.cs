@@ -313,12 +313,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					" data requested."
 				);
 			}
-			IntPtr bufSize = FNA3D.FNA3D_GetBufferSize(
-				GraphicsDevice.GLDevice,
-				buffer
-			);
 			if (	elementCount > 1 &&
-				(elementCount * vertexStride > (int) bufSize)	)
+				(elementCount * vertexStride > VertexCount * vertexStride)	)
 			{
 				throw new InvalidOperationException(
 					"The vertex stride is larger than the vertex buffer."

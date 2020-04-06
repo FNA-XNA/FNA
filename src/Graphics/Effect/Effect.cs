@@ -28,8 +28,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
-				MOJOSHADER_effectSetTechnique(
-					FNA3D.FNA3D_GetEffectData(GraphicsDevice.GLDevice, glEffect),
+				FNA3D.FNA3D_SetEffectTechnique(
+					GraphicsDevice.GLDevice,
+					glEffect,
 					value.TechniquePointer
 				);
 				INTERNAL_currentTechnique = value;
@@ -217,14 +218,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			GraphicsDevice = graphicsDevice;
 
 			// Send the blob to the GLDevice to be parsed/compiled
-			glEffect = FNA3D.FNA3D_CreateEffect(
+			IntPtr effectData;
+			FNA3D.FNA3D_CreateEffect(
 				graphicsDevice.GLDevice,
 				effectCode,
-				effectCode.Length
+				effectCode.Length,
+				out glEffect,
+				out effectData
 			);
 
 			// This is where it gets ugly...
-			INTERNAL_parseEffectStruct();
+			INTERNAL_parseEffectStruct(effectData);
 
 			// The default technique is the first technique.
 			CurrentTechnique = Techniques[0];
@@ -252,13 +256,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			GraphicsDevice = cloneSource.GraphicsDevice;
 
 			// Send the parsed data to be cloned and recompiled by MojoShader
-			glEffect = FNA3D.FNA3D_CloneEffect(
+			IntPtr effectData;
+			FNA3D.FNA3D_CloneEffect(
 				GraphicsDevice.GLDevice,
-				cloneSource.glEffect
+				cloneSource.glEffect,
+				out glEffect,
+				out effectData
 			);
 
 			// Double the ugly, double the fun!
-			INTERNAL_parseEffectStruct();
+			INTERNAL_parseEffectStruct(effectData);
 
 			// Copy texture parameters, if applicable
 			for (int i = 0; i < cloneSource.Parameters.Count; i += 1)
@@ -871,10 +878,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Methods
 
-		private unsafe void INTERNAL_parseEffectStruct()
+		private unsafe void INTERNAL_parseEffectStruct(IntPtr effectData)
 		{
-			MOJOSHADER_effect* effectPtr = (MOJOSHADER_effect*)
-				FNA3D.FNA3D_GetEffectData(GraphicsDevice.GLDevice, glEffect);
+			MOJOSHADER_effect* effectPtr = (MOJOSHADER_effect*) effectData;
 
 			// Set up Parameters
 			MOJOSHADER_effectParam* paramPtr = (MOJOSHADER_effectParam*) effectPtr->parameters;
@@ -1540,13 +1546,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			public IntPtr f; // MOJOSHADER_free
 			public IntPtr malloc_data; // void*
 		}
-
-		/* effect refers to a MOJOSHADER_effect*, technique to a MOJOSHADER_effectTechnique* */
-		[DllImport("FNA3D", CallingConvention = CallingConvention.Cdecl)]
-		public static extern void MOJOSHADER_effectSetTechnique(
-			IntPtr effect,
-			IntPtr technique
-		);
 
 		#endregion
 	}

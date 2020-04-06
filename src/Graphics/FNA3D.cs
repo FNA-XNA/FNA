@@ -751,20 +751,32 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern IntPtr FNA3D_CreateEffect(
 			IntPtr device,
 			byte[] effectCode,
-			int length
+			int length,
+			out IntPtr effect,
+			out IntPtr effectData
 		);
 
 		/* IntPtr refers to an FNA3D_Effect* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern IntPtr FNA3D_CloneEffect(
 			IntPtr device,
-			IntPtr effect
+			IntPtr cloneSource,
+			out IntPtr effect,
+			out IntPtr effectData
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_AddDisposeEffect(
 			IntPtr device,
 			IntPtr effect
+		);
+
+		/* effect refers to a MOJOSHADER_effect*, technique to a MOJOSHADER_effectTechnique* */
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void FNA3D_SetEffectTechnique(
+			IntPtr device,
+			IntPtr effect,
+			IntPtr technique
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -859,28 +871,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern void FNA3D_SetStringMarker(
 			IntPtr device,
 			[MarshalAs(UnmanagedType.LPStr)] string text
-		);
-
-		#endregion
-
-		#region Buffer Objects
-
-		/* IntPtr refers to a size_t/intptr_t */
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern IntPtr FNA3D_GetBufferSize(
-			IntPtr device,
-			IntPtr buffer /* FNA3D_Buffer */
-		);
-
-		#endregion
-
-		#region Effect Objects
-
-		/* IntPtr refers to a MOJOSHADER_effect* */
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern IntPtr FNA3D_GetEffectData(
-			IntPtr device,
-			IntPtr effect /* FNA3D_Effect */
 		);
 
 		#endregion
