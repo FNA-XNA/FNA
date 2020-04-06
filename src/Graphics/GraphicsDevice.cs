@@ -1198,22 +1198,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			ApplyState();
 
-			// Set up the vertex buffers
-			unsafe
-			{
-				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBufferBindings[0])
-				{
-					PrepareVertexBindingArray(bindingsPtr);
-					FNA3D.FNA3D_ApplyVertexBufferBindings(
-						GLDevice,
-						bindingsPtr,
-						vertexBufferCount,
-						(byte) (vertexBuffersUpdated ? 1 : 0),
-						baseVertex
-					);
-				}
-			}
-			vertexBuffersUpdated = false;
+			PrepareVertexBindingArray(baseVertex);
 
 			FNA3D.FNA3D_DrawIndexedPrimitives(
 				GLDevice,
@@ -1245,22 +1230,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			ApplyState();
 
-			// Set up the vertex buffers
-			unsafe
-			{
-				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBufferBindings[0])
-				{
-					PrepareVertexBindingArray(bindingsPtr);
-					FNA3D.FNA3D_ApplyVertexBufferBindings(
-						GLDevice,
-						bindingsPtr,
-						vertexBufferCount,
-						(byte) (vertexBuffersUpdated ? 1 : 0),
-						baseVertex
-					);
-				}
-			}
-			vertexBuffersUpdated = false;
+			PrepareVertexBindingArray(baseVertex);
 
 			FNA3D.FNA3D_DrawInstancedPrimitives(
 				GLDevice,
@@ -1287,22 +1257,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			ApplyState();
 
-			// Set up the vertex buffers
-			unsafe
-			{
-				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBufferBindings[0])
-				{
-					PrepareVertexBindingArray(bindingsPtr);
-					FNA3D.FNA3D_ApplyVertexBufferBindings(
-						GLDevice,
-						bindingsPtr,
-						vertexBufferCount,
-						(byte) (vertexBuffersUpdated ? 1 : 0),
-						0
-					);
-				}
-			}
-			vertexBuffersUpdated = false;
+			PrepareVertexBindingArray(0);
 
 			FNA3D.FNA3D_DrawPrimitives(
 				GLDevice,
@@ -1684,21 +1639,29 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		private unsafe void PrepareVertexBindingArray(FNA3D.FNA3D_VertexBufferBinding *b)
+		private unsafe void PrepareVertexBindingArray(int baseVertex)
 		{
-			for (int i = 0; i < vertexBufferCount; i += 1, b += 1)
+			fixed (FNA3D.FNA3D_VertexBufferBinding* b = &nativeBufferBindings[0])
 			{
-				b->vertexBuffer =
-					vertexBufferBindings[i].VertexBuffer.buffer;
-				b->vertexDeclaration.vertexStride =
-					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.VertexStride;
-				b->vertexDeclaration.elementCount =
-					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.elements.Length;
-				b->vertexDeclaration.elements =
-					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.elementsPin;
-				b->vertexOffset = vertexBufferBindings[i].VertexOffset;
-				b->instanceFrequency = vertexBufferBindings[i].InstanceFrequency;
+				for (int i = 0; i < vertexBufferCount; i += 1)
+				{
+					VertexBuffer buffer = vertexBufferBindings[i].VertexBuffer;
+					b[i].vertexBuffer = buffer.buffer;
+					b[i].vertexDeclaration.vertexStride = buffer.VertexDeclaration.VertexStride;
+					b[i].vertexDeclaration.elementCount = buffer.VertexDeclaration.elements.Length;
+					b[i].vertexDeclaration.elements = buffer.VertexDeclaration.elementsPin;
+					b[i].vertexOffset = vertexBufferBindings[i].VertexOffset;
+					b[i].instanceFrequency = vertexBufferBindings[i].InstanceFrequency;
+				}
+				FNA3D.FNA3D_ApplyVertexBufferBindings(
+					GLDevice,
+					b,
+					vertexBufferCount,
+					(byte) (vertexBuffersUpdated ? 1 : 0),
+					baseVertex
+				);
 			}
+			vertexBuffersUpdated = false;
 		}
 
 		/* Needed by VideoPlayer */
