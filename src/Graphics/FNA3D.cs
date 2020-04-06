@@ -405,7 +405,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr device,
 			IntPtr renderTargets, /* FNA3D_RenderTargetBinding* */
 			int numRenderTargets,
-			IntPtr renderbuffer, /* FNA3D_Renderbuffer */
+			IntPtr depthStencilBuffer, /* FNA3D_Renderbuffer */
 			DepthFormat depthFormat
 		);
 
