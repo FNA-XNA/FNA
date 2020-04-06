@@ -314,7 +314,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 			if (	elementCount > 1 &&
-				(elementCount * vertexStride > VertexCount * vertexStride)	)
+				(elementCount * vertexStride) > (VertexCount * VertexDeclaration.VertexStride))
 			{
 				throw new InvalidOperationException(
 					"The vertex stride is larger than the vertex buffer."
