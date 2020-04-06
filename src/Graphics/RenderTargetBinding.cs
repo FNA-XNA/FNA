@@ -81,43 +81,5 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		#endregion
-
-		#region Internal FNA3D Conversion
-
-		internal FNA3D.FNA3D_RenderTargetBinding ToFNA3D()
-		{
-			if (renderTarget is RenderTarget2D)
-			{
-				RenderTarget2D rt = renderTarget as RenderTarget2D;
-				return new FNA3D.FNA3D_RenderTargetBinding
-				{
-					type = 0,
-					levelCount = rt.LevelCount,
-					texture = rt.texture,
-					width = rt.Width,
-					height = rt.Height,
-					multiSampleCount = rt.MultiSampleCount,
-					colorBuffer = (rt as IRenderTarget).ColorBuffer,
-					cubeMapFace = CubeMapFace.PositiveX
-				};
-			}
-			else
-			{
-				RenderTargetCube rt = renderTarget as RenderTargetCube;
-				return new FNA3D.FNA3D_RenderTargetBinding
-				{
-					type = 1,
-					levelCount = rt.LevelCount,
-					texture = rt.texture,
-					width = rt.Size,
-					height = rt.Size,
-					multiSampleCount = rt.MultiSampleCount,
-					colorBuffer = (rt as IRenderTarget).ColorBuffer,
-					cubeMapFace = this.cubeMapFace
-				};
-			}
-		}
-
-		#endregion
 	}
 }

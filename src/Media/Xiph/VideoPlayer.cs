@@ -188,10 +188,10 @@ namespace Microsoft.Xna.Framework.Media
 			{
 				fixed (FNA3D.FNA3D_RenderTargetBinding* rt = &nativeVideoTexture[0])
 				{
-					for (int i = 0; i < videoTexture.Length; i += 1)
-					{
-						rt[i] = videoTexture[i].ToFNA3D();
-					}
+					GraphicsDevice.PrepareRenderTargetBindings(
+						rt,
+						videoTexture
+					);
 					FNA3D.FNA3D_SetRenderTargets(
 						currentDevice.GLDevice,
 						rt,
@@ -255,10 +255,10 @@ namespace Microsoft.Xna.Framework.Media
 				{
 					fixed (FNA3D.FNA3D_RenderTargetBinding* rt = &nativeOldTargets[0])
 					{
-						for (int i = 0; i < oldTargets.Length; i += 1)
-						{
-							rt[i] = oldTargets[i].ToFNA3D();
-						}
+						GraphicsDevice.PrepareRenderTargetBindings(
+							rt,
+							oldTargets
+						);
 						FNA3D.FNA3D_SetRenderTargets(
 							currentDevice.GLDevice,
 							rt,

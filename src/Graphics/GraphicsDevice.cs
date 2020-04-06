@@ -987,10 +987,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					fixed (FNA3D.FNA3D_RenderTargetBinding* rt = &nativeTargetBindingsNext[0])
 					{
-						for (int i = 0; i < renderTargets.Length; i += 1)
-						{
-							rt[i] = renderTargets[i].ToFNA3D();
-						}
+						PrepareRenderTargetBindings(rt, renderTargets);
 						FNA3D.FNA3D_SetRenderTargets(
 							GLDevice,
 							rt,
@@ -1202,11 +1199,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			ApplyState();
 
 			// Set up the vertex buffers
-			PrepareVertexBindingArray();
 			unsafe
 			{
 				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBufferBindings[0])
 				{
+					PrepareVertexBindingArray(bindingsPtr);
 					FNA3D.FNA3D_ApplyVertexBufferBindings(
 						GLDevice,
 						bindingsPtr,
@@ -1249,11 +1246,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			ApplyState();
 
 			// Set up the vertex buffers
-			PrepareVertexBindingArray();
 			unsafe
 			{
 				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBufferBindings[0])
 				{
+					PrepareVertexBindingArray(bindingsPtr);
 					FNA3D.FNA3D_ApplyVertexBufferBindings(
 						GLDevice,
 						bindingsPtr,
@@ -1291,11 +1288,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			ApplyState();
 
 			// Set up the vertex buffers
-			PrepareVertexBindingArray();
 			unsafe
 			{
 				fixed (FNA3D.FNA3D_VertexBufferBinding* bindingsPtr = &nativeBufferBindings[0])
 				{
+					PrepareVertexBindingArray(bindingsPtr);
 					FNA3D.FNA3D_ApplyVertexBufferBindings(
 						GLDevice,
 						bindingsPtr,
@@ -1687,22 +1684,56 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		private void PrepareVertexBindingArray()
+		private unsafe void PrepareVertexBindingArray(FNA3D.FNA3D_VertexBufferBinding *b)
 		{
-			for (int i = 0; i < vertexBufferCount; i += 1)
+			for (int i = 0; i < vertexBufferCount; i += 1, b += 1)
 			{
-				nativeBufferBindings[i].vertexBuffer =
+				b->vertexBuffer =
 					vertexBufferBindings[i].VertexBuffer.buffer;
-				nativeBufferBindings[i].vertexDeclaration.vertexStride =
+				b->vertexDeclaration.vertexStride =
 					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.VertexStride;
-				nativeBufferBindings[i].vertexDeclaration.elementCount =
+				b->vertexDeclaration.elementCount =
 					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.elements.Length;
-				nativeBufferBindings[i].vertexDeclaration.elements =
+				b->vertexDeclaration.elements =
 					vertexBufferBindings[i].VertexBuffer.VertexDeclaration.elementsPin;
-				nativeBufferBindings[i].vertexOffset =
-					vertexBufferBindings[i].VertexOffset;
-				nativeBufferBindings[i].instanceFrequency =
-					vertexBufferBindings[i].InstanceFrequency;
+				b->vertexOffset = vertexBufferBindings[i].VertexOffset;
+				b->instanceFrequency = vertexBufferBindings[i].InstanceFrequency;
+			}
+		}
+
+		/* Needed by VideoPlayer */
+		internal static unsafe void PrepareRenderTargetBindings(
+			FNA3D.FNA3D_RenderTargetBinding *b,
+			RenderTargetBinding[] bindings
+		) {
+			for (int i = 0; i < bindings.Length; i += 1, b += 1)
+			{
+				Texture texture = bindings[i].RenderTarget;
+				IRenderTarget target = texture as IRenderTarget;
+				if (texture is RenderTarget2D)
+				{
+					RenderTarget2D rt = texture as RenderTarget2D;
+					b->type = 0;
+					b->levelCount = rt.LevelCount;
+					b->texture = rt.texture;
+					b->width = rt.Width;
+					b->height = rt.Height;
+					b->multiSampleCount = rt.MultiSampleCount;
+					b->colorBuffer = target.ColorBuffer;
+					b->cubeMapFace = CubeMapFace.PositiveX;
+				}
+				else
+				{
+					RenderTargetCube rt = texture as RenderTargetCube;
+					b->type = 1;
+					b->levelCount = rt.LevelCount;
+					b->texture = rt.texture;
+					b->width = rt.Size;
+					b->height = rt.Size;
+					b->multiSampleCount = rt.MultiSampleCount;
+					b->colorBuffer = target.ColorBuffer;
+					b->cubeMapFace = bindings[i].CubeMapFace;
+				}
 			}
 		}
 
