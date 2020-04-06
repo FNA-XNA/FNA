@@ -431,10 +431,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Backbuffer Functions
 
-		/* IntPtr refers to an FNA3D_Backbuffer* */
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern IntPtr FNA3D_GetBackbuffer(IntPtr device);
-
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_ResetBackbuffer(
 			IntPtr device,
