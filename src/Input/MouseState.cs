@@ -177,6 +177,61 @@ namespace Microsoft.Xna.Framework.Input
 			return base.GetHashCode();
 		}
 
+		/// <summary>
+		/// Returns a string describing the mouse state.
+		/// </summary>
+		public override string ToString()
+		{
+			string buttons = string.Empty;
+			if (LeftButton == ButtonState.Pressed)
+			{
+				buttons = "Left";
+			}
+			if (RightButton == ButtonState.Pressed)
+			{
+				if (buttons.Length > 0)
+				{
+					buttons += " ";
+				}
+				buttons += "Right";
+			}
+			if (MiddleButton == ButtonState.Pressed)
+			{
+				if (buttons.Length > 0)
+				{
+					buttons += " ";
+				}
+				buttons += "Middle";
+			}
+			if (XButton1 == ButtonState.Pressed)
+			{
+				if (buttons.Length > 0)
+				{
+					buttons += " ";
+				}
+				buttons += "XButton1";
+			}
+			if (XButton2 == ButtonState.Pressed)
+			{
+				if (buttons.Length > 0)
+				{
+					buttons += " ";
+				}
+				buttons += "XButton2";
+			}
+			if (string.IsNullOrEmpty(buttons))
+			{
+				buttons = "None";
+			}
+			return string.Format(
+				"[MouseState X={0}, Y={1}, Buttons={2}, Wheel={3}]",
+				X,
+				Y,
+				buttons,
+				ScrollWheelValue
+			);
+		}
+
 		#endregion
 	}
 }
