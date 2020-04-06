@@ -619,7 +619,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else
 			{
-				throw new NotSupportedException("Unrecognized window depth/stencil format!");
+				throw new NotSupportedException(string.Format(
+					"Unrecognized window depth/stencil format: {0} {1}",
+					depthSize,
+					stencilSize
+				));
 			}
 
 			// UIKit needs special treatment for backbuffer behavior
