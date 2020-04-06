@@ -370,10 +370,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 	internal interface IGLBuffer
 	{
-		IntPtr BufferSize
-		{
-			get;
-		}
 	}
 
 	internal interface IGLEffect

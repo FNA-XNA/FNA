@@ -2482,13 +2482,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			BindVertexBuffer(buffer);
 
+			OpenGLBuffer glBuffer = (buffer as OpenGLBuffer);
 			if (options == SetDataOptions.Discard)
 			{
 				glBufferData(
 					GLenum.GL_ARRAY_BUFFER,
-					buffer.BufferSize,
+					glBuffer.BufferSize,
 					IntPtr.Zero,
-					(buffer as OpenGLBuffer).Dynamic
+					glBuffer.Dynamic
 				);
 			}
 
@@ -2517,13 +2518,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			BindIndexBuffer(buffer);
 
+			OpenGLBuffer glBuffer = (buffer as OpenGLBuffer);
 			if (options == SetDataOptions.Discard)
 			{
 				glBufferData(
 					GLenum.GL_ELEMENT_ARRAY_BUFFER,
-					buffer.BufferSize,
+					glBuffer.BufferSize,
 					IntPtr.Zero,
-					(buffer as OpenGLBuffer).Dynamic
+					glBuffer.Dynamic
 				);
 			}
 
