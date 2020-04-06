@@ -37,6 +37,15 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		/// <summary>
+		/// Gets the mip level count of the render target
+		/// </summary>
+		/// <value>The number of mip levels in the render target.</value>
+		int LevelCount
+		{
+			get;
+		}
+
+		/// <summary>
 		/// Gets the usage mode of the render target.
 		/// </summary>
 		/// <value>The usage mode of the render target.</value>

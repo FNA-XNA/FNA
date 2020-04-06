@@ -1709,31 +1709,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			for (int i = 0; i < bindings.Length; i += 1, b += 1)
 			{
 				Texture texture = bindings[i].RenderTarget;
-				IRenderTarget target = texture as IRenderTarget;
-				if (texture is RenderTarget2D)
-				{
-					RenderTarget2D rt = texture as RenderTarget2D;
-					b->type = 0;
-					b->levelCount = rt.LevelCount;
-					b->texture = rt.texture;
-					b->width = rt.Width;
-					b->height = rt.Height;
-					b->multiSampleCount = rt.MultiSampleCount;
-					b->colorBuffer = target.ColorBuffer;
-					b->cubeMapFace = CubeMapFace.PositiveX;
-				}
-				else
-				{
-					RenderTargetCube rt = texture as RenderTargetCube;
-					b->type = 1;
-					b->levelCount = rt.LevelCount;
-					b->texture = rt.texture;
-					b->width = rt.Size;
-					b->height = rt.Size;
-					b->multiSampleCount = rt.MultiSampleCount;
-					b->colorBuffer = target.ColorBuffer;
-					b->cubeMapFace = bindings[i].CubeMapFace;
-				}
+				IRenderTarget rt = texture as IRenderTarget;
+				b->type = (byte) ((texture is RenderTargetCube) ? 1 : 0);
+				b->levelCount = rt.LevelCount;
+				b->texture = texture.texture;
+				b->width = rt.Width;
+				b->height = rt.Height;
+				b->multiSampleCount = rt.MultiSampleCount;
+				b->colorBuffer = rt.ColorBuffer;
+				b->cubeMapFace = bindings[i].CubeMapFace;
 			}
 		}
 
