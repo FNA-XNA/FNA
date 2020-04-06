@@ -118,15 +118,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		public struct FNA3D_RenderTargetBinding
 		{
 			public byte type;
-			public SurfaceFormat format;
 			public int levelCount;
 			public IntPtr texture;
 			public int width;
 			public int height;
-			public RenderTargetUsage renderTargetUsage;
-			public IntPtr colorBuffer;
-			public DepthFormat depthStencilFormat;
 			public int multiSampleCount;
+			public IntPtr colorBuffer;
 			public CubeMapFace cubeMapFace;
 		}
 

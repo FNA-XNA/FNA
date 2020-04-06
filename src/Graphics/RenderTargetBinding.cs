@@ -92,15 +92,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				return new FNA3D.FNA3D_RenderTargetBinding
 				{
 					type = 0,
-					format = rt.Format,
 					levelCount = rt.LevelCount,
 					texture = rt.texture,
 					width = rt.Width,
 					height = rt.Height,
-					renderTargetUsage = rt.RenderTargetUsage,
-					colorBuffer = (rt as IRenderTarget).ColorBuffer,
-					depthStencilFormat = rt.DepthStencilFormat,
 					multiSampleCount = rt.MultiSampleCount,
+					colorBuffer = (rt as IRenderTarget).ColorBuffer,
 					cubeMapFace = CubeMapFace.PositiveX
 				};
 			}
@@ -110,15 +107,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				return new FNA3D.FNA3D_RenderTargetBinding
 				{
 					type = 1,
-					format = rt.Format,
 					levelCount = rt.LevelCount,
 					texture = rt.texture,
 					width = rt.Size,
 					height = rt.Size,
-					renderTargetUsage = rt.RenderTargetUsage,
-					colorBuffer = (rt as IRenderTarget).ColorBuffer,
-					depthStencilFormat = rt.DepthStencilFormat,
 					multiSampleCount = rt.MultiSampleCount,
+					colorBuffer = (rt as IRenderTarget).ColorBuffer,
 					cubeMapFace = this.cubeMapFace
 				};
 			}
