@@ -118,13 +118,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		public struct FNA3D_RenderTargetBinding
 		{
 			public byte type;
+			public int data1; /* width for 2D, size for Cube */
+			public int data2; /* height for 2D, face for Cube */
 			public int levelCount;
-			public IntPtr texture;
-			public int width;
-			public int height;
 			public int multiSampleCount;
+			public IntPtr texture;
 			public IntPtr colorBuffer;
-			public CubeMapFace cubeMapFace;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
