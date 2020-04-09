@@ -201,8 +201,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				GraphicsDevice.GLDevice,
 				buffer,
 				offsetInBytes,
-				handle.AddrOfPinnedObject(),
-				startIndex,
+				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
 				elementCount,
 				elementSizeInBytes,
 				vertexStride
@@ -216,18 +215,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetData<T>(T[] data) where T : struct
 		{
-			ErrorCheck(data, 0, data.Length, Marshal.SizeOf(typeof(T)));
-
-			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			FNA3D.FNA3D_SetVertexBufferData(
-				GraphicsDevice.GLDevice,
-				buffer,
+			SetData(
 				0,
-				handle.AddrOfPinnedObject(),
-				data.Length * Marshal.SizeOf(typeof(T)),
-				SetDataOptions.None
+				data,
+				0,
+				data.Length,
+				Marshal.SizeOf(typeof(T))
 			);
-			handle.Free();
 		}
 
 		public void SetData<T>(
@@ -235,18 +229,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount
 		) where T : struct {
-			ErrorCheck(data, startIndex, elementCount, Marshal.SizeOf(typeof(T)));
-
-			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			FNA3D.FNA3D_SetVertexBufferData(
-				GraphicsDevice.GLDevice,
-				buffer,
+			SetData(
 				0,
-				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
-				elementCount * Marshal.SizeOf(typeof(T)),
-				SetDataOptions.None
+				data,
+				startIndex,
+				elementCount,
+				Marshal.SizeOf(typeof(T))
 			);
-			handle.Free();
 		}
 
 		public void SetData<T>(
@@ -258,13 +247,16 @@ namespace Microsoft.Xna.Framework.Graphics
 		) where T : struct {
 			ErrorCheck(data, startIndex, elementCount, vertexStride);
 
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetVertexBufferData(
 				GraphicsDevice.GLDevice,
 				buffer,
 				offsetInBytes,
-				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
-				elementCount * Marshal.SizeOf(typeof(T)),
+				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
+				elementCount,
+				elementSizeInBytes,
+				vertexStride,
 				SetDataOptions.None
 			);
 			handle.Free();
@@ -286,6 +278,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				offsetInBytes,
 				data,
 				dataLength,
+				1,
+				1,
 				options
 			);
 		}

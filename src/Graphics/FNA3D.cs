@@ -677,7 +677,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr buffer,
 			int offsetInBytes,
 			IntPtr data,
-			int dataLength,
+			int elementCount,
+			int elementSizeInBytes,
+			int vertexStride,
 			SetDataOptions options
 		);
 
@@ -687,7 +689,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr buffer,
 			int offsetInBytes,
 			IntPtr data,
-			int startIndex,
 			int elementCount,
 			int elementSizeInBytes,
 			int vertexStride
@@ -729,9 +730,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr buffer,
 			int offsetInBytes,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		);
 
 		#endregion
