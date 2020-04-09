@@ -882,18 +882,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			Texture.ValidateGetDataFormat(
+				FNA3D.FNA3D_GetBackbufferSurfaceFormat(GLDevice),
+				elementSizeInBytes
+			);
+
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_ReadBackbuffer(
 				GLDevice,
-				handle.AddrOfPinnedObject(),
-				data.Length * elementSizeInBytes,
-				startIndex,
-				elementCount,
-				elementSizeInBytes,
 				x,
 				y,
 				w,
-				h
+				h,
+				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
+				data.Length * elementSizeInBytes
 			);
 			handle.Free();
 		}

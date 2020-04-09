@@ -125,13 +125,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				GraphicsDevice.GLDevice,
 				texture,
 				Format,
-				level,
 				left,
 				top,
-				right,
-				bottom,
 				front,
-				back,
+				right - left,
+				bottom - top,
+				back - front,
+				level,
 				handle.AddrOfPinnedObject() + startIndex * elementSizeInBytes,
 				elementCount * elementSizeInBytes
 			);
@@ -158,13 +158,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				GraphicsDevice.GLDevice,
 				texture,
 				Format,
-				level,
 				left,
 				top,
-				right,
-				bottom,
 				front,
-				back,
+				right - left,
+				bottom - top,
+				back - front,
+				level,
 				data,
 				dataLength
 			);
@@ -258,6 +258,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentException("Neither box size nor box position can be negative");
 			}
 
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			ValidateGetDataFormat(Format, elementSizeInBytes);
+
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_GetTextureData3D(
 				GraphicsDevice.GLDevice,
@@ -266,14 +269,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				left,
 				top,
 				front,
-				right,
-				bottom,
-				back,
+				right - left,
+				bottom - top,
+				back - front,
 				level,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				Marshal.SizeOf(typeof(T))
+				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
+				elementCount * elementSizeInBytes
 			);
 			handle.Free();
 		}

@@ -436,15 +436,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_ReadBackbuffer(
 			IntPtr device,
-			IntPtr data,
-			int dataLen,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes,
 			int x,
 			int y,
 			int w,
-			int h
+			int h,
+			IntPtr data,
+			int dataLen
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -529,13 +526,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr device,
 			IntPtr texture,
 			SurfaceFormat format,
+			int x,
+			int y,
+			int z,
+			int w,
+			int h,
+			int d,
 			int level,
-			int left,
-			int top,
-			int right,
-			int bottom,
-			int front,
-			int back,
 			IntPtr data,
 			int dataLength
 		);
@@ -571,17 +568,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr device,
 			IntPtr texture,
 			SurfaceFormat format,
-			int textureWidth,
-			int textureHeight,
-			int level,
 			int x,
 			int y,
 			int w,
 			int h,
+			int level,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -589,17 +582,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr device,
 			IntPtr texture,
 			SurfaceFormat format,
-			int left,
-			int top,
-			int front,
-			int right,
-			int bottom,
-			int back,
+			int x,
+			int y,
+			int z,
+			int w,
+			int h,
+			int d,
 			int level,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -607,17 +598,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr device,
 			IntPtr texture,
 			SurfaceFormat format,
-			int textureSize,
-			CubeMapFace cubeMapFace,
-			int level,
 			int x,
 			int y,
 			int w,
 			int h,
+			CubeMapFace cubeMapFace,
+			int level,
 			IntPtr data,
-			int startIndex,
-			int elementCount,
-			int elementSizeInBytes
+			int dataLength
 		);
 
 		#endregion

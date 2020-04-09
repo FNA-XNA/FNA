@@ -282,22 +282,21 @@ namespace Microsoft.Xna.Framework.Graphics
 				subH = rect.Value.Height;
 			}
 
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			ValidateGetDataFormat(Format, elementSizeInBytes);
+
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_GetTextureData2D(
 				GraphicsDevice.GLDevice,
 				texture,
 				Format,
-				Width >> level,
-				Height >> level,
-				level,
 				subX,
 				subY,
 				subW,
 				subH,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				Marshal.SizeOf(typeof(T))
+				level,
+				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
+				elementCount * elementSizeInBytes
 			);
 			handle.Free();
 		}
@@ -314,17 +313,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				GraphicsDevice.GLDevice,
 				texture,
 				Format,
-				Width,
-				Height,
-				0,
 				0,
 				0,
 				Width,
 				height,
-				data,
 				0,
-				len,
-				1
+				data,
+				len
 			);
 
 			FNA3D.WriteJPGStream(
@@ -348,17 +343,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				GraphicsDevice.GLDevice,
 				texture,
 				Format,
-				Width,
-				Height,
-				0,
 				0,
 				0,
 				Width,
 				height,
-				data,
 				0,
-				len,
-				1
+				data,
+				len
 			);
 
 
