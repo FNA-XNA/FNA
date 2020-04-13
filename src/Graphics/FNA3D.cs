@@ -391,7 +391,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern void FNA3D_ApplyVertexDeclaration(
 			IntPtr device,
 			ref FNA3D_VertexDeclaration vertexDeclaration,
-			IntPtr ptr,
+			IntPtr vertexData,
 			int vertexOffset
 		);
 
@@ -560,7 +560,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr v,
 			int w,
 			int h,
-			IntPtr ptr
+			IntPtr data,
+			int dataLength
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]

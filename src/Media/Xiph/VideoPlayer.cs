@@ -761,7 +761,8 @@ namespace Microsoft.Xna.Framework.Media
 				yuvTextures[2].texture,
 				Video.Width,
 				Video.Height,
-				yuvData
+				yuvData,
+				Video.Width * Video.Height * 2
 			);
 
 			// Draw the YUV textures to the framebuffer with our shader.
