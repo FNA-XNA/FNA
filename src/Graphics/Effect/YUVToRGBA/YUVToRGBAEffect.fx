@@ -20,9 +20,22 @@ void VS(inout float2 tex : TEXCOORD0,
 float4 PS(float2 tex : TEXCOORD0) : SV_Target0
 {
 	const float3 offset = float3(-0.0625, -0.5, -0.5);
+
+	/* More info about colorspace conversion:
+	 * http://www.equasys.de/colorconversion.html
+	 * http://www.equasys.de/colorformat.html
+	 */
+#if 1
+	/* ITU-R BT.709 */
+	const float3 Rcoeff = float3(1.164,  0.000,  1.793);
+	const float3 Gcoeff = float3(1.164, -0.213, -0.533);
+	const float3 Bcoeff = float3(1.164,  2.112,  0.000);
+#else
+	/* ITU-R BT.601 */
 	const float3 Rcoeff = float3(1.164,  0.000,  1.596);
 	const float3 Gcoeff = float3(1.164, -0.391, -0.813);
 	const float3 Bcoeff = float3(1.164,  2.018,  0.000);
+#endif
 
 	float3 yuv;
 	yuv.x = tex2D(samp0, tex).w;
