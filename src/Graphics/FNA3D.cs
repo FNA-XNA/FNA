@@ -558,8 +558,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr y,
 			IntPtr u,
 			IntPtr v,
-			int w,
-			int h,
+			int yWidth,
+			int yHeight,
+			int uvWidth,
+			int uvHeight,
 			IntPtr data,
 			int dataLength
 		);

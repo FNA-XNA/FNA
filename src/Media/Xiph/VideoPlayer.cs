@@ -761,6 +761,8 @@ namespace Microsoft.Xna.Framework.Media
 				yuvTextures[2].texture,
 				Video.Width,
 				Video.Height,
+				Video.Width / 2,
+				Video.Height / 2,
 				yuvData,
 				Video.Width * Video.Height * 2
 			);
