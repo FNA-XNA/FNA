@@ -21,20 +21,26 @@ namespace Microsoft.Xna.Framework.Media
 
 		public int Width
 		{
-			get;
-			private set;
+			get
+			{
+				return yWidth;
+			}
 		}
 
 		public int Height
 		{
-			get;
-			private set;
+			get
+			{
+				return yHeight;
+			}
 		}
 
 		public float FramesPerSecond
 		{
-			get;
-			internal set;
+			get
+			{
+				return (float) fps;
+			}
 		}
 
 		public VideoSoundtrackType VideoSoundtrackType
@@ -65,6 +71,11 @@ namespace Microsoft.Xna.Framework.Media
 		#region Internal Variables: Theorafile
 
 		internal IntPtr theora;
+		internal int yWidth;
+		internal int yHeight;
+		internal int uvWidth;
+		internal int uvHeight;
+		internal double fps;
 		internal bool needsDurationHack;
 
 		#endregion
@@ -76,12 +87,14 @@ namespace Microsoft.Xna.Framework.Media
 			GraphicsDevice = device;
 
 			Theorafile.tf_fopen(fileName, out theora);
-			int width, height;
-			double fps;
-			Theorafile.tf_videoinfo(theora, out width, out height, out fps);
-			Width = width;
-			Height = height;
-			FramesPerSecond = (float) fps;
+			Theorafile.tf_videoinfo(
+				theora,
+				out yWidth,
+				out yHeight,
+				out fps
+			);
+			uvWidth = yWidth / 2;
+			uvHeight = yHeight / 2;
 
 			// FIXME: This is a part of the Duration hack!
 			Duration = TimeSpan.MaxValue;
