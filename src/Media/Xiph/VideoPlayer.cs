@@ -119,8 +119,12 @@ namespace Microsoft.Xna.Framework.Media
 			}
 		}
 
-		private void GL_setupTextures(int width, int height)
-		{
+		private void GL_setupTextures(
+			int yWidth,
+			int yHeight,
+			int uvWidth,
+			int uvHeight
+		) {
 			// Allocate YUV GL textures
 			for (int i = 0; i < 3; i += 1)
 			{
@@ -131,28 +135,28 @@ namespace Microsoft.Xna.Framework.Media
 			}
 			yuvTextures[0] = new Texture2D(
 				currentDevice,
-				width,
-				height,
+				yWidth,
+				yHeight,
 				false,
 				SurfaceFormat.Alpha8
 			);
 			yuvTextures[1] = new Texture2D(
 				currentDevice,
-				width / 2,
-				height / 2,
+				uvWidth,
+				uvHeight,
 				false,
 				SurfaceFormat.Alpha8
 			);
 			yuvTextures[2] = new Texture2D(
 				currentDevice,
-				width / 2,
-				height / 2,
+				uvWidth,
+				uvHeight,
 				false,
 				SurfaceFormat.Alpha8
 			);
 
 			// Precalculate the viewport
-			viewport = new Viewport(0, 0, width, height);
+			viewport = new Viewport(0, 0, yWidth, yHeight);
 		}
 
 		private void GL_pushState()
@@ -471,7 +475,7 @@ namespace Microsoft.Xna.Framework.Media
 				return videoTexture[0].RenderTarget as Texture2D;
 			}
 
-			int thisFrame = (int) (timer.Elapsed.TotalMilliseconds / (1000.0 / Video.FramesPerSecond));
+			int thisFrame = (int) (timer.Elapsed.TotalMilliseconds / (1000.0 / Video.fps));
 			if (thisFrame > currentFrame)
 			{
 				// Only update the textures if we need to!
@@ -565,7 +569,10 @@ namespace Microsoft.Xna.Framework.Media
 			{
 				Marshal.FreeHGlobal(yuvData);
 			}
-			yuvData = Marshal.AllocHGlobal(Video.Width * Video.Height * 2);
+			yuvData = Marshal.AllocHGlobal(
+				(Video.yWidth * Video.yHeight) +
+				(Video.uvWidth * Video.uvHeight * 2)
+			);
 
 			// Hook up the decoder to this player
 			InitializeTheoraStream();
@@ -585,8 +592,8 @@ namespace Microsoft.Xna.Framework.Media
 				videoTexture[0] = new RenderTargetBinding(
 					new RenderTarget2D(
 						currentDevice,
-						Video.Width,
-						Video.Height,
+						Video.yWidth,
+						Video.yHeight,
 						false,
 						SurfaceFormat.Color,
 						DepthFormat.None,
@@ -599,8 +606,10 @@ namespace Microsoft.Xna.Framework.Media
 					overlap.RenderTarget.Dispose();
 				}
 				GL_setupTextures(
-					Video.Width,
-					Video.Height
+					Video.yWidth,
+					Video.yHeight,
+					Video.uvWidth,
+					Video.uvHeight
 				);
 			}
 
