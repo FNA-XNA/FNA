@@ -395,6 +395,7 @@ namespace Microsoft.Xna.Framework.Media
 		#region Private Member Data: Theorafile
 
 		private IntPtr yuvData;
+		private int yuvDataLen;
 		private int currentFrame;
 
 		private const int AUDIO_BUFFER_SIZE = 4096 * 2;
@@ -611,10 +612,11 @@ namespace Microsoft.Xna.Framework.Media
 			{
 				Marshal.FreeHGlobal(yuvData);
 			}
-			yuvData = Marshal.AllocHGlobal(
+			yuvDataLen = (
 				(Video.yWidth * Video.yHeight) +
 				(Video.uvWidth * Video.uvHeight * 2)
 			);
+			yuvData = Marshal.AllocHGlobal(yuvDataLen);
 
 			// Hook up the decoder to this player
 			InitializeTheoraStream();
@@ -768,12 +770,12 @@ namespace Microsoft.Xna.Framework.Media
 				yuvTextures[0].texture,
 				yuvTextures[1].texture,
 				yuvTextures[2].texture,
-				Video.Width,
-				Video.Height,
-				Video.Width / 2,
-				Video.Height / 2,
+				Video.yWidth,
+				Video.yHeight,
+				Video.uvWidth,
+				Video.uvHeight,
 				yuvData,
-				Video.Width * Video.Height * 2
+				yuvDataLen
 			);
 
 			// Draw the YUV textures to the framebuffer with our shader.
