@@ -1529,6 +1529,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			public IntPtr profile; // const char*
 			public IntPtr compileShader;
+			public IntPtr shaderAddRef;
 			public IntPtr deleteShader;
 			public IntPtr getParseData;
 			public IntPtr bindShaders;
