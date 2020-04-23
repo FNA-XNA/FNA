@@ -1522,26 +1522,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			public IntPtr vertex_sampler_state_changes; // const MOJOSHADER_samplerStateRegister*
 		}
 
-		/* Shader context... */
-
-		[StructLayout(LayoutKind.Sequential)]
-		private struct MOJOSHADER_effectShaderContext
-		{
-			public IntPtr profile; // const char*
-			public IntPtr compileShader;
-			public IntPtr shaderAddRef;
-			public IntPtr deleteShader;
-			public IntPtr getParseData;
-			public IntPtr bindShaders;
-			public IntPtr getBoundShaders;
-			public IntPtr mapUniformBufferMemory;
-			public IntPtr unmapUniformBufferMemory;
-			public IntPtr m;
-			public IntPtr f;
-			public IntPtr malloc_data;
-		}
-
-		/* Effect parsing interface... */
+		/* Effect parsing interface... this is a partial struct! */
 
 		[StructLayout(LayoutKind.Sequential)]
 		private struct MOJOSHADER_effect
@@ -1552,19 +1533,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			public IntPtr parameters; // MOJOSHADER_effectParam* params, lolC#
 			public int technique_count;
 			public IntPtr techniques; // MOJOSHADER_effectTechnique*
-			public IntPtr current_technique; // const MOJOSHADER_effectTechnique*
-			public int current_pass;
 			public int object_count;
 			public IntPtr objects; // MOJOSHADER_effectObject*
-			public int restore_render_state;
-			public IntPtr state_changes; // MOJOSHADER_effectStateChanges*
-			public IntPtr current_vert_raw;
-			public IntPtr current_pixl_raw;
-			public IntPtr current_vert;
-			public IntPtr current_pixl;
-			public IntPtr prev_vertex_shader;
-			public IntPtr prev_pixel_shader;
-			public MOJOSHADER_effectShaderContext ctx;
 		}
 
 		#endregion
