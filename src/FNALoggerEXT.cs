@@ -30,6 +30,14 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Private Static Variables
+
+		private static FNA3D.FNA3D_LogFunc LogInfoFunc = FNA3DLogInfo;
+		private static FNA3D.FNA3D_LogFunc LogWarnFunc = FNA3DLogWarn;
+		private static FNA3D.FNA3D_LogFunc LogErrorFunc = FNA3DLogError;
+
+		#endregion
+
 		#region Internal Static Functions
 
 		internal static void Initialize()
@@ -52,9 +60,9 @@ namespace Microsoft.Xna.Framework
 			try
 			{
 				FNA3D.FNA3D_HookLogFunctions(
-					FNA3DLogInfo,
-					FNA3DLogWarn,
-					FNA3DLogError
+					FNA3DLogInfoFunc,
+					FNA3DLogWarnFunc,
+					FNA3DLogErrorFunc
 				);
 			}
 			catch (DllNotFoundException)
