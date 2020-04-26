@@ -60,9 +60,9 @@ namespace Microsoft.Xna.Framework
 			try
 			{
 				FNA3D.FNA3D_HookLogFunctions(
-					FNA3DLogInfoFunc,
-					FNA3DLogWarnFunc,
-					FNA3DLogErrorFunc
+					LogInfoFunc,
+					LogWarnFunc,
+					LogErrorFunc
 				);
 			}
 			catch (DllNotFoundException)
