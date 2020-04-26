@@ -1222,13 +1222,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			MOJOSHADER_FILL_SOLID		= 3
 		}
 
-		private enum MOJOSHADER_shadeMode
-		{
-			MOJOSHADER_SHADE_FLAT		= 1,
-			MOJOSHADER_SHADE_GOURAUD	= 2,
-			MOJOSHADER_SHADE_PHONG		= 3,
-		}
-
 		private enum MOJOSHADER_blendMode
 		{
 			MOJOSHADER_BLEND_ZERO			= 1,
@@ -1269,14 +1262,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			MOJOSHADER_CMP_ALWAYS		= 8
 		}
 
-		private enum MOJOSHADER_fogMode
-		{
-			MOJOSHADER_FOG_NONE,
-			MOJOSHADER_FOG_EXP,
-			MOJOSHADER_FOG_EXP2,
-			MOJOSHADER_FOG_LINEAR
-		}
-
 		private enum MOJOSHADER_stencilOp
 		{
 			MOJOSHADER_STENCILOP_KEEP	= 1,
@@ -1289,35 +1274,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			MOJOSHADER_STENCILOP_DECR	= 8
 		}
 
-		private enum MOJOSHADER_materialColorSource
-		{
-			MOJOSHADER_MCS_MATERIAL,
-			MOJOSHADER_MCS_COLOR1,
-			MOJOSHADER_MCS_COLOR2
-		}
-
-		private enum MOJOSHADER_vertexBlendFlags
-		{
-			MOJOSHADER_VBF_DISABLE	= 0,
-			MOJOSHADER_VBF_1WEIGHTS	= 1,
-			MOJOSHADER_VBF_2WEIGHTS	= 2,
-			MOJOSHADER_VBF_3WEIGHTS	= 3,
-			MOJOSHADER_VBF_TWEENING	= 255,
-			MOJOSHADER_VBF_0WEIGHTS	= 256,
-		}
-
-		private enum MOJOSHADER_patchedEdgeStyle
-		{
-			MOJOSHADER_PATCHEDGE_DISCRETE,
-			MOJOSHADER_PATCHEDGE_CONTINUOUS
-		}
-
-		private enum MOJOSHADER_debugMonitorTokens
-		{
-			MOJOSHADER_DMT_ENABLE,
-			MOJOSHADER_DMT_DISABLE
-		}
-
 		private enum MOJOSHADER_blendOp
 		{
 			MOJOSHADER_BLENDOP_ADD		= 1,
@@ -1325,14 +1281,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			MOJOSHADER_BLENDOP_REVSUBTRACT	= 3,
 			MOJOSHADER_BLENDOP_MIN		= 4,
 			MOJOSHADER_BLENDOP_MAX		= 5
-		}
-
-		private enum MOJOSHADER_degreeType
-		{
-			MOJOSHADER_DEGREE_LINEAR	= 1,
-			MOJOSHADER_DEGREE_QUADRATIC	= 2,
-			MOJOSHADER_DEGREE_CUBIC		= 3,
-			MOJOSHADER_DEGREE_QUINTIC	= 5
 		}
 
 		/* MOJOSHADER_effectSamplerState types... */
