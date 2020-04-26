@@ -374,6 +374,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			ref FNA3D_SamplerState sampler
 		);
 
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void FNA3D_VerifyVertexSampler(
+			IntPtr device,
+			int index,
+			IntPtr texture, /* FNA3D_Texture* */
+			ref FNA3D_SamplerState sampler
+		);
+
 		#endregion
 
 		#region Vertex State
@@ -839,7 +847,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern byte FNA3D_SupportsNoOverwrite(IntPtr device);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int FNA3D_GetMaxTextureSlots(IntPtr device);
+		public static extern int FNA3D_GetMaxTextureSlots(
+			IntPtr device,
+			out int textures,
+			out int vertexTextures
+		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern int FNA3D_GetMaxMultiSampleCount(IntPtr device);

@@ -277,12 +277,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Private Vertex Sampler Offset Variable
-
-		private int vertexSamplerStart;
-
-		#endregion
-
 		#region Internal Sampler Change Queue
 
 		private readonly bool[] modifiedSamplers = new bool[MAX_TEXTURE_SAMPLERS];
@@ -439,17 +433,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			RasterizerState = RasterizerState.CullCounterClockwise;
 
 			// Initialize the Texture/Sampler state containers
-			int maxTextureSlots = FNA3D.FNA3D_GetMaxTextureSlots(GLDevice);
-			int maxTextures = Math.Min(
-				maxTextureSlots,
-				MAX_TEXTURE_SAMPLERS
+			int maxTextures, maxVertexTextures;
+			FNA3D.FNA3D_GetMaxTextureSlots(
+				GLDevice,
+				out maxTextures,
+				out maxVertexTextures
 			);
-			int maxVertexTextures = MathHelper.Clamp(
-				maxTextureSlots - MAX_TEXTURE_SAMPLERS,
-				0,
-				MAX_VERTEXTEXTURE_SAMPLERS
-			);
-			vertexSamplerStart = maxTextureSlots - maxVertexTextures;
 			Textures = new TextureCollection(
 				maxTextures,
 				modifiedSamplers
@@ -1630,9 +1619,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * we get to do.
 				 * -flibit
 				 */
-				FNA3D.FNA3D_VerifySampler(
+				FNA3D.FNA3D_VerifyVertexSampler(
 					GLDevice,
-					vertexSamplerStart + sampler,
+					sampler,
 					(VertexTextures[sampler] != null) ?
 						VertexTextures[sampler].texture :
 						IntPtr.Zero,
