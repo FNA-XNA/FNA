@@ -113,6 +113,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		// Where are we in the vertex buffer ring?
 		private int bufferOffset;
+		private bool supportsNoOverwrite;
 
 		// Matrix to be used when creating the projection matrix
 		private Matrix transformMatrix;
@@ -174,6 +175,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			beginCalled = false;
 			numSprites = 0;
+			supportsNoOverwrite = FNA3D.FNA3D_SupportsNoOverwrite(
+				GraphicsDevice.GLDevice
+			) == 1;
 		}
 
 		#endregion
@@ -1091,9 +1095,8 @@ namespace Microsoft.Xna.Framework.Graphics
 						effects
 					);
 
-					if (FNA3D.FNA3D_SupportsNoOverwrite(
-						GraphicsDevice.GLDevice
-					) == 1) {
+					if (supportsNoOverwrite)
+					{
 						offset = UpdateVertexBuffer(1);
 					}
 					else
@@ -1261,7 +1264,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int offset;
 			SetDataOptions options;
 			if (	(bufferOffset + count) > MAX_SPRITES ||
-				FNA3D.FNA3D_SupportsNoOverwrite(GraphicsDevice.GLDevice) == 0	)
+				!supportsNoOverwrite	)
 			{
 				offset = 0;
 				options = SetDataOptions.Discard;
