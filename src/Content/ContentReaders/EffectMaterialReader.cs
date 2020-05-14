@@ -41,6 +41,10 @@ namespace Microsoft.Xna.Framework.Content
 					{
 						parameter.SetValue((int) item.Value);
 					}
+					else if (typeof(int[]).IsAssignableFrom(itemType))
+					{
+						parameter.SetValue((int[]) item.Value);
+					}
 					else if (typeof(bool).IsAssignableFrom(itemType))
 					{
 						parameter.SetValue((bool) item.Value);
