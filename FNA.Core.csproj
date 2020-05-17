@@ -226,6 +226,7 @@
 		<Compile Include="src\Graphics\PresentationParameters.cs" />
 		<Compile Include="src\Graphics\PresentInterval.cs" />
 		<Compile Include="src\Graphics\PrimitiveType.cs" />
+		<Compile Include="src\Graphics\ProfileCapabilities.cs" />
 		<Compile Include="src\Graphics\RenderTarget2D.cs" />
 		<Compile Include="src\Graphics\RenderTargetBinding.cs" />
 		<Compile Include="src\Graphics\RenderTargetCube.cs" />

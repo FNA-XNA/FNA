@@ -210,6 +210,7 @@ SRC = \
 	src/Graphics/PresentationParameters.cs \
 	src/Graphics/PresentInterval.cs \
 	src/Graphics/PrimitiveType.cs \
+	src/Graphics/ProfileCapabilities.cs \
 	src/Graphics/RenderTarget2D.cs \
 	src/Graphics/RenderTargetBinding.cs \
 	src/Graphics/RenderTargetCube.cs \
