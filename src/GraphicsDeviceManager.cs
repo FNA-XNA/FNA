@@ -478,7 +478,9 @@ namespace Microsoft.Xna.Framework
 				if (graphicsDevice != null)
 				{
 					maxMultiSampleCount = FNA3D.FNA3D_GetMaxMultiSampleCount(
-						graphicsDevice.GLDevice
+						graphicsDevice.GLDevice,
+						gdi.PresentationParameters.BackBufferFormat,
+						8
 					);
 				}
 				gdi.PresentationParameters.MultiSampleCount = Math.Min(

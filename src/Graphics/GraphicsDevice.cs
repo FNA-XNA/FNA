@@ -688,11 +688,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			Adapter = graphicsAdapter;
 
 			// Verify MSAA before we really start...
-			PresentationParameters.MultiSampleCount = Math.Min(
-				MathHelper.ClosestMSAAPower(
-					PresentationParameters.MultiSampleCount
-				),
-				FNA3D.FNA3D_GetMaxMultiSampleCount(GLDevice)
+			PresentationParameters.MultiSampleCount = FNA3D.FNA3D_GetMaxMultiSampleCount(
+				GLDevice,
+				PresentationParameters.BackBufferFormat,
+				MathHelper.ClosestMSAAPower(PresentationParameters.MultiSampleCount)
 			);
 
 			// We're about to reset, let the application know.

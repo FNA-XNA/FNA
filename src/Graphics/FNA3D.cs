@@ -854,7 +854,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int FNA3D_GetMaxMultiSampleCount(IntPtr device);
+		public static extern int FNA3D_GetMaxMultiSampleCount(
+			IntPtr device,
+			SurfaceFormat format,
+			int preferredMultiSampleCount
+		);
 
 		#endregion
 
