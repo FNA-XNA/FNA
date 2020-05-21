@@ -51,6 +51,13 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(
+						"SoundEffectInstance"
+					);
+				}
+
 				if (value > 1.0f || value < -1.0f)
 				{
 					throw new ArgumentOutOfRangeException("value");
