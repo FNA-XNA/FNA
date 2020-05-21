@@ -65,8 +65,23 @@ namespace Microsoft.Xna.Framework.Audio
 		private readonly FAudio.FACTNotificationCallback xactNotificationFunc;
 		private FAudio.FACTNotificationDescription notificationDesc;
 
+		private class IntPtrComparer : IEqualityComparer<IntPtr>
+		{
+			public bool Equals(IntPtr x, IntPtr y)
+			{
+				return x == y;
+			}
+
+			public int GetHashCode(IntPtr obj)
+			{
+				return obj.GetHashCode();
+			}
+		}
+
+		private static readonly IntPtrComparer comparer = new IntPtrComparer();
+
 		// If this isn't static, destructors gets confused like idiots
-		private static readonly Dictionary<IntPtr, WeakReference> xactPtrs = new Dictionary<IntPtr, WeakReference>();
+		private static readonly Dictionary<IntPtr, WeakReference> xactPtrs = new Dictionary<IntPtr, WeakReference>(comparer);
 
 		#endregion
 
