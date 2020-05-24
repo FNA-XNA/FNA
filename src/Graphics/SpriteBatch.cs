@@ -1456,7 +1456,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		[System.Diagnostics.Conditional("DEBUG")]
 		private void CheckBegin(string method)
 		{
 			if (!beginCalled)
