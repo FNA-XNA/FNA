@@ -224,6 +224,12 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("emitter");
 			}
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(
+					"SoundEffectInstance"
+				);
+			}
 
 			is3D = true;
 			SoundEffect.FAudioContext dev = SoundEffect.Device();
