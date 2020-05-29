@@ -65,6 +65,9 @@ namespace Microsoft.Xna.Framework
 
 		public static string ProgramInit(LaunchParameters args)
 		{
+			// Initialize DllMap for .NET Core
+			FNAPlatform.InitDllMap();
+
 			// This is how we can weed out cases where fnalibs is missing
 			try
 			{

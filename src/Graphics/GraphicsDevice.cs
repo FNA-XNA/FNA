@@ -380,6 +380,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentNullException("presentationParameters");
 			}
 
+			// Initialize DllMap for .NET Core
+			FNAPlatform.InitDllMap();
+
 			// Set the properties from the constructor parameters.
 			Adapter = adapter;
 			PresentationParameters = presentationParameters;

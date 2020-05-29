@@ -657,6 +657,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				return FAudioContext.Context;
 			}
+			FNAPlatform.InitDllMap();
 			FAudioContext.Create();
 			if (FAudioContext.Context == null)
 			{

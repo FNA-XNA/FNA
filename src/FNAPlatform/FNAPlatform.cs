@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.IO;
+using System.Reflection;
 
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
@@ -342,6 +343,34 @@ namespace Microsoft.Xna.Framework
 
 		public delegate bool SupportsOrientationChangesFunc();
 		public static readonly SupportsOrientationChangesFunc SupportsOrientationChanges;
+
+		#endregion
+
+		#region .NET Core DllMap Initialization
+
+		public static void InitDllMap()
+		{
+			if (Type.GetType("System.Runtime.InteropServices.NativeLibrary, System.Runtime.InteropServices") != null)
+			{
+				Assembly fnaAssembly = Assembly.GetCallingAssembly();
+				string path = Path.Combine(
+					AppDomain.CurrentDomain.BaseDirectory,
+					"CoreDllMap.dll"
+				);
+				try
+				{
+					Assembly dllmap = Assembly.LoadFile(path);
+					dllmap.GetType("CoreDllMap").GetMethod("Register").Invoke(
+						null,
+						new object[] { fnaAssembly }
+					);
+				}
+				catch
+				{
+					FNALoggerEXT.LogWarn("Could not find CoreDllMap.dll!");
+				}
+			}
+		}
 
 		#endregion
 	}
