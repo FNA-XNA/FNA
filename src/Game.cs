@@ -231,6 +231,8 @@ namespace Microsoft.Xna.Framework
 		{
 			AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
+			DllMap.Initialize();
+
 			LaunchParameters = new LaunchParameters();
 			Components = new GameComponentCollection();
 			Services = new GameServiceContainer();

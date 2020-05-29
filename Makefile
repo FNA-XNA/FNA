@@ -320,6 +320,7 @@ SRC = \
 	src/TitleContainer.cs \
 	src/TitleLocation.cs \
 	src/Utilities/AssemblyHelper.cs \
+	src/Utilities/DllMap.cs \
 	src/Utilities/FileHelpers.cs \
 	src/Utilities/FNAInternalExtensions.cs \
 	src/Utilities/XamarinHelper.cs \
