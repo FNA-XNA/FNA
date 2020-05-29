@@ -165,11 +165,10 @@ namespace Microsoft.Xna.Framework
 				"OPENBSD"
 			};
 
-			OSPlatform[] platforms = new OSPlatform[platformNames.Length];
-			for (int i = 0; i < platforms.Length; i += 1)
+			for (int i = 0; i < platformNames.Length; i += 1)
 			{
-				platforms[i] = OSPlatform.Create(platformNames[i]);
-				if (RuntimeInformation.IsOSPlatform(platforms[i]))
+				OSPlatform platform = OSPlatform.Create(platformNames[i]);
+				if (RuntimeInformation.IsOSPlatform(platform))
 				{
 					return platformNames[i].ToLowerInvariant();
 				}
