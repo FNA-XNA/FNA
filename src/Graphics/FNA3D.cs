@@ -447,7 +447,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern  void FNA3D_GetBackbufferSize(
+		public static extern void FNA3D_GetBackbufferSize(
 			IntPtr device,
 			out int w,
 			out int h
