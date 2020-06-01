@@ -222,12 +222,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr overrideWindowHandle
 		);
 
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void FNA3D_SetPresentationInterval(
-			IntPtr device,
-			PresentInterval presentInterval
-		);
-
 		#endregion
 
 		#region Drawing

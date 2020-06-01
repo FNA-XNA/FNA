@@ -460,12 +460,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			Viewport = new Viewport(PresentationParameters.Bounds);
 			ScissorRectangle = Viewport.Bounds;
 
-			// Set the initial swap interval
-			FNA3D.FNA3D_SetPresentationInterval(
-				GLDevice,
-				PresentationParameters.PresentationInterval
-			);
-
 			// Allocate the pipeline cache to be used by Effects
 			PipelineCache = new PipelineCache(this);
 #if WIIU_GAMEPAD
@@ -756,12 +750,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				0,
 				PresentationParameters.BackBufferWidth,
 				PresentationParameters.BackBufferHeight
-			);
-
-			// Finally, update the swap interval
-			FNA3D.FNA3D_SetPresentationInterval(
-				GLDevice,
-				PresentationParameters.PresentationInterval
 			);
 
 			// We just reset, let the application know.
