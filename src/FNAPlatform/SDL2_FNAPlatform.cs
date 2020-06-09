@@ -135,7 +135,7 @@ namespace Microsoft.Xna.Framework
 			if (args.TryGetValue("disablelateswaptear", out arg) && arg == "1")
 			{
 				Environment.SetEnvironmentVariable(
-					"FNA_OPENGL_DISABLE_LATESWAPTEAR",
+					"FNA3D_OPENGL_DISABLE_LATESWAPTEAR",
 					"1"
 				);
 			}
@@ -144,21 +144,21 @@ namespace Microsoft.Xna.Framework
 				if (arg == "es3")
 				{
 					Environment.SetEnvironmentVariable(
-						"FNA_OPENGL_FORCE_ES3",
+						"FNA3D_OPENGL_FORCE_ES3",
 						"1"
 					);
 				}
 				else if (arg == "core")
 				{
 					Environment.SetEnvironmentVariable(
-						"FNA_OPENGL_FORCE_CORE_PROFILE",
+						"FNA3D_OPENGL_FORCE_CORE_PROFILE",
 						"1"
 					);
 				}
 				else if (arg == "compatibility")
 				{
 					Environment.SetEnvironmentVariable(
-						"FNA_OPENGL_FORCE_COMPATIBILITY_PROFILE",
+						"FNA3D_OPENGL_FORCE_COMPATIBILITY_PROFILE",
 						"1"
 					);
 				}
@@ -166,7 +166,7 @@ namespace Microsoft.Xna.Framework
 			if (args.TryGetValue("angle", out arg) && arg == "1")
 			{
 				Environment.SetEnvironmentVariable(
-					"FNA_OPENGL_FORCE_ES3",
+					"FNA3D_OPENGL_FORCE_ES3",
 					"1"
 				);
 				Environment.SetEnvironmentVariable(
