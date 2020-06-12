@@ -146,7 +146,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Logging
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate void FNA3D_LogFunc(string msg);
+		public delegate void FNA3D_LogFunc(IntPtr msg);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_HookLogFunctions(
