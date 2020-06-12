@@ -132,13 +132,6 @@ namespace Microsoft.Xna.Framework
 
 			// Built-in SDL2 command line arguments
 			string arg;
-			if (args.TryGetValue("disablelateswaptear", out arg) && arg == "1")
-			{
-				Environment.SetEnvironmentVariable(
-					"FNA3D_DISABLE_LATESWAPTEAR",
-					"1"
-				);
-			}
 			if (args.TryGetValue("glprofile", out arg))
 			{
 				if (arg == "es3")
