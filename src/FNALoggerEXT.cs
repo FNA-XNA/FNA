@@ -90,8 +90,9 @@ namespace Microsoft.Xna.Framework
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D.FNA3D_LogFunc))]
 		private static void FNA3DLogError(IntPtr msg)
 		{
-			LogError(UTF8_ToManaged(msg));
-			throw new InvalidOperationException(msg);
+			string err = UTF8_ToManaged(msg);
+			LogError(err);
+			throw new InvalidOperationException(err);
 		}
 
 		private static unsafe string UTF8_ToManaged(IntPtr s)
