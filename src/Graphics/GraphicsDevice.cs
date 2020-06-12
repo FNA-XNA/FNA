@@ -7,15 +7,6 @@
  */
 #endregion
 
-#region WIIU_GAMEPAD Option
-// #define WIIU_GAMEPAD
-/* This is something I added for myself, because I am a complete goof.
- * You should NEVER enable this in your shipping build.
- * Let your hacker customers self-build FNA, they'll know what to do.
- * -flibit
- */
-#endregion
-
 #region Using Statements
 using System;
 using System.Collections.Generic;
@@ -462,27 +453,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Allocate the pipeline cache to be used by Effects
 			PipelineCache = new PipelineCache(this);
-#if WIIU_GAMEPAD
-			wiiuStream = DRC.drc_new_streamer();
-			if (wiiuStream == IntPtr.Zero)
-			{
-				FNALoggerEXT.LogError("Failed to alloc GamePad stream!");
-				return;
-			}
-			if (DRC.drc_start_streamer(wiiuStream) < 1) // ???
-			{
-				FNALoggerEXT.LogError("Failed to start GamePad stream!");
-				DRC.drc_delete_streamer(wiiuStream);
-				wiiuStream = IntPtr.Zero;
-				return;
-			}
-			DRC.drc_enable_system_input_feeder(wiiuStream);
-			wiiuPixelData = new byte[
-				PresentationParameters.BackBufferWidth *
-				PresentationParameters.BackBufferHeight *
-				4
-			];
-#endif
 		}
 
 		~GraphicsDevice()
@@ -526,15 +496,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 					// Dispose of the GL Device/Context
 					FNA3D.FNA3D_DestroyDevice(GLDevice);
-
-#if WIIU_GAMEPAD
-					if (wiiuStream != IntPtr.Zero)
-					{
-						DRC.drc_stop_streamer(wiiuStream);
-						DRC.drc_delete_streamer(wiiuStream);
-						wiiuStream = IntPtr.Zero;
-					}
-#endif
 				}
 
 				IsDisposed = true;
@@ -573,21 +534,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr.Zero,
 				PresentationParameters.DeviceWindowHandle
 			);
-#if WIIU_GAMEPAD
-			if (wiiuStream != IntPtr.Zero)
-			{
-				GetBackBufferData(wiiuPixelData);
-				DRC.drc_push_vid_frame(
-					wiiuStream,
-					wiiuPixelData,
-					(uint) wiiuPixelData.Length,
-					(ushort) GLDevice.Backbuffer.Width,
-					(ushort) GLDevice.Backbuffer.Height,
-					DRC.drc_pixel_format.DRC_RGBA,
-					DRC.drc_flipping_mode.DRC_NO_FLIP
-				);
-			}
-#endif
 		}
 
 		public void Present(
@@ -639,21 +585,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					overrideWindowHandle
 				);
 			}
-#if WIIU_GAMEPAD
-			if (wiiuStream != IntPtr.Zero)
-			{
-				GetBackBufferData(wiiuPixelData);
-				DRC.drc_push_vid_frame(
-					wiiuStream,
-					wiiuPixelData,
-					(uint) wiiuPixelData.Length,
-					(ushort) GLDevice.Backbuffer.Width,
-					(ushort) GLDevice.Backbuffer.Height,
-					DRC.drc_pixel_format.DRC_RGBA,
-					DRC.drc_flipping_mode.DRC_NO_FLIP
-				);
-			}
-#endif
 		}
 
 		#endregion
@@ -727,14 +658,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			// The Touch Panel needs this too, for the same reason.
 			Input.Touch.TouchPanel.DisplayWidth = PresentationParameters.BackBufferWidth;
 			Input.Touch.TouchPanel.DisplayHeight = PresentationParameters.BackBufferHeight;
-
-#if WIIU_GAMEPAD
-			wiiuPixelData = new byte[
-				PresentationParameters.BackBufferWidth *
-				PresentationParameters.BackBufferHeight *
-				4
-			];
-#endif
 
 			// Now, update the viewport
 			Viewport = new Viewport(
@@ -1669,68 +1592,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				b->colorBuffer = rt.ColorBuffer;
 			}
 		}
-
-		#endregion
-
-		#region Wii U GamePad Support, libdrc Interop
-
-#if WIIU_GAMEPAD
-		private static class DRC
-		{
-			// FIXME: Deal with Mac/Windows LibName later.
-			private const string nativeLibName = "libdrc.so";
-
-			public enum drc_pixel_format
-			{
-				DRC_RGB,
-				DRC_RGBA,
-				DRC_BGR,
-				DRC_BGRA,
-				DRC_RGB565
-			}
-
-			public enum drc_flipping_mode
-			{
-				DRC_NO_FLIP,
-				DRC_FLIP_VERTICALLY
-			}
-
-			/* IntPtr refers to a drc_streamer* */
-			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern IntPtr drc_new_streamer();
-
-			/* self refers to a drc_streamer* */
-			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void drc_delete_streamer(IntPtr self);
-
-			/* self refers to a drc_streamer* */
-			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int drc_start_streamer(IntPtr self);
-
-			/* self refers to a drc_streamer* */
-			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void drc_stop_streamer(IntPtr self);
-
-			/* self refers to a drc_streamer* */
-			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern int drc_push_vid_frame(
-				IntPtr self,
-				byte[] buffer,
-				uint size,
-				ushort width,
-				ushort height,
-				drc_pixel_format pixfmt,
-				drc_flipping_mode flipmode
-			);
-
-			/* self refers to a drc_streamer* */
-			[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-			public static extern void drc_enable_system_input_feeder(IntPtr self);
-		}
-
-		private IntPtr wiiuStream;
-		private byte[] wiiuPixelData;
-#endif
 
 		#endregion
 	}
