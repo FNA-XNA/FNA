@@ -135,7 +135,7 @@ namespace Microsoft.Xna.Framework
 			if (args.TryGetValue("disablelateswaptear", out arg) && arg == "1")
 			{
 				Environment.SetEnvironmentVariable(
-					"FNA3D_OPENGL_DISABLE_LATESWAPTEAR",
+					"FNA3D_DISABLE_LATESWAPTEAR",
 					"1"
 				);
 			}
