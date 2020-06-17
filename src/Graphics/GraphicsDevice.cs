@@ -1621,10 +1621,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 				}
 
-				/* Initialize the buffer with 2x the needed size.
-				 * This helps avoid unnecessary buffer recreation.
-				 * -caleb
-				 */
 				userIndexBuffer = FNA3D.FNA3D_GenIndexBuffer(
 					GLDevice,
 					1,
