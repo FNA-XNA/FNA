@@ -270,28 +270,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			int primitiveCount
 		);
 
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void FNA3D_DrawUserIndexedPrimitives(
-			IntPtr device,
-			PrimitiveType primitiveType,
-			IntPtr vertexData,
-			int vertexOffset,
-			int numVertices,
-			IntPtr indexData,
-			int indexOffset,
-			IndexElementSize indexElementSize,
-			int primitiveCount
-		);
-
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void FNA3D_DrawUserPrimitives(
-			IntPtr device,
-			PrimitiveType primitiveType,
-			IntPtr vertexData,
-			int vertexOffset,
-			int primitiveCount
-		);
-
 		#endregion
 
 		#region Mutable Render States
@@ -376,10 +354,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			ref FNA3D_SamplerState sampler
 		);
 
-		#endregion
-
-		#region Vertex State
-
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern unsafe void FNA3D_ApplyVertexBufferBindings(
 			IntPtr device,
@@ -387,14 +361,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			int numBindings,
 			byte bindingsUpdated,
 			int baseVertex
-		);
-
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void FNA3D_ApplyVertexDeclaration(
-			IntPtr device,
-			ref FNA3D_VertexDeclaration vertexDeclaration,
-			IntPtr vertexData,
-			int vertexOffset
 		);
 
 		#endregion

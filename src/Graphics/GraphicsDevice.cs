@@ -328,6 +328,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		private int vertexBufferCount = 0;
 		private bool vertexBuffersUpdated = false;
 
+		// Used for client arrays
+		IntPtr userVertexBuffer, userIndexBuffer;
+		int userVertexBufferSize, userIndexBufferSize;
+
 		#endregion
 
 		#region GraphicsDevice Events
@@ -492,6 +496,21 @@ namespace Microsoft.Xna.Framework.Graphics
 							}
 						}
 						resources.Clear();
+					}
+
+					if (userVertexBuffer != IntPtr.Zero)
+					{
+						FNA3D.FNA3D_AddDisposeVertexBuffer(
+							GLDevice,
+							userVertexBuffer
+						);
+					}
+					if (userIndexBuffer != IntPtr.Zero)
+					{
+						FNA3D.FNA3D_AddDisposeIndexBuffer(
+							GLDevice,
+							userIndexBuffer
+						);
 					}
 
 					// Dispose of the GL Device/Context
@@ -1186,40 +1205,36 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Pin the buffers.
 			GCHandle vbHandle = GCHandle.Alloc(vertexData, GCHandleType.Pinned);
 			GCHandle ibHandle = GCHandle.Alloc(indexData, GCHandleType.Pinned);
-			IntPtr vbPtr = vbHandle.AddrOfPinnedObject();
-			IntPtr ibPtr = ibHandle.AddrOfPinnedObject();
 
-			// Setup the vertex declaration to point at the vertex data.
-			VertexDeclaration vertexDeclaration = VertexDeclarationCache<T>.VertexDeclaration;
-			vertexDeclaration.GraphicsDevice = this;
-			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
-			{
-				vertexStride = vertexDeclaration.VertexStride,
-				elementCount = vertexDeclaration.elements.Length,
-				elements = vertexDeclaration.elementsPin
-			};
-			FNA3D.FNA3D_ApplyVertexDeclaration(
-				GLDevice,
-				ref decl,
-				vbPtr,
-				vertexOffset
-			);
-
-			FNA3D.FNA3D_DrawUserIndexedPrimitives(
-				GLDevice,
-				primitiveType,
-				vbPtr,
-				vertexOffset,
+			PrepareUserVertexBuffer(
+				vbHandle.AddrOfPinnedObject(),
 				numVertices,
-				ibPtr,
+				vertexOffset,
+				VertexDeclarationCache<T>.VertexDeclaration
+			);
+			PrepareUserIndexBuffer(
+				ibHandle.AddrOfPinnedObject(),
+				PrimitiveVerts(primitiveType, primitiveCount),
 				indexOffset,
 				IndexElementSize.SixteenBits,
-				primitiveCount
+				2
 			);
 
 			// Release the handles.
 			ibHandle.Free();
 			vbHandle.Free();
+
+			FNA3D.FNA3D_DrawIndexedPrimitives(
+				GLDevice,
+				primitiveType,
+				0,
+				0,
+				numVertices,
+				0,
+				primitiveCount,
+				userIndexBuffer,
+				IndexElementSize.SixteenBits
+			);
 		}
 
 		public void DrawUserIndexedPrimitives<T>(
@@ -1237,39 +1252,36 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Pin the buffers.
 			GCHandle vbHandle = GCHandle.Alloc(vertexData, GCHandleType.Pinned);
 			GCHandle ibHandle = GCHandle.Alloc(indexData, GCHandleType.Pinned);
-			IntPtr vbPtr = vbHandle.AddrOfPinnedObject();
-			IntPtr ibPtr = ibHandle.AddrOfPinnedObject();
 
-			// Setup the vertex declaration to point at the vertex data.
-			vertexDeclaration.GraphicsDevice = this;
-			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
-			{
-				vertexStride = vertexDeclaration.VertexStride,
-				elementCount = vertexDeclaration.elements.Length,
-				elements = vertexDeclaration.elementsPin
-			};
-			FNA3D.FNA3D_ApplyVertexDeclaration(
-				GLDevice,
-				ref decl,
-				vbPtr,
-				vertexOffset
-			);
-
-			FNA3D.FNA3D_DrawUserIndexedPrimitives(
-				GLDevice,
-				primitiveType,
-				vbPtr,
-				vertexOffset,
+			PrepareUserVertexBuffer(
+				vbHandle.AddrOfPinnedObject(),
 				numVertices,
-				ibPtr,
+				vertexOffset,
+				vertexDeclaration
+			);
+			PrepareUserIndexBuffer(
+				ibHandle.AddrOfPinnedObject(),
+				PrimitiveVerts(primitiveType, primitiveCount),
 				indexOffset,
 				IndexElementSize.SixteenBits,
-				primitiveCount
+				2
 			);
 
 			// Release the handles.
 			ibHandle.Free();
 			vbHandle.Free();
+
+			FNA3D.FNA3D_DrawIndexedPrimitives(
+				GLDevice,
+				primitiveType,
+				0,
+				0,
+				numVertices,
+				0,
+				primitiveCount,
+				userIndexBuffer,
+				IndexElementSize.SixteenBits
+			);
 		}
 
 		public void DrawUserIndexedPrimitives<T>(
@@ -1286,40 +1298,36 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Pin the buffers.
 			GCHandle vbHandle = GCHandle.Alloc(vertexData, GCHandleType.Pinned);
 			GCHandle ibHandle = GCHandle.Alloc(indexData, GCHandleType.Pinned);
-			IntPtr vbPtr = vbHandle.AddrOfPinnedObject();
-			IntPtr ibPtr = ibHandle.AddrOfPinnedObject();
 
-			// Setup the vertex declaration to point at the vertex data.
-			VertexDeclaration vertexDeclaration = VertexDeclarationCache<T>.VertexDeclaration;
-			vertexDeclaration.GraphicsDevice = this;
-			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
-			{
-				vertexStride = vertexDeclaration.VertexStride,
-				elementCount = vertexDeclaration.elements.Length,
-				elements = vertexDeclaration.elementsPin
-			};
-			FNA3D.FNA3D_ApplyVertexDeclaration(
-				GLDevice,
-				ref decl,
-				vbPtr,
-				vertexOffset
-			);
-
-			FNA3D.FNA3D_DrawUserIndexedPrimitives(
-				GLDevice,
-				primitiveType,
-				vbPtr,
-				vertexOffset,
+			PrepareUserVertexBuffer(
+				vbHandle.AddrOfPinnedObject(),
 				numVertices,
-				ibPtr,
+				vertexOffset,
+				VertexDeclarationCache<T>.VertexDeclaration
+			);
+			PrepareUserIndexBuffer(
+				ibHandle.AddrOfPinnedObject(),
+				PrimitiveVerts(primitiveType, primitiveCount),
 				indexOffset,
 				IndexElementSize.ThirtyTwoBits,
-				primitiveCount
+				4
 			);
 
 			// Release the handles.
 			ibHandle.Free();
 			vbHandle.Free();
+
+			FNA3D.FNA3D_DrawIndexedPrimitives(
+				GLDevice,
+				primitiveType,
+				0,
+				0,
+				numVertices,
+				0,
+				primitiveCount,
+				userIndexBuffer,
+				IndexElementSize.ThirtyTwoBits
+			);
 		}
 
 		public void DrawUserIndexedPrimitives<T>(
@@ -1337,39 +1345,36 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Pin the buffers.
 			GCHandle vbHandle = GCHandle.Alloc(vertexData, GCHandleType.Pinned);
 			GCHandle ibHandle = GCHandle.Alloc(indexData, GCHandleType.Pinned);
-			IntPtr vbPtr = vbHandle.AddrOfPinnedObject();
-			IntPtr ibPtr = ibHandle.AddrOfPinnedObject();
 
-			// Setup the vertex declaration to point at the vertex data.
-			vertexDeclaration.GraphicsDevice = this;
-			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
-			{
-				vertexStride = vertexDeclaration.VertexStride,
-				elementCount = vertexDeclaration.elements.Length,
-				elements = vertexDeclaration.elementsPin
-			};
-			FNA3D.FNA3D_ApplyVertexDeclaration(
-				GLDevice,
-				ref decl,
-				vbPtr,
-				vertexOffset
-			);
-
-			FNA3D.FNA3D_DrawUserIndexedPrimitives(
-				GLDevice,
-				primitiveType,
-				vbPtr,
-				vertexOffset,
+			PrepareUserVertexBuffer(
+				vbHandle.AddrOfPinnedObject(),
 				numVertices,
-				ibPtr,
+				vertexOffset,
+				vertexDeclaration
+			);
+			PrepareUserIndexBuffer(
+				ibHandle.AddrOfPinnedObject(),
+				PrimitiveVerts(primitiveType, primitiveCount),
 				indexOffset,
 				IndexElementSize.ThirtyTwoBits,
-				primitiveCount
+				4
 			);
 
 			// Release the handles.
 			ibHandle.Free();
 			vbHandle.Free();
+
+			FNA3D.FNA3D_DrawIndexedPrimitives(
+				GLDevice,
+				primitiveType,
+				0,
+				0,
+				numVertices,
+				0,
+				primitiveCount,
+				userIndexBuffer,
+				IndexElementSize.ThirtyTwoBits
+			);
 		}
 
 		#endregion
@@ -1386,34 +1391,23 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Pin the buffers.
 			GCHandle vbHandle = GCHandle.Alloc(vertexData, GCHandleType.Pinned);
-			IntPtr vbPtr = vbHandle.AddrOfPinnedObject();
 
-			// Setup the vertex declaration to point at the vertex data.
-			VertexDeclaration vertexDeclaration = VertexDeclarationCache<T>.VertexDeclaration;
-			vertexDeclaration.GraphicsDevice = this;
-			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
-			{
-				vertexStride = vertexDeclaration.VertexStride,
-				elementCount = vertexDeclaration.elements.Length,
-				elements = vertexDeclaration.elementsPin
-			};
-			FNA3D.FNA3D_ApplyVertexDeclaration(
-				GLDevice,
-				ref decl,
-				vbPtr,
-				0
-			);
-
-			FNA3D.FNA3D_DrawUserPrimitives(
-				GLDevice,
-				primitiveType,
-				vbPtr,
+			PrepareUserVertexBuffer(
+				vbHandle.AddrOfPinnedObject(),
+				PrimitiveVerts(primitiveType, primitiveCount),
 				vertexOffset,
-				primitiveCount
+				VertexDeclarationCache<T>.VertexDeclaration
 			);
 
 			// Release the handles.
 			vbHandle.Free();
+
+			FNA3D.FNA3D_DrawPrimitives(
+				GLDevice,
+				primitiveType,
+				0,
+				primitiveCount
+			);
 		}
 
 		public void DrawUserPrimitives<T>(
@@ -1427,33 +1421,23 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Pin the buffers.
 			GCHandle vbHandle = GCHandle.Alloc(vertexData, GCHandleType.Pinned);
-			IntPtr vbPtr = vbHandle.AddrOfPinnedObject();
 
-			// Setup the vertex declaration to point at the vertex data.
-			vertexDeclaration.GraphicsDevice = this;
-			FNA3D.FNA3D_VertexDeclaration decl = new FNA3D.FNA3D_VertexDeclaration()
-			{
-				vertexStride = vertexDeclaration.VertexStride,
-				elementCount = vertexDeclaration.elements.Length,
-				elements = vertexDeclaration.elementsPin
-			};
-			FNA3D.FNA3D_ApplyVertexDeclaration(
-				GLDevice,
-				ref decl,
-				vbPtr,
-				0
-			);
-
-			FNA3D.FNA3D_DrawUserPrimitives(
-				GLDevice,
-				primitiveType,
-				vbPtr,
+			PrepareUserVertexBuffer(
+				vbHandle.AddrOfPinnedObject(),
+				PrimitiveVerts(primitiveType, primitiveCount),
 				vertexOffset,
-				primitiveCount
+				vertexDeclaration
 			);
 
 			// Release the handles.
 			vbHandle.Free();
+
+			FNA3D.FNA3D_DrawPrimitives(
+				GLDevice,
+				primitiveType,
+				0,
+				primitiveCount
+			);
 		}
 
 		#endregion
@@ -1565,6 +1549,102 @@ namespace Microsoft.Xna.Framework.Graphics
 			vertexBuffersUpdated = false;
 		}
 
+		private unsafe void PrepareUserVertexBuffer(
+			IntPtr vertexData,
+			int numVertices,
+			int vertexOffset,
+			VertexDeclaration vertexDeclaration
+		) {
+			int len = numVertices * vertexDeclaration.VertexStride;
+			int offset = vertexOffset * vertexDeclaration.VertexStride;
+			vertexDeclaration.GraphicsDevice = this;
+
+			if (len > userVertexBufferSize)
+			{
+				if (userVertexBuffer != IntPtr.Zero)
+				{
+					FNA3D.FNA3D_AddDisposeVertexBuffer(
+						GLDevice,
+						userVertexBuffer
+					);
+				}
+
+				userVertexBuffer = FNA3D.FNA3D_GenVertexBuffer(
+					GLDevice,
+					1,
+					BufferUsage.WriteOnly,
+					len,
+					1
+				);
+				userVertexBufferSize = len;
+			}
+
+			FNA3D.FNA3D_SetVertexBufferData(
+				GLDevice,
+				userVertexBuffer,
+				0,
+				vertexData + offset,
+				len,
+				1,
+				1,
+				SetDataOptions.Discard
+			);
+
+			fixed (FNA3D.FNA3D_VertexBufferBinding* b = &nativeBufferBindings[0])
+			{
+				b->vertexBuffer = userVertexBuffer;
+				b->vertexDeclaration.vertexStride = vertexDeclaration.VertexStride;
+				b->vertexDeclaration.elementCount = vertexDeclaration.elements.Length;
+				b->vertexDeclaration.elements = vertexDeclaration.elementsPin;
+				b->vertexOffset = 0;
+				b->instanceFrequency = 0;
+				FNA3D.FNA3D_ApplyVertexBufferBindings(GLDevice, b, 1, 1, 0);
+			}
+			vertexBuffersUpdated = true;
+		}
+
+		private void PrepareUserIndexBuffer(
+			IntPtr indexData,
+			int numIndices,
+			int indexOffset,
+			IndexElementSize indexElementSize,
+			int indexElementSizeInBytes
+		) {
+			int len = numIndices * indexElementSizeInBytes;
+			if (len > userIndexBufferSize)
+			{
+				if (userIndexBuffer != IntPtr.Zero)
+				{
+					FNA3D.FNA3D_AddDisposeIndexBuffer(
+						GLDevice,
+						userIndexBuffer
+					);
+				}
+
+				/* Initialize the buffer with 2x the needed size.
+				 * This helps avoid unnecessary buffer recreation.
+				 * -caleb
+				 */
+				userIndexBuffer = FNA3D.FNA3D_GenIndexBuffer(
+					GLDevice,
+					1,
+					BufferUsage.WriteOnly,
+					numIndices,
+					indexElementSize
+				);
+				userIndexBufferSize = len;
+			}
+
+			FNA3D.FNA3D_SetIndexBufferData(
+				GLDevice,
+				userIndexBuffer,
+				0,
+				indexData + (indexOffset * indexElementSizeInBytes),
+				len,
+				SetDataOptions.Discard
+			);
+		}
+
 		/* Needed by VideoPlayer */
 		internal static unsafe void PrepareRenderTargetBindings(
 			FNA3D.FNA3D_RenderTargetBinding *b,
@@ -1590,6 +1670,33 @@ namespace Microsoft.Xna.Framework.Graphics
 				b->multiSampleCount = rt.MultiSampleCount;
 				b->texture = texture.texture;
 				b->colorBuffer = rt.ColorBuffer;
+			}
+		}
+
+		#endregion
+
+		#region Private Static Methods
+
+		private static int PrimitiveVerts(
+			PrimitiveType primitiveType,
+			int primitiveCount
+		) {
+			switch (primitiveType)
+			{
+				case PrimitiveType.TriangleList:
+					return primitiveCount * 3;
+				case PrimitiveType.TriangleStrip:
+					return primitiveCount + 2;
+				case PrimitiveType.LineList:
+					return primitiveCount * 2;
+				case PrimitiveType.LineStrip:
+					return primitiveCount + 1;
+				case PrimitiveType.PointListEXT:
+					return primitiveCount;
+				default:
+					throw new InvalidOperationException(
+						"Unrecognized primitive type!"
+					);
 			}
 		}
 
