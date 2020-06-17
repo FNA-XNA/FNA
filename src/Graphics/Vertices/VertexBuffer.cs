@@ -105,8 +105,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				GraphicsDevice.GLDevice,
 				(byte) (dynamic ? 1 : 0),
 				bufferUsage,
-				VertexCount,
-				VertexDeclaration.VertexStride
+				VertexCount * VertexDeclaration.VertexStride
 			);
 		}
 

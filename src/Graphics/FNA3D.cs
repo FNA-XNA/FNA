@@ -620,8 +620,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr device,
 			byte dynamic,
 			BufferUsage usage,
-			int vertexCount,
-			int vertexStride
+			int sizeInBytes
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -663,8 +662,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr device,
 			byte dynamic,
 			BufferUsage usage,
-			int indexCount,
-			IndexElementSize indexElementSize
+			int sizeInBytes
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]

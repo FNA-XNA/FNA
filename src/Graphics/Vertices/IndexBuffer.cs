@@ -110,12 +110,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			IndexCount = indexCount;
 			BufferUsage = usage;
 
+			int stride = (indexElementSize == IndexElementSize.ThirtyTwoBits) ? 4 : 2;
+
 			buffer = FNA3D.FNA3D_GenIndexBuffer(
 				GraphicsDevice.GLDevice,
 				(byte) (dynamic ? 1 : 0),
 				usage,
-				IndexCount,
-				IndexElementSize
+				IndexCount * stride
 			);
 		}
 

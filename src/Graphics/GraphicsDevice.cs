@@ -1216,7 +1216,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				ibHandle.AddrOfPinnedObject(),
 				PrimitiveVerts(primitiveType, primitiveCount),
 				indexOffset,
-				IndexElementSize.SixteenBits,
 				2
 			);
 
@@ -1263,7 +1262,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				ibHandle.AddrOfPinnedObject(),
 				PrimitiveVerts(primitiveType, primitiveCount),
 				indexOffset,
-				IndexElementSize.SixteenBits,
 				2
 			);
 
@@ -1309,7 +1307,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				ibHandle.AddrOfPinnedObject(),
 				PrimitiveVerts(primitiveType, primitiveCount),
 				indexOffset,
-				IndexElementSize.ThirtyTwoBits,
 				4
 			);
 
@@ -1356,7 +1353,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				ibHandle.AddrOfPinnedObject(),
 				PrimitiveVerts(primitiveType, primitiveCount),
 				indexOffset,
-				IndexElementSize.ThirtyTwoBits,
 				4
 			);
 
@@ -1573,8 +1569,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					GLDevice,
 					1,
 					BufferUsage.WriteOnly,
-					len,
-					1
+					len
 				);
 				userVertexBufferSize = len;
 			}
@@ -1607,7 +1602,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr indexData,
 			int numIndices,
 			int indexOffset,
-			IndexElementSize indexElementSize,
 			int indexElementSizeInBytes
 		) {
 			int len = numIndices * indexElementSizeInBytes;
@@ -1625,8 +1619,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					GLDevice,
 					1,
 					BufferUsage.WriteOnly,
-					numIndices,
-					indexElementSize
+					len
 				);
 				userIndexBufferSize = len;
 			}
