@@ -402,9 +402,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 				if (isDynamic)
 				{
-					FrameworkDispatcher.Streams.Remove(
-						this as DynamicSoundEffectInstance
-					);
+					lock (FrameworkDispatcher.Stream)
+					{
+						FrameworkDispatcher.Streams.Remove(
+							this as DynamicSoundEffectInstance
+						);
+					}
 					(this as DynamicSoundEffectInstance).ClearBuffers();
 				}
 			}
