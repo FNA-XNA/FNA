@@ -134,7 +134,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 			// Okay we're good
 			base.Play();
-			FrameworkDispatcher.Streams.Add(this);
+			lock (FrameworkDispatcher.Streams)
+			{
+				FrameworkDispatcher.Streams.Add(this);
+			}
 		}
 
 		public void SubmitBuffer(byte[] buffer)
