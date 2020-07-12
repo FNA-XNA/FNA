@@ -68,19 +68,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Internal Properties
-
-		/// <summary>
-		/// Transform of this node from the root of the model not from the parent
-		/// </summary>
-		internal Matrix ModelTransform
-		{
-			get;
-			set;
-		}
-
-		#endregion
-
 		#region Private Variables
 
 		private List<ModelBone> children = new List<ModelBone>();
