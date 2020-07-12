@@ -204,33 +204,5 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		#endregion
-
-		#region Internal Methods
-
-		internal void BuildHierarchy()
-		{
-			Matrix globalScale = Matrix.CreateScale(0.01f);
-
-			foreach (ModelBone node in Root.Children)
-			{
-				BuildHierarchy(node, Root.Transform * globalScale, 0);
-			}
-		}
-
-		#endregion
-
-		#region Private Methods
-
-		private void BuildHierarchy(ModelBone node, Matrix parentTransform, int level)
-		{
-			node.ModelTransform = node.Transform * parentTransform;
-			
-			foreach (ModelBone child in node.Children)
-			{
-				BuildHierarchy(child, node.ModelTransform, level + 1);
-			}
-		}
-
-		#endregion
 	}
 }

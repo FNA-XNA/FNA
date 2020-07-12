@@ -178,7 +178,6 @@ namespace Microsoft.Xna.Framework.Content
 			int rootBoneIndex = ReadBoneReference(reader, boneCount);
 			Model model = new Model(device, bones, meshes);
 			model.Root = bones[rootBoneIndex];
-			model.BuildHierarchy();
 			// Tag?
 			model.Tag = reader.ReadObject<object>();
 			return model;
