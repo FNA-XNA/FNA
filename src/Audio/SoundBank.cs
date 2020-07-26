@@ -92,7 +92,7 @@ namespace Microsoft.Xna.Framework.Audio
 			dspSettings.DstChannelCount = engine.channels;
 			dspSettings.pMatrixCoefficients = Marshal.AllocHGlobal(
 				4 *
-				(int) dspSettings.SrcChannelCount *
+				2 /* Max dspSettings.SrcChannelCount */ *
 				(int) dspSettings.DstChannelCount
 			);
 			engine.RegisterSoundBank(handle, selfReference);
