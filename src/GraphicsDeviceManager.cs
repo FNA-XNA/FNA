@@ -556,7 +556,6 @@ namespace Microsoft.Xna.Framework
 				return false;
 			}
 
-			FNA3D.FNA3D_BeginFrame(graphicsDevice.GLDevice);
 			drawBegun = true;
 			return true;
 		}

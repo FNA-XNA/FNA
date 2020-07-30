@@ -185,10 +185,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Begin/End Frame
-
-		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void FNA3D_BeginFrame(IntPtr device);
+		#region Presentation
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_SwapBuffers(
