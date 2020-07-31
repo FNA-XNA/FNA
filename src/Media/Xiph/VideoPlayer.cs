@@ -201,7 +201,8 @@ namespace Microsoft.Xna.Framework.Media
 						rt,
 						videoTexture.Length,
 						IntPtr.Zero,
-						DepthFormat.None
+						DepthFormat.None,
+						0
 					);
 				}
 			}
@@ -248,7 +249,8 @@ namespace Microsoft.Xna.Framework.Media
 					IntPtr.Zero,
 					0,
 					IntPtr.Zero,
-					DepthFormat.None
+					DepthFormat.None,
+					0
 				);
 			}
 			else
@@ -268,7 +270,8 @@ namespace Microsoft.Xna.Framework.Media
 							rt,
 							oldTargets.Length,
 							oldTarget.DepthStencilBuffer,
-							oldTarget.DepthStencilFormat
+							oldTarget.DepthStencilFormat,
+							(byte) (oldTarget.RenderTargetUsage != RenderTargetUsage.DiscardContents ? 1 : 0) /* lol c# */
 						);
 					}
 				}

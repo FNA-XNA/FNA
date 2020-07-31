@@ -370,7 +370,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr renderTargets, /* FNA3D_RenderTargetBinding* */
 			int numRenderTargets,
 			IntPtr depthStencilBuffer, /* FNA3D_Renderbuffer */
-			DepthFormat depthFormat
+			DepthFormat depthFormat,
+			byte preserveDepthStencilContents
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -379,7 +380,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D_RenderTargetBinding* renderTargets,
 			int numRenderTargets,
 			IntPtr renderbuffer, /* FNA3D_Renderbuffer */
-			DepthFormat depthFormat
+			DepthFormat depthFormat,
+			byte preserveDepthStencilContents
 		);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
