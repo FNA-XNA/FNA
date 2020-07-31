@@ -476,7 +476,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern void FNA3D_SetTextureData2D(
 			IntPtr device,
 			IntPtr texture,
-			SurfaceFormat format,
 			int x,
 			int y,
 			int w,
@@ -490,7 +489,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern void FNA3D_SetTextureData3D(
 			IntPtr device,
 			IntPtr texture,
-			SurfaceFormat format,
 			int x,
 			int y,
 			int z,
@@ -506,7 +504,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern void FNA3D_SetTextureDataCube(
 			IntPtr device,
 			IntPtr texture,
-			SurfaceFormat format,
 			int x,
 			int y,
 			int w,
@@ -535,7 +532,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern void FNA3D_GetTextureData2D(
 			IntPtr device,
 			IntPtr texture,
-			SurfaceFormat format,
 			int x,
 			int y,
 			int w,
@@ -549,7 +545,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern void FNA3D_GetTextureData3D(
 			IntPtr device,
 			IntPtr texture,
-			SurfaceFormat format,
 			int x,
 			int y,
 			int z,
@@ -565,7 +560,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern void FNA3D_GetTextureDataCube(
 			IntPtr device,
 			IntPtr texture,
-			SurfaceFormat format,
 			int x,
 			int y,
 			int w,

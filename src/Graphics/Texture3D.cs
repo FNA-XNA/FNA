@@ -124,7 +124,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_SetTextureData3D(
 				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				left,
 				top,
 				front,
@@ -157,7 +156,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_SetTextureData3D(
 				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				left,
 				top,
 				front,
@@ -265,7 +263,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_GetTextureData3D(
 				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				left,
 				top,
 				front,

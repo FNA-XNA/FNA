@@ -165,7 +165,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_SetTextureData2D(
 				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				x,
 				y,
 				w,
@@ -207,7 +206,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_SetTextureData2D(
 				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				x,
 				y,
 				w,
@@ -289,7 +287,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_GetTextureData2D(
 				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				subX,
 				subY,
 				subW,
@@ -312,7 +309,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_GetTextureData2D(
 				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				0,
 				0,
 				Width,
@@ -342,7 +338,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_GetTextureData2D(
 				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				0,
 				0,
 				Width,

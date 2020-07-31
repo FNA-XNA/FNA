@@ -145,7 +145,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_SetTextureDataCube(
 				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				xOffset,
 				yOffset,
 				width,
@@ -189,7 +188,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_SetTextureDataCube(
 				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				xOffset,
 				yOffset,
 				width,
@@ -277,7 +275,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_GetTextureDataCube(
 				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				subX,
 				subY,
 				subW,
