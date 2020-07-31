@@ -883,7 +883,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					IntPtr.Zero,
 					0,
 					IntPtr.Zero,
-					DepthFormat.None
+					DepthFormat.None,
+					0
 				);
 
 				// Set the viewport/scissor to the size of the backbuffer.
@@ -913,7 +914,8 @@ namespace Microsoft.Xna.Framework.Graphics
 							rt,
 							renderTargets.Length,
 							target.DepthStencilBuffer,
-							target.DepthStencilFormat
+							target.DepthStencilFormat,
+							(byte) (target.RenderTargetUsage != RenderTargetUsage.DiscardContents ? 1 : 0) /* lol c# */
 						);
 					}
 				}
