@@ -94,6 +94,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				case SurfaceFormat.HalfVector4:
 				case SurfaceFormat.Rgba64:
 				case SurfaceFormat.Vector2:
+				case SurfaceFormat.HdrBlendable:
 					return 8;
 				case SurfaceFormat.Vector4:
 					return 16;
