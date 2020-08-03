@@ -379,7 +379,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr device,
 			FNA3D_RenderTargetBinding* renderTargets,
 			int numRenderTargets,
-			IntPtr renderbuffer, /* FNA3D_Renderbuffer */
+			IntPtr depthStencilBuffer, /* FNA3D_Renderbuffer */
 			DepthFormat depthFormat,
 			byte preserveDepthStencilContents
 		);
@@ -417,6 +417,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			out int w,
 			out int h
 		);
+
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern SurfaceFormat FNA3D_GetBackbufferSurfaceFormat(
 			IntPtr device
@@ -689,7 +690,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* IntPtr refers to an FNA3D_Effect* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern IntPtr FNA3D_CreateEffect(
+		public static extern void FNA3D_CreateEffect(
 			IntPtr device,
 			byte[] effectCode,
 			int length,
@@ -699,7 +700,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* IntPtr refers to an FNA3D_Effect* */
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern IntPtr FNA3D_CloneEffect(
+		public static extern void FNA3D_CloneEffect(
 			IntPtr device,
 			IntPtr cloneSource,
 			out IntPtr effect,
@@ -798,7 +799,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern byte FNA3D_SupportsNoOverwrite(IntPtr device);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern int FNA3D_GetMaxTextureSlots(
+		public static extern void FNA3D_GetMaxTextureSlots(
 			IntPtr device,
 			out int textures,
 			out int vertexTextures
