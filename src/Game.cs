@@ -183,30 +183,6 @@ namespace Microsoft.Xna.Framework
 
 		internal bool RunApplication;
 
-		/* Setup Text Input Control Character Arrays
-		 * (Only 7 control keys supported at this time)
-		 */
-		internal char[] TextInputCharacters = new char[]
-		{
-			(char) 2,	// Home
-			(char) 3,	// End
-			(char) 8,	// Backspace
-			(char) 9,	// Tab
-			(char) 13,	// Enter
-			(char) 127,	// Delete
-			(char) 22	// Ctrl+V (Paste)
-		};
-		internal Dictionary<Keys, int> TextInputBindings = new Dictionary<Keys, int>()
-		{
-			{ Keys.Home,	0 },
-			{ Keys.End,	1 },
-			{ Keys.Back,	2 },
-			{ Keys.Tab,	3 },
-			{ Keys.Enter,	4 },
-			{ Keys.Delete,	5 }
-			// Ctrl+V is special!
-		};
-
 		#endregion
 
 		#region Private Variables
@@ -276,8 +252,8 @@ namespace Microsoft.Xna.Framework
 			TargetElapsedTime = TimeSpan.FromTicks(166667); // 60fps
 			InactiveSleepTime = TimeSpan.FromSeconds(0.02);
 
-			textInputControlDown = new bool[TextInputCharacters.Length];
-			textInputControlRepeat = new int[TextInputCharacters.Length];
+			textInputControlDown = new bool[FNAPlatform.TextInputCharacters.Length];
+			textInputControlRepeat = new int[FNAPlatform.TextInputCharacters.Length];
 
 			hasInitialized = false;
 			suppressDraw = false;
@@ -440,22 +416,6 @@ namespace Microsoft.Xna.Framework
 			OnExiting(this, EventArgs.Empty);
 
 			EndRun();
-		}
-
-		private void RunLoop()
-		{
-			while (RunApplication)
-			{
-				FNAPlatform.PollEvents(
-					this,
-					ref currentAdapter,
-					textInputControlDown,
-					textInputControlRepeat,
-					ref textInputSuppress
-				);
-				Tick();
-			}
-			Exit();
 		}
 
 		public void Tick()
@@ -881,6 +841,22 @@ namespace Microsoft.Xna.Framework
 				}
 			}
 			drawableComponents.Add(drawable);
+		}
+
+		private void RunLoop()
+		{
+			while (RunApplication)
+			{
+				FNAPlatform.PollEvents(
+					this,
+					ref currentAdapter,
+					textInputControlDown,
+					textInputControlRepeat,
+					ref textInputSuppress
+				);
+				Tick();
+			}
+			Exit();
 		}
 
 		#endregion

@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
@@ -135,6 +136,30 @@ namespace Microsoft.Xna.Framework
 		#region Public Static Variables
 
 		public static readonly string TitleLocation;
+
+		/* Setup Text Input Control Character Arrays
+		 * (Only 7 control keys supported at this time)
+		 */
+		public static readonly char[] TextInputCharacters = new char[]
+		{
+			(char) 2,	// Home
+			(char) 3,	// End
+			(char) 8,	// Backspace
+			(char) 9,	// Tab
+			(char) 13,	// Enter
+			(char) 127,	// Delete
+			(char) 22	// Ctrl+V (Paste)
+		};
+		public static readonly Dictionary<Keys, int> TextInputBindings = new Dictionary<Keys, int>()
+		{
+			{ Keys.Home,	0 },
+			{ Keys.End,	1 },
+			{ Keys.Back,	2 },
+			{ Keys.Tab,	3 },
+			{ Keys.Enter,	4 },
+			{ Keys.Delete,	5 }
+			// Ctrl+V is special!
+		};
 
 		#endregion
 

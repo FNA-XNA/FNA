@@ -40,6 +40,11 @@ namespace Microsoft.Xna.Framework
 		private static int RetinaWidth;
 		private static int RetinaHeight;
 
+		private static readonly bool OSXUseSpaces = (
+			SDL.SDL_GetPlatform().Equals("Mac OS X") && // Prevents race with OSVersion
+			SDL.SDL_GetHintBoolean(SDL.SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES, SDL.SDL_bool.SDL_TRUE) == SDL.SDL_bool.SDL_TRUE
+		);
+
 		#endregion
 
 		#region Game Objects
@@ -686,8 +691,6 @@ namespace Microsoft.Xna.Framework
 
 		#region Event Loop
 
-		static bool osxUseSpaces;
-
 		public static GraphicsAdapter RegisterGame(Game game)
 		{
 			SDL.SDL_ShowWindow(game.Window.Handle);
@@ -695,17 +698,6 @@ namespace Microsoft.Xna.Framework
 
 			// Store this for internal event filter work
 			activeGames.Add(game);
-
-			// OSX has some fancy fullscreen features, let's use them!
-			if (OSVersion.Equals("Mac OS X"))
-			{
-				string hint = SDL.SDL_GetHint(SDL.SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES);
-				osxUseSpaces = (String.IsNullOrEmpty(hint) || hint.Equals("1"));
-			}
-			else
-			{
-				osxUseSpaces = false;
-			}
 
 			// Which display did we end up on?
 			int displayIndex = SDL.SDL_GetWindowDisplayIndex(
@@ -737,17 +729,17 @@ namespace Microsoft.Xna.Framework
 					{
 						Keyboard.keys.Add(key);
 						int textIndex;
-						if (game.TextInputBindings.TryGetValue(key, out textIndex))
+						if (FNAPlatform.TextInputBindings.TryGetValue(key, out textIndex))
 						{
 							textInputControlDown[textIndex] = true;
 							textInputControlRepeat[textIndex] = Environment.TickCount + 400;
-							TextInputEXT.OnTextInput(game.TextInputCharacters[textIndex]);
+							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[textIndex]);
 						}
 						else if (Keyboard.keys.Contains(Keys.LeftControl) && key == Keys.V)
 						{
 							textInputControlDown[6] = true;
 							textInputControlRepeat[6] = Environment.TickCount + 400;
-							TextInputEXT.OnTextInput(game.TextInputCharacters[6]);
+							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[6]);
 							textInputSuppress = true;
 						}
 					}
@@ -758,7 +750,7 @@ namespace Microsoft.Xna.Framework
 					if (Keyboard.keys.Remove(key))
 					{
 						int value;
-						if (game.TextInputBindings.TryGetValue(key, out value))
+						if (FNAPlatform.TextInputBindings.TryGetValue(key, out value))
 						{
 							textInputControlDown[value] = false;
 						}
@@ -827,7 +819,7 @@ namespace Microsoft.Xna.Framework
 					{
 						game.IsActive = true;
 
-						if (!osxUseSpaces)
+						if (!OSXUseSpaces)
 						{
 							// If we alt-tab away, we lose the 'fullscreen desktop' flag on some WMs
 							SDL.SDL_SetWindowFullscreen(
@@ -845,7 +837,7 @@ namespace Microsoft.Xna.Framework
 					{
 						game.IsActive = false;
 
-						if (!osxUseSpaces)
+						if (!OSXUseSpaces)
 						{
 							SDL.SDL_SetWindowFullscreen(game.Window.Handle, 0);
 						}
@@ -982,11 +974,11 @@ namespace Microsoft.Xna.Framework
 				}
 			}
 			// Text Input Controls Key Handling
-			for (int i = 0; i < game.TextInputCharacters.Length; i += 1)
+			for (int i = 0; i < FNAPlatform.TextInputCharacters.Length; i += 1)
 			{
 				if (textInputControlDown[i] && textInputControlRepeat[i] <= Environment.TickCount)
 				{
-					TextInputEXT.OnTextInput(game.TextInputCharacters[i]);
+					TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[i]);
 				}
 			}
 		}
