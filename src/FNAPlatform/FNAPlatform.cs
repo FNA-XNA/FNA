@@ -92,7 +92,9 @@ namespace Microsoft.Xna.Framework
 			GetWindowBorderless =		SDL2_FNAPlatform.GetWindowBorderless;
 			SetWindowBorderless =		SDL2_FNAPlatform.SetWindowBorderless;
 			SetWindowTitle =		SDL2_FNAPlatform.SetWindowTitle;
-			RunLoop =			SDL2_FNAPlatform.RunLoop;
+			RegisterGame =			SDL2_FNAPlatform.RegisterGame;
+			UnregisterGame =		SDL2_FNAPlatform.UnregisterGame;
+			PollEvents =			SDL2_FNAPlatform.PollEvents;
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
 			GetCurrentDisplayMode =		SDL2_FNAPlatform.GetCurrentDisplayMode;
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
@@ -172,8 +174,20 @@ namespace Microsoft.Xna.Framework
 		public delegate void SetWindowTitleFunc(IntPtr window, string title);
 		public static readonly SetWindowTitleFunc SetWindowTitle;
 
-		public delegate void RunLoopFunc(Game game);
-		public static readonly RunLoopFunc RunLoop;
+		public delegate GraphicsAdapter RegisterGameFunc(Game game);
+		public static readonly RegisterGameFunc RegisterGame;
+
+		public delegate void UnregisterGameFunc(Game game);
+		public static readonly UnregisterGameFunc UnregisterGame;
+
+		public delegate void PollEventsFunc(
+			Game game,
+			ref GraphicsAdapter currentAdapter,
+			bool[] textInputControlDown,
+			int[] textInputControlRepeat,
+			ref bool textInputSuppress
+		);
+		public static readonly PollEventsFunc PollEvents;
 
 		public delegate GraphicsAdapter[] GetGraphicsAdaptersFunc();
 		public static readonly GetGraphicsAdaptersFunc GetGraphicsAdapters;

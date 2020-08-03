@@ -183,6 +183,30 @@ namespace Microsoft.Xna.Framework
 
 		internal bool RunApplication;
 
+		/* Setup Text Input Control Character Arrays
+		 * (Only 7 control keys supported at this time)
+		 */
+		internal char[] TextInputCharacters = new char[]
+		{
+			(char) 2,	// Home
+			(char) 3,	// End
+			(char) 8,	// Backspace
+			(char) 9,	// Tab
+			(char) 13,	// Enter
+			(char) 127,	// Delete
+			(char) 22	// Ctrl+V (Paste)
+		};
+		internal Dictionary<Keys, int> TextInputBindings = new Dictionary<Keys, int>()
+		{
+			{ Keys.Home,	0 },
+			{ Keys.End,	1 },
+			{ Keys.Back,	2 },
+			{ Keys.Tab,	3 },
+			{ Keys.Enter,	4 },
+			{ Keys.Delete,	5 }
+			// Ctrl+V is special!
+		};
+
 		#endregion
 
 		#region Private Variables
@@ -201,7 +225,9 @@ namespace Microsoft.Xna.Framework
 
 		private IGraphicsDeviceService graphicsDeviceService;
 		private IGraphicsDeviceManager graphicsDeviceManager;
+		private GraphicsAdapter currentAdapter;
 		private bool hasInitialized;
+		private bool loopBegan;
 		private bool suppressDraw;
 		private bool isDisposed;
 
@@ -213,6 +239,10 @@ namespace Microsoft.Xna.Framework
 		private bool forceElapsedTimeToZero = false;
 
 		private static readonly TimeSpan MaxElapsedTime = TimeSpan.FromMilliseconds(500);
+
+		private bool[] textInputControlDown;
+		private int[] textInputControlRepeat;
+		private bool textInputSuppress;
 
 		#endregion
 
@@ -245,6 +275,9 @@ namespace Microsoft.Xna.Framework
 			IsFixedTimeStep = true;
 			TargetElapsedTime = TimeSpan.FromTicks(166667); // 60fps
 			InactiveSleepTime = TimeSpan.FromSeconds(0.02);
+
+			textInputControlDown = new bool[TextInputCharacters.Length];
+			textInputControlRepeat = new int[TextInputCharacters.Length];
 
 			hasInitialized = false;
 			suppressDraw = false;
@@ -379,7 +412,13 @@ namespace Microsoft.Xna.Framework
 				hasInitialized = true;
 			}
 
-			// FIXME: Not quite right..
+			FNAPlatform.PollEvents(
+				this,
+				ref currentAdapter,
+				textInputControlDown,
+				textInputControlRepeat,
+				ref textInputSuppress
+			);
 			Tick();
 		}
 
@@ -396,11 +435,27 @@ namespace Microsoft.Xna.Framework
 			BeginRun();
 			gameTimer = Stopwatch.StartNew();
 
-			FNAPlatform.RunLoop(this);
+			RunLoop();
 
 			OnExiting(this, EventArgs.Empty);
 
 			EndRun();
+		}
+
+		private void RunLoop()
+		{
+			while (RunApplication)
+			{
+				FNAPlatform.PollEvents(
+					this,
+					ref currentAdapter,
+					textInputControlDown,
+					textInputControlRepeat,
+					ref textInputSuppress
+				);
+				Tick();
+			}
+			Exit();
 		}
 
 		public void Tick()
@@ -579,10 +634,30 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual void BeginRun()
 		{
+			if (loopBegan)
+			{
+				return;
+			}
+
+			currentAdapter = FNAPlatform.RegisterGame(this);
+
+			Rectangle windowBounds = Window.ClientBounds;
+			Mouse.INTERNAL_WindowWidth = windowBounds.Width;
+			Mouse.INTERNAL_WindowHeight = windowBounds.Height;
+
+			// Perform initial check for a touch device
+			TouchPanel.TouchDeviceExists = FNAPlatform.GetTouchCapabilities().IsConnected;
+
+			loopBegan = true;
 		}
 
 		protected virtual void EndRun()
 		{
+			if (loopBegan)
+			{
+				FNAPlatform.UnregisterGame(this);
+				loopBegan = false;
+			}
 		}
 
 		protected virtual void LoadContent()
