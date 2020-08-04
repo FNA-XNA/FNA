@@ -20,20 +20,38 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public SurfaceFormat BackBufferFormat
 		{
-			get;
-			set;
+			get
+			{
+				return parameters.backBufferFormat;
+			}
+			set
+			{
+				parameters.backBufferFormat = value;
+			}
 		}
 
 		public int BackBufferHeight
 		{
-			get;
-			set;
+			get
+			{
+				return parameters.backBufferHeight;
+			}
+			set
+			{
+				parameters.backBufferHeight = value;
+			}
 		}
 
 		public int BackBufferWidth
 		{
-			get;
-			set;
+			get
+			{
+				return parameters.backBufferWidth;
+			}
+			set
+			{
+				parameters.backBufferWidth = value;
+			}
 		}
 
 		public Rectangle Bounds
@@ -46,45 +64,93 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public IntPtr DeviceWindowHandle
 		{
-			get;
-			set;
+			get
+			{
+				return parameters.deviceWindowHandle;
+			}
+			set
+			{
+				parameters.deviceWindowHandle = value;
+			}
 		}
 
 		public DepthFormat DepthStencilFormat
 		{
-			get;
-			set;
+			get
+			{
+				return parameters.depthStencilFormat;
+			}
+			set
+			{
+				parameters.depthStencilFormat = value;
+			}
 		}
 
 		public bool IsFullScreen
 		{
-			get;
-			set;
+			get
+			{
+				return parameters.isFullScreen == 1;
+			}
+			set
+			{
+				parameters.isFullScreen = (byte) (value ? 1 : 0);
+			}
 		}
 
 		public int MultiSampleCount
 		{
-			get;
-			set;
+			get
+			{
+				return parameters.multiSampleCount;
+			}
+			set
+			{
+				parameters.multiSampleCount = value;
+			}
 		}
 
 		public PresentInterval PresentationInterval
 		{
-			get;
-			set;
+			get
+			{
+				return parameters.presentationInterval;
+			}
+			set
+			{
+				parameters.presentationInterval = value;
+			}
 		}
 
 		public DisplayOrientation DisplayOrientation
 		{
-			get;
-			set;
+			get
+			{
+				return parameters.displayOrientation;
+			}
+			set
+			{
+				parameters.displayOrientation = value;
+			}
 		}
 
 		public RenderTargetUsage RenderTargetUsage
 		{
-			get;
-			set;
+			get
+			{
+				return parameters.renderTargetUsage;
+			}
+			set
+			{
+				parameters.renderTargetUsage = value;
+			}
 		}
+
+		#endregion
+
+		#region Internal FNA3D Variables
+
+		internal FNA3D.FNA3D_PresentationParameters parameters;
 
 		#endregion
 

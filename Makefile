@@ -120,14 +120,6 @@ SRC = \
 	src/FNALoggerEXT.cs \
 	src/FNAPlatform/FNAPlatform.cs \
 	src/FNAPlatform/FNAWindow.cs \
-	src/FNAPlatform/IGLDevice.cs \
-	src/FNAPlatform/MetalDevice.cs \
-	src/FNAPlatform/MetalDevice_MTL.cs \
-	src/FNAPlatform/ModernGLDevice.cs \
-	src/FNAPlatform/ModernGLDevice_GL.cs \
-	src/FNAPlatform/OpenGLDevice.cs \
-	src/FNAPlatform/OpenGLDevice_GL.cs \
-	src/FNAPlatform/ThreadedGLDevice.cs \
 	src/FNAPlatform/SDL2_FNAPlatform.cs \
 	src/FrameworkDispatcher.cs \
 	src/Game.cs \
@@ -170,6 +162,7 @@ SRC = \
 	src/Graphics/Effect/StockEffects/EnvironmentMapEffect.cs \
 	src/Graphics/Effect/StockEffects/SkinnedEffect.cs \
 	src/Graphics/Effect/StockEffects/SpriteEffect.cs \
+	src/Graphics/FNA3D.cs \
 	src/Graphics/GraphicsAdapter.cs \
 	src/Graphics/GraphicsDevice.cs \
 	src/Graphics/GraphicsDeviceStatus.cs \
@@ -327,9 +320,7 @@ SRC = \
 	src/Vector3.cs \
 	src/Vector4.cs \
 	lib/SDL2-CS/src/SDL2.cs \
-	lib/SDL2-CS/src/SDL2_image.cs \
 	lib/FAudio/csharp/FAudio.cs \
-	lib/MojoShader/csharp/MojoShader.cs \
 	lib/Theorafile/csharp/Theorafile.cs
 
 RESDIR = src/Graphics/Effect/StockEffects/FXB

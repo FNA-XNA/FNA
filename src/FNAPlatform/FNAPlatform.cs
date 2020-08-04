@@ -50,21 +50,28 @@ namespace Microsoft.Xna.Framework
 			if (args.TryGetValue("gldevice", out arg))
 			{
 				Environment.SetEnvironmentVariable(
-					"FNA_GRAPHICS_FORCE_GLDEVICE",
+					"FNA3D_FORCE_DRIVER",
 					arg
+				);
+			}
+			if (args.TryGetValue("disablelateswaptear", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA3D_DISABLE_LATESWAPTEAR",
+					"1"
 				);
 			}
 			if (args.TryGetValue("mojoshaderprofile", out arg))
 			{
 				Environment.SetEnvironmentVariable(
-					"FNA_GRAPHICS_MOJOSHADER_PROFILE",
+					"FNA3D_MOJOSHADER_PROFILE",
 					arg
 				);
 			}
 			if (args.TryGetValue("backbufferscalenearest", out arg) && arg == "1")
 			{
 				Environment.SetEnvironmentVariable(
-					"FNA_GRAPHICS_BACKBUFFER_SCALE_NEAREST",
+					"FNA3D_BACKBUFFER_SCALE_NEAREST",
 					"1"
 				);
 			}
@@ -86,7 +93,6 @@ namespace Microsoft.Xna.Framework
 			SetWindowBorderless =		SDL2_FNAPlatform.SetWindowBorderless;
 			SetWindowTitle =		SDL2_FNAPlatform.SetWindowTitle;
 			RunLoop =			SDL2_FNAPlatform.RunLoop;
-			CreateGLDevice =		SDL2_FNAPlatform.CreateGLDevice;
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
 			GetCurrentDisplayMode =		SDL2_FNAPlatform.GetCurrentDisplayMode;
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
@@ -106,10 +112,6 @@ namespace Microsoft.Xna.Framework
 			GetStorageRoot =		SDL2_FNAPlatform.GetStorageRoot;
 			GetDriveInfo =			SDL2_FNAPlatform.GetDriveInfo;
 			ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
-			TextureDataFromStream =		SDL2_FNAPlatform.TextureDataFromStream;
-			TextureDataFromStreamPtr =	SDL2_FNAPlatform.TextureDataFromStreamPtr;
-			SavePNG =			SDL2_FNAPlatform.SavePNG;
-			SaveJPG =			SDL2_FNAPlatform.SaveJPG;
 			GetMicrophones =		SDL2_FNAPlatform.GetMicrophones;
 			GetMicrophoneSamples =		SDL2_FNAPlatform.GetMicrophoneSamples;
 			GetMicrophoneQueuedBytes =	SDL2_FNAPlatform.GetMicrophoneQueuedBytes;
@@ -120,19 +122,7 @@ namespace Microsoft.Xna.Framework
 			GetNumTouchFingers =		SDL2_FNAPlatform.GetNumTouchFingers;
 			SupportsOrientationChanges =	SDL2_FNAPlatform.SupportsOrientationChanges;
 
-			// Don't overwrite application log hooks!
-			if (FNALoggerEXT.LogInfo == null)
-			{
-				FNALoggerEXT.LogInfo = Console.WriteLine;
-			}
-			if (FNALoggerEXT.LogWarn == null)
-			{
-				FNALoggerEXT.LogWarn = Console.WriteLine;
-			}
-			if (FNALoggerEXT.LogError == null)
-			{
-				FNALoggerEXT.LogError = Console.WriteLine;
-			}
+			FNALoggerEXT.Initialize();
 
 			AppDomain.CurrentDomain.ProcessExit += SDL2_FNAPlatform.ProgramExit;
 			TitleLocation = SDL2_FNAPlatform.ProgramInit(args);
@@ -184,12 +174,6 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void RunLoopFunc(Game game);
 		public static readonly RunLoopFunc RunLoop;
-
-		public delegate IGLDevice CreateGLDeviceFunc(
-			PresentationParameters presentationParameters,
-			GraphicsAdapter adapter
-		);
-		public static readonly CreateGLDeviceFunc CreateGLDevice;
 
 		public delegate GraphicsAdapter[] GetGraphicsAdaptersFunc();
 		public static readonly GetGraphicsAdaptersFunc GetGraphicsAdapters;
@@ -267,49 +251,6 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void ShowRuntimeErrorFunc(string title, string message);
 		public static readonly ShowRuntimeErrorFunc ShowRuntimeError;
-
-		public delegate void TextureDataFromStreamFunc(
-			Stream stream,
-			out int width,
-			out int height,
-			out byte[] pixels,
-			int reqWidth = -1,
-			int reqHeight = -1,
-			bool zoom = false
-		);
-		public static readonly TextureDataFromStreamFunc TextureDataFromStream;
-
-		public delegate void TextureDataFromStreamPtrFunc(
-			Stream stream,
-			out int width,
-			out int height,
-			out IntPtr pixels,
-			out int len,
-			int reqWidth = -1,
-			int reqHeight = -1,
-			bool zoom = false
-		);
-		public static readonly TextureDataFromStreamPtrFunc TextureDataFromStreamPtr;
-
-		public delegate void SavePNGFunc(
-			Stream stream,
-			int width,
-			int height,
-			int imgWidth,
-			int imgHeight,
-			byte[] data
-		);
-		public static readonly SavePNGFunc SavePNG;
-
-		public delegate void SaveJPGFunc(
-			Stream stream,
-			int width,
-			int height,
-			int imgWidth,
-			int imgHeight,
-			byte[] data
-		);
-		public static readonly SaveJPGFunc SaveJPG;
 
 		public delegate Microphone[] GetMicrophonesFunc();
 		public static readonly GetMicrophonesFunc GetMicrophones;

@@ -60,7 +60,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			LevelCount = mipMap ? CalculateMipLevels(width, height) : 1;
 			Format = format;
 
-			texture = GraphicsDevice.GLDevice.CreateTexture3D(
+			texture = FNA3D.FNA3D_CreateTexture3D(
+				GraphicsDevice.GLDevice,
 				Format,
 				Width,
 				Height,
@@ -120,16 +121,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.SetTextureData3D(
+			FNA3D.FNA3D_SetTextureData3D(
+				GraphicsDevice.GLDevice,
 				texture,
-				Format,
-				level,
 				left,
 				top,
-				right,
-				bottom,
 				front,
-				back,
+				right - left,
+				bottom - top,
+				back - front,
+				level,
 				handle.AddrOfPinnedObject() + startIndex * elementSizeInBytes,
 				elementCount * elementSizeInBytes
 			);
@@ -152,16 +153,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentNullException("data");
 			}
 
-			GraphicsDevice.GLDevice.SetTextureData3D(
+			FNA3D.FNA3D_SetTextureData3D(
+				GraphicsDevice.GLDevice,
 				texture,
-				Format,
-				level,
 				left,
 				top,
-				right,
-				bottom,
 				front,
-				back,
+				right - left,
+				bottom - top,
+				back - front,
+				level,
 				data,
 				dataLength
 			);
@@ -255,21 +256,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentException("Neither box size nor box position can be negative");
 			}
 
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			ValidateGetDataFormat(Format, elementSizeInBytes);
+
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.GetTextureData3D(
+			FNA3D.FNA3D_GetTextureData3D(
+				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				left,
 				top,
 				front,
-				right,
-				bottom,
-				back,
+				right - left,
+				bottom - top,
+				back - front,
 				level,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				Marshal.SizeOf(typeof(T))
+				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
+				elementCount * elementSizeInBytes
 			);
 			handle.Free();
 		}

@@ -19,98 +19,194 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public bool DepthBufferEnable
 		{
-			get;
-			set;
+			get
+			{
+				return state.depthBufferEnable == 1;
+			}
+			set
+			{
+				state.depthBufferEnable = (byte) (value ? 1 : 0);
+			}
 		}
 
 		public bool DepthBufferWriteEnable
 		{
-			get;
-			set;
+			get
+			{
+				return state.depthBufferWriteEnable == 1;
+			}
+			set
+			{
+				state.depthBufferWriteEnable = (byte) (value ? 1 : 0);
+			}
 		}
 
 		public StencilOperation CounterClockwiseStencilDepthBufferFail
 		{
-			get;
-			set;
+			get
+			{
+				return state.ccwStencilDepthBufferFail;
+			}
+			set
+			{
+				state.ccwStencilDepthBufferFail = value;
+			}
 		}
 
 		public StencilOperation CounterClockwiseStencilFail	
 		{
-			get;
-			set;
+			get
+			{
+				return state.ccwStencilFail;
+			}
+			set
+			{
+				state.ccwStencilFail = value;
+			}
 		}
 
 		public CompareFunction CounterClockwiseStencilFunction	
 		{
-			get;
-			set;
+			get
+			{
+				return state.ccwStencilFunction;
+			}
+			set
+			{
+				state.ccwStencilFunction = value;
+			}
 		}
 
 		public StencilOperation CounterClockwiseStencilPass	
 		{
-			get;
-			set;
+			get
+			{
+				return state.ccwStencilPass;
+			}
+			set
+			{
+				state.ccwStencilPass = value;
+			}
 		}
 
 		public CompareFunction DepthBufferFunction	
 		{
-			get;
-			set;
+			get
+			{
+				return state.depthBufferFunction;
+			}
+			set
+			{
+				state.depthBufferFunction = value;
+			}
 		}
 
 		public int ReferenceStencil	
 		{
-			get;
-			set;
+			get
+			{
+				return state.referenceStencil;
+			}
+			set
+			{
+				state.referenceStencil = value;
+			}
 		}
 
 		public StencilOperation StencilDepthBufferFail	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilDepthBufferFail;
+			}
+			set
+			{
+				state.stencilDepthBufferFail = value;
+			}
 		}
 
 		public bool StencilEnable	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilEnable == 1;
+			}
+			set
+			{
+				state.stencilEnable = (byte) (value ? 1 : 0);
+			}
 		}
 
 		public StencilOperation StencilFail	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilFail;
+			}
+			set
+			{
+				state.stencilFail = value;
+			}
 		}
 
 		public CompareFunction StencilFunction	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilFunction;
+			}
+			set
+			{
+				state.stencilFunction = value;
+			}
 		}
 
 		public int StencilMask	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilMask;
+			}
+			set
+			{
+				state.stencilMask = value;
+			}
 		}
 
 		public StencilOperation StencilPass	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilPass;
+			}
+			set
+			{
+				state.stencilPass = value;
+			}
 		}
 
 		public int StencilWriteMask	
 		{
-			get;
-			set;
+			get
+			{
+				return state.stencilWriteMask;
+			}
+			set
+			{
+				state.stencilWriteMask = value;
+			}
 		}
 
 		public bool TwoSidedStencilMode	
 		{
-			get;
-			set;
+			get
+			{
+				return state.twoSidedStencilMode == 1;
+			}
+			set
+			{
+				state.twoSidedStencilMode = (byte) (value ? 1 : 0);
+			}
 		}
 
 		#endregion
@@ -134,6 +230,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			false,
 			false
 		);
+
+		#endregion
+
+		#region Internal FNA3D Variables
+
+		internal FNA3D.FNA3D_DepthStencilState state;
 
 		#endregion
 

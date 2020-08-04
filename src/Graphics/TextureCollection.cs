@@ -63,5 +63,20 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		#endregion
+
+		#region Internal Functions
+
+		internal void RemoveDisposedTexture(Texture tex)
+		{
+			for (int i = 0; i < textures.Length; i += 1)
+			{
+				if (tex == textures[i])
+				{
+					this[i] = null;
+				}
+			}
+		}
+
+		#endregion
 	}
 }

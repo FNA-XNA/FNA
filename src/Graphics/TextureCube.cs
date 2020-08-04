@@ -68,11 +68,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				Format = format;
 			}
 
-			texture = GraphicsDevice.GLDevice.CreateTextureCube(
+			texture = FNA3D.FNA3D_CreateTextureCube(
+				GraphicsDevice.GLDevice,
 				Format,
 				Size,
 				LevelCount,
-				(this is IRenderTarget)
+				(byte) ((this is IRenderTarget) ? 1 : 0)
 			);
 		}
 
@@ -141,9 +142,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.SetTextureDataCube(
+			FNA3D.FNA3D_SetTextureDataCube(
+				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				xOffset,
 				yOffset,
 				width,
@@ -184,9 +185,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				height = Math.Max(1, Size >> level);
 			}
 
-			GraphicsDevice.GLDevice.SetTextureDataCube(
+			FNA3D.FNA3D_SetTextureDataCube(
+				GraphicsDevice.GLDevice,
 				texture,
-				Format,
 				xOffset,
 				yOffset,
 				width,
@@ -267,21 +268,21 @@ namespace Microsoft.Xna.Framework.Graphics
 				subH = rect.Value.Height;
 			}
 
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			ValidateGetDataFormat(Format, elementSizeInBytes);
+
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.GetTextureDataCube(
+			FNA3D.FNA3D_GetTextureDataCube(
+				GraphicsDevice.GLDevice,
 				texture,
-				Format,
-				Size >> level,
-				cubeMapFace,
-				level,
 				subX,
 				subY,
 				subW,
 				subH,
-				handle.AddrOfPinnedObject(),
-				startIndex,
-				elementCount,
-				Marshal.SizeOf(typeof(T))
+				cubeMapFace,
+				level,
+				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
+				elementCount * elementSizeInBytes
 			);
 			handle.Free();
 		}

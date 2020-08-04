@@ -49,7 +49,7 @@ namespace Microsoft.Xna.Framework.Media
 		private VertexBufferBinding vertBuffer;
 
 		// Used to restore our previous GL state.
-		private Texture[] oldTextures= new Texture[3];
+		private Texture[] oldTextures = new Texture[3];
 		private SamplerState[] oldSamplers = new SamplerState[3];
 		private RenderTargetBinding[] oldTargets;
 		private VertexBufferBinding[] oldBuffers;
@@ -57,6 +57,10 @@ namespace Microsoft.Xna.Framework.Media
 		private DepthStencilState prevDepthStencil;
 		private RasterizerState prevRasterizer;
 		private Viewport prevViewport;
+		private FNA3D.FNA3D_RenderTargetBinding[] nativeVideoTexture =
+			new FNA3D.FNA3D_RenderTargetBinding[3];
+		private FNA3D.FNA3D_RenderTargetBinding[] nativeOldTargets =
+			new FNA3D.FNA3D_RenderTargetBinding[GraphicsDevice.MAX_RENDERTARGET_BINDINGS];
 
 		private void GL_initialize()
 		{
@@ -68,7 +72,7 @@ namespace Microsoft.Xna.Framework.Media
 			unsafe
 			{
 				stateChangesPtr = Marshal.AllocHGlobal(
-					sizeof(MojoShader.MOJOSHADER_effectStateChanges)
+					sizeof(Effect.MOJOSHADER_effectStateChanges)
 				);
 			}
 
@@ -162,7 +166,8 @@ namespace Microsoft.Xna.Framework.Media
 		private void GL_pushState()
 		{
 			// Begin the effect, flagging to restore previous state on end
-			currentDevice.GLDevice.BeginPassRestore(
+			FNA3D.FNA3D_BeginPassRestore(
+				currentDevice.GLDevice,
 				shaderProgram.glEffect,
 				stateChangesPtr
 			);
@@ -182,11 +187,25 @@ namespace Microsoft.Xna.Framework.Media
 
 			// Prep target bindings
 			oldTargets = currentDevice.GetRenderTargets();
-			currentDevice.GLDevice.SetRenderTargets(
-				videoTexture,
-				null,
-				DepthFormat.None
-			);
+
+			unsafe
+			{
+				fixed (FNA3D.FNA3D_RenderTargetBinding* rt = &nativeVideoTexture[0])
+				{
+					GraphicsDevice.PrepareRenderTargetBindings(
+						rt,
+						videoTexture
+					);
+					FNA3D.FNA3D_SetRenderTargets(
+						currentDevice.GLDevice,
+						rt,
+						videoTexture.Length,
+						IntPtr.Zero,
+						DepthFormat.None,
+						0
+					);
+				}
+			}
 
 			// Prep render state
 			prevBlend = currentDevice.BlendState;
@@ -198,13 +217,19 @@ namespace Microsoft.Xna.Framework.Media
 
 			// Prep viewport
 			prevViewport = currentDevice.Viewport;
-			currentDevice.GLDevice.SetViewport(viewport);
+			FNA3D.FNA3D_SetViewport(
+				currentDevice.GLDevice,
+				ref viewport.viewport
+			);
 		}
 
 		private void GL_popState()
 		{
 			// End the effect, restoring the previous shader state
-			currentDevice.GLDevice.EndPassRestore(shaderProgram.glEffect);
+			FNA3D.FNA3D_EndPassRestore(
+				currentDevice.GLDevice,
+				shaderProgram.glEffect
+			);
 
 			// Restore GL state
 			currentDevice.BlendState = prevBlend;
@@ -219,25 +244,45 @@ namespace Microsoft.Xna.Framework.Media
 			 */
 			if (oldTargets == null || oldTargets.Length == 0)
 			{
-				currentDevice.GLDevice.SetRenderTargets(
-					null,
-					null,
-					DepthFormat.None
+				FNA3D.FNA3D_SetRenderTargets(
+					currentDevice.GLDevice,
+					IntPtr.Zero,
+					0,
+					IntPtr.Zero,
+					DepthFormat.None,
+					0
 				);
 			}
 			else
 			{
 				IRenderTarget oldTarget = oldTargets[0].RenderTarget as IRenderTarget;
-				currentDevice.GLDevice.SetRenderTargets(
-					oldTargets,
-					oldTarget.DepthStencilBuffer,
-					oldTarget.DepthStencilFormat
-				);
+
+				unsafe
+				{
+					fixed (FNA3D.FNA3D_RenderTargetBinding* rt = &nativeOldTargets[0])
+					{
+						GraphicsDevice.PrepareRenderTargetBindings(
+							rt,
+							oldTargets
+						);
+						FNA3D.FNA3D_SetRenderTargets(
+							currentDevice.GLDevice,
+							rt,
+							oldTargets.Length,
+							oldTarget.DepthStencilBuffer,
+							oldTarget.DepthStencilFormat,
+							(byte) (oldTarget.RenderTargetUsage != RenderTargetUsage.DiscardContents ? 1 : 0) /* lol c# */
+						);
+					}
+				}
 			}
 			oldTargets = null;
 
 			// Set viewport AFTER setting targets!
-			currentDevice.GLDevice.SetViewport(prevViewport);
+			FNA3D.FNA3D_SetViewport(
+				currentDevice.GLDevice,
+				ref prevViewport.viewport
+			);
 
 			// Restore buffers
 			currentDevice.SetVertexBuffers(oldBuffers);
@@ -353,6 +398,7 @@ namespace Microsoft.Xna.Framework.Media
 		#region Private Member Data: Theorafile
 
 		private IntPtr yuvData;
+		private int yuvDataLen;
 		private int currentFrame;
 
 		private const int AUDIO_BUFFER_SIZE = 4096 * 2;
@@ -569,10 +615,11 @@ namespace Microsoft.Xna.Framework.Media
 			{
 				Marshal.FreeHGlobal(yuvData);
 			}
-			yuvData = Marshal.AllocHGlobal(
+			yuvDataLen = (
 				(Video.yWidth * Video.yHeight) +
 				(Video.uvWidth * Video.uvHeight * 2)
 			);
+			yuvData = Marshal.AllocHGlobal(yuvDataLen);
 
 			// Hook up the decoder to this player
 			InitializeTheoraStream();
@@ -721,9 +768,17 @@ namespace Microsoft.Xna.Framework.Media
 		private void UpdateTexture()
 		{
 			// Prepare YUV GL textures with our current frame data
-			currentDevice.GLDevice.SetTextureDataYUV(
-				yuvTextures,
-				yuvData
+			FNA3D.FNA3D_SetTextureDataYUV(
+				currentDevice.GLDevice,
+				yuvTextures[0].texture,
+				yuvTextures[1].texture,
+				yuvTextures[2].texture,
+				Video.yWidth,
+				Video.yHeight,
+				Video.uvWidth,
+				Video.uvHeight,
+				yuvData,
+				yuvDataLen
 			);
 
 			// Draw the YUV textures to the framebuffer with our shader.

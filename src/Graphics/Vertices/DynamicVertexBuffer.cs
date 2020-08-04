@@ -81,12 +81,16 @@ namespace Microsoft.Xna.Framework.Graphics
 		) where T : struct {
 			ErrorCheck(data, startIndex, elementCount, vertexStride);
 
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.SetVertexBufferData(
+			FNA3D.FNA3D_SetVertexBufferData(
+				GraphicsDevice.GLDevice,
 				buffer,
 				offsetInBytes,
-				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
-				elementCount * Marshal.SizeOf(typeof(T)),
+				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
+				elementCount,
+				elementSizeInBytes,
+				vertexStride,
 				options
 			);
 			handle.Free();
@@ -98,14 +102,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			SetDataOptions options
 		) where T : struct {
-			ErrorCheck(data, startIndex, elementCount, Marshal.SizeOf(typeof(T)));
+			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			ErrorCheck(data, startIndex, elementCount, elementSizeInBytes);
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-			GraphicsDevice.GLDevice.SetVertexBufferData(
+			FNA3D.FNA3D_SetVertexBufferData(
+				GraphicsDevice.GLDevice,
 				buffer,
 				0,
-				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
-				elementCount * Marshal.SizeOf(typeof(T)),
+				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
+				elementCount,
+				elementSizeInBytes,
+				elementSizeInBytes,
 				options
 			);
 			handle.Free();

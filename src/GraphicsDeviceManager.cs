@@ -477,7 +477,11 @@ namespace Microsoft.Xna.Framework
 				int maxMultiSampleCount = 0;
 				if (graphicsDevice != null)
 				{
-					maxMultiSampleCount = graphicsDevice.GLDevice.MaxMultiSampleCount;
+					maxMultiSampleCount = FNA3D.FNA3D_GetMaxMultiSampleCount(
+						graphicsDevice.GLDevice,
+						gdi.PresentationParameters.BackBufferFormat,
+						8
+					);
 				}
 				gdi.PresentationParameters.MultiSampleCount = Math.Min(
 					maxMultiSampleCount,
@@ -552,7 +556,6 @@ namespace Microsoft.Xna.Framework
 				return false;
 			}
 
-			graphicsDevice.GLDevice.BeginFrame();
 			drawBegun = true;
 			return true;
 		}

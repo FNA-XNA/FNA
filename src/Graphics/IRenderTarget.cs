@@ -7,6 +7,10 @@
  */
 #endregion
 
+#region Using Statements
+using System;
+#endregion
+
 namespace Microsoft.Xna.Framework.Graphics
 {
 	/// <summary>
@@ -33,6 +37,15 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		/// <summary>
+		/// Gets the mip level count of the render target
+		/// </summary>
+		/// <value>The number of mip levels in the render target.</value>
+		int LevelCount
+		{
+			get;
+		}
+
+		/// <summary>
 		/// Gets the usage mode of the render target.
 		/// </summary>
 		/// <value>The usage mode of the render target.</value>
@@ -54,7 +67,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// Gets the handle of the depth-stencil buffer.
 		/// </summary>
 		/// <value>The depth-stencil buffer handle.</value>
-		IGLRenderbuffer DepthStencilBuffer
+		IntPtr DepthStencilBuffer
 		{
 			get;
 		}
@@ -63,7 +76,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// Gets the handle of the color buffer.
 		/// </summary>
 		/// <value>The color buffer handle.</value>
-		IGLRenderbuffer ColorBuffer
+		IntPtr ColorBuffer
 		{
 			get;
 		}

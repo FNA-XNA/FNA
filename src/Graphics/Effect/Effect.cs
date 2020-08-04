@@ -28,8 +28,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
-				MojoShader.MOJOSHADER_effectSetTechnique(
-					glEffect.EffectData,
+				FNA3D.FNA3D_SetEffectTechnique(
+					GraphicsDevice.GLDevice,
+					glEffect,
 					value.TechniquePointer
 				);
 				INTERNAL_currentTechnique = value;
@@ -50,9 +51,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Internal Variables
+		#region Internal FNA3D Variables
 
-		internal IGLEffect glEffect;
+		internal IntPtr glEffect;
 
 		#endregion
 
@@ -166,46 +167,46 @@ namespace Microsoft.Xna.Framework.Graphics
 			TextureAddressMode.Clamp	// MOJOSHADER_TADDRESS_CLAMP
 		};
 
-		private static readonly MojoShader.MOJOSHADER_textureFilterType[] XNAMag =
-			new MojoShader.MOJOSHADER_textureFilterType[]
+		private static readonly MOJOSHADER_textureFilterType[] XNAMag =
+			new MOJOSHADER_textureFilterType[]
 		{
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.Linear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.Point
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC,	// TextureFilter.Anisotropic
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.LinearMipPoint
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.PointMipLinear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinLinearMagPointMipLinear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinLinearMagPointMipPoint
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.MinPointMagLinearMipLinear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR		// TextureFilter.MinPointMagLinearMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.Linear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.Point
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC,	// TextureFilter.Anisotropic
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.LinearMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.PointMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinLinearMagPointMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinLinearMagPointMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.MinPointMagLinearMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR		// TextureFilter.MinPointMagLinearMipPoint
 		};
 
-		private static readonly MojoShader.MOJOSHADER_textureFilterType[] XNAMin =
-			new MojoShader.MOJOSHADER_textureFilterType[]
+		private static readonly MOJOSHADER_textureFilterType[] XNAMin =
+			new MOJOSHADER_textureFilterType[]
 		{
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.Linear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.Point
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC,	// TextureFilter.Anisotropic
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.LinearMipPoint
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.PointMipLinear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.MinLinearMagPointMipLinear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.MinLinearMagPointMipPoint
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinPointMagLinearMipLinear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT		// TextureFilter.MinPointMagLinearMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.Linear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.Point
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC,	// TextureFilter.Anisotropic
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.LinearMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.PointMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.MinLinearMagPointMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.MinLinearMagPointMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinPointMagLinearMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT		// TextureFilter.MinPointMagLinearMipPoint
 		};
 
-		private static readonly MojoShader.MOJOSHADER_textureFilterType[] XNAMip =
-			new MojoShader.MOJOSHADER_textureFilterType[]
+		private static readonly MOJOSHADER_textureFilterType[] XNAMip =
+			new MOJOSHADER_textureFilterType[]
 		{
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.Linear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.Point
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC,	// TextureFilter.Anisotropic
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.LinearMipPoint
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.PointMipLinear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.MinLinearMagPointMipLinear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinLinearMagPointMipPoint
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,	// TextureFilter.MinPointMagLinearMipLinear
-			MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT		// TextureFilter.MinPointMagLinearMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.Linear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.Point
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC,	// TextureFilter.Anisotropic
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.LinearMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.PointMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.MinLinearMagPointMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT,		// TextureFilter.MinLinearMagPointMipPoint
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR,		// TextureFilter.MinPointMagLinearMipLinear
+			MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT		// TextureFilter.MinPointMagLinearMipPoint
 		};
 
 		#endregion
@@ -217,10 +218,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			GraphicsDevice = graphicsDevice;
 
 			// Send the blob to the GLDevice to be parsed/compiled
-			glEffect = graphicsDevice.GLDevice.CreateEffect(effectCode);
+			IntPtr effectData;
+			FNA3D.FNA3D_CreateEffect(
+				graphicsDevice.GLDevice,
+				effectCode,
+				effectCode.Length,
+				out glEffect,
+				out effectData
+			);
 
 			// This is where it gets ugly...
-			INTERNAL_parseEffectStruct();
+			INTERNAL_parseEffectStruct(effectData);
 
 			// The default technique is the first technique.
 			CurrentTechnique = Techniques[0];
@@ -229,10 +237,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				stateChangesPtr = Marshal.AllocHGlobal(
-					sizeof(MojoShader.MOJOSHADER_effectStateChanges)
+					sizeof(MOJOSHADER_effectStateChanges)
 				);
-				MojoShader.MOJOSHADER_effectStateChanges *stateChanges =
-					(MojoShader.MOJOSHADER_effectStateChanges*) stateChangesPtr;
+				MOJOSHADER_effectStateChanges *stateChanges =
+					(MOJOSHADER_effectStateChanges*) stateChangesPtr;
 				stateChanges->render_state_change_count = 0;
 				stateChanges->sampler_state_change_count = 0;
 				stateChanges->vertex_sampler_state_change_count = 0;
@@ -248,12 +256,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			GraphicsDevice = cloneSource.GraphicsDevice;
 
 			// Send the parsed data to be cloned and recompiled by MojoShader
-			glEffect = GraphicsDevice.GLDevice.CloneEffect(
-				cloneSource.glEffect
+			IntPtr effectData;
+			FNA3D.FNA3D_CloneEffect(
+				GraphicsDevice.GLDevice,
+				cloneSource.glEffect,
+				out glEffect,
+				out effectData
 			);
 
 			// Double the ugly, double the fun!
-			INTERNAL_parseEffectStruct();
+			INTERNAL_parseEffectStruct(effectData);
 
 			// Copy texture parameters, if applicable
 			for (int i = 0; i < cloneSource.Parameters.Count; i += 1)
@@ -274,10 +286,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				stateChangesPtr = Marshal.AllocHGlobal(
-					sizeof(MojoShader.MOJOSHADER_effectStateChanges)
+					sizeof(MOJOSHADER_effectStateChanges)
 				);
-				MojoShader.MOJOSHADER_effectStateChanges *stateChanges =
-					(MojoShader.MOJOSHADER_effectStateChanges*) stateChangesPtr;
+				MOJOSHADER_effectStateChanges *stateChanges =
+					(MOJOSHADER_effectStateChanges*) stateChangesPtr;
 				stateChanges->render_state_change_count = 0;
 				stateChanges->sampler_state_change_count = 0;
 				stateChanges->vertex_sampler_state_change_count = 0;
@@ -301,9 +313,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				if (glEffect != null)
+				if (glEffect != IntPtr.Zero)
 				{
-					GraphicsDevice.GLDevice.AddDisposeEffect(glEffect);
+					FNA3D.FNA3D_AddDisposeEffect(
+						GraphicsDevice.GLDevice,
+						glEffect
+					);
 				}
 				if (stateChangesPtr != IntPtr.Zero)
 				{
@@ -324,14 +339,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal unsafe void INTERNAL_applyEffect(uint pass)
 		{
-			GraphicsDevice.GLDevice.ApplyEffect(
+			FNA3D.FNA3D_ApplyEffect(
+				GraphicsDevice.GLDevice,
 				glEffect,
-				CurrentTechnique.TechniquePointer,
 				pass,
 				stateChangesPtr
 			);
-			MojoShader.MOJOSHADER_effectStateChanges *stateChanges =
-				(MojoShader.MOJOSHADER_effectStateChanges*) stateChangesPtr;
+			MOJOSHADER_effectStateChanges *stateChanges =
+				(MOJOSHADER_effectStateChanges*) stateChangesPtr;
 			if (stateChanges->render_state_change_count > 0)
 			{
 				PipelineCache pipelineCache = GraphicsDevice.PipelineCache;
@@ -344,46 +359,46 @@ namespace Microsoft.Xna.Framework.Graphics
 				bool depthStencilStateChanged = false;
 				bool rasterizerStateChanged = false;
 
-				MojoShader.MOJOSHADER_effectState* states = (MojoShader.MOJOSHADER_effectState*) stateChanges->render_state_changes;
+				MOJOSHADER_effectState* states = (MOJOSHADER_effectState*) stateChanges->render_state_changes;
 				for (int i = 0; i < stateChanges->render_state_change_count; i += 1)
 				{
-					MojoShader.MOJOSHADER_renderStateType type = states[i].type;
-					if (	type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_VERTEXSHADER ||
-						type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_PIXELSHADER	)
+					MOJOSHADER_renderStateType type = states[i].type;
+					if (	type == MOJOSHADER_renderStateType.MOJOSHADER_RS_VERTEXSHADER ||
+						type == MOJOSHADER_renderStateType.MOJOSHADER_RS_PIXELSHADER	)
 					{
 						// Skip shader states
 						continue;
 					}
 
-					if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_ZENABLE)
+					if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_ZENABLE)
 					{
-						MojoShader.MOJOSHADER_zBufferType* val = (MojoShader.MOJOSHADER_zBufferType*) states[i].value.values;
+						MOJOSHADER_zBufferType* val = (MOJOSHADER_zBufferType*) states[i].value.values;
 						pipelineCache.DepthBufferEnable =
-							(*val == MojoShader.MOJOSHADER_zBufferType.MOJOSHADER_ZB_TRUE);
+							(*val == MOJOSHADER_zBufferType.MOJOSHADER_ZB_TRUE);
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_FILLMODE)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_FILLMODE)
 					{
-						MojoShader.MOJOSHADER_fillMode* val = (MojoShader.MOJOSHADER_fillMode*) states[i].value.values;
-						if (*val == MojoShader.MOJOSHADER_fillMode.MOJOSHADER_FILL_SOLID)
+						MOJOSHADER_fillMode* val = (MOJOSHADER_fillMode*) states[i].value.values;
+						if (*val == MOJOSHADER_fillMode.MOJOSHADER_FILL_SOLID)
 						{
 							pipelineCache.FillMode = FillMode.Solid;
 						}
-						else if (*val == MojoShader.MOJOSHADER_fillMode.MOJOSHADER_FILL_WIREFRAME)
+						else if (*val == MOJOSHADER_fillMode.MOJOSHADER_FILL_WIREFRAME)
 						{
 							pipelineCache.FillMode = FillMode.WireFrame;
 						}
 						rasterizerStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_ZWRITEENABLE)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_ZWRITEENABLE)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.DepthBufferWriteEnable = (*val == 1);
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_SRCBLEND)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_SRCBLEND)
 					{
-						MojoShader.MOJOSHADER_blendMode* val = (MojoShader.MOJOSHADER_blendMode*) states[i].value.values;
+						MOJOSHADER_blendMode* val = (MOJOSHADER_blendMode*) states[i].value.values;
 						pipelineCache.ColorSourceBlend = XNABlend[(int) *val];
 						if (!pipelineCache.SeparateAlphaBlend)
 						{
@@ -391,9 +406,9 @@ namespace Microsoft.Xna.Framework.Graphics
 						}
 						blendStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_DESTBLEND)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_DESTBLEND)
 					{
-						MojoShader.MOJOSHADER_blendMode* val = (MojoShader.MOJOSHADER_blendMode*) states[i].value.values;
+						MOJOSHADER_blendMode* val = (MOJOSHADER_blendMode*) states[i].value.values;
 						pipelineCache.ColorDestinationBlend = XNABlend[(int) *val];
 						if (!pipelineCache.SeparateAlphaBlend)
 						{
@@ -401,30 +416,30 @@ namespace Microsoft.Xna.Framework.Graphics
 						}
 						blendStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_CULLMODE)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_CULLMODE)
 					{
-						MojoShader.MOJOSHADER_cullMode* val = (MojoShader.MOJOSHADER_cullMode*) states[i].value.values;
-						if (*val == MojoShader.MOJOSHADER_cullMode.MOJOSHADER_CULL_NONE)
+						MOJOSHADER_cullMode* val = (MOJOSHADER_cullMode*) states[i].value.values;
+						if (*val == MOJOSHADER_cullMode.MOJOSHADER_CULL_NONE)
 						{
 							pipelineCache.CullMode = CullMode.None;
 						}
-						else if (*val == MojoShader.MOJOSHADER_cullMode.MOJOSHADER_CULL_CW)
+						else if (*val == MOJOSHADER_cullMode.MOJOSHADER_CULL_CW)
 						{
 							pipelineCache.CullMode = CullMode.CullClockwiseFace;
 						}
-						else if (*val == MojoShader.MOJOSHADER_cullMode.MOJOSHADER_CULL_CCW)
+						else if (*val == MOJOSHADER_cullMode.MOJOSHADER_CULL_CCW)
 						{
 							pipelineCache.CullMode = CullMode.CullCounterClockwiseFace;
 						}
 						rasterizerStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_ZFUNC)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_ZFUNC)
 					{
-						MojoShader.MOJOSHADER_compareFunc* val = (MojoShader.MOJOSHADER_compareFunc*) states[i].value.values;
+						MOJOSHADER_compareFunc* val = (MOJOSHADER_compareFunc*) states[i].value.values;
 						pipelineCache.DepthBufferFunction = XNACompare[(int) *val];
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_ALPHABLENDENABLE)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_ALPHABLENDENABLE)
 					{
 						// FIXME: Assuming no other blend calls are made in the effect! -flibit
 						int* val = (int*) states[i].value.values;
@@ -437,139 +452,139 @@ namespace Microsoft.Xna.Framework.Graphics
 							blendStateChanged = true;
 						}
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILENABLE)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILENABLE)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.StencilEnable = (*val == 1);
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILFAIL)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILFAIL)
 					{
-						MojoShader.MOJOSHADER_stencilOp* val = (MojoShader.MOJOSHADER_stencilOp*) states[i].value.values;
+						MOJOSHADER_stencilOp* val = (MOJOSHADER_stencilOp*) states[i].value.values;
 						pipelineCache.StencilFail = XNAStencilOp[(int) *val];
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILZFAIL)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILZFAIL)
 					{
-						MojoShader.MOJOSHADER_stencilOp* val = (MojoShader.MOJOSHADER_stencilOp*) states[i].value.values;
+						MOJOSHADER_stencilOp* val = (MOJOSHADER_stencilOp*) states[i].value.values;
 						pipelineCache.StencilDepthBufferFail = XNAStencilOp[(int) *val];
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILPASS)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILPASS)
 					{
-						MojoShader.MOJOSHADER_stencilOp* val = (MojoShader.MOJOSHADER_stencilOp*) states[i].value.values;
+						MOJOSHADER_stencilOp* val = (MOJOSHADER_stencilOp*) states[i].value.values;
 						pipelineCache.StencilPass = XNAStencilOp[(int) *val];
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILFUNC)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILFUNC)
 					{
-						MojoShader.MOJOSHADER_compareFunc* val = (MojoShader.MOJOSHADER_compareFunc*) states[i].value.values;
+						MOJOSHADER_compareFunc* val = (MOJOSHADER_compareFunc*) states[i].value.values;
 						pipelineCache.StencilFunction = XNACompare[(int) *val];
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILREF)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILREF)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.ReferenceStencil = *val;
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILMASK)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILMASK)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.StencilMask = *val;
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILWRITEMASK)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_STENCILWRITEMASK)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.StencilWriteMask = *val;
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_MULTISAMPLEANTIALIAS)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_MULTISAMPLEANTIALIAS)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.MultiSampleAntiAlias = (*val == 1);
 						rasterizerStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_MULTISAMPLEMASK)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_MULTISAMPLEMASK)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.MultiSampleMask = *val;
 						blendStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_COLORWRITEENABLE)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_COLORWRITEENABLE)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.ColorWriteChannels = (ColorWriteChannels) (*val);
 						blendStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_BLENDOP)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_BLENDOP)
 					{
-						MojoShader.MOJOSHADER_blendOp* val = (MojoShader.MOJOSHADER_blendOp*) states[i].value.values;
+						MOJOSHADER_blendOp* val = (MOJOSHADER_blendOp*) states[i].value.values;
 						pipelineCache.ColorBlendFunction = XNABlendOp[(int) *val];
 						blendStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_SCISSORTESTENABLE)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_SCISSORTESTENABLE)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.ScissorTestEnable = (*val == 1);
 						rasterizerStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_SLOPESCALEDEPTHBIAS)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_SLOPESCALEDEPTHBIAS)
 					{
 						float* val = (float*) states[i].value.values;
 						pipelineCache.SlopeScaleDepthBias = *val;
 						rasterizerStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_TWOSIDEDSTENCILMODE)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_TWOSIDEDSTENCILMODE)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.TwoSidedStencilMode = (*val == 1);
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_CCW_STENCILFAIL)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_CCW_STENCILFAIL)
 					{
-						MojoShader.MOJOSHADER_stencilOp* val = (MojoShader.MOJOSHADER_stencilOp*) states[i].value.values;
+						MOJOSHADER_stencilOp* val = (MOJOSHADER_stencilOp*) states[i].value.values;
 						pipelineCache.CCWStencilFail = XNAStencilOp[(int) *val];
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_CCW_STENCILZFAIL)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_CCW_STENCILZFAIL)
 					{
-						MojoShader.MOJOSHADER_stencilOp* val = (MojoShader.MOJOSHADER_stencilOp*) states[i].value.values;
+						MOJOSHADER_stencilOp* val = (MOJOSHADER_stencilOp*) states[i].value.values;
 						pipelineCache.CCWStencilDepthBufferFail = XNAStencilOp[(int) *val];
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_CCW_STENCILPASS)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_CCW_STENCILPASS)
 					{
-						MojoShader.MOJOSHADER_stencilOp* val = (MojoShader.MOJOSHADER_stencilOp*) states[i].value.values;
+						MOJOSHADER_stencilOp* val = (MOJOSHADER_stencilOp*) states[i].value.values;
 						pipelineCache.CCWStencilPass = XNAStencilOp[(int) *val];
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_CCW_STENCILFUNC)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_CCW_STENCILFUNC)
 					{
-						MojoShader.MOJOSHADER_compareFunc* val = (MojoShader.MOJOSHADER_compareFunc*) states[i].value.values;
+						MOJOSHADER_compareFunc* val = (MOJOSHADER_compareFunc*) states[i].value.values;
 						pipelineCache.CCWStencilFunction = XNACompare[(int) *val];
 						depthStencilStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_COLORWRITEENABLE1)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_COLORWRITEENABLE1)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.ColorWriteChannels1 = (ColorWriteChannels) (*val);
 						blendStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_COLORWRITEENABLE2)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_COLORWRITEENABLE2)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.ColorWriteChannels2 = (ColorWriteChannels) (*val);
 						blendStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_COLORWRITEENABLE3)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_COLORWRITEENABLE3)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.ColorWriteChannels3 = (ColorWriteChannels) (*val);
 						blendStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_BLENDFACTOR)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_BLENDFACTOR)
 					{
 						// FIXME: RGBA? -flibit
 						int* val = (int*) states[i].value.values;
@@ -581,37 +596,37 @@ namespace Microsoft.Xna.Framework.Graphics
 						);
 						blendStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_DEPTHBIAS)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_DEPTHBIAS)
 					{
 						float* val = (float*) states[i].value.values;
 						pipelineCache.DepthBias = *val;
 						rasterizerStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_SEPARATEALPHABLENDENABLE)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_SEPARATEALPHABLENDENABLE)
 					{
 						int* val = (int*) states[i].value.values;
 						pipelineCache.SeparateAlphaBlend = (*val == 1);
 						// FIXME: Do we want to update the state for this...? -flibit
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_SRCBLENDALPHA)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_SRCBLENDALPHA)
 					{
-						MojoShader.MOJOSHADER_blendMode* val = (MojoShader.MOJOSHADER_blendMode*) states[i].value.values;
+						MOJOSHADER_blendMode* val = (MOJOSHADER_blendMode*) states[i].value.values;
 						pipelineCache.AlphaSourceBlend = XNABlend[(int) *val];
 						blendStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_DESTBLENDALPHA)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_DESTBLENDALPHA)
 					{
-						MojoShader.MOJOSHADER_blendMode* val = (MojoShader.MOJOSHADER_blendMode*) states[i].value.values;
+						MOJOSHADER_blendMode* val = (MOJOSHADER_blendMode*) states[i].value.values;
 						pipelineCache.AlphaDestinationBlend = XNABlend[(int) *val];
 						blendStateChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_renderStateType.MOJOSHADER_RS_BLENDOPALPHA)
+					else if (type == MOJOSHADER_renderStateType.MOJOSHADER_RS_BLENDOPALPHA)
 					{
-						MojoShader.MOJOSHADER_blendOp* val = (MojoShader.MOJOSHADER_blendOp*) states[i].value.values;
+						MOJOSHADER_blendOp* val = (MOJOSHADER_blendOp*) states[i].value.values;
 						pipelineCache.AlphaBlendFunction = XNABlendOp[(int) *val];
 						blendStateChanged = true;
 					}
-					else if (type == (MojoShader.MOJOSHADER_renderStateType) 178)
+					else if (type == (MOJOSHADER_renderStateType) 178)
 					{
 						/* Apparently this is "SetSampler"? */
 					}
@@ -637,7 +652,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				INTERNAL_updateSamplers(
 					stateChanges->sampler_state_change_count,
-					(MojoShader.MOJOSHADER_samplerStateRegister*) stateChanges->sampler_state_changes,
+					(MOJOSHADER_samplerStateRegister*) stateChanges->sampler_state_changes,
 					GraphicsDevice.Textures,
 					GraphicsDevice.SamplerStates
 				);
@@ -646,7 +661,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				INTERNAL_updateSamplers(
 					stateChanges->vertex_sampler_state_change_count,
-					(MojoShader.MOJOSHADER_samplerStateRegister*) stateChanges->vertex_sampler_state_changes,
+					(MOJOSHADER_samplerStateRegister*) stateChanges->vertex_sampler_state_changes,
 					GraphicsDevice.VertexTextures,
 					GraphicsDevice.VertexSamplerStates
 				);
@@ -655,7 +670,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private unsafe void INTERNAL_updateSamplers(
 			uint changeCount,
-			MojoShader.MOJOSHADER_samplerStateRegister* registers,
+			MOJOSHADER_samplerStateRegister* registers,
 			TextureCollection textures,
 			SamplerStateCollection samplers
 		) {
@@ -678,15 +693,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				// Current sampler filter
 				TextureFilter filter = pipelineCache.Filter;
-				MojoShader.MOJOSHADER_textureFilterType magFilter = XNAMag[(int) filter];
-				MojoShader.MOJOSHADER_textureFilterType minFilter = XNAMin[(int) filter];
-				MojoShader.MOJOSHADER_textureFilterType mipFilter = XNAMip[(int) filter];
+				MOJOSHADER_textureFilterType magFilter = XNAMag[(int) filter];
+				MOJOSHADER_textureFilterType minFilter = XNAMin[(int) filter];
+				MOJOSHADER_textureFilterType mipFilter = XNAMip[(int) filter];
 
-				MojoShader.MOJOSHADER_effectSamplerState* states = (MojoShader.MOJOSHADER_effectSamplerState*) registers[i].sampler_states;
+				MOJOSHADER_effectSamplerState* states = (MOJOSHADER_effectSamplerState*) registers[i].sampler_states;
 				for (int j = 0; j < registers[i].sampler_state_count; j += 1)
 				{
-					MojoShader.MOJOSHADER_samplerStateType type = states[j].type;
-					if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_TEXTURE)
+					MOJOSHADER_samplerStateType type = states[j].type;
+					if (type == MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_TEXTURE)
 					{
 						EffectParameter texParam;
 						if (samplerMap.TryGetValue(registers[i].sampler_name, out texParam))
@@ -698,55 +713,55 @@ namespace Microsoft.Xna.Framework.Graphics
 							}
 						}
 					}
-					else if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_ADDRESSU)
+					else if (type == MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_ADDRESSU)
 					{
-						MojoShader.MOJOSHADER_textureAddress* val = (MojoShader.MOJOSHADER_textureAddress*) states[j].value.values;
+						MOJOSHADER_textureAddress* val = (MOJOSHADER_textureAddress*) states[j].value.values;
 						pipelineCache.AddressU = XNAAddress[(int) *val];
 						samplerChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_ADDRESSV)
+					else if (type == MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_ADDRESSV)
 					{
-						MojoShader.MOJOSHADER_textureAddress* val = (MojoShader.MOJOSHADER_textureAddress*) states[j].value.values;
+						MOJOSHADER_textureAddress* val = (MOJOSHADER_textureAddress*) states[j].value.values;
 						pipelineCache.AddressV = XNAAddress[(int) *val];
 						samplerChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_ADDRESSW)
+					else if (type == MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_ADDRESSW)
 					{
-						MojoShader.MOJOSHADER_textureAddress* val = (MojoShader.MOJOSHADER_textureAddress*) states[j].value.values;
+						MOJOSHADER_textureAddress* val = (MOJOSHADER_textureAddress*) states[j].value.values;
 						pipelineCache.AddressW = XNAAddress[(int) *val];
 						samplerChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MAGFILTER)
+					else if (type == MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MAGFILTER)
 					{
-						MojoShader.MOJOSHADER_textureFilterType* val = (MojoShader.MOJOSHADER_textureFilterType*) states[j].value.values;
+						MOJOSHADER_textureFilterType* val = (MOJOSHADER_textureFilterType*) states[j].value.values;
 						magFilter = *val;
 						filterChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MINFILTER)
+					else if (type == MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MINFILTER)
 					{
-						MojoShader.MOJOSHADER_textureFilterType* val = (MojoShader.MOJOSHADER_textureFilterType*) states[j].value.values;
+						MOJOSHADER_textureFilterType* val = (MOJOSHADER_textureFilterType*) states[j].value.values;
 						minFilter = *val;
 						filterChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MIPFILTER)
+					else if (type == MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MIPFILTER)
 					{
-						MojoShader.MOJOSHADER_textureFilterType* val = (MojoShader.MOJOSHADER_textureFilterType*) states[j].value.values;
+						MOJOSHADER_textureFilterType* val = (MOJOSHADER_textureFilterType*) states[j].value.values;
 						mipFilter = *val;
 						filterChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MIPMAPLODBIAS)
+					else if (type == MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MIPMAPLODBIAS)
 					{
 						float* val = (float*) states[j].value.values;
 						pipelineCache.MipMapLODBias = *val;
 						samplerChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MAXMIPLEVEL)
+					else if (type == MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MAXMIPLEVEL)
 					{
 						int* val = (int*) states[j].value.values;
 						pipelineCache.MaxMipLevel = *val;
 						samplerChanged = true;
 					}
-					else if (type == MojoShader.MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MAXANISOTROPY)
+					else if (type == MOJOSHADER_samplerStateType.MOJOSHADER_SAMP_MAXANISOTROPY)
 					{
 						int* val = (int*) states[j].value.values;
 						pipelineCache.MaxAnisotropy = *val;
@@ -759,17 +774,17 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				if (filterChanged)
 				{
-					if (magFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT)
+					if (magFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT)
 					{
-						if (minFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT)
+						if (minFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT)
 						{
-							if (	mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_NONE ||
-								mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT	)
+							if (	mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_NONE ||
+								mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT	)
 							{
 								pipelineCache.Filter = TextureFilter.Point;
 							}
-							else if (	mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
-									mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
+							else if (	mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
+									mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
 							{
 								pipelineCache.Filter = TextureFilter.PointMipLinear;
 							}
@@ -778,16 +793,16 @@ namespace Microsoft.Xna.Framework.Graphics
 								throw new NotImplementedException("Unhandled mipfilter type! " + mipFilter);
 							}
 						}
-						else if (	minFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
-								minFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
+						else if (	minFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
+								minFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
 						{
-							if (	mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_NONE ||
-								mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT	)
+							if (	mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_NONE ||
+								mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT	)
 							{
 								pipelineCache.Filter = TextureFilter.MinLinearMagPointMipPoint;
 							}
-							else if (	mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
-									mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
+							else if (	mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
+									mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
 							{
 								pipelineCache.Filter = TextureFilter.MinLinearMagPointMipLinear;
 							}
@@ -801,18 +816,18 @@ namespace Microsoft.Xna.Framework.Graphics
 							throw new NotImplementedException("Unhandled minfilter type! " + minFilter);
 						}
 					}
-					else if (	magFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
-							magFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
+					else if (	magFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
+							magFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
 					{
-						if (minFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT)
+						if (minFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT)
 						{
-							if (	mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_NONE ||
-								mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT	)
+							if (	mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_NONE ||
+								mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT	)
 							{
 								pipelineCache.Filter = TextureFilter.MinPointMagLinearMipPoint;
 							}
-							else if (	mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
-									mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
+							else if (	mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
+									mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
 							{
 								pipelineCache.Filter = TextureFilter.MinPointMagLinearMipLinear;
 							}
@@ -821,16 +836,16 @@ namespace Microsoft.Xna.Framework.Graphics
 								throw new NotImplementedException("Unhandled mipfilter type! " + mipFilter);
 							}
 						}
-						else if (	minFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
-								minFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
+						else if (	minFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
+								minFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
 						{
-							if (	mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_NONE ||
-								mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT	)
+							if (	mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_NONE ||
+								mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_POINT	)
 							{
 								pipelineCache.Filter = TextureFilter.LinearMipPoint;
 							}
-							else if (	mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
-									mipFilter == MojoShader.MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
+							else if (	mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_LINEAR ||
+									mipFilter == MOJOSHADER_textureFilterType.MOJOSHADER_TEXTUREFILTER_ANISOTROPIC	)
 							{
 								pipelineCache.Filter = TextureFilter.Linear;
 							}
@@ -862,33 +877,33 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Methods
 
-		private unsafe void INTERNAL_parseEffectStruct()
+		private unsafe void INTERNAL_parseEffectStruct(IntPtr effectData)
 		{
-			MojoShader.MOJOSHADER_effect* effectPtr = (MojoShader.MOJOSHADER_effect*) glEffect.EffectData;
+			MOJOSHADER_effect* effectPtr = (MOJOSHADER_effect*) effectData;
 
 			// Set up Parameters
-			MojoShader.MOJOSHADER_effectParam* paramPtr = (MojoShader.MOJOSHADER_effectParam*) effectPtr->parameters;
+			MOJOSHADER_effectParam* paramPtr = (MOJOSHADER_effectParam*) effectPtr->parameters;
 			List<EffectParameter> parameters = new List<EffectParameter>();
 			for (int i = 0; i < effectPtr->param_count; i += 1)
 			{
-				MojoShader.MOJOSHADER_effectParam param = paramPtr[i];
-				if (	param.value.type.parameter_type == MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_VERTEXSHADER ||
-					param.value.type.parameter_type == MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_PIXELSHADER	)
+				MOJOSHADER_effectParam param = paramPtr[i];
+				if (	param.value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_VERTEXSHADER ||
+					param.value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_PIXELSHADER	)
 				{
 					// Skip shader objects...
 					continue;
 				}
-				else if (	param.value.type.parameter_type >= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_SAMPLER &&
-						param.value.type.parameter_type <= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_SAMPLERCUBE	)
+				else if (	param.value.type.parameter_type >= MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_SAMPLER &&
+						param.value.type.parameter_type <= MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_SAMPLERCUBE	)
 				{
 					string textureName = String.Empty;
-					MojoShader.MOJOSHADER_effectSamplerState* states = (MojoShader.MOJOSHADER_effectSamplerState*) param.value.values;
+					MOJOSHADER_effectSamplerState* states = (MOJOSHADER_effectSamplerState*) param.value.values;
 					for (int j = 0; j < param.value.value_count; j += 1)
 					{
-						if (	states[j].value.type.parameter_type >= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_TEXTURE &&
-							states[j].value.type.parameter_type <= MojoShader.MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_TEXTURECUBE	)
+						if (	states[j].value.type.parameter_type >= MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_TEXTURE &&
+							states[j].value.type.parameter_type <= MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_TEXTURECUBE	)
 						{
-							MojoShader.MOJOSHADER_effectObject *objectPtr = (MojoShader.MOJOSHADER_effectObject*) effectPtr->objects;
+							MOJOSHADER_effectObject *objectPtr = (MOJOSHADER_effectObject*) effectPtr->objects;
 							int* index = (int*) states[j].value.values;
 							textureName = Marshal.PtrToStringAnsi(objectPtr[*index].mapping.name);
 							break;
@@ -916,7 +931,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					List<EffectParameter> memList = new List<EffectParameter>();
 					unsafe
 					{
-						MojoShader.MOJOSHADER_symbolStructMember* mem = (MojoShader.MOJOSHADER_symbolStructMember*) param.value.type.members;
+						MOJOSHADER_symbolStructMember* mem = (MOJOSHADER_symbolStructMember*) param.value.type.members;
 						IntPtr curOffset = IntPtr.Zero;
 						for (int j = 0; j < param.value.type.member_count; j += 1)
 						{
@@ -964,16 +979,16 @@ namespace Microsoft.Xna.Framework.Graphics
 			Parameters = new EffectParameterCollection(parameters);
 
 			// Set up Techniques
-			MojoShader.MOJOSHADER_effectTechnique* techPtr = (MojoShader.MOJOSHADER_effectTechnique*) effectPtr->techniques;
+			MOJOSHADER_effectTechnique* techPtr = (MOJOSHADER_effectTechnique*) effectPtr->techniques;
 			List<EffectTechnique> techniques = new List<EffectTechnique>(effectPtr->technique_count);
 			for (int i = 0; i < techniques.Capacity; i += 1, techPtr += 1)
 			{
 				// Set up Passes
-				MojoShader.MOJOSHADER_effectPass* passPtr = (MojoShader.MOJOSHADER_effectPass*) techPtr->passes;
+				MOJOSHADER_effectPass* passPtr = (MOJOSHADER_effectPass*) techPtr->passes;
 				List<EffectPass> passes = new List<EffectPass>((int) techPtr->pass_count);
 				for (int j = 0; j < passes.Capacity; j += 1)
 				{
-					MojoShader.MOJOSHADER_effectPass pass = passPtr[j];
+					MOJOSHADER_effectPass pass = passPtr[j];
 					passes.Add(new EffectPass(
 						Marshal.PtrToStringAnsi(pass.name),
 						INTERNAL_readAnnotations(
@@ -1003,11 +1018,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr rawAnnotations,
 			uint numAnnotations
 		) {
-			MojoShader.MOJOSHADER_effectAnnotation* annoPtr = (MojoShader.MOJOSHADER_effectAnnotation*) rawAnnotations;
+			MOJOSHADER_effectAnnotation* annoPtr = (MOJOSHADER_effectAnnotation*) rawAnnotations;
 			List<EffectAnnotation> annotations = new List<EffectAnnotation>((int) numAnnotations);
 			for (int i = 0; i < numAnnotations; i += 1)
 			{
-				MojoShader.MOJOSHADER_effectAnnotation anno = annoPtr[i];
+				MOJOSHADER_effectAnnotation anno = annoPtr[i];
 				annotations.Add(new EffectAnnotation(
 					Marshal.PtrToStringAnsi(anno.name),
 					Marshal.PtrToStringAnsi(anno.semantic),
@@ -1019,6 +1034,455 @@ namespace Microsoft.Xna.Framework.Graphics
 				));
 			}
 			return new EffectAnnotationCollection(annotations);
+		}
+
+		#endregion
+
+		#region MojoShader Interop
+
+		/* Shader Parse Interface */
+
+		private enum MOJOSHADER_symbolClass
+		{
+			MOJOSHADER_SYMCLASS_SCALAR = 0,
+			MOJOSHADER_SYMCLASS_VECTOR,
+			MOJOSHADER_SYMCLASS_MATRIX_ROWS,
+			MOJOSHADER_SYMCLASS_MATRIX_COLUMNS,
+			MOJOSHADER_SYMCLASS_OBJECT,
+			MOJOSHADER_SYMCLASS_STRUCT,
+			MOJOSHADER_SYMCLASS_TOTAL
+		}
+
+		private enum MOJOSHADER_symbolType
+		{
+			MOJOSHADER_SYMTYPE_VOID = 0,
+			MOJOSHADER_SYMTYPE_BOOL,
+			MOJOSHADER_SYMTYPE_INT,
+			MOJOSHADER_SYMTYPE_FLOAT,
+			MOJOSHADER_SYMTYPE_STRING,
+			MOJOSHADER_SYMTYPE_TEXTURE,
+			MOJOSHADER_SYMTYPE_TEXTURE1D,
+			MOJOSHADER_SYMTYPE_TEXTURE2D,
+			MOJOSHADER_SYMTYPE_TEXTURE3D,
+			MOJOSHADER_SYMTYPE_TEXTURECUBE,
+			MOJOSHADER_SYMTYPE_SAMPLER,
+			MOJOSHADER_SYMTYPE_SAMPLER1D,
+			MOJOSHADER_SYMTYPE_SAMPLER2D,
+			MOJOSHADER_SYMTYPE_SAMPLER3D,
+			MOJOSHADER_SYMTYPE_SAMPLERCUBE,
+			MOJOSHADER_SYMTYPE_PIXELSHADER,
+			MOJOSHADER_SYMTYPE_VERTEXSHADER,
+			MOJOSHADER_SYMTYPE_PIXELFRAGMENT,
+			MOJOSHADER_SYMTYPE_VERTEXFRAGMENT,
+			MOJOSHADER_SYMTYPE_UNSUPPORTED,
+			MOJOSHADER_SYMTYPE_TOTAL
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_symbolTypeInfo
+		{
+			public MOJOSHADER_symbolClass parameter_class;
+			public MOJOSHADER_symbolType parameter_type;
+			public uint rows;
+			public uint columns;
+			public uint elements;
+			public uint member_count;
+			public IntPtr members; // MOJOSHADER_symbolStructMember*
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_symbolStructMember
+		{
+			public IntPtr name; //const char*
+			public MOJOSHADER_symbolTypeInfo info;
+		}
+
+		/* MOJOSHADER_effectState types... */
+
+		private enum MOJOSHADER_renderStateType
+		{
+			MOJOSHADER_RS_ZENABLE,
+			MOJOSHADER_RS_FILLMODE,
+			MOJOSHADER_RS_SHADEMODE,
+			MOJOSHADER_RS_ZWRITEENABLE,
+			MOJOSHADER_RS_ALPHATESTENABLE,
+			MOJOSHADER_RS_LASTPIXEL,
+			MOJOSHADER_RS_SRCBLEND,
+			MOJOSHADER_RS_DESTBLEND,
+			MOJOSHADER_RS_CULLMODE,
+			MOJOSHADER_RS_ZFUNC,
+			MOJOSHADER_RS_ALPHAREF,
+			MOJOSHADER_RS_ALPHAFUNC,
+			MOJOSHADER_RS_DITHERENABLE,
+			MOJOSHADER_RS_ALPHABLENDENABLE,
+			MOJOSHADER_RS_FOGENABLE,
+			MOJOSHADER_RS_SPECULARENABLE,
+			MOJOSHADER_RS_FOGCOLOR,
+			MOJOSHADER_RS_FOGTABLEMODE,
+			MOJOSHADER_RS_FOGSTART,
+			MOJOSHADER_RS_FOGEND,
+			MOJOSHADER_RS_FOGDENSITY,
+			MOJOSHADER_RS_RANGEFOGENABLE,
+			MOJOSHADER_RS_STENCILENABLE,
+			MOJOSHADER_RS_STENCILFAIL,
+			MOJOSHADER_RS_STENCILZFAIL,
+			MOJOSHADER_RS_STENCILPASS,
+			MOJOSHADER_RS_STENCILFUNC,
+			MOJOSHADER_RS_STENCILREF,
+			MOJOSHADER_RS_STENCILMASK,
+			MOJOSHADER_RS_STENCILWRITEMASK,
+			MOJOSHADER_RS_TEXTUREFACTOR,
+			MOJOSHADER_RS_WRAP0,
+			MOJOSHADER_RS_WRAP1,
+			MOJOSHADER_RS_WRAP2,
+			MOJOSHADER_RS_WRAP3,
+			MOJOSHADER_RS_WRAP4,
+			MOJOSHADER_RS_WRAP5,
+			MOJOSHADER_RS_WRAP6,
+			MOJOSHADER_RS_WRAP7,
+			MOJOSHADER_RS_WRAP8,
+			MOJOSHADER_RS_WRAP9,
+			MOJOSHADER_RS_WRAP10,
+			MOJOSHADER_RS_WRAP11,
+			MOJOSHADER_RS_WRAP12,
+			MOJOSHADER_RS_WRAP13,
+			MOJOSHADER_RS_WRAP14,
+			MOJOSHADER_RS_WRAP15,
+			MOJOSHADER_RS_CLIPPING,
+			MOJOSHADER_RS_LIGHTING,
+			MOJOSHADER_RS_AMBIENT,
+			MOJOSHADER_RS_FOGVERTEXMODE,
+			MOJOSHADER_RS_COLORVERTEX,
+			MOJOSHADER_RS_LOCALVIEWER,
+			MOJOSHADER_RS_NORMALIZENORMALS,
+			MOJOSHADER_RS_DIFFUSEMATERIALSOURCE,
+			MOJOSHADER_RS_SPECULARMATERIALSOURCE,
+			MOJOSHADER_RS_AMBIENTMATERIALSOURCE,
+			MOJOSHADER_RS_EMISSIVEMATERIALSOURCE,
+			MOJOSHADER_RS_VERTEXBLEND,
+			MOJOSHADER_RS_CLIPPLANEENABLE,
+			MOJOSHADER_RS_POINTSIZE,
+			MOJOSHADER_RS_POINTSIZE_MIN,
+			MOJOSHADER_RS_POINTSPRITEENABLE,
+			MOJOSHADER_RS_POINTSCALEENABLE,
+			MOJOSHADER_RS_POINTSCALE_A,
+			MOJOSHADER_RS_POINTSCALE_B,
+			MOJOSHADER_RS_POINTSCALE_C,
+			MOJOSHADER_RS_MULTISAMPLEANTIALIAS,
+			MOJOSHADER_RS_MULTISAMPLEMASK,
+			MOJOSHADER_RS_PATCHEDGESTYLE,
+			MOJOSHADER_RS_DEBUGMONITORTOKEN,
+			MOJOSHADER_RS_POINTSIZE_MAX,
+			MOJOSHADER_RS_INDEXEDVERTEXBLENDENABLE,
+			MOJOSHADER_RS_COLORWRITEENABLE,
+			MOJOSHADER_RS_TWEENFACTOR,
+			MOJOSHADER_RS_BLENDOP,
+			MOJOSHADER_RS_POSITIONDEGREE,
+			MOJOSHADER_RS_NORMALDEGREE,
+			MOJOSHADER_RS_SCISSORTESTENABLE,
+			MOJOSHADER_RS_SLOPESCALEDEPTHBIAS,
+			MOJOSHADER_RS_ANTIALIASEDLINEENABLE,
+			MOJOSHADER_RS_MINTESSELLATIONLEVEL,
+			MOJOSHADER_RS_MAXTESSELLATIONLEVEL,
+			MOJOSHADER_RS_ADAPTIVETESS_X,
+			MOJOSHADER_RS_ADAPTIVETESS_Y,
+			MOJOSHADER_RS_ADAPTIVETESS_Z,
+			MOJOSHADER_RS_ADAPTIVETESS_W,
+			MOJOSHADER_RS_ENABLEADAPTIVETESSELLATION,
+			MOJOSHADER_RS_TWOSIDEDSTENCILMODE,
+			MOJOSHADER_RS_CCW_STENCILFAIL,
+			MOJOSHADER_RS_CCW_STENCILZFAIL,
+			MOJOSHADER_RS_CCW_STENCILPASS,
+			MOJOSHADER_RS_CCW_STENCILFUNC,
+			MOJOSHADER_RS_COLORWRITEENABLE1,
+			MOJOSHADER_RS_COLORWRITEENABLE2,
+			MOJOSHADER_RS_COLORWRITEENABLE3,
+			MOJOSHADER_RS_BLENDFACTOR,
+			MOJOSHADER_RS_SRGBWRITEENABLE,
+			MOJOSHADER_RS_DEPTHBIAS,
+			MOJOSHADER_RS_SEPARATEALPHABLENDENABLE,
+			MOJOSHADER_RS_SRCBLENDALPHA,
+			MOJOSHADER_RS_DESTBLENDALPHA,
+			MOJOSHADER_RS_BLENDOPALPHA,
+			MOJOSHADER_RS_VERTEXSHADER = 146,
+			MOJOSHADER_RS_PIXELSHADER = 147
+		}
+
+		private enum MOJOSHADER_zBufferType
+		{
+			MOJOSHADER_ZB_FALSE,
+			MOJOSHADER_ZB_TRUE,
+			MOJOSHADER_ZB_USEW
+		}
+
+		private enum MOJOSHADER_fillMode
+		{
+			MOJOSHADER_FILL_POINT		= 1,
+			MOJOSHADER_FILL_WIREFRAME	= 2,
+			MOJOSHADER_FILL_SOLID		= 3
+		}
+
+		private enum MOJOSHADER_blendMode
+		{
+			MOJOSHADER_BLEND_ZERO			= 1,
+			MOJOSHADER_BLEND_ONE			= 2,
+			MOJOSHADER_BLEND_SRCCOLOR		= 3,
+			MOJOSHADER_BLEND_INVSRCCOLOR		= 4,
+			MOJOSHADER_BLEND_SRCALPHA		= 5,
+			MOJOSHADER_BLEND_INVSRCALPHA		= 6,
+			MOJOSHADER_BLEND_DESTALPHA		= 7,
+			MOJOSHADER_BLEND_INVDESTALPHA		= 8,
+			MOJOSHADER_BLEND_DESTCOLOR		= 9,
+			MOJOSHADER_BLEND_INVDESTCOLOR		= 10,
+			MOJOSHADER_BLEND_SRCALPHASAT		= 11,
+			MOJOSHADER_BLEND_BOTHSRCALPHA		= 12,
+			MOJOSHADER_BLEND_BOTHINVSRCALPHA	= 13,
+			MOJOSHADER_BLEND_BLENDFACTOR		= 14,
+			MOJOSHADER_BLEND_INVBLENDFACTOR		= 15,
+			MOJOSHADER_BLEND_SRCCOLOR2		= 16,
+			MOJOSHADER_BLEND_INVSRCCOLOR2		= 17
+		}
+
+		private enum MOJOSHADER_cullMode
+		{
+			MOJOSHADER_CULL_NONE	= 1,
+			MOJOSHADER_CULL_CW	= 2,
+			MOJOSHADER_CULL_CCW	= 3
+		}
+
+		private enum MOJOSHADER_compareFunc
+		{
+			MOJOSHADER_CMP_NEVER		= 1,
+			MOJOSHADER_CMP_LESS		= 2,
+			MOJOSHADER_CMP_EQUAL		= 3,
+			MOJOSHADER_CMP_LESSEQUAL	= 4,
+			MOJOSHADER_CMP_GREATER		= 5,
+			MOJOSHADER_CMP_NOTEQUAL		= 6,
+			MOJOSHADER_CMP_GREATEREQUAL	= 7,
+			MOJOSHADER_CMP_ALWAYS		= 8
+		}
+
+		private enum MOJOSHADER_stencilOp
+		{
+			MOJOSHADER_STENCILOP_KEEP	= 1,
+			MOJOSHADER_STENCILOP_ZERO	= 2,
+			MOJOSHADER_STENCILOP_REPLACE	= 3,
+			MOJOSHADER_STENCILOP_INCRSAT	= 4,
+			MOJOSHADER_STENCILOP_DECRSAT	= 5,
+			MOJOSHADER_STENCILOP_INVERT	= 6,
+			MOJOSHADER_STENCILOP_INCR	= 7,
+			MOJOSHADER_STENCILOP_DECR	= 8
+		}
+
+		private enum MOJOSHADER_blendOp
+		{
+			MOJOSHADER_BLENDOP_ADD		= 1,
+			MOJOSHADER_BLENDOP_SUBTRACT	= 2,
+			MOJOSHADER_BLENDOP_REVSUBTRACT	= 3,
+			MOJOSHADER_BLENDOP_MIN		= 4,
+			MOJOSHADER_BLENDOP_MAX		= 5
+		}
+
+		/* MOJOSHADER_effectSamplerState types... */
+
+		private enum MOJOSHADER_samplerStateType
+		{
+			MOJOSHADER_SAMP_UNKNOWN0	= 0,
+			MOJOSHADER_SAMP_UNKNOWN1	= 1,
+			MOJOSHADER_SAMP_UNKNOWN2	= 2,
+			MOJOSHADER_SAMP_UNKNOWN3	= 3,
+			MOJOSHADER_SAMP_TEXTURE		= 4,
+			MOJOSHADER_SAMP_ADDRESSU	= 5,
+			MOJOSHADER_SAMP_ADDRESSV	= 6,
+			MOJOSHADER_SAMP_ADDRESSW	= 7,
+			MOJOSHADER_SAMP_BORDERCOLOR	= 8,
+			MOJOSHADER_SAMP_MAGFILTER	= 9,
+			MOJOSHADER_SAMP_MINFILTER	= 10,
+			MOJOSHADER_SAMP_MIPFILTER	= 11,
+			MOJOSHADER_SAMP_MIPMAPLODBIAS	= 12,
+			MOJOSHADER_SAMP_MAXMIPLEVEL	= 13,
+			MOJOSHADER_SAMP_MAXANISOTROPY	= 14,
+			MOJOSHADER_SAMP_SRGBTEXTURE	= 15,
+			MOJOSHADER_SAMP_ELEMENTINDEX	= 16,
+			MOJOSHADER_SAMP_DMAPOFFSET	= 17
+		}
+
+		private enum MOJOSHADER_textureAddress
+		{
+			MOJOSHADER_TADDRESS_WRAP	= 1,
+			MOJOSHADER_TADDRESS_MIRROR	= 2,
+			MOJOSHADER_TADDRESS_CLAMP	= 3,
+			MOJOSHADER_TADDRESS_BORDER	= 4,
+			MOJOSHADER_TADDRESS_MIRRORONCE	= 5
+		}
+
+		private enum MOJOSHADER_textureFilterType
+		{
+			MOJOSHADER_TEXTUREFILTER_NONE,
+			MOJOSHADER_TEXTUREFILTER_POINT,
+			MOJOSHADER_TEXTUREFILTER_LINEAR,
+			MOJOSHADER_TEXTUREFILTER_ANISOTROPIC,
+			MOJOSHADER_TEXTUREFILTER_PYRAMIDALQUAD,
+			MOJOSHADER_TEXTUREFILTER_GAUSSIANQUAD,
+			MOJOSHADER_TEXTUREFILTER_CONVOLUTIONMONO
+		}
+
+		/* Effect value types... */
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effectValue
+		{
+			public IntPtr name; // const char*
+			public IntPtr semantic; // const char*
+			public MOJOSHADER_symbolTypeInfo type;
+			public uint value_count;
+			public IntPtr values; // You know what, just look at the C header...
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effectState
+		{
+			public MOJOSHADER_renderStateType type;
+			public MOJOSHADER_effectValue value;
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effectSamplerState
+		{
+			public MOJOSHADER_samplerStateType type;
+			public MOJOSHADER_effectValue value;
+		}
+
+		/* typedef MOJOSHADER_effectValue MOJOSHADER_effectAnnotation; */
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effectAnnotation
+		{
+			public IntPtr name; // const char*
+			public IntPtr semantic; // const char*
+			public MOJOSHADER_symbolTypeInfo type;
+			public uint value_count;
+			public IntPtr values; // You know what, just look at the C header...
+		}
+
+		/* Effect interface structures... */
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effectParam
+		{
+			public MOJOSHADER_effectValue value;
+			public uint annotation_count;
+			public IntPtr annotations; // MOJOSHADER_effectAnnotations*
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effectPass
+		{
+			public IntPtr name; // const char*
+			public uint state_count;
+			public IntPtr states; // MOJOSHADER_effectState*
+			public uint annotation_count;
+			public IntPtr annotations; // MOJOSHADER_effectAnnotations*
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effectTechnique
+		{
+			public IntPtr name; // const char*
+			public uint pass_count;
+			public IntPtr passes; // MOJOSHADER_effectPass*
+			public uint annotation_count;
+			public IntPtr annotations; // MOJOSHADER_effectAnnotations*
+		}
+
+		/* Effect "objects"... */
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effectShader
+		{
+			public MOJOSHADER_symbolType type;
+			public uint technique;
+			public uint pass;
+			public uint is_preshader;
+			public uint preshader_param_count;
+			public IntPtr preshader_params; // unsigned int*
+			public uint param_count;
+			public IntPtr parameters; // unsigned int*
+			public uint sampler_count;
+			public IntPtr samplers; // MOJOSHADER_samplerStateRegister*
+			public IntPtr shader; // *shader/*preshader union
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effectSamplerMap
+		{
+			public MOJOSHADER_symbolType type;
+			public IntPtr name; // const char*
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effectString
+		{
+			public MOJOSHADER_symbolType type;
+			public IntPtr stringvalue; // const char*
+		}
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effectTexture
+		{
+			public MOJOSHADER_symbolType type;
+		}
+
+		[StructLayout(LayoutKind.Explicit)]
+		private struct MOJOSHADER_effectObject
+		{
+			[FieldOffset(0)]
+			public MOJOSHADER_symbolType type;
+			[FieldOffset(0)]
+			public MOJOSHADER_effectShader shader;
+			[FieldOffset(0)]
+			public MOJOSHADER_effectSamplerMap mapping;
+			[FieldOffset(0)]
+			public MOJOSHADER_effectString stringvalue;
+			[FieldOffset(0)]
+			public MOJOSHADER_effectTexture texture;
+		}
+
+		/* Effect state change types... */
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_samplerStateRegister
+		{
+			public IntPtr sampler_name; // const char*
+			public uint sampler_register;
+			public uint sampler_state_count;
+			public IntPtr sampler_states; // const MOJOSHADER_effectSamplerState*
+		}
+
+		// Needed by VideoPlayer...
+		[StructLayout(LayoutKind.Sequential)]
+		internal struct MOJOSHADER_effectStateChanges
+		{
+			public uint render_state_change_count;
+			public IntPtr render_state_changes; // const MOJOSHADER_effectState*
+			public uint sampler_state_change_count;
+			public IntPtr sampler_state_changes; // const MOJOSHADER_samplerStateRegister*
+			public uint vertex_sampler_state_change_count;
+			public IntPtr vertex_sampler_state_changes; // const MOJOSHADER_samplerStateRegister*
+		}
+
+		/* Effect parsing interface... this is a partial struct! */
+
+		[StructLayout(LayoutKind.Sequential)]
+		private struct MOJOSHADER_effect
+		{
+			public int error_count;
+			public IntPtr errors; // MOJOSHADER_error*
+			public int param_count;
+			public IntPtr parameters; // MOJOSHADER_effectParam* params, lolC#
+			public int technique_count;
+			public IntPtr techniques; // MOJOSHADER_effectTechnique*
+			public int object_count;
+			public IntPtr objects; // MOJOSHADER_effectObject*
 		}
 
 		#endregion
