@@ -379,12 +379,8 @@ namespace Microsoft.Xna.Framework
 				hasInitialized = true;
 			}
 
-			BeginRun();
-
 			// FIXME: Not quite right..
 			Tick();
-
-			EndRun();
 		}
 
 		public void Run()
