@@ -432,6 +432,14 @@ namespace Microsoft.Xna.Framework
 					(uint) SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP
 				);
 			}
+
+			// Update the mouse window bounds
+			if (Mouse.WindowHandle == window)
+			{
+				Rectangle b = GetWindowBounds(window);
+				Mouse.INTERNAL_WindowWidth = b.Width;
+				Mouse.INTERNAL_WindowHeight = b.Height;
+			}
 		}
 
 		public static Rectangle GetWindowBounds(IntPtr window)

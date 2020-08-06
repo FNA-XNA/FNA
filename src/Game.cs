@@ -829,10 +829,6 @@ namespace Microsoft.Xna.Framework
 			currentAdapter = FNAPlatform.RegisterGame(this);
 			IsActive = true;
 
-			Rectangle windowBounds = Window.ClientBounds;
-			Mouse.INTERNAL_WindowWidth = windowBounds.Width;
-			Mouse.INTERNAL_WindowHeight = windowBounds.Height;
-
 			// Perform initial check for a touch device
 			TouchPanel.TouchDeviceExists = FNAPlatform.GetTouchCapabilities().IsConnected;
 		}
