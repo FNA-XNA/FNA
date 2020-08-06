@@ -827,6 +827,7 @@ namespace Microsoft.Xna.Framework
 		private void BeforeLoop()
 		{
 			currentAdapter = FNAPlatform.RegisterGame(this);
+			IsActive = true;
 
 			Rectangle windowBounds = Window.ClientBounds;
 			Mouse.INTERNAL_WindowWidth = windowBounds.Width;

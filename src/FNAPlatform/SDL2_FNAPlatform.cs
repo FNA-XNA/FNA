@@ -694,7 +694,6 @@ namespace Microsoft.Xna.Framework
 		public static GraphicsAdapter RegisterGame(Game game)
 		{
 			SDL.SDL_ShowWindow(game.Window.Handle);
-			game.IsActive = true;
 
 			// Store this for internal event filter work
 			activeGames.Add(game);
