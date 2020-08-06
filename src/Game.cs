@@ -398,9 +398,9 @@ namespace Microsoft.Xna.Framework
 
 			FNAPlatform.RunLoop(this);
 
-			EndRun();
-
 			OnExiting(this, EventArgs.Empty);
+
+			EndRun();
 		}
 
 		public void Tick()
