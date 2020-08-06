@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
@@ -92,7 +93,9 @@ namespace Microsoft.Xna.Framework
 			GetWindowBorderless =		SDL2_FNAPlatform.GetWindowBorderless;
 			SetWindowBorderless =		SDL2_FNAPlatform.SetWindowBorderless;
 			SetWindowTitle =		SDL2_FNAPlatform.SetWindowTitle;
-			RunLoop =			SDL2_FNAPlatform.RunLoop;
+			RegisterGame =			SDL2_FNAPlatform.RegisterGame;
+			UnregisterGame =		SDL2_FNAPlatform.UnregisterGame;
+			PollEvents =			SDL2_FNAPlatform.PollEvents;
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
 			GetCurrentDisplayMode =		SDL2_FNAPlatform.GetCurrentDisplayMode;
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
@@ -134,6 +137,30 @@ namespace Microsoft.Xna.Framework
 
 		public static readonly string TitleLocation;
 
+		/* Setup Text Input Control Character Arrays
+		 * (Only 7 control keys supported at this time)
+		 */
+		public static readonly char[] TextInputCharacters = new char[]
+		{
+			(char) 2,	// Home
+			(char) 3,	// End
+			(char) 8,	// Backspace
+			(char) 9,	// Tab
+			(char) 13,	// Enter
+			(char) 127,	// Delete
+			(char) 22	// Ctrl+V (Paste)
+		};
+		public static readonly Dictionary<Keys, int> TextInputBindings = new Dictionary<Keys, int>()
+		{
+			{ Keys.Home,	0 },
+			{ Keys.End,	1 },
+			{ Keys.Back,	2 },
+			{ Keys.Tab,	3 },
+			{ Keys.Enter,	4 },
+			{ Keys.Delete,	5 }
+			// Ctrl+V is special!
+		};
+
 		#endregion
 
 		#region Public Static Methods
@@ -172,8 +199,20 @@ namespace Microsoft.Xna.Framework
 		public delegate void SetWindowTitleFunc(IntPtr window, string title);
 		public static readonly SetWindowTitleFunc SetWindowTitle;
 
-		public delegate void RunLoopFunc(Game game);
-		public static readonly RunLoopFunc RunLoop;
+		public delegate GraphicsAdapter RegisterGameFunc(Game game);
+		public static readonly RegisterGameFunc RegisterGame;
+
+		public delegate void UnregisterGameFunc(Game game);
+		public static readonly UnregisterGameFunc UnregisterGame;
+
+		public delegate void PollEventsFunc(
+			Game game,
+			ref GraphicsAdapter currentAdapter,
+			bool[] textInputControlDown,
+			int[] textInputControlRepeat,
+			ref bool textInputSuppress
+		);
+		public static readonly PollEventsFunc PollEvents;
 
 		public delegate GraphicsAdapter[] GetGraphicsAdaptersFunc();
 		public static readonly GetGraphicsAdaptersFunc GetGraphicsAdapters;

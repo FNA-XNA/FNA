@@ -201,6 +201,7 @@ namespace Microsoft.Xna.Framework
 
 		private IGraphicsDeviceService graphicsDeviceService;
 		private IGraphicsDeviceManager graphicsDeviceManager;
+		private GraphicsAdapter currentAdapter;
 		private bool hasInitialized;
 		private bool suppressDraw;
 		private bool isDisposed;
@@ -213,6 +214,10 @@ namespace Microsoft.Xna.Framework
 		private bool forceElapsedTimeToZero = false;
 
 		private static readonly TimeSpan MaxElapsedTime = TimeSpan.FromMilliseconds(500);
+
+		private bool[] textInputControlDown;
+		private int[] textInputControlRepeat;
+		private bool textInputSuppress;
 
 		#endregion
 
@@ -245,6 +250,9 @@ namespace Microsoft.Xna.Framework
 			IsFixedTimeStep = true;
 			TargetElapsedTime = TimeSpan.FromTicks(166667); // 60fps
 			InactiveSleepTime = TimeSpan.FromSeconds(0.02);
+
+			textInputControlDown = new bool[FNAPlatform.TextInputCharacters.Length];
+			textInputControlRepeat = new int[FNAPlatform.TextInputCharacters.Length];
 
 			hasInitialized = false;
 			suppressDraw = false;
@@ -379,7 +387,13 @@ namespace Microsoft.Xna.Framework
 				hasInitialized = true;
 			}
 
-			// FIXME: Not quite right..
+			FNAPlatform.PollEvents(
+				this,
+				ref currentAdapter,
+				textInputControlDown,
+				textInputControlRepeat,
+				ref textInputSuppress
+			);
 			Tick();
 		}
 
@@ -394,13 +408,15 @@ namespace Microsoft.Xna.Framework
 			}
 
 			BeginRun();
-			gameTimer = Stopwatch.StartNew();
+			BeforeLoop();
 
-			FNAPlatform.RunLoop(this);
+			gameTimer = Stopwatch.StartNew();
+			RunLoop();
 
 			OnExiting(this, EventArgs.Empty);
 
 			EndRun();
+			AfterLoop();
 		}
 
 		public void Tick()
@@ -806,6 +822,39 @@ namespace Microsoft.Xna.Framework
 				}
 			}
 			drawableComponents.Add(drawable);
+		}
+
+		private void BeforeLoop()
+		{
+			currentAdapter = FNAPlatform.RegisterGame(this);
+
+			Rectangle windowBounds = Window.ClientBounds;
+			Mouse.INTERNAL_WindowWidth = windowBounds.Width;
+			Mouse.INTERNAL_WindowHeight = windowBounds.Height;
+
+			// Perform initial check for a touch device
+			TouchPanel.TouchDeviceExists = FNAPlatform.GetTouchCapabilities().IsConnected;
+		}
+
+		private void AfterLoop()
+		{
+			FNAPlatform.UnregisterGame(this);
+		}
+
+		private void RunLoop()
+		{
+			while (RunApplication)
+			{
+				FNAPlatform.PollEvents(
+					this,
+					ref currentAdapter,
+					textInputControlDown,
+					textInputControlRepeat,
+					ref textInputSuppress
+				);
+				Tick();
+			}
+			Exit();
 		}
 
 		#endregion
