@@ -358,6 +358,8 @@ namespace Microsoft.Xna.Framework
 		{
 			RunApplication = false;
 			suppressDraw = true;
+
+			OnExiting(this, EventArgs.Empty);
 		}
 
 		public void ResetElapsedTime()
@@ -412,8 +414,6 @@ namespace Microsoft.Xna.Framework
 
 			gameTimer = Stopwatch.StartNew();
 			RunLoop();
-
-			OnExiting(this, EventArgs.Empty);
 
 			EndRun();
 			AfterLoop();
