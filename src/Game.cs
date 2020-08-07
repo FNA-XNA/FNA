@@ -840,6 +840,20 @@ namespace Microsoft.Xna.Framework
 
 		private void RunLoop()
 		{
+			/* Some platforms (i.e. Emscripten) don't support
+			 * indefinite while loops, so instead we have to
+			 * surrender control to the platform's main loop.
+			 * -caleb
+			 */
+			if (FNAPlatform.NeedsPlatformMainLoop())
+			{
+				/* This breaks control flow and jumps
+				 * directly into the platform main loop.
+				 * Nothing below this call will be executed.
+				 */
+				FNAPlatform.RunPlatformMainLoop(this);
+			}
+
 			while (RunApplication)
 			{
 				FNAPlatform.PollEvents(

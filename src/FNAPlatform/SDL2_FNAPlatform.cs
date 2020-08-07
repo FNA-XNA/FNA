@@ -990,6 +990,56 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
+		public static bool NeedsPlatformMainLoop()
+		{
+			return SDL.SDL_GetPlatform().Equals("Emscripten");
+		}
+
+		public static void RunPlatformMainLoop(Game game)
+		{
+			if (SDL.SDL_GetPlatform().Equals("Emscripten"))
+			{
+				emscriptenGame = game;
+				emscripten_set_main_loop(
+					RunEmscriptenMainLoop,
+					0,
+					1
+				);
+			}
+		}
+
+		#endregion
+
+		#region Emscripten Main Loop
+
+		// FIXME: Where do these belong?
+
+		private static Game emscriptenGame;
+		private delegate void em_callback_func();
+
+		[DllImport("emscripten", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void emscripten_set_main_loop(
+			em_callback_func func,
+			int fps,
+			int simulate_infinite_loop
+		);
+
+		[DllImport("emscripten", CallingConvention = CallingConvention.Cdecl)]
+		private static extern void emscripten_cancel_main_loop();
+
+		[ObjCRuntime.MonoPInvokeCallback(typeof(em_callback_func))]
+		private static void RunEmscriptenMainLoop()
+		{
+			emscriptenGame.RunOneFrame();
+
+			// FIXME: Is this even needed...?
+			if (!emscriptenGame.RunApplication)
+			{
+				emscripten_cancel_main_loop();
+				emscriptenGame.Exit();
+			}
+		}
+
 		#endregion
 
 		#region Graphics Methods

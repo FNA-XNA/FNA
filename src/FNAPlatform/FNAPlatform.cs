@@ -124,6 +124,8 @@ namespace Microsoft.Xna.Framework
 			UpdateTouchPanelState =		SDL2_FNAPlatform.UpdateTouchPanelState;
 			GetNumTouchFingers =		SDL2_FNAPlatform.GetNumTouchFingers;
 			SupportsOrientationChanges =	SDL2_FNAPlatform.SupportsOrientationChanges;
+			NeedsPlatformMainLoop = 	SDL2_FNAPlatform.NeedsPlatformMainLoop;
+			RunPlatformMainLoop =		SDL2_FNAPlatform.RunPlatformMainLoop;
 
 			FNALoggerEXT.Initialize();
 
@@ -322,6 +324,12 @@ namespace Microsoft.Xna.Framework
 
 		public delegate bool SupportsOrientationChangesFunc();
 		public static readonly SupportsOrientationChangesFunc SupportsOrientationChanges;
+
+		public delegate bool NeedsPlatformMainLoopFunc();
+		public static readonly NeedsPlatformMainLoopFunc NeedsPlatformMainLoop;
+
+		public delegate void RunPlatformMainLoopFunc(Game game);
+		public static readonly RunPlatformMainLoopFunc RunPlatformMainLoop;
 
 		#endregion
 	}
