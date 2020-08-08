@@ -1006,13 +1006,17 @@ namespace Microsoft.Xna.Framework
 					1
 				);
 			}
+			else
+			{
+				throw new NotSupportedException(
+					"Cannot run the main loop of an unknown platform"
+				);
+			}
 		}
 
 		#endregion
 
 		#region Emscripten Main Loop
-
-		// FIXME: Where do these belong?
 
 		private static Game emscriptenGame;
 		private delegate void em_callback_func();
@@ -1035,8 +1039,8 @@ namespace Microsoft.Xna.Framework
 			// FIXME: Is this even needed...?
 			if (!emscriptenGame.RunApplication)
 			{
-				emscripten_cancel_main_loop();
 				emscriptenGame.Exit();
+				emscripten_cancel_main_loop();
 			}
 		}
 
