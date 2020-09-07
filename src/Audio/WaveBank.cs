@@ -216,7 +216,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			else if (ioStream != IntPtr.Zero)
 			{
-				// FACT frees this pointer!
+				FAudio.FAudio_close(ioStream);
 				ioStream = IntPtr.Zero;
 			}
 			handle = IntPtr.Zero;
