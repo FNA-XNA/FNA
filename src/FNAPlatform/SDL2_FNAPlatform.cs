@@ -63,12 +63,22 @@ namespace Microsoft.Xna.Framework
 			{
 				OSVersion = SDL.SDL_GetPlatform();
 			}
-			catch(Exception e)
+			catch(DllNotFoundException e)
 			{
 				FNALoggerEXT.LogError(
 					"SDL2 was not found! Do you have fnalibs?"
 				);
 				throw e;
+			}
+			catch(BadImageFormatException e)
+			{
+				string error = string.Format(
+					"This process is {0}-bit, the DLL is {1}-bit!",
+					(IntPtr.Size == 4) ? "32" : "64",
+					(IntPtr.Size == 4) ? "64" : "32"
+				);
+				FNALoggerEXT.LogError(error);
+				throw new BadImageFormatException(error, e);
 			}
 
 			/* SDL2 might complain if an OS that uses SDL_main has not actually
