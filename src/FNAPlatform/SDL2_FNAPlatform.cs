@@ -385,6 +385,7 @@ namespace Microsoft.Xna.Framework
 				}
 				if (resize)
 				{
+					SDL.SDL_RestoreWindow(window);
 					SDL.SDL_SetWindowSize(window, clientWidth, clientHeight);
 					center = true;
 				}
