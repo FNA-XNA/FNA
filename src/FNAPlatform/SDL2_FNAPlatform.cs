@@ -878,7 +878,9 @@ namespace Microsoft.Xna.Framework
 						 * Also ignore any other "resizes" (alt-tab, fullscreen, etc.)
 						 * -flibit
 						 */
-						if (GetWindowResizable(game.Window.Handle))
+						uint flags = SDL.SDL_GetWindowFlags(game.Window.Handle);
+						if (	(flags & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE) != 0 &&
+							(flags & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_INPUT_FOCUS) != 0	)
 						{
 							((FNAWindow) game.Window).INTERNAL_ClientSizeChanged();
 						}
