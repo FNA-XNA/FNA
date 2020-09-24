@@ -1185,9 +1185,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private unsafe void FlushBatch()
 		{
-			int offset = 0;
-			Texture2D curTexture = null;
-
 			PrepRenderState();
 
 			if (numSprites == 0)
@@ -1255,8 +1252,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		nextbatch:
 			int batchSize = Math.Min(numSprites, MAX_SPRITES);
 			int baseOff = UpdateVertexBuffer(arrayOffset, batchSize);
+			int offset = 0;
 
-			curTexture = textureInfo[arrayOffset];
+			Texture2D curTexture = textureInfo[arrayOffset];
 			for (int i = 1; i < batchSize; i += 1)
 			{
 				Texture2D tex = textureInfo[arrayOffset + i];
