@@ -124,9 +124,14 @@ namespace Microsoft.Xna.Framework
 				 * WM_PAINT events correctly. So we get to do this!
 				 * -flibit
 				 */
+				IntPtr prevUserData;
+				SDL.SDL_GetEventFilter(
+					out prevEventFilter,
+					out prevUserData
+				);
 				SDL.SDL_SetEventFilter(
 					win32OnPaint,
-					IntPtr.Zero
+					prevUserData
 				);
 			}
 
@@ -2484,7 +2489,8 @@ namespace Microsoft.Xna.Framework
 		#region Private Static Win32 WM_PAINT Interop
 
 		private static SDL.SDL_EventFilter win32OnPaint = Win32OnPaint;
-		private static unsafe int Win32OnPaint(IntPtr func, IntPtr evtPtr)
+		private static SDL.SDL_EventFilter prevEventFilter;
+		private static unsafe int Win32OnPaint(IntPtr userdata, IntPtr evtPtr)
 		{
 			SDL.SDL_Event* evt = (SDL.SDL_Event*) evtPtr;
 			if (	evt->type == SDL.SDL_EventType.SDL_WINDOWEVENT &&
@@ -2499,6 +2505,10 @@ namespace Microsoft.Xna.Framework
 						return 0;
 					}
 				}
+			}
+			if (prevEventFilter != null)
+			{
+				return prevEventFilter(userdata, evtPtr);
 			}
 			return 1;
 		}
