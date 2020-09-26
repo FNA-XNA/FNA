@@ -13,6 +13,8 @@ using System;
 
 namespace Microsoft.Xna.Framework.Input
 {
+	public delegate void TextEditingEventHandlerEXT (string text, int start, int length);
+
 	public static class TextInputEXT
 	{
 		#region Event
@@ -25,6 +27,13 @@ namespace Microsoft.Xna.Framework.Input
 		/// http://msdn.microsoft.com/en-AU/library/system.windows.forms.control.keypress.aspx
 		/// </summary>
 		public static event Action<char> TextInput;
+
+		/// <summary>
+		/// This event notifies you of in-progress text composition happening in an IME or other tool
+		///  and allows you to display the draft text appropriately before it has become input.
+		/// For more information, see SDL's tutorial: https://wiki.libsdl.org/Tutorials/TextInput
+		/// </summary>
+		public static event TextEditingEventHandlerEXT TextEditing;
 
 		#endregion
 
@@ -59,6 +68,14 @@ namespace Microsoft.Xna.Framework.Input
 			if (TextInput != null)
 			{
 				TextInput(c);
+			}
+		}
+
+		internal static void OnTextEditing(string text, int start, int length)
+		{
+			if (TextEditing != null)
+			{
+				TextEditing(text, start, length);
 			}
 		}
 

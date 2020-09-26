@@ -961,16 +961,8 @@ namespace Microsoft.Xna.Framework
 					// Based on the SDL2# LPUtf8StrMarshaler
 					unsafe
 					{
-						byte* endPtr = evt.text.text;
-						if (*endPtr != 0)
-						{
-							int bytes = 0;
-							while (*endPtr != 0)
-							{
-								endPtr++;
-								bytes += 1;
-							}
-
+						var bytes = MeasureStringLength(evt.text.text);
+						if (bytes > 0) {
 							/* UTF8 will never encode more characters
 							 * than bytes in a string, so bytes is a
 							 * suitable upper estimate of size needed
@@ -991,6 +983,26 @@ namespace Microsoft.Xna.Framework
 					}
 				}
 
+				else if (evt.type == SDL.SDL_EventType.SDL_TEXTEDITING) 
+				{
+					unsafe {
+						var bytes = MeasureStringLength(evt.edit.text);
+						if (bytes > 0) {
+							char* charsBuffer = stackalloc char[bytes];
+							int chars = Encoding.UTF8.GetChars(
+								evt.edit.text,
+								bytes,
+								charsBuffer,
+								bytes
+							);
+							var text = new string(charsBuffer, 0, chars);
+							TextInputEXT.OnTextEditing(text, evt.edit.start, evt.edit.length);
+						} else {
+							TextInputEXT.OnTextEditing(null, 0, 0);
+						}
+					}
+				}
+
 				// Quit
 				else if (evt.type == SDL.SDL_EventType.SDL_QUIT)
 				{
@@ -1005,6 +1017,23 @@ namespace Microsoft.Xna.Framework
 				{
 					TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[i]);
 				}
+			}
+		}
+
+		private unsafe static int MeasureStringLength (byte* ptr) {
+			// Based on the SDL2# LPUtf8StrMarshaler
+			unsafe {
+				byte* endPtr = ptr;
+				if (*endPtr != 0) {
+					int bytes = 0;
+					while (*endPtr != 0) {
+						endPtr++;
+						bytes += 1;
+					}
+					return bytes;
+				}
+
+				return 0;
 			}
 		}
 
