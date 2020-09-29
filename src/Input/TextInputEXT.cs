@@ -26,6 +26,13 @@ namespace Microsoft.Xna.Framework.Input
 		/// </summary>
 		public static event Action<char> TextInput;
 
+		/// <summary>
+		/// This event notifies you of in-progress text composition happening in an IME or other tool
+		///  and allows you to display the draft text appropriately before it has become input.
+		/// For more information, see SDL's tutorial: https://wiki.libsdl.org/Tutorials/TextInput
+		/// </summary>
+		public static event Action<string, int, int> TextEditing;
+
 		#endregion
 
 		#region Public Static Methods
@@ -59,6 +66,14 @@ namespace Microsoft.Xna.Framework.Input
 			if (TextInput != null)
 			{
 				TextInput(c);
+			}
+		}
+
+		internal static void OnTextEditing(string text, int start, int length)
+		{
+			if (TextEditing != null)
+			{
+				TextEditing(text, start, length);
 			}
 		}
 
