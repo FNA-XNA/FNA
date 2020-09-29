@@ -1031,6 +1031,7 @@ namespace Microsoft.Xna.Framework
 			for (bytes = 0; *ptr != 0; ptr += 1, bytes += 1);
 			return bytes;
 		}
+
 		public static bool NeedsPlatformMainLoop()
 		{
 			return SDL.SDL_GetPlatform().Equals("Emscripten");
