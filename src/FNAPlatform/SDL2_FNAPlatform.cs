@@ -988,7 +988,7 @@ namespace Microsoft.Xna.Framework
 				{
 					unsafe 
 					{
-						var bytes = MeasureStringLength(evt.edit.text);
+						int bytes = MeasureStringLength(evt.edit.text);
 						if (bytes > 0) 
 						{
 							char* charsBuffer = stackalloc char[bytes];
