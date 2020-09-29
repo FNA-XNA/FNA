@@ -961,8 +961,9 @@ namespace Microsoft.Xna.Framework
 					// Based on the SDL2# LPUtf8StrMarshaler
 					unsafe
 					{
-						var bytes = MeasureStringLength(evt.text.text);
-						if (bytes > 0) {
+						int bytes = MeasureStringLength(evt.text.text);
+						if (bytes > 0) 
+						{
 							/* UTF8 will never encode more characters
 							 * than bytes in a string, so bytes is a
 							 * suitable upper estimate of size needed
@@ -985,9 +986,11 @@ namespace Microsoft.Xna.Framework
 
 				else if (evt.type == SDL.SDL_EventType.SDL_TEXTEDITING) 
 				{
-					unsafe {
+					unsafe 
+					{
 						var bytes = MeasureStringLength(evt.edit.text);
-						if (bytes > 0) {
+						if (bytes > 0) 
+						{
 							char* charsBuffer = stackalloc char[bytes];
 							int chars = Encoding.UTF8.GetChars(
 								evt.edit.text,
@@ -997,7 +1000,9 @@ namespace Microsoft.Xna.Framework
 							);
 							var text = new string(charsBuffer, 0, chars);
 							TextInputEXT.OnTextEditing(text, evt.edit.start, evt.edit.length);
-						} else {
+						} 
+						else 
+						{
 							TextInputEXT.OnTextEditing(null, 0, 0);
 						}
 					}
@@ -1022,19 +1027,19 @@ namespace Microsoft.Xna.Framework
 
 		private unsafe static int MeasureStringLength (byte* ptr) {
 			// Based on the SDL2# LPUtf8StrMarshaler
-			unsafe {
-				byte* endPtr = ptr;
-				if (*endPtr != 0) {
-					int bytes = 0;
-					while (*endPtr != 0) {
-						endPtr++;
-						bytes += 1;
-					}
-					return bytes;
+			byte* endPtr = ptr;
+			if (*endPtr != 0) 
+			{
+				int bytes = 0;
+				while (*endPtr != 0) 
+				{
+					endPtr++;
+					bytes += 1;
 				}
-
-				return 0;
+				return bytes;
 			}
+
+			return 0;
 		}
 
 		public static bool NeedsPlatformMainLoop()

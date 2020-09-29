@@ -13,8 +13,6 @@ using System;
 
 namespace Microsoft.Xna.Framework.Input
 {
-	public delegate void TextEditingEventHandlerEXT (string text, int start, int length);
-
 	public static class TextInputEXT
 	{
 		#region Event
@@ -33,7 +31,7 @@ namespace Microsoft.Xna.Framework.Input
 		///  and allows you to display the draft text appropriately before it has become input.
 		/// For more information, see SDL's tutorial: https://wiki.libsdl.org/Tutorials/TextInput
 		/// </summary>
-		public static event TextEditingEventHandlerEXT TextEditing;
+		public static event Action<string, int, int> TextEditing;
 
 		#endregion
 
