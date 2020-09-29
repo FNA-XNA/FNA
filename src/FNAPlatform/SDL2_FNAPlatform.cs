@@ -998,7 +998,7 @@ namespace Microsoft.Xna.Framework
 								charsBuffer,
 								bytes
 							);
-							var text = new string(charsBuffer, 0, chars);
+							string text = new string(charsBuffer, 0, chars);
 							TextInputEXT.OnTextEditing(text, evt.edit.start, evt.edit.length);
 						} 
 						else 
