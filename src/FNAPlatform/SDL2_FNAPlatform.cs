@@ -1025,23 +1025,12 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		private unsafe static int MeasureStringLength (byte* ptr) {
-			// Based on the SDL2# LPUtf8StrMarshaler
-			byte* endPtr = ptr;
-			if (*endPtr != 0) 
-			{
-				int bytes = 0;
-				while (*endPtr != 0) 
-				{
-					endPtr++;
-					bytes += 1;
-				}
-				return bytes;
-			}
-
-			return 0;
+		private unsafe static int MeasureStringLength(byte* ptr)
+		{
+			int bytes;
+			for (bytes = 0; *ptr != 0; ptr += 1, bytes += 1);
+			return bytes;
 		}
-
 		public static bool NeedsPlatformMainLoop()
 		{
 			return SDL.SDL_GetPlatform().Equals("Emscripten");
