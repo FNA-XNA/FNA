@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 #endregion
 
@@ -288,5 +289,241 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		#endregion
+
+
+		#region Public Static Texture2D Extensions
+
+		// DDS loading extension, based on MojoDDS
+		public static TextureCube DDSFromStreamEXT(
+			GraphicsDevice graphicsDevice,
+			Stream stream
+		)
+		{
+			// A whole bunch of magic numbers, yay DDS!
+			const uint DDS_MAGIC = 0x20534444;
+			const uint DDS_HEADERSIZE = 124;
+			const uint DDS_PIXFMTSIZE = 32;
+			const uint DDSD_CAPS = 0x1;
+			const uint DDSD_HEIGHT = 0x2;
+			const uint DDSD_WIDTH = 0x4;
+			const uint DDSD_PITCH = 0x8;
+			const uint DDSD_CUBEMAP = 0x200; // DDSCAPS2_CUBEMAP
+			const uint DDSD_FMT = 0x1000;
+			const uint DDSD_LINEARSIZE = 0x80000;
+			const uint DDSD_REQ = (
+				DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_FMT
+			);
+			const uint DDSCAPS_MIPMAP = 0x400000;
+			const uint DDSCAPS_TEXTURE = 0x1000;
+			const uint DDPF_FOURCC = 0x4;
+			const uint DDPF_RGB = 0x40;
+			const uint FOURCC_DXT1 = 0x31545844;
+			const uint FOURCC_DXT3 = 0x33545844;
+			const uint FOURCC_DXT5 = 0x35545844;
+			// const uint FOURCC_DX10 = 0x30315844;
+			const uint pitchAndLinear = (
+				DDSD_PITCH | DDSD_LINEARSIZE
+			);
+
+			TextureCube result;
+
+			// Begin BinaryReader, ignoring a tab!
+			using (BinaryReader reader = new BinaryReader(stream))
+			{
+
+				// File should start with 'DDS '
+				if (reader.ReadUInt32() != DDS_MAGIC)
+				{
+					return null;
+				}
+
+				// Texture info
+				uint size = reader.ReadUInt32();
+				if (size != DDS_HEADERSIZE)
+				{
+					return null;
+				}
+				uint flags = reader.ReadUInt32();
+				if ((flags & DDSD_REQ) != DDSD_REQ)
+				{
+					return null;
+				}
+				if ((flags & pitchAndLinear) == pitchAndLinear)
+				{
+					return null;
+				}
+				int height = reader.ReadInt32();
+				int width = reader.ReadInt32();
+				reader.ReadUInt32(); // dwPitchOrLinearSize, unused
+				reader.ReadUInt32(); // dwDepth, unused
+				int levels = reader.ReadInt32();
+
+				// "Reserved"
+				reader.ReadBytes(4 * 11);
+
+				// Format info
+				uint formatSize = reader.ReadUInt32();
+				if (formatSize != DDS_PIXFMTSIZE)
+				{
+					return null;
+				}
+				uint formatFlags = reader.ReadUInt32();
+				uint formatFourCC = reader.ReadUInt32();
+				uint formatRGBBitCount = reader.ReadUInt32();
+				uint formatRBitMask = reader.ReadUInt32();
+				uint formatGBitMask = reader.ReadUInt32();
+				uint formatBBitMask = reader.ReadUInt32();
+				uint formatABitMask = reader.ReadUInt32();
+
+				// dwCaps "stuff"
+				uint caps = reader.ReadUInt32();
+				if ((caps & DDSCAPS_TEXTURE) == 0)
+				{
+					return null;
+				}
+				uint caps2 = reader.ReadUInt32();
+				// We're only supporting cubemaps here
+				if ((caps2 & DDSD_CUBEMAP) != DDSD_CUBEMAP)
+					return null;
+
+				reader.ReadUInt32(); // dwCaps3, unused
+				reader.ReadUInt32(); // dwCaps4, unused
+
+				// "Reserved"
+				reader.ReadUInt32();
+
+				// Mipmap sanity check
+				if ((caps & DDSCAPS_MIPMAP) != DDSCAPS_MIPMAP)
+				{
+					levels = 1;
+				}
+
+				// Determine texture format
+				SurfaceFormat format;
+				int levelSize;
+				int blockSize = 0;
+				if ((formatFlags & DDPF_FOURCC) == DDPF_FOURCC)
+				{
+					if (formatFourCC == FOURCC_DXT1)
+					{
+						format = SurfaceFormat.Dxt1;
+						blockSize = 8;
+					}
+					else if (formatFourCC == FOURCC_DXT3)
+					{
+						format = SurfaceFormat.Dxt3;
+						blockSize = 16;
+					}
+					else if (formatFourCC == FOURCC_DXT5)
+					{
+						format = SurfaceFormat.Dxt5;
+						blockSize = 16;
+					}
+					else
+					{
+						throw new NotSupportedException(
+							"Unsupported DDS texture format"
+						);
+					}
+					levelSize = (
+						((width > 0 ? ((width + 3) / 4) : 1) * blockSize) *
+						(height > 0 ? ((height + 3) / 4) : 1)
+					);
+				}
+				else if ((formatFlags & DDPF_RGB) == DDPF_RGB)
+				{
+					if (formatRGBBitCount != 32 ||
+						formatRBitMask != 0x00FF0000 ||
+						formatGBitMask != 0x0000FF00 ||
+						formatBBitMask != 0x000000FF ||
+						formatABitMask != 0xFF000000)
+					{
+						throw new NotSupportedException(
+							"Unsupported DDS texture format"
+						);
+					}
+
+					format = SurfaceFormat.ColorBgraEXT;
+					levelSize = (int)(
+						(((width * formatRGBBitCount) + 7) / 8) *
+						height
+					);
+				}
+				else
+				{
+					throw new NotSupportedException(
+						"Unsupported DDS texture format"
+					);
+				}
+
+				// Allocate/Load texture
+				result = new TextureCube(
+					graphicsDevice,
+					width,
+					levels > 1,
+					format
+				);
+
+				byte[] tex = null;
+				if (stream is MemoryStream &&
+					((MemoryStream)stream).TryGetBuffer(out tex))
+				{
+					for (int face = 0; face < 6; face += 1)
+                    {
+						int mipLevelSize = levelSize;
+						for (int i = 0; i < levels; i += 1)
+						{
+							result.SetData(
+								(CubeMapFace)face,
+								i,
+								null,
+								tex,
+								(int)stream.Seek(0, SeekOrigin.Current),
+								mipLevelSize
+							);
+							stream.Seek(
+								mipLevelSize,
+								SeekOrigin.Current
+							);
+							mipLevelSize = Math.Max(
+								mipLevelSize >> 2,
+								blockSize
+							);
+						}
+					}
+				}
+				else
+				{
+					for (int face = 0; face < 6; face += 1)
+                    {
+						int mipLevelSize = levelSize;
+						for (int i = 0; i < levels; i += 1)
+						{
+							tex = reader.ReadBytes(mipLevelSize);
+							result.SetData(
+								(CubeMapFace)face,
+								i,
+								null,
+								tex,
+								0,
+								tex.Length
+							);
+							mipLevelSize = Math.Max(
+								mipLevelSize >> 2,
+								blockSize
+							);
+						}
+					}
+				}
+
+				// End BinaryReader
+			}
+
+			// Finally.
+			return result;
+		}
+
+#endregion
+
 	}
 }

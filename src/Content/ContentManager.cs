@@ -282,7 +282,11 @@ namespace Microsoft.Xna.Framework.Content
 				modifiedAssetName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(
 					Path.Combine(RootDirectoryFullPath, assetName)
 				);
-				if (typeof(T) == typeof(Texture2D) || typeof(T) == typeof(Texture))
+				if (typeof(T) == typeof(TextureCube))
+				{
+					modifiedAssetName = TextureCubeReader.Normalize(modifiedAssetName);
+				}
+				else if (typeof(T) == typeof(Texture2D) || typeof(T) == typeof(Texture))
 				{
 					modifiedAssetName = Texture2DReader.Normalize(modifiedAssetName);
 				}
@@ -346,15 +350,21 @@ namespace Microsoft.Xna.Framework.Content
 				// FIXME: Assuming seekable streams! -flibit
 				stream.Seek(0, SeekOrigin.Begin);
 
-				if (typeof(T) == typeof(Texture2D) || typeof(T) == typeof(Texture))
+				if (typeof(T) == typeof(TextureCube) || typeof(T) == typeof(Texture2D) || typeof(T) == typeof(Texture))
 				{
-					Texture2D texture;
-					if (	xnbHeader[0] == 'D' &&
+					Texture texture;
+					if (xnbHeader[0] == 'D' &&
 						xnbHeader[1] == 'D' &&
 						xnbHeader[2] == 'S' &&
 						xnbHeader[3] == ' '	)
 					{
-						texture = Texture2D.DDSFromStreamEXT(
+						if (typeof(T) == typeof(TextureCube))
+							texture = TextureCube.DDSFromStreamEXT(
+								GetGraphicsDevice(),
+								stream
+							);
+						else
+							texture = Texture2D.DDSFromStreamEXT(
 							GetGraphicsDevice(),
 							stream
 						);
