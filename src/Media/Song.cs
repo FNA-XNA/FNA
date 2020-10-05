@@ -86,7 +86,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		#endregion
 
-		#region Constructors, Deconstructor, Dispose()
+		#region Constructors, Destructor, Dispose()
 
 		internal Song(string fileName, string name = null)
 		{
