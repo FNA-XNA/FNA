@@ -29,7 +29,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			set
 			{
 				FNA3D.FNA3D_SetEffectTechnique(
-					GraphicsDevice.GLDevice,
+					GraphicsDevice.NativeDevice,
 					glEffect,
 					value.TechniquePointer
 				);
@@ -217,10 +217,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			GraphicsDevice = graphicsDevice;
 
-			// Send the blob to the GLDevice to be parsed/compiled
+			// Send the blob to the NativeDevice to be parsed/compiled
 			IntPtr effectData;
 			FNA3D.FNA3D_CreateEffect(
-				graphicsDevice.GLDevice,
+				graphicsDevice.NativeDevice,
 				effectCode,
 				effectCode.Length,
 				out glEffect,
@@ -258,7 +258,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Send the parsed data to be cloned and recompiled by MojoShader
 			IntPtr effectData;
 			FNA3D.FNA3D_CloneEffect(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				cloneSource.glEffect,
 				out glEffect,
 				out effectData
@@ -316,7 +316,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (glEffect != IntPtr.Zero)
 				{
 					FNA3D.FNA3D_AddDisposeEffect(
-						GraphicsDevice.GLDevice,
+						GraphicsDevice.NativeDevice,
 						glEffect
 					);
 				}
@@ -340,7 +340,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal unsafe void INTERNAL_applyEffect(uint pass)
 		{
 			FNA3D.FNA3D_ApplyEffect(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				glEffect,
 				pass,
 				stateChangesPtr

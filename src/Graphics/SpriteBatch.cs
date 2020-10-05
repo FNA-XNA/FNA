@@ -176,7 +176,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			beginCalled = false;
 			numSprites = 0;
 			supportsNoOverwrite = FNA3D.FNA3D_SupportsNoOverwrite(
-				GraphicsDevice.GLDevice
+				GraphicsDevice.NativeDevice
 			) == 1;
 		}
 

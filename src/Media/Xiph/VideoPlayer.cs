@@ -167,7 +167,7 @@ namespace Microsoft.Xna.Framework.Media
 		{
 			// Begin the effect, flagging to restore previous state on end
 			FNA3D.FNA3D_BeginPassRestore(
-				currentDevice.GLDevice,
+				currentDevice.NativeDevice,
 				shaderProgram.glEffect,
 				stateChangesPtr
 			);
@@ -197,7 +197,7 @@ namespace Microsoft.Xna.Framework.Media
 						videoTexture
 					);
 					FNA3D.FNA3D_SetRenderTargets(
-						currentDevice.GLDevice,
+						currentDevice.NativeDevice,
 						rt,
 						videoTexture.Length,
 						IntPtr.Zero,
@@ -218,7 +218,7 @@ namespace Microsoft.Xna.Framework.Media
 			// Prep viewport
 			prevViewport = currentDevice.Viewport;
 			FNA3D.FNA3D_SetViewport(
-				currentDevice.GLDevice,
+				currentDevice.NativeDevice,
 				ref viewport.viewport
 			);
 		}
@@ -227,7 +227,7 @@ namespace Microsoft.Xna.Framework.Media
 		{
 			// End the effect, restoring the previous shader state
 			FNA3D.FNA3D_EndPassRestore(
-				currentDevice.GLDevice,
+				currentDevice.NativeDevice,
 				shaderProgram.glEffect
 			);
 
@@ -239,13 +239,13 @@ namespace Microsoft.Xna.Framework.Media
 			prevDepthStencil = null;
 			prevRasterizer = null;
 
-			/* Restore targets using GLDevice directly.
+			/* Restore targets using NativeDevice directly.
 			 * This prevents accidental clearing of previously bound targets.
 			 */
 			if (oldTargets == null || oldTargets.Length == 0)
 			{
 				FNA3D.FNA3D_SetRenderTargets(
-					currentDevice.GLDevice,
+					currentDevice.NativeDevice,
 					IntPtr.Zero,
 					0,
 					IntPtr.Zero,
@@ -266,7 +266,7 @@ namespace Microsoft.Xna.Framework.Media
 							oldTargets
 						);
 						FNA3D.FNA3D_SetRenderTargets(
-							currentDevice.GLDevice,
+							currentDevice.NativeDevice,
 							rt,
 							oldTargets.Length,
 							oldTarget.DepthStencilBuffer,
@@ -280,7 +280,7 @@ namespace Microsoft.Xna.Framework.Media
 
 			// Set viewport AFTER setting targets!
 			FNA3D.FNA3D_SetViewport(
-				currentDevice.GLDevice,
+				currentDevice.NativeDevice,
 				ref prevViewport.viewport
 			);
 
@@ -769,7 +769,7 @@ namespace Microsoft.Xna.Framework.Media
 		{
 			// Prepare YUV GL textures with our current frame data
 			FNA3D.FNA3D_SetTextureDataYUV(
-				currentDevice.GLDevice,
+				currentDevice.NativeDevice,
 				yuvTextures[0].texture,
 				yuvTextures[1].texture,
 				yuvTextures[2].texture,

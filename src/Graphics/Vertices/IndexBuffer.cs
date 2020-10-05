@@ -113,7 +113,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int stride = (indexElementSize == IndexElementSize.ThirtyTwoBits) ? 4 : 2;
 
 			buffer = FNA3D.FNA3D_GenIndexBuffer(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				(byte) (dynamic ? 1 : 0),
 				usage,
 				IndexCount * stride
@@ -129,7 +129,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (!IsDisposed)
 			{
 				FNA3D.FNA3D_AddDisposeIndexBuffer(
-					GraphicsDevice.GLDevice,
+					GraphicsDevice.NativeDevice,
 					buffer
 				);
 			}
@@ -188,7 +188,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_GetIndexBufferData(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				buffer,
 				offsetInBytes,
 				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
@@ -205,7 +205,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetIndexBufferData(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				buffer,
 				0,
 				handle.AddrOfPinnedObject(),
@@ -224,7 +224,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetIndexBufferData(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				buffer,
 				0,
 				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
@@ -244,7 +244,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetIndexBufferData(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				buffer,
 				offsetInBytes,
 				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
@@ -265,7 +265,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			SetDataOptions options
 		) {
 			FNA3D.FNA3D_SetIndexBufferData(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				buffer,
 				offsetInBytes,
 				data,

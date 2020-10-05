@@ -182,7 +182,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			/* TODO: This method could be genuinely useful!
 			 * Maybe look into the difference between Reach/HiDef and add the
-			 * appropriate properties to the GLDevice.
+			 * appropriate properties to the NativeDevice.
 			 * -flibit
 			 */
 			return true;

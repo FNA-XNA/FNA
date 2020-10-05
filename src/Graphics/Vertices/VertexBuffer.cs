@@ -102,7 +102,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			buffer = FNA3D.FNA3D_GenVertexBuffer(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				(byte) (dynamic ? 1 : 0),
 				bufferUsage,
 				VertexCount * VertexDeclaration.VertexStride
@@ -118,7 +118,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (!IsDisposed)
 			{
 				FNA3D.FNA3D_AddDisposeVertexBuffer(
-					GraphicsDevice.GLDevice,
+					GraphicsDevice.NativeDevice,
 					buffer
 				);
 			}
@@ -197,7 +197,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_GetVertexBufferData(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				buffer,
 				offsetInBytes,
 				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
@@ -249,7 +249,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetVertexBufferData(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				buffer,
 				offsetInBytes,
 				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
@@ -272,7 +272,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			SetDataOptions options
 		) {
 			FNA3D.FNA3D_SetVertexBufferData(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				buffer,
 				offsetInBytes,
 				data,

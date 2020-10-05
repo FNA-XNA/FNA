@@ -69,7 +69,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			texture = FNA3D.FNA3D_CreateTextureCube(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				Format,
 				Size,
 				LevelCount,
@@ -143,7 +143,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetTextureDataCube(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				texture,
 				xOffset,
 				yOffset,
@@ -186,7 +186,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			FNA3D.FNA3D_SetTextureDataCube(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				texture,
 				xOffset,
 				yOffset,
@@ -273,7 +273,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_GetTextureDataCube(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				texture,
 				subX,
 				subY,

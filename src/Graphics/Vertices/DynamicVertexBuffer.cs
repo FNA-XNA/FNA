@@ -84,7 +84,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetVertexBufferData(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				buffer,
 				offsetInBytes,
 				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
@@ -107,7 +107,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetVertexBufferData(
-				GraphicsDevice.GLDevice,
+				GraphicsDevice.NativeDevice,
 				buffer,
 				0,
 				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),

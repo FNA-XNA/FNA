@@ -74,11 +74,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (PresentationParameters.IsFullScreen)
 				{
 					int w, h;
-					FNA3D.FNA3D_GetBackbufferSize(GLDevice, out w, out h);
+					FNA3D.FNA3D_GetBackbufferSize(NativeDevice, out w, out h);
 					return new DisplayMode(
 						w,
 						h,
-						FNA3D.FNA3D_GetBackbufferSurfaceFormat(GLDevice)
+						FNA3D.FNA3D_GetBackbufferSurfaceFormat(NativeDevice)
 					);
 				}
 				return Adapter.CurrentDisplayMode;
@@ -158,7 +158,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				INTERNAL_scissorRectangle = value;
 				FNA3D.FNA3D_SetScissorRect(
-					GLDevice,
+					NativeDevice,
 					ref value
 				);
 			}
@@ -179,7 +179,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				INTERNAL_viewport = value;
 				FNA3D.FNA3D_SetViewport(
-					GLDevice,
+					NativeDevice,
 					ref value.viewport
 				);
 			}
@@ -190,7 +190,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			get
 			{
 				Color result;
-				FNA3D.FNA3D_GetBlendFactor(GLDevice, out result);
+				FNA3D.FNA3D_GetBlendFactor(NativeDevice, out result);
 				return result;
 			}
 			set
@@ -199,7 +199,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * BlendState?
 				 * -flibit
 				 */
-				FNA3D.FNA3D_SetBlendFactor(GLDevice, ref value);
+				FNA3D.FNA3D_SetBlendFactor(NativeDevice, ref value);
 			}
 		}
 
@@ -207,7 +207,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return FNA3D.FNA3D_GetMultiSampleMask(GLDevice);
+				return FNA3D.FNA3D_GetMultiSampleMask(NativeDevice);
 			}
 			set
 			{
@@ -215,7 +215,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * BlendState?
 				 * -flibit
 				 */
-				FNA3D.FNA3D_SetMultiSampleMask(GLDevice, value);
+				FNA3D.FNA3D_SetMultiSampleMask(NativeDevice, value);
 			}
 		}
 
@@ -223,7 +223,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return FNA3D.FNA3D_GetReferenceStencil(GLDevice);
+				return FNA3D.FNA3D_GetReferenceStencil(NativeDevice);
 			}
 			set
 			{
@@ -231,7 +231,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * DepthStencilState?
 				 * -flibit
 				 */
-				FNA3D.FNA3D_SetReferenceStencil(GLDevice, value);
+				FNA3D.FNA3D_SetReferenceStencil(NativeDevice, value);
 			}
 		}
 
@@ -249,7 +249,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal FNA3D_Device
 
-		internal readonly IntPtr GLDevice;
+		internal readonly IntPtr NativeDevice;
 
 		#endregion
 
@@ -398,7 +398,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Set up the FNA3D Device
 			try
 			{
-				GLDevice = FNA3D.FNA3D_CreateDevice(
+				NativeDevice = FNA3D.FNA3D_CreateDevice(
 					ref PresentationParameters.parameters,
 #if DEBUG
 					1
@@ -430,7 +430,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Initialize the Texture/Sampler state containers
 			int maxTextures, maxVertexTextures;
 			FNA3D.FNA3D_GetMaxTextureSlots(
-				GLDevice,
+				NativeDevice,
 				out maxTextures,
 				out maxVertexTextures
 			);
@@ -501,20 +501,20 @@ namespace Microsoft.Xna.Framework.Graphics
 					if (userVertexBuffer != IntPtr.Zero)
 					{
 						FNA3D.FNA3D_AddDisposeVertexBuffer(
-							GLDevice,
+							NativeDevice,
 							userVertexBuffer
 						);
 					}
 					if (userIndexBuffer != IntPtr.Zero)
 					{
 						FNA3D.FNA3D_AddDisposeIndexBuffer(
-							GLDevice,
+							NativeDevice,
 							userIndexBuffer
 						);
 					}
 
 					// Dispose of the GL Device/Context
-					FNA3D.FNA3D_DestroyDevice(GLDevice);
+					FNA3D.FNA3D_DestroyDevice(NativeDevice);
 				}
 
 				IsDisposed = true;
@@ -548,7 +548,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void Present()
 		{
 			FNA3D.FNA3D_SwapBuffers(
-				GLDevice,
+				NativeDevice,
 				IntPtr.Zero,
 				IntPtr.Zero,
 				PresentationParameters.DeviceWindowHandle
@@ -569,7 +569,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				Rectangle src = sourceRectangle.Value;
 				Rectangle dst = destinationRectangle.Value;
 				FNA3D.FNA3D_SwapBuffers(
-					GLDevice,
+					NativeDevice,
 					ref src,
 					ref dst,
 					overrideWindowHandle
@@ -579,7 +579,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				Rectangle src = sourceRectangle.Value;
 				FNA3D.FNA3D_SwapBuffers(
-					GLDevice,
+					NativeDevice,
 					ref src,
 					IntPtr.Zero,
 					overrideWindowHandle
@@ -589,7 +589,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				Rectangle dst = destinationRectangle.Value;
 				FNA3D.FNA3D_SwapBuffers(
-					GLDevice,
+					NativeDevice,
 					IntPtr.Zero,
 					ref dst,
 					overrideWindowHandle
@@ -598,7 +598,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			else
 			{
 				FNA3D.FNA3D_SwapBuffers(
-					GLDevice,
+					NativeDevice,
 					IntPtr.Zero,
 					IntPtr.Zero,
 					overrideWindowHandle
@@ -633,7 +633,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Verify MSAA before we really start...
 			PresentationParameters.MultiSampleCount = FNA3D.FNA3D_GetMaxMultiSampleCount(
-				GLDevice,
+				NativeDevice,
 				PresentationParameters.BackBufferFormat,
 				MathHelper.ClosestMSAAPower(PresentationParameters.MultiSampleCount)
 			);
@@ -662,11 +662,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			*/
 
 			/* Reset the backbuffer first, before doing anything else.
-			 * The GLDevice needs to know what we're up to right away.
+			 * The NativeDevice needs to know what we're up to right away.
 			 * -flibit
 			 */
 			FNA3D.FNA3D_ResetBackbuffer(
-				GLDevice,
+				NativeDevice,
 				ref PresentationParameters.parameters
 			);
 
@@ -734,7 +734,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * a more accurate value here, but the Backbuffer may disagree.
 				 * -flibit
 				 */
-				dsFormat = FNA3D.FNA3D_GetBackbufferDepthFormat(GLDevice);
+				dsFormat = FNA3D.FNA3D_GetBackbufferDepthFormat(NativeDevice);
 			}
 			else
 			{
@@ -749,7 +749,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				options &= ~ClearOptions.Stencil;
 			}
 			FNA3D.FNA3D_Clear(
-				GLDevice,
+				NativeDevice,
 				options,
 				ref color,
 				depth,
@@ -786,7 +786,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				x = 0;
 				y = 0;
 				FNA3D.FNA3D_GetBackbufferSize(
-					GLDevice,
+					NativeDevice,
 					out w,
 					out h
 				);
@@ -801,13 +801,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
 			Texture.ValidateGetDataFormat(
-				FNA3D.FNA3D_GetBackbufferSurfaceFormat(GLDevice),
+				FNA3D.FNA3D_GetBackbufferSurfaceFormat(NativeDevice),
 				elementSizeInBytes
 			);
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_ReadBackbuffer(
-				GLDevice,
+				NativeDevice,
 				x,
 				y,
 				w,
@@ -879,7 +879,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (renderTargets == null || renderTargets.Length == 0)
 			{
 				FNA3D.FNA3D_SetRenderTargets(
-					GLDevice,
+					NativeDevice,
 					IntPtr.Zero,
 					0,
 					IntPtr.Zero,
@@ -895,7 +895,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Resolve previous targets, if needed
 				for (int i = 0; i < renderTargetCount; i += 1)
 				{
-					FNA3D.FNA3D_ResolveTarget(GLDevice, ref nativeTargetBindings[i]);
+					FNA3D.FNA3D_ResolveTarget(NativeDevice, ref nativeTargetBindings[i]);
 				}
 				Array.Clear(renderTargetBindings, 0, renderTargetBindings.Length);
 				Array.Clear(nativeTargetBindings, 0, nativeTargetBindings.Length);
@@ -910,7 +910,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						PrepareRenderTargetBindings(rt, renderTargets);
 						FNA3D.FNA3D_SetRenderTargets(
-							GLDevice,
+							NativeDevice,
 							rt,
 							renderTargets.Length,
 							target.DepthStencilBuffer,
@@ -942,7 +942,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						continue;
 					}
-					FNA3D.FNA3D_ResolveTarget(GLDevice, ref nativeTargetBindings[i]);
+					FNA3D.FNA3D_ResolveTarget(NativeDevice, ref nativeTargetBindings[i]);
 				}
 				Array.Clear(renderTargetBindings, 0, renderTargetBindings.Length);
 				Array.Copy(renderTargets, renderTargetBindings, renderTargets.Length);
@@ -1123,7 +1123,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			PrepareVertexBindingArray(baseVertex);
 
 			FNA3D.FNA3D_DrawIndexedPrimitives(
-				GLDevice,
+				NativeDevice,
 				primitiveType,
 				baseVertex,
 				minVertexIndex,
@@ -1145,7 +1145,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int instanceCount
 		) {
 			// If this device doesn't have the support, just explode now before it's too late.
-			if (FNA3D.FNA3D_SupportsHardwareInstancing(GLDevice) == 0)
+			if (FNA3D.FNA3D_SupportsHardwareInstancing(NativeDevice) == 0)
 			{
 				throw new NoSuitableGraphicsDeviceException("Your hardware does not support hardware instancing!");
 			}
@@ -1155,7 +1155,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			PrepareVertexBindingArray(baseVertex);
 
 			FNA3D.FNA3D_DrawInstancedPrimitives(
-				GLDevice,
+				NativeDevice,
 				primitiveType,
 				baseVertex,
 				minVertexIndex,
@@ -1182,7 +1182,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			PrepareVertexBindingArray(0);
 
 			FNA3D.FNA3D_DrawPrimitives(
-				GLDevice,
+				NativeDevice,
 				primitiveType,
 				vertexStart,
 				primitiveCount
@@ -1226,7 +1226,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			vbHandle.Free();
 
 			FNA3D.FNA3D_DrawIndexedPrimitives(
-				GLDevice,
+				NativeDevice,
 				primitiveType,
 				0,
 				0,
@@ -1272,7 +1272,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			vbHandle.Free();
 
 			FNA3D.FNA3D_DrawIndexedPrimitives(
-				GLDevice,
+				NativeDevice,
 				primitiveType,
 				0,
 				0,
@@ -1317,7 +1317,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			vbHandle.Free();
 
 			FNA3D.FNA3D_DrawIndexedPrimitives(
-				GLDevice,
+				NativeDevice,
 				primitiveType,
 				0,
 				0,
@@ -1363,7 +1363,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			vbHandle.Free();
 
 			FNA3D.FNA3D_DrawIndexedPrimitives(
-				GLDevice,
+				NativeDevice,
 				primitiveType,
 				0,
 				0,
@@ -1401,7 +1401,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			vbHandle.Free();
 
 			FNA3D.FNA3D_DrawPrimitives(
-				GLDevice,
+				NativeDevice,
 				primitiveType,
 				0,
 				primitiveCount
@@ -1431,7 +1431,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			vbHandle.Free();
 
 			FNA3D.FNA3D_DrawPrimitives(
-				GLDevice,
+				NativeDevice,
 				primitiveType,
 				0,
 				primitiveCount
@@ -1444,7 +1444,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetStringMarkerEXT(string text)
 		{
-			FNA3D.FNA3D_SetStringMarker(GLDevice, text);
+			FNA3D.FNA3D_SetStringMarker(NativeDevice, text);
 		}
 
 		#endregion
@@ -1457,7 +1457,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (currentBlend != nextBlend)
 			{
 				FNA3D.FNA3D_SetBlendState(
-					GLDevice,
+					NativeDevice,
 					ref nextBlend.state
 				);
 				currentBlend = nextBlend;
@@ -1465,7 +1465,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (currentDepthStencil != nextDepthStencil)
 			{
 				FNA3D.FNA3D_SetDepthStencilState(
-					GLDevice,
+					NativeDevice,
 					ref nextDepthStencil.state
 				);
 				currentDepthStencil = nextDepthStencil;
@@ -1473,7 +1473,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Always update RasterizerState, as it depends on other device states
 			FNA3D.FNA3D_ApplyRasterizerState(
-				GLDevice,
+				NativeDevice,
 				ref RasterizerState.state
 			);
 
@@ -1487,7 +1487,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				modifiedSamplers[sampler] = false;
 
 				FNA3D.FNA3D_VerifySampler(
-					GLDevice,
+					NativeDevice,
 					sampler,
 					(Textures[sampler] != null) ?
 						Textures[sampler].texture :
@@ -1512,7 +1512,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * -flibit
 				 */
 				FNA3D.FNA3D_VerifyVertexSampler(
-					GLDevice,
+					NativeDevice,
 					sampler,
 					(VertexTextures[sampler] != null) ?
 						VertexTextures[sampler].texture :
@@ -1537,7 +1537,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					b[i].instanceFrequency = vertexBufferBindings[i].InstanceFrequency;
 				}
 				FNA3D.FNA3D_ApplyVertexBufferBindings(
-					GLDevice,
+					NativeDevice,
 					b,
 					vertexBufferCount,
 					(byte) (vertexBuffersUpdated ? 1 : 0),
@@ -1562,13 +1562,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (userVertexBuffer != IntPtr.Zero)
 				{
 					FNA3D.FNA3D_AddDisposeVertexBuffer(
-						GLDevice,
+						NativeDevice,
 						userVertexBuffer
 					);
 				}
 
 				userVertexBuffer = FNA3D.FNA3D_GenVertexBuffer(
-					GLDevice,
+					NativeDevice,
 					1,
 					BufferUsage.WriteOnly,
 					len
@@ -1577,7 +1577,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			FNA3D.FNA3D_SetVertexBufferData(
-				GLDevice,
+				NativeDevice,
 				userVertexBuffer,
 				0,
 				vertexData + offset,
@@ -1595,7 +1595,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				b->vertexDeclaration.elements = vertexDeclaration.elementsPin;
 				b->vertexOffset = 0;
 				b->instanceFrequency = 0;
-				FNA3D.FNA3D_ApplyVertexBufferBindings(GLDevice, b, 1, 1, 0);
+				FNA3D.FNA3D_ApplyVertexBufferBindings(NativeDevice, b, 1, 1, 0);
 			}
 			vertexBuffersUpdated = true;
 		}
@@ -1612,13 +1612,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (userIndexBuffer != IntPtr.Zero)
 				{
 					FNA3D.FNA3D_AddDisposeIndexBuffer(
-						GLDevice,
+						NativeDevice,
 						userIndexBuffer
 					);
 				}
 
 				userIndexBuffer = FNA3D.FNA3D_GenIndexBuffer(
-					GLDevice,
+					NativeDevice,
 					1,
 					BufferUsage.WriteOnly,
 					len
@@ -1627,7 +1627,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			FNA3D.FNA3D_SetIndexBufferData(
-				GLDevice,
+				NativeDevice,
 				userIndexBuffer,
 				0,
 				indexData + (indexOffset * indexElementSizeInBytes),

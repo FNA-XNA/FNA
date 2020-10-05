@@ -138,7 +138,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			DepthStencilFormat = preferredDepthFormat;
 			MultiSampleCount = FNA3D.FNA3D_GetMaxMultiSampleCount(
-				graphicsDevice.GLDevice,
+				graphicsDevice.NativeDevice,
 				Format,
 				MathHelper.ClosestMSAAPower(preferredMultiSampleCount)
 			);
@@ -147,7 +147,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (MultiSampleCount > 0)
 			{
 				glColorBuffer = FNA3D.FNA3D_GenColorRenderbuffer(
-					graphicsDevice.GLDevice,
+					graphicsDevice.NativeDevice,
 					Width,
 					Height,
 					Format,
@@ -163,7 +163,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			glDepthStencilBuffer = FNA3D.FNA3D_GenDepthStencilRenderbuffer(
-				graphicsDevice.GLDevice,
+				graphicsDevice.NativeDevice,
 				Width,
 				Height,
 				DepthStencilFormat,
@@ -182,7 +182,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (glColorBuffer != IntPtr.Zero)
 				{
 					FNA3D.FNA3D_AddDisposeRenderbuffer(
-						GraphicsDevice.GLDevice,
+						GraphicsDevice.NativeDevice,
 						glColorBuffer
 					);
 				}
@@ -190,7 +190,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (glDepthStencilBuffer != IntPtr.Zero)
 				{
 					FNA3D.FNA3D_AddDisposeRenderbuffer(
-						GraphicsDevice.GLDevice,
+						GraphicsDevice.NativeDevice,
 						glDepthStencilBuffer
 					);
 				}
