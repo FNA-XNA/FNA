@@ -366,7 +366,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Constructor, Deconstructor, Dispose Methods
+		#region Constructor, Destructor, Dispose Methods
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="GraphicsDevice" /> class.

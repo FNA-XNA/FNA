@@ -224,7 +224,7 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Deconstructor
+		#region Destructor
 
 		~GraphicsDeviceManager()
 		{
