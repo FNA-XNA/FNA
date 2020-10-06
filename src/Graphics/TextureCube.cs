@@ -292,7 +292,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Static TextureCube Extensions
 
-		// DDS loading extension, based on MojoDDS
 		public static TextureCube DDSFromStreamEXT(
 			GraphicsDevice graphicsDevice,
 			Stream stream

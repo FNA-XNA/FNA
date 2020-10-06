@@ -484,7 +484,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D.FNA3D_Image_Free(pixPtr);
 		}
 
-		// DDS loading extension, based on MojoDDS
 		public static Texture2D DDSFromStreamEXT(
 			GraphicsDevice graphicsDevice,
 			Stream stream

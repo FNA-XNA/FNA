@@ -152,6 +152,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Static DDS Parser
 
+		// DDS loading extension, based on MojoDDS
 		internal static void ParseDDS(
 			BinaryReader reader,
 			out SurfaceFormat format,
