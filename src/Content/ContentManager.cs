@@ -286,6 +286,10 @@ namespace Microsoft.Xna.Framework.Content
 				{
 					modifiedAssetName = Texture2DReader.Normalize(modifiedAssetName);
 				}
+				else if (typeof(T) == typeof(TextureCube))
+				{
+					modifiedAssetName = Texture2DReader.Normalize(modifiedAssetName);
+				}
 				else if ((typeof(T) == typeof(SoundEffect)))
 				{
 					modifiedAssetName = SoundEffectReader.Normalize(modifiedAssetName);
@@ -366,6 +370,15 @@ namespace Microsoft.Xna.Framework.Content
 							stream
 						);
 					}
+					texture.Name = assetName;
+					result = texture;
+				}
+				else if (typeof(T) == typeof(TextureCube))
+				{
+					TextureCube texture = TextureCube.DDSFromStreamEXT(
+						GetGraphicsDevice(),
+						stream
+					);
 					texture.Name = assetName;
 					result = texture;
 				}

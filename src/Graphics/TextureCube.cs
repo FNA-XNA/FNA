@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 #endregion
 
@@ -285,6 +286,100 @@ namespace Microsoft.Xna.Framework.Graphics
 				elementCount * elementSizeInBytes
 			);
 			handle.Free();
+		}
+
+		#endregion
+
+		#region Public Static TextureCube Extensions
+
+		// DDS loading extension, based on MojoDDS
+		public static TextureCube DDSFromStreamEXT(
+			GraphicsDevice graphicsDevice,
+			Stream stream
+		) {
+			TextureCube result;
+
+			// Begin BinaryReader, ignoring a tab!
+			using (BinaryReader reader = new BinaryReader(stream))
+			{
+
+			int width, height, levels, levelSize, blockSize;
+			SurfaceFormat format;
+			Texture.ParseDDS(
+				reader,
+				out format,
+				out width,
+				out height,
+				out levels,
+				out levelSize,
+				out blockSize
+			);
+
+			// Allocate/Load texture
+			result = new TextureCube(
+				graphicsDevice,
+				width,
+				levels > 1,
+				format
+			);
+
+			byte[] tex = null;
+			if (	stream is MemoryStream &&
+				((MemoryStream) stream).TryGetBuffer(out tex)	)
+			{
+				for (int face = 0; face < 6; face += 1)
+				{
+					int mipLevelSize = levelSize;
+					for (int i = 0; i < levels; i += 1)
+					{
+						result.SetData(
+							(CubeMapFace) face,
+							i,
+							null,
+							tex,
+							(int) stream.Seek(0, SeekOrigin.Current),
+							mipLevelSize
+						);
+						stream.Seek(
+							mipLevelSize,
+							SeekOrigin.Current
+						);
+						mipLevelSize = Math.Max(
+							mipLevelSize >> 2,
+							blockSize
+						);
+					}
+				}
+			}
+			else
+			{
+				for (int face = 0; face < 6; face += 1)
+				{
+					int mipLevelSize = levelSize;
+					for (int i = 0; i < levels; i += 1)
+					{
+						tex = reader.ReadBytes(mipLevelSize);
+						result.SetData(
+							(CubeMapFace) face,
+							i,
+							null,
+							tex,
+							0,
+							tex.Length
+						);
+						mipLevelSize = Math.Max(
+							mipLevelSize >> 2,
+							blockSize
+						);
+					}
+				}
+			}
+
+			// End BinaryReader
+			}
+
+			// Finally.
+			return result;
 		}
 
 		#endregion
