@@ -490,8 +490,8 @@ namespace Microsoft.Xna.Framework.Audio
 					IntPtr.Zero
 				) != 0) {
 					FAudio.FAudio_Release(ctx);
-                    Handle = IntPtr.Zero;
-                    FNALoggerEXT.LogError(
+					Handle = IntPtr.Zero;
+					FNALoggerEXT.LogError(
 						"Failed to create mastering voice!"
 					);
 					return;
