@@ -654,9 +654,10 @@ namespace Microsoft.Xna.Framework.Audio
 					return;
 				}
 
-				var context = new FAudioContext(ctx, devices);
+				FAudioContext context = new FAudioContext(ctx, devices);
 
-				if (context.Handle == IntPtr.Zero) {
+				if (context.Handle == IntPtr.Zero)
+				{
 					/* Soundcard failed to configure, bail! */
 					context.Dispose();
 					return;
