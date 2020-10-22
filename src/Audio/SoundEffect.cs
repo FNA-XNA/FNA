@@ -490,7 +490,8 @@ namespace Microsoft.Xna.Framework.Audio
 					IntPtr.Zero
 				) != 0) {
 					FAudio.FAudio_Release(ctx);
-					FNALoggerEXT.LogError(
+                    Handle = IntPtr.Zero;
+                    FNALoggerEXT.LogError(
 						"Failed to create mastering voice!"
 					);
 					return;
@@ -517,8 +518,14 @@ namespace Microsoft.Xna.Framework.Audio
 					ReverbVoice = IntPtr.Zero;
 					Marshal.FreeHGlobal(reverbSends.pSends);
 				}
-				FAudio.FAudioVoice_DestroyVoice(MasterVoice);
-				FAudio.FAudio_Release(Handle);
+				if (MasterVoice != IntPtr.Zero) 
+				{
+					FAudio.FAudioVoice_DestroyVoice(MasterVoice);
+				}
+				if (Handle != IntPtr.Zero) 
+				{
+					FAudio.FAudio_Release(Handle);
+				}
 				Context = null;
 			}
 
@@ -647,7 +654,15 @@ namespace Microsoft.Xna.Framework.Audio
 					return;
 				}
 
-				Context = new FAudioContext(ctx, devices);
+				var context = new FAudioContext(ctx, devices);
+
+				if (context.Handle == IntPtr.Zero) {
+					/* Soundcard failed to configure, bail! */
+					context.Dispose();
+					return;
+				}
+
+				Context = context;
 			}
 		}
 
