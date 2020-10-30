@@ -362,6 +362,9 @@ namespace Microsoft.Xna.Framework.Audio
 			ushort wBitsPerSample;
 			// ushort cbSize;
 
+			int samplerLoopStart = 0;
+			int samplerLoopEnd = 0;
+
 			using (BinaryReader reader = new BinaryReader(stream))
 			{
 				// RIFF Signature
@@ -416,6 +419,51 @@ namespace Microsoft.Xna.Framework.Audio
 
 				int waveDataLength = reader.ReadInt32();
 				data = reader.ReadBytes(waveDataLength);
+
+				// Scan for other chunks
+				while (reader.PeekChar() != -1)
+				{
+					string chunkID = new string(reader.ReadChars(4));
+					int chunkDataSize = reader.ReadInt32();
+					if (chunkID == "smpl") // Sampler Chunk Found
+					{
+						reader.ReadUInt32(); // Manufacturer
+						reader.ReadUInt32(); // Product
+						reader.ReadUInt32(); // Sample Period
+						reader.ReadUInt32(); // MIDI Unity Note
+						reader.ReadUInt32(); // MIDI Pitch Fraction
+						reader.ReadUInt32(); // SMPTE Format
+						reader.ReadUInt32(); // SMPTE Offset
+						uint numSampleLoops = reader.ReadUInt32();
+						int samplerData = reader.ReadInt32();
+
+						for (int i = 0; i < numSampleLoops; i += 1)
+						{
+							reader.ReadUInt32(); // Cue Point ID
+							reader.ReadUInt32(); // Type
+							int start = reader.ReadInt32();
+							int end = reader.ReadInt32();
+							reader.ReadUInt32(); // Fraction
+							reader.ReadUInt32(); // Play Count
+
+							if (i == 0) // Grab loopStart and loopEnd from first sample loop
+							{
+								samplerLoopStart = start;
+								samplerLoopEnd = end;
+							}
+						}
+
+						if (samplerData != 0) // Read Sampler Data if it exists
+						{
+							reader.ReadBytes(samplerData);
+						}
+					}
+					else // Read unwanted chunk data and try again
+					{
+						reader.ReadBytes(chunkDataSize);
+					}
+				}
+				// End scan
 			}
 
 			return new SoundEffect(
@@ -429,8 +477,8 @@ namespace Microsoft.Xna.Framework.Audio
 				nAvgBytesPerSec,
 				nBlockAlign,
 				wBitsPerSample,
-				0,
-				0
+				samplerLoopStart,
+				samplerLoopEnd - samplerLoopStart
 			);
 		}
 
