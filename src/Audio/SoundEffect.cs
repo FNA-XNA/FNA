@@ -424,7 +424,7 @@ namespace Microsoft.Xna.Framework.Audio
 				while (reader.PeekChar() != -1)
 				{
 					string chunkID = new string(reader.ReadChars(4));
-					uint chunkDataSize = reader.ReadUInt32();
+					int chunkDataSize = reader.ReadInt32();
 					if (chunkID == "smpl") // Sampler Chunk Found
 					{
 						reader.ReadUInt32(); // Manufacturer
@@ -435,9 +435,9 @@ namespace Microsoft.Xna.Framework.Audio
 						reader.ReadUInt32(); // SMPTE Format
 						reader.ReadUInt32(); // SMPTE Offset
 						uint numSampleLoops = reader.ReadUInt32();
-						uint samplerData = reader.ReadUInt32();
+						int samplerData = reader.ReadInt32();
 
-						for (int i = 0; i < numSampleLoops; i++)
+						for (int i = 0; i < numSampleLoops; i += 1)
 						{
 							reader.ReadUInt32(); // Cue Point ID
 							reader.ReadUInt32(); // Type
@@ -455,12 +455,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 						if (samplerData != 0) // Read Sampler Data if it exists
 						{
-							reader.ReadBytes((int)samplerData);
+							reader.ReadBytes(samplerData);
 						}
 					}
 					else // Read unwanted chunk data and try again
 					{
-						reader.ReadBytes((int)chunkDataSize);
+						reader.ReadBytes(chunkDataSize);
 					}
 				}
 				// End scan
