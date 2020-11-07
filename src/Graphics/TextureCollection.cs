@@ -27,7 +27,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 #if DEBUG
 				// XNA checks for disposed textures here! -flibit
-				if (value != null && value.IsDisposed)
+				if (value != null)
 				{
 					if (value.IsDisposed)
 					{
