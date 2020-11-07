@@ -29,9 +29,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				// XNA checks for disposed textures here! -flibit
 				if (value != null && value.IsDisposed)
 				{
-					throw new ObjectDisposedException(
-						value.GetType().ToString()
-					);
+					if (value.IsDisposed)
+					{
+						throw new ObjectDisposedException(
+							value.GetType().ToString()
+						);
+					}
+					for (int i = 0; i < value.GraphicsDevice.renderTargetCount; i += 1)
+					{
+						if (value == value.GraphicsDevice.renderTargetBindings[i].RenderTarget)
+						{
+							throw new InvalidOperationException(
+								"The render target must not be set on the" +
+								" device when it is used as a texture."
+							);
+						}
+					}
 				}
 #endif
 				textures[index] = value;

@@ -305,14 +305,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private RenderTarget Variables
 
-		private readonly RenderTargetBinding[] renderTargetBindings =
+		// Some of these are internal for validation purposes
+
+		internal readonly RenderTargetBinding[] renderTargetBindings =
 			new RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
 		private FNA3D.FNA3D_RenderTargetBinding[] nativeTargetBindings =
 			new FNA3D.FNA3D_RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
 		private FNA3D.FNA3D_RenderTargetBinding[] nativeTargetBindingsNext =
 			new FNA3D.FNA3D_RenderTargetBinding[MAX_RENDERTARGET_BINDINGS];
 
-		private int renderTargetCount = 0;
+		internal int renderTargetCount = 0;
 
 		// Used to prevent allocs on SetRenderTarget()
 		private readonly RenderTargetBinding[] singleTargetCache = new RenderTargetBinding[1];
