@@ -886,7 +886,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					0,
 					IntPtr.Zero,
 					DepthFormat.None,
-					0
+					(byte) (PresentationParameters.RenderTargetUsage != RenderTargetUsage.DiscardContents ? 1 : 0) /* lol c# */
 				);
 
 				// Set the viewport/scissor to the size of the backbuffer.
