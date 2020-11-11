@@ -249,6 +249,15 @@ namespace Microsoft.Xna.Framework.Graphics
 					multiSampleCount == selectedMultiSampleCount	);
 		}
 
-		#endregion
-	}
+        #endregion
+
+        #region Internal Static Methods
+
+        internal static void AdaptersChanged()
+        {
+            adapters = null;
+        }
+
+        #endregion
+    }
 }
