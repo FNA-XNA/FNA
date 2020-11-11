@@ -934,6 +934,13 @@ namespace Microsoft.Xna.Framework
 				// Display Events
 				else if (evt.type == SDL.SDL_EventType.SDL_DISPLAYEVENT)
 				{
+					GraphicsAdapter.AdaptersChanged();
+
+					int displayIndex = SDL.SDL_GetWindowDisplayIndex(
+						game.Window.Handle
+					);
+					currentAdapter = GraphicsAdapter.Adapters[displayIndex];
+
 					// Orientation Change
 					if (evt.display.displayEvent == SDL.SDL_DisplayEventID.SDL_DISPLAYEVENT_ORIENTATION)
 					{

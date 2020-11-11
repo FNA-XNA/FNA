@@ -250,5 +250,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		#endregion
+
+		#region Internal Static Methods
+
+		internal static void AdaptersChanged()
+		{
+			adapters = null;
+		}
+
+		#endregion
 	}
 }
