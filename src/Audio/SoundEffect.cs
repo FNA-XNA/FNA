@@ -423,9 +423,19 @@ namespace Microsoft.Xna.Framework.Audio
 				// Scan for other chunks
 				while (reader.PeekChar() != -1)
 				{
-					string chunkID = new string(reader.ReadChars(4));
-					int chunkDataSize = reader.ReadInt32();
-					if (chunkID == "smpl") // Sampler Chunk Found
+					byte[] chunkIDBytes = reader.ReadBytes(4);
+					if (chunkIDBytes.Length < 4)
+					{
+						break; // EOL!
+					}
+					byte[] chunkSizeBytes = reader.ReadBytes(4);
+					if (chunkSizeBytes.Length < 4)
+					{
+						break; // EOL!
+					}
+					int chunkID = BitConverter.ToInt32(chunkIDBytes, 0);
+					int chunkDataSize = BitConverter.ToInt32(chunkSizeBytes, 0);
+					if (chunkID == 0x736D706C) // "smpl", Sampler Chunk Found
 					{
 						reader.ReadUInt32(); // Manufacturer
 						reader.ReadUInt32(); // Product
