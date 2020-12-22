@@ -100,6 +100,31 @@ namespace Microsoft.Xna.Framework.Input
 			FNAPlatform.SetGamePadLightBar((int) playerIndex, color);
 		}
 
+		public static bool SetTriggerVibrationEXT(PlayerIndex playerIndex, float leftTrigger, float rightTrigger)
+		{
+			return FNAPlatform.SetGamePadTriggerVibration(
+				(int) playerIndex,
+				leftTrigger,
+				rightTrigger
+			);
+		}
+
+		public static bool GetGyroEXT(PlayerIndex playerIndex, out Vector3 gyro)
+		{
+			return FNAPlatform.GetGamePadGyro(
+				(int) playerIndex,
+				out gyro
+			);
+		}
+
+		public static bool GetAccelerometerEXT(PlayerIndex playerIndex, out Vector3 accel)
+		{
+			return FNAPlatform.GetGamePadAccelerometer(
+				(int) playerIndex,
+				out accel
+			);
+		}
+
 		#endregion
 
 		#region Internal Static Methods

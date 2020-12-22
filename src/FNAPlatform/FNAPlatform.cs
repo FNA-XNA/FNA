@@ -110,8 +110,11 @@ namespace Microsoft.Xna.Framework
 			GetGamePadCapabilities =	SDL2_FNAPlatform.GetGamePadCapabilities;
 			GetGamePadState =		SDL2_FNAPlatform.GetGamePadState;
 			SetGamePadVibration =		SDL2_FNAPlatform.SetGamePadVibration;
+			SetGamePadTriggerVibration =	SDL2_FNAPlatform.SetGamePadTriggerVibration;
 			GetGamePadGUID =		SDL2_FNAPlatform.GetGamePadGUID;
 			SetGamePadLightBar =		SDL2_FNAPlatform.SetGamePadLightBar;
+			GetGamePadGyro = 		SDL2_FNAPlatform.GetGamePadGyro;
+			GetGamePadAccelerometer =	SDL2_FNAPlatform.GetGamePadAccelerometer;
 			GetStorageRoot =		SDL2_FNAPlatform.GetStorageRoot;
 			GetDriveInfo =			SDL2_FNAPlatform.GetDriveInfo;
 			ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
@@ -278,11 +281,24 @@ namespace Microsoft.Xna.Framework
 		);
 		public static readonly SetGamePadVibrationFunc SetGamePadVibration;
 
+		public delegate bool SetGamePadTriggerVibrationFunc(
+			int index,
+			float leftTrigger,
+			float rightTrigger
+		);
+		public static readonly SetGamePadTriggerVibrationFunc SetGamePadTriggerVibration;
+
 		public delegate string GetGamePadGUIDFunc(int index);
 		public static readonly GetGamePadGUIDFunc GetGamePadGUID;
 
 		public delegate void SetGamePadLightBarFunc(int index, Color color);
 		public static readonly SetGamePadLightBarFunc SetGamePadLightBar;
+
+		public delegate bool GetGamePadGyroFunc(int index, out Vector3 gyro);
+		public static readonly GetGamePadGyroFunc GetGamePadGyro;
+
+		public delegate bool GetGamePadAccelerometerFunc(int index, out Vector3 accel);
+		public static readonly GetGamePadAccelerometerFunc GetGamePadAccelerometer;
 
 		public delegate string GetStorageRootFunc();
 		public static readonly GetStorageRootFunc GetStorageRoot;
