@@ -358,8 +358,6 @@ namespace Microsoft.Xna.Framework
 		{
 			RunApplication = false;
 			suppressDraw = true;
-
-			OnExiting(this, EventArgs.Empty);
 		}
 
 		public void ResetElapsedTime()
@@ -865,7 +863,7 @@ namespace Microsoft.Xna.Framework
 				);
 				Tick();
 			}
-			Exit();
+			OnExiting(this, EventArgs.Empty);
 		}
 
 		#endregion
