@@ -1780,10 +1780,21 @@ namespace Microsoft.Xna.Framework
 				return false;
 			}
 
+			if (SDL.SDL_GameControllerIsSensorEnabled(
+				device,
+				SDL.SDL_SensorType.SDL_SENSOR_GYRO
+			) == SDL.SDL_bool.SDL_FALSE) {
+				SDL.SDL_GameControllerSetSensorEnabled(
+					device,
+					SDL.SDL_SensorType.SDL_SENSOR_GYRO,
+					SDL.SDL_bool.SDL_TRUE
+				);
+			}
+
 			unsafe
 			{
 				float* data = stackalloc float[3];
-				SDL.SDL_bool result = SDL.SDL_GameControllerGetSensorData(
+				int result = SDL.SDL_GameControllerGetSensorData(
 					device,
 					SDL.SDL_SensorType.SDL_SENSOR_GYRO,
 					(IntPtr) data,
@@ -1792,7 +1803,7 @@ namespace Microsoft.Xna.Framework
 				gyro.X = data[0];
 				gyro.Y = data[1];
 				gyro.Z = data[2];
-				return result == SDL.SDL_bool.SDL_TRUE;
+				return result == 0;
 			}
 		}
 
@@ -1805,10 +1816,21 @@ namespace Microsoft.Xna.Framework
 				return false;
 			}
 
+			if (SDL.SDL_GameControllerIsSensorEnabled(
+				device,
+				SDL.SDL_SensorType.SDL_SENSOR_ACCEL
+			) == SDL.SDL_bool.SDL_FALSE) {
+				SDL.SDL_GameControllerSetSensorEnabled(
+					device,
+					SDL.SDL_SensorType.SDL_SENSOR_ACCEL,
+					SDL.SDL_bool.SDL_TRUE
+				);
+			}
+
 			unsafe
 			{
 				float* data = stackalloc float[3];
-				SDL.SDL_bool result = SDL.SDL_GameControllerGetSensorData(
+				int result = SDL.SDL_GameControllerGetSensorData(
 					device,
 					SDL.SDL_SensorType.SDL_SENSOR_ACCEL,
 					(IntPtr) data,
@@ -1817,7 +1839,7 @@ namespace Microsoft.Xna.Framework
 				accel.X = data[0];
 				accel.Y = data[1];
 				accel.Z = data[2];
-				return result == SDL.SDL_bool.SDL_TRUE;
+				return result == 0;
 			}
 		}
 
