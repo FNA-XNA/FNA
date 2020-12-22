@@ -1794,16 +1794,19 @@ namespace Microsoft.Xna.Framework
 			unsafe
 			{
 				float* data = stackalloc float[3];
-				int result = SDL.SDL_GameControllerGetSensorData(
+				if (SDL.SDL_GameControllerGetSensorData(
 					device,
 					SDL.SDL_SensorType.SDL_SENSOR_GYRO,
 					(IntPtr) data,
 					3
-				);
+				) < 0) {
+					gyro = Vector3.Zero;
+					return false;
+				}
 				gyro.X = data[0];
 				gyro.Y = data[1];
 				gyro.Z = data[2];
-				return result == 0;
+				return true;
 			}
 		}
 
@@ -1830,16 +1833,19 @@ namespace Microsoft.Xna.Framework
 			unsafe
 			{
 				float* data = stackalloc float[3];
-				int result = SDL.SDL_GameControllerGetSensorData(
+				if (SDL.SDL_GameControllerGetSensorData(
 					device,
 					SDL.SDL_SensorType.SDL_SENSOR_ACCEL,
 					(IntPtr) data,
 					3
-				);
+				) < 0) {
+					accel = Vector3.Zero;
+					return false;
+				}
 				accel.X = data[0];
 				accel.Y = data[1];
 				accel.Z = data[2];
-				return result == 0;
+				return true;
 			}
 		}
 
