@@ -179,6 +179,12 @@ namespace Microsoft.Xna.Framework.Input
 			internal set;
 		}
 
+		public bool HasTriggerVibrationMotorsEXT
+		{
+			get;
+			internal set;
+		}
+
 		public bool HasMisc1EXT
 		{
 			get;

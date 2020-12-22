@@ -1922,6 +1922,12 @@ namespace Microsoft.Xna.Framework
 				0,
 				0
 			) == 0;
+			bool hasTriggerRumble = SDL.SDL_GameControllerRumbleTriggers(
+				INTERNAL_devices[which],
+				0,
+				0,
+				0
+			) == 0;
 
 			// An SDL_GameController _should_ always be complete...
 			GamePadCapabilities caps = new GamePadCapabilities();
@@ -2017,6 +2023,7 @@ namespace Microsoft.Xna.Framework
 			caps.HasLightBarEXT = SDL.SDL_GameControllerHasLED(
 				INTERNAL_devices[which]
 			) == SDL.SDL_bool.SDL_TRUE;
+			caps.HasTriggerVibrationMotorsEXT = hasTriggerRumble;
 			caps.HasMisc1EXT = SDL.SDL_GameControllerGetBindForButton(
 				INTERNAL_devices[which],
 				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_MISC1
