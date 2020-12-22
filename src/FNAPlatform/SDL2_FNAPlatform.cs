@@ -1734,7 +1734,7 @@ namespace Microsoft.Xna.Framework
 			) == 0;
 		}
 
-		public static bool SetGamePadTriggerVibration(int index, float leftMotor, float rightMotor)
+		public static bool SetGamePadTriggerVibration(int index, float leftTrigger, float rightTrigger)
 		{
 			IntPtr device = INTERNAL_devices[index];
 			if (device == IntPtr.Zero)
@@ -1744,8 +1744,8 @@ namespace Microsoft.Xna.Framework
 
 			return SDL.SDL_GameControllerRumbleTriggers(
 				device,
-				(ushort) (MathHelper.Clamp(leftMotor, 0.0f, 1.0f) * 0xFFFF),
-				(ushort) (MathHelper.Clamp(rightMotor, 0.0f, 1.0f) * 0xFFFF),
+				(ushort) (MathHelper.Clamp(leftTrigger, 0.0f, 1.0f) * 0xFFFF),
+				(ushort) (MathHelper.Clamp(rightTrigger, 0.0f, 1.0f) * 0xFFFF),
 				0
 			) == 0;
 		}
