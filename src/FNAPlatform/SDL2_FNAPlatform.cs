@@ -187,6 +187,13 @@ namespace Microsoft.Xna.Framework
 					"1"
 				);
 			}
+			if (args.TryGetValue("forcemailboxvsync", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA3D_VULKAN_FORCE_MAILBOX_VSYNC",
+					"1"
+				);
+			}
 
 			// This _should_ be the first real SDL call we make...
 			SDL.SDL_Init(
