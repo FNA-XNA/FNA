@@ -35,6 +35,7 @@ namespace Microsoft.Xna.Framework.Graphics
 							value.GetType().ToString()
 						);
 					}
+					if (!ignoreTargets)
 					for (int i = 0; i < value.GraphicsDevice.renderTargetCount; i += 1)
 					{
 						if (value == value.GraphicsDevice.renderTargetBindings[i].RenderTarget)
@@ -51,6 +52,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				modifiedSamplers[index] = true;
 			}
 		}
+
+		#endregion
+
+		#region Internal Variables
+
+		internal bool ignoreTargets;
 
 		#endregion
 
@@ -73,6 +80,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				textures[i] = null;
 			}
+			ignoreTargets = false;
 		}
 
 		#endregion

@@ -289,6 +289,7 @@ namespace Microsoft.Xna.Framework.Media
 			oldBuffers = null;
 
 			// Restore samplers
+			currentDevice.Textures.ignoreTargets = true;
 			for (int i = 0; i < 3; i += 1)
 			{
 				/* The application may have set a texture ages
@@ -303,6 +304,7 @@ namespace Microsoft.Xna.Framework.Media
 				oldTextures[i] = null;
 				oldSamplers[i] = null;
 			}
+			currentDevice.Textures.ignoreTargets = false;
 		}
 
 		#endregion
