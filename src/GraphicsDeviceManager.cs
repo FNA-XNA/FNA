@@ -343,7 +343,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (DeviceDisposing != null)
 			{
-				DeviceDisposing(sender, args);
+				DeviceDisposing(this, args);
 			}
 		}
 
@@ -351,7 +351,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (DeviceReset != null)
 			{
-				DeviceReset(sender, args);
+				DeviceReset(this, args);
 			}
 		}
 
@@ -359,7 +359,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (DeviceResetting != null)
 			{
-				DeviceResetting(sender, args);
+				DeviceResetting(this, args);
 			}
 		}
 
