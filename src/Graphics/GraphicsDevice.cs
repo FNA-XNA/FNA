@@ -852,6 +852,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetRenderTargets(params RenderTargetBinding[] renderTargets)
 		{
+			// D3D11 requires our sampler state to be valid (i.e. not point to any of our new RTs)
+			//  before we call SetRenderTargets. At this point FNA3D does not have a current copy
+			//  of the managed sampler state, so we need to apply our current state now instead of
+			//  before our next Clear or Draw operation.
+			ApplySamplers();
+
 			// Checking for redundant SetRenderTargets...
 			if (renderTargets == null && renderTargetCount == 0)
 			{
@@ -1479,6 +1485,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				ref RasterizerState.state
 			);
 
+			ApplySamplers();
+		}
+
+		private void ApplySamplers()
+		{
 			for (int sampler = 0; sampler < modifiedSamplers.Length; sampler += 1)
 			{
 				if (!modifiedSamplers[sampler])
