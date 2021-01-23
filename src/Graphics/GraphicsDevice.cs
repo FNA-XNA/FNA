@@ -729,6 +729,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void Clear(ClearOptions options, Vector4 color, float depth, int stencil)
 		{
+			ApplyState();
 			DepthFormat dsFormat;
 			if (renderTargetCount == 0)
 			{
@@ -852,6 +853,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetRenderTargets(params RenderTargetBinding[] renderTargets)
 		{
+			ApplyState();
 			// Checking for redundant SetRenderTargets...
 			if (renderTargets == null && renderTargetCount == 0)
 			{
