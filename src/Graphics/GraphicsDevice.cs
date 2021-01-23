@@ -854,8 +854,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			// D3D11 requires our sampler state to be valid (i.e. not point to any of our new RTs)
 			//  before we call SetRenderTargets. At this point FNA3D does not have a current copy
-            //  of the managed sampler state, so we need to apply our current state now instead of
-            //  before our next Clear or Draw operation.
+			//  of the managed sampler state, so we need to apply our current state now instead of
+			//  before our next Clear or Draw operation.
 			ApplySamplers();
 
 			// Checking for redundant SetRenderTargets...
