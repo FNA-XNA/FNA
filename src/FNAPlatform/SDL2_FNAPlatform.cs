@@ -275,21 +275,47 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
 			) | (SDL.SDL_WindowFlags) FNA3D.FNA3D_PrepareWindowAttributes();
 
-#if !DEBUG // Save pipeline cache files to the base directory for debug builds
 			if ((initFlags & SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN) == SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN)
 			{
-				string exeName = Path.GetFileNameWithoutExtension(
-					AppDomain.CurrentDomain.FriendlyName
-				).Replace(".vshost", "");
-				SDL.SDL_SetHint(
-					"FNA3D_VULKAN_PIPELINE_CACHE_FILE_NAME",
-					Path.Combine(
-						SDL.SDL_GetPrefPath(null, "FNA3D"),
-						exeName + "_Vulkan_PipelineCache.blob"
-					);
+				string cachePath = SDL.SDL_GetHint(
+					"FNA3D_VULKAN_PIPELINE_CACHE_FILE_NAME"
 				);
-			}
+				if (cachePath == null) // Empty is a valid value
+				{
+					if (	OSVersion.Equals("Windows") ||
+						OSVersion.Equals("Mac OS X") ||
+						OSVersion.Equals("Linux") ||
+						OSVersion.Equals("FreeBSD") ||
+						OSVersion.Equals("OpenBSD") ||
+						OSVersion.Equals("NetBSD")	)
+					{
+#if !DEBUG // Save pipeline cache files to the base directory for debug builds
+						string exeName = Path.GetFileNameWithoutExtension(
+							AppDomain.CurrentDomain.FriendlyName
+						).Replace(".vshost", "");
+						cachePath = Path.Combine(
+							SDL.SDL_GetPrefPath(null, "FNA3D"),
+							exeName + "_Vulkan_PipelineCache.blob"
+						);
 #endif
+					}
+					else
+					{
+						/* For all non-desktop targets, disable
+						 * the pipeline cache. There is usually
+						 * some specialized path you have to
+						 * take to use pipeline cache files, so
+						 * developers will have to do things the
+						 * hard way over there.
+						 */
+						cachePath = string.Empty;
+					}
+					SDL.SDL_SetHint(
+						"FNA3D_VULKAN_PIPELINE_CACHE_FILE_NAME",
+						cachePath
+					);
+				}
+			}
 
 			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
 			{
