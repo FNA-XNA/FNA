@@ -275,6 +275,22 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_WindowFlags.SDL_WINDOW_MOUSE_FOCUS
 			) | (SDL.SDL_WindowFlags) FNA3D.FNA3D_PrepareWindowAttributes();
 
+#if !DEBUG // Save pipeline cache files to the base directory for debug builds
+			if ((initFlags & SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN) == SDL.SDL_WindowFlags.SDL_WINDOW_VULKAN)
+			{
+				string exeName = Path.GetFileNameWithoutExtension(
+					AppDomain.CurrentDomain.FriendlyName
+				).Replace(".vshost", "");
+				SDL.SDL_SetHint(
+					"FNA3D_VULKAN_PIPELINE_CACHE_FILE_NAME",
+					Path.Combine(
+						SDL.SDL_GetPrefPath(null, "FNA3D"),
+						exeName + "_Vulkan_PipelineCache.blob"
+					);
+				);
+			}
+#endif
+
 			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
 			{
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI;
