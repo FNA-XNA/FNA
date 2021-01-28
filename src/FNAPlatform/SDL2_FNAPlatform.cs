@@ -289,7 +289,9 @@ namespace Microsoft.Xna.Framework
 						OSVersion.Equals("OpenBSD") ||
 						OSVersion.Equals("NetBSD")	)
 					{
-#if !DEBUG // Save pipeline cache files to the base directory for debug builds
+#if DEBUG // Save pipeline cache files to the base directory for debug builds
+						cachePath = "FNA3D_Vulkan_PipelineCache.blob";
+#else
 						string exeName = Path.GetFileNameWithoutExtension(
 							AppDomain.CurrentDomain.FriendlyName
 						).Replace(".vshost", "");
