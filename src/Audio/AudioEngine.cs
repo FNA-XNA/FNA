@@ -168,8 +168,7 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new NoAudioHardwareException();
 			}
 			rendererDetails = new RendererDetail[rendererCount];
-			char[] displayName = new char[0xFF];
-			char[] rendererID = new char[0xFF];
+			byte[] converted = new byte[0xFF * sizeof(short)];
 			for (ushort i = 0; i < rendererCount; i += 1)
 			{
 				FAudio.FACTRendererDetails details;
@@ -180,16 +179,12 @@ namespace Microsoft.Xna.Framework.Audio
 				);
 				unsafe
 				{
-					for (int j = 0; j < 0xFF; j += 1)
-					{
-						displayName[j] = (char) details.displayName[j];
-						rendererID[j] = (char) details.rendererID[j];
-					}
+					Marshal.Copy((IntPtr) details.displayName, converted, 0, converted.Length);
+					string name = System.Text.Encoding.Unicode.GetString(converted).TrimEnd('\0');
+					Marshal.Copy((IntPtr) details.rendererID, converted, 0, converted.Length);
+					string id = System.Text.Encoding.Unicode.GetString(converted).TrimEnd('\0');
+					rendererDetails[i] = new RendererDetail(name, id);
 				}
-				rendererDetails[i] = new RendererDetail(
-					new string(displayName),
-					new string(rendererID)
-				);
 			}
 
 			// Init 3D audio
