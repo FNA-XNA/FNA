@@ -1467,6 +1467,16 @@ namespace Microsoft.Xna.Framework
 			return Path.GetPathRoot(storageRoot);
 		}
 
+		public static IntPtr ReadToPointer(string path, out IntPtr size)
+		{
+			return SDL.SDL_LoadFile(path, out size);
+		}
+
+		public static void FreeFilePointer(IntPtr file)
+		{
+			SDL.SDL_free(file);
+		}
+
 		#endregion
 
 		#region Logging/Messaging Methods

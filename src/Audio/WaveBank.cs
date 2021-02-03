@@ -55,12 +55,8 @@ namespace Microsoft.Xna.Framework.Audio
 		private AudioEngine engine;
 		private WeakReference selfReference;
 
-		// Non-streaming WaveBanks
-		private byte[] buffer;
-		private GCHandle pin;
-
-		// Streaming WaveBanks
-		private IntPtr ioStream;
+		private IntPtr bankData;
+		private IntPtr bankDataLen; // Non-zero for in-memory WaveBanks
 
 		#endregion
 
@@ -85,15 +81,15 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ArgumentNullException("nonStreamingWaveBankFilename");
 			}
 
-			buffer = TitleContainer.ReadAllBytes(
-				nonStreamingWaveBankFilename
+			bankData = TitleContainer.ReadToPointer(
+				nonStreamingWaveBankFilename,
+				out bankDataLen
 			);
-			pin = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 
 			FAudio.FACTAudioEngine_CreateInMemoryWaveBank(
 				audioEngine.handle,
-				pin.AddrOfPinnedObject(),
-				(uint) buffer.Length,
+				bankData,
+				(uint) bankDataLen,
 				0,
 				0,
 				out handle
@@ -130,10 +126,10 @@ namespace Microsoft.Xna.Framework.Audio
 					safeName
 				);
 			}
-			ioStream = FAudio.FAudio_fopen(safeName);
+			bankData = FAudio.FAudio_fopen(safeName);
 
 			FAudio.FACTStreamingParameters settings = new FAudio.FACTStreamingParameters();
-			settings.file = ioStream;
+			settings.file = bankData;
 			FAudio.FACTAudioEngine_CreateStreamingWaveBank(
 				audioEngine.handle,
 				ref settings,
@@ -209,15 +205,18 @@ namespace Microsoft.Xna.Framework.Audio
 		internal void OnWaveBankDestroyed()
 		{
 			IsDisposed = true;
-			if (buffer != null)
+			if (bankData != IntPtr.Zero)
 			{
-				pin.Free();
-				buffer = null;
-			}
-			else if (ioStream != IntPtr.Zero)
-			{
-				FAudio.FAudio_close(ioStream);
-				ioStream = IntPtr.Zero;
+				if (bankDataLen != IntPtr.Zero)
+				{
+					FNAPlatform.FreeFilePointer(bankData);
+					bankDataLen = IntPtr.Zero;
+				}
+				else
+				{
+					FAudio.FAudio_close(bankData);
+				}
+				bankData = IntPtr.Zero;
 			}
 			handle = IntPtr.Zero;
 			selfReference = null;

@@ -70,20 +70,19 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ArgumentNullException("filename");
 			}
 
-			byte[] buffer = TitleContainer.ReadAllBytes(filename);
-			GCHandle pin = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+			IntPtr bufferLen;
+			IntPtr buffer = TitleContainer.ReadToPointer(filename, out bufferLen);
 
 			FAudio.FACTAudioEngine_CreateSoundBank(
 				audioEngine.handle,
-				pin.AddrOfPinnedObject(),
-				(uint) buffer.Length,
+				buffer,
+				(uint) bufferLen,
 				0,
 				0,
 				out handle
 			);
 
-			pin.Free();
-			buffer = null;
+			FNAPlatform.FreeFilePointer(buffer);
 
 			engine = audioEngine;
 			selfReference = new WeakReference(this, true);

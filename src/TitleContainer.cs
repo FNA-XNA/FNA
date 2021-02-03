@@ -56,7 +56,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Internal Static Methods
 
-		internal static byte[] ReadAllBytes(string name)
+		internal static IntPtr ReadToPointer(string name, out IntPtr size)
 		{
 			string safeName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(name);
 
@@ -69,9 +69,9 @@ namespace Microsoft.Xna.Framework
 #endif
 			if (Path.IsPathRooted(safeName))
 			{
-				return File.ReadAllBytes(safeName);
+				return FNAPlatform.ReadFileToPointer(safeName, out size);
 			}
-			return File.ReadAllBytes(Path.Combine(TitleLocation.Path, safeName));
+			return FNAPlatform.ReadFileToPointer(Path.Combine(TitleLocation.Path, safeName), out size);
 		}
 
 		#endregion

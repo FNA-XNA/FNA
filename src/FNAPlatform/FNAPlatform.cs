@@ -117,6 +117,8 @@ namespace Microsoft.Xna.Framework
 			GetGamePadAccelerometer =	SDL2_FNAPlatform.GetGamePadAccelerometer;
 			GetStorageRoot =		SDL2_FNAPlatform.GetStorageRoot;
 			GetDriveInfo =			SDL2_FNAPlatform.GetDriveInfo;
+			ReadFileToPointer =		SDL2_FNAPlatform.ReadToPointer;
+			FreeFilePointer =		SDL2_FNAPlatform.FreeFilePointer;
 			ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
 			GetMicrophones =		SDL2_FNAPlatform.GetMicrophones;
 			GetMicrophoneSamples =		SDL2_FNAPlatform.GetMicrophoneSamples;
@@ -305,6 +307,12 @@ namespace Microsoft.Xna.Framework
 
 		public delegate DriveInfo GetDriveInfoFunc(string storageRoot);
 		public static readonly GetDriveInfoFunc GetDriveInfo;
+
+		public delegate IntPtr ReadFileToPointerFunc(string path, out IntPtr size);
+		public static readonly ReadFileToPointerFunc ReadFileToPointer;
+
+		public delegate void FreeFilePointerFunc(IntPtr file);
+		public static readonly FreeFilePointerFunc FreeFilePointer;
 
 		public delegate void ShowRuntimeErrorFunc(string title, string message);
 		public static readonly ShowRuntimeErrorFunc ShowRuntimeError;

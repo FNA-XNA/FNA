@@ -57,9 +57,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Private Variables
 
-		private byte[] buffer;
-		private GCHandle pin;
-
 		private RendererDetail[] rendererDetails;
 
 		private readonly FAudio.FACTNotificationCallback xactNotificationFunc;
@@ -122,14 +119,15 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ArgumentNullException("settingsFile");
 			}
 
-			// Read entire file into memory, pin buffer
-			buffer = TitleContainer.ReadAllBytes(settingsFile);
-			pin = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+			// Read entire file into memory, let FACT manage the pointer
+			IntPtr bufferLen;
+			IntPtr buffer = TitleContainer.ReadToPointer(settingsFile, out bufferLen);
 
 			// Generate engine parameters
 			FAudio.FACTRuntimeParameters settings = new FAudio.FACTRuntimeParameters();
-			settings.pGlobalSettingsBuffer = pin.AddrOfPinnedObject();
-			settings.globalSettingsBufferSize = (uint) buffer.Length;
+			settings.pGlobalSettingsBuffer = buffer;
+			settings.globalSettingsBufferSize = (uint) bufferLen;
+			settings.globalSettingsFlags = FAudio.FACT_FLAG_MANAGEDATA;
 			xactNotificationFunc = OnXACTNotification;
 			settings.fnNotificationCallback = Marshal.GetFunctionPointerForDelegate(
 				xactNotificationFunc
@@ -333,8 +331,6 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 
 					FAudio.FACTAudioEngine_ShutDown(handle);
-					pin.Free();
-					buffer = null;
 					rendererDetails = null;
 
 					IsDisposed = true;
