@@ -18,15 +18,9 @@ namespace Microsoft.Xna.Framework.Content
 	{
 		#region Public Properties
 
-		public override bool CanDeserializeIntoExistingObject
-		{
-			get
-			{
-				return true;
-			}
-		}
+		public override bool CanDeserializeIntoExistingObject => true;
 
-		#endregion
+        #endregion
 
 		#region Private Variables
 
@@ -84,7 +78,7 @@ namespace Microsoft.Xna.Framework.Content
 				else
 				{
 					int readerType = input.Read7BitEncodedInt();
-					key = (readerType > 0) ? input.ReadObject<TKey>(input.TypeReaders[readerType - 1]) : default(TKey);
+					key = readerType > 0 ? input.ReadObject<TKey>(input.TypeReaders[readerType - 1]) : default(TKey);
 				}
 				if (valueType.IsValueType)
 				{
@@ -93,7 +87,7 @@ namespace Microsoft.Xna.Framework.Content
 				else
 				{
 					int readerType = input.Read7BitEncodedInt();
-					value = (readerType > 0) ? input.ReadObject<TValue>(input.TypeReaders[readerType - 1]) : default(TValue);
+					value = readerType > 0 ? input.ReadObject<TValue>(input.TypeReaders[readerType - 1]) : default(TValue);
 				}
 				dictionary.Add(key, value);
 			}

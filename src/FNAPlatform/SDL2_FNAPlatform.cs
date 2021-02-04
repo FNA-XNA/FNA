@@ -205,7 +205,7 @@ namespace Microsoft.Xna.Framework
 
 			// Set any hints to match XNA4 behavior...
 			string hint = SDL.SDL_GetHint(SDL.SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS);
-			if (String.IsNullOrEmpty(hint))
+			if (string.IsNullOrEmpty(hint))
 			{
 				SDL.SDL_SetHint(
 					SDL.SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,
@@ -593,7 +593,7 @@ namespace Microsoft.Xna.Framework
 
 		private static void INTERNAL_SetIcon(IntPtr window, string title)
 		{
-			string fileIn = String.Empty;
+			string fileIn = string.Empty;
 
 			/* If the game's using SDL2_image, provide the option to use a PNG
 			 * instead of a BMP. Nice for anyone who cares about transparency.
@@ -602,7 +602,7 @@ namespace Microsoft.Xna.Framework
 			try
 			{
 				fileIn = INTERNAL_GetIconName(title + ".png");
-				if (!String.IsNullOrEmpty(fileIn))
+				if (!string.IsNullOrEmpty(fileIn))
 				{
 					int w, h, len;
 					IntPtr pixels, icon;
@@ -638,7 +638,7 @@ namespace Microsoft.Xna.Framework
 			}
 
 			fileIn = INTERNAL_GetIconName(title + ".bmp");
-			if (!String.IsNullOrEmpty(fileIn))
+			if (!string.IsNullOrEmpty(fileIn))
 			{
 				IntPtr icon = SDL.SDL_LoadBMP(fileIn);
 				SDL.SDL_SetWindowIcon(window, icon);
@@ -666,7 +666,7 @@ namespace Microsoft.Xna.Framework
 					return fileIn;
 				}
 			}
-			return String.Empty;
+			return string.Empty;
 		}
 
 		private static string INTERNAL_StripBadChars(string path)
@@ -1087,7 +1087,7 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		private unsafe static int MeasureStringLength(byte* ptr)
+		private static unsafe int MeasureStringLength(byte* ptr)
 		{
 			int bytes;
 			for (bytes = 0; *ptr != 0; ptr += 1, bytes += 1);
@@ -1344,7 +1344,7 @@ namespace Microsoft.Xna.Framework
 			if (OSVersion.Equals("Mac OS X"))
 			{
 				string osConfigDir = Environment.GetEnvironmentVariable("HOME");
-				if (String.IsNullOrEmpty(osConfigDir))
+				if (string.IsNullOrEmpty(osConfigDir))
 				{
 					return "."; // Oh well.
 				}
@@ -1361,10 +1361,10 @@ namespace Microsoft.Xna.Framework
 			{
 				// Assuming a non-macOS Unix platform will follow the XDG. Which it should.
 				string osConfigDir = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
-				if (String.IsNullOrEmpty(osConfigDir))
+				if (string.IsNullOrEmpty(osConfigDir))
 				{
 					osConfigDir = Environment.GetEnvironmentVariable("HOME");
-					if (String.IsNullOrEmpty(osConfigDir))
+					if (string.IsNullOrEmpty(osConfigDir))
 					{
 						return ".";	// Oh well.
 					}
@@ -1500,7 +1500,7 @@ namespace Microsoft.Xna.Framework
 		 * functions.
 		 * -flibit
 		 */
-		private static bool micInit = false;
+		private static bool micInit;
 
 		public static Microphone[] GetMicrophones()
 		{
@@ -2158,7 +2158,7 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_GameControllerClose(INTERNAL_devices[output]);
 			INTERNAL_devices[output] = IntPtr.Zero;
 			INTERNAL_states[output] = new GamePadState();
-			INTERNAL_guids[output] = String.Empty;
+			INTERNAL_guids[output] = string.Empty;
 
 			// A lot of errors can happen here, but honestly, they can be ignored...
 			SDL.SDL_ClearError();
@@ -2196,7 +2196,7 @@ namespace Microsoft.Xna.Framework
 			string[] result = new string[GamePad.GAMEPAD_COUNT];
 			for (int i = 0; i < result.Length; i += 1)
 			{
-				result[i] = String.Empty;
+				result[i] = string.Empty;
 			}
 			return result;
 		}

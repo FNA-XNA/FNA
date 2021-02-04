@@ -126,11 +126,9 @@ namespace Microsoft.Xna.Framework
 			double amountCubed = amountSquared * amount;
 			return (float) (
 				0.5 *
-				(
-					((2.0 * value2 + (value3 - value1) * amount) +
-					((2.0 * value1 - 5.0 * value2 + 4.0 * value3 - value4) * amountSquared) +
-					(3.0 * value2 - value1 - 3.0 * value3 + value4) * amountCubed)
-				)
+				(2.0 * value2 + (value3 - value1) * amount +
+                 (2.0 * value1 - 5.0 * value2 + 4.0 * value3 - value4) * amountSquared +
+                 (3.0 * value2 - value1 - 3.0 * value3 + value4) * amountCubed)
 			);
 		}
 
@@ -150,10 +148,10 @@ namespace Microsoft.Xna.Framework
 		public static float Clamp(float value, float min, float max)
 		{
 			// First we check to see if we're greater than the max.
-			value = (value > max) ? max : value;
+			value = value > max ? max : value;
 
 			// Then we check to see if we're less than the min.
-			value = (value < min) ? min : value;
+			value = value < min ? min : value;
 
 			// There's no check to see if min > max.
 			return value;
@@ -205,12 +203,10 @@ namespace Microsoft.Xna.Framework
 			}
 			else
 			{
-				result = (
-					((2 * v1 - 2 * v2 + t2 + t1) * sCubed) +
-					((3 * v2 - 3 * v1 - 2 * t1 - t2) * sSquared) +
-					(t1 * s) +
-					v1
-				);
+				result = (2 * v1 - 2 * v2 + t2 + t1) * sCubed +
+                         (3 * v2 - 3 * v1 - 2 * t1 - t2) * sSquared +
+                         t1 * s +
+                         v1;
 			}
 
 			return (float) result;
@@ -313,7 +309,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The new angle, in radians.</returns>
 		public static float WrapAngle(float angle)
 		{
-			if ((angle > -Pi) && (angle <= Pi))
+			if (angle > -Pi && angle <= Pi)
 			{
 				return angle;
 			}
@@ -349,8 +345,8 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The clamped value.</returns>
 		internal static int Clamp(int value, int min, int max)
 		{
-			value = (value > max) ? max : value;
-			value = (value < min) ? min : value;
+			value = value > max ? max : value;
+			value = value < min ? min : value;
 			return value;
 		}
 

@@ -46,8 +46,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public override bool Equals(object obj)
 		{
-			return (	(obj is RendererDetail) &&
-					RendererId.Equals(((RendererDetail) obj).RendererId)	);
+			return obj is RendererDetail &&
+                   RendererId.Equals(((RendererDetail) obj).RendererId);
 		}
 
 		public override int GetHashCode()

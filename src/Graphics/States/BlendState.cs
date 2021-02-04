@@ -15,147 +15,75 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public BlendFunction AlphaBlendFunction
 		{
-			get
-			{
-				return state.alphaBlendFunction;
-			}
-			set
-			{
-				state.alphaBlendFunction = value;
-			}
-		}
+			get => state.alphaBlendFunction;
+            set => state.alphaBlendFunction = value;
+        }
 
 		public Blend AlphaDestinationBlend
 		{
-			get
-			{
-				return state.alphaDestinationBlend;
-			}
-			set
-			{
-				state.alphaDestinationBlend = value;
-			}
-		}
+			get => state.alphaDestinationBlend;
+            set => state.alphaDestinationBlend = value;
+        }
 
 		public Blend AlphaSourceBlend
 		{
-			get
-			{
-				return state.alphaSourceBlend;
-			}
-			set
-			{
-				state.alphaSourceBlend = value;
-			}
-		}
+			get => state.alphaSourceBlend;
+            set => state.alphaSourceBlend = value;
+        }
 
 		public BlendFunction ColorBlendFunction
 		{
-			get
-			{
-				return state.colorBlendFunction;
-			}
-			set
-			{
-				state.colorBlendFunction = value;
-			}
-		}
+			get => state.colorBlendFunction;
+            set => state.colorBlendFunction = value;
+        }
 
 		public Blend ColorDestinationBlend
 		{
-			get
-			{
-				return state.colorDestinationBlend;
-			}
-			set
-			{
-				state.colorDestinationBlend = value;
-			}
-		}
+			get => state.colorDestinationBlend;
+            set => state.colorDestinationBlend = value;
+        }
 
 		public Blend ColorSourceBlend
 		{
-			get
-			{
-				return state.colorSourceBlend;
-			}
-			set
-			{
-				state.colorSourceBlend = value;
-			}
-		}
+			get => state.colorSourceBlend;
+            set => state.colorSourceBlend = value;
+        }
 
 		public ColorWriteChannels ColorWriteChannels
 		{
-			get
-			{
-				return state.colorWriteEnable;
-			}
-			set
-			{
-				state.colorWriteEnable = value;
-			}
-		}
+			get => state.colorWriteEnable;
+            set => state.colorWriteEnable = value;
+        }
 
 		public ColorWriteChannels ColorWriteChannels1
 		{
-			get
-			{
-				return state.colorWriteEnable1;
-			}
-			set
-			{
-				state.colorWriteEnable1 = value;
-			}
-		}
+			get => state.colorWriteEnable1;
+            set => state.colorWriteEnable1 = value;
+        }
 
 		public ColorWriteChannels ColorWriteChannels2
 		{
-			get
-			{
-				return state.colorWriteEnable2;
-			}
-			set
-			{
-				state.colorWriteEnable2 = value;
-			}
-		}
+			get => state.colorWriteEnable2;
+            set => state.colorWriteEnable2 = value;
+        }
 
 		public ColorWriteChannels ColorWriteChannels3
 		{
-			get
-			{
-				return state.colorWriteEnable3;
-			}
-			set
-			{
-				state.colorWriteEnable3 = value;
-			}
-		}
+			get => state.colorWriteEnable3;
+            set => state.colorWriteEnable3 = value;
+        }
 
 		public Color BlendFactor
 		{
-			get
-			{
-				return state.blendFactor;
-			}
-			set
-			{
-				state.blendFactor = value;
-			}
-		}
+			get => state.blendFactor;
+            set => state.blendFactor = value;
+        }
 
 		public int MultiSampleMask
 		{
-			get
-			{
-				return state.multiSampleMask;
-			}
-			set
-			{
-				state.multiSampleMask = value;
-			}
-		}
+			get => state.multiSampleMask;
+            set => state.multiSampleMask = value;
+        }
 
 		#endregion
 

@@ -21,18 +21,13 @@ namespace Microsoft.Xna.Framework.Audio
 	{
 		#region Public Properties
 
-		public TimeSpan Duration
-		{
-			get
-			{
-				return TimeSpan.FromSeconds(
-					(double) handle.PlayLength /
-					(double) format.nSamplesPerSec
-				);
-			}
-		}
+		public TimeSpan Duration =>
+            TimeSpan.FromSeconds(
+                (double) handle.PlayLength /
+                (double) format.nSamplesPerSec
+            );
 
-		public bool IsDisposed
+        public bool IsDisposed
 		{
 			get;
 			private set;
@@ -59,23 +54,18 @@ namespace Microsoft.Xna.Framework.Audio
 				);
 				return result;
 			}
-			set
-			{
-				FAudio.FAudioVoice_SetVolume(
-					Device().MasterVoice,
-					value,
-					0
-				);
-			}
-		}
+			set =>
+                FAudio.FAudioVoice_SetVolume(
+                    Device().MasterVoice,
+                    value,
+                    0
+                );
+        }
 
 		public static float DistanceScale
 		{
-			get
-			{
-				return Device().CurveDistanceScaler;
-			}
-			set
+			get => Device().CurveDistanceScaler;
+            set
 			{
 				if (value <= 0.0f)
 				{
@@ -87,11 +77,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public static float DopplerScale
 		{
-			get
-			{
-				return Device().DopplerScale;
-			}
-			set
+			get => Device().DopplerScale;
+            set
 			{
 				if (value < 0.0f)
 				{
@@ -103,11 +90,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public static float SpeedOfSound
 		{
-			get
-			{
-				return Device().SpeedOfSound;
-			}
-			set
+			get => Device().SpeedOfSound;
+            set
 			{
 				FAudioContext dev = Device();
 				dev.SpeedOfSound = value;
@@ -145,7 +129,7 @@ namespace Microsoft.Xna.Framework.Audio
 			1,
 			(ushort) channels,
 			(uint) sampleRate,
-			(uint) (sampleRate * ((ushort) channels * 2)),
+			(uint) (sampleRate * (ushort) channels * 2),
 			(ushort) ((ushort) channels * 2),
 			16,
 			0,
@@ -169,7 +153,7 @@ namespace Microsoft.Xna.Framework.Audio
 			1,
 			(ushort) channels,
 			(uint) sampleRate,
-			(uint) (sampleRate * ((ushort) channels * 2)),
+			(uint) (sampleRate * (ushort) channels * 2),
 			(ushort) ((ushort) channels * 2),
 			16,
 			loopStart,
@@ -239,8 +223,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				handle.PlayLength = (uint) (
 					count /
-					nBlockAlign *
-					(((nBlockAlign / nChannels) - 6) * 2)
+                    nBlockAlign * (nBlockAlign / nChannels - 6) * 2
 				);
 			}
 
@@ -329,7 +312,7 @@ namespace Microsoft.Xna.Framework.Audio
 		) {
 			sizeInBytes /= 2; // 16-bit PCM!
 			int ms = (int) (
-				(sizeInBytes / (int) channels) /
+				sizeInBytes / (int) channels /
 				(sampleRate / 1000.0f)
 			);
 			return new TimeSpan(0, 0, 0, 0, ms);
@@ -498,7 +481,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal class FAudioContext
 		{
-			public static FAudioContext Context = null;
+			public static FAudioContext Context;
 
 			public readonly IntPtr Handle;
 			public readonly byte[] Handle3D;
@@ -609,7 +592,7 @@ namespace Microsoft.Xna.Framework.Audio
 						(FAudio.FAudioEffectDescriptor*) reverbChain->pEffectDescriptors;
 					reverbDesc->InitialState = 1;
 					reverbDesc->OutputChannels = (uint) (
-						(DeviceDetails.OutputFormat.Format.nChannels == 6) ? 6 : 1
+						DeviceDetails.OutputFormat.Format.nChannels == 6 ? 6 : 1
 					);
 					reverbDesc->pEffect = reverb;
 

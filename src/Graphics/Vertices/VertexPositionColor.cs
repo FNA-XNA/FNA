@@ -20,15 +20,9 @@ namespace Microsoft.Xna.Framework.Graphics
 	{
 		#region Private Properties
 
-		VertexDeclaration IVertexType.VertexDeclaration
-		{
-			get
-			{
-				return VertexDeclaration;
-			}
-		}
+		VertexDeclaration IVertexType.VertexDeclaration => VertexDeclaration;
 
-		#endregion
+        #endregion
 
 		#region Public Variables
 
@@ -89,17 +83,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public override string ToString()
 		{
-			return (
-				"{{Position:" + Position.ToString() +
-				" Color:" + Color.ToString() +
-				"}}"
-			);
+			return "{{Position:" + Position.ToString() +
+                   " Color:" + Color.ToString() +
+                   "}}";
 		}
 
 		public static bool operator ==(VertexPositionColor left, VertexPositionColor right)
 		{
-			return (	(left.Color == right.Color) &&
-					(left.Position == right.Position)	);
+			return left.Color == right.Color &&
+                   left.Position == right.Position;
 		}
 
 		public static bool operator !=(VertexPositionColor left, VertexPositionColor right)
@@ -113,11 +105,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				return false;
 			}
-			if (obj.GetType() != base.GetType())
+			if (obj.GetType() != GetType())
 			{
 				return false;
 			}
-			return (this == ((VertexPositionColor) obj));
+			return this == (VertexPositionColor) obj;
 		}
 
 		#endregion

@@ -64,7 +64,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// </param>
 		public bool TryGetValue(string boneName, out ModelBone value)
 		{
-			foreach (ModelBone bone in base.Items)
+			foreach (ModelBone bone in Items)
 			{
 				if (bone.Name == boneName)
 				{
@@ -107,21 +107,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			/// <summary>
 			/// Gets the current element in the ModelMeshCollection.
 			/// </summary>
-			public ModelBone Current
-			{
-				get
-				{
-					return collection[position];
-				}
-			}
+			public ModelBone Current => collection[position];
 
-			/// <summary>
+            /// <summary>
 			/// Advances the enumerator to the next element of the ModelMeshCollection.
 			/// </summary>
 			public bool MoveNext()
 			{
 				position += 1;
-				return (position < collection.Count);
+				return position < collection.Count;
 			}
 
 			/// <summary>
@@ -131,15 +125,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 			}
 
-			object IEnumerator.Current
-			{
-				get
-				{
-					return collection[position];
-				}
-			}
+			object IEnumerator.Current => collection[position];
 
-			void IEnumerator.Reset()
+            void IEnumerator.Reset()
 			{
 				position = -1;
 			}

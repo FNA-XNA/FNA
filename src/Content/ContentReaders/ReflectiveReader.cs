@@ -27,15 +27,9 @@ namespace Microsoft.Xna.Framework.Content
 
 		#region Public Properties
 
-		public override bool CanDeserializeIntoExistingObject
-		{
-			get
-			{
-				return TargetType.IsClass;
-			}
-		}
+		public override bool CanDeserializeIntoExistingObject => TargetType.IsClass;
 
-		#endregion
+        #endregion
 
 		#region Private Variables
 

@@ -42,14 +42,11 @@ namespace Microsoft.Xna.Framework
 			{
 				unchecked
 				{
-					return (byte) (this.packedValue >> 16);
+					return (byte) (packedValue >> 16);
 				}
 			}
-			set
-			{
-				this.packedValue = (this.packedValue & 0xff00ffff) | ((uint) value << 16);
-			}
-		}
+			set => packedValue = (packedValue & 0xff00ffff) | ((uint) value << 16);
+        }
 
 		/// <summary>
 		/// Gets or sets the green component.
@@ -60,14 +57,11 @@ namespace Microsoft.Xna.Framework
 			{
 				unchecked
 				{
-					return (byte) (this.packedValue >> 8);
+					return (byte) (packedValue >> 8);
 				}
 			}
-			set
-			{
-				this.packedValue = (this.packedValue & 0xffff00ff) | ((uint) value << 8);
-			}
-		}
+			set => packedValue = (packedValue & 0xffff00ff) | ((uint) value << 8);
+        }
 
 		/// <summary>
 		/// Gets or sets the red component.
@@ -78,14 +72,11 @@ namespace Microsoft.Xna.Framework
 			{
 				unchecked
 				{
-					return (byte) (this.packedValue);
+					return (byte) packedValue;
 				}
 			}
-			set
-			{
-				this.packedValue = (this.packedValue & 0xffffff00) | value;
-			}
-		}
+			set => packedValue = (packedValue & 0xffffff00) | value;
+        }
 
 		/// <summary>
 		/// Gets or sets the alpha component.
@@ -96,30 +87,21 @@ namespace Microsoft.Xna.Framework
 			{
 				unchecked
 				{
-					return (byte) (this.packedValue >> 24);
+					return (byte) (packedValue >> 24);
 				}
 			}
-			set
-			{
-				this.packedValue = (this.packedValue & 0x00ffffff) | ((uint) value << 24);
-			}
-		}
+			set => packedValue = (packedValue & 0x00ffffff) | ((uint) value << 24);
+        }
 
 		/// <summary>
 		/// Gets or sets packed value of this <see cref="Color"/>.
 		/// </summary>
 		[CLSCompliant(false)]
-		public UInt32 PackedValue
+		public uint PackedValue
 		{
-			get
-			{
-				return packedValue;
-			}
-			set
-			{
-				packedValue = value;
-			}
-		}
+			get => packedValue;
+            set => packedValue = value;
+        }
 
 		#endregion
 
@@ -1396,20 +1378,15 @@ namespace Microsoft.Xna.Framework
 
 		#region Internal Properties
 
-		internal string DebugDisplayString
-		{
-			get
-			{
-				return string.Concat(
-					R.ToString(), " ",
-					G.ToString(), " ",
-					B.ToString(), " ",
-					A.ToString()
-				);
-			}
-		}
+		internal string DebugDisplayString =>
+            string.Concat(
+                R.ToString(), " ",
+                G.ToString(), " ",
+                B.ToString(), " ",
+                A.ToString()
+            );
 
-		#endregion
+        #endregion
 
 		#region Private Variables
 
@@ -1577,10 +1554,10 @@ namespace Microsoft.Xna.Framework
 		{
 			packedValue = 0;
 
-			R = (byte) MathHelper.Clamp(color.X * 255, Byte.MinValue, Byte.MaxValue);
-			G = (byte) MathHelper.Clamp(color.Y * 255, Byte.MinValue, Byte.MaxValue);
-			B = (byte) MathHelper.Clamp(color.Z * 255, Byte.MinValue, Byte.MaxValue);
-			A = (byte) MathHelper.Clamp(color.W * 255, Byte.MinValue, Byte.MaxValue);
+			R = (byte) MathHelper.Clamp(color.X * 255, byte.MinValue, byte.MaxValue);
+			G = (byte) MathHelper.Clamp(color.Y * 255, byte.MinValue, byte.MaxValue);
+			B = (byte) MathHelper.Clamp(color.Z * 255, byte.MinValue, byte.MaxValue);
+			A = (byte) MathHelper.Clamp(color.W * 255, byte.MinValue, byte.MaxValue);
 		}
 
 		/// <summary>
@@ -1591,9 +1568,9 @@ namespace Microsoft.Xna.Framework
 		{
 			packedValue = 0;
 
-			R = (byte) MathHelper.Clamp(color.X * 255, Byte.MinValue, Byte.MaxValue);
-			G = (byte) MathHelper.Clamp(color.Y * 255, Byte.MinValue, Byte.MaxValue);
-			B = (byte) MathHelper.Clamp(color.Z * 255, Byte.MinValue, Byte.MaxValue);
+			R = (byte) MathHelper.Clamp(color.X * 255, byte.MinValue, byte.MaxValue);
+			G = (byte) MathHelper.Clamp(color.Y * 255, byte.MinValue, byte.MaxValue);
+			B = (byte) MathHelper.Clamp(color.Z * 255, byte.MinValue, byte.MaxValue);
 			A = 255;
 		}
 
@@ -1607,9 +1584,9 @@ namespace Microsoft.Xna.Framework
 		{
 			packedValue = 0;
 
-			R = (byte) MathHelper.Clamp(r * 255, Byte.MinValue, Byte.MaxValue);
-			G = (byte) MathHelper.Clamp(g * 255, Byte.MinValue, Byte.MaxValue);
-			B = (byte) MathHelper.Clamp(b * 255, Byte.MinValue, Byte.MaxValue);
+			R = (byte) MathHelper.Clamp(r * 255, byte.MinValue, byte.MaxValue);
+			G = (byte) MathHelper.Clamp(g * 255, byte.MinValue, byte.MaxValue);
+			B = (byte) MathHelper.Clamp(b * 255, byte.MinValue, byte.MaxValue);
 			A = 255;
 		}
 
@@ -1622,9 +1599,9 @@ namespace Microsoft.Xna.Framework
 		public Color(int r, int g, int b)
 		{
 			packedValue = 0;
-			R = (byte) MathHelper.Clamp(r, Byte.MinValue, Byte.MaxValue);
-			G = (byte) MathHelper.Clamp(g, Byte.MinValue, Byte.MaxValue);
-			B = (byte) MathHelper.Clamp(b, Byte.MinValue, Byte.MaxValue);
+			R = (byte) MathHelper.Clamp(r, byte.MinValue, byte.MaxValue);
+			G = (byte) MathHelper.Clamp(g, byte.MinValue, byte.MaxValue);
+			B = (byte) MathHelper.Clamp(b, byte.MinValue, byte.MaxValue);
 			A = (byte)255;
 		}
 
@@ -1638,10 +1615,10 @@ namespace Microsoft.Xna.Framework
 		public Color(int r, int g, int b, int alpha)
 		{
 			packedValue = 0;
-			R = (byte) MathHelper.Clamp(r, Byte.MinValue, Byte.MaxValue);
-			G = (byte) MathHelper.Clamp(g, Byte.MinValue, Byte.MaxValue);
-			B = (byte) MathHelper.Clamp(b, Byte.MinValue, Byte.MaxValue);
-			A = (byte) MathHelper.Clamp(alpha, Byte.MinValue, Byte.MaxValue);
+			R = (byte) MathHelper.Clamp(r, byte.MinValue, byte.MaxValue);
+			G = (byte) MathHelper.Clamp(g, byte.MinValue, byte.MaxValue);
+			B = (byte) MathHelper.Clamp(b, byte.MinValue, byte.MaxValue);
+			A = (byte) MathHelper.Clamp(alpha, byte.MinValue, byte.MaxValue);
 		}
 
 		/// <summary>
@@ -1655,10 +1632,10 @@ namespace Microsoft.Xna.Framework
 		{
 			packedValue = 0;
 
-			R = (byte) MathHelper.Clamp(r * 255, Byte.MinValue, Byte.MaxValue);
-			G = (byte) MathHelper.Clamp(g * 255, Byte.MinValue, Byte.MaxValue);
-			B = (byte) MathHelper.Clamp(b * 255, Byte.MinValue, Byte.MaxValue);
-			A = (byte) MathHelper.Clamp(alpha * 255, Byte.MinValue, Byte.MaxValue);
+			R = (byte) MathHelper.Clamp(r * 255, byte.MinValue, byte.MaxValue);
+			G = (byte) MathHelper.Clamp(g * 255, byte.MinValue, byte.MaxValue);
+			B = (byte) MathHelper.Clamp(b * 255, byte.MinValue, byte.MaxValue);
+			A = (byte) MathHelper.Clamp(alpha * 255, byte.MinValue, byte.MaxValue);
 		}
 
 		#endregion
@@ -1681,7 +1658,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(Color other)
 		{
-			return this.PackedValue == other.PackedValue;
+			return PackedValue == other.PackedValue;
 		}
 
 		/// <summary>
@@ -1752,9 +1729,9 @@ namespace Microsoft.Xna.Framework
 		public static Color FromNonPremultiplied(int r, int g, int b, int a)
 		{
 			return new Color(
-				(r * a / 255),
-				(g * a / 255),
-				(b * a / 255),
+				r * a / 255,
+				g * a / 255,
+				b * a / 255,
 				a
 			);
 		}
@@ -1771,10 +1748,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>True</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public static bool operator ==(Color a, Color b)
 		{
-			return (	a.A == b.A &&
-					a.R == b.R &&
-					a.G == b.G &&
-					a.B == b.B	);
+			return a.A == b.A &&
+                   a.R == b.R &&
+                   a.G == b.G &&
+                   a.B == b.B;
 		}
 
 		/// <summary>
@@ -1800,7 +1777,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Hash code of this <see cref="Color"/>.</returns>
 		public override int GetHashCode()
 		{
-			return this.packedValue.GetHashCode();
+			return packedValue.GetHashCode();
 		}
 
 		/// <summary>
@@ -1810,7 +1787,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>True</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public override bool Equals(object obj)
 		{
-			return ((obj is Color) && this.Equals((Color) obj));
+			return obj is Color color && Equals(color);
 		}
 
 		/// <summary>

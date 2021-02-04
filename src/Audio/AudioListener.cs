@@ -20,15 +20,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public Vector3 Forward
 		{
-			get
-			{
-				return new Vector3(
-					listenerData.OrientFront.x,
-					listenerData.OrientFront.y,
-					-listenerData.OrientFront.z
-				);
-			}
-			set
+			get =>
+                new Vector3(
+                    listenerData.OrientFront.x,
+                    listenerData.OrientFront.y,
+                    -listenerData.OrientFront.z
+                );
+            set
 			{
 				listenerData.OrientFront.x = value.X;
 				listenerData.OrientFront.y = value.Y;
@@ -38,15 +36,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public Vector3 Position
 		{
-			get
-			{
-				return new Vector3(
-					listenerData.Position.x,
-					listenerData.Position.y,
-					-listenerData.Position.z
-				);
-			}
-			set
+			get =>
+                new Vector3(
+                    listenerData.Position.x,
+                    listenerData.Position.y,
+                    -listenerData.Position.z
+                );
+            set
 			{
 				listenerData.Position.x = value.X;
 				listenerData.Position.y = value.Y;
@@ -57,15 +53,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public Vector3 Up
 		{
-			get
-			{
-				return new Vector3(
-					listenerData.OrientTop.x,
-					listenerData.OrientTop.y,
-					-listenerData.OrientTop.z
-				);
-			}
-			set
+			get =>
+                new Vector3(
+                    listenerData.OrientTop.x,
+                    listenerData.OrientTop.y,
+                    -listenerData.OrientTop.z
+                );
+            set
 			{
 				listenerData.OrientTop.x = value.X;
 				listenerData.OrientTop.y = value.Y;
@@ -75,15 +69,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public Vector3 Velocity
 		{
-			get
-			{
-				return new Vector3(
-					listenerData.Velocity.x,
-					listenerData.Velocity.y,
-					-listenerData.Velocity.z
-				);
-			}
-			set
+			get =>
+                new Vector3(
+                    listenerData.Velocity.x,
+                    listenerData.Velocity.y,
+                    -listenerData.Velocity.z
+                );
+            set
 			{
 				listenerData.Velocity.x = value.X;
 				listenerData.Velocity.y = value.Y;

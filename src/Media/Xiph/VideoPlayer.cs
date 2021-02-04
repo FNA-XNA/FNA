@@ -326,26 +326,17 @@ namespace Microsoft.Xna.Framework.Media
 		private bool backing_ismuted;
 		public bool IsMuted
 		{
-			get
-			{
-				return backing_ismuted;
-			}
-			set
+			get => backing_ismuted;
+            set
 			{
 				backing_ismuted = value;
 				UpdateVolume();
 			}
 		}
 
-		public TimeSpan PlayPosition
-		{
-			get
-			{
-				return timer.Elapsed;
-			}
-		}
+		public TimeSpan PlayPosition => timer.Elapsed;
 
-		public MediaState State
+        public MediaState State
 		{
 			get;
 			private set;
@@ -360,11 +351,8 @@ namespace Microsoft.Xna.Framework.Media
 		private float backing_volume;
 		public float Volume
 		{
-			get
-			{
-				return backing_volume;
-			}
-			set
+			get => backing_volume;
+            set
 			{
 				if (value > 1.0f)
 				{

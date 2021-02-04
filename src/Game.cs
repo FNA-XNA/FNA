@@ -34,11 +34,8 @@ namespace Microsoft.Xna.Framework
 		private ContentManager INTERNAL_content;
 		public ContentManager Content
 		{
-			get
-			{
-				return INTERNAL_content;
-			}
-			set
+			get => INTERNAL_content;
+            set
 			{
 				if (value == null)
 				{
@@ -71,11 +68,8 @@ namespace Microsoft.Xna.Framework
 		private TimeSpan INTERNAL_inactiveSleepTime;
 		public TimeSpan InactiveSleepTime
 		{
-			get
-			{
-				return INTERNAL_inactiveSleepTime;
-			}
-			set
+			get => INTERNAL_inactiveSleepTime;
+            set
 			{
 				if (value < TimeSpan.Zero)
 				{
@@ -94,11 +88,8 @@ namespace Microsoft.Xna.Framework
 		private bool INTERNAL_isActive;
 		public bool IsActive
 		{
-			get
-			{
-				return INTERNAL_isActive;
-			}
-			internal set
+			get => INTERNAL_isActive;
+            internal set
 			{
 				if (INTERNAL_isActive != value)
 				{
@@ -124,11 +115,8 @@ namespace Microsoft.Xna.Framework
 		private bool INTERNAL_isMouseVisible;
 		public bool IsMouseVisible
 		{
-			get
-			{
-				return INTERNAL_isMouseVisible;
-			}
-			set
+			get => INTERNAL_isMouseVisible;
+            set
 			{
 				if (INTERNAL_isMouseVisible != value)
 				{
@@ -147,11 +135,8 @@ namespace Microsoft.Xna.Framework
 		private TimeSpan INTERNAL_targetElapsedTime;
 		public TimeSpan TargetElapsedTime
 		{
-			get
-			{
-				return INTERNAL_targetElapsedTime;
-			}
-			set
+			get => INTERNAL_targetElapsedTime;
+            set
 			{
 				if (value <= TimeSpan.Zero)
 				{
@@ -302,8 +287,7 @@ namespace Microsoft.Xna.Framework
 					// Dispose loaded game components.
 					for (int i = 0; i < Components.Count; i += 1)
 					{
-						IDisposable disposable = Components[i] as IDisposable;
-						if (disposable != null)
+                        if (Components[i] is IDisposable disposable)
 						{
 							disposable.Dispose();
 						}
@@ -438,9 +422,7 @@ namespace Microsoft.Xna.Framework
 			 */
 			if (IsFixedTimeStep && accumulatedElapsedTime < TargetElapsedTime)
 			{
-				int sleepTime = (
-					(int) (TargetElapsedTime - accumulatedElapsedTime).TotalMilliseconds
-				);
+				int sleepTime = (int) (TargetElapsedTime - accumulatedElapsedTime).TotalMilliseconds;
 
 				/* NOTE: While sleep can be inaccurate in general it is
 				 * accurate enough for frame limiting purposes if some
@@ -775,8 +757,7 @@ namespace Microsoft.Xna.Framework
 
 		private void CategorizeComponent(IGameComponent component)
 		{
-			IUpdateable updateable = component as IUpdateable;
-			if (updateable != null)
+            if (component is IUpdateable updateable)
 			{
 				lock (updateableComponents)
 				{
@@ -785,8 +766,7 @@ namespace Microsoft.Xna.Framework
 				updateable.UpdateOrderChanged += OnUpdateOrderChanged;
 			}
 
-			IDrawable drawable = component as IDrawable;
-			if (drawable != null)
+            if (component is IDrawable drawable)
 			{
 				lock (drawableComponents)
 				{
@@ -885,8 +865,7 @@ namespace Microsoft.Xna.Framework
 			object sender,
 			GameComponentCollectionEventArgs e
 		) {
-			IUpdateable updateable = e.GameComponent as IUpdateable;
-			if (updateable != null)
+            if (e.GameComponent is IUpdateable updateable)
 			{
 				lock (updateableComponents)
 				{
@@ -895,8 +874,7 @@ namespace Microsoft.Xna.Framework
 				updateable.UpdateOrderChanged -= OnUpdateOrderChanged;
 			}
 
-			IDrawable drawable = e.GameComponent as IDrawable;
-			if (drawable != null)
+            if (e.GameComponent is IDrawable drawable)
 			{
 				lock (drawableComponents)
 				{

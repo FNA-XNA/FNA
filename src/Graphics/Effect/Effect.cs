@@ -22,11 +22,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private EffectTechnique INTERNAL_currentTechnique;
 		public EffectTechnique CurrentTechnique
 		{
-			get
-			{
-				return INTERNAL_currentTechnique;
-			}
-			set
+			get => INTERNAL_currentTechnique;
+            set
 			{
 				FNA3D.FNA3D_SetEffectTechnique(
 					GraphicsDevice.GLDevice,
@@ -896,7 +893,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				else if (	param.value.type.parameter_type >= MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_SAMPLER &&
 						param.value.type.parameter_type <= MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_SAMPLERCUBE	)
 				{
-					string textureName = String.Empty;
+					string textureName = string.Empty;
 					MOJOSHADER_effectSamplerState* states = (MOJOSHADER_effectSamplerState*) param.value.values;
 					for (int j = 0; j < param.value.value_count; j += 1)
 					{

@@ -27,17 +27,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Public Properties
 
-		public ReadOnlyCollection<RendererDetail> RendererDetails
-		{
-			get
-			{
-				return new ReadOnlyCollection<RendererDetail>(
-					rendererDetails
-				);
-			}
-		}
+		public ReadOnlyCollection<RendererDetail> RendererDetails =>
+            new ReadOnlyCollection<RendererDetail>(
+                rendererDetails
+            );
 
-		public bool IsDisposed
+        public bool IsDisposed
 		{
 			get;
 			private set;
@@ -114,7 +109,7 @@ namespace Microsoft.Xna.Framework.Audio
 			TimeSpan lookAheadTime,
 			string rendererId
 		) {
-			if (String.IsNullOrEmpty(settingsFile))
+			if (string.IsNullOrEmpty(settingsFile))
 			{
 				throw new ArgumentNullException("settingsFile");
 			}
@@ -236,7 +231,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public AudioCategory GetCategory(string name)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
 				throw new ArgumentNullException("name");
 			}
@@ -258,7 +253,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public float GetGlobalVariable(string name)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
 				throw new ArgumentNullException("name");
 			}
@@ -286,7 +281,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SetGlobalVariable(string name, float value)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
 				throw new ArgumentNullException("name");
 			}

@@ -18,8 +18,8 @@ namespace Microsoft.Xna.Framework.Content
 	
 	class LzxDecoder
 	{
-		public static uint[] position_base = null;
-		public static byte[] extra_bits = null;
+		public static uint[] position_base;
+		public static byte[] extra_bits;
 		
 		private LzxState m_state;
 		

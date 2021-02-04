@@ -34,57 +34,30 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Returns the x coordinate of the left edge of this <see cref="Rectangle"/>.
 		/// </summary>
-		public int Left
-		{
-			get
-			{
-				return X;
-			}
-		}
+		public int Left => X;
 
-		/// <summary>
+        /// <summary>
 		/// Returns the x coordinate of the right edge of this <see cref="Rectangle"/>.
 		/// </summary>
-		public int Right
-		{
-			get
-			{
-				return (X + Width);
-			}
-		}
+		public int Right => X + Width;
 
-		/// <summary>
+        /// <summary>
 		/// Returns the y coordinate of the top edge of this <see cref="Rectangle"/>.
 		/// </summary>
-		public int Top
-		{
-			get
-			{
-				return Y;
-			}
-		}
+		public int Top => Y;
 
-		/// <summary>
+        /// <summary>
 		/// Returns the y coordinate of the bottom edge of this <see cref="Rectangle"/>.
 		/// </summary>
-		public int Bottom
-		{
-			get
-			{
-				return (Y + Height);
-			}
-		}
+		public int Bottom => Y + Height;
 
-		/// <summary>
+        /// <summary>
 		/// The top-left coordinates of this <see cref="Rectangle"/>.
 		/// </summary>
 		public Point Location
 		{
-			get
-			{
-				return new Point(X, Y);
-			}
-			set
+			get => new Point(X, Y);
+            set
 			{
 				X = value.X;
 				Y = value.Y;
@@ -98,65 +71,44 @@ namespace Microsoft.Xna.Framework
 		/// If <see cref="Width"/> or <see cref="Height"/> is an odd number,
 		/// the center point will be rounded down.
 		/// </remarks>
-		public Point Center
-		{
-			get
-			{
-				return new Point(
-					X + (Width / 2),
-					Y + (Height / 2)
-				);
-			}
-		}
+		public Point Center =>
+            new Point(
+                X + Width / 2,
+                Y + Height / 2
+            );
 
-		/// <summary>
+        /// <summary>
 		/// Whether or not this <see cref="Rectangle"/> has a width and
 		/// height of 0, and a position of (0, 0).
 		/// </summary>
-		public bool IsEmpty
-		{
-			get
-			{
-				return (	(Width == 0) &&
-						(Height == 0) &&
-						(X == 0) &&
-						(Y == 0)	);
-			}
-		}
+		public bool IsEmpty =>
+            Width == 0 &&
+            Height == 0 &&
+            X == 0 &&
+            Y == 0;
 
-		#endregion
+        #endregion
 
 		#region Public Static Properties
 
 		/// <summary>
 		/// Returns a <see cref="Rectangle"/> with X=0, Y=0, Width=0, and Height=0.
 		/// </summary>
-		public static Rectangle Empty
-		{
-			get
-			{
-				return emptyRectangle;
-			}
-		}
+		public static Rectangle Empty => emptyRectangle;
 
-		#endregion
+        #endregion
 
 		#region Internal Properties
 
-		internal string DebugDisplayString
-		{
-			get
-			{
-				return string.Concat(
-					X.ToString(), " ",
-					Y.ToString(), " ",
-					Width.ToString(), " ",
-					Height.ToString()
-				);
-			}
-		}
+		internal string DebugDisplayString =>
+            string.Concat(
+                X.ToString(), " ",
+                Y.ToString(), " ",
+                Width.ToString(), " ",
+                Height.ToString()
+            );
 
-		#endregion
+        #endregion
 
 		#region Public Fields
 
@@ -218,10 +170,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the provided coordinates lie inside this <see cref="Rectangle"/>. <c>false</c> otherwise.</returns>
 		public bool Contains(int x, int y)
 		{
-			return (	(this.X <= x) &&
-					(x < (this.X + this.Width)) &&
-					(this.Y <= y) &&
-					(y < (this.Y + this.Height))	);
+			return X <= x &&
+                   x < X + Width &&
+                   Y <= y &&
+                   y < Y + Height;
 		}
 
 		/// <summary>
@@ -231,10 +183,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the provided <see cref="Point"/> lies inside this <see cref="Rectangle"/>. <c>false</c> otherwise.</returns>
 		public bool Contains(Point value)
 		{
-			return (	(this.X <= value.X) &&
-					(value.X < (this.X + this.Width)) &&
-					(this.Y <= value.Y) &&
-					(value.Y < (this.Y + this.Height))	);
+			return X <= value.X &&
+                   value.X < X + Width &&
+                   Y <= value.Y &&
+                   value.Y < Y + Height;
 		}
 
 		/// <summary>
@@ -244,26 +196,26 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the provided <see cref="Rectangle"/>'s bounds lie entirely inside this <see cref="Rectangle"/>. <c>false</c> otherwise.</returns>
 		public bool Contains(Rectangle value)
 		{
-			return (	(this.X <= value.X) &&
-					((value.X + value.Width) <= (this.X + this.Width)) &&
-					(this.Y <= value.Y) &&
-					((value.Y + value.Height) <= (this.Y + this.Height))	);
+			return X <= value.X &&
+                   value.X + value.Width <= X + Width &&
+                   Y <= value.Y &&
+                   value.Y + value.Height <= Y + Height;
 		}
 
 		public void Contains(ref Point value, out bool result)
 		{
-			result = (	(this.X <= value.X) &&
-					(value.X < (this.X + this.Width)) &&
-					(this.Y <= value.Y) &&
-					(value.Y < (this.Y + this.Height))	);
+			result = X <= value.X &&
+                     value.X < X + Width &&
+                     Y <= value.Y &&
+                     value.Y < Y + Height;
 		}
 
 		public void Contains(ref Rectangle value, out bool result)
 		{
-			result = (	(this.X <= value.X) &&
-					((value.X + value.Width) <= (this.X + this.Width)) &&
-					(this.Y <= value.Y) &&
-					((value.Y + value.Height) <= (this.Y + this.Height))	);
+			result = X <= value.X &&
+                     value.X + value.Width <= X + Width &&
+                     Y <= value.Y &&
+                     value.Y + value.Height <= Y + Height;
 		}
 
 		/// <summary>
@@ -323,23 +275,21 @@ namespace Microsoft.Xna.Framework
 		/// </returns>
 		public override bool Equals(object obj)
 		{
-			return (obj is Rectangle) && this == ((Rectangle) obj);
+			return obj is Rectangle && this == (Rectangle) obj;
 		}
 
 		public override string ToString()
 		{
-			return (
-				"{X:" + X.ToString() +
-				" Y:" + Y.ToString() +
-				" Width:" + Width.ToString() +
-				" Height:" + Height.ToString() +
-				"}"
-			);
+			return "{X:" + X.ToString() +
+                   " Y:" + Y.ToString() +
+                   " Width:" + Width.ToString() +
+                   " Height:" + Height.ToString() +
+                   "}";
 		}
 
 		public override int GetHashCode()
 		{
-			return (this.X ^ this.Y ^ this.Width ^ this.Height);
+			return X ^ Y ^ Width ^ Height;
 		}
 
 		/// <summary>
@@ -349,10 +299,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if other <see cref="Rectangle"/> intersects with this rectangle; <c>false</c> otherwise.</returns>
 		public bool Intersects(Rectangle value)
 		{
-			return (	value.Left < Right &&
-					Left < value.Right &&
-					value.Top < Bottom &&
-					Top < value.Bottom	);
+			return value.Left < Right &&
+                   Left < value.Right &&
+                   value.Top < Bottom &&
+                   Top < value.Bottom;
 		}
 
 		/// <summary>
@@ -362,10 +312,10 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result"><c>true</c> if other <see cref="Rectangle"/> intersects with this rectangle; <c>false</c> otherwise. As an output parameter.</param>
 		public void Intersects(ref Rectangle value, out bool result)
 		{
-			result = (	value.Left < Right &&
-					Left < value.Right &&
-					value.Top < Bottom &&
-					Top < value.Bottom	);
+			result = value.Left < Right &&
+                     Left < value.Right &&
+                     value.Top < Bottom &&
+                     Top < value.Bottom;
 		}
 
 		#endregion
@@ -374,10 +324,10 @@ namespace Microsoft.Xna.Framework
 
 		public static bool operator ==(Rectangle a, Rectangle b)
 		{
-			return (	(a.X == b.X) &&
-					(a.Y == b.Y) &&
-					(a.Width == b.Width) &&
-					(a.Height == b.Height)	);
+			return a.X == b.X &&
+                   a.Y == b.Y &&
+                   a.Width == b.Width &&
+                   a.Height == b.Height;
 		}
 
 		public static bool operator !=(Rectangle a, Rectangle b)

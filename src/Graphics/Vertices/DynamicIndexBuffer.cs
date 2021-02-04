@@ -18,15 +18,9 @@ namespace Microsoft.Xna.Framework.Graphics
 	{
 		#region Public Properties
 
-		public bool IsContentLost
-		{
-			get
-			{
-				return false;
-			}
-		}
+		public bool IsContentLost => false;
 
-		#endregion
+        #endregion
 
 		#region ContentLost Event
 

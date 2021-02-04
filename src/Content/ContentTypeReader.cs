@@ -22,32 +22,15 @@ namespace Microsoft.Xna.Framework.Content
 	{
 		#region Public Properties
 
-		public virtual bool CanDeserializeIntoExistingObject
-		{
-			get
-			{
-				return false;
-			}
-		}
+		public virtual bool CanDeserializeIntoExistingObject => false;
 
-		public Type TargetType
-		{
-			get
-			{
-				return this.targetType;
-			}
-		}
+        public Type TargetType => targetType;
 
-		public virtual int TypeVersion
-		{
-			// The default version (unless overridden) is zero
-			get
-			{
-				return 0;
-			}
-		}
+        public virtual int TypeVersion =>
+            // The default version (unless overridden) is zero
+            0;
 
-		#endregion
+        #endregion
 
 		#region Private Member Variables
 
@@ -127,11 +110,11 @@ namespace Microsoft.Xna.Framework.Content
 		{
 			if (existingInstance == null)
 			{
-				return this.Read(input, default(T));
+				return Read(input, default(T));
 			}
 			else
 			{
-				return this.Read(input, (T) existingInstance);
+				return Read(input, (T) existingInstance);
 			}
 		}
 

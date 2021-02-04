@@ -30,45 +30,21 @@ namespace Microsoft.Xna.Framework.Media
 			internal set;
 		}
 
-		public bool IsProtected
-		{
-			get
-			{
-				return false;
-			}
-		}
+		public bool IsProtected => false;
 
-		public bool IsRated
-		{
-			get
-			{
-				return false;
-			}
-		}
+        public bool IsRated => false;
 
-		public int PlayCount
+        public int PlayCount
 		{
 			get;
 			internal set;
 		}
 
-		public int Rating
-		{
-			get
-			{
-				return 0;
-			}
-		}
+		public int Rating => 0;
 
-		public int TrackNumber
-		{
-			get
-			{
-				return 0;
-			}
-		}
+        public int TrackNumber => 0;
 
-		#endregion
+        #endregion
 
 		#region Public IDisposable Properties
 
@@ -123,7 +99,7 @@ namespace Microsoft.Xna.Framework.Media
 			return (((object) song) != null) && (handle == song.handle);
 		}
 
-		public override bool Equals(Object obj)
+		public override bool Equals(object obj)
 		{
 			if (obj == null)
 			{

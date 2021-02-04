@@ -23,35 +23,17 @@ namespace Microsoft.Xna.Framework.Content
 	{
 		#region Public Properties
 
-		public ContentManager ContentManager
-		{
-			get
-			{
-				return contentManager;
-			}
-		}
+		public ContentManager ContentManager => contentManager;
 
-		public string AssetName
-		{
-			get
-			{
-				return assetName;
-			}
-		}
+        public string AssetName => assetName;
 
-		#endregion
+        #endregion
 
 		#region Internal Properties
 
-		internal ContentTypeReader[] TypeReaders
-		{
-			get
-			{
-				return typeReaders;
-			}
-		}
+		internal ContentTypeReader[] TypeReaders => typeReaders;
 
-		#endregion
+        #endregion
 
 		#region Internal Variables
 
@@ -92,7 +74,7 @@ namespace Microsoft.Xna.Framework.Content
 			Action<IDisposable> recordDisposableObject
 		) : base(stream) {
 			this.recordDisposableObject = recordDisposableObject;
-			this.contentManager = manager;
+			contentManager = manager;
 			this.assetName = assetName;
 			this.version = version;
 			this.platform = platform;
@@ -105,7 +87,7 @@ namespace Microsoft.Xna.Framework.Content
 		public T ReadExternalReference<T>()
 		{
 			string externalReference = ReadString();
-			if (!String.IsNullOrEmpty(externalReference))
+			if (!string.IsNullOrEmpty(externalReference))
 			{
 				return contentManager.Load<T>(
 					MonoGame.Utilities.FileHelpers.ResolveRelativePath(assetName, externalReference)
@@ -213,7 +195,7 @@ namespace Microsoft.Xna.Framework.Content
 						if (!(v is T))
 						{
 							throw new ContentLoadException(
-								String.Format(
+								string.Format(
 									"Error loading shared resource. Expected type {0}, received type {1}",
 									typeof(T).Name, v.GetType().Name
 								)
@@ -340,8 +322,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		private void RecordDisposable<T>(T result)
 		{
-			IDisposable disposable = result as IDisposable;
-			if (disposable == null)
+            if (!(result is IDisposable disposable))
 			{
 				return;
 			}

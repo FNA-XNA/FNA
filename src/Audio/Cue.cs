@@ -187,7 +187,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public float GetVariable(string name)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
 				throw new ArgumentNullException("name");
 			}
@@ -230,7 +230,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SetVariable(string name, float value)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
 				throw new ArgumentNullException("name");
 			}
@@ -258,7 +258,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			FAudio.FACTCue_Stop(
 				handle,
-				(options == AudioStopOptions.Immediate) ?
+				options == AudioStopOptions.Immediate ?
 					FAudio.FACT_FLAG_STOP_IMMEDIATE :
 					FAudio.FACT_FLAG_STOP_RELEASE
 			);

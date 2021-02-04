@@ -22,15 +22,9 @@ namespace Microsoft.Xna.Framework.Content
 	{
 		#region Public Properties
 
-		public override bool CanDeserializeIntoExistingObject
-		{
-			get
-			{
-				return true;
-			}
-		}
+		public override bool CanDeserializeIntoExistingObject => true;
 
-		#endregion
+        #endregion
 
 		#region Private ContentTypeReader Instance
 
@@ -78,7 +72,7 @@ namespace Microsoft.Xna.Framework.Content
 				else
 				{
 					int readerType = input.Read7BitEncodedInt();
-					list.Add((readerType > 0) ? input.ReadObject<T>(input.TypeReaders[readerType - 1]) : default(T));
+					list.Add(readerType > 0 ? input.ReadObject<T>(input.TypeReaders[readerType - 1]) : default(T));
 				}
 			}
 			return list;

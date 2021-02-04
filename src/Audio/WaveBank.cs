@@ -76,7 +76,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("audioEngine");
 			}
-			if (String.IsNullOrEmpty(nonStreamingWaveBankFilename))
+			if (string.IsNullOrEmpty(nonStreamingWaveBankFilename))
 			{
 				throw new ArgumentNullException("nonStreamingWaveBankFilename");
 			}
@@ -111,7 +111,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("audioEngine");
 			}
-			if (String.IsNullOrEmpty(streamingWaveBankFilename))
+			if (string.IsNullOrEmpty(streamingWaveBankFilename))
 			{
 				throw new ArgumentNullException("streamingWaveBankFilename");
 			}

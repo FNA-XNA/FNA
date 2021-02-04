@@ -21,11 +21,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public float DopplerScale
 		{
-			get
-			{
-				return emitterData.DopplerScaler;
-			}
-			set
+			get => emitterData.DopplerScaler;
+            set
 			{
 				if (value < 0.0f)
 				{
@@ -37,15 +34,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public Vector3 Forward
 		{
-			get
-			{
-				return new Vector3(
-					emitterData.OrientFront.x,
-					emitterData.OrientFront.y,
-					-emitterData.OrientFront.z
-				);
-			}
-			set
+			get =>
+                new Vector3(
+                    emitterData.OrientFront.x,
+                    emitterData.OrientFront.y,
+                    -emitterData.OrientFront.z
+                );
+            set
 			{
 				emitterData.OrientFront.x = value.X;
 				emitterData.OrientFront.y = value.Y;
@@ -55,15 +50,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public Vector3 Position
 		{
-			get
-			{
-				return new Vector3(
-					emitterData.Position.x,
-					emitterData.Position.y,
-					-emitterData.Position.z
-				);
-			}
-			set
+			get =>
+                new Vector3(
+                    emitterData.Position.x,
+                    emitterData.Position.y,
+                    -emitterData.Position.z
+                );
+            set
 			{
 				emitterData.Position.x = value.X;
 				emitterData.Position.y = value.Y;
@@ -74,15 +67,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public Vector3 Up
 		{
-			get
-			{
-				return new Vector3(
-					emitterData.OrientTop.x,
-					emitterData.OrientTop.y,
-					-emitterData.OrientTop.z
-				);
-			}
-			set
+			get =>
+                new Vector3(
+                    emitterData.OrientTop.x,
+                    emitterData.OrientTop.y,
+                    -emitterData.OrientTop.z
+                );
+            set
 			{
 				emitterData.OrientTop.x = value.X;
 				emitterData.OrientTop.y = value.Y;
@@ -92,15 +83,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public Vector3 Velocity
 		{
-			get
-			{
-				return new Vector3(
-					emitterData.Velocity.x,
-					emitterData.Velocity.y,
-					-emitterData.Velocity.z
-				);
-			}
-			set
+			get =>
+                new Vector3(
+                    emitterData.Velocity.x,
+                    emitterData.Velocity.y,
+                    -emitterData.Velocity.z
+                );
+            set
 			{
 				emitterData.Velocity.x = value.X;
 				emitterData.Velocity.y = value.Y;

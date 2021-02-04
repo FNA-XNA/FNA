@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 #endregion
@@ -902,9 +903,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private static FNA3D_Image_SkipFunc skipFunc = INTERNAL_Skip;
 		private static FNA3D_Image_EOFFunc eofFunc = INTERNAL_EOF;
 
-		private static int readGlobal = 0;
-		private static System.Collections.Generic.Dictionary<IntPtr, Stream> readStreams =
-			new System.Collections.Generic.Dictionary<IntPtr, Stream>();
+		private static int readGlobal;
+		private static Dictionary<IntPtr, Stream> readStreams =
+			new Dictionary<IntPtr, Stream>();
 
 		public static IntPtr ReadImageStream(
 			Stream stream,
@@ -992,9 +993,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private static FNA3D_Image_WriteFunc writeFunc = INTERNAL_Write;
 
-		private static int writeGlobal = 0;
-		private static System.Collections.Generic.Dictionary<IntPtr, Stream> writeStreams =
-			new System.Collections.Generic.Dictionary<IntPtr, Stream>();
+		private static int writeGlobal;
+		private static Dictionary<IntPtr, Stream> writeStreams =
+			new Dictionary<IntPtr, Stream>();
 
 		public static void WritePNGStream(
 			Stream stream,

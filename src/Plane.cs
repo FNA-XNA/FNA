@@ -28,18 +28,13 @@ namespace Microsoft.Xna.Framework
 	{
 		#region Internal Properties
 
-		internal string DebugDisplayString
-		{
-			get
-			{
-				return string.Concat(
-					Normal.DebugDisplayString, " ",
-					D.ToString()
-				);
-			}
-		}
+		internal string DebugDisplayString =>
+            string.Concat(
+                Normal.DebugDisplayString, " ",
+                D.ToString()
+            );
 
-		#endregion
+        #endregion
 
 		#region Public Fields
 
@@ -68,7 +63,7 @@ namespace Microsoft.Xna.Framework
 
 			Vector3 cross = Vector3.Cross(ab, ac);
 			Vector3.Normalize(ref cross, out Normal);
-			D = -(Vector3.Dot(Normal, a));
+			D = -Vector3.Dot(Normal, a);
 		}
 
 		public Plane(float a, float b, float c, float d)
@@ -83,60 +78,48 @@ namespace Microsoft.Xna.Framework
 
 		public float Dot(Vector4 value)
 		{
-			return (
-				(this.Normal.X * value.X) +
-				(this.Normal.Y * value.Y) +
-				(this.Normal.Z * value.Z) +
-				(this.D * value.W)
-			);
+			return Normal.X * value.X +
+                   Normal.Y * value.Y +
+                   Normal.Z * value.Z +
+                   D * value.W;
 		}
 
 		public void Dot(ref Vector4 value, out float result)
 		{
-			result = (
-				(this.Normal.X * value.X) +
-				(this.Normal.Y * value.Y) +
-				(this.Normal.Z * value.Z) +
-				(this.D * value.W)
-			);
+			result = Normal.X * value.X +
+                     Normal.Y * value.Y +
+                     Normal.Z * value.Z +
+                     D * value.W;
 		}
 
 		public float DotCoordinate(Vector3 value)
 		{
-			return (
-				(this.Normal.X * value.X) +
-				(this.Normal.Y * value.Y) +
-				(this.Normal.Z * value.Z) +
-				this.D
-			);
+			return Normal.X * value.X +
+                   Normal.Y * value.Y +
+                   Normal.Z * value.Z +
+                   D;
 		}
 
 		public void DotCoordinate(ref Vector3 value, out float result)
 		{
-			result = (
-				(this.Normal.X * value.X) +
-				(this.Normal.Y * value.Y) +
-				(this.Normal.Z * value.Z) +
-				this.D
-			);
+			result = Normal.X * value.X +
+                     Normal.Y * value.Y +
+                     Normal.Z * value.Z +
+                     D;
 		}
 
 		public float DotNormal(Vector3 value)
 		{
-			return (
-				(this.Normal.X * value.X) +
-				(this.Normal.Y * value.Y) +
-				(this.Normal.Z * value.Z)
-			);
+			return Normal.X * value.X +
+                   Normal.Y * value.Y +
+                   Normal.Z * value.Z;
 		}
 
 		public void DotNormal(ref Vector3 value, out float result)
 		{
-			result = (
-				(this.Normal.X * value.X) +
-				(this.Normal.Y * value.Y) +
-				(this.Normal.Z * value.Z)
-			);
+			result = Normal.X * value.X +
+                     Normal.Y * value.Y +
+                     Normal.Z * value.Z;
 		}
 
 		public void Normalize()
@@ -302,12 +285,12 @@ namespace Microsoft.Xna.Framework
 
 		public override bool Equals(object obj)
 		{
-			return (obj is Plane) && this.Equals((Plane) obj);
+			return obj is Plane && Equals((Plane) obj);
 		}
 
 		public bool Equals(Plane other)
 		{
-			return (Normal == other.Normal && D == other.D);
+			return Normal == other.Normal && D == other.D;
 		}
 
 		public override int GetHashCode()
@@ -317,11 +300,9 @@ namespace Microsoft.Xna.Framework
 
 		public override string ToString()
 		{
-			return (
-				"{Normal:" + Normal.ToString() +
-				" D:" + D.ToString() +
-				"}"
-			);
+			return "{Normal:" + Normal.ToString() +
+                   " D:" + D.ToString() +
+                   "}";
 		}
 
 		#endregion

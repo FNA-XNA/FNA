@@ -49,7 +49,7 @@ namespace Microsoft.Xna.Framework.Content
 			 * file exists in a format we actually support...
 			 */
 			path = Normalize(path.Substring(0, path.Length - 4));
-			if (String.IsNullOrEmpty(path))
+			if (string.IsNullOrEmpty(path))
 			{
 				throw new ContentLoadException();
 			}

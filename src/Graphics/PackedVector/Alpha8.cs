@@ -27,15 +27,9 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		[CLSCompliant(false)]
 		public byte PackedValue
 		{
-			get
-			{
-				return packedValue;
-			}
-			set
-			{
-				packedValue = value;
-			}
-		}
+			get => packedValue;
+            set => packedValue = value;
+        }
 
 		#endregion
 

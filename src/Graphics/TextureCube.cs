@@ -74,7 +74,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				Format,
 				Size,
 				LevelCount,
-				(byte) ((this is IRenderTarget) ? 1 : 0)
+				(byte) (this is IRenderTarget ? 1 : 0)
 			);
 		}
 
@@ -282,7 +282,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				subH,
 				cubeMapFace,
 				level,
-				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
+				handle.AddrOfPinnedObject() + startIndex * elementSizeInBytes,
 				elementCount * elementSizeInBytes
 			);
 			handle.Free();

@@ -34,30 +34,19 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Returns a <see cref="Point"/> with coordinates 0, 0.
 		/// </summary>
-		public static Point Zero
-		{
-			get
-			{
-				return zeroPoint;
-			}
-		}
+		public static Point Zero => zeroPoint;
 
-		#endregion
+        #endregion
 
 		#region Internal Properties
 
-		internal string DebugDisplayString
-		{
-			get
-			{
-				return string.Concat(
-					X.ToString(), " ",
-					Y.ToString()
-				);
-			}
-		}
+		internal string DebugDisplayString =>
+            string.Concat(
+                X.ToString(), " ",
+                Y.ToString()
+            );
 
-		#endregion
+        #endregion
 
 		#region Public Fields
 
@@ -103,7 +92,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(Point other)
 		{
-			return ((X == other.X) && (Y == other.Y));
+			return X == other.X && Y == other.Y;
 		}
 
 		/// <summary>
@@ -113,7 +102,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public override bool Equals(object obj)
 		{
-			return (obj is Point) && Equals((Point) obj);
+			return obj is Point && Equals((Point) obj);
 		}
 
 		/// <summary>
@@ -132,11 +121,9 @@ namespace Microsoft.Xna.Framework
 		/// <returns><see cref="String"/> representation of this <see cref="Point"/>.</returns>
 		public override string ToString()
 		{
-			return (
-				"{X:" + X.ToString() +
-				" Y:" + Y.ToString() +
-				"}"
-			);
+			return "{X:" + X.ToString() +
+                   " Y:" + Y.ToString() +
+                   "}";
 		}
 
 		#endregion

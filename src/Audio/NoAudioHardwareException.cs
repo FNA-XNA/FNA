@@ -22,12 +22,12 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 		}
 
-		public NoAudioHardwareException(String message)
+		public NoAudioHardwareException(string message)
 			: base(message)
 		{
 		}
 
-		public NoAudioHardwareException(String message, Exception innerException)
+		public NoAudioHardwareException(string message, Exception innerException)
 			: base(message, innerException)
 		{
 		}

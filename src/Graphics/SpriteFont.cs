@@ -35,27 +35,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public int LineSpacing
 		{
-			get
-			{
-				return lineSpacing;
-			}
-			set
-			{
-				lineSpacing = value;
-			}
-		}
+			get => lineSpacing;
+            set => lineSpacing = value;
+        }
 
 		public float Spacing
 		{
-			get
-			{
-				return spacing;
-			}
-			set
-			{
-				spacing = value;
-			}
-		}
+			get => spacing;
+            set => spacing = value;
+        }
 
 		#endregion
 

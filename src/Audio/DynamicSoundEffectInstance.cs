@@ -20,21 +20,12 @@ namespace Microsoft.Xna.Framework.Audio
 	{
 		#region Public Properties
 
-		public int PendingBufferCount
-		{
-			get
-			{
-				return queuedBuffers.Count;
-			}
-		}
+		public int PendingBufferCount => queuedBuffers.Count;
 
-		public override bool IsLooped
+        public override bool IsLooped
 		{
-			get
-			{
-				return false;
-			}
-			set
+			get => false;
+            set
 			{
 				// No-op, DynamicSoundEffectInstance cannot be looped!
 			}
@@ -142,7 +133,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SubmitBuffer(byte[] buffer)
 		{
-			this.SubmitBuffer(buffer, 0, buffer.Length);
+			SubmitBuffer(buffer, 0, buffer.Length);
 		}
 
 		public void SubmitBuffer(byte[] buffer, int offset, int count)
@@ -157,11 +148,9 @@ namespace Microsoft.Xna.Framework.Audio
 					FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
 					buf.AudioBytes = (uint) count;
 					buf.pAudioData = next;
-					buf.PlayLength = (
-						buf.AudioBytes /
-						(uint) channels /
-						(uint) (format.wBitsPerSample / 8)
-					);
+					buf.PlayLength = buf.AudioBytes /
+                                     (uint) channels /
+                                     (uint) (format.wBitsPerSample / 8);
 					FAudio.FAudioSourceVoice_SubmitSourceBuffer(
 						handle,
 						ref buf,
@@ -207,11 +196,9 @@ namespace Microsoft.Xna.Framework.Audio
 					FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
 					buf.AudioBytes = (uint) count * sizeof(float);
 					buf.pAudioData = next;
-					buf.PlayLength = (
-						buf.AudioBytes /
-						(uint) channels /
-						(uint) (format.wBitsPerSample / 8)
-					);
+					buf.PlayLength = buf.AudioBytes /
+                                     (uint) channels /
+                                     (uint) (format.wBitsPerSample / 8);
 					FAudio.FAudioSourceVoice_SubmitSourceBuffer(
 						handle,
 						ref buf,
@@ -248,11 +235,9 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					buffer.AudioBytes = queuedSizes[i];
 					buffer.pAudioData = queuedBuffers[i];
-					buffer.PlayLength = (
-						buffer.AudioBytes /
-						(uint) channels /
-						(uint) (format.wBitsPerSample / 8)
-					);
+					buffer.PlayLength = buffer.AudioBytes /
+                                        (uint) channels /
+                                        (uint) (format.wBitsPerSample / 8);
 					FAudio.FAudioSourceVoice_SubmitSourceBuffer(
 						handle,
 						ref buffer,
@@ -303,7 +288,7 @@ namespace Microsoft.Xna.Framework.Audio
 			// Do we need even moar buffers?
 			for (
 				int i = MINIMUM_BUFFER_CHECK - PendingBufferCount;
-				(i > 0) && BufferNeeded != null;
+				i > 0 && BufferNeeded != null;
 				i -= 1
 			) {
 				BufferNeeded(this, null);

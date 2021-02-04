@@ -65,7 +65,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("audioEngine");
 			}
-			if (String.IsNullOrEmpty(filename))
+			if (string.IsNullOrEmpty(filename))
 			{
 				throw new ArgumentNullException("filename");
 			}
@@ -161,7 +161,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public Cue GetCue(string name)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
 				throw new ArgumentNullException("name");
 			}
@@ -191,7 +191,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void PlayCue(string name)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
 				throw new ArgumentNullException("name");
 			}
@@ -222,7 +222,7 @@ namespace Microsoft.Xna.Framework.Audio
 			AudioListener listener,
 			AudioEmitter emitter
 		) {
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
 				throw new ArgumentNullException("name");
 			}

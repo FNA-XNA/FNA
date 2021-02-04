@@ -29,37 +29,22 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Returns the count of keys in this collection.
 		/// </summary>
-		public int Count
-		{
-			get
-			{
-				return innerlist.Count;
-			}
-		}
+		public int Count => innerlist.Count;
 
-		/// <summary>
+        /// <summary>
 		/// Returns false because it is not a read-only collection.
 		/// </summary>
-		public bool IsReadOnly
-		{
-			get
-			{
-				return this.isReadOnly;
-			}
-		}
+		public bool IsReadOnly => this.isReadOnly;
 
-		/// <summary>
+        /// <summary>
 		/// Indexer.
 		/// </summary>
 		/// <param name="index">The index of key in this collection.</param>
 		/// <returns><see cref="CurveKey"/> at <paramref name="index"/> position.</returns>
 		public CurveKey this[int index]
 		{
-			get
-			{
-				return innerlist[index];
-			}
-			set
+			get => innerlist[index];
+            set
 			{
 				if (value == null)
 				{

@@ -23,15 +23,9 @@ namespace Microsoft.Xna.Framework.Graphics
 	{
 		#region Public Properties
 
-		public float AspectRatio
-		{
-			get
-			{
-				return (float) Width / (float) Height;
-			}
-		}
+		public float AspectRatio => (float) Width / (float) Height;
 
-		public SurfaceFormat Format
+        public SurfaceFormat Format
 		{
 			get;
 			private set;
@@ -49,15 +43,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
-		public Rectangle TitleSafeArea
-		{
-			get
-			{
-				return new Rectangle(0, 0, Width, Height);
-			}
-		}
+		public Rectangle TitleSafeArea => new Rectangle(0, 0, Width, Height);
 
-		#endregion
+        #endregion
 
 		#region Internal Constructor
 

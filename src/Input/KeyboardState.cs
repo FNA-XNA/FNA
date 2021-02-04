@@ -25,15 +25,9 @@ namespace Microsoft.Xna.Framework.Input
 		/// </summary>
 		/// <param name="key">The key to query.</param>
 		/// <returns>The state of the key.</returns>
-		public KeyState this[Keys key]
-		{
-			get
-			{
-				return InternalGetKey(key) ? KeyState.Down : KeyState.Up;
-			}
-		}
+		public KeyState this[Keys key] => InternalGetKey(key) ? KeyState.Down : KeyState.Up;
 
-		#endregion
+        #endregion
 
 		#region Private Variables
 

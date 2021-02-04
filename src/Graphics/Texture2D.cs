@@ -31,15 +31,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
-		public Rectangle Bounds
-		{
-			get
-			{
-				return new Rectangle(0, 0, Width, Height);
-			}
-		}
+		public Rectangle Bounds => new Rectangle(0, 0, Width, Height);
 
-		#endregion
+        #endregion
 
 		#region Public Constructors
 
@@ -100,7 +94,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				Width,
 				Height,
 				LevelCount,
-				(byte) ((this is IRenderTarget) ? 1 : 0)
+				(byte) (this is IRenderTarget ? 1 : 0)
 			);
 		}
 
@@ -292,7 +286,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				subW,
 				subH,
 				level,
-				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
+				handle.AddrOfPinnedObject() + startIndex * elementSizeInBytes,
 				elementCount * elementSizeInBytes
 			);
 			handle.Free();

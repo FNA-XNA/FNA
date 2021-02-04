@@ -13,22 +13,11 @@ namespace Microsoft.Xna.Framework.Input
 	{
 		#region Public Properties
 
-		public float Left
-		{
-			get
-			{
-				return left;
-			}
-		}
-		public float Right
-		{
-			get
-			{
-				return right;
-			}
-		}
+		public float Left => left;
 
-		#endregion
+        public float Right => right;
+
+        #endregion
 
 		#region Private Variables
 
@@ -100,8 +89,8 @@ namespace Microsoft.Xna.Framework.Input
 		/// </returns>
 		public static bool operator ==(GamePadTriggers left, GamePadTriggers right)
 		{
-			return (	(MathHelper.WithinEpsilon(left.left, right.left)) &&
-					(MathHelper.WithinEpsilon(left.right, right.right))	);
+			return MathHelper.WithinEpsilon(left.left, right.left) &&
+                   MathHelper.WithinEpsilon(left.right, right.right);
 		}
 
 		/// <summary>
@@ -129,7 +118,7 @@ namespace Microsoft.Xna.Framework.Input
 		/// </returns>
 		public override bool Equals(object obj)
 		{
-			return (obj is GamePadTriggers) && (this == (GamePadTriggers) obj);
+			return obj is GamePadTriggers && this == (GamePadTriggers) obj;
 		}
 
 		public override int GetHashCode ()

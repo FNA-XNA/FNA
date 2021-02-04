@@ -50,7 +50,7 @@ namespace Microsoft.Xna.Framework.Design
 
 		public override object ConvertTo(
 			ITypeDescriptorContext context,
-			System.Globalization.CultureInfo culture,
+			CultureInfo culture,
 			object value,
 			Type destinationType
 		) {

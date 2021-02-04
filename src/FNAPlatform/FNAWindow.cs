@@ -32,59 +32,29 @@ namespace Microsoft.Xna.Framework
 		[DefaultValue(false)]
 		public override bool AllowUserResizing
 		{
-			get
-			{
-				return FNAPlatform.GetWindowResizable(window);
-			}
-			set
-			{
-				FNAPlatform.SetWindowResizable(window, value);
-			}
-		}
+			get => FNAPlatform.GetWindowResizable(window);
+            set => FNAPlatform.SetWindowResizable(window, value);
+        }
 
-		public override Rectangle ClientBounds
-		{
-			get
-			{
-				return FNAPlatform.GetWindowBounds(window);
-			}
-		}
+		public override Rectangle ClientBounds => FNAPlatform.GetWindowBounds(window);
 
-		public override DisplayOrientation CurrentOrientation
+        public override DisplayOrientation CurrentOrientation
 		{
 			get;
 			internal set;
 		}
 
-		public override IntPtr Handle
-		{
-			get
-			{
-				return window;
-			}
-		}
+		public override IntPtr Handle => window;
 
-		public override bool IsBorderlessEXT
+        public override bool IsBorderlessEXT
 		{
-			get
-			{
-				return FNAPlatform.GetWindowBorderless(window);
-			}
-			set
-			{
-				FNAPlatform.SetWindowBorderless(window, value);
-			}
-		}
+			get => FNAPlatform.GetWindowBorderless(window);
+            set => FNAPlatform.SetWindowBorderless(window, value);
+        }
 
-		public override string ScreenDeviceName
-		{
-			get
-			{
-				return deviceName;
-			}
-		}
+		public override string ScreenDeviceName => deviceName;
 
-		#endregion
+        #endregion
 
 		#region Private Variables
 

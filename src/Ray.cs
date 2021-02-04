@@ -28,18 +28,13 @@ namespace Microsoft.Xna.Framework
 	{
 		#region Internal Properties
 
-		internal string DebugDisplayString
-		{
-			get
-			{
-				return string.Concat(
-					"Pos( ", Position.DebugDisplayString, " ) \r\n",
-					"Dir( ", Direction.DebugDisplayString, " )"
-				);
-			}
-		}
+		internal string DebugDisplayString =>
+            string.Concat(
+                "Pos( ", Position.DebugDisplayString, " ) \r\n",
+                "Dir( ", Direction.DebugDisplayString, " )"
+            );
 
-		#endregion
+        #endregion
 
 		#region Public Fields
 
@@ -64,14 +59,14 @@ namespace Microsoft.Xna.Framework
 
 		public override bool Equals(object obj)
 		{
-			return (obj is Ray) && Equals((Ray) obj);
+			return obj is Ray && Equals((Ray) obj);
 		}
 
 
 		public bool Equals(Ray other)
 		{
-			return (	this.Position.Equals(other.Position) &&
-					this.Direction.Equals(other.Direction)	);
+			return this.Position.Equals(other.Position) &&
+                   this.Direction.Equals(other.Direction);
 		}
 
 
@@ -124,8 +119,8 @@ namespace Microsoft.Xna.Framework
 					tMaxY = temp;
 				}
 
-				if (	(tMin.HasValue && tMin > tMaxY) ||
-					(tMax.HasValue && tMinY > tMax)	)
+				if (	tMin.HasValue && tMin > tMaxY ||
+					tMax.HasValue && tMinY > tMax	)
 				{
 					return null;
 				}
@@ -153,8 +148,8 @@ namespace Microsoft.Xna.Framework
 					tMaxZ = temp;
 				}
 
-				if (	(tMin.HasValue && tMin > tMaxZ) ||
-					(tMax.HasValue && tMinZ > tMax)	)
+				if (	tMin.HasValue && tMin > tMaxZ ||
+					tMax.HasValue && tMinZ > tMax	)
 				{
 					return null;
 				}
@@ -166,7 +161,7 @@ namespace Microsoft.Xna.Framework
 			/* Having a positive tMin and a negative tMax means the ray is inside the
 			 * box we expect the intesection distance to be 0 in that case.
 			 */
-			if ((tMin.HasValue && tMin < 0) && tMax > 0) return 0;
+			if (tMin.HasValue && tMin < 0 && tMax > 0) return 0;
 
 			/* A negative tMin means that the intersection point is behind the ray's
 			 * origin. We discard these as not hitting the AABB.
@@ -261,13 +256,11 @@ namespace Microsoft.Xna.Framework
 			 * if z = the distance we've travelled along the ray
 			 * if x^2 + z^2 - y^2 < 0, we do not intersect
 			 */
-			float dist = (
-				sphereRadiusSquared +
-				(distanceAlongRay * distanceAlongRay) -
-				differenceLengthSquared
-			);
+			float dist = sphereRadiusSquared +
+                         distanceAlongRay * distanceAlongRay -
+                         differenceLengthSquared;
 
-			result = (dist < 0) ? null : distanceAlongRay - (float?) Math.Sqrt(dist);
+			result = dist < 0 ? null : distanceAlongRay - (float?) Math.Sqrt(dist);
 		}
 
 		#endregion
@@ -288,11 +281,9 @@ namespace Microsoft.Xna.Framework
 
 		public override string ToString()
 		{
-			return (
-				"{{Position:" + Position.ToString() +
-				" Direction:" + Direction.ToString() +
-				"}}"
-			);
+			return "{{Position:" + Position.ToString() +
+                   " Direction:" + Direction.ToString() +
+                   "}}";
 		}
 
 		#endregion

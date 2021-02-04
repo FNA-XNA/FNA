@@ -37,15 +37,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
-		public GraphicsDeviceStatus GraphicsDeviceStatus
-		{
-			get
-			{
-				return GraphicsDeviceStatus.Normal;
-			}
-		}
+		public GraphicsDeviceStatus GraphicsDeviceStatus => GraphicsDeviceStatus.Normal;
 
-		public GraphicsAdapter Adapter
+        public GraphicsAdapter Adapter
 		{
 			get;
 			private set;
@@ -115,27 +109,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public BlendState BlendState
 		{
-			get
-			{
-				return nextBlend;
-			}
-			set
-			{
-				nextBlend = value;
-			}
-		}
+			get => nextBlend;
+            set => nextBlend = value;
+        }
 
 		public DepthStencilState DepthStencilState
 		{
-			get
-			{
-				return nextDepthStencil;
-			}
-			set
-			{
-				nextDepthStencil = value;
-			}
-		}
+			get => nextDepthStencil;
+            set => nextDepthStencil = value;
+        }
 
 		public RasterizerState RasterizerState
 		{
@@ -150,11 +132,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private Rectangle INTERNAL_scissorRectangle;
 		public Rectangle ScissorRectangle
 		{
-			get
-			{
-				return INTERNAL_scissorRectangle;
-			}
-			set
+			get => INTERNAL_scissorRectangle;
+            set
 			{
 				INTERNAL_scissorRectangle = value;
 				FNA3D.FNA3D_SetScissorRect(
@@ -171,11 +150,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		private Viewport INTERNAL_viewport;
 		public Viewport Viewport
 		{
-			get
-			{
-				return INTERNAL_viewport;
-			}
-			set
+			get => INTERNAL_viewport;
+            set
 			{
 				INTERNAL_viewport = value;
 				FNA3D.FNA3D_SetViewport(
@@ -193,47 +169,35 @@ namespace Microsoft.Xna.Framework.Graphics
 				FNA3D.FNA3D_GetBlendFactor(GLDevice, out result);
 				return result;
 			}
-			set
-			{
-				/* FIXME: Does this affect the value found in
+			set =>
+                /* FIXME: Does this affect the value found in
 				 * BlendState?
 				 * -flibit
 				 */
-				FNA3D.FNA3D_SetBlendFactor(GLDevice, ref value);
-			}
-		}
+                FNA3D.FNA3D_SetBlendFactor(GLDevice, ref value);
+        }
 
 		public int MultiSampleMask
 		{
-			get
-			{
-				return FNA3D.FNA3D_GetMultiSampleMask(GLDevice);
-			}
-			set
-			{
-				/* FIXME: Does this affect the value found in
+			get => FNA3D.FNA3D_GetMultiSampleMask(GLDevice);
+            set =>
+                /* FIXME: Does this affect the value found in
 				 * BlendState?
 				 * -flibit
 				 */
-				FNA3D.FNA3D_SetMultiSampleMask(GLDevice, value);
-			}
-		}
+                FNA3D.FNA3D_SetMultiSampleMask(GLDevice, value);
+        }
 
 		public int ReferenceStencil
 		{
-			get
-			{
-				return FNA3D.FNA3D_GetReferenceStencil(GLDevice);
-			}
-			set
-			{
-				/* FIXME: Does this affect the value found in
+			get => FNA3D.FNA3D_GetReferenceStencil(GLDevice);
+            set =>
+                /* FIXME: Does this affect the value found in
 				 * DepthStencilState?
 				 * -flibit
 				 */
-				FNA3D.FNA3D_SetReferenceStencil(GLDevice, value);
-			}
-		}
+                FNA3D.FNA3D_SetReferenceStencil(GLDevice, value);
+        }
 
 		#endregion
 
@@ -1050,7 +1014,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentOutOfRangeException(
 					"vertexBuffers",
-					String.Format(
+					string.Format(
 						"Max Vertex Buffers supported is {0}",
 						vertexBufferBindings.Length
 					)

@@ -22,12 +22,12 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 		}
 
-		public NoMicrophoneConnectedException(String message)
+		public NoMicrophoneConnectedException(string message)
 			: base(message)
 		{
 		}
 
-		public NoMicrophoneConnectedException(String message, Exception innerException)
+		public NoMicrophoneConnectedException(string message, Exception innerException)
 			: base(message, innerException)
 		{
 		}

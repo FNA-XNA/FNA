@@ -56,8 +56,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public Matrix World
         {
-            get { return world; }
-            
+            get => world;
+
             set
             {
                 world = value;
@@ -71,8 +71,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public Matrix View
         {
-            get { return view; }
-            
+            get => view;
+
             set
             {
                 view = value;
@@ -86,8 +86,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public Matrix Projection
         {
-            get { return projection; }
-            
+            get => projection;
+
             set
             {
                 projection = value;
@@ -101,8 +101,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public Vector3 DiffuseColor
         {
-            get { return diffuseColor; }
-            
+            get => diffuseColor;
+
             set
             {
                 diffuseColor = value;
@@ -116,8 +116,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public float Alpha
         {
-            get { return alpha; }
-            
+            get => alpha;
+
             set
             {
                 alpha = value;
@@ -131,8 +131,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public bool FogEnabled
         {
-            get { return fogEnabled; }
-            
+            get => fogEnabled;
+
             set
             {
                 if (fogEnabled != value)
@@ -149,8 +149,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public float FogStart
         {
-            get { return fogStart; }
-            
+            get => fogStart;
+
             set
             {
                 fogStart = value;
@@ -164,8 +164,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public float FogEnd
         {
-            get { return fogEnd; }
-            
+            get => fogEnd;
+
             set
             {
                 fogEnd = value;
@@ -179,8 +179,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public Vector3 FogColor
         {
-            get { return fogColorParam.GetValueVector3(); }
-            set { fogColorParam.SetValue(value); }
+            get => fogColorParam.GetValueVector3();
+            set => fogColorParam.SetValue(value);
         }
 
 
@@ -189,8 +189,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public Texture2D Texture
         {
-            get { return textureParam.GetValueTexture2D(); }
-            set { textureParam.SetValue(value); }
+            get => textureParam.GetValueTexture2D();
+            set => textureParam.SetValue(value);
         }
 
 
@@ -199,8 +199,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public Texture2D Texture2
         {
-            get { return texture2Param.GetValueTexture2D(); }
-            set { texture2Param.SetValue(value); }
+            get => texture2Param.GetValueTexture2D();
+            set => texture2Param.SetValue(value);
         }
 
 
@@ -209,8 +209,8 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public bool VertexColorEnabled
         {
-            get { return vertexColorEnabled; }
-            
+            get => vertexColorEnabled;
+
             set
             {
                 if (vertexColorEnabled != value)

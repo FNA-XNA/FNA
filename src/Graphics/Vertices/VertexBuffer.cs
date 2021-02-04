@@ -336,7 +336,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <summary>
 		/// The GraphicsDevice is resetting, so GPU resources must be recreated.
 		/// </summary>
-		internal protected override void GraphicsDeviceResetting()
+		protected internal override void GraphicsDeviceResetting()
 		{
 			// FIXME: Do we even want to bother with DeviceResetting for GL? -flibit
 		}

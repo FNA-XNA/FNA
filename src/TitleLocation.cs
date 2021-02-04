@@ -17,15 +17,9 @@ namespace Microsoft.Xna.Framework
 	{
 		#region Public Static Properties
 
-		public static string Path
-		{
-			get
-			{
-				return FNAPlatform.TitleLocation;
-			}
-		}
+		public static string Path => FNAPlatform.TitleLocation;
 
-		#endregion
+        #endregion
 	}
 }
 

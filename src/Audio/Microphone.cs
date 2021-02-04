@@ -50,11 +50,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public TimeSpan BufferDuration
 		{
-			get
-			{
-				return bufferDuration;
-			}
-			set
+			get => bufferDuration;
+            set
 			{
 				if (	value.Milliseconds < 100 ||
 					value.Milliseconds > 1000 ||
@@ -66,24 +63,13 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 		}
 
-		public bool IsHeadset
-		{
-			get
-			{
-				// FIXME: I think this is just for Windows Phone? -flibit
-				return false;
-			}
-		}
+		public bool IsHeadset =>
+            // FIXME: I think this is just for Windows Phone? -flibit
+            false;
 
-		public int SampleRate
-		{
-			get
-			{
-				return SAMPLERATE;
-			}
-		}
+        public int SampleRate => SAMPLERATE;
 
-		public MicrophoneState State
+        public MicrophoneState State
 		{
 			get;
 			private set;
@@ -156,7 +142,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentException("offset");
 			}
-			if (count <= 0 || (offset + count) > buffer.Length)
+			if (count <= 0 || offset + count > buffer.Length)
 			{
 				throw new ArgumentException("count");
 			}

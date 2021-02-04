@@ -50,7 +50,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexStride,
 			params VertexElement[] elements
 		) {
-			if ((elements == null) || (elements.Length == 0))
+			if (elements == null || elements.Length == 0)
 			{
 				throw new ArgumentNullException("elements", "Elements cannot be empty");
 			}

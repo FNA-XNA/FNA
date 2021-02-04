@@ -160,7 +160,7 @@ namespace Microsoft.Xna.Framework
 
 		public bool Equals(CurveKey other)
 		{
-			return (this == other);
+			return this == other;
 		}
 
 		#endregion
@@ -196,27 +196,25 @@ namespace Microsoft.Xna.Framework
 				return object.Equals(a, null);
 			}
 
-			return (	(a.Position == b.Position) &&
-					(a.Value == b.Value) &&
-					(a.TangentIn == b.TangentIn) &&
-					(a.TangentOut == b.TangentOut) &&
-					(a.Continuity == b.Continuity)	);
+			return a.Position == b.Position &&
+                   a.Value == b.Value &&
+                   a.TangentIn == b.TangentIn &&
+                   a.TangentOut == b.TangentOut &&
+                   a.Continuity == b.Continuity;
 		}
 
 		public override bool Equals(object obj)
 		{
-			return (obj as CurveKey) == this;
+			return obj as CurveKey == this;
 		}
 
 		public override int GetHashCode()
 		{
-			return (
-				Position.GetHashCode() ^
-				Value.GetHashCode() ^
-				TangentIn.GetHashCode() ^
-				TangentOut.GetHashCode() ^
-				Continuity.GetHashCode()
-			);
+			return Position.GetHashCode() ^
+                   Value.GetHashCode() ^
+                   TangentIn.GetHashCode() ^
+                   TangentOut.GetHashCode() ^
+                   Continuity.GetHashCode();
 		}
 
 		#endregion

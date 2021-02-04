@@ -26,91 +26,54 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// </summary>
 		public int Height
 		{
-			get
-			{
-				return viewport.h;
-			}
-			set
-			{
-				viewport.h = value;
-			}
-		}
+			get => viewport.h;
+            set => viewport.h = value;
+        }
 
 		/// <summary>
 		/// The upper limit of depth of this viewport.
 		/// </summary>
 		public float MaxDepth
 		{
-			get
-			{
-				return viewport.maxDepth;
-			}
-			set
-			{
-				viewport.maxDepth = value;
-			}
-		}
+			get => viewport.maxDepth;
+            set => viewport.maxDepth = value;
+        }
 
 		/// <summary>
 		/// The lower limit of depth of this viewport.
 		/// </summary>
 		public float MinDepth
 		{
-			get
-			{
-				return viewport.minDepth;
-			}
-			set
-			{
-				viewport.minDepth = value;
-			}
-		}
+			get => viewport.minDepth;
+            set => viewport.minDepth = value;
+        }
 
 		/// <summary>
 		/// The width of the bounds in pixels.
 		/// </summary>
 		public int Width
 		{
-			get
-			{
-				return viewport.w;
-			}
-			set
-			{
-				viewport.w = value;
-			}
-		}
+			get => viewport.w;
+            set => viewport.w = value;
+        }
 
 		/// <summary>
 		/// The y coordinate of the beginning of this viewport.
 		/// </summary>
 		public int Y
 		{
-			get
-			{
-				return viewport.y;
-
-			}
-			set
-			{
-				viewport.y = value;
-			}
-		}
+			get => viewport.y;
+            set => viewport.y = value;
+        }
 
 		/// <summary>
 		/// The x coordinate of the beginning of this viewport.
 		/// </summary>
 		public int X
 		{
-			get
-			{
-				return viewport.x;
-			}
-			set
-			{
-				viewport.x = value;
-			}
-		}
+			get => viewport.x;
+            set => viewport.x = value;
+        }
 
 		/// <summary>
 		/// Gets the aspect ratio of this <see cref="Viewport"/>, which is width / height.
@@ -132,17 +95,15 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// </summary>
 		public Rectangle Bounds
 		{
-			get
-			{
-				return new Rectangle(
-					viewport.x,
-					viewport.y,
-					viewport.w,
-					viewport.h
-				);
-			}
+			get =>
+                new Rectangle(
+                    viewport.x,
+                    viewport.y,
+                    viewport.w,
+                    viewport.h
+                );
 
-			set
+            set
 			{
 				viewport.x = value.X;
 				viewport.y = value.Y;
@@ -154,15 +115,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <summary>
 		/// Returns the subset of the viewport that is guaranteed to be visible on a lower quality display.
 		/// </summary>
-		public Rectangle TitleSafeArea
-		{
-			get
-			{
-				return Bounds;
-			}
-		}
+		public Rectangle TitleSafeArea => Bounds;
 
-		#endregion
+        #endregion
 
 		#region Internal FNA3D Variables
 

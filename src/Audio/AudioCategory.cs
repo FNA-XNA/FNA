@@ -19,15 +19,9 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Public Properties
 
 		private string INTERNAL_name;
-		public string Name
-		{
-			get
-			{
-				return INTERNAL_name;
-			}
-		}
+		public string Name => INTERNAL_name;
 
-		#endregion
+        #endregion
 
 		#region Private Variables
 
@@ -99,7 +93,7 @@ namespace Microsoft.Xna.Framework.Audio
 				FAudio.FACTAudioEngine_Stop(
 					parent.handle,
 					index,
-					(options == AudioStopOptions.Immediate) ?
+					options == AudioStopOptions.Immediate ?
 						FAudio.FACT_FLAG_STOP_IMMEDIATE :
 						FAudio.FACT_FLAG_STOP_RELEASE
 				);
@@ -113,10 +107,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public bool Equals(AudioCategory other)
 		{
-			return (GetHashCode() == other.GetHashCode());
+			return GetHashCode() == other.GetHashCode();
 		}
 
-		public override bool Equals(Object obj)
+		public override bool Equals(object obj)
 		{
 			if (obj is AudioCategory)
 			{
@@ -136,7 +130,7 @@ namespace Microsoft.Xna.Framework.Audio
 			AudioCategory value1,
 			AudioCategory value2
 		) {
-			return !(value1.Equals(value2));
+			return !value1.Equals(value2);
 		}
 
 		#endregion

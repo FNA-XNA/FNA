@@ -28,15 +28,9 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Returns <c>true</c> if this curve is constant (has zero or one points); <c>false</c> otherwise.
 		/// </summary>
-		public bool IsConstant
-		{
-			get
-			{
-				return Keys.Count <= 1;
-			}
-		}
+		public bool IsConstant => Keys.Count <= 1;
 
-		/// <summary>
+        /// <summary>
 		/// The collection of curve keys.
 		/// </summary>
 		public CurveKeyCollection Keys
@@ -133,7 +127,7 @@ namespace Microsoft.Xna.Framework
 					case CurveLoopType.Cycle:
 						// Start -> end / start -> end...
 						int cycle = GetNumberOfCycle(position);
-						float virtualPos = position - (cycle * (last.Position - first.Position));
+						float virtualPos = position - cycle * (last.Position - first.Position);
 						return GetCurvePosition(virtualPos);
 
 					case CurveLoopType.CycleOffset:
@@ -141,8 +135,8 @@ namespace Microsoft.Xna.Framework
 						 * the curve each cycle of delta(value).
 						 */
 						cycle = GetNumberOfCycle(position);
-						virtualPos = position - (cycle * (last.Position - first.Position));
-						return (GetCurvePosition(virtualPos) + cycle * (last.Value - first.Value));
+						virtualPos = position - cycle * (last.Position - first.Position);
+						return GetCurvePosition(virtualPos) + cycle * (last.Value - first.Value);
 
 					case CurveLoopType.Oscillate:
 						/* Go back on curve from end and target start
@@ -152,11 +146,11 @@ namespace Microsoft.Xna.Framework
 						
 						if (0 == cycle % 2f)
 						{
-							virtualPos = position - (cycle * (last.Position - first.Position));
+							virtualPos = position - cycle * (last.Position - first.Position);
 						}
 						else
 						{
-							virtualPos = last.Position - position + first.Position + (cycle * (last.Position - first.Position));
+							virtualPos = last.Position - position + first.Position + cycle * (last.Position - first.Position);
 						}
 						return GetCurvePosition(virtualPos);
 				}
@@ -176,7 +170,7 @@ namespace Microsoft.Xna.Framework
 					case CurveLoopType.Cycle:
 						// Start -> end / start -> end...
 						cycle = GetNumberOfCycle(position);
-						float virtualPos = position - (cycle * (last.Position - first.Position));
+						float virtualPos = position - cycle * (last.Position - first.Position);
 						return GetCurvePosition(virtualPos);
 
 					case CurveLoopType.CycleOffset:
@@ -184,26 +178,25 @@ namespace Microsoft.Xna.Framework
 						 * the curve each cycle of delta(value).
 						 */
 						cycle = GetNumberOfCycle(position);
-						virtualPos = position - (cycle * (last.Position - first.Position));
-						return (GetCurvePosition(virtualPos) + cycle * (last.Value - first.Value));
+						virtualPos = position - cycle * (last.Position - first.Position);
+						return GetCurvePosition(virtualPos) + cycle * (last.Value - first.Value);
 
 					case CurveLoopType.Oscillate:
 						/* Go back on curve from end and target start.
 						 * Start-> end / end -> start...
 						 */
 						cycle = GetNumberOfCycle(position);
-						virtualPos = position - (cycle * (last.Position - first.Position));
+						virtualPos = position - cycle * (last.Position - first.Position);
 
 						if (0 == cycle % 2f)
 						{
-							virtualPos = position - (cycle * (last.Position - first.Position));
+							virtualPos = position - cycle * (last.Position - first.Position);
 						}
 						else
 						{
 							virtualPos =
 								last.Position - position + first.Position +
-								(cycle * (last.Position - first.Position)
-							);
+								cycle * (last.Position - first.Position);
 						}
 						return GetCurvePosition(virtualPos);
 				}
@@ -355,10 +348,8 @@ namespace Microsoft.Xna.Framework
 						return prev.Value;
 					}
 					// To have t in [0,1]
-					float t = (
-						(position - prev.Position) /
-						(next.Position - prev.Position)
-					);
+					float t = (position - prev.Position) /
+                              (next.Position - prev.Position);
 					float ts = t * t;
 					float tss = ts * t;
 					/* After a lot of search on internet I have found all about
@@ -370,12 +361,10 @@ namespace Microsoft.Xna.Framework
 					 * with P0.value = prev.value , m0 = prev.tangentOut,
 					 *      P1= next.value, m1 = next.TangentIn.
 					 */
-					return (
-						(2 * tss - 3 * ts + 1f) * prev.Value +
-						(tss - 2 * ts + t) * prev.TangentOut +
-						(3 * ts - 2 * tss) * next.Value +
-						(tss - ts) * next.TangentIn
-					);
+					return (2 * tss - 3 * ts + 1f) * prev.Value +
+                           (tss - 2 * ts + t) * prev.TangentOut +
+                           (3 * ts - 2 * tss) * next.Value +
+                           (tss - ts) * next.TangentIn;
 				}
 				prev = next;
 			}

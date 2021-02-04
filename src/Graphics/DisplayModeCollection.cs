@@ -27,7 +27,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			get
 			{
 				List<DisplayMode> list = new List<DisplayMode>();
-				foreach (DisplayMode mode in this.modes)
+				foreach (DisplayMode mode in modes)
 				{
 					if (mode.Format == format)
 					{

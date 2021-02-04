@@ -15,51 +15,27 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public int Offset
 		{
-			get
-			{
-				return offset;
-			}
-			set
-			{
-				offset = value;
-			}
-		}
+			get => offset;
+            set => offset = value;
+        }
 
 		public VertexElementFormat VertexElementFormat
 		{
-			get
-			{
-				return vertexElementFormat;
-			}
-			set
-			{
-				vertexElementFormat = value;
-			}
-		}
+			get => vertexElementFormat;
+            set => vertexElementFormat = value;
+        }
 
 		public VertexElementUsage VertexElementUsage
 		{
-			get
-			{
-				return vertexElementUsage;
-			}
-			set
-			{
-				vertexElementUsage = value;
-			}
-		}
+			get => vertexElementUsage;
+            set => vertexElementUsage = value;
+        }
 
 		public int UsageIndex
 		{
-			get
-			{
-				return usageIndex;
-			}
-			set
-			{
-				usageIndex = value;
-			}
-		}
+			get => usageIndex;
+            set => usageIndex = value;
+        }
 
 		#endregion
 
@@ -98,13 +74,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public override string ToString()
 		{
-			return (
-				"{{Offset:" + Offset.ToString() +
-				" Format:" + VertexElementFormat.ToString() +
-				" Usage:" + VertexElementUsage.ToString() +
-				" UsageIndex: " + UsageIndex.ToString() +
-				"}}"
-			);
+			return "{{Offset:" + Offset.ToString() +
+                   " Format:" + VertexElementFormat.ToString() +
+                   " Usage:" + VertexElementUsage.ToString() +
+                   " UsageIndex: " + UsageIndex.ToString() +
+                   "}}";
 		}
 
 		public override bool Equals(object obj)
@@ -113,19 +87,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				return false;
 			}
-			if (obj.GetType() != base.GetType())
+			if (obj.GetType() != GetType())
 			{
 				return false;
 			}
-			return (this == ((VertexElement) obj));
+			return this == (VertexElement) obj;
 		}
 
 		public static bool operator ==(VertexElement left, VertexElement right)
 		{
-			return (	(left.Offset == right.Offset) &&
-					(left.UsageIndex == right.UsageIndex) &&
-					(left.VertexElementUsage == right.VertexElementUsage) &&
-					(left.VertexElementFormat == right.VertexElementFormat)	);
+			return left.Offset == right.Offset &&
+                   left.UsageIndex == right.UsageIndex &&
+                   left.VertexElementUsage == right.VertexElementUsage &&
+                   left.VertexElementFormat == right.VertexElementFormat;
 		}
 
 		public static bool operator !=(VertexElement left, VertexElement right)

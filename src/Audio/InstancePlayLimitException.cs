@@ -22,12 +22,12 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 		}
 
-		public InstancePlayLimitException(String message)
+		public InstancePlayLimitException(string message)
 			: base(message)
 		{
 		}
 
-		public InstancePlayLimitException(String message, Exception innerException)
+		public InstancePlayLimitException(string message, Exception innerException)
 			: base(message, innerException)
 		{
 		}

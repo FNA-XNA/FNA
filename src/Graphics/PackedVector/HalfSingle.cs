@@ -20,15 +20,9 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		[CLSCompliant(false)]
 		public ushort PackedValue
 		{
-			get
-			{
-				return packedValue;
-			}
-			set
-			{
-				packedValue = value;
-			}
-		}
+			get => packedValue;
+            set => packedValue = value;
+        }
 
 		#endregion
 

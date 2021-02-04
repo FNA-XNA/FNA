@@ -47,15 +47,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			/// <summary>
 			/// Gets the current element in the ModelMeshCollection.
 			/// </summary>
-			public ModelMeshPart Current
-			{
-				get
-				{
-					return collection[position];
-				}
-			}
+			public ModelMeshPart Current => collection[position];
 
-			/// <summary>
+            /// <summary>
 			/// Advances the enumerator to the next element of the ModelMeshCollection.
 			/// </summary>
 			public bool MoveNext()
@@ -71,15 +65,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 			}
 
-			object IEnumerator.Current
-			{
-				get
-				{
-					return collection[position];
-				}
-			}
+			object IEnumerator.Current => collection[position];
 
-			void IEnumerator.Reset()
+            void IEnumerator.Reset()
 			{
 				position = -1;
 			}

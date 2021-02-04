@@ -13,117 +13,62 @@ namespace Microsoft.Xna.Framework.Input
 	{
 		#region Public Properties
 
-		public ButtonState A
-		{
-			get
-			{
-				return ((buttons & Buttons.A) == Buttons.A) ?
-					ButtonState.Pressed :
-					ButtonState.Released;
-			}
-		}
+		public ButtonState A =>
+            (buttons & Buttons.A) == Buttons.A ?
+                ButtonState.Pressed :
+                ButtonState.Released;
 
-		public ButtonState B
-		{
-			get
-			{
-				return ((buttons & Buttons.B) == Buttons.B) ?
-					ButtonState.Pressed :
-					ButtonState.Released;
-			}
-		}
+        public ButtonState B =>
+            (buttons & Buttons.B) == Buttons.B ?
+                ButtonState.Pressed :
+                ButtonState.Released;
 
-		public ButtonState Back
-		{
-			get
-			{
-				return ((buttons & Buttons.Back) == Buttons.Back) ?
-					ButtonState.Pressed :
-					ButtonState.Released;
-			}
-		}
+        public ButtonState Back =>
+            (buttons & Buttons.Back) == Buttons.Back ?
+                ButtonState.Pressed :
+                ButtonState.Released;
 
-		public ButtonState X
-		{
-			get
-			{
-				return ((buttons & Buttons.X) == Buttons.X) ?
-					ButtonState.Pressed :
-					ButtonState.Released;
-			}
-		}
+        public ButtonState X =>
+            (buttons & Buttons.X) == Buttons.X ?
+                ButtonState.Pressed :
+                ButtonState.Released;
 
-		public ButtonState Y
-		{
-			get
-			{
-				return ((buttons & Buttons.Y) == Buttons.Y) ?
-					ButtonState.Pressed :
-					ButtonState.Released;
-			}
-		}
+        public ButtonState Y =>
+            (buttons & Buttons.Y) == Buttons.Y ?
+                ButtonState.Pressed :
+                ButtonState.Released;
 
-		public ButtonState Start
-		{
-			get
-			{
-				return ((buttons & Buttons.Start) == Buttons.Start) ?
-					ButtonState.Pressed :
-					ButtonState.Released;
-			}
-		}
+        public ButtonState Start =>
+            (buttons & Buttons.Start) == Buttons.Start ?
+                ButtonState.Pressed :
+                ButtonState.Released;
 
-		public ButtonState LeftShoulder
-		{
-			get
-			{
-				return ((buttons & Buttons.LeftShoulder) == Buttons.LeftShoulder) ?
-					ButtonState.Pressed :
-					ButtonState.Released;
-			}
-		}
+        public ButtonState LeftShoulder =>
+            (buttons & Buttons.LeftShoulder) == Buttons.LeftShoulder ?
+                ButtonState.Pressed :
+                ButtonState.Released;
 
-		public ButtonState LeftStick
-		{
-			get
-			{
-				return ((buttons & Buttons.LeftStick) == Buttons.LeftStick) ?
-					ButtonState.Pressed :
-					ButtonState.Released;
-			}
-		}
+        public ButtonState LeftStick =>
+            (buttons & Buttons.LeftStick) == Buttons.LeftStick ?
+                ButtonState.Pressed :
+                ButtonState.Released;
 
-		public ButtonState RightShoulder
-		{
-			get
-			{
-				return ((buttons & Buttons.RightShoulder) == Buttons.RightShoulder) ?
-					ButtonState.Pressed :
-					ButtonState.Released;
-			}
-		}
+        public ButtonState RightShoulder =>
+            (buttons & Buttons.RightShoulder) == Buttons.RightShoulder ?
+                ButtonState.Pressed :
+                ButtonState.Released;
 
-		public ButtonState RightStick
-		{
-			get
-			{
-				return ((buttons & Buttons.RightStick) == Buttons.RightStick) ?
-					ButtonState.Pressed :
-					ButtonState.Released;
-			}
-		}
+        public ButtonState RightStick =>
+            (buttons & Buttons.RightStick) == Buttons.RightStick ?
+                ButtonState.Pressed :
+                ButtonState.Released;
 
-		public ButtonState BigButton
-		{
-			get
-			{
-				return ((buttons & Buttons.BigButton) == Buttons.BigButton) ?
-					ButtonState.Pressed :
-					ButtonState.Released;
-			}
-		}
+        public ButtonState BigButton =>
+            (buttons & Buttons.BigButton) == Buttons.BigButton ?
+                ButtonState.Pressed :
+                ButtonState.Released;
 
-		#endregion
+        #endregion
 
 		#region Internal Variables
 
@@ -197,7 +142,7 @@ namespace Microsoft.Xna.Framework.Input
 		/// </returns>
 		public override bool Equals(object obj)
 		{
-			return (obj is GamePadButtons) && (this == (GamePadButtons) obj);
+			return obj is GamePadButtons && this == (GamePadButtons) obj;
 		}
 
 		public override int GetHashCode()

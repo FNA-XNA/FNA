@@ -29,8 +29,8 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader input,
 			DateTime existingInstance
 		) {
-			UInt64 value = input.ReadUInt64();
-			UInt64 mask = (UInt64) 3 << 62;
+			ulong value = input.ReadUInt64();
+			ulong mask = (ulong) 3 << 62;
 			long ticks = (long) (value & ~mask);
 			DateTimeKind kind = (DateTimeKind) ((value >> 62) & 3);
 			return new DateTime(ticks, kind);

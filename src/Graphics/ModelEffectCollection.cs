@@ -70,15 +70,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			/// <summary>
 			/// Gets the current element in the ModelEffectCollection.
 			/// </summary>
-			public Effect Current
-			{
-				get
-				{
-					return enumerator.Current;
-				}
-			}
+			public Effect Current => enumerator.Current;
 
-			List<Effect>.Enumerator enumerator;
+            List<Effect>.Enumerator enumerator;
 			bool disposed;
 
 			internal Enumerator(List<Effect> list)
@@ -107,15 +101,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				return enumerator.MoveNext();
 			}
 
-			object IEnumerator.Current
-			{
-				get
-				{
-					return Current;
-				}
-			}
+			object IEnumerator.Current => Current;
 
-			void IEnumerator.Reset()
+            void IEnumerator.Reset()
 			{
 				IEnumerator resetEnumerator = enumerator;
 				resetEnumerator.Reset();

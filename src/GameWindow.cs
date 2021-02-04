@@ -50,11 +50,8 @@ namespace Microsoft.Xna.Framework
 
 		public string Title
 		{
-			get
-			{
-				return _title;
-			}
-			set
+			get => _title;
+            set
 			{
 				if (_title != value)
 				{
@@ -72,15 +69,9 @@ namespace Microsoft.Xna.Framework
 		/// </exception>
 		public virtual bool IsBorderlessEXT
 		{
-			get
-			{
-				return false;
-			}
-			set
-			{
-				throw new NotImplementedException();
-			}
-		}
+			get => false;
+            set => throw new NotImplementedException();
+        }
 
 		#endregion
 

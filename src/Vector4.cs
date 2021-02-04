@@ -34,87 +34,46 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Returns a <see cref="Vector4"/> with components 0, 0, 0, 0.
 		/// </summary>
-		public static Vector4 Zero
-		{
-			get
-			{
-				return zero;
-			}
-		}
+		public static Vector4 Zero => zero;
 
-		/// <summary>
+        /// <summary>
 		/// Returns a <see cref="Vector4"/> with components 1, 1, 1, 1.
 		/// </summary>
-		public static Vector4 One
-		{
-			get
-			{
-				return unit;
-			}
-		}
+		public static Vector4 One => unit;
 
-		/// <summary>
+        /// <summary>
 		/// Returns a <see cref="Vector4"/> with components 1, 0, 0, 0.
 		/// </summary>
-		public static Vector4 UnitX
-		{
-			get
-			{
-				return unitX;
-			}
-		}
+		public static Vector4 UnitX => unitX;
 
-		/// <summary>
+        /// <summary>
 		/// Returns a <see cref="Vector4"/> with components 0, 1, 0, 0.
 		/// </summary>
-		public static Vector4 UnitY
-		{
-			get
-			{
-				return unitY;
-			}
-		}
+		public static Vector4 UnitY => unitY;
 
-		/// <summary>
+        /// <summary>
 		/// Returns a <see cref="Vector4"/> with components 0, 0, 1, 0.
 		/// </summary>
-		public static Vector4 UnitZ
-		{
-			get
-			{
-				return unitZ;
-			}
-		}
+		public static Vector4 UnitZ => unitZ;
 
-		/// <summary>
+        /// <summary>
 		/// Returns a <see cref="Vector4"/> with components 0, 0, 0, 1.
 		/// </summary>
-		public static Vector4 UnitW
-		{
-			get
-			{
-				return unitW;
-			}
-		}
+		public static Vector4 UnitW => unitW;
 
-		#endregion
+        #endregion
 
 		#region Internal Properties
 
-		internal string DebugDisplayString
-		{
-			get
-			{
-				return string.Concat(
-					X.ToString(), " ",
-					Y.ToString(), " ",
-					Z.ToString(), " ",
-					W.ToString()
-				);
-			}
-		}
+		internal string DebugDisplayString =>
+            string.Concat(
+                X.ToString(), " ",
+                Y.ToString(), " ",
+                Z.ToString(), " ",
+                W.ToString()
+            );
 
-		#endregion
+        #endregion
 
 		#region Public Fields
 
@@ -218,7 +177,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public override bool Equals(object obj)
 		{
-			return (obj is Vector4) && Equals((Vector4) obj);
+			return obj is Vector4 && Equals((Vector4) obj);
 		}
 
 		/// <summary>
@@ -228,10 +187,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(Vector4 other)
 		{
-			return (	X == other.X &&
-					Y == other.Y &&
-					Z == other.Z &&
-					W == other.W	);
+			return X == other.X &&
+                   Y == other.Y &&
+                   Z == other.Z &&
+                   W == other.W;
 		}
 
 		/// <summary>
@@ -249,7 +208,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The length of this <see cref="Vector4"/>.</returns>
 		public float Length()
 		{
-			return (float) Math.Sqrt((X * X) + (Y * Y) + (Z * Z) + (W * W));
+			return (float) Math.Sqrt(X * X + Y * Y + Z * Z + W * W);
 		}
 
 		/// <summary>
@@ -258,7 +217,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The squared length of this <see cref="Vector4"/>.</returns>
 		public float LengthSquared()
 		{
-			return (X * X) + (Y * Y) + (Z * Z) + (W * W);
+			return X * X + Y * Y + Z * Z + W * W;
 		}
 
 		/// <summary>
@@ -267,10 +226,10 @@ namespace Microsoft.Xna.Framework
 		public void Normalize()
 		{
 			float factor = 1.0f / (float) Math.Sqrt(
-				(X * X) +
-				(Y * Y) +
-				(Z * Z) +
-				(W * W)
+				X * X +
+				Y * Y +
+				Z * Z +
+				W * W
 			);
 			X *= factor;
 			Y *= factor;
@@ -280,12 +239,10 @@ namespace Microsoft.Xna.Framework
 
 		public override string ToString()
 		{
-			return (
-				"{X:" + X.ToString() +
-				" Y:" + Y.ToString() +
-				" Z:" + Z.ToString() +
-				" W:" + W.ToString() + "}"
-			);
+			return "{X:" + X.ToString() +
+                   " Y:" + Y.ToString() +
+                   " Z:" + Z.ToString() +
+                   " W:" + W.ToString() + "}";
 		}
 
 		#endregion
@@ -483,12 +440,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The squared distance between two vectors.</returns>
 		public static float DistanceSquared(Vector4 value1, Vector4 value2)
 		{
-			return (
-				(value1.W - value2.W) * (value1.W - value2.W) +
-				(value1.X - value2.X) * (value1.X - value2.X) +
-				(value1.Y - value2.Y) * (value1.Y - value2.Y) +
-				(value1.Z - value2.Z) * (value1.Z - value2.Z)
-			);
+			return (value1.W - value2.W) * (value1.W - value2.W) +
+                   (value1.X - value2.X) * (value1.X - value2.X) +
+                   (value1.Y - value2.Y) * (value1.Y - value2.Y) +
+                   (value1.Z - value2.Z) * (value1.Z - value2.Z);
 		}
 
 		/// <summary>
@@ -502,12 +457,10 @@ namespace Microsoft.Xna.Framework
 			ref Vector4 value2,
 			out float result
 		) {
-			result = (
-				(value1.W - value2.W) * (value1.W - value2.W) +
-				(value1.X - value2.X) * (value1.X - value2.X) +
-				(value1.Y - value2.Y) * (value1.Y - value2.Y) +
-				(value1.Z - value2.Z) * (value1.Z - value2.Z)
-			);
+			result = (value1.W - value2.W) * (value1.W - value2.W) +
+                     (value1.X - value2.X) * (value1.X - value2.X) +
+                     (value1.Y - value2.Y) * (value1.Y - value2.Y) +
+                     (value1.Z - value2.Z) * (value1.Z - value2.Z);
 		}
 
 		/// <summary>
@@ -581,12 +534,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The dot product of two vectors.</returns>
 		public static float Dot(Vector4 vector1, Vector4 vector2)
 		{
-			return (
-				vector1.X * vector2.X +
-				vector1.Y * vector2.Y +
-				vector1.Z * vector2.Z +
-				vector1.W * vector2.W
-			);
+			return vector1.X * vector2.X +
+                   vector1.Y * vector2.Y +
+                   vector1.Z * vector2.Z +
+                   vector1.W * vector2.W;
 		}
 
 		/// <summary>
@@ -597,12 +548,10 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">The dot product of two vectors as an output parameter.</param>
 		public static void Dot(ref Vector4 vector1, ref Vector4 vector2, out float result)
 		{
-			result = (
-				(vector1.X * vector2.X) +
-				(vector1.Y * vector2.Y) +
-				(vector1.Z * vector2.Z) +
-				(vector1.W * vector2.W)
-			);
+			result = vector1.X * vector2.X +
+                     vector1.Y * vector2.Y +
+                     vector1.Z * vector2.Z +
+                     vector1.W * vector2.W;
 		}
 
 		/// <summary>
@@ -838,10 +787,10 @@ namespace Microsoft.Xna.Framework
 		public static Vector4 Normalize(Vector4 vector)
 		{
 			float factor = 1.0f / (float) Math.Sqrt(
-				(vector.X * vector.X) +
-				(vector.Y * vector.Y) +
-				(vector.Z * vector.Z) +
-				(vector.W * vector.W)
+				vector.X * vector.X +
+				vector.Y * vector.Y +
+				vector.Z * vector.Z +
+				vector.W * vector.W
 			);
 			return new Vector4(
 				vector.X * factor,
@@ -859,10 +808,10 @@ namespace Microsoft.Xna.Framework
 		public static void Normalize(ref Vector4 vector, out Vector4 result)
 		{
 			float factor = 1.0f / (float) Math.Sqrt(
-				(vector.X * vector.X) +
-				(vector.Y * vector.Y) +
-				(vector.Z * vector.Z) +
-				(vector.W * vector.W)
+				vector.X * vector.X +
+				vector.Y * vector.Y +
+				vector.Z * vector.Z +
+				vector.W * vector.W
 			);
 			result.X = vector.X * factor;
 			result.Y = vector.Y * factor;
@@ -982,10 +931,10 @@ namespace Microsoft.Xna.Framework
 		public static void Transform(ref Vector2 position, ref Matrix matrix, out Vector4 result)
 		{
 			result = new Vector4(
-				(position.X * matrix.M11) + (position.Y * matrix.M21) + matrix.M41,
-				(position.X * matrix.M12) + (position.Y * matrix.M22) + matrix.M42,
-				(position.X * matrix.M13) + (position.Y * matrix.M23) + matrix.M43,
-				(position.X * matrix.M14) + (position.Y * matrix.M24) + matrix.M44
+				position.X * matrix.M11 + position.Y * matrix.M21 + matrix.M41,
+				position.X * matrix.M12 + position.Y * matrix.M22 + matrix.M42,
+				position.X * matrix.M13 + position.Y * matrix.M23 + matrix.M43,
+				position.X * matrix.M14 + position.Y * matrix.M24 + matrix.M44
 			);
 		}
 
@@ -997,30 +946,22 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">Transformed <see cref="Vector4"/> as an output parameter.</param>
 		public static void Transform(ref Vector3 position, ref Matrix matrix, out Vector4 result)
 		{
-			float x = (
-				(position.X * matrix.M11) +
-				(position.Y * matrix.M21) +
-				(position.Z * matrix.M31) +
-				matrix.M41
-			);
-			float y = (
-				(position.X * matrix.M12) +
-				(position.Y * matrix.M22) +
-				(position.Z * matrix.M32) +
-				matrix.M42
-			);
-			float z = (
-				(position.X * matrix.M13) +
-				(position.Y * matrix.M23) +
-				(position.Z * matrix.M33) +
-				matrix.M43
-			);
-			float w = (
-				(position.X * matrix.M14) +
-				(position.Y * matrix.M24) +
-				(position.Z * matrix.M34) +
-				matrix.M44
-			);
+			float x = position.X * matrix.M11 +
+                      position.Y * matrix.M21 +
+                      position.Z * matrix.M31 +
+                      matrix.M41;
+			float y = position.X * matrix.M12 +
+                      position.Y * matrix.M22 +
+                      position.Z * matrix.M32 +
+                      matrix.M42;
+			float z = position.X * matrix.M13 +
+                      position.Y * matrix.M23 +
+                      position.Z * matrix.M33 +
+                      matrix.M43;
+			float w = position.X * matrix.M14 +
+                      position.Y * matrix.M24 +
+                      position.Z * matrix.M34 +
+                      matrix.M44;
 			result.X = x;
 			result.Y = y;
 			result.Z = z;
@@ -1035,30 +976,22 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">Transformed <see cref="Vector4"/> as an output parameter.</param>
 		public static void Transform(ref Vector4 vector, ref Matrix matrix, out Vector4 result)
 		{
-			float x = (
-				(vector.X * matrix.M11) +
-				(vector.Y * matrix.M21) +
-				(vector.Z * matrix.M31) +
-				(vector.W * matrix.M41)
-			);
-			float y = (
-				(vector.X * matrix.M12) +
-				(vector.Y * matrix.M22) +
-				(vector.Z * matrix.M32) +
-				(vector.W * matrix.M42)
-			);
-			float z = (
-				(vector.X * matrix.M13) +
-				(vector.Y * matrix.M23) +
-				(vector.Z * matrix.M33) +
-				(vector.W * matrix.M43)
-			);
-			float w = (
-				(vector.X * matrix.M14) +
-				(vector.Y * matrix.M24) +
-				(vector.Z * matrix.M34) +
-				(vector.W * matrix.M44)
-			);
+			float x = vector.X * matrix.M11 +
+                      vector.Y * matrix.M21 +
+                      vector.Z * matrix.M31 +
+                      vector.W * matrix.M41;
+			float y = vector.X * matrix.M12 +
+                      vector.Y * matrix.M22 +
+                      vector.Z * matrix.M32 +
+                      vector.W * matrix.M42;
+			float z = vector.X * matrix.M13 +
+                      vector.Y * matrix.M23 +
+                      vector.Z * matrix.M33 +
+                      vector.W * matrix.M43;
+			float w = vector.X * matrix.M14 +
+                      vector.Y * matrix.M24 +
+                      vector.Z * matrix.M34 +
+                      vector.W * matrix.M44;
 			result.X = x;
 			result.Y = y;
 			result.Z = z;
@@ -1399,10 +1332,10 @@ namespace Microsoft.Xna.Framework
 
 		public static bool operator ==(Vector4 value1, Vector4 value2)
 		{
-			return (	value1.X == value2.X &&
-					value1.Y == value2.Y &&
-					value1.Z == value2.Z &&
-					value1.W == value2.W	);
+			return value1.X == value2.X &&
+                   value1.Y == value2.Y &&
+                   value1.Z == value2.Z &&
+                   value1.W == value2.W;
 		}
 
 		public static bool operator !=(Vector4 value1, Vector4 value2)

@@ -1514,15 +1514,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			public const int RealStride = 96;
 
-			VertexDeclaration IVertexType.VertexDeclaration
-			{
-				get
-				{
-					throw new NotImplementedException();
-				}
-			}
+			VertexDeclaration IVertexType.VertexDeclaration => throw new NotImplementedException();
 
-			public Vector3 Position0;
+            public Vector3 Position0;
 			public Color Color0;
 			public Vector2 TextureCoordinate0;
 			public Vector3 Position1;

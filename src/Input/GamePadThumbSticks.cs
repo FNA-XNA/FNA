@@ -17,22 +17,11 @@ namespace Microsoft.Xna.Framework.Input
 	{
 		#region Public Properties
 
-		public Vector2 Left
-		{
-			get
-			{
-				return left;
-			}
-		}
-		public Vector2 Right
-		{
-			get
-			{
-				return right;
-			}
-		}
+		public Vector2 Left => left;
 
-		#endregion
+        public Vector2 Right => right;
+
+        #endregion
 
 		#region Private Variables
 
@@ -150,7 +139,7 @@ namespace Microsoft.Xna.Framework.Input
 		/// </returns>
 		public static bool operator ==(GamePadThumbSticks left, GamePadThumbSticks right)
 		{
-			return (left.left == right.left) && (left.right == right.right);
+			return left.left == right.left && left.right == right.right;
 		}
 
 		/// <summary>
@@ -178,7 +167,7 @@ namespace Microsoft.Xna.Framework.Input
 		/// </returns>
 		public override bool Equals(object obj)
 		{
-			return (obj is GamePadThumbSticks) && (this == (GamePadThumbSticks) obj);
+			return obj is GamePadThumbSticks && this == (GamePadThumbSticks) obj;
 		}
 
 		public override int GetHashCode()

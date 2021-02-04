@@ -29,18 +29,13 @@ namespace Microsoft.Xna.Framework
 	{
 		#region Internal Properties
 
-		internal string DebugDisplayString
-		{
-			get
-			{
-				return string.Concat(
-					"Min( ", Min.DebugDisplayString, " ) \r\n",
-					"Max( ", Max.DebugDisplayString, " )"
-				);
-			}
-		}
+		internal string DebugDisplayString =>
+            string.Concat(
+                "Min( ", Min.DebugDisplayString, " ) \r\n",
+                "Max( ", Max.DebugDisplayString, " )"
+            );
 
-		#endregion
+        #endregion
 
 		#region Public Fields
 
@@ -362,15 +357,15 @@ namespace Microsoft.Xna.Framework
 
 		public void Intersects(ref BoundingBox box, out bool result)
 		{
-			if ((this.Max.X >= box.Min.X) && (this.Min.X <= box.Max.X))
+			if (this.Max.X >= box.Min.X && this.Min.X <= box.Max.X)
 			{
-				if ((this.Max.Y < box.Min.Y) || (this.Min.Y > box.Max.Y))
+				if (this.Max.Y < box.Min.Y || this.Min.Y > box.Max.Y)
 				{
 					result = false;
 					return;
 				}
 
-				result = (this.Max.Z >= box.Min.Z) && (this.Min.Z <= box.Max.Z);
+				result = this.Max.Z >= box.Min.Z && this.Min.Z <= box.Max.Z;
 				return;
 			}
 
@@ -468,12 +463,10 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// Inline Vector3.Dot(plane.Normal, negativeVertex) + plane.D;
-			float distance = (
-				plane.Normal.X * negativeVertex.X +
-				plane.Normal.Y * negativeVertex.Y +
-				plane.Normal.Z * negativeVertex.Z +
-				plane.D
-			);
+			float distance = plane.Normal.X * negativeVertex.X +
+                             plane.Normal.Y * negativeVertex.Y +
+                             plane.Normal.Z * negativeVertex.Z +
+                             plane.D;
 			if (distance > 0)
 			{
 				result = PlaneIntersectionType.Front;
@@ -481,12 +474,10 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// Inline Vector3.Dot(plane.Normal, positiveVertex) + plane.D;
-			distance = (
-				plane.Normal.X * positiveVertex.X +
-				plane.Normal.Y * positiveVertex.Y +
-				plane.Normal.Z * positiveVertex.Z +
-				plane.D
-			);
+			distance = plane.Normal.X * positiveVertex.X +
+                       plane.Normal.Y * positiveVertex.Y +
+                       plane.Normal.Z * positiveVertex.Z +
+                       plane.D;
 			if (distance < 0)
 			{
 				result = PlaneIntersectionType.Back;
@@ -498,7 +489,7 @@ namespace Microsoft.Xna.Framework
 
 		public bool Equals(BoundingBox other)
 		{
-			return (this.Min == other.Min) && (this.Max == other.Max);
+			return this.Min == other.Min && this.Max == other.Max;
 		}
 
 		#endregion
@@ -527,13 +518,13 @@ namespace Microsoft.Xna.Framework
 			Vector3 maxVec = MinVector3;
 			foreach (Vector3 ptVector in points)
 			{
-				minVec.X = (minVec.X < ptVector.X) ? minVec.X : ptVector.X;
-				minVec.Y = (minVec.Y < ptVector.Y) ? minVec.Y : ptVector.Y;
-				minVec.Z = (minVec.Z < ptVector.Z) ? minVec.Z : ptVector.Z;
+				minVec.X = minVec.X < ptVector.X ? minVec.X : ptVector.X;
+				minVec.Y = minVec.Y < ptVector.Y ? minVec.Y : ptVector.Y;
+				minVec.Z = minVec.Z < ptVector.Z ? minVec.Z : ptVector.Z;
 
-				maxVec.X = (maxVec.X > ptVector.X) ? maxVec.X : ptVector.X;
-				maxVec.Y = (maxVec.Y > ptVector.Y) ? maxVec.Y : ptVector.Y;
-				maxVec.Z = (maxVec.Z > ptVector.Z) ? maxVec.Z : ptVector.Z;
+				maxVec.X = maxVec.X > ptVector.X ? maxVec.X : ptVector.X;
+				maxVec.Y = maxVec.Y > ptVector.Y ? maxVec.Y : ptVector.Y;
+				maxVec.Z = maxVec.Z > ptVector.Z ? maxVec.Z : ptVector.Z;
 
 				empty = false;
 			}
@@ -582,7 +573,7 @@ namespace Microsoft.Xna.Framework
 
 		public override bool Equals(object obj)
 		{
-			return (obj is BoundingBox) && Equals((BoundingBox) obj);
+			return obj is BoundingBox && Equals((BoundingBox) obj);
 		}
 
 		public override int GetHashCode()
@@ -602,11 +593,9 @@ namespace Microsoft.Xna.Framework
 
 		public override string ToString()
 		{
-			return (
-				"{{Min:" + Min.ToString() +
-				" Max:" + Max.ToString() +
-				"}}"
-			);
+			return "{{Min:" + Min.ToString() +
+                   " Max:" + Max.ToString() +
+                   "}}";
 		}
 
 		#endregion

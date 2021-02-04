@@ -34,15 +34,9 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Returns a quaternion representing no rotation.
 		/// </summary>
-		public static Quaternion Identity
-		{
-			get
-			{
-				return identity;
-			}
-		}
+		public static Quaternion Identity => identity;
 
-		#endregion
+        #endregion
 
 		#region Internal Properties
 
@@ -147,7 +141,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public override bool Equals(object obj)
 		{
-			return (obj is Quaternion) && Equals((Quaternion) obj);
+			return obj is Quaternion && Equals((Quaternion) obj);
 		}
 
 		/// <summary>
@@ -157,10 +151,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(Quaternion other)
 		{
-			return (	X == other.X &&
-					Y == other.Y &&
-					Z == other.Z &&
-					W == other.W	);
+			return X == other.X &&
+                   Y == other.Y &&
+                   Z == other.Z &&
+                   W == other.W;
 		}
 
 		/// <summary>
@@ -169,12 +163,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Hash code of this <see cref="Quaternion"/>.</returns>
 		public override int GetHashCode()
 		{
-			return (
-				this.X.GetHashCode() +
-				this.Y.GetHashCode() +
-				this.Z.GetHashCode() +
-				this.W.GetHashCode()
-			);
+			return this.X.GetHashCode() +
+                   this.Y.GetHashCode() +
+                   this.Z.GetHashCode() +
+                   this.W.GetHashCode();
 		}
 
 		/// <summary>
@@ -183,12 +175,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The magnitude of the quaternion components.</returns>
 		public float Length()
 		{
-			float num = (
-				(this.X * this.X) +
-				(this.Y * this.Y) +
-				(this.Z * this.Z) +
-				(this.W * this.W)
-			);
+			float num = this.X * this.X +
+                        this.Y * this.Y +
+                        this.Z * this.Z +
+                        this.W * this.W;
 			return (float) Math.Sqrt((double) num);
 		}
 
@@ -198,12 +188,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The squared magnitude of the quaternion components.</returns>
 		public float LengthSquared()
 		{
-			return (
-				(this.X * this.X) +
-				(this.Y * this.Y) +
-				(this.Z * this.Z) +
-				(this.W * this.W)
-			);
+			return this.X * this.X +
+                   this.Y * this.Y +
+                   this.Z * this.Z +
+                   this.W * this.W;
 		}
 
 		/// <summary>
@@ -211,12 +199,12 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public void Normalize()
 		{
-			float num = 1.0f / ((float) Math.Sqrt(
-				(X * X) +
-				(Y * Y) +
-				(Z * Z) +
-				(W * W)
-			));
+			float num = 1.0f / (float) Math.Sqrt(
+                X * X +
+                Y * Y +
+                Z * Z +
+                W * W
+            );
 			this.X *= num;
 			this.Y *= num;
 			this.Z *= num;
@@ -230,13 +218,11 @@ namespace Microsoft.Xna.Framework
 		/// <returns>A <see cref="String"/> representation of this <see cref="Quaternion"/>.</returns>
 		public override string ToString()
 		{
-			return (
-				"{X:" + X.ToString() +
-				" Y:" + Y.ToString() +
-				" Z:" + Z.ToString() +
-				" W:" + W.ToString() +
-				"}"
-			);
+			return "{X:" + X.ToString() +
+                   " Y:" + Y.ToString() +
+                   " Z:" + Z.ToString() +
+                   " W:" + W.ToString() +
+                   "}";
 		}
 
 		#endregion
@@ -307,10 +293,10 @@ namespace Microsoft.Xna.Framework
 			float z2 = value2.Z;
 			float w2 = value2.W;
 
-			result.X = ((x2 * w1) + (x1 * w2)) + ((y2 * z1) - (z2 * y1));
-			result.Y = ((y2 * w1) + (y1 * w2)) + ((z2 * x1) - (x2 * z1));
-			result.Z = ((z2 * w1) + (z1 * w2)) + ((x2 * y1) - (y2 * x1));
-			result.W = (w2 * w1) - (((x2 * x1) + (y2 * y1)) + (z2 * z1));
+			result.X = x2 * w1 + x1 * w2 + (y2 * z1 - z2 * y1);
+			result.Y = y2 * w1 + y1 * w2 + (z2 * x1 - x2 * z1);
+			result.Z = z2 * w1 + z1 * w2 + (x2 * y1 - y2 * x1);
+			result.W = w2 * w1 - (x2 * x1 + y2 * y1 + z2 * z1);
 		}
 
 		/// <summary>
@@ -402,7 +388,7 @@ namespace Microsoft.Xna.Framework
 				result.Y = (matrix.M31 - matrix.M13) * sqrt;
 				result.Z = (matrix.M12 - matrix.M21) * sqrt;
 			}
-			else if ((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
+			else if (matrix.M11 >= matrix.M22 && matrix.M11 >= matrix.M33)
 			{
 				sqrt = (float) Math.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
 				half = 0.5f / sqrt;
@@ -470,10 +456,10 @@ namespace Microsoft.Xna.Framework
 			float halfYaw = yaw * 0.5f;
 			float sinYaw = (float) Math.Sin(halfYaw);
 			float cosYaw = (float) Math.Cos(halfYaw);
-			result.X = ((cosYaw * sinPitch) * cosRoll) + ((sinYaw * cosPitch) * sinRoll);
-			result.Y = ((sinYaw * cosPitch) * cosRoll) - ((cosYaw * sinPitch) * sinRoll);
-			result.Z = ((cosYaw * cosPitch) * sinRoll) - ((sinYaw * sinPitch) * cosRoll);
-			result.W = ((cosYaw * cosPitch) * cosRoll) + ((sinYaw * sinPitch) * sinRoll);
+			result.X = cosYaw * sinPitch * cosRoll + sinYaw * cosPitch * sinRoll;
+			result.Y = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
+			result.Z = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+			result.W = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
 		}
 
 		/// <summary>
@@ -504,25 +490,23 @@ namespace Microsoft.Xna.Framework
 			float y = quaternion1.Y;
 			float z = quaternion1.Z;
 			float w = quaternion1.W;
-			float num14 = (
-				(quaternion2.X * quaternion2.X) +
-				(quaternion2.Y * quaternion2.Y) +
-				(quaternion2.Z * quaternion2.Z) +
-				(quaternion2.W * quaternion2.W)
-			);
+			float num14 = quaternion2.X * quaternion2.X +
+                          quaternion2.Y * quaternion2.Y +
+                          quaternion2.Z * quaternion2.Z +
+                          quaternion2.W * quaternion2.W;
 			float num5 = 1f / num14;
 			float num4 = -quaternion2.X * num5;
 			float num3 = -quaternion2.Y * num5;
 			float num2 = -quaternion2.Z * num5;
 			float num = quaternion2.W * num5;
-			float num13 = (y * num2) - (z * num3);
-			float num12 = (z * num4) - (x * num2);
-			float num11 = (x * num3) - (y * num4);
-			float num10 = ((x * num4) + (y * num3)) + (z * num2);
-			result.X = ((x * num) + (num4 * w)) + num13;
-			result.Y = ((y * num) + (num3 * w)) + num12;
-			result.Z = ((z * num) + (num2 * w)) + num11;
-			result.W = (w * num) - num10;
+			float num13 = y * num2 - z * num3;
+			float num12 = z * num4 - x * num2;
+			float num11 = x * num3 - y * num4;
+			float num10 = x * num4 + y * num3 + z * num2;
+			result.X = x * num + num4 * w + num13;
+			result.Y = y * num + num3 * w + num12;
+			result.Z = z * num + num2 * w + num11;
+			result.W = w * num - num10;
 		}
 
 		/// <summary>
@@ -533,12 +517,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The dot product of two quaternions.</returns>
 		public static float Dot(Quaternion quaternion1, Quaternion quaternion2)
 		{
-			return (
-				(quaternion1.X * quaternion2.X) +
-				(quaternion1.Y * quaternion2.Y) +
-				(quaternion1.Z * quaternion2.Z) +
-				(quaternion1.W * quaternion2.W)
-			);
+			return quaternion1.X * quaternion2.X +
+                   quaternion1.Y * quaternion2.Y +
+                   quaternion1.Z * quaternion2.Z +
+                   quaternion1.W * quaternion2.W;
 		}
 
 		/// <summary>
@@ -552,12 +534,10 @@ namespace Microsoft.Xna.Framework
 			ref Quaternion quaternion2,
 			out float result
 		) {
-			result = (
-				(quaternion1.X * quaternion2.X) +
-				(quaternion1.Y * quaternion2.Y) +
-				(quaternion1.Z * quaternion2.Z) +
-				(quaternion1.W * quaternion2.W)
-			);
+			result = quaternion1.X * quaternion2.X +
+                     quaternion1.Y * quaternion2.Y +
+                     quaternion1.Z * quaternion2.Z +
+                     quaternion1.W * quaternion2.W;
 		}
 
 		/// <summary>
@@ -579,12 +559,10 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">The inverse quaternion as an output parameter.</param>
 		public static void Inverse(ref Quaternion quaternion, out Quaternion result)
 		{
-			float num2 = (
-				(quaternion.X * quaternion.X) +
-				(quaternion.Y * quaternion.Y) +
-				(quaternion.Z * quaternion.Z) +
-				(quaternion.W * quaternion.W)
-			);
+			float num2 = quaternion.X * quaternion.X +
+                         quaternion.Y * quaternion.Y +
+                         quaternion.Z * quaternion.Z +
+                         quaternion.W * quaternion.W;
 			float num = 1f / num2;
 			result.X = -quaternion.X * num;
 			result.Y = -quaternion.Y * num;
@@ -624,33 +602,29 @@ namespace Microsoft.Xna.Framework
 		) {
 			float num = amount;
 			float num2 = 1f - num;
-			float num5 = (
-				(quaternion1.X * quaternion2.X) +
-				(quaternion1.Y * quaternion2.Y) +
-				(quaternion1.Z * quaternion2.Z) +
-				(quaternion1.W * quaternion2.W)
-			);
+			float num5 = quaternion1.X * quaternion2.X +
+                         quaternion1.Y * quaternion2.Y +
+                         quaternion1.Z * quaternion2.Z +
+                         quaternion1.W * quaternion2.W;
 			if (num5 >= 0f)
 			{
-				result.X = (num2 * quaternion1.X) + (num * quaternion2.X);
-				result.Y = (num2 * quaternion1.Y) + (num * quaternion2.Y);
-				result.Z = (num2 * quaternion1.Z) + (num * quaternion2.Z);
-				result.W = (num2 * quaternion1.W) + (num * quaternion2.W);
+				result.X = num2 * quaternion1.X + num * quaternion2.X;
+				result.Y = num2 * quaternion1.Y + num * quaternion2.Y;
+				result.Z = num2 * quaternion1.Z + num * quaternion2.Z;
+				result.W = num2 * quaternion1.W + num * quaternion2.W;
 			}
 			else
 			{
-				result.X = (num2 * quaternion1.X) - (num * quaternion2.X);
-				result.Y = (num2 * quaternion1.Y) - (num * quaternion2.Y);
-				result.Z = (num2 * quaternion1.Z) - (num * quaternion2.Z);
-				result.W = (num2 * quaternion1.W) - (num * quaternion2.W);
+				result.X = num2 * quaternion1.X - num * quaternion2.X;
+				result.Y = num2 * quaternion1.Y - num * quaternion2.Y;
+				result.Z = num2 * quaternion1.Z - num * quaternion2.Z;
+				result.W = num2 * quaternion1.W - num * quaternion2.W;
 			}
-			float num4 = (
-				(result.X * result.X) +
-				(result.Y * result.Y) +
-				(result.Z * result.Z) +
-				(result.W * result.W)
-			);
-			float num3 = 1f / ((float) Math.Sqrt((double) num4));
+			float num4 = result.X * result.X +
+                         result.Y * result.Y +
+                         result.Z * result.Z +
+                         result.W * result.W;
+			float num3 = 1f / (float) Math.Sqrt((double) num4);
 			result.X *= num3;
 			result.Y *= num3;
 			result.Z *= num3;
@@ -690,12 +664,10 @@ namespace Microsoft.Xna.Framework
 			float num2;
 			float num3;
 			float num = amount;
-			float num4 = (
-				(quaternion1.X * quaternion2.X) +
-				(quaternion1.Y * quaternion2.Y) +
-				(quaternion1.Z * quaternion2.Z) +
-				(quaternion1.W * quaternion2.W)
-			);
+			float num4 = quaternion1.X * quaternion2.X +
+                         quaternion1.Y * quaternion2.Y +
+                         quaternion1.Z * quaternion2.Z +
+                         quaternion1.W * quaternion2.W;
 			float flag = 1.0f;
 			if (num4 < 0f)
 			{
@@ -711,13 +683,13 @@ namespace Microsoft.Xna.Framework
 			{
 				float num5 = (float) Math.Acos((double) num4);
 				float num6 = (float) (1.0 / Math.Sin((double) num5));
-				num3 = ((float) Math.Sin((double) ((1f - num) * num5))) * num6;
-				num2 = flag * (((float) Math.Sin((double) (num * num5))) * num6);
+				num3 = (float) Math.Sin((double) ((1f - num) * num5)) * num6;
+				num2 = flag * ((float) Math.Sin((double) (num * num5)) * num6);
 			}
-			result.X = (num3 * quaternion1.X) + (num2 * quaternion2.X);
-			result.Y = (num3 * quaternion1.Y) + (num2 * quaternion2.Y);
-			result.Z = (num3 * quaternion1.Z) + (num2 * quaternion2.Z);
-			result.W = (num3 * quaternion1.W) + (num2 * quaternion2.W);
+			result.X = num3 * quaternion1.X + num2 * quaternion2.X;
+			result.Y = num3 * quaternion1.Y + num2 * quaternion2.Y;
+			result.Z = num3 * quaternion1.Z + num2 * quaternion2.Z;
+			result.W = num3 * quaternion1.W + num2 * quaternion2.W;
 		}
 
 		/// <summary>
@@ -795,14 +767,14 @@ namespace Microsoft.Xna.Framework
 			float num3 = quaternion2.Y;
 			float num2 = quaternion2.Z;
 			float num = quaternion2.W;
-			float num12 = (y * num2) - (z * num3);
-			float num11 = (z * num4) - (x * num2);
-			float num10 = (x * num3) - (y * num4);
-			float num9 = ((x * num4) + (y * num3)) + (z * num2);
-			result.X = ((x * num) + (num4 * w)) + num12;
-			result.Y = ((y * num) + (num3 * w)) + num11;
-			result.Z = ((z * num) + (num2 * w)) + num10;
-			result.W = (w * num) - num9;
+			float num12 = y * num2 - z * num3;
+			float num11 = z * num4 - x * num2;
+			float num10 = x * num3 - y * num4;
+			float num9 = x * num4 + y * num3 + z * num2;
+			result.X = x * num + num4 * w + num12;
+			result.Y = y * num + num3 * w + num11;
+			result.Z = z * num + num2 * w + num10;
+			result.W = w * num - num9;
 		}
 
 		/// <summary>
@@ -869,12 +841,12 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">The unit length quaternion an output parameter.</param>
 		public static void Normalize(ref Quaternion quaternion, out Quaternion result)
 		{
-			float num = 1.0f / ((float) Math.Sqrt(
-				(quaternion.X * quaternion.X) +
-				(quaternion.Y * quaternion.Y) +
-				(quaternion.Z * quaternion.Z) +
-				(quaternion.W * quaternion.W)
-			));
+			float num = 1.0f / (float) Math.Sqrt(
+                quaternion.X * quaternion.X +
+                quaternion.Y * quaternion.Y +
+                quaternion.Z * quaternion.Z +
+                quaternion.W * quaternion.W
+            );
 			result.X = quaternion.X * num;
 			result.Y = quaternion.Y * num;
 			result.Z = quaternion.Z * num;

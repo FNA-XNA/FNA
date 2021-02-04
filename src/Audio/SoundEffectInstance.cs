@@ -25,14 +25,11 @@ namespace Microsoft.Xna.Framework.Audio
 			protected set;
 		}
 
-		private bool INTERNAL_looped = false;
+		private bool INTERNAL_looped;
 		public virtual bool IsLooped
 		{
-			get
-			{
-				return INTERNAL_looped;
-			}
-			set
+			get => INTERNAL_looped;
+            set
 			{
 				if (hasStarted)
 				{
@@ -42,14 +39,11 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 		}
 
-		private float INTERNAL_pan = 0.0f;
+		private float INTERNAL_pan;
 		public float Pan
 		{
-			get
-			{
-				return INTERNAL_pan;
-			}
-			set
+			get => INTERNAL_pan;
+            set
 			{
 				if (IsDisposed)
 				{
@@ -83,14 +77,11 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 		}
 
-		private float INTERNAL_pitch = 0.0f;
+		private float INTERNAL_pitch;
 		public float Pitch
 		{
-			get
-			{
-				return INTERNAL_pitch;
-			}
-			set
+			get => INTERNAL_pitch;
+            set
 			{
 				INTERNAL_pitch = MathHelper.Clamp(value, -1.0f, 1.0f);
 				if (handle != IntPtr.Zero)
@@ -127,11 +118,8 @@ namespace Microsoft.Xna.Framework.Audio
 		private float INTERNAL_volume = 1.0f;
 		public float Volume
 		{
-			get
-			{
-				return INTERNAL_volume;
-			}
-			set
+			get => INTERNAL_volume;
+            set
 			{
 				INTERNAL_volume = value;
 				if (handle != IntPtr.Zero)
@@ -239,10 +227,8 @@ namespace Microsoft.Xna.Framework.Audio
 				dev.Handle3D,
 				ref listener.listenerData,
 				ref emitter.emitterData,
-				(
-					FAudio.F3DAUDIO_CALCULATE_MATRIX |
-					FAudio.F3DAUDIO_CALCULATE_DOPPLER
-				),
+				FAudio.F3DAUDIO_CALCULATE_MATRIX |
+                FAudio.F3DAUDIO_CALCULATE_DOPPLER,
 				ref dspSettings
 			);
 			if (handle != IntPtr.Zero)
@@ -451,11 +437,9 @@ namespace Microsoft.Xna.Framework.Audio
 			dspSettings.SrcChannelCount = srcChannels;
 			dspSettings.DstChannelCount = SoundEffect.Device().DeviceDetails.OutputFormat.Format.nChannels;
 
-			int memsize = (
-				4 *
-				(int) dspSettings.SrcChannelCount *
-				(int) dspSettings.DstChannelCount
-			);
+			int memsize = 4 *
+                          (int) dspSettings.SrcChannelCount *
+                          (int) dspSettings.DstChannelCount;
 			dspSettings.pMatrixCoefficients = Marshal.AllocHGlobal(memsize);
 			unsafe
 			{
@@ -595,8 +579,8 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 				else
 				{
-					outputMatrix[0] = (INTERNAL_pan > 0.0f) ? (1.0f - INTERNAL_pan) : 1.0f;
-					outputMatrix[1] = (INTERNAL_pan < 0.0f) ? (1.0f  + INTERNAL_pan) : 1.0f;
+					outputMatrix[0] = INTERNAL_pan > 0.0f ? 1.0f - INTERNAL_pan : 1.0f;
+					outputMatrix[1] = INTERNAL_pan < 0.0f ? 1.0f  + INTERNAL_pan : 1.0f;
 				}
 			}
 			else

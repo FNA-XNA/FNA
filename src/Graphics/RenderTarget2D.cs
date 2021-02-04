@@ -35,37 +35,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
-		public bool IsContentLost
-		{
-			get
-			{
-				return false;
-			}
-		}
+		public bool IsContentLost => false;
 
-		#endregion
+        #endregion
 
 		#region IRenderTarget Properties
 
 		/// <inheritdoc/>
-		IntPtr IRenderTarget.DepthStencilBuffer
-		{
-			get
-			{
-				return glDepthStencilBuffer;
-			}
-		}
+		IntPtr IRenderTarget.DepthStencilBuffer => glDepthStencilBuffer;
 
-		/// <inheritdoc/>
-		IntPtr IRenderTarget.ColorBuffer
-		{
-			get
-			{
-				return glColorBuffer;
-			}
-		}
+        /// <inheritdoc/>
+		IntPtr IRenderTarget.ColorBuffer => glColorBuffer;
 
-		#endregion
+        #endregion
 
 		#region Private FNA3D Variables
 

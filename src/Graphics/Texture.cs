@@ -58,7 +58,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Context Reset Method
 
-		internal protected override void GraphicsDeviceResetting()
+		protected internal override void GraphicsDeviceResetting()
 		{
 			// FIXME: Do we even want to bother with DeviceResetting for GL? -flibit
 		}

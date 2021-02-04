@@ -20,131 +20,65 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public SurfaceFormat BackBufferFormat
 		{
-			get
-			{
-				return parameters.backBufferFormat;
-			}
-			set
-			{
-				parameters.backBufferFormat = value;
-			}
-		}
+			get => parameters.backBufferFormat;
+            set => parameters.backBufferFormat = value;
+        }
 
 		public int BackBufferHeight
 		{
-			get
-			{
-				return parameters.backBufferHeight;
-			}
-			set
-			{
-				parameters.backBufferHeight = value;
-			}
-		}
+			get => parameters.backBufferHeight;
+            set => parameters.backBufferHeight = value;
+        }
 
 		public int BackBufferWidth
 		{
-			get
-			{
-				return parameters.backBufferWidth;
-			}
-			set
-			{
-				parameters.backBufferWidth = value;
-			}
-		}
+			get => parameters.backBufferWidth;
+            set => parameters.backBufferWidth = value;
+        }
 
-		public Rectangle Bounds
-		{
-			get
-			{
-				return new Rectangle(0, 0, BackBufferWidth, BackBufferHeight);
-			}
-		}
+		public Rectangle Bounds => new Rectangle(0, 0, BackBufferWidth, BackBufferHeight);
 
-		public IntPtr DeviceWindowHandle
+        public IntPtr DeviceWindowHandle
 		{
-			get
-			{
-				return parameters.deviceWindowHandle;
-			}
-			set
-			{
-				parameters.deviceWindowHandle = value;
-			}
-		}
+			get => parameters.deviceWindowHandle;
+            set => parameters.deviceWindowHandle = value;
+        }
 
 		public DepthFormat DepthStencilFormat
 		{
-			get
-			{
-				return parameters.depthStencilFormat;
-			}
-			set
-			{
-				parameters.depthStencilFormat = value;
-			}
-		}
+			get => parameters.depthStencilFormat;
+            set => parameters.depthStencilFormat = value;
+        }
 
 		public bool IsFullScreen
 		{
-			get
-			{
-				return parameters.isFullScreen == 1;
-			}
-			set
-			{
-				parameters.isFullScreen = (byte) (value ? 1 : 0);
-			}
-		}
+			get => parameters.isFullScreen == 1;
+            set => parameters.isFullScreen = (byte) (value ? 1 : 0);
+        }
 
 		public int MultiSampleCount
 		{
-			get
-			{
-				return parameters.multiSampleCount;
-			}
-			set
-			{
-				parameters.multiSampleCount = value;
-			}
-		}
+			get => parameters.multiSampleCount;
+            set => parameters.multiSampleCount = value;
+        }
 
 		public PresentInterval PresentationInterval
 		{
-			get
-			{
-				return parameters.presentationInterval;
-			}
-			set
-			{
-				parameters.presentationInterval = value;
-			}
-		}
+			get => parameters.presentationInterval;
+            set => parameters.presentationInterval = value;
+        }
 
 		public DisplayOrientation DisplayOrientation
 		{
-			get
-			{
-				return parameters.displayOrientation;
-			}
-			set
-			{
-				parameters.displayOrientation = value;
-			}
-		}
+			get => parameters.displayOrientation;
+            set => parameters.displayOrientation = value;
+        }
 
 		public RenderTargetUsage RenderTargetUsage
 		{
-			get
-			{
-				return parameters.renderTargetUsage;
-			}
-			set
-			{
-				parameters.renderTargetUsage = value;
-			}
-		}
+			get => parameters.renderTargetUsage;
+            set => parameters.renderTargetUsage = value;
+        }
 
 		#endregion
 

@@ -18,17 +18,12 @@ namespace Microsoft.Xna.Framework.Graphics
 	{
 		#region Public Properties
 
-		public DisplayMode CurrentDisplayMode
-		{
-			get
-			{
-				return FNAPlatform.GetCurrentDisplayMode(
-					Adapters.IndexOf(this)
-				);
-			}
-		}
+		public DisplayMode CurrentDisplayMode =>
+            FNAPlatform.GetCurrentDisplayMode(
+                Adapters.IndexOf(this)
+            );
 
-		public DisplayModeCollection SupportedDisplayModes
+        public DisplayModeCollection SupportedDisplayModes
 		{
 			get;
 			private set;
@@ -40,29 +35,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
-		public int DeviceId
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
+		public int DeviceId => throw new NotImplementedException();
 
-		public string DeviceName
+        public string DeviceName
 		{
 			get;
 			private set;
 		}
 
-		public bool IsDefaultAdapter
-		{
-			get
-			{
-				return this == DefaultAdapter;
-			}
-		}
+		public bool IsDefaultAdapter => this == DefaultAdapter;
 
-		/// <summary>
+        /// <summary>
 		/// Gets a <see cref="System.Boolean"/> indicating whether
 		/// <see cref="GraphicsAdapter.CurrentDisplayMode"/> has a
 		/// Width:Height ratio corresponding to a widescreen <see cref="DisplayMode"/>.
@@ -82,31 +65,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		public IntPtr MonitorHandle
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
+		public IntPtr MonitorHandle => throw new NotImplementedException();
 
-		public int Revision
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
+        public int Revision => throw new NotImplementedException();
 
-		public int SubSystemId
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
+        public int SubSystemId => throw new NotImplementedException();
 
-		public bool UseNullDevice
+        public bool UseNullDevice
 		{
 			get;
 			set;
@@ -118,27 +83,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			set;
 		}
 
-		public int VendorId
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-		}
+		public int VendorId => throw new NotImplementedException();
 
-		#endregion
+        #endregion
 
 		#region Public Static Properties
 
-		public static GraphicsAdapter DefaultAdapter
-		{
-			get
-			{
-				return Adapters[0];
-			}
-		}
+		public static GraphicsAdapter DefaultAdapter => Adapters[0];
 
-		public static ReadOnlyCollection<GraphicsAdapter> Adapters
+        public static ReadOnlyCollection<GraphicsAdapter> Adapters
 		{
 			get
 			{

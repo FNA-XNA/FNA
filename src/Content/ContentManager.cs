@@ -270,7 +270,7 @@ namespace Microsoft.Xna.Framework.Content
 
 			object result = null;
 			Stream stream = null;
-			string modifiedAssetName = String.Empty; // Will be used if we have to guess a filename
+			string modifiedAssetName = string.Empty; // Will be used if we have to guess a filename
 			try
 			{
 				stream = OpenStream(assetName);
@@ -290,19 +290,19 @@ namespace Microsoft.Xna.Framework.Content
 				{
 					modifiedAssetName = Texture2DReader.Normalize(modifiedAssetName);
 				}
-				else if ((typeof(T) == typeof(SoundEffect)))
+				else if (typeof(T) == typeof(SoundEffect))
 				{
 					modifiedAssetName = SoundEffectReader.Normalize(modifiedAssetName);
 				}
-				else if ((typeof(T) == typeof(Effect)))
+				else if (typeof(T) == typeof(Effect))
 				{
 					modifiedAssetName = EffectReader.Normalize(modifiedAssetName);
 				}
-				else if ((typeof(T) == typeof(Song)))
+				else if (typeof(T) == typeof(Song))
 				{
 					modifiedAssetName = SongReader.Normalize(modifiedAssetName);
 				}
-				else if ((typeof(T) == typeof(Video)))
+				else if (typeof(T) == typeof(Video))
 				{
 					modifiedAssetName = VideoReader.Normalize(modifiedAssetName);
 				}
@@ -313,7 +313,7 @@ namespace Microsoft.Xna.Framework.Content
 				}
 
 				// Did we get anything...?
-				if (String.IsNullOrEmpty(modifiedAssetName))
+				if (string.IsNullOrEmpty(modifiedAssetName))
 				{
 					// Nope, nothing we're aware of!
 					throw new ContentLoadException(
@@ -336,8 +336,8 @@ namespace Microsoft.Xna.Framework.Content
 				using (ContentReader reader = GetContentReaderFromXnb(assetName, ref stream, xnbReader, (char) xnbHeader[3], recordDisposableObject))
 				{
 					result = reader.ReadAsset<T>();
-					GraphicsResource resource = result as GraphicsResource;
-					if (resource != null)
+
+                    if (result is GraphicsResource resource)
 					{
 						resource.Name = assetName;
 					}
@@ -421,8 +421,7 @@ namespace Microsoft.Xna.Framework.Content
 				 * disposables recorded here. Doing it outside of this catch will
 				 * result in disposables being logged twice.
 				 */
-				IDisposable disposableResult = result as IDisposable;
-				if (disposableResult != null)
+                if (result is IDisposable disposableResult)
 				{
 					if (recordDisposableObject != null)
 					{
@@ -466,10 +465,9 @@ namespace Microsoft.Xna.Framework.Content
 		{
 			if (graphicsDevice == null)
 			{
-				IGraphicsDeviceService result = ServiceProvider.GetService(
-					typeof(IGraphicsDeviceService)
-				) as IGraphicsDeviceService;
-				if (result == null)
+                if (!(ServiceProvider.GetService(
+                    typeof(IGraphicsDeviceService)
+                ) is IGraphicsDeviceService result))
 				{
 					throw new ContentLoadException("No Graphics Device Service");
 				}

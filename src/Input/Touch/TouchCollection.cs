@@ -20,42 +20,19 @@ namespace Microsoft.Xna.Framework.Input.Touch
 	{
 		#region Public Properties
 
-		public int Count
-		{
-			get
-			{
-				return touches.Count;
-			}
-		}
+		public int Count => touches.Count;
 
-		public bool IsConnected
-		{
-			get
-			{
-				return TouchPanel.TouchDeviceExists;
-			}
-		}
+        public bool IsConnected => TouchPanel.TouchDeviceExists;
 
-		public bool IsReadOnly
-		{
-			get
-			{
-				return true;
-			}
-		}
+        public bool IsReadOnly => true;
 
-		public TouchLocation this[int index]
+        public TouchLocation this[int index]
 		{
-			get
-			{
-				return touches[index];
-			}
-			set
-			{
-				// This will cause a runtime exception
-				touches[index] = value;
-			}
-		}
+			get => touches[index];
+            set =>
+                // This will cause a runtime exception
+                touches[index] = value;
+        }
 
 		#endregion
 
@@ -174,33 +151,21 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				position = -1;
 			}
 
-			public TouchLocation Current
-			{
-				get
-				{
-					return collection[position];
-				}
-			}
+			public TouchLocation Current => collection[position];
 
-			public bool MoveNext()
+            public bool MoveNext()
 			{
 				position += 1;
-				return (position < collection.Count);
+				return position < collection.Count;
 			}
 
 			public void Dispose()
 			{
 			}
 
-			object IEnumerator.Current
-			{
-				get
-				{
-					return collection[position];
-				}
-			}
+			object IEnumerator.Current => collection[position];
 
-			void IEnumerator.Reset()
+            void IEnumerator.Reset()
 			{
 				position = -1;
 			}

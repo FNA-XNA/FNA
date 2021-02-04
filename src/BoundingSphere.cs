@@ -32,18 +32,13 @@ namespace Microsoft.Xna.Framework
 	{
 		#region Internal Properties
 
-		internal string DebugDisplayString
-		{
-			get
-			{
-				return string.Concat(
-					"Center( ", Center.DebugDisplayString, " ) \r\n",
-					"Radius( ", Radius.ToString(), " ) "
-				);
-			}
-		}
+		internal string DebugDisplayString =>
+            string.Concat(
+                "Center( ", Center.DebugDisplayString, " ) \r\n",
+                "Radius( ", Radius.ToString(), " ) "
+            );
 
-		#endregion
+        #endregion
 
 		#region Public Fields
 
@@ -86,15 +81,13 @@ namespace Microsoft.Xna.Framework
 			BoundingSphere sphere = new BoundingSphere();
 			sphere.Center = Vector3.Transform(this.Center, matrix);
 			sphere.Radius = this.Radius *
-				(
-					(float) Math.Sqrt((double) Math.Max(
-						((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13),
-						Math.Max(
-							((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23),
-							((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33))
-						)
-					)
-				);
+				(float) Math.Sqrt((double) Math.Max(
+                        matrix.M11 * matrix.M11 + matrix.M12 * matrix.M12 + matrix.M13 * matrix.M13,
+                        Math.Max(
+                            matrix.M21 * matrix.M21 + matrix.M22 * matrix.M22 + matrix.M23 * matrix.M23,
+                            matrix.M31 * matrix.M31 + matrix.M32 * matrix.M32 + matrix.M33 * matrix.M33)
+                    )
+                );
 			return sphere;
 		}
 
@@ -107,15 +100,13 @@ namespace Microsoft.Xna.Framework
 		{
 			result.Center = Vector3.Transform(this.Center, matrix);
 			result.Radius = this.Radius *
-				(
-					(float) Math.Sqrt((double) Math.Max(
-						((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13),
-						Math.Max(
-							((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23),
-							((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33))
-						)
-					)
-				);
+				(float) Math.Sqrt((double) Math.Max(
+                        matrix.M11 * matrix.M11 + matrix.M12 * matrix.M12 + matrix.M13 * matrix.M13,
+                        Math.Max(
+                            matrix.M21 * matrix.M21 + matrix.M22 * matrix.M22 + matrix.M23 * matrix.M23,
+                            matrix.M31 * matrix.M31 + matrix.M32 * matrix.M32 + matrix.M33 * matrix.M33)
+                    )
+                );
 		}
 
 		/// <summary>
@@ -297,8 +288,8 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(BoundingSphere other)
 		{
-			return (	Center == other.Center &&
-					Radius == other.Radius	);
+			return Center == other.Center &&
+                   Radius == other.Radius;
 		}
 
 		#endregion
@@ -435,7 +426,7 @@ namespace Microsoft.Xna.Framework
 			float sqRadius = radius * radius;
 			foreach (Vector3 pt in points)
 			{
-				Vector3 diff = (pt - center);
+				Vector3 diff = pt - center;
 				float sqDist = diff.LengthSquared();
 				if (sqDist > sqRadius)
 				{
@@ -502,10 +493,8 @@ namespace Microsoft.Xna.Framework
 
 			// oCenterToResultCenter
 			ocenterToaCenter = ocenterToaCenter +
-				(
-					((leftRadius - Rightradius) / (2 * ocenterToaCenter.Length()))
-					* ocenterToaCenter
-				);
+				(leftRadius - Rightradius) / (2 * ocenterToaCenter.Length())
+                * ocenterToaCenter;
 
 			result = new BoundingSphere();
 			result.Center = original.Center + ocenterToaCenter;
@@ -630,7 +619,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public override bool Equals(object obj)
 		{
-			return (obj is BoundingSphere) && Equals((BoundingSphere) obj);
+			return obj is BoundingSphere && Equals((BoundingSphere) obj);
 		}
 
 		/// <summary>
@@ -649,11 +638,9 @@ namespace Microsoft.Xna.Framework
 		/// <returns>A <see cref="String"/> representation of this <see cref="BoundingSphere"/>.</returns>
 		public override string ToString()
 		{
-			return (
-				"{Center:" + Center.ToString() +
-				" Radius:" + Radius.ToString() +
-				"}"
-			);
+			return "{Center:" + Center.ToString() +
+                   " Radius:" + Radius.ToString() +
+                   "}";
 		}
 
 		/// <summary>

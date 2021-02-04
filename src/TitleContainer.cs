@@ -30,7 +30,7 @@ namespace Microsoft.Xna.Framework
 		#region Public Static Methods
 
 		/// <summary>
-		/// Returns an open stream to an exsiting file in the title storage area.
+		/// Returns an open stream to an existing file in the title storage area.
 		/// </summary>
 		/// <param name="name">The filepath relative to the title storage area.</param>
 		/// <returns>A open stream or null if the file is not found.</returns>

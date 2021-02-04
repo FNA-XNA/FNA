@@ -32,11 +32,8 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public Matrix Matrix
 		{
-			get
-			{
-				return this.matrix;
-			}
-			set
+			get => this.matrix;
+            set
 			{
 				/* FIXME: The odds are the planes will be used a lot more often than
 				 * the matrix is updated, so this should help performance. I hope. ;)
@@ -50,89 +47,48 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Gets the near plane of the frustum.
 		/// </summary>
-		public Plane Near
-		{
-			get
-			{
-				return this.planes[0];
-			}
-		}
+		public Plane Near => this.planes[0];
 
-		/// <summary>
+        /// <summary>
 		/// Gets the far plane of the frustum.
 		/// </summary>
-		public Plane Far
-		{
-			get
-			{
-				return this.planes[1];
-			}
-		}
+		public Plane Far => this.planes[1];
 
-		/// <summary>
+        /// <summary>
 		/// Gets the left plane of the frustum.
 		/// </summary>
-		public Plane Left
-		{
-			get
-			{
-				return this.planes[2];
-			}
-		}
+		public Plane Left => this.planes[2];
 
-		/// <summary>
+        /// <summary>
 		/// Gets the right plane of the frustum.
 		/// </summary>
-		public Plane Right
-		{
-			get
-			{
-				return this.planes[3];
-			}
-		}
+		public Plane Right => this.planes[3];
 
-		/// <summary>
+        /// <summary>
 		/// Gets the top plane of the frustum.
 		/// </summary>
-		public Plane Top
-		{
-			get
-			{
-				return this.planes[4];
-			}
-		}
+		public Plane Top => this.planes[4];
 
-		/// <summary>
+        /// <summary>
 		/// Gets the bottom plane of the frustum.
 		/// </summary>
-		public Plane Bottom
-		{
-			get
-			{
-				return this.planes[5];
-			}
-		}
+		public Plane Bottom => this.planes[5];
 
-		#endregion
+        #endregion
 
 		#region Internal Properties
 
-		internal string DebugDisplayString
-		{
-			get
-			{
-				return string.Concat(
-					"Near( ", planes[0].DebugDisplayString, " ) \r\n",
-					"Far( ", planes[1].DebugDisplayString, " ) \r\n",
-					"Left( ", planes[2].DebugDisplayString, " ) \r\n",
-					"Right( ", planes[3].DebugDisplayString, " ) \r\n",
-					"Top( ", planes[4].DebugDisplayString, " ) \r\n",
-					"Bottom( ", planes[5].DebugDisplayString, " ) "
-				);
-			}
-		}
+		internal string DebugDisplayString =>
+            string.Concat(
+                "Near( ", planes[0].DebugDisplayString, " ) \r\n",
+                "Far( ", planes[1].DebugDisplayString, " ) \r\n",
+                "Left( ", planes[2].DebugDisplayString, " ) \r\n",
+                "Right( ", planes[3].DebugDisplayString, " ) \r\n",
+                "Top( ", planes[4].DebugDisplayString, " ) \r\n",
+                "Bottom( ", planes[5].DebugDisplayString, " ) "
+            );
 
-		#endregion
+        #endregion
 
 		#region Public Fields
 
@@ -299,12 +255,10 @@ namespace Microsoft.Xna.Framework
 			bool intersects = false;
 			for (int i = 0; i < PlaneCount; i += 1)
 			{
-				float classifyPoint = (
-					(point.X * planes[i].Normal.X) +
-					(point.Y * planes[i].Normal.Y) +
-					(point.Z * planes[i].Normal.Z) +
-					planes[i].D
-				);
+				float classifyPoint = point.X * planes[i].Normal.X +
+                                      point.Y * planes[i].Normal.Y +
+                                      point.Z * planes[i].Normal.Z +
+                                      planes[i].D;
 				if (classifyPoint > 0)
 				{
 					result = ContainmentType.Disjoint;
@@ -353,7 +307,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if other <see cref="BoundingFrustum"/> intersects with this <see cref="BoundingFrustum"/>; <c>false</c> otherwise.</returns>
 		public bool Intersects(BoundingFrustum frustum)
 		{
-			return (Contains(frustum) != ContainmentType.Disjoint);
+			return Contains(frustum) != ContainmentType.Disjoint;
 		}
 
 		/// <summary>
@@ -646,15 +600,15 @@ namespace Microsoft.Xna.Framework
 		{
 			if (object.Equals(a, null))
 			{
-				return (object.Equals(b, null));
+				return object.Equals(b, null);
 			}
 
 			if (object.Equals(b, null))
 			{
-				return (object.Equals(a, null));
+				return object.Equals(a, null);
 			}
 
-			return a.matrix == (b.matrix);
+			return a.matrix == b.matrix;
 		}
 
 		/// <summary>
@@ -675,7 +629,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(BoundingFrustum other)
 		{
-			return (this == other);
+			return this == other;
 		}
 
 		/// <summary>
@@ -685,7 +639,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public override bool Equals(object obj)
 		{
-			return (obj is BoundingFrustum) && Equals((BoundingFrustum) obj);
+			return obj is BoundingFrustum && Equals((BoundingFrustum) obj);
 		}
 
 		/// <summary>

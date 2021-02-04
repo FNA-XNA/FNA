@@ -18,23 +18,11 @@ namespace Microsoft.Xna.Framework.Graphics
 	{
 		#region Public Properties
 
-		public int Count
-		{
-			get
-			{
-				return elements.Count;
-			}
-		}
+		public int Count => elements.Count;
 
-		public EffectParameter this[int index]
-		{
-			get
-			{
-				return elements[index];
-			}
-		}
+        public EffectParameter this[int index] => elements[index];
 
-		public EffectParameter this[string name]
+        public EffectParameter this[string name]
 		{
 			get
 			{
@@ -89,12 +77,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region IEnumerator Methods
 
-		IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return elements.GetEnumerator();
 		}
 
-		IEnumerator<EffectParameter> System.Collections.Generic.IEnumerable<EffectParameter>.GetEnumerator()
+		IEnumerator<EffectParameter> IEnumerable<EffectParameter>.GetEnumerator()
 		{
 			return elements.GetEnumerator();
 		}

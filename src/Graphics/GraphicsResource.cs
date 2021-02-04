@@ -61,7 +61,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			set;
 		}
 
-		public Object Tag
+		public object Tag
 		{
 			get;
 			set;
