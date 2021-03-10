@@ -60,7 +60,7 @@ namespace Microsoft.Xna.Framework.Design
 			{
 				Color src = (Color) value;
 				return string.Join(
-					culture.TextInfo.ListSeparator,
+					culture.TextInfo.ListSeparator + " ",
 					new string[]
 					{
 						src.R.ToString(culture),

@@ -58,7 +58,7 @@ namespace Microsoft.Xna.Framework.Design
 			{
 				Point pt = (Point) value;
 				return string.Join(
-					culture.TextInfo.ListSeparator,
+					culture.TextInfo.ListSeparator + " ",
 					new string[]
 					{
 						pt.X.ToString(culture),

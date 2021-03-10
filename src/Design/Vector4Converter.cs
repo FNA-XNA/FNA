@@ -60,7 +60,7 @@ namespace Microsoft.Xna.Framework.Design
 			{
 				Vector4 vec = (Vector4) value;
 				return string.Join(
-					culture.TextInfo.ListSeparator,
+					culture.TextInfo.ListSeparator + " ",
 					new string[]
 					{
 						vec.X.ToString(culture),

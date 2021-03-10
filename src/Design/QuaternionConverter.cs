@@ -60,7 +60,7 @@ namespace Microsoft.Xna.Framework.Design
 			{
 				Quaternion quat = (Quaternion) value;
 				return string.Join(
-					culture.TextInfo.ListSeparator,
+					culture.TextInfo.ListSeparator + " ",
 					new string[]
 					{
 						quat.X.ToString(culture),
