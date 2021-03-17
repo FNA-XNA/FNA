@@ -27,7 +27,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				return TimeSpan.FromSeconds(
 					(double) handle.PlayLength /
-					(double) format.nSamplesPerSec
+					(double) sampleRate
 				);
 			}
 		}
@@ -125,7 +125,9 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal List<WeakReference> Instances = new List<WeakReference>();
 		internal FAudio.FAudioBuffer handle;
-		internal FAudio.FAudioWaveFormatEx format;
+		internal IntPtr formatPtr;
+		internal ushort channels;
+		internal uint sampleRate;
 		internal uint loopStart;
 		internal uint loopLength;
 
@@ -142,6 +144,7 @@ namespace Microsoft.Xna.Framework.Audio
 			buffer,
 			0,
 			buffer.Length,
+			null,
 			1,
 			(ushort) channels,
 			(uint) sampleRate,
@@ -166,6 +169,7 @@ namespace Microsoft.Xna.Framework.Audio
 			buffer,
 			offset,
 			count,
+			null,
 			1,
 			(ushort) channels,
 			(uint) sampleRate,
@@ -181,11 +185,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Internal Constructor
 
-		internal SoundEffect(
+		internal unsafe SoundEffect(
 			string name,
 			byte[] buffer,
 			int offset,
 			int count,
+			byte[] extraData,
 			ushort wFormatTag,
 			ushort nChannels,
 			uint nSamplesPerSec,
@@ -197,18 +202,37 @@ namespace Microsoft.Xna.Framework.Audio
 		) {
 			Device();
 			Name = name;
+			channels = nChannels;
+			sampleRate = nSamplesPerSec;
 			this.loopStart = (uint) loopStart;
 			this.loopLength = (uint) loopLength;
 
 			/* Buffer format */
-			format = new FAudio.FAudioWaveFormatEx();
-			format.wFormatTag = wFormatTag;
-			format.nChannels = nChannels;
-			format.nSamplesPerSec = nSamplesPerSec;
-			format.nAvgBytesPerSec = nAvgBytesPerSec;
-			format.nBlockAlign = nBlockAlign;
-			format.wBitsPerSample = wBitsPerSample;
-			format.cbSize = 0; /* May be needed for ADPCM? */
+			if (extraData == null) {
+				formatPtr = Marshal.AllocHGlobal(
+					Marshal.SizeOf(typeof(FAudio.FAudioWaveFormatEx))
+				);
+			} else {
+				formatPtr = Marshal.AllocHGlobal(
+					Marshal.SizeOf(typeof(FAudio.FAudioWaveFormatEx)) +
+					extraData.Length
+				);
+				Marshal.Copy(
+					extraData,
+					0,
+					formatPtr + Marshal.SizeOf(typeof(FAudio.FAudioWaveFormatEx)),
+					extraData.Length
+				);
+			}
+
+			FAudio.FAudioWaveFormatEx* pcm = (FAudio.FAudioWaveFormatEx*) formatPtr;
+			pcm->wFormatTag = wFormatTag;
+			pcm->nChannels = nChannels;
+			pcm->nSamplesPerSec = nSamplesPerSec;
+			pcm->nAvgBytesPerSec = nAvgBytesPerSec;
+			pcm->nBlockAlign = nBlockAlign;
+			pcm->wBitsPerSample = wBitsPerSample;
+			pcm->cbSize = (ushort) extraData.Length;
 
 			/* Easy stuff */
 			handle = new FAudio.FAudioBuffer();
@@ -242,6 +266,13 @@ namespace Microsoft.Xna.Framework.Audio
 					nBlockAlign *
 					(((nBlockAlign / nChannels) - 6) * 2)
 				);
+			}
+			else if (wFormatTag == 0x166)
+			{
+				// Don't let anyone see this or my head will end up on the chopping board... -ade
+				FAudio.FAudioXMA2WaveFormatEx* xma2 = (FAudio.FAudioXMA2WaveFormatEx*) formatPtr;
+				// dwSamplesEncoded / nChannels / (wBitsPerSample / 8) doesn't always (if ever?) match up.
+				handle.PlayLength = xma2->dwPlayLength;
 			}
 
 			/* Set by Instances! */
@@ -287,6 +318,7 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 				}
 				Instances.Clear();
+				Marshal.FreeHGlobal(formatPtr);
 				Marshal.FreeHGlobal(handle.pAudioData);
 				IsDisposed = true;
 			}
@@ -481,6 +513,7 @@ namespace Microsoft.Xna.Framework.Audio
 				data,
 				0,
 				data.Length,
+				null,
 				wFormatTag,
 				nChannels,
 				nSamplesPerSec,
