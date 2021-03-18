@@ -269,7 +269,6 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			else if (wFormatTag == 0x166)
 			{
-				// Don't let anyone see this or my head will end up on the chopping board... -ade
 				FAudio.FAudioXMA2WaveFormatEx* xma2 = (FAudio.FAudioXMA2WaveFormatEx*) formatPtr;
 				// dwSamplesEncoded / nChannels / (wBitsPerSample / 8) doesn't always (if ever?) match up.
 				handle.PlayLength = xma2->dwPlayLength;
