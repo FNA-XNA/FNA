@@ -208,11 +208,14 @@ namespace Microsoft.Xna.Framework.Audio
 			this.loopLength = (uint) loopLength;
 
 			/* Buffer format */
-			if (extraData == null) {
+			if (extraData == null)
+			{
 				formatPtr = Marshal.AllocHGlobal(
 					Marshal.SizeOf(typeof(FAudio.FAudioWaveFormatEx))
 				);
-			} else {
+			}
+			else
+			{
 				formatPtr = Marshal.AllocHGlobal(
 					Marshal.SizeOf(typeof(FAudio.FAudioWaveFormatEx)) +
 					extraData.Length
