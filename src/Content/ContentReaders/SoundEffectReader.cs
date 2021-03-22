@@ -53,37 +53,40 @@ namespace Microsoft.Xna.Framework.Content
 			uint nAvgBytesPerSec = Swap(se, input.ReadUInt32());
 			ushort nBlockAlign = Swap(se, input.ReadUInt16());
 			ushort wBitsPerSample = Swap(se, input.ReadUInt16());
-			ushort cbSize = Swap(se, input.ReadUInt16());
 
 			byte[] extra = null;
+			if (formatLength > 16)
+			{
+				ushort cbSize = Swap(se, input.ReadUInt16());
 
-			if (wFormatTag == 0x166 && cbSize == 34)
-			{
-				// XMA2 has got some nice extra crap.
-				extra = new byte[34];
-				using (MemoryStream extraStream = new MemoryStream(extra))
-				using (BinaryWriter extraWriter = new BinaryWriter(extraStream))
+				if (wFormatTag == 0x166 && cbSize == 34)
 				{
-					// See FAudio.FAudioXMA2WaveFormatEx for the layout.
-					extraWriter.Write(Swap(se, input.ReadUInt16()));
-					extraWriter.Write(Swap(se, input.ReadUInt32()));
-					extraWriter.Write(Swap(se, input.ReadUInt32()));
-					extraWriter.Write(Swap(se, input.ReadUInt32()));
-					extraWriter.Write(Swap(se, input.ReadUInt32()));
-					extraWriter.Write(Swap(se, input.ReadUInt32()));
-					extraWriter.Write(Swap(se, input.ReadUInt32()));
-					extraWriter.Write(Swap(se, input.ReadUInt32()));
-					extraWriter.Write(input.ReadByte());
-					extraWriter.Write(input.ReadByte());
-					extraWriter.Write(Swap(se, input.ReadUInt16()));
+					// XMA2 has got some nice extra crap.
+					extra = new byte[34];
+					using (MemoryStream extraStream = new MemoryStream(extra))
+					using (BinaryWriter extraWriter = new BinaryWriter(extraStream))
+					{
+						// See FAudio.FAudioXMA2WaveFormatEx for the layout.
+						extraWriter.Write(Swap(se, input.ReadUInt16()));
+						extraWriter.Write(Swap(se, input.ReadUInt32()));
+						extraWriter.Write(Swap(se, input.ReadUInt32()));
+						extraWriter.Write(Swap(se, input.ReadUInt32()));
+						extraWriter.Write(Swap(se, input.ReadUInt32()));
+						extraWriter.Write(Swap(se, input.ReadUInt32()));
+						extraWriter.Write(Swap(se, input.ReadUInt32()));
+						extraWriter.Write(Swap(se, input.ReadUInt32()));
+						extraWriter.Write(input.ReadByte());
+						extraWriter.Write(input.ReadByte());
+						extraWriter.Write(Swap(se, input.ReadUInt16()));
+					}
+					// Is there any crap that needs skipping? Eh whatever.
+					input.ReadBytes((int) (formatLength - 18 - 34));
 				}
-				// Is there any crap that needs skipping? Eh whatever.
-				input.ReadBytes((int) (formatLength - 18 - 34));
-			}
-			else
-			{
-				// Seek past the rest of this crap (cannot seek though!)
-				input.ReadBytes((int) (formatLength - 18));
+				else
+				{
+					// Seek past the rest of this crap (cannot seek though!)
+					input.ReadBytes((int) (formatLength - 18));
+				}
 			}
 
 			// Wavedata
