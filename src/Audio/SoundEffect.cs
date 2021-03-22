@@ -235,7 +235,7 @@ namespace Microsoft.Xna.Framework.Audio
 			pcm->nAvgBytesPerSec = nAvgBytesPerSec;
 			pcm->nBlockAlign = nBlockAlign;
 			pcm->wBitsPerSample = wBitsPerSample;
-			pcm->cbSize = (ushort) extraData.Length;
+			pcm->cbSize = (ushort) ((extraData == null) ? 0 : extraData.Length);
 
 			/* Easy stuff */
 			handle = new FAudio.FAudioBuffer();
