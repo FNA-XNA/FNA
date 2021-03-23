@@ -1124,14 +1124,14 @@ namespace Microsoft.Xna.Framework
 		private static Game emscriptenGame;
 		private delegate void em_callback_func();
 
-		[DllImport("emscripten", CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("__Native", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void emscripten_set_main_loop(
 			em_callback_func func,
 			int fps,
 			int simulate_infinite_loop
 		);
 
-		[DllImport("emscripten", CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("__Native", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void emscripten_cancel_main_loop();
 
 		[ObjCRuntime.MonoPInvokeCallback(typeof(em_callback_func))]
