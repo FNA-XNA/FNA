@@ -91,6 +91,31 @@ namespace Microsoft.Xna.Framework.Input
 			GamePadButtons buttons,
 			GamePadDPad dPad
 		) : this() {
+			if (triggers.Left > GamePad.TriggerThreshold)
+			{
+				buttons.buttons |= Input.Buttons.LeftTrigger;
+			}
+			if (triggers.Right > GamePad.TriggerThreshold)
+			{
+				buttons.buttons |= Input.Buttons.RightTrigger;
+			}
+			buttons.buttons |= StickToButtons(
+				thumbSticks.Left,
+				Input.Buttons.LeftThumbstickLeft,
+				Input.Buttons.LeftThumbstickRight,
+				Input.Buttons.LeftThumbstickUp,
+				Input.Buttons.LeftThumbstickDown,
+				GamePad.LeftDeadZone
+			);
+			buttons.buttons |= StickToButtons(
+				thumbSticks.Right,
+				Input.Buttons.RightThumbstickLeft,
+				Input.Buttons.RightThumbstickRight,
+				Input.Buttons.RightThumbstickUp,
+				Input.Buttons.RightThumbstickDown,
+				GamePad.RightDeadZone
+			);
+
 			ThumbSticks = thumbSticks;
 			Triggers = triggers;
 			Buttons = buttons;
@@ -159,6 +184,40 @@ namespace Microsoft.Xna.Framework.Input
 		public bool IsButtonUp(Buttons button)
 		{
 			return (Buttons.buttons & button) != button;
+		}
+
+		#endregion
+
+		#region Private Static Methods
+
+		private static Buttons StickToButtons(
+			Vector2 stick,
+			Buttons left,
+			Buttons right,
+			Buttons up,
+			Buttons down,
+			float DeadZoneSize
+		) {
+			Buttons b = (Buttons) 0;
+
+			if (stick.X > DeadZoneSize)
+			{
+				b |= right;
+			}
+			if (stick.X < -DeadZoneSize)
+			{
+				b |= left;
+			}
+			if (stick.Y > DeadZoneSize)
+			{
+				b |= up;
+			}
+			if (stick.Y < -DeadZoneSize)
+			{
+				b |= down;
+			}
+
+			return b;
 		}
 
 		#endregion
