@@ -163,6 +163,18 @@ namespace Microsoft.Xna.Framework.Media
 
 		#endregion
 
+		#region Public Extensions
+
+		public void SetAudioTrackEXT(int track)
+		{
+			if (theora != IntPtr.Zero)
+			{
+				Theorafile.tf_setaudiotrack(theora, track);
+			}
+		}
+
+		#endregion
+
 		#region Destructor
 
 		~Video()
