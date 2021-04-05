@@ -40,11 +40,6 @@ namespace Microsoft.Xna.Framework
 		private static int RetinaWidth;
 		private static int RetinaHeight;
 
-		private static readonly bool OSXUseSpaces = (
-			SDL.SDL_GetPlatform().Equals("Mac OS X") && // Prevents race with OSVersion
-			SDL.SDL_GetHintBoolean(SDL.SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES, SDL.SDL_bool.SDL_TRUE) == SDL.SDL_bool.SDL_TRUE
-		);
-
 		#endregion
 
 		#region Game Objects
@@ -896,7 +891,7 @@ namespace Microsoft.Xna.Framework
 					{
 						game.IsActive = true;
 
-						if (!OSXUseSpaces)
+						if (SDL.SDL_GetCurrentVideoDriver() == "x11")
 						{
 							// If we alt-tab away, we lose the 'fullscreen desktop' flag on some WMs
 							SDL.SDL_SetWindowFullscreen(
@@ -914,7 +909,7 @@ namespace Microsoft.Xna.Framework
 					{
 						game.IsActive = false;
 
-						if (!OSXUseSpaces)
+						if (SDL.SDL_GetCurrentVideoDriver() == "x11")
 						{
 							SDL.SDL_SetWindowFullscreen(game.Window.Handle, 0);
 						}
