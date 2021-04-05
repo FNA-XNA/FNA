@@ -84,21 +84,6 @@ namespace Microsoft.Xna.Framework
 			 */
 			SDL.SDL_SetMainReady();
 
-			/* A number of platforms don't support global mouse, but
-			 * this really only matters on desktop where the game
-			 * screen may not be covering the whole display.
-			 */
-			if (	OSVersion.Equals("Windows") ||
-				OSVersion.Equals("Mac OS X") ||
-				SDL.SDL_GetCurrentVideoDriver() == "x11"	)
-			{
-				SupportsGlobalMouse = true;
-			}
-			else
-			{
-				SupportsGlobalMouse = false;
-			}
-
 			// Also, Windows is an idiot. -flibit
 			if (	OSVersion.Equals("Windows") ||
 				OSVersion.Equals("WinRT")	)
@@ -194,6 +179,21 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_INIT_GAMECONTROLLER |
 				SDL.SDL_INIT_HAPTIC
 			);
+
+			/* A number of platforms don't support global mouse, but
+			 * this really only matters on desktop where the game
+			 * screen may not be covering the whole display.
+			 */
+			if (	OSVersion.Equals("Windows") ||
+				OSVersion.Equals("Mac OS X") ||
+				SDL.SDL_GetCurrentVideoDriver() == "x11"	)
+			{
+				SupportsGlobalMouse = true;
+			}
+			else
+			{
+				SupportsGlobalMouse = false;
+			}
 
 			// Set any hints to match XNA4 behavior...
 			string hint = SDL.SDL_GetHint(SDL.SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS);
