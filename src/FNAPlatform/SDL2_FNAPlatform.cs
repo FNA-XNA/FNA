@@ -90,10 +90,7 @@ namespace Microsoft.Xna.Framework
 			 */
 			if (	OSVersion.Equals("Windows") ||
 				OSVersion.Equals("Mac OS X") ||
-				OSVersion.Equals("Linux") ||
-				OSVersion.Equals("FreeBSD") ||
-				OSVersion.Equals("OpenBSD") ||
-				OSVersion.Equals("NetBSD")	)
+				SDL.SDL_GetCurrentVideoDriver() == "x11"	)
 			{
 				SupportsGlobalMouse = true;
 			}
