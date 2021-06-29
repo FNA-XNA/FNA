@@ -122,7 +122,8 @@ namespace Microsoft.Xna.Framework
 			);
 			if (File.Exists(mappingsDB))
 			{
-				SDL.SDL_GameControllerAddMappingsFromFile(
+				SDL.SDL_SetHint(
+					SDL.SDL_HINT_GAMECONTROLLERCONFIG_FILE,
 					mappingsDB
 				);
 			}
@@ -2105,9 +2106,21 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// Print controller information to stdout.
+			string deviceInfo;
+			string mapping = SDL.SDL_GameControllerMapping(INTERNAL_devices[which]);
+			if (string.IsNullOrEmpty(mapping))
+			{
+				deviceInfo = "Mapping not found";
+			}
+			else
+			{
+				deviceInfo = "Mapping: " + mapping;
+			}
 			FNALoggerEXT.LogInfo(
 				"Controller " + which.ToString() + ": " +
-				SDL.SDL_GameControllerName(INTERNAL_devices[which])
+				SDL.SDL_GameControllerName(INTERNAL_devices[which]) + ", " +
+				"GUID: " + INTERNAL_guids[which] + ", " +
+				deviceInfo
 			);
 		}
 
