@@ -130,7 +130,7 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 			if (rendererCount == 0)
 			{
-				FAudio.FACTAudioEngine_ShutDown(handle);
+				FAudio.FACTAudioEngine_Release(handle);
 				throw new NoAudioHardwareException();
 			}
 			rendererDetails = new RendererDetail[rendererCount];
@@ -328,6 +328,7 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 
 					FAudio.FACTAudioEngine_ShutDown(handle);
+					FAudio.FACTAudioEngine_Release(handle);
 					rendererDetails = null;
 
 					IsDisposed = true;
