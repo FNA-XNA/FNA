@@ -7,11 +7,12 @@
  */
 #endregion
 
-#if NET5_0
+#if NET
 
 #region Using Statements
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -84,7 +85,7 @@ namespace Microsoft.Xna.Framework
 			// Get the platform and architecture
 			string os = GetPlatformName();
 			string cpu = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
-			string wordsize = (IntPtr.Size == 4) ? "32" : "64";
+			string wordsize = (IntPtr.Size * 8).ToString();
 
 			// Locate the config file
 			Assembly assembly = Assembly.GetExecutingAssembly();
@@ -104,7 +105,12 @@ namespace Microsoft.Xna.Framework
 			{
 				string msg = "Function remapping is not supported by .NET Core. Ignoring dllentry elements...";
 				Console.WriteLine(msg);
-				System.Diagnostics.Debug.WriteLine(msg); // Log it in the debugger for non-console apps.
+
+				// Log it in the debugger for non-console apps.
+				if (Debugger.IsAttached)
+				{
+					Debug.WriteLine(msg);
+				}
 			}
 
 			// Parse the XML into a mapping dictionary
@@ -181,4 +187,4 @@ namespace Microsoft.Xna.Framework
 	}
 }
 
-#endif
+#endif // NET
