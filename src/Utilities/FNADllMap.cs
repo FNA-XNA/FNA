@@ -84,49 +84,79 @@ namespace Microsoft.Xna.Framework
 			// Get the platform and architecture
 			string os = GetPlatformName();
 			string cpu = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
+			string wordsize = (IntPtr.Size == 4) ? "32" : "64";
 
-			// Locate the config XML
-			Assembly assembly = Assembly.GetCallingAssembly();
-			string xmlPath = Path.Combine(
-				Path.GetDirectoryName(assembly.Location),
-				Path.GetFileNameWithoutExtension(assembly.Location) + ".dll.config"
-			);
+			// Locate the config file
+			Assembly assembly = Assembly.GetExecutingAssembly();
+			string xmlPath = assembly.GetName().Name + ".dll.config";
 			if (!File.Exists(xmlPath))
 			{
-				// Maybe it's called app.config?
-				xmlPath = Path.Combine(
-					Path.GetDirectoryName(assembly.Location),
-					"app.config"
-				);
-				if (!File.Exists(xmlPath))
-				{
-					// Let's hope for the best...
-					return;
-				}
+				// Let's hope for the best...
+				return;
 			}
 
-			// Parse the XML into a mapping dictionary
+			// Load the XML
 			XmlDocument xmlDoc = new XmlDocument();
 			xmlDoc.Load(xmlPath);
 
+			// The NativeLibrary API cannot remap function names. :(
+			if (xmlDoc.GetElementsByTagName("dllentry") != null)
+			{
+				Console.WriteLine("Function remapping is not supported by .NET Core. Ignoring dllentry elements...");
+			}
+
+			// Parse the XML into a mapping dictionary
 			foreach (XmlNode node in xmlDoc.GetElementsByTagName("dllmap"))
 			{
-				// Ignore entries for other OSs
-				if (!node.Attributes["os"].Value.Contains(os))
+				XmlAttribute attribute;
+
+				// Check the OS
+				attribute = node.Attributes["os"];
+				if (attribute != null)
+				{
+					bool containsOS = attribute.Value.Contains(os);
+					bool invert = attribute.Value.StartsWith("!");
+					if ((!containsOS && !invert) || (containsOS && invert))
+					{
+						continue;
+					}
+				}
+
+				// Check the CPU
+				attribute = node.Attributes["cpu"];
+				if (attribute != null)
+				{
+					bool containsCPU = attribute.Value.Contains(cpu);
+					bool invert = attribute.Value.StartsWith("!");
+					if ((!containsCPU && !invert) || (containsCPU && invert))
+					{
+						continue;
+					}
+				}
+
+				// Check the word size
+				attribute = node.Attributes["wordsize"];
+				if (attribute != null)
+				{
+					bool containsWordsize = attribute.Value.Contains(wordsize);
+					bool invert = attribute.Value.StartsWith("!");
+					if ((!containsWordsize && !invert) || (containsWordsize && invert))
+					{
+						continue;
+					}
+				}
+
+				// Check for the existence of 'dll' and 'target' attributes
+				XmlAttribute dllAttribute = node.Attributes["dll"];
+				XmlAttribute targetAttribute = node.Attributes["target"];
+				if (dllAttribute == null || targetAttribute == null)
 				{
 					continue;
 				}
 
-				// Ignore entries for other CPUs
-				XmlAttribute cpuAttribute = node.Attributes["cpu"];
-				if (cpuAttribute != null && !cpuAttribute.Value.Contains(cpu))
-				{
-					continue;
-				}
-
-				// Find a mapping
-				string oldLib = node.Attributes["dll"].Value;
-				string newLib = node.Attributes["target"].Value;
+				// Get the actual library names
+				string oldLib = dllAttribute.Value;
+				string newLib = targetAttribute.Value;
 				if (string.IsNullOrWhiteSpace(oldLib) || string.IsNullOrWhiteSpace(newLib))
 				{
 					continue;
