@@ -102,7 +102,9 @@ namespace Microsoft.Xna.Framework
 			// The NativeLibrary API cannot remap function names. :(
 			if (xmlDoc.GetElementsByTagName("dllentry") != null)
 			{
-				Console.WriteLine("Function remapping is not supported by .NET Core. Ignoring dllentry elements...");
+				string msg = "Function remapping is not supported by .NET Core. Ignoring dllentry elements...";
+				Console.WriteLine(msg);
+				System.Diagnostics.Debug.WriteLine(msg); // Log it in the debugger for non-console apps.
 			}
 
 			// Parse the XML into a mapping dictionary
