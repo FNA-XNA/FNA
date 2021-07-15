@@ -89,8 +89,9 @@ namespace Microsoft.Xna.Framework
 
 			// Locate the config file
 			Assembly assembly = Assembly.GetExecutingAssembly();
+			string assemblyLocation = assembly.Location == null ? "" : assembly.Location;
 			string xmlPath = Path.Combine(
-				Path.GetDirectoryName(assembly.Location),
+				assemblyLocation,
 				assembly.GetName().Name + ".dll.config"
 			);
 			if (!File.Exists(xmlPath))
