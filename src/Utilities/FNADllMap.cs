@@ -87,11 +87,17 @@ namespace Microsoft.Xna.Framework
 			string cpu = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
 			string wordsize = (IntPtr.Size * 8).ToString();
 
-			// Locate the config file
+			// Get the path to the assembly
 			Assembly assembly = Assembly.GetExecutingAssembly();
-			string assemblyLocation = assembly.Location == null ? "" : assembly.Location;
+			string assemblyPath = "";
+			if (assembly.Location != null)
+			{
+				assemblyPath = Path.GetDirectoryName(assembly.Location);
+			}
+
+			// Locate the config file
 			string xmlPath = Path.Combine(
-				assemblyLocation,
+				assemblyPath,
 				assembly.GetName().Name + ".dll.config"
 			);
 			if (!File.Exists(xmlPath))
