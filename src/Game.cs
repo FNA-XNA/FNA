@@ -425,6 +425,14 @@ namespace Microsoft.Xna.Framework
 			 * modes across multiple devices and platforms.
 			 */
 
+			/* Sleep resolution accuracy is a contentious matter - SDL sets the timer resolution
+			 * to 1 millisecond on Windows, but many Linux systems have a resolution of 4 milliseconds.
+			 * Sleep can be inaccurate, but schedulers tend to wake us up early.
+			 */
+			TimeSpan noSleepThreshold = TimeSpan.FromMilliseconds(4);
+
+			bool updated = false;
+
 		RetryTick:
 
 			// Advance the accumulated elapsed time.
@@ -432,20 +440,16 @@ namespace Microsoft.Xna.Framework
 			accumulatedElapsedTime += TimeSpan.FromTicks(currentTicks - previousTicks);
 			previousTicks = currentTicks;
 
-			/* If we're in the fixed timestep mode and not enough time has elapsed
-			 * to perform an update we sleep off the the remaining time to save battery
-			 * life and/or release CPU time to other threads and processes.
+			/* If we're in the fixed timestep mode and we are farther away from the next
+			 * tick than the no sleep threshold we sleep off the remaining time to save
+			 * battery life and/or release CPU time to other threads and processes.
 			 */
-			if (IsFixedTimeStep && accumulatedElapsedTime < TargetElapsedTime)
+			if (IsFixedTimeStep && accumulatedElapsedTime + noSleepThreshold < TargetElapsedTime)
 			{
 				int sleepTime = (
 					(int) (TargetElapsedTime - accumulatedElapsedTime).TotalMilliseconds
 				);
 
-				/* NOTE: While sleep can be inaccurate in general it is
-				 * accurate enough for frame limiting purposes if some
-				 * fluctuation is an acceptable result.
-				 */
 				System.Threading.Thread.Sleep(sleepTime);
 
 				goto RetryTick;
@@ -471,6 +475,7 @@ namespace Microsoft.Xna.Framework
 
 					AssertNotDisposed();
 					Update(gameTime);
+					updated = true;
 				}
 
 				// Every update after the first accumulates lag
@@ -529,10 +534,11 @@ namespace Microsoft.Xna.Framework
 				accumulatedElapsedTime = TimeSpan.Zero;
 				AssertNotDisposed();
 				Update(gameTime);
+				updated = true;
 			}
 
-			// Draw unless the update suppressed it.
-			if (suppressDraw)
+			// Draw unless we haven't updated, or the update suppressed it.
+			if (!updated || suppressDraw)
 			{
 				suppressDraw = false;
 			}
