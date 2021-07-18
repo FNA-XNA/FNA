@@ -425,11 +425,8 @@ namespace Microsoft.Xna.Framework
 			 * modes across multiple devices and platforms.
 			 */
 
-			/* Sleep resolution accuracy is a contentious matter - SDL sets the timer resolution
-			 * to 1 millisecond on Windows, but many Linux systems have a resolution of 4 milliseconds.
-			 * Sleep can be inaccurate, but schedulers tend to wake us up early.
-			 */
-			TimeSpan noSleepThreshold = TimeSpan.FromMilliseconds(4);
+			/* TODO: acquire sleep resolution from SDL */
+			TimeSpan sleepThreshold = TimeSpan.FromMilliseconds(1);
 
 			bool updated = false;
 
@@ -441,18 +438,25 @@ namespace Microsoft.Xna.Framework
 			previousTicks = currentTicks;
 
 			/* If we're in the fixed timestep mode and we are farther away from the next
-			 * tick than the no sleep threshold we sleep off the remaining time to save
+			 * tick than the no sleep threshold we sleep off most of the remaining time to save
 			 * battery life and/or release CPU time to other threads and processes.
+			 *
+			 * Windows scheduler tends to wake up early, and UNIX schedulers tend to wake up late.
+			 * We sleep for the remaining amount of time minus the sleep threshold as a compromise
+			 * to avoid oversleeping.
 			 */
-			if (IsFixedTimeStep && accumulatedElapsedTime + noSleepThreshold < TargetElapsedTime)
+			if (IsFixedTimeStep)
 			{
-				int sleepTime = (
-					(int) (TargetElapsedTime - accumulatedElapsedTime).TotalMilliseconds
-				);
+				if (accumulatedElapsedTime + sleepThreshold < TargetElapsedTime)
+				{
+					int sleepTime = (
+						(int)(TargetElapsedTime - accumulatedElapsedTime - sleepThreshold).TotalMilliseconds
+					);
 
-				System.Threading.Thread.Sleep(sleepTime);
+					System.Threading.Thread.Sleep(sleepTime);
 
-				goto RetryTick;
+					goto RetryTick;
+				}
 			}
 
 			// Do not allow any update to take longer than our maximum.
