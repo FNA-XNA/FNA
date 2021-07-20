@@ -212,6 +212,9 @@ namespace Microsoft.Xna.Framework
 		private long previousTicks = 0;
 		private int updateFrameLag;
 		private bool forceElapsedTimeToZero = false;
+		private TimeSpan[] previousSleepTimes = new TimeSpan[100];
+		private int sleepTimeIndex = 0;
+		private TimeSpan worstCaseSleepPrecision = TimeSpan.FromMilliseconds(1);
 
 		private static readonly TimeSpan MaxElapsedTime = TimeSpan.FromMilliseconds(500);
 
@@ -250,6 +253,10 @@ namespace Microsoft.Xna.Framework
 			IsFixedTimeStep = true;
 			TargetElapsedTime = TimeSpan.FromTicks(166667); // 60fps
 			InactiveSleepTime = TimeSpan.FromSeconds(0.02);
+			for (int i = 0; i < previousSleepTimes.Length; i += 1)
+			{
+				previousSleepTimes[i] = TimeSpan.FromMilliseconds(1);
+			}
 
 			textInputControlDown = new bool[FNAPlatform.TextInputCharacters.Length];
 			textInputControlRepeat = new int[FNAPlatform.TextInputCharacters.Length];
@@ -418,30 +425,32 @@ namespace Microsoft.Xna.Framework
 			 * modes across multiple devices and platforms.
 			 */
 
-		RetryTick:
+			AdvanceElapsedTime();
 
-			// Advance the accumulated elapsed time.
-			long currentTicks = gameTimer.Elapsed.Ticks;
-			accumulatedElapsedTime += TimeSpan.FromTicks(currentTicks - previousTicks);
-			previousTicks = currentTicks;
-
-			/* If we're in the fixed timestep mode and not enough time has elapsed
-			 * to perform an update we sleep off the the remaining time to save battery
-			 * life and/or release CPU time to other threads and processes.
-			 */
-			if (IsFixedTimeStep && accumulatedElapsedTime < TargetElapsedTime)
+			if (IsFixedTimeStep)
 			{
-				int sleepTime = (
-					(int) (TargetElapsedTime - accumulatedElapsedTime).TotalMilliseconds
-				);
-
-				/* NOTE: While sleep can be inaccurate in general it is
-				 * accurate enough for frame limiting purposes if some
-				 * fluctuation is an acceptable result.
+				/* If we are in fixed timestep, we want to wait until the next frame,
+				 * but we don't want to oversleep. Requesting repeated 1ms sleeps and
+				 * seeing how long we actually slept for lets us estimate the worst case
+				 * sleep precision so we don't oversleep the next frame.
 				 */
-				System.Threading.Thread.Sleep(sleepTime);
+				while (accumulatedElapsedTime + worstCaseSleepPrecision < TargetElapsedTime)
+				{
+					System.Threading.Thread.Sleep(1);
+					TimeSpan timeAdvancedSinceSleeping = AdvanceElapsedTime();
+					UpdateEstimatedSleepPrecision(timeAdvancedSinceSleeping);
+				}
 
-				goto RetryTick;
+				/* Now that we have slept into the sleep precision threshold, we need to sleep
+				 * for just a little bit longer until the target elapsed time has been reached.
+				 * Let's just busywait and increment the timer.
+				 *
+				 * NOTE: We tried SpinWait and it increased CPU usage enormously.
+				 */
+				while (accumulatedElapsedTime < TargetElapsedTime)
+				{
+					AdvanceElapsedTime();
+				}
 			}
 
 			// Now that we are going to perform an update, let's poll events.
@@ -859,6 +868,33 @@ namespace Microsoft.Xna.Framework
 				Tick();
 			}
 			OnExiting(this, EventArgs.Empty);
+		}
+
+		private TimeSpan AdvanceElapsedTime()
+		{
+			long currentTicks = gameTimer.Elapsed.Ticks;
+			TimeSpan timeAdvanced = TimeSpan.FromTicks(currentTicks - previousTicks);
+			accumulatedElapsedTime += timeAdvanced;
+			previousTicks = currentTicks;
+			return timeAdvanced;
+		}
+
+		/* To calculate the sleep precision of the OS, we take the worst case
+		 * time spent sleeping over the results of previous requests to sleep 1ms.
+		 */
+		private void UpdateEstimatedSleepPrecision(TimeSpan timeSpentSleeping)
+		{
+			previousSleepTimes[sleepTimeIndex] = timeSpentSleeping;
+			var maxSleepTime = TimeSpan.MinValue;
+			foreach (var sleepTime in previousSleepTimes)
+			{
+				if (sleepTime > maxSleepTime)
+				{
+					maxSleepTime = sleepTime;
+				}
+			}
+			worstCaseSleepPrecision = maxSleepTime;
+			sleepTimeIndex = (sleepTimeIndex + 1) % previousSleepTimes.Length;
 		}
 
 		#endregion
