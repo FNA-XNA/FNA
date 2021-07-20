@@ -914,7 +914,7 @@ namespace Microsoft.Xna.Framework
 				{
 					if (previousSleepTimes[i] > maxSleepTime)
 					{
-						maxSleepTime = timeSpentSleeping;
+						maxSleepTime = previousSleepTimes[i];
 					}
 				}
 				worstCaseSleepPrecision = maxSleepTime;
