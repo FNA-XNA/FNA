@@ -444,14 +444,14 @@ namespace Microsoft.Xna.Framework
 					UpdateEstimatedSleepPrecision(timeAdvancedSinceSleeping);
 				}
 
-				/* Now that we have slept into the sleep precision threshold, we need to sleep
+				/* Now that we have slept into the sleep precision threshold, we need to wait
 				 * for just a little bit longer until the target elapsed time has been reached.
-				 * Let's just busywait and increment the timer.
-				 *
-				 * NOTE: We tried SpinWait and it increased CPU usage enormously.
+				 * SpinWait(1) works by pausing the thread for very short intervals, so it is
+				 * an efficient and time-accurate way to wait out the rest of the time.
 				 */
 				while (accumulatedElapsedTime < TargetElapsedTime)
 				{
+					System.Threading.Thread.SpinWait(1);
 					AdvanceElapsedTime();
 				}
 			}
