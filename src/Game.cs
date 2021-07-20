@@ -424,7 +424,6 @@ namespace Microsoft.Xna.Framework
 			AfterLoop();
 		}
 
-
 		public void Tick()
 		{
 			/* NOTE: This code is very sensitive and can break very badly,
