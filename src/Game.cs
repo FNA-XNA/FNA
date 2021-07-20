@@ -888,7 +888,7 @@ namespace Microsoft.Xna.Framework
 		private void UpdateEstimatedSleepPrecision(TimeSpan timeSpentSleeping)
 		{
 			/* It is unlikely that the scheduler will actually be more imprecise than
-			 * 4ms and we don't want to get wrecked by a bad frame so we cap this
+			 * 4ms and we don't want to get wrecked by a single long sleep so we cap this
 			 * value at 4ms for sanity.
 			 */
 			var upperTimeBound = TimeSpan.FromMilliseconds(4);
@@ -900,7 +900,7 @@ namespace Microsoft.Xna.Framework
 
 			/* We know the previous worst case - it's saved in worstCaseSleepPrecision.
 			 * We also know the current index. So the only way the worst case changes
-			 * is if you either 1) just got a new worst case, or 2) the worst case was
+			 * is if we either 1) just got a new worst case, or 2) the worst case was
 			 * the oldest entry on the list.
 			 */
 			if (timeSpentSleeping >= worstCaseSleepPrecision)
