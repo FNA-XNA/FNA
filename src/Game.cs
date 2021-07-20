@@ -212,7 +212,8 @@ namespace Microsoft.Xna.Framework
 		private long previousTicks = 0;
 		private int updateFrameLag;
 		private bool forceElapsedTimeToZero = false;
-		private Queue<TimeSpan> previousSleepTimes = new Queue<TimeSpan>();
+		private TimeSpan[] previousSleepTimes = new TimeSpan[4];
+		private int sleepTimeIndex = 0;
 		private TimeSpan estimatedSleepPrecision = TimeSpan.FromMilliseconds(1);
 
 		private static readonly TimeSpan MaxElapsedTime = TimeSpan.FromMilliseconds(500);
@@ -252,9 +253,9 @@ namespace Microsoft.Xna.Framework
 			IsFixedTimeStep = true;
 			TargetElapsedTime = TimeSpan.FromTicks(166667); // 60fps
 			InactiveSleepTime = TimeSpan.FromSeconds(0.02);
-			for (int i = 0; i < 4; i += 1)
+			for (int i = 0; i < previousSleepTimes.Length; i += 1)
 			{
-				previousSleepTimes.Enqueue(TimeSpan.FromMilliseconds(1));
+				previousSleepTimes[i] = TimeSpan.FromMilliseconds(1);
 			}
 
 			textInputControlDown = new bool[FNAPlatform.TextInputCharacters.Length];
@@ -424,27 +425,6 @@ namespace Microsoft.Xna.Framework
 		}
 
 
-		private TimeSpan AdvanceElapsedTime()
-        {
-			long currentTicks = gameTimer.Elapsed.Ticks;
-			TimeSpan timeAdvanced = TimeSpan.FromTicks(currentTicks - previousTicks);
-			accumulatedElapsedTime += timeAdvanced;
-			previousTicks = currentTicks;
-			return timeAdvanced;
-		}
-
-		private void UpdateEstimatedSleepPrecision(TimeSpan timeSpentSleeping)
-        {
-			previousSleepTimes.Dequeue();
-			previousSleepTimes.Enqueue(timeSpentSleeping);
-			TimeSpan currentAverage = TimeSpan.Zero;
-			foreach (var sleepTime in previousSleepTimes)
-            {
-				currentAverage += sleepTime;
-            }
-			estimatedSleepPrecision = TimeSpan.FromTicks(currentAverage.Ticks / previousSleepTimes.Count);
-        }
-
 		public void Tick()
 		{
 			/* NOTE: This code is very sensitive and can break very badly,
@@ -459,10 +439,10 @@ namespace Microsoft.Xna.Framework
 			if (IsFixedTimeStep)
 			{
 				/* If we are in fixed timestep, we want to wait until the next frame,
-				 * but we don't want to oversleep. Requesting repeated 1ms sleeps lets
-				 * us estimate the sleep precision so we don't oversleep the next frame.
+				 * but we don't want to oversleep. Requesting repeated 1ms sleeps and
+				 * seeing how long we actually slept for lets us estimate sleep precision
+				 * so we don't oversleep the next frame.
 				 */
-
 				while (accumulatedElapsedTime + estimatedSleepPrecision < TargetElapsedTime)
 				{
 					System.Threading.Thread.Sleep(1);
@@ -470,8 +450,10 @@ namespace Microsoft.Xna.Framework
 					UpdateEstimatedSleepPrecision(timeAdvancedSinceSleeping);
 				}
 
-				/* Once we are within the precision threshold, we spinwait until the
-				 * target frame timing value has been reached.
+				/* Now that we have slept into the sleep precision threshold, we need to sleep
+				 * for just a little bit longer until the target elapsed time has been reached.
+				 * SpinWait(1) essentially micro-pauses the thread and is an efficient way to
+				 * perform this waiting.
 				 */
 				while (accumulatedElapsedTime < TargetElapsedTime)
 				{
@@ -896,6 +878,30 @@ namespace Microsoft.Xna.Framework
 				Tick();
 			}
 			OnExiting(this, EventArgs.Empty);
+		}
+
+		private TimeSpan AdvanceElapsedTime()
+		{
+			long currentTicks = gameTimer.Elapsed.Ticks;
+			TimeSpan timeAdvanced = TimeSpan.FromTicks(currentTicks - previousTicks);
+			accumulatedElapsedTime += timeAdvanced;
+			previousTicks = currentTicks;
+			return timeAdvanced;
+		}
+
+		/* To calculate the estimated sleep precision of the OS, we take the
+		 * average time spent sleeping over the previous few requests to sleep 1ms.
+		 */
+		private void UpdateEstimatedSleepPrecision(TimeSpan timeSpentSleeping)
+		{
+			previousSleepTimes[sleepTimeIndex] = timeSpentSleeping;
+			TimeSpan currentAverage = TimeSpan.Zero;
+			foreach (var sleepTime in previousSleepTimes)
+			{
+				currentAverage += sleepTime;
+			}
+			estimatedSleepPrecision = TimeSpan.FromTicks(currentAverage.Ticks / previousSleepTimes.Length);
+			sleepTimeIndex = (sleepTimeIndex + 1) % previousSleepTimes.Length;
 		}
 
 		#endregion
