@@ -212,6 +212,8 @@ namespace Microsoft.Xna.Framework
 		private long previousTicks = 0;
 		private int updateFrameLag;
 		private bool forceElapsedTimeToZero = false;
+		private Queue<TimeSpan> previousSleepTimes = new Queue<TimeSpan>();
+		private TimeSpan estimatedSleepPrecision = TimeSpan.FromMilliseconds(1);
 
 		private static readonly TimeSpan MaxElapsedTime = TimeSpan.FromMilliseconds(500);
 
@@ -250,6 +252,10 @@ namespace Microsoft.Xna.Framework
 			IsFixedTimeStep = true;
 			TargetElapsedTime = TimeSpan.FromTicks(166667); // 60fps
 			InactiveSleepTime = TimeSpan.FromSeconds(0.02);
+			for (int i = 0; i < 4; i += 1)
+			{
+				previousSleepTimes.Enqueue(TimeSpan.FromMilliseconds(1));
+			}
 
 			textInputControlDown = new bool[FNAPlatform.TextInputCharacters.Length];
 			textInputControlRepeat = new int[FNAPlatform.TextInputCharacters.Length];
@@ -417,6 +423,28 @@ namespace Microsoft.Xna.Framework
 			AfterLoop();
 		}
 
+
+		private TimeSpan AdvanceElapsedTime()
+        {
+			long currentTicks = gameTimer.Elapsed.Ticks;
+			TimeSpan timeAdvanced = TimeSpan.FromTicks(currentTicks - previousTicks);
+			accumulatedElapsedTime += timeAdvanced;
+			previousTicks = currentTicks;
+			return timeAdvanced;
+		}
+
+		private void UpdateEstimatedSleepPrecision(TimeSpan timeSpentSleeping)
+        {
+			previousSleepTimes.Dequeue();
+			previousSleepTimes.Enqueue(timeSpentSleeping);
+			TimeSpan currentAverage = TimeSpan.Zero;
+			foreach (var sleepTime in previousSleepTimes)
+            {
+				currentAverage += sleepTime;
+            }
+			estimatedSleepPrecision = TimeSpan.FromTicks(currentAverage.Ticks / previousSleepTimes.Count);
+        }
+
 		public void Tick()
 		{
 			/* NOTE: This code is very sensitive and can break very badly,
@@ -425,39 +453,35 @@ namespace Microsoft.Xna.Framework
 			 * modes across multiple devices and platforms.
 			 */
 
-			/* TODO: acquire sleep resolution from SDL */
-			TimeSpan sleepThreshold = TimeSpan.FromMilliseconds(1);
-
-			bool updated = false;
-
-		RetryTick:
-
 			// Advance the accumulated elapsed time.
-			long currentTicks = gameTimer.Elapsed.Ticks;
-			accumulatedElapsedTime += TimeSpan.FromTicks(currentTicks - previousTicks);
-			previousTicks = currentTicks;
+			AdvanceElapsedTime();
 
-			/* If we're in the fixed timestep mode and we are farther away from the next
-			 * tick than the no sleep threshold we sleep off most of the remaining time to save
-			 * battery life and/or release CPU time to other threads and processes.
-			 *
-			 * Windows scheduler tends to wake up early, and UNIX schedulers tend to wake up late.
-			 * We sleep for the remaining amount of time minus the sleep threshold as a compromise
-			 * to avoid oversleeping.
-			 */
 			if (IsFixedTimeStep)
 			{
-				if (accumulatedElapsedTime + sleepThreshold < TargetElapsedTime)
+				/* If we are in fixed timestep, we want to wait until the next frame,
+				 * but we don't want to oversleep. Requesting repeated 1ms sleeps lets
+				 * us estimate the sleep precision so we don't oversleep the next frame.
+				 */
+
+				while (accumulatedElapsedTime + estimatedSleepPrecision < TargetElapsedTime)
 				{
-					int sleepTime = (
-						(int)(TargetElapsedTime - accumulatedElapsedTime - sleepThreshold).TotalMilliseconds
-					);
+					System.Threading.Thread.Sleep(1);
+					TimeSpan timeAdvancedSinceSleeping = AdvanceElapsedTime();
+					UpdateEstimatedSleepPrecision(timeAdvancedSinceSleeping);
+				}
 
-					System.Threading.Thread.Sleep(sleepTime);
-
-					goto RetryTick;
+				/* Once we are within the precision threshold, we spinwait until the
+				 * target frame timing value has been reached.
+				 */
+				while (accumulatedElapsedTime < TargetElapsedTime)
+				{
+					System.Threading.Thread.SpinWait(1);
+					AdvanceElapsedTime();
 				}
 			}
+
+			// FIXME: printing overshoot value for testing, remove later
+			Console.WriteLine("overshoot: " + (accumulatedElapsedTime - TargetElapsedTime).TotalMilliseconds + "ms");
 
 			// Do not allow any update to take longer than our maximum.
 			if (accumulatedElapsedTime > MaxElapsedTime)
@@ -479,7 +503,6 @@ namespace Microsoft.Xna.Framework
 
 					AssertNotDisposed();
 					Update(gameTime);
-					updated = true;
 				}
 
 				// Every update after the first accumulates lag
@@ -538,11 +561,10 @@ namespace Microsoft.Xna.Framework
 				accumulatedElapsedTime = TimeSpan.Zero;
 				AssertNotDisposed();
 				Update(gameTime);
-				updated = true;
 			}
 
-			// Draw unless we haven't updated, or the update suppressed it.
-			if (!updated || suppressDraw)
+			// Draw unless the update suppressed it.
+			if (suppressDraw)
 			{
 				suppressDraw = false;
 			}
