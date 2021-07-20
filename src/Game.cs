@@ -387,13 +387,6 @@ namespace Microsoft.Xna.Framework
 				hasInitialized = true;
 			}
 
-			FNAPlatform.PollEvents(
-				this,
-				ref currentAdapter,
-				textInputControlDown,
-				textInputControlRepeat,
-				ref textInputSuppress
-			);
 			Tick();
 		}
 
@@ -450,6 +443,15 @@ namespace Microsoft.Xna.Framework
 
 				goto RetryTick;
 			}
+
+			// Now that we are going to perform an update, let's poll events.
+			FNAPlatform.PollEvents(
+				this,
+				ref currentAdapter,
+				textInputControlDown,
+				textInputControlRepeat,
+				ref textInputSuppress
+			);
 
 			// Do not allow any update to take longer than our maximum.
 			if (accumulatedElapsedTime > MaxElapsedTime)
@@ -854,13 +856,6 @@ namespace Microsoft.Xna.Framework
 
 			while (RunApplication)
 			{
-				FNAPlatform.PollEvents(
-					this,
-					ref currentAdapter,
-					textInputControlDown,
-					textInputControlRepeat,
-					ref textInputSuppress
-				);
 				Tick();
 			}
 			OnExiting(this, EventArgs.Empty);
