@@ -212,9 +212,9 @@ namespace Microsoft.Xna.Framework
 		private long previousTicks = 0;
 		private int updateFrameLag;
 		private bool forceElapsedTimeToZero = false;
-		private TimeSpan[] previousSleepTimes = new TimeSpan[4];
+		private TimeSpan[] previousSleepTimes = new TimeSpan[100];
 		private int sleepTimeIndex = 0;
-		private TimeSpan estimatedSleepPrecision = TimeSpan.FromMilliseconds(1);
+		private TimeSpan worstCaseSleepPrecision = TimeSpan.FromMilliseconds(1);
 
 		private static readonly TimeSpan MaxElapsedTime = TimeSpan.FromMilliseconds(500);
 
@@ -394,13 +394,6 @@ namespace Microsoft.Xna.Framework
 				hasInitialized = true;
 			}
 
-			FNAPlatform.PollEvents(
-				this,
-				ref currentAdapter,
-				textInputControlDown,
-				textInputControlRepeat,
-				ref textInputSuppress
-			);
 			Tick();
 		}
 
@@ -439,10 +432,10 @@ namespace Microsoft.Xna.Framework
 			{
 				/* If we are in fixed timestep, we want to wait until the next frame,
 				 * but we don't want to oversleep. Requesting repeated 1ms sleeps and
-				 * seeing how long we actually slept for lets us estimate sleep precision
-				 * so we don't oversleep the next frame.
+				 * seeing how long we actually slept for lets us estimate the worst case
+				 * sleep precision so we don't oversleep the next frame.
 				 */
-				while (accumulatedElapsedTime + estimatedSleepPrecision < TargetElapsedTime)
+				while (accumulatedElapsedTime + worstCaseSleepPrecision < TargetElapsedTime)
 				{
 					System.Threading.Thread.Sleep(1);
 					TimeSpan timeAdvancedSinceSleeping = AdvanceElapsedTime();
@@ -451,18 +444,24 @@ namespace Microsoft.Xna.Framework
 
 				/* Now that we have slept into the sleep precision threshold, we need to sleep
 				 * for just a little bit longer until the target elapsed time has been reached.
-				 * SpinWait(1) essentially micro-pauses the thread and is an efficient way to
-				 * perform this waiting.
+				 * Let's just busywait and increment the timer.
+				 *
+				 * NOTE: We tried SpinWait and it increased CPU usage enormously.
 				 */
 				while (accumulatedElapsedTime < TargetElapsedTime)
 				{
-					System.Threading.Thread.SpinWait(1);
 					AdvanceElapsedTime();
 				}
 			}
 
-			// FIXME: printing overshoot value for testing, remove later
-			Console.WriteLine("overshoot: " + (accumulatedElapsedTime - TargetElapsedTime).TotalMilliseconds + "ms");
+			// Now that we are going to perform an update, let's poll events.
+			FNAPlatform.PollEvents(
+				this,
+				ref currentAdapter,
+				textInputControlDown,
+				textInputControlRepeat,
+				ref textInputSuppress
+			);
 
 			// Do not allow any update to take longer than our maximum.
 			if (accumulatedElapsedTime > MaxElapsedTime)
@@ -867,13 +866,6 @@ namespace Microsoft.Xna.Framework
 
 			while (RunApplication)
 			{
-				FNAPlatform.PollEvents(
-					this,
-					ref currentAdapter,
-					textInputControlDown,
-					textInputControlRepeat,
-					ref textInputSuppress
-				);
 				Tick();
 			}
 			OnExiting(this, EventArgs.Empty);
@@ -888,18 +880,21 @@ namespace Microsoft.Xna.Framework
 			return timeAdvanced;
 		}
 
-		/* To calculate the estimated sleep precision of the OS, we take the
-		 * average time spent sleeping over the previous few requests to sleep 1ms.
+		/* To calculate the sleep precision of the OS, we take the worst case
+		 * time spent sleeping over the results of previous requests to sleep 1ms.
 		 */
 		private void UpdateEstimatedSleepPrecision(TimeSpan timeSpentSleeping)
 		{
 			previousSleepTimes[sleepTimeIndex] = timeSpentSleeping;
-			TimeSpan currentAverage = TimeSpan.Zero;
+			var maxSleepTime = TimeSpan.MinValue;
 			foreach (var sleepTime in previousSleepTimes)
 			{
-				currentAverage += sleepTime;
+				if (sleepTime > maxSleepTime)
+                {
+					maxSleepTime = sleepTime;
+                }
 			}
-			estimatedSleepPrecision = TimeSpan.FromTicks(currentAverage.Ticks / previousSleepTimes.Length);
+			worstCaseSleepPrecision = maxSleepTime;
 			sleepTimeIndex = (sleepTimeIndex + 1) % previousSleepTimes.Length;
 		}
 
