@@ -212,7 +212,10 @@ namespace Microsoft.Xna.Framework
 		private long previousTicks = 0;
 		private int updateFrameLag;
 		private bool forceElapsedTimeToZero = false;
-		private TimeSpan[] previousSleepTimes = new TimeSpan[100];
+		// must be a power of 2 so we can do a bitmask optimization when checking worst case
+		private const int PREVIOUS_SLEEP_TIME_COUNT = 128;
+		private const int SLEEP_TIME_MASK = PREVIOUS_SLEEP_TIME_COUNT - 1;
+		private TimeSpan[] previousSleepTimes = new TimeSpan[PREVIOUS_SLEEP_TIME_COUNT];
 		private int sleepTimeIndex = 0;
 		private TimeSpan worstCaseSleepPrecision = TimeSpan.FromMilliseconds(1);
 
@@ -884,17 +887,41 @@ namespace Microsoft.Xna.Framework
 		 */
 		private void UpdateEstimatedSleepPrecision(TimeSpan timeSpentSleeping)
 		{
-			previousSleepTimes[sleepTimeIndex] = timeSpentSleeping;
-			var maxSleepTime = TimeSpan.MinValue;
-			foreach (var sleepTime in previousSleepTimes)
+			/* It is unlikely that the scheduler will actually be more imprecise than
+			 * 4ms and we don't want to get wrecked by a bad frame so we cap this
+			 * value at 4ms for sanity.
+			 */
+			var upperTimeBound = TimeSpan.FromMilliseconds(4);
+
+			if (timeSpentSleeping > upperTimeBound)
 			{
-				if (sleepTime > maxSleepTime)
-				{
-					maxSleepTime = sleepTime;
-				}
+				timeSpentSleeping = upperTimeBound;
 			}
-			worstCaseSleepPrecision = maxSleepTime;
-			sleepTimeIndex = (sleepTimeIndex + 1) % previousSleepTimes.Length;
+
+			/* We know the previous worst case - it's saved in worstCaseSleepPrecision.
+			 * We also know the current index. So the only way the worst case changes
+			 * is if you either 1) just got a new worst case, or 2) the worst case was
+			 * the oldest entry on the list.
+			 */
+			if (timeSpentSleeping >= worstCaseSleepPrecision)
+			{
+				worstCaseSleepPrecision = timeSpentSleeping;
+			}
+			else if (previousSleepTimes[sleepTimeIndex] == worstCaseSleepPrecision)
+			{
+				var maxSleepTime = TimeSpan.MinValue;
+				for (int i = 0; i < previousSleepTimes.Length; i++)
+				{
+					if (previousSleepTimes[i] > maxSleepTime)
+					{
+						maxSleepTime = timeSpentSleeping;
+					}
+				}
+				worstCaseSleepPrecision = maxSleepTime;
+			}
+
+			previousSleepTimes[sleepTimeIndex] = timeSpentSleeping;
+			sleepTimeIndex = (sleepTimeIndex + 1) & SLEEP_TIME_MASK;
 		}
 
 		#endregion
