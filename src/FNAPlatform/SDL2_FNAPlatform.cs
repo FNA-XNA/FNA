@@ -196,6 +196,25 @@ namespace Microsoft.Xna.Framework
 				SupportsGlobalMouse = false;
 			}
 
+			/* We need to change the Windows default here, as the
+			 * display server does not seem to handle focus changes
+			 * gracefully like Wayland (and even X11) do. If for
+			 * _any_ reason focus changes we need to minimize,
+			 * because the alternative is having a window up front
+			 * that has no focus and therefore gets no events, and
+			 * the user (rightfully) will have no idea why.
+			 * -flibit
+			 */
+			if (	OSVersion.Equals("Windows") ||
+				OSVersion.Equals("WinRT")	)
+			{
+				SDL.SDL_SetHint(
+					SDL.SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS,
+					"1"
+				);
+			}
+
+
 			// Set any hints to match XNA4 behavior...
 			string hint = SDL.SDL_GetHint(SDL.SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS);
 			if (String.IsNullOrEmpty(hint))
