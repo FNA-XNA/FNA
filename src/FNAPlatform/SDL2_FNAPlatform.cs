@@ -843,7 +843,7 @@ namespace Microsoft.Xna.Framework
 						{
 							textInputControlDown[value] = false;
 						}
-						else if ((!Keyboard.keys.Contains(Keys.LeftControl) && textInputControlDown[3]) || key == Keys.V)
+						else if ((!Keyboard.keys.Contains(Keys.LeftControl) && textInputControlDown[6]) || key == Keys.V)
 						{
 							textInputControlDown[6] = false;
 							textInputSuppress = false;
