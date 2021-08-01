@@ -62,11 +62,20 @@ namespace Microsoft.Xna.Framework
 			}
 			safeName = GetCaseName(Path.Combine(TitleLocation.Path, safeName));
 #endif
+			string realName;
 			if (Path.IsPathRooted(safeName))
 			{
-				return FNAPlatform.ReadFileToPointer(safeName, out size);
+				realName = safeName;
 			}
-			return FNAPlatform.ReadFileToPointer(Path.Combine(TitleLocation.Path, safeName), out size);
+			else
+			{
+				realName = Path.Combine(TitleLocation.Path, safeName);
+			}
+			if (!File.Exists(realName))
+			{
+				throw new FileNotFoundException(realName);
+			}
+			return FNAPlatform.ReadFileToPointer(realName, out size);
 		}
 
 		#endregion
