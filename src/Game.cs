@@ -212,6 +212,7 @@ namespace Microsoft.Xna.Framework
 		private long previousTicks = 0;
 		private int updateFrameLag;
 		private bool forceElapsedTimeToZero = false;
+
 		// must be a power of 2 so we can do a bitmask optimization when checking worst case
 		private const int PREVIOUS_SLEEP_TIME_COUNT = 128;
 		private const int SLEEP_TIME_MASK = PREVIOUS_SLEEP_TIME_COUNT - 1;
@@ -891,7 +892,7 @@ namespace Microsoft.Xna.Framework
 			 * 4ms and we don't want to get wrecked by a single long sleep so we cap this
 			 * value at 4ms for sanity.
 			 */
-			var upperTimeBound = TimeSpan.FromMilliseconds(4);
+			TimeSpan upperTimeBound = TimeSpan.FromMilliseconds(4);
 
 			if (timeSpentSleeping > upperTimeBound)
 			{
@@ -909,8 +910,8 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (previousSleepTimes[sleepTimeIndex] == worstCaseSleepPrecision)
 			{
-				var maxSleepTime = TimeSpan.MinValue;
-				for (int i = 0; i < previousSleepTimes.Length; i++)
+				TimeSpan maxSleepTime = TimeSpan.MinValue;
+				for (int i = 0; i < previousSleepTimes.Length; i += 1)
 				{
 					if (previousSleepTimes[i] > maxSleepTime)
 					{
