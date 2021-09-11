@@ -294,11 +294,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		 * Despite XNA4 using Purple here, we use black (in Release) to avoid
 		 * performance warnings on Intel/Mesa.
 		 * -sulix
+		 *
+		 * Also, these are NOT readonly, for weird performance reasons -flibit
 		 */
 #if DEBUG
-		private static readonly Vector4 DiscardColor = new Color(68, 34, 136, 255).ToVector4();
+		private static Vector4 DiscardColor = new Color(68, 34, 136, 255).ToVector4();
 #else
-		private static readonly Vector4 DiscardColor = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+		private static Vector4 DiscardColor = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
 #endif
 
 		#endregion

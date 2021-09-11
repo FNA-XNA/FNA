@@ -173,17 +173,18 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Static Fields
 
-		private static Vector3 zero = new Vector3(0f, 0f, 0f); // Not readonly for performance -flibit
-		private static readonly Vector3 one = new Vector3(1f, 1f, 1f);
-		private static readonly Vector3 unitX = new Vector3(1f, 0f, 0f);
-		private static readonly Vector3 unitY = new Vector3(0f, 1f, 0f);
-		private static readonly Vector3 unitZ = new Vector3(0f, 0f, 1f);
-		private static readonly Vector3 up = new Vector3(0f, 1f, 0f);
-		private static readonly Vector3 down = new Vector3(0f, -1f, 0f);
-		private static readonly Vector3 right = new Vector3(1f, 0f, 0f);
-		private static readonly Vector3 left = new Vector3(-1f, 0f, 0f);
-		private static readonly Vector3 forward = new Vector3(0f, 0f, -1f);
-		private static readonly Vector3 backward = new Vector3(0f, 0f, 1f);
+		// These are NOT readonly, for weird performance reasons -flibit
+		private static Vector3 zero = new Vector3(0f, 0f, 0f);
+		private static Vector3 one = new Vector3(1f, 1f, 1f);
+		private static Vector3 unitX = new Vector3(1f, 0f, 0f);
+		private static Vector3 unitY = new Vector3(0f, 1f, 0f);
+		private static Vector3 unitZ = new Vector3(0f, 0f, 1f);
+		private static Vector3 up = new Vector3(0f, 1f, 0f);
+		private static Vector3 down = new Vector3(0f, -1f, 0f);
+		private static Vector3 right = new Vector3(1f, 0f, 0f);
+		private static Vector3 left = new Vector3(-1f, 0f, 0f);
+		private static Vector3 forward = new Vector3(0f, 0f, -1f);
+		private static Vector3 backward = new Vector3(0f, 0f, 1f);
 
 		#endregion
 
