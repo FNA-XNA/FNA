@@ -51,6 +51,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// TODO: Use QueryRenderTargetFormat!
 			if (	this is IRenderTarget &&
 				format != SurfaceFormat.Color &&
+				format != SurfaceFormat.ColorSrgbEXT &&
 				format != SurfaceFormat.Rgba1010102 &&
 				format != SurfaceFormat.Rg32 &&
 				format != SurfaceFormat.Rgba64 &&

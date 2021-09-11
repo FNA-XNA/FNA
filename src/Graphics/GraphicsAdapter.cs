@@ -206,6 +206,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * -flibit
 			 */
 			if (	format != SurfaceFormat.Color &&
+				format != SurfaceFormat.ColorSrgbEXT &&
 				format != SurfaceFormat.Rgba1010102 &&
 				format != SurfaceFormat.Rg32 &&
 				format != SurfaceFormat.Rgba64 &&

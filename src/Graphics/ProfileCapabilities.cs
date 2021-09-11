@@ -221,7 +221,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				SurfaceFormat.HalfSingle,
 				SurfaceFormat.HalfVector2,
 				SurfaceFormat.HalfVector4,
-				SurfaceFormat.HdrBlendable
+				SurfaceFormat.HdrBlendable,
+				SurfaceFormat.ColorSrgbEXT
 			};
 			HiDef.ValidCubeFormats = new List<SurfaceFormat>()
 			{
@@ -242,8 +243,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				SurfaceFormat.HalfSingle,
 				SurfaceFormat.HalfVector2,
 				SurfaceFormat.HalfVector4,
-				SurfaceFormat.HdrBlendable
-			};
+				SurfaceFormat.HdrBlendable,
+				SurfaceFormat.ColorSrgbEXT
+            };
 			HiDef.ValidVolumeFormats = new List<SurfaceFormat>()
 			{
 				SurfaceFormat.Color,
@@ -260,8 +262,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				SurfaceFormat.HalfSingle,
 				SurfaceFormat.HalfVector2,
 				SurfaceFormat.HalfVector4,
-				SurfaceFormat.HdrBlendable
-			};
+				SurfaceFormat.HdrBlendable,
+				SurfaceFormat.ColorSrgbEXT
+            };
 			HiDef.ValidVertexTextureFormats = new List<SurfaceFormat>()
 			{
 				SurfaceFormat.Single,
@@ -270,8 +273,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				SurfaceFormat.HalfSingle,
 				SurfaceFormat.HalfVector2,
 				SurfaceFormat.HalfVector4,
-				SurfaceFormat.HdrBlendable
-			};
+				SurfaceFormat.HdrBlendable,
+				SurfaceFormat.ColorSrgbEXT
+            };
 			HiDef.InvalidFilterFormats = new List<SurfaceFormat>()
 			{
 				SurfaceFormat.Single,
