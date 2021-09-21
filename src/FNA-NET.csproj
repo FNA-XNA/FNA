@@ -14,11 +14,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('windows'))">
-    <TargetFrameworks>net6.0;net6.0-ios;net6.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net6.0-windows10.0.19041.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('osx'))">
-    <TargetFrameworks>net6.0;net6.0-ios</TargetFrameworks>
+    <TargetFrameworks>net6.0;</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-windows10.0.19041.0'">
@@ -43,5 +43,10 @@
     <Message Importance="High" Text="No property overrides found at '$(FNASettingsPropsFilePath)'" Condition="!Exists('$(FNASettingsPropsFilePath)')" />
     <Message Importance="High" Text="Loaded property overrides from '$(FNASettingsPropsFilePath)'" Condition="Exists('$(FNASettingsPropsFilePath)')" />
   </Target>
+
+  <Import Project="FNA-NET.FAudio.targets" />
+  <Import Project="FNA-NET.FNA3D.targets" />
+  <Import Project="FNA-NET.SDL2.targets" />
+  <Import Project="FNA-NET.Theorafile.targets" />
 
 </Project>

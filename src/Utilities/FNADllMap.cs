@@ -7,7 +7,7 @@
  */
 #endregion
 
-#if NET
+#if FALSE
 
 #region Using Statements
 using System;

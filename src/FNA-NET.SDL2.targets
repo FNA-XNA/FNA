@@ -1,0 +1,37 @@
+<Project>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <Content Include="..\runtimes\SDL2\win-x86\SDL2.dll">
+      <Link>runtimes\win-x86\native\SDL2.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+
+    <Content Include="..\runtimes\SDL2\win-x64\SDL2.dll">
+      <Link>runtimes\win-x64\native\SDL2.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+
+    <Content Include="..\runtimes\SDL2\linux-x64\libSDL2-2.0.so">
+      <Link>runtimes\linux-x64\native\libSDL2-2.0.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+
+    <Content Include="..\runtimes\SDL2\osx-x64\libSDL2-2.0.dylib">
+      <Link>runtimes\osx-x64\native\libSDL2-2.0.dylib</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows10.0.19041.0'">
+    <Content Include="..\runtimes\SDL2\win10-x86\SDL2.dll">
+      <Link>runtimes\win10-x86\native\SDL2.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+
+    <Content Include="..\runtimes\SDL2\win10-x64\SDL2.dll">
+      <Link>runtimes\win10-x64\native\SDL2.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
