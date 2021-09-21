@@ -17,7 +17,6 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 	{
 		#region Public Properties
 
-		[CLSCompliant(false)]
 		public ushort PackedValue
 		{
 			get

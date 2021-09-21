@@ -108,7 +108,6 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Gets or sets packed value of this <see cref="Color"/>.
 		/// </summary>
-		[CLSCompliant(false)]
 		public UInt32 PackedValue
 		{
 			get
