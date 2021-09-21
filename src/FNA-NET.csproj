@@ -49,4 +49,28 @@
   <Import Project="FNA-NET.SDL2.targets" />
   <Import Project="FNA-NET.Theorafile.targets" />
 
+	<ItemGroup>
+		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\AlphaTestEffect.fxb">
+			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.AlphaTestEffect.fxb</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\BasicEffect.fxb">
+			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.BasicEffect.fxb</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\DualTextureEffect.fxb">
+			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.DualTextureEffect.fxb</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\EnvironmentMapEffect.fxb">
+			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.EnvironmentMapEffect.fxb</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\SkinnedEffect.fxb">
+			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.SkinnedEffect.fxb</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\SpriteEffect.fxb">
+			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.SpriteEffect.fxb</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Graphics\Effect\YUVToRGBA\YUVToRGBAEffect.fxb">
+			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.YUVToRGBAEffect.fxb</LogicalName>
+		</EmbeddedResource>
+	</ItemGroup>
+
 </Project>
