@@ -1041,7 +1041,8 @@ namespace Microsoft.Xna.Framework
 							 * than bytes in a string, so bytes is a
 							 * suitable upper estimate of size needed
 							 */
-							char* charsBuffer = stackalloc char[bytes];
+							char* charsBuffer = (char*)NativeMemory.Alloc((uint)bytes * 2);
+
 							int chars = Encoding.UTF8.GetChars(
 								evt.text.text,
 								bytes,
@@ -1053,6 +1054,7 @@ namespace Microsoft.Xna.Framework
 							{
 								TextInputEXT.OnTextInput(charsBuffer[i]);
 							}
+							NativeMemory.Free(charsBuffer);
 						}
 					}
 				}
@@ -1064,7 +1066,7 @@ namespace Microsoft.Xna.Framework
 						int bytes = MeasureStringLength(evt.edit.text);
 						if (bytes > 0) 
 						{
-							char* charsBuffer = stackalloc char[bytes];
+							char* charsBuffer = (char*)NativeMemory.Alloc((uint)bytes * 2);
 							int chars = Encoding.UTF8.GetChars(
 								evt.edit.text,
 								bytes,
@@ -1072,6 +1074,8 @@ namespace Microsoft.Xna.Framework
 								bytes
 							);
 							string text = new string(charsBuffer, 0, chars);
+							NativeMemory.Free(charsBuffer);
+
 							TextInputEXT.OnTextEditing(text, evt.edit.start, evt.edit.length);
 						} 
 						else 
