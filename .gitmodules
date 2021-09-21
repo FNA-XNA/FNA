@@ -10,3 +10,6 @@
 [submodule "lib/Theorafile"]
 	path = lib/Theorafile
 	url = git://github.com/FNA-XNA/Theorafile.git
+[submodule "runtimes"]
+	path = runtimes
+	url = git@github.com:FNA-NET/FNA-NET.runtimes.git
