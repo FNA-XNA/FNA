@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>Microsoft.Xna.Framework</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+      <FNASettingsPropsFilePath>$(SolutionDir)FNA.Settings.props</FNASettingsPropsFilePath>
+  </PropertyGroup>
+  <Import Project="$(FNASettingsPropsFilePath)" Condition="Exists('$(FNASettingsPropsFilePath)')" />
+  <Target Name="ValidatePropsFilePath" BeforeTargets="BeforeBuild">
+    <Message Importance="High" Text="No property overrides found at '$(FNASettingsPropsFilePath)'" Condition="!Exists('$(FNASettingsPropsFilePath)')" />
+    <Message Importance="High" Text="Loaded property overrides from '$(FNASettingsPropsFilePath)'" Condition="Exists('$(FNASettingsPropsFilePath)')" />
+  </Target>
+
+</Project>
