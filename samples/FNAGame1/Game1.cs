@@ -1,5 +1,7 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
+using SDL2;
 
 namespace FNAGame1;
 
@@ -16,6 +18,9 @@ public class Game1 : Game
 		gdm.SynchronizeWithVerticalRetrace = true;
 
 		IsMouseVisible = true;
+
+		// All content loaded will be in a "Content" folder
+		Content.RootDirectory = "Content";
 	}
 
 	protected override void Initialize()
@@ -28,7 +33,12 @@ public class Game1 : Game
 
 	protected override void LoadContent()
 	{
-		// Load textures, sounds, and so on in here...
+		// Create the batch...
+		_batch = new SpriteBatch(GraphicsDevice);
+
+		// ... then load a texture from ./Content/FNATexture.png
+		_texture1 = Content.Load<Texture2D>("Image1");
+
 		base.LoadContent();
 	}
 
@@ -38,16 +48,23 @@ public class Game1 : Game
 		base.UnloadContent();
 	}
 
+	private SpriteBatch _batch;
+	private Texture2D _texture1;
+
 	protected override void Update(GameTime gameTime)
 	{
-		// Run game logic in here. Do NOT render anything here!
 		base.Update(gameTime);
 	}
 
 	protected override void Draw(GameTime gameTime)
 	{
-		// Render stuff in here. Do NOT run game logic in here!
 		GraphicsDevice.Clear(Color.CornflowerBlue);
+
+		// Draw the texture to the corner of the screen
+		_batch.Begin();
+		_batch.Draw(_texture1, Vector2.Zero, Color.White);
+		_batch.End();
+
 		base.Draw(gameTime);
 	}
 }
