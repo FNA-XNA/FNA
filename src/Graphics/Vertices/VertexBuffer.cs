@@ -136,7 +136,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				data,
 				0,
 				data.Length,
-				Marshal.SizeOf(typeof(T))
+				Marshal.SizeOf<T>()
 			);
 		}
 
@@ -150,7 +150,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				data,
 				startIndex,
 				elementCount,
-				Marshal.SizeOf(typeof(T))
+				Marshal.SizeOf<T>()
 			);
 		}
 
@@ -177,7 +177,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new NotSupportedException("Calling GetData on a resource that was created with BufferUsage.WriteOnly is not supported.");
 			}
 
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			int elementSizeInBytes = Marshal.SizeOf<T>();
 			if (vertexStride == 0)
 			{
 				vertexStride = elementSizeInBytes;
@@ -219,7 +219,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				data,
 				0,
 				data.Length,
-				Marshal.SizeOf(typeof(T))
+				Marshal.SizeOf<T>()
 			);
 		}
 
@@ -233,7 +233,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				data,
 				startIndex,
 				elementCount,
-				Marshal.SizeOf(typeof(T))
+				Marshal.SizeOf<T>()
 			);
 		}
 
@@ -246,7 +246,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) where T : struct {
 			ErrorCheck(data, startIndex, elementCount, vertexStride);
 
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			int elementSizeInBytes = Marshal.SizeOf<T>();
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetVertexBufferData(
 				GraphicsDevice.GLDevice,
@@ -314,7 +314,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			int elementSizeInBytes = Marshal.SizeOf<T>();
 			if (vertexStride == 0)
 			{
 				vertexStride = elementSizeInBytes;

@@ -81,7 +81,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) where T : struct {
 			ErrorCheck(data, startIndex, elementCount, vertexStride);
 
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			int elementSizeInBytes = Marshal.SizeOf<T>();
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetVertexBufferData(
 				GraphicsDevice.GLDevice,
@@ -102,7 +102,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int elementCount,
 			SetDataOptions options
 		) where T : struct {
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			int elementSizeInBytes = Marshal.SizeOf<T>();
 			ErrorCheck(data, startIndex, elementCount, elementSizeInBytes);
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);

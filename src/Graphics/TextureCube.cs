@@ -141,7 +141,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				height = Math.Max(1, Size >> level);
 			}
 
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			int elementSizeInBytes = Marshal.SizeOf<T>();
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetTextureDataCube(
 				GraphicsDevice.GLDevice,
@@ -269,7 +269,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				subH = rect.Value.Height;
 			}
 
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			int elementSizeInBytes = Marshal.SizeOf<T>();
 			ValidateGetDataFormat(Format, elementSizeInBytes);
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);

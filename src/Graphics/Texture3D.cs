@@ -119,7 +119,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentNullException("data");
 			}
 
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			int elementSizeInBytes = Marshal.SizeOf<T>();
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetTextureData3D(
 				GraphicsDevice.GLDevice,
@@ -256,7 +256,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentException("Neither box size nor box position can be negative");
 			}
 
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			int elementSizeInBytes = Marshal.SizeOf<T>();
 			ValidateGetDataFormat(Format, elementSizeInBytes);
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
