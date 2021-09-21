@@ -1,9 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Microsoft.Xna.Framework</RootNamespace>
+    <AssemblyName>FNA.NET</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseOutputPath>..\Artifacts</BaseOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>Pure .NET 6+ fork of FNA.</Description>
+    <PackageTags>.net6.0;xna;</PackageTags>
+    <PackageId>FNA.NET</PackageId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('windows'))">
+    <TargetFrameworks>net6.0;net6.0-ios;net6.0-windows10.0.19041.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('osx'))">
+    <TargetFrameworks>net6.0;net6.0-ios</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-windows10.0.19041.0'">
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+    <SupportedOSPlatformVersion>10.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
