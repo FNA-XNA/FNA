@@ -446,7 +446,9 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Private Methods
 
+#if __IOS__
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FAudio.FACTNotificationCallback))]
+#endif
 		private static unsafe void OnXACTNotification(IntPtr notification)
 		{
 			WeakReference reference;

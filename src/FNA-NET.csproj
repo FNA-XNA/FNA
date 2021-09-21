@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('osx'))">
-    <TargetFrameworks>net6.0;</TargetFrameworks>
+    <TargetFrameworks>net6.0;net6.0-ios</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
@@ -30,14 +30,9 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-    <SupportedOSPlatformVersion>10.0</SupportedOSPlatformVersion>
+    <IsBindingProject>true</IsBindingProject>
+    <SupportedOSPlatformVersion>11.0</SupportedOSPlatformVersion>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="..\lib\SDL2-CS\src\SDL2.cs" />
-    <Compile Include="..\lib\FAudio\csharp\FAudio.cs" />
-    <Compile Include="..\lib\Theorafile\csharp\Theorafile.cs" />
-  </ItemGroup>
 
   <PropertyGroup>
       <FNASettingsPropsFilePath>$(SolutionDir)FNA.Settings.props</FNASettingsPropsFilePath>
@@ -53,28 +48,30 @@
   <Import Project="FNA-NET.SDL2.targets" />
   <Import Project="FNA-NET.Theorafile.targets" />
 
-	<ItemGroup>
-		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\AlphaTestEffect.fxb">
-			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.AlphaTestEffect.fxb</LogicalName>
-		</EmbeddedResource>
-		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\BasicEffect.fxb">
-			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.BasicEffect.fxb</LogicalName>
-		</EmbeddedResource>
-		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\DualTextureEffect.fxb">
-			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.DualTextureEffect.fxb</LogicalName>
-		</EmbeddedResource>
-		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\EnvironmentMapEffect.fxb">
-			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.EnvironmentMapEffect.fxb</LogicalName>
-		</EmbeddedResource>
-		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\SkinnedEffect.fxb">
-			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.SkinnedEffect.fxb</LogicalName>
-		</EmbeddedResource>
-		<EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\SpriteEffect.fxb">
-			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.SpriteEffect.fxb</LogicalName>
-		</EmbeddedResource>
-		<EmbeddedResource Include="Graphics\Effect\YUVToRGBA\YUVToRGBAEffect.fxb">
-			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.YUVToRGBAEffect.fxb</LogicalName>
-		</EmbeddedResource>
-	</ItemGroup>
+  <Import Project="FNA-NET.iOS.targets" />
+
+  <ItemGroup>
+    <EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\AlphaTestEffect.fxb">
+      <LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.AlphaTestEffect.fxb</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\BasicEffect.fxb">
+      <LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.BasicEffect.fxb</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\DualTextureEffect.fxb">
+      <LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.DualTextureEffect.fxb</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\EnvironmentMapEffect.fxb">
+      <LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.EnvironmentMapEffect.fxb</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\SkinnedEffect.fxb">
+      <LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.SkinnedEffect.fxb</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Graphics\Effect\StockEffects\FXB\SpriteEffect.fxb">
+      <LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.SpriteEffect.fxb</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Graphics\Effect\YUVToRGBA\YUVToRGBAEffect.fxb">
+      <LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.YUVToRGBAEffect.fxb</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 
 </Project>

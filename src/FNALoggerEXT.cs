@@ -75,19 +75,25 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Static Functions
 
+#if __IOS__
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D.FNA3D_LogFunc))]
+#endif
 		private static void FNA3DLogInfo(IntPtr msg)
 		{
 			LogInfo(UTF8_ToManaged(msg));
 		}
 
+#if __IOS__
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D.FNA3D_LogFunc))]
+#endif
 		private static void FNA3DLogWarn(IntPtr msg)
 		{
 			LogWarn(UTF8_ToManaged(msg));
 		}
 
+#if __IOS__
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D.FNA3D_LogFunc))]
+#endif
 		private static void FNA3DLogError(IntPtr msg)
 		{
 			string err = UTF8_ToManaged(msg);

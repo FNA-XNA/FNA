@@ -1150,7 +1150,9 @@ namespace Microsoft.Xna.Framework
 		[DllImport("__Native", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void emscripten_cancel_main_loop();
 
+#if __IOS__
 		[ObjCRuntime.MonoPInvokeCallback(typeof(em_callback_func))]
+#endif
 		private static void RunEmscriptenMainLoop()
 		{
 			emscriptenGame.RunOneFrame();

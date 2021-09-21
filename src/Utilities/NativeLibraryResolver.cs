@@ -147,7 +147,9 @@ namespace Microsoft.Xna.Framework
 			string wordsize = (IntPtr.Size * 8).ToString();
 
 			// Set the resolver callback
+#if !__IOS__ && !__TVOS__
 			NativeLibrary.SetDllImportResolver(typeof(NativeLibraryResolver).Assembly, ResolveLibrary);
+#endif
 		}
 	}
 }

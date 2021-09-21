@@ -1,0 +1,3 @@
+namespace Microsoft.Xna.Framework
+{
+}

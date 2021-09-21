@@ -15,11 +15,14 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Xna.Framework.Graphics
 {
+	#if __IOS__ || __TVOS__
+	[Foundation.Preserve(AllMembers=true)]
+	#endif
 	internal static class FNA3D
 	{
 		#region Private Constants
 
-		private const string nativeLibName = "FNA3D";
+		private const string nativeLibName = "__Internal";
 
 		#endregion
 
@@ -859,7 +862,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void FNA3D_Image_Free(IntPtr mem);
 
+#if __IOS__
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D_Image_ReadFunc))]
+#endif
 		private static int INTERNAL_Read(
 			IntPtr context,
 			IntPtr data,
@@ -876,7 +881,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			return result;
 		}
 
+#if __IOS__
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D_Image_SkipFunc))]
+#endif
 		private static void INTERNAL_Skip(IntPtr context, int n)
 		{
 			Stream stream;
@@ -887,7 +894,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			stream.Seek(n, SeekOrigin.Current);
 		}
 
+#if __IOS__
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D_Image_EOFFunc))]
+#endif
 		private static int INTERNAL_EOF(IntPtr context)
 		{
 			Stream stream;
@@ -974,7 +983,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			int quality
 		);
 
+#if __IOS__
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D_Image_WriteFunc))]
+#endif
 		private static void INTERNAL_Write(
 			IntPtr context,
 			IntPtr data,
