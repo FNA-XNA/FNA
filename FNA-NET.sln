@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{D215
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FNAGame1", "samples\FNAGame1\FNAGame1.csproj", "{1416C843-528B-4161-B43C-BCA26B4ABCE7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iOSGame1", "samples\iOSGame1\iOSGame1.csproj", "{CF25FD5D-178F-402F-AD4E-F032A8A30270}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,12 +25,17 @@ Global
 		{1416C843-528B-4161-B43C-BCA26B4ABCE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1416C843-528B-4161-B43C-BCA26B4ABCE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1416C843-528B-4161-B43C-BCA26B4ABCE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF25FD5D-178F-402F-AD4E-F032A8A30270}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF25FD5D-178F-402F-AD4E-F032A8A30270}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF25FD5D-178F-402F-AD4E-F032A8A30270}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF25FD5D-178F-402F-AD4E-F032A8A30270}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1416C843-528B-4161-B43C-BCA26B4ABCE7} = {D2158F14-9441-4380-A1DC-421C41E5CE34}
+		{CF25FD5D-178F-402F-AD4E-F032A8A30270} = {D2158F14-9441-4380-A1DC-421C41E5CE34}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {881CED7F-6893-414E-97E2-811B322DA058}

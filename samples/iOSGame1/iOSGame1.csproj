@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-ios</TargetFramework>
+    <SupportedOSPlatformVersion>11.0</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <RuntimeIdentifier>iossimulator-x64</RuntimeIdentifier>
+    <MtouchLink>SdkOnly</MtouchLink>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <BundleResource Include="Default.png" />
+    <BundleResource Include="GameThumbnail.png" />
+    <BundleResource Include="Content\Image1.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FNA-NET.csproj" />
+  </ItemGroup>
+</Project>
