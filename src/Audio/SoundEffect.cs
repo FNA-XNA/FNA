@@ -729,9 +729,10 @@ namespace Microsoft.Xna.Framework.Audio
 						FAudio.FAUDIO_DEFAULT_PROCESSOR
 					);
 				}
-				catch
+				catch (Exception e)
 				{
 					/* FAudio is missing, bail! */
+					FNALoggerEXT.LogWarn("FAudio failed to load: " + e.ToString());
 					return;
 				}
 
