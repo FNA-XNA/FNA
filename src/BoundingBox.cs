@@ -381,7 +381,7 @@ namespace Microsoft.Xna.Framework
 
 		public bool Intersects(BoundingSphere sphere)
 		{
-			if (	sphere.Center.X - Min.X > sphere.Radius &&
+			if (sphere.Center.X - Min.X > sphere.Radius &&
 				sphere.Center.Y - Min.Y > sphere.Radius &&
 				sphere.Center.Z - Min.Z > sphere.Radius &&
 				Max.X - sphere.Center.X > sphere.Radius &&
@@ -391,41 +391,45 @@ namespace Microsoft.Xna.Framework
 				return true;
 			}
 
+			float radiusSq = sphere.Radius * sphere.Radius;
+
 			double dmin = 0;
 
-			if (sphere.Center.X - Min.X <= sphere.Radius)
+			if (sphere.Center.X < Min.X)
 			{
 				dmin += (sphere.Center.X - Min.X) * (sphere.Center.X - Min.X);
 			}
-			else if (Max.X - sphere.Center.X <= sphere.Radius)
+			else if (sphere.Center.X > Max.X)
 			{
 				dmin += (sphere.Center.X - Max.X) * (sphere.Center.X - Max.X);
 			}
 
-			if (sphere.Center.Y - Min.Y <= sphere.Radius)
+			if (sphere.Center.Y < Min.Y)
 			{
 				dmin += (sphere.Center.Y - Min.Y) * (sphere.Center.Y - Min.Y);
 			}
-			else if (Max.Y - sphere.Center.Y <= sphere.Radius)
+			else if (sphere.Center.Y > Max.Y)
 			{
 				dmin += (sphere.Center.Y - Max.Y) * (sphere.Center.Y - Max.Y);
 			}
 
-			if (sphere.Center.Z - Min.Z <= sphere.Radius)
+			if (sphere.Center.Z < Min.Z)
 			{
 				dmin += (sphere.Center.Z - Min.Z) * (sphere.Center.Z - Min.Z);
 			}
-			else if (Max.Z - sphere.Center.Z <= sphere.Radius)
+			else if (sphere.Center.Z > Max.Z)
 			{
 				dmin += (sphere.Center.Z - Max.Z) * (sphere.Center.Z - Max.Z);
 			}
 
-			if (dmin <= sphere.Radius * sphere.Radius)
+			if (dmin <= radiusSq)
 			{
 				return true;
 			}
-
-			return false;
+			else
+			{
+				return false;
+			}
 		}
 
 		public void Intersects(ref Plane plane, out PlaneIntersectionType result)
