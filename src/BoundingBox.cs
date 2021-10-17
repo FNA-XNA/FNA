@@ -381,7 +381,7 @@ namespace Microsoft.Xna.Framework
 
 		public bool Intersects(BoundingSphere sphere)
 		{
-			if (sphere.Center.X - Min.X > sphere.Radius &&
+			if (	sphere.Center.X - Min.X > sphere.Radius &&
 				sphere.Center.Y - Min.Y > sphere.Radius &&
 				sphere.Center.Z - Min.Z > sphere.Radius &&
 				Max.X - sphere.Center.X > sphere.Radius &&
