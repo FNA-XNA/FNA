@@ -422,14 +422,7 @@ namespace Microsoft.Xna.Framework
 				dmin += (sphere.Center.Z - Max.Z) * (sphere.Center.Z - Max.Z);
 			}
 
-			if (dmin <= radiusSq)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return (dmin <= radiusSq);
 		}
 
 		public void Intersects(ref Plane plane, out PlaneIntersectionType result)
