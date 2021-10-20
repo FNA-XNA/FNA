@@ -128,6 +128,20 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
+			/* By default, assume physical layout, since XNA games mostly assume XInput.
+			 * This used to be more flexible until Steam decided to enforce the variable
+			 * that already had their desired value as the default (big surprise).
+			 *
+			 * TL;DR: Suck my ass, Steam
+			 *
+			 * -flibit
+			 */
+			SDL.SDL_SetHintWithPriority(
+				SDL.SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS,
+				"0",
+				SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
+			);
+
 			// Built-in SDL2 command line arguments
 			string arg;
 			if (args.TryGetValue("glprofile", out arg))
@@ -224,20 +238,6 @@ namespace Microsoft.Xna.Framework
 					"1"
 				);
 			}
-
-			/* By default, assume physical layout, since XNA games mostly assume XInput.
-			 * This used to be more flexible until Steam decided to enforce the variable
-			 * that already had their desired value as the default (big surprise).
-			 *
-			 * TL;DR: Suck my ass, Steam
-			 *
-			 * -flibit
-			 */
-			SDL.SDL_SetHintWithPriority(
-				SDL.SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS,
-				"0",
-				SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
-			);
 
 			SDL.SDL_SetHint(
 				SDL.SDL_HINT_ORIENTATIONS,
