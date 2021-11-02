@@ -1,12 +1,12 @@
 [submodule "lib/SDL2-CS"]
 	path = lib/SDL2-CS
-	url = https://github.com/flibitijibibo/SDL2-CS.git
+	url = https://github.com/flibitijibibo/SDL2-CS
 [submodule "lib/FAudio"]
 	path = lib/FAudio
-	url = https://github.com/FNA-XNA/FAudio.git
+	url = https://github.com/FNA-XNA/FAudio
 [submodule "lib/FNA3D"]
 	path = lib/FNA3D
-	url = https://github.com/FNA-XNA/FNA3D.git
+	url = https://github.com/FNA-XNA/FNA3D
 [submodule "lib/Theorafile"]
 	path = lib/Theorafile
-	url = https://github.com/FNA-XNA/Theorafile.git
+	url = https://github.com/FNA-XNA/Theorafile
