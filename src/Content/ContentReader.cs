@@ -77,6 +77,7 @@ namespace Microsoft.Xna.Framework.Content
 		 * 1 or 2. For null references, the index will be 0.
 		 */
 		private int sharedResourceCount;
+		private object[] sharedResources;
 		private List<Action<object>>[] sharedResourceFixups;
 
 		#endregion
@@ -281,6 +282,7 @@ namespace Microsoft.Xna.Framework.Content
 			typeReaderManager = new ContentTypeReaderManager();
 			typeReaders = typeReaderManager.LoadAssetReaders(this);
 			sharedResourceCount = Read7BitEncodedInt();
+			sharedResources = new object[sharedResourceCount];
 			sharedResourceFixups = new List<Action<object>>[sharedResourceCount];
 			for (int i = 0; i < sharedResourceCount; i += 1)
 			{
@@ -290,12 +292,16 @@ namespace Microsoft.Xna.Framework.Content
 
 		internal void ReadSharedResources()
 		{
+			// We have to read _all_ the objects first, BEFORE doing fixups!
 			for (int i = 0; i < sharedResourceCount; i += 1)
 			{
-				// Load the shared object...
-				object sharedResource = InnerReadObject<object>(null);
+				sharedResources[i] = InnerReadObject<object>(null);
+			}
 
-				// ... then send it to each ReadSharedResource caller
+			// ... okay, NOW we send them to each ReadSharedResource caller
+			for (int i = 0; i < sharedResourceCount; i += 1)
+			{
+				object sharedResource = sharedResources[i];
 				foreach (Action<object> fixup in sharedResourceFixups[i])
 				{
 					fixup(sharedResource);
