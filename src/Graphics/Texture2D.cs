@@ -74,7 +74,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			LevelCount = mipMap ? CalculateMipLevels(width, height) : 1;
 
 			// TODO: Use QueryRenderTargetFormat!
-			if (this is IRenderTarget)
+			if (	this is IRenderTarget &&
+				format != SurfaceFormat.Color &&
+				format != SurfaceFormat.Rgba1010102 &&
+				format != SurfaceFormat.Rg32 &&
+				format != SurfaceFormat.Rgba64 &&
+				format != SurfaceFormat.Single &&
+				format != SurfaceFormat.Vector2 &&
+				format != SurfaceFormat.Vector4 &&
+				format != SurfaceFormat.HalfSingle &&
+				format != SurfaceFormat.HalfVector2 &&
+				format != SurfaceFormat.HalfVector4 &&
+				format != SurfaceFormat.HdrBlendable &&
+				format != SurfaceFormat.ColorSrgbEXT	)
 			{
 				if (format == SurfaceFormat.ColorSrgbEXT)
 				{
