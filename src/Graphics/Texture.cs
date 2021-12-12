@@ -91,6 +91,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				case SurfaceFormat.HalfVector2:
 				case SurfaceFormat.NormalizedByte4:
 				case SurfaceFormat.Rgba1010102:
+				case SurfaceFormat.ColorSrgbEXT:
 				case SurfaceFormat.ColorBgraEXT:
 				case SurfaceFormat.ColorSrgbEXT:
 					return 4;
