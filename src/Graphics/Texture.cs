@@ -152,15 +152,39 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Static DDS Parser
 
+		internal static int CalculateDDSLevelSize(
+			int width,
+			int height,
+			SurfaceFormat format
+		) {
+			if (format == SurfaceFormat.ColorBgraEXT)
+			{
+				return (((width * 32) + 7) / 8) * height;
+			}
+			else
+			{
+				int blockSize = 16;
+				if (format == SurfaceFormat.Dxt1)
+				{
+					blockSize = 8;
+				}
+				width = Math.Max(width, 1);
+				height = Math.Max(height, 1);
+				return (
+					((width + 3) / 4) *
+					((height + 3) / 4) *
+					blockSize
+				);
+			}
+		}
+
 		// DDS loading extension, based on MojoDDS
 		internal static void ParseDDS(
 			BinaryReader reader,
 			out SurfaceFormat format,
 			out int width,
 			out int height,
-			out int levels,
-			out int levelSize,
-			out int blockSize
+			out int levels
 		) {
 			// A whole bunch of magic numbers, yay DDS!
 			const uint DDS_MAGIC = 0x20534444;
@@ -257,23 +281,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			// Determine texture format
-			blockSize = 0;
 			if ((formatFlags & DDPF_FOURCC) == DDPF_FOURCC)
 			{
 				if (formatFourCC == FOURCC_DXT1)
 				{
 					format = SurfaceFormat.Dxt1;
-					blockSize = 8;
 				}
 				else if (formatFourCC == FOURCC_DXT3)
 				{
 					format = SurfaceFormat.Dxt3;
-					blockSize = 16;
 				}
 				else if (formatFourCC == FOURCC_DXT5)
 				{
 					format = SurfaceFormat.Dxt5;
-					blockSize = 16;
 				}
 				else
 				{
@@ -281,10 +301,6 @@ namespace Microsoft.Xna.Framework.Graphics
 						"Unsupported DDS texture format"
 					);
 				}
-				levelSize = (
-					((width > 0 ? ((width + 3) / 4) : 1) * blockSize) *
-					(height > 0 ? ((height + 3) / 4) : 1)
-				);
 			}
 			else if ((formatFlags & DDPF_RGB) == DDPF_RGB)
 			{
@@ -300,10 +316,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				format = SurfaceFormat.ColorBgraEXT;
-				levelSize = (int) (
-					(((width * formatRGBBitCount) + 7) / 8) *
-					height
-				);
 			}
 			else
 			{

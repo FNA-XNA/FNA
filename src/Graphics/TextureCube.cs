@@ -302,16 +302,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			using (BinaryReader reader = new BinaryReader(stream))
 			{
 
-			int width, height, levels, levelSize, blockSize;
+			int width, height, levels;
 			SurfaceFormat format;
 			Texture.ParseDDS(
 				reader,
 				out format,
 				out width,
 				out height,
-				out levels,
-				out levelSize,
-				out blockSize
+				out levels
 			);
 
 			// Allocate/Load texture
@@ -328,9 +326,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				for (int face = 0; face < 6; face += 1)
 				{
-					int mipLevelSize = levelSize;
 					for (int i = 0; i < levels; i += 1)
 					{
+						int mipLevelSize = Texture.CalculateDDSLevelSize(
+							width >> i,
+							width >> i,
+							format
+						);
 						result.SetData(
 							(CubeMapFace) face,
 							i,
@@ -343,10 +345,6 @@ namespace Microsoft.Xna.Framework.Graphics
 							mipLevelSize,
 							SeekOrigin.Current
 						);
-						mipLevelSize = Math.Max(
-							mipLevelSize >> 2,
-							blockSize
-						);
 					}
 				}
 			}
@@ -354,10 +352,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				for (int face = 0; face < 6; face += 1)
 				{
-					int mipLevelSize = levelSize;
 					for (int i = 0; i < levels; i += 1)
 					{
-						tex = reader.ReadBytes(mipLevelSize);
+						tex = reader.ReadBytes(Texture.CalculateDDSLevelSize(
+							width >> i,
+							width >> i,
+							format
+						));
 						result.SetData(
 							(CubeMapFace) face,
 							i,
@@ -365,10 +366,6 @@ namespace Microsoft.Xna.Framework.Graphics
 							tex,
 							0,
 							tex.Length
-						);
-						mipLevelSize = Math.Max(
-							mipLevelSize >> 2,
-							blockSize
 						);
 					}
 				}
