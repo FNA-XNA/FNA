@@ -173,6 +173,14 @@ namespace Microsoft.Xna.Framework.Media
 			}
 		}
 
+		public void SetVideoTrackEXT(int track)
+		{
+			if (theora != IntPtr.Zero)
+			{
+				Theorafile.tf_setvideotrack(theora, track);
+			}
+		}
+
 		#endregion
 
 		#region Destructor
