@@ -55,7 +55,10 @@ namespace Microsoft.Xna.Framework
 			{
 				FNALoggerEXT.LogError = Console.WriteLine;
 			}
+		}
 
+		internal static void HookFNA3D()
+		{
 			/* Try to hook into the FNA3D logging system */
 			try
 			{
