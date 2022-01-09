@@ -76,6 +76,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				case SurfaceFormat.Dxt3:
 				case SurfaceFormat.Dxt5:
 				case SurfaceFormat.Dxt5SrgbEXT:
+				case SurfaceFormat.BC7EXT:
+				case SurfaceFormat.BC7SrgbEXT:
 					return 16;
 				case SurfaceFormat.Alpha8:
 					return 1;
@@ -210,6 +212,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			const uint FOURCC_DXT1 = 0x31545844;
 			const uint FOURCC_DXT3 = 0x33545844;
 			const uint FOURCC_DXT5 = 0x35545844;
+			const uint FOURCC_BPTC = 0x30315844;
 			// const uint FOURCC_DX10 = 0x30315844;
 			const uint pitchAndLinear = (
 				DDSD_PITCH | DDSD_LINEARSIZE
@@ -286,24 +289,33 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Determine texture format
 			if ((formatFlags & DDPF_FOURCC) == DDPF_FOURCC)
 			{
-				if (formatFourCC == FOURCC_DXT1)
+				switch (formatFourCC)
 				{
-					format = SurfaceFormat.Dxt1;
+					case FOURCC_DXT1:
+						format = SurfaceFormat.Dxt1;
+						blockSize = 8;
+						break;
+					case FOURCC_DXT3:
+						format = SurfaceFormat.Dxt3;
+						blockSize = 16;
+						break;
+					case FOURCC_DXT5:
+						format = SurfaceFormat.Dxt5;
+						blockSize = 16;
+						break;
+					case FOURCC_BPTC:
+						format = SurfaceFormat.BC7EXT;
+						blockSize = 16;
+						break;
+					default:
+						throw new NotSupportedException(
+							"Unsupported DDS texture format"
+						);
 				}
-				else if (formatFourCC == FOURCC_DXT3)
-				{
-					format = SurfaceFormat.Dxt3;
-				}
-				else if (formatFourCC == FOURCC_DXT5)
-				{
-					format = SurfaceFormat.Dxt5;
-				}
-				else
-				{
-					throw new NotSupportedException(
-						"Unsupported DDS texture format"
-					);
-				}
+				levelSize = (
+					((width > 0 ? ((width + 3) / 4) : 1) * blockSize) *
+					(height > 0 ? ((height + 3) / 4) : 1)
+				);
 			}
 			else if ((formatFlags & DDPF_RGB) == DDPF_RGB)
 			{
