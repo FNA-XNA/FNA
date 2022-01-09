@@ -107,6 +107,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// DXT5. Texture format with compression. Surface dimensions must be a multiple 4.
 		/// Byte encoding is in sRGB colorspace, read in shader in linear colorspace.
 		/// </summary>
+		Dxt5SrgbEXT,
 		/// <summary>
 		/// BC7 block texture format
 		/// </summary>

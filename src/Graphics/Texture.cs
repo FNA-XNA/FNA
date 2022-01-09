@@ -95,7 +95,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				case SurfaceFormat.Rgba1010102:
 				case SurfaceFormat.ColorSrgbEXT:
 				case SurfaceFormat.ColorBgraEXT:
-				case SurfaceFormat.ColorSrgbEXT:
 					return 4;
 				case SurfaceFormat.HalfVector4:
 				case SurfaceFormat.Rgba64:
@@ -293,29 +292,21 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					case FOURCC_DXT1:
 						format = SurfaceFormat.Dxt1;
-						blockSize = 8;
 						break;
 					case FOURCC_DXT3:
 						format = SurfaceFormat.Dxt3;
-						blockSize = 16;
 						break;
 					case FOURCC_DXT5:
 						format = SurfaceFormat.Dxt5;
-						blockSize = 16;
 						break;
 					case FOURCC_BPTC:
 						format = SurfaceFormat.BC7EXT;
-						blockSize = 16;
 						break;
 					default:
 						throw new NotSupportedException(
 							"Unsupported DDS texture format"
 						);
 				}
-				levelSize = (
-					((width > 0 ? ((width + 3) / 4) : 1) * blockSize) *
-					(height > 0 ? ((height + 3) / 4) : 1)
-				);
 			}
 			else if ((formatFlags & DDPF_RGB) == DDPF_RGB)
 			{
