@@ -111,10 +111,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <summary>
 		/// BC7 block texture format
 		/// </summary>
-		BC7EXT,
+		Bc7EXT,
 		/// <summary>
 		/// BC7 block texture format where the R/G/B values are non-linear sRGB.
 		/// </summary>
-		BC7SrgbEXT,
+		Bc7SrgbEXT,
 	}
 }

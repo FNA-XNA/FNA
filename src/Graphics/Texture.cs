@@ -76,8 +76,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				case SurfaceFormat.Dxt3:
 				case SurfaceFormat.Dxt5:
 				case SurfaceFormat.Dxt5SrgbEXT:
-				case SurfaceFormat.BC7EXT:
-				case SurfaceFormat.BC7SrgbEXT:
+				case SurfaceFormat.Bc7EXT:
+				case SurfaceFormat.Bc7SrgbEXT:
 					return 16;
 				case SurfaceFormat.Alpha8:
 					return 1;
@@ -300,7 +300,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						format = SurfaceFormat.Dxt5;
 						break;
 					case FOURCC_BPTC:
-						format = SurfaceFormat.BC7EXT;
+						format = SurfaceFormat.Bc7EXT;
 						break;
 					default:
 						throw new NotSupportedException(
