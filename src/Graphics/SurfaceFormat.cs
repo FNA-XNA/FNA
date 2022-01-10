@@ -108,5 +108,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// Byte encoding is in sRGB colorspace, read in shader in linear colorspace.
 		/// </summary>
 		Dxt5SrgbEXT,
+		/// <summary>
+		/// BC7 block texture format
+		/// </summary>
+		Bc7EXT,
+		/// <summary>
+		/// BC7 block texture format where the R/G/B values are non-linear sRGB.
+		/// </summary>
+		Bc7SrgbEXT,
 	}
 }
