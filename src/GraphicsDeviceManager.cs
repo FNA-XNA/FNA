@@ -397,14 +397,18 @@ namespace Microsoft.Xna.Framework
 
 		private void INTERNAL_OnClientSizeChanged(object sender, EventArgs e)
 		{
-			Rectangle size = (sender as GameWindow).ClientBounds;
+			GameWindow window = (sender as GameWindow);
+
+			Rectangle size = window.ClientBounds;
 			resizedBackBufferWidth = size.Width;
 			resizedBackBufferHeight = size.Height;
-			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
-			{
-				resizedBackBufferWidth *= 2;
-				resizedBackBufferHeight *= 2;
-			}
+
+			FNAPlatform.ScaleForWindow(
+				window.Handle,
+				ref resizedBackBufferWidth,
+				ref resizedBackBufferHeight
+			);
+
 			useResizedBackBuffer = true;
 			ApplyChanges();
 		}

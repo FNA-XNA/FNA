@@ -87,6 +87,7 @@ namespace Microsoft.Xna.Framework
 			CreateWindow =			SDL2_FNAPlatform.CreateWindow;
 			DisposeWindow =			SDL2_FNAPlatform.DisposeWindow;
 			ApplyWindowChanges =		SDL2_FNAPlatform.ApplyWindowChanges;
+			ScaleForWindow =		SDL2_FNAPlatform.ScaleForWindow;
 			GetWindowBounds =		SDL2_FNAPlatform.GetWindowBounds;
 			GetWindowResizable =		SDL2_FNAPlatform.GetWindowResizable;
 			SetWindowResizable =		SDL2_FNAPlatform.SetWindowResizable;
@@ -192,6 +193,9 @@ namespace Microsoft.Xna.Framework
 			ref string resultDeviceName
 		);
 		public static readonly ApplyWindowChangesFunc ApplyWindowChanges;
+
+		public delegate void ScaleForWindowFunc(IntPtr window, ref int w, ref int h);
+		public static readonly ScaleForWindowFunc ScaleForWindow;
 
 		public delegate Rectangle GetWindowBoundsFunc(IntPtr window);
 		public static readonly GetWindowBoundsFunc GetWindowBounds;

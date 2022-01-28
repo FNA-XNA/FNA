@@ -36,10 +36,6 @@ namespace Microsoft.Xna.Framework
 
 		private static bool SupportsGlobalMouse;
 
-		// For iOS high dpi support
-		private static int RetinaWidth;
-		private static int RetinaHeight;
-
 		#endregion
 
 		#region Game Objects
@@ -195,19 +191,31 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_INIT_HAPTIC
 			);
 
+			string videoDriver = SDL.SDL_GetCurrentVideoDriver();
+
 			/* A number of platforms don't support global mouse, but
 			 * this really only matters on desktop where the game
 			 * screen may not be covering the whole display.
 			 */
-			if (	OSVersion.Equals("Windows") ||
-				OSVersion.Equals("Mac OS X") ||
-				SDL.SDL_GetCurrentVideoDriver() == "x11"	)
+			SupportsGlobalMouse = (	OSVersion.Equals("Windows") ||
+						OSVersion.Equals("Mac OS X") ||
+						videoDriver.Equals("x11")	);
+
+			/* High-DPI is really annoying and only some platforms
+			 * actually let you control the drawable surface.
+			 */
+			if (	!videoDriver.Equals("wayland") &&
+				!videoDriver.Equals("cocoa") &&
+				!videoDriver.Equals("uikit")	)
 			{
-				SupportsGlobalMouse = true;
-			}
-			else
-			{
-				SupportsGlobalMouse = false;
+				/* Note that this is NOT an override.
+				 * We can be overruled, just in case.
+				 */
+				SDL.SDL_SetHintWithPriority(
+					SDL.SDL_HINT_VIDEO_HIGHDPI_DISABLED,
+					"1",
+					SDL.SDL_HintPriority.SDL_HINT_NORMAL
+				);
 			}
 
 			/* We need to change the Windows default here, as the
@@ -367,18 +375,10 @@ namespace Microsoft.Xna.Framework
 			 * This is our way to communicate that it failed...
 			 * -flibit
 			 */
-			int drawX, drawY;
-			FNA3D.FNA3D_GetDrawableSize(window, out drawX, out drawY);
-			if (	drawX == GraphicsDeviceManager.DefaultBackBufferWidth &&
-				drawY == GraphicsDeviceManager.DefaultBackBufferHeight	)
+			initFlags = (SDL.SDL_WindowFlags) SDL.SDL_GetWindowFlags(window);
+			if ((initFlags & SDL.SDL_WindowFlags.SDL_WINDOW_ALLOW_HIGHDPI) == 0)
 			{
 				Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "0");
-			}
-			else
-			{
-				// Store the full retina resolution of the display
-				RetinaWidth = drawX;
-				RetinaHeight = drawY;
 			}
 
 			return new FNAWindow(
@@ -424,16 +424,12 @@ namespace Microsoft.Xna.Framework
 			ref string resultDeviceName
 		) {
 			bool center = false;
-			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1")
-			{
-				/* For high-DPI windows, halve the size!
-				 * The drawable size is now the primary width/height, so
-				 * the window needs to accommodate the GL viewport.
-				 * -flibit
-				 */
-				clientWidth /= 2;
-				clientHeight /= 2;
-			}
+
+			/* The drawable size is now the primary width/height, so
+			 * the window needs to accommodate the GL viewport.
+			 * -flibit
+			 */
+			ScaleForWindow(window, ref clientWidth, ref clientHeight);
 
 			// When windowed, set the size before moving
 			if (!wantsFullscreen)
@@ -521,6 +517,22 @@ namespace Microsoft.Xna.Framework
 				Rectangle b = GetWindowBounds(window);
 				Mouse.INTERNAL_WindowWidth = b.Width;
 				Mouse.INTERNAL_WindowHeight = b.Height;
+			}
+		}
+
+		public static void ScaleForWindow(IntPtr window, ref int w, ref int h)
+		{
+			int ww, wh, dw, dh;
+			SDL.SDL_GetWindowSize(window, out ww, out wh);
+			FNA3D.FNA3D_GetDrawableSize(window, out dw, out dh);
+			if (	ww != 0 &&
+				wh != 0 &&
+				dw != 0 &&
+				dh != 0 &&
+				(ww != dw || wh != dh)	)
+			{
+				w = (int) (w / ((float) ww / (float) dw));
+				h = (int) (h / ((float) wh / (float) dh));
 			}
 		}
 
@@ -1202,13 +1214,7 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_DisplayMode filler = new SDL.SDL_DisplayMode();
 			SDL.SDL_GetCurrentDisplayMode(adapterIndex, out filler);
 
-			if (	OSVersion.Equals("iOS") &&
-				Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI") == "1"	)
-			{
-				// Provide the actual resolution in pixels, not points.
-				filler.w = RetinaWidth;
-				filler.h = RetinaHeight;
-			}
+			// FIXME: iOS needs to factor in the DPI!
 
 			return new DisplayMode(
 				filler.w,
