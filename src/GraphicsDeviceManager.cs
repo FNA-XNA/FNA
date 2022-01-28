@@ -405,6 +405,7 @@ namespace Microsoft.Xna.Framework
 
 			FNAPlatform.ScaleForWindow(
 				window.Handle,
+				true,
 				ref resizedBackBufferWidth,
 				ref resizedBackBufferHeight
 			);

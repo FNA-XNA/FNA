@@ -429,7 +429,7 @@ namespace Microsoft.Xna.Framework
 			 * the window needs to accommodate the GL viewport.
 			 * -flibit
 			 */
-			ScaleForWindow(window, ref clientWidth, ref clientHeight);
+			ScaleForWindow(window, false, ref clientWidth, ref clientHeight);
 
 			// When windowed, set the size before moving
 			if (!wantsFullscreen)
@@ -520,7 +520,7 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		public static void ScaleForWindow(IntPtr window, ref int w, ref int h)
+		public static void ScaleForWindow(IntPtr window, bool invert, ref int w, ref int h)
 		{
 			int ww, wh, dw, dh;
 			SDL.SDL_GetWindowSize(window, out ww, out wh);
@@ -531,8 +531,16 @@ namespace Microsoft.Xna.Framework
 				dh != 0 &&
 				(ww != dw || wh != dh)	)
 			{
-				w = (int) (w / ((float) ww / (float) dw));
-				h = (int) (h / ((float) wh / (float) dh));
+				if (invert)
+				{
+					w = (int) (w * ((float) dw / (float) ww));
+					h = (int) (h * ((float) dh / (float) wh));
+				}
+				else
+				{
+					w = (int) (w / ((float) dw / (float) ww));
+					h = (int) (h / ((float) dh / (float) wh));
+				}
 			}
 		}
 

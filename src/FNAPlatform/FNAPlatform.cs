@@ -194,7 +194,7 @@ namespace Microsoft.Xna.Framework
 		);
 		public static readonly ApplyWindowChangesFunc ApplyWindowChanges;
 
-		public delegate void ScaleForWindowFunc(IntPtr window, ref int w, ref int h);
+		public delegate void ScaleForWindowFunc(IntPtr window, bool invert, ref int w, ref int h);
 		public static readonly ScaleForWindowFunc ScaleForWindow;
 
 		public delegate Rectangle GetWindowBoundsFunc(IntPtr window);
