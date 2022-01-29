@@ -166,6 +166,16 @@ namespace Microsoft.Xna.Framework.Graphics
 				return (((width * 32) + 7) / 8) * height;
 			}
 			else
+			if (format == SurfaceFormat.HalfVector4)
+			{
+				return (((width * 64) + 7) / 8) * height;
+			}
+			else
+			if (format == SurfaceFormat.Vector4)
+			{
+				return (((width * 128) + 7) / 8) * height;
+			}
+			else
 			{
 				int blockSize = 16;
 				if (format == SurfaceFormat.Dxt1)
@@ -212,7 +222,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			const uint FOURCC_DXT3 = 0x33545844;
 			const uint FOURCC_DXT5 = 0x35545844;
 			const uint FOURCC_BPTC = 0x30315844;
-			// const uint FOURCC_DX10 = 0x30315844;
+//			const uint FOURCC_DX10 = 0x30315844;
 			const uint pitchAndLinear = (
 				DDSD_PITCH | DDSD_LINEARSIZE
 			);
@@ -290,6 +300,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				switch (formatFourCC)
 				{
+					case 0x71:
+						format = SurfaceFormat.HalfVector4;
+						break;
+					case 0x74:
+						format = SurfaceFormat.Vector4;
+						break;
 					case FOURCC_DXT1:
 						format = SurfaceFormat.Dxt1;
 						break;
@@ -301,7 +317,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						break;
 					case FOURCC_BPTC:
 						format = SurfaceFormat.Bc7EXT;
-						break;
+						break;						
 					default:
 						throw new NotSupportedException(
 							"Unsupported DDS texture format"
