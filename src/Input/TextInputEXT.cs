@@ -29,7 +29,7 @@ namespace Microsoft.Xna.Framework.Input
 		/// <summary>
 		/// This event notifies you of in-progress text composition happening in an IME or other tool
 		///  and allows you to display the draft text appropriately before it has become input.
-		/// For more information, see SDL's tutorial: https://wiki.libsdl.org/Tutorials/TextInput
+		/// For more information, see SDL's tutorial: https://wiki.libsdl.org/Tutorials-TextInput
 		/// </summary>
 		public static event Action<string, int, int> TextEditing;
 
