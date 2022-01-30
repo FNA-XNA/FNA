@@ -298,10 +298,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				switch (formatFourCC)
 				{
-					case 0x71:
+					case 0x71: // D3DFMT_A16B16G16R16F
 						format = SurfaceFormat.HalfVector4;
 						break;
-					case 0x74:
+					case 0x74: // D3DFMT_A32B32G32R32F
 						format = SurfaceFormat.Vector4;
 						break;
 					case FOURCC_DXT1:
