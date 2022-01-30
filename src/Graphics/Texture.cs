@@ -220,7 +220,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			const uint FOURCC_DXT3 = 0x33545844;
 			const uint FOURCC_DXT5 = 0x35545844;
 			const uint FOURCC_BPTC = 0x30315844;
-			//const uint FOURCC_DX10 = 0x30315844;
+			// const uint FOURCC_DX10 = 0x30315844;
 			const uint pitchAndLinear = (
 				DDSD_PITCH | DDSD_LINEARSIZE
 			);
@@ -315,7 +315,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						break;
 					case FOURCC_BPTC:
 						format = SurfaceFormat.Bc7EXT;
-						break;						
+						break;
 					default:
 						throw new NotSupportedException(
 							"Unsupported DDS texture format"
