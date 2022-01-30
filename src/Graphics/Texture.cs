@@ -165,6 +165,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				return (((width * 32) + 7) / 8) * height;
 			}
+			else if (format == SurfaceFormat.HalfVector4)
+			{
+				return (((width * 64) + 7) / 8) * height;
+			}
+			else if (format == SurfaceFormat.Vector4)
+			{
+				return (((width * 128) + 7) / 8) * height;
+			}
 			else
 			{
 				int blockSize = 16;
@@ -290,6 +298,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				switch (formatFourCC)
 				{
+					case 0x71: // D3DFMT_A16B16G16R16F
+						format = SurfaceFormat.HalfVector4;
+						break;
+					case 0x74: // D3DFMT_A32B32G32R32F
+						format = SurfaceFormat.Vector4;
+						break;
 					case FOURCC_DXT1:
 						format = SurfaceFormat.Dxt1;
 						break;
