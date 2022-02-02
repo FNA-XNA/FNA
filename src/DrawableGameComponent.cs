@@ -9,6 +9,8 @@
 
 #region Using Statements
 using System;
+
+using Microsoft.Xna.Framework.Graphics;
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -97,7 +99,20 @@ namespace Microsoft.Xna.Framework
 			if (!_initialized)
 			{
 				_initialized = true;
-				LoadContent();
+
+				IGraphicsDeviceService graphicsDeviceService = (IGraphicsDeviceService)
+					Game.Services.GetService(typeof(IGraphicsDeviceService));
+				if (graphicsDeviceService != null)
+				{
+					if (graphicsDeviceService.GraphicsDevice != null)
+					{
+						LoadContent();
+					}
+					else
+					{
+						graphicsDeviceService.DeviceCreated += OnDeviceCreated;
+					}
+				}
 			}
 		}
 
@@ -112,6 +127,15 @@ namespace Microsoft.Xna.Framework
 				UnloadContent();
 			}
 			base.Dispose(disposing);
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private void OnDeviceCreated(object sender, EventArgs e)
+		{
+			LoadContent();
 		}
 
 		#endregion
