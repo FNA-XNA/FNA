@@ -239,6 +239,8 @@ namespace Microsoft.Xna.Framework
 		{
 			if (!disposed)
 			{
+				game.Services.RemoveService(typeof(IGraphicsDeviceManager));
+				game.Services.RemoveService(typeof(IGraphicsDeviceService));
 				if (disposing)
 				{
 					if (graphicsDevice != null)
