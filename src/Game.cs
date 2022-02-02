@@ -650,11 +650,17 @@ namespace Microsoft.Xna.Framework
 			 */
 			graphicsDeviceService = (IGraphicsDeviceService)
 				Services.GetService(typeof(IGraphicsDeviceService));
-			if (	graphicsDeviceService != null &&
-				graphicsDeviceService.GraphicsDevice != null	)
+			if (graphicsDeviceService != null)
 			{
 				graphicsDeviceService.DeviceDisposing += (o, e) => UnloadContent();
-				LoadContent();
+				if (graphicsDeviceService.GraphicsDevice != null)
+				{
+					LoadContent();
+				}
+				else
+				{
+					graphicsDeviceService.DeviceCreated += (o, e) => LoadContent();
+				}
 			}
 		}
 
