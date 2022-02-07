@@ -143,7 +143,7 @@ namespace Microsoft.Xna.Framework
 			{
 				SDL.SDL_SetHintWithPriority(
 					"SDL_GAMECONTROLLER_IGNORE_DEVICES",
-					"",
+					"0x28DE/0x11FF",
 					SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 				);
 				SDL.SDL_SetHintWithPriority(
