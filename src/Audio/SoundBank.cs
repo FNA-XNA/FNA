@@ -94,7 +94,7 @@ namespace Microsoft.Xna.Framework.Audio
 				(int) dspSettings.SrcChannelCount *
 				(int) dspSettings.DstChannelCount
 			);
-			engine.RegisterSoundBank(handle, selfReference);
+			engine.RegisterPointer(handle, selfReference);
 			IsDisposed = false;
 		}
 
@@ -146,9 +146,7 @@ namespace Microsoft.Xna.Framework.Audio
 					// If this is disposed, stop leaking memory!
 					if (!engine.IsDisposed)
 					{
-						engine.UnregisterSoundBank(handle);
 						FAudio.FACTSoundBank_Destroy(handle);
-						Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
 					}
 					OnSoundBankDestroyed();
 				}
@@ -274,6 +272,11 @@ namespace Microsoft.Xna.Framework.Audio
 			IsDisposed = true;
 			handle = IntPtr.Zero;
 			selfReference = null;
+			if (dspSettings.pMatrixCoefficients != IntPtr.Zero)
+			{
+				Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
+				dspSettings.pMatrixCoefficients = IntPtr.Zero;
+			}
 		}
 
 		#endregion

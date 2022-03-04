@@ -97,7 +97,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			engine = audioEngine;
 			selfReference = new WeakReference(this, true);
-			engine.RegisterWaveBank(handle, selfReference);
+			engine.RegisterPointer(handle, selfReference);
 			IsDisposed = false;
 		}
 
@@ -138,7 +138,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			engine = audioEngine;
 			selfReference = new WeakReference(this, true);
-			engine.RegisterWaveBank(handle, selfReference);
+			engine.RegisterPointer(handle, selfReference);
 			IsDisposed = false;
 		}
 
@@ -190,7 +190,6 @@ namespace Microsoft.Xna.Framework.Audio
 					// If this is disposed, stop leaking memory!
 					if (!engine.IsDisposed)
 					{
-						engine.UnregisterWaveBank(handle);
 						FAudio.FACTWaveBank_Destroy(handle);
 					}
 					OnWaveBankDestroyed();

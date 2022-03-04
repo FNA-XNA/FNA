@@ -206,6 +206,22 @@ namespace Microsoft.Xna.Framework.Audio
 
 			// All XACT references have to go through here...
 			notificationDesc = new FAudio.FACTNotificationDescription();
+			notificationDesc.flags = FAudio.FACT_FLAG_NOTIFICATION_PERSIST;
+			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED;
+			FAudio.FACTAudioEngine_RegisterNotification(
+				handle,
+				ref notificationDesc
+			);
+			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED;
+			FAudio.FACTAudioEngine_RegisterNotification(
+				handle,
+				ref notificationDesc
+			);
+			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED;
+			FAudio.FACTAudioEngine_RegisterNotification(
+				handle,
+				ref notificationDesc
+			);
 		}
 
 		#endregion
@@ -340,105 +356,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Internal Methods
 
-		internal void RegisterWaveBank(
+		internal void RegisterPointer(
 			IntPtr ptr,
 			WeakReference reference
 		) {
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED;
-			notificationDesc.pWaveBank = ptr;
-			FAudio.FACTAudioEngine_RegisterNotification(
-				handle,
-				ref notificationDesc
-			);
 			lock (xactPtrs)
 			{
-				xactPtrs.Add(ptr, reference);
-			}
-		}
-
-		internal void RegisterSoundBank(
-			IntPtr ptr,
-			WeakReference reference
-		) {
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED;
-			notificationDesc.pSoundBank = ptr;
-			FAudio.FACTAudioEngine_RegisterNotification(
-				handle,
-				ref notificationDesc
-			);
-			lock (xactPtrs)
-			{
-				xactPtrs.Add(ptr, reference);
-			}
-		}
-
-		internal void RegisterCue(
-			IntPtr ptr,
-			WeakReference reference
-		) {
-			notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED;
-			notificationDesc.pCue = ptr;
-			FAudio.FACTAudioEngine_RegisterNotification(
-				handle,
-				ref notificationDesc
-			);
-			lock (xactPtrs)
-			{
-				xactPtrs.Add(ptr, reference);
-			}
-		}
-
-		internal void UnregisterWaveBank(IntPtr ptr)
-		{
-			lock (xactPtrs)
-			{
-				if (!xactPtrs.ContainsKey(ptr))
-				{
-					return;
-				}
-				notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_WAVEBANKDESTROYED;
-				notificationDesc.pWaveBank = ptr;
-				FAudio.FACTAudioEngine_UnRegisterNotification(
-					handle,
-					ref notificationDesc
-				);
-				xactPtrs.Remove(ptr);
-			}
-		}
-
-		internal void UnregisterSoundBank(IntPtr ptr)
-		{
-			lock (xactPtrs)
-			{
-				if (!xactPtrs.ContainsKey(ptr))
-				{
-					return;
-				}
-				notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_SOUNDBANKDESTROYED;
-				notificationDesc.pSoundBank = ptr;
-				FAudio.FACTAudioEngine_UnRegisterNotification(
-					handle,
-					ref notificationDesc
-				);
-				xactPtrs.Remove(ptr);
-			}
-		}
-
-		internal void UnregisterCue(IntPtr ptr)
-		{
-			lock (xactPtrs)
-			{
-				if (!xactPtrs.ContainsKey(ptr))
-				{
-					return;
-				}
-				notificationDesc.type = FAudio.FACTNOTIFICATIONTYPE_CUEDESTROYED;
-				notificationDesc.pCue = ptr;
-				FAudio.FACTAudioEngine_UnRegisterNotification(
-					handle,
-					ref notificationDesc
-				);
-				xactPtrs.Remove(ptr);
+				xactPtrs[ptr] = reference;
 			}
 		}
 
