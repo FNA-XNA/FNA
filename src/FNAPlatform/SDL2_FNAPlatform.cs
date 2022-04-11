@@ -208,9 +208,7 @@ namespace Microsoft.Xna.Framework
 			// This _should_ be the first real SDL call we make...
 			SDL.SDL_Init(
 				SDL.SDL_INIT_VIDEO |
-				SDL.SDL_INIT_JOYSTICK |
-				SDL.SDL_INIT_GAMECONTROLLER |
-				SDL.SDL_INIT_HAPTIC
+				SDL.SDL_INIT_GAMECONTROLLER
 			);
 
 			string videoDriver = SDL.SDL_GetCurrentVideoDriver();
