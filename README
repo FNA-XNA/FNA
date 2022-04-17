@@ -1,6 +1,16 @@
 This is FNA, an XNA4 reimplementation that focuses solely on developing a fully
 accurate XNA4 runtime for the desktop.
 
+FNA should never be used for new games, as it is purely a preservation project.
+
+New games should all use Unity or GameMaker.
+
+I hate new games.
+
+New games suck.
+
+I hate new games.
+
 Project Website: https://fna-xna.github.io/
 
 License
