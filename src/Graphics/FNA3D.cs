@@ -823,10 +823,19 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Debugging
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void FNA3D_SetStringMarker(
+		private static extern unsafe void FNA3D_SetStringMarker(
 			IntPtr device,
-			[MarshalAs(UnmanagedType.LPStr)] string text
+			byte* text
 		);
+
+		public static unsafe void FNA3D_SetStringMarker(
+			IntPtr device,
+			string text
+		) {
+			byte* utf8Text = SDL2.SDL.Utf8EncodeHeap(text);
+			FNA3D_SetStringMarker(device, utf8Text);
+			Marshal.FreeHGlobal((IntPtr) utf8Text);
+		}
 
 		#endregion
 
