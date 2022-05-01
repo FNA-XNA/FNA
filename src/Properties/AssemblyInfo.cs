@@ -16,7 +16,7 @@ using System.Resources;
 #endif
 [assembly: AssemblyCompany("Ethan \"flibitijibibo\" Lee")]
 [assembly: AssemblyProduct("FNA")]
-[assembly: AssemblyCopyright("Copyright (c) 2009-2021")]
+[assembly: AssemblyCopyright("Copyright (c) 2009-2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
