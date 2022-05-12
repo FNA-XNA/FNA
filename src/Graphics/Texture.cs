@@ -108,7 +108,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		internal static int GetPixelStoreAlignment(SurfaceFormat format) 
+		internal static int GetPixelStoreAlignment(SurfaceFormat format)
 		{
 			/*
 			 * https://github.com/FNA-XNA/FNA/pull/238
@@ -315,6 +315,18 @@ namespace Microsoft.Xna.Framework.Graphics
 						break;
 					case FOURCC_BPTC:
 						format = SurfaceFormat.Bc7EXT;
+
+						/*
+						 * These next 5 uints are part of the DX10 DDS header.
+						 * They contain a little extra information but aren't that important.
+						 * If we don't read them, the pixel array will not be read correctly.
+						 */
+						uint dxgiFormat = reader.ReadUInt32();
+						uint resourceDimension = reader.ReadUInt32();
+						uint miscFlag = reader.ReadUInt32();
+						uint arraySize = reader.ReadUInt32();
+						reader.ReadUInt32(); // reserved
+
 						break;
 					default:
 						throw new NotSupportedException(
