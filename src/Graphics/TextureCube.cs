@@ -322,14 +322,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 
 			int width, height, levels;
+			bool isCube;
 			SurfaceFormat format;
 			Texture.ParseDDS(
 				reader,
 				out format,
 				out width,
 				out height,
-				out levels
+				out levels,
+				out isCube
 			);
+
+			if (!isCube)
+			{
+				throw new FormatException("This file does not contain cube data!");
+			}
 
 			// Allocate/Load texture
 			result = new TextureCube(
