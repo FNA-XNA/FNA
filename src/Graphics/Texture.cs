@@ -374,6 +374,8 @@ namespace Microsoft.Xna.Framework.Graphics
 								throw new NotSupportedException(
 									"Unsupported DDS texture format"
 								);
+							default:
+								break;
 						}
 
 						/*
