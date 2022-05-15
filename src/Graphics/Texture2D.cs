@@ -456,7 +456,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#endregion
 
 		#region Public Static Texture2D Extensions
-		
+
 		/// <summary>
 		/// Loads image data from a given stream.
 		/// </summary>
@@ -514,14 +514,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 
 			int width, height, levels;
+			bool isCube;
 			SurfaceFormat format;
 			Texture.ParseDDS(
 				reader,
 				out format,
 				out width,
 				out height,
-				out levels
+				out levels,
+				out isCube
 			);
+
+			if (isCube)
+			{
+				throw new FormatException("This file contains cube map data!");
+			}
 
 			// Allocate/Load texture
 			result = new Texture2D(
