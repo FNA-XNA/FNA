@@ -132,9 +132,12 @@ namespace Microsoft.Xna.Framework
 			 *
 			 * -flibit
 			 */
+			string useLabels = (Environment.GetEnvironmentVariable(
+				"FNA_GAMEPAD_IGNORE_PHYSICAL_LAYOUT"
+			) == "1") ? "1" : "0";
 			SDL.SDL_SetHintWithPriority(
 				SDL.SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS,
-				"0",
+				useLabels,
 				SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 			);
 
