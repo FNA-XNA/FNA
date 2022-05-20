@@ -382,7 +382,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						 * This flag seemingly only indicates if the texture is a cube map.
 						 * This is already determined above. Cool!
 						 */
-						uint miscFlag = reader.ReadUInt32();
+						reader.ReadUInt32();
 
 						/*
 						 * Indicates the number of elements in the texture array.
