@@ -847,7 +847,6 @@ namespace Microsoft.Xna.Framework
 			Game game,
 			ref GraphicsAdapter currentAdapter,
 			bool[] textInputControlDown,
-			int[] textInputControlRepeat,
 			ref bool textInputSuppress
 		) {
 			SDL.SDL_Event evt;
@@ -865,15 +864,21 @@ namespace Microsoft.Xna.Framework
 						if (FNAPlatform.TextInputBindings.TryGetValue(key, out textIndex))
 						{
 							textInputControlDown[textIndex] = true;
-							textInputControlRepeat[textIndex] = Environment.TickCount + 400;
 							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[textIndex]);
 						}
 						else if (Keyboard.keys.Contains(Keys.LeftControl) && key == Keys.V)
 						{
 							textInputControlDown[6] = true;
-							textInputControlRepeat[6] = Environment.TickCount + 400;
 							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[6]);
 							textInputSuppress = true;
+						}
+					}
+					else if (evt.key.repeat > 0)
+                    {
+						int textIndex;
+						if (FNAPlatform.TextInputBindings.TryGetValue(key, out textIndex))
+						{
+							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[textIndex]);
 						}
 					}
 				}
@@ -1122,14 +1127,6 @@ namespace Microsoft.Xna.Framework
 				{
 					game.RunApplication = false;
 					break;
-				}
-			}
-			// Text Input Controls Key Handling
-			for (int i = 0; i < FNAPlatform.TextInputCharacters.Length; i += 1)
-			{
-				if (textInputControlDown[i] && textInputControlRepeat[i] <= Environment.TickCount)
-				{
-					TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[i]);
 				}
 			}
 		}
