@@ -232,7 +232,6 @@ namespace Microsoft.Xna.Framework
 			Game game,
 			ref GraphicsAdapter currentAdapter,
 			bool[] textInputControlDown,
-			int[] textInputControlRepeat,
 			ref bool textInputSuppress
 		);
 		public static readonly PollEventsFunc PollEvents;
