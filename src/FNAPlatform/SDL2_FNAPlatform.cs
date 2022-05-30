@@ -875,7 +875,7 @@ namespace Microsoft.Xna.Framework
 						}
 					}
 					else if (evt.key.repeat > 0)
-                    {
+					{
 						int textIndex;
 						if (FNAPlatform.TextInputBindings.TryGetValue(key, out textIndex))
 						{
