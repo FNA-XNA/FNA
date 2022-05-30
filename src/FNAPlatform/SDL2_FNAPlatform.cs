@@ -880,6 +880,10 @@ namespace Microsoft.Xna.Framework
 						{
 							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[textIndex]);
 						}
+						else if (Keyboard.keys.Contains(Keys.LeftControl) && key == Keys.V)
+						{
+							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[6]);
+						}
 					}
 				}
 				else if (evt.type == SDL.SDL_EventType.SDL_KEYUP)
