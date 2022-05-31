@@ -136,7 +136,10 @@ namespace Microsoft.Xna.Framework.Audio
 			base.Play();
 			lock (FrameworkDispatcher.Streams)
 			{
-				FrameworkDispatcher.Streams.Add(this);
+				if (!FrameworkDispatcher.Streams.Contains(this))
+				{
+					FrameworkDispatcher.Streams.Add(this);
+				}
 			}
 		}
 
