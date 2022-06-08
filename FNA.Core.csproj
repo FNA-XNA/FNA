@@ -229,6 +229,7 @@
 		<Compile Include="src\Graphics\SamplerStateCollection.cs" />
 		<Compile Include="src\Graphics\SetDataOptions.cs" />
 		<Compile Include="src\Graphics\SpriteBatch.cs" />
+		<Compile Include="src\Graphics\SpriteBatchVertexInfo.cs" />
 		<Compile Include="src\Graphics\SpriteEffects.cs" />
 		<Compile Include="src\Graphics\SpriteFont.cs" />
 		<Compile Include="src\Graphics\SpriteSortMode.cs" />

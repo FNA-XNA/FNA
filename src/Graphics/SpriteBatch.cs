@@ -327,6 +327,62 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Draw Methods
 
+		public unsafe void Draw(Texture2D texture,
+			SpriteBatchVertexInfo v0, SpriteBatchVertexInfo v1,
+			SpriteBatchVertexInfo v2, SpriteBatchVertexInfo v3)
+		{
+			CheckBegin("Draw");
+
+			UpdateArrays();
+
+			if (sortMode == SpriteSortMode.Immediate)
+			{
+				int offset;
+				fixed (VertexPositionColorTexture4* sprite = &vertexInfo[0])
+				{
+					GenerateVertexInfo(sprite, &v0, &v1, &v2, &v3);
+
+					if (supportsNoOverwrite)
+					{
+						offset = UpdateVertexBuffer(0, 1);
+					}
+					else
+					{
+						/* We do NOT use Discard here because
+						 * it would be stupid to reallocate the
+						 * whole buffer just for one sprite.
+						 *
+						 * Unless you're using this to blit a
+						 * target, stop using Immediate ya donut
+						 * -flibit
+						 */
+						offset = 0;
+						vertexBuffer.SetDataPointerEXT(
+							0,
+							(IntPtr)sprite,
+							VertexPositionColorTexture4.RealStride,
+							SetDataOptions.None
+						);
+					}
+				}
+				DrawPrimitives(texture, offset, 1);
+			}
+			else if (sortMode == SpriteSortMode.Deferred)
+			{
+				fixed (VertexPositionColorTexture4* sprite = &vertexInfo[numSprites])
+				{
+					GenerateVertexInfo(sprite, &v0, &v1, &v2, &v3);
+				}
+
+				textureInfo[numSprites] = texture;
+				numSprites += 1;
+			}
+			else
+			{
+				throw new NotImplementedException("Only Immediate and Deffered modes are supported.");
+			}
+		}
+
 		public void Draw(
 			Texture2D texture,
 			Vector2 position,
@@ -1047,6 +1103,24 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Methods
 
+		private void UpdateArrays()
+		{
+			if (numSprites >= vertexInfo.Length)
+			{
+				/* We're out of room, add another batch max
+				 * to the total array size. This is required for
+				 * sprite sorting accuracy; note that we do NOT
+				 * increase the graphics buffer sizes!
+				 * -flibit
+				 */
+				int newMax = vertexInfo.Length + MAX_SPRITES;
+				Array.Resize(ref vertexInfo, newMax);
+				Array.Resize(ref textureInfo, newMax);
+				Array.Resize(ref spriteInfos, newMax);
+				Array.Resize(ref sortedSpriteInfos, newMax);
+			}
+		}
+
 		private unsafe void PushSprite(
 			Texture2D texture,
 			float sourceX,
@@ -1065,20 +1139,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			float depth,
 			byte effects
 		) {
-			if (numSprites >= vertexInfo.Length)
-			{
-				/* We're out of room, add another batch max
-				 * to the total array size. This is required for
-				 * sprite sorting accuracy; note that we do NOT
-				 * increase the graphics buffer sizes!
-				 * -flibit
-				 */
-				int newMax = vertexInfo.Length + MAX_SPRITES;
-				Array.Resize(ref vertexInfo, newMax);
-				Array.Resize(ref textureInfo, newMax);
-				Array.Resize(ref spriteInfos, newMax);
-				Array.Resize(ref sortedSpriteInfos, newMax);
-			}
+			UpdateArrays();
 
 			if (sortMode == SpriteSortMode.Immediate)
 			{
@@ -1400,6 +1461,35 @@ namespace Microsoft.Xna.Framework.Graphics
 			sprite->Color1 = color;
 			sprite->Color2 = color;
 			sprite->Color3 = color;
+		}
+
+		private static unsafe void GenerateVertexInfo(VertexPositionColorTexture4* sprite,
+				SpriteBatchVertexInfo* v0, SpriteBatchVertexInfo* v1,
+				SpriteBatchVertexInfo* v2, SpriteBatchVertexInfo* v3)
+		{
+			sprite->Position0.X = v0->Position.X;
+			sprite->Position0.Y = v0->Position.Y;
+			sprite->Position0.Z = v0->Depth;
+			sprite->Color0 = v0->Color;
+			sprite->TextureCoordinate0 = v0->TextureCoord;
+
+			sprite->Position1.X = v1->Position.X;
+			sprite->Position1.Y = v1->Position.Y;
+			sprite->Position1.Z = v1->Depth;
+			sprite->Color1 = v1->Color;
+			sprite->TextureCoordinate1 = v1->TextureCoord;
+
+			sprite->Position2.X = v2->Position.X;
+			sprite->Position2.Y = v2->Position.Y;
+			sprite->Position2.Z = v2->Depth;
+			sprite->Color2 = v2->Color;
+			sprite->TextureCoordinate2 = v2->TextureCoord;
+
+			sprite->Position3.X = v3->Position.X;
+			sprite->Position3.Y = v3->Position.Y;
+			sprite->Position3.Z = v3->Depth;
+			sprite->Color3 = v3->Color;
+			sprite->TextureCoordinate3 = v3->TextureCoord;
 		}
 
 		private void PrepRenderState()
