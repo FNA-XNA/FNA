@@ -1444,12 +1444,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void DrawPrimitives(Texture texture, int baseSprite, int batchSize)
 		{
-			GraphicsDevice.Textures[0] = texture;
 			if (customEffect != null)
 			{
 				foreach (EffectPass pass in customEffect.CurrentTechnique.Passes)
 				{
 					pass.Apply();
+					// Set this _after_ Apply, otherwise EffectParameters override it!
+					GraphicsDevice.Textures[0] = texture;
 					GraphicsDevice.DrawIndexedPrimitives(
 						PrimitiveType.TriangleList,
 						baseSprite * 4,
@@ -1462,6 +1463,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else
 			{
+				GraphicsDevice.Textures[0] = texture;
 				GraphicsDevice.DrawIndexedPrimitives(
 					PrimitiveType.TriangleList,
 					baseSprite * 4,
