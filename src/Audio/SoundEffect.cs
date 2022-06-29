@@ -761,16 +761,37 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 		}
 
+		private static readonly object createLock = new object();
 		internal static FAudioContext Device()
 		{
+			/* Ideally the device has been made, just return it. */
 			if (FAudioContext.Context != null)
 			{
 				return FAudioContext.Context;
 			}
-			FAudioContext.Create();
-			if (FAudioContext.Context == null)
+
+			/* From here on out, it gets weird... */
+			lock (createLock)
 			{
-				throw new NoAudioHardwareException();
+				/* If this trips it's because another thread
+				 * got here first. We do the check above to
+				 * avoid the mutex lock for the 99.99% of the
+				 * time where it's not necessary.
+				 */
+				if (FAudioContext.Context != null)
+				{
+					return FAudioContext.Context;
+				}
+
+				/* If you're here, you were the first caller!
+				 * that, or there genuinely is no hardware and
+				 * you're about to get a lot more of these.
+				 */
+				FAudioContext.Create();
+				if (FAudioContext.Context == null)
+				{
+					throw new NoAudioHardwareException();
+				}
 			}
 			return FAudioContext.Context;
 		}
