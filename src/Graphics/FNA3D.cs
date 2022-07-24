@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Xna.Framework.Graphics
 {
+	[System.Security.SuppressUnmanagedCodeSecurity]
 	internal static class FNA3D
 	{
 		#region Private Constants
