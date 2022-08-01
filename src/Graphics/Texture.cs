@@ -77,7 +77,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				case SurfaceFormat.Dxt5SrgbEXT:
 				case SurfaceFormat.Bc7EXT:
 				case SurfaceFormat.Bc7SrgbEXT:
-					return 4;
+					return 16;
 				case SurfaceFormat.Alpha8:
 				case SurfaceFormat.Bgr565:
 				case SurfaceFormat.Bgra4444:
