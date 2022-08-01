@@ -67,7 +67,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Static SurfaceFormat Size Methods
 
-		private static int GetBlockSizeSquared(SurfaceFormat format)
+		protected static int GetBlockSizeSquared(SurfaceFormat format)
 		{
 			switch (format)
 			{
