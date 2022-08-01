@@ -187,10 +187,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				w = Math.Max(Width >> level, 1);
 				h = Math.Max(Height >> level, 1);
 			}
-			int elementSize = Marshal.SizeOf(typeof(T)),
-				blockSize = GetBlockSize(Format),
-				requiredBytes = (w * h * GetFormatSize(Format) / blockSize / blockSize),
-				availableBytes = elementCount * elementSize;
+			int elementSize = Marshal.SizeOf(typeof(T));
+			int requiredBytes = (w * h * GetFormatSize(Format)) / GetBlockSizeSquared(Format);
+			int availableBytes = elementCount * elementSize;
 			if (requiredBytes > availableBytes)
 			{
 				throw new ArgumentOutOfRangeException("rect", "The region you are trying to upload is larger than the amount of data you provided.");
