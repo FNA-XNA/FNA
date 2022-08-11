@@ -333,6 +333,21 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Internal Methods
+
+		[Conditional("DEBUG")]
+		internal void CheckForNaNs()
+		{
+			if (	float.IsNaN(X) ||
+				float.IsNaN(Y) ||
+				float.IsNaN(Z)	)
+			{
+				throw new InvalidOperationException("Vector3 contains NaNs!");
+			}
+		}
+
+		#endregion
+
 		#region Public Static Methods
 
 		/// <summary>

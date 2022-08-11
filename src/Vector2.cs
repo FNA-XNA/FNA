@@ -218,6 +218,19 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Internal Methods
+
+		[Conditional("DEBUG")]
+		internal void CheckForNaNs()
+		{
+			if (float.IsNaN(X) || float.IsNaN(Y))
+			{
+				throw new InvalidOperationException("Vector2 contains NaNs!");
+			}
+		}
+
+		#endregion
+
 		#region Public Static Methods
 
 		/// <summary>

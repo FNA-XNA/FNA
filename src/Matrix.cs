@@ -484,6 +484,34 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Internal Methods
+
+		[Conditional("DEBUG")]
+		internal void CheckForNaNs()
+		{
+			if (	float.IsNaN(M11) ||
+				float.IsNaN(M12) ||
+				float.IsNaN(M13) ||
+				float.IsNaN(M14) ||
+				float.IsNaN(M21) ||
+				float.IsNaN(M22) ||
+				float.IsNaN(M23) ||
+				float.IsNaN(M24) ||
+				float.IsNaN(M31) ||
+				float.IsNaN(M32) ||
+				float.IsNaN(M33) ||
+				float.IsNaN(M34) ||
+				float.IsNaN(M41) ||
+				float.IsNaN(M42) ||
+				float.IsNaN(M43) ||
+				float.IsNaN(M44)	)
+			{
+				throw new InvalidOperationException("Matrix contains NaNs!");
+			}
+		}
+
+		#endregion
+
 		#region Public Static Methods
 
 		/// <summary>
