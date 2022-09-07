@@ -30,7 +30,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		private const int MAX_SPRITES = 2048;
 		private const int MAX_VERTICES = MAX_SPRITES * 4;
 		private const int MAX_INDICES = MAX_SPRITES * 6;
-		private const int MAX_BATCHSIZE = 1048576;
+
+		// Max array size for cpu side buffer
+		private const int MAX_ARRAYSIZE = 0x3FFFFFF;
 
 		// Used to quickly flip text for DrawString
 		private static readonly float[] axisDirectionX = new float[]
@@ -1068,7 +1070,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			if (numSprites >= vertexInfo.Length)
 			{
-				if (vertexInfo.Length >= MAX_BATCHSIZE)
+				if (vertexInfo.Length >= MAX_ARRAYSIZE)
 				{
 					FlushBatch();
 				}
@@ -1086,7 +1088,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					  * 1048576 sprites, we flush them immediately. This will make
 					  * the total running time O(n).
 					 */ 
-					int newMax = Math.Min(vertexInfo.Length * 2, MAX_BATCHSIZE);
+					int newMax = Math.Min(vertexInfo.Length * 2, MAX_ARRAYSIZE);
 					Array.Resize(ref vertexInfo, newMax);
 					Array.Resize(ref textureInfo, newMax);
 					Array.Resize(ref spriteInfos, newMax);
