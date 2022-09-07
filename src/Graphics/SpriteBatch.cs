@@ -30,6 +30,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private const int MAX_SPRITES = 2048;
 		private const int MAX_VERTICES = MAX_SPRITES * 4;
 		private const int MAX_INDICES = MAX_SPRITES * 6;
+		private const int MAX_BATCHSIZE = 1048576;
 
 		// Used to quickly flip text for DrawString
 		private static readonly float[] axisDirectionX = new float[]
@@ -1067,17 +1068,30 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			if (numSprites >= vertexInfo.Length)
 			{
-				/* We're out of room, add another batch max
-				 * to the total array size. This is required for
-				 * sprite sorting accuracy; note that we do NOT
-				 * increase the graphics buffer sizes!
-				 * -flibit
-				 */
-				int newMax = vertexInfo.Length + MAX_SPRITES;
-				Array.Resize(ref vertexInfo, newMax);
-				Array.Resize(ref textureInfo, newMax);
-				Array.Resize(ref spriteInfos, newMax);
-				Array.Resize(ref sortedSpriteInfos, newMax);
+				if (vertexInfo.Length >= MAX_BATCHSIZE)
+				{
+					FlushBatch();
+				}
+				else
+				{
+					/* We're out of room, add another batch max
+					 * to the total array size. This is required for
+					 * sprite sorting accuracy; note that we do NOT
+					 * increase the graphics buffer sizes!
+					 * -flibit
+					 */
+
+					 /* Fix: reallocation size now increase exponentially, 
+					  * but upper bounded to 1048576. When we submit more than 
+					  * 1048576 sprites, we flush them immediately. This will make
+					  * the total running time O(n).
+					 */ 
+					int newMax = Math.Min(vertexInfo.Length * 2, MAX_BATCHSIZE);
+					Array.Resize(ref vertexInfo, newMax);
+					Array.Resize(ref textureInfo, newMax);
+					Array.Resize(ref spriteInfos, newMax);
+					Array.Resize(ref sortedSpriteInfos, newMax);
+				}
 			}
 
 			if (sortMode == SpriteSortMode.Immediate)
