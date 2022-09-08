@@ -32,7 +32,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private const int MAX_INDICES = MAX_SPRITES * 6;
 
 		/* This is the largest array size for a VertexBuffer using VertexPositionColorTexture.
-		 * note that we do NOT change the GPU buffer size since that would break XNA accuracy,
+		 * Note that we do NOT change the GPU buffer size since that would break XNA accuracy,
 		 * but if you want to optimize your batching you can make this change in a custom SpriteBatch.
 		 */
 		private const int MAX_ARRAYSIZE = 0x3FFFFFF / 96;
