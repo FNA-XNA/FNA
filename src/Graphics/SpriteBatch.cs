@@ -1075,6 +1075,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				if (vertexInfo.Length >= MAX_ARRAYSIZE)
 				{
+					/* FIXME: We're doing this for safety but it's possible that
+					 * XNA just keeps expanding and crashes with OutOfMemory.
+					 * Since GraphicsProfile has a buffer cap, we use that for safety.
+					 * This might change if someone depends on running out of memory(?!).
+					 */
 					FlushBatch();
 				}
 				else
