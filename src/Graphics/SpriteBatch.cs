@@ -1090,12 +1090,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					 * increase the graphics buffer sizes!
 					 * -flibit
 					 */
-
-					 /* Fix: reallocation size now increase exponentially, 
-					  * but upper bounded to 1048576. When we submit more than 
-					  * 1048576 sprites, we flush them immediately. This will make
-					  * the total running time O(n).
-					 */ 
 					int newMax = Math.Min(vertexInfo.Length * 2, MAX_ARRAYSIZE);
 					Array.Resize(ref vertexInfo, newMax);
 					Array.Resize(ref textureInfo, newMax);
