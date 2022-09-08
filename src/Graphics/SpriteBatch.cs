@@ -32,7 +32,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		private const int MAX_INDICES = MAX_SPRITES * 6;
 
 		// Max array size for cpu side buffer
-		private const int MAX_ARRAYSIZE = 0x3FFFFFF;
+		private const int MAX_ARRAYSIZE = 0x3FFFFFF / 96;
 
 		// Used to quickly flip text for DrawString
 		private static readonly float[] axisDirectionX = new float[]
