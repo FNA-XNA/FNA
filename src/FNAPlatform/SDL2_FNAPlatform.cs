@@ -209,10 +209,13 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// This _should_ be the first real SDL call we make...
-			SDL.SDL_Init(
+			if (SDL.SDL_Init(
 				SDL.SDL_INIT_VIDEO |
 				SDL.SDL_INIT_GAMECONTROLLER
-			);
+			) != 0)
+			{
+				throw new Exception("SDL_Init failed: " + SDL.SDL_GetError());
+			}
 
 			string videoDriver = SDL.SDL_GetCurrentVideoDriver();
 
