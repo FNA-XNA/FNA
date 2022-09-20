@@ -144,6 +144,15 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			touches.RemoveAt(index);
 		}
 
+		public override string ToString()
+		{
+			return (
+				"{Touches:" + string.Join(",", touches) +
+				" IsConnected:" + IsConnected.ToString() +
+				" IsReadOnly:" + IsReadOnly.ToString() + "}"
+			);
+		}
+
 		#endregion
 
 		#region IEnumerator Methods

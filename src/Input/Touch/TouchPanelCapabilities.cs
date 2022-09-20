@@ -39,5 +39,17 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		}
 
 		#endregion
+
+		#region Public Methods
+
+		public override string ToString()
+		{
+			return (
+				"{IsConnected:" + IsConnected.ToString() +
+				" MaximumTouchCount:" + MaximumTouchCount.ToString() + "}"
+			);
+		}
+
+		#endregion
 	}
 }

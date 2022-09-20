@@ -119,5 +119,23 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		}
 
 		#endregion
+
+		#region Public Methods
+
+		public override string ToString()
+		{
+			return (
+				"{GestureType:" + GestureType.ToString() +
+				" Timestamp:" + Timestamp.ToString() +
+				" Position:" + Position.ToString() +
+				" Position2:" + Position2.ToString() +
+				" Delta:" + Delta.ToString() +
+				" Delta2:" + Delta2.ToString() +
+				" FingerIdEXT:" + FingerIdEXT.ToString() +
+				" FingerId2EXT:" + FingerId2EXT.ToString() + "}"
+			);
+		}
+
+		#endregion
 	}
 }
