@@ -338,6 +338,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SaveAsJpeg(Stream stream, int width, int height)
 		{
+			SaveAsJpegEXT(stream, width, height, 100); // FIXME: What does XNA pick for quality? -flibit
+		}
+
+		public void SaveAsJpegEXT(Stream stream, int width, int height, int quality)
+		{
 			int len = Width * Height * GetFormatSize(Format);
 			IntPtr data = Marshal.AllocHGlobal(len);
 			FNA3D.FNA3D_GetTextureData2D(
@@ -359,7 +364,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				width,
 				height,
 				data,
-				100 // FIXME: What does XNA pick for quality? -flibit
+				quality
 			);
 
 			Marshal.FreeHGlobal(data);
