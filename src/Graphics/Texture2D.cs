@@ -338,9 +338,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SaveAsJpeg(Stream stream, int width, int height)
 		{
-			string qualityString = Environment.GetEnvironmentVariable("FNA_GRAPHICS_JPEG_SAVE_QUALITY");
 			int quality;
-			if (qualityString == null || !Int32.TryParse(qualityString, out quality)) {
+			string qualityString = Environment.GetEnvironmentVariable("FNA_GRAPHICS_JPEG_SAVE_QUALITY");
+			if (string.IsNullOrEmpty(qualityString) || !int.TryParse(qualityString, out quality))
+			{
 				quality = 100; // FIXME: What does XNA pick for quality? -flibit
 			}
 
