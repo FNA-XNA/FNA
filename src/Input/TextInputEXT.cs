@@ -37,6 +37,11 @@ namespace Microsoft.Xna.Framework.Input
 
 		#region Public Static Methods
 
+		public static bool IsTextInputActive()
+		{
+			return FNAPlatform.IsTextInputActive();
+		}
+
 		public static void StartTextInput()
 		{
 			FNAPlatform.StartTextInput();

@@ -107,6 +107,7 @@ namespace Microsoft.Xna.Framework
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
 			GetCurrentDisplayMode =		SDL2_FNAPlatform.GetCurrentDisplayMode;
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
+			IsTextInputActive =		SDL2_FNAPlatform.IsTextInputActive;
 			StartTextInput =		SDL2.SDL.SDL_StartTextInput;
 			StopTextInput =			SDL2.SDL.SDL_StopTextInput;
 			SetTextInputRectangle =		SDL2_FNAPlatform.SetTextInputRectangle;
@@ -244,6 +245,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate Keys GetKeyFromScancodeFunc(Keys scancode);
 		public static readonly GetKeyFromScancodeFunc GetKeyFromScancode;
+
+		public delegate bool IsTextInputActiveFunc();
+		public static readonly IsTextInputActiveFunc IsTextInputActive;
 
 		public delegate void StartTextInputFunc();
 		public static readonly StartTextInputFunc StartTextInput;
