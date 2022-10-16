@@ -2272,6 +2272,14 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region TextInput Methods
+		public static bool IsTextInputActive()
+		{
+			return SDL.SDL_IsTextInputActive() != 0;
+		}
+
+		#endregion
+
 		#region SDL2<->XNA Key Conversion Methods
 
 		/* From: http://blogs.msdn.com/b/shawnhar/archive/2007/07/02/twin-paths-to-garbage-collector-nirvana.aspx
