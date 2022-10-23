@@ -101,6 +101,7 @@ namespace Microsoft.Xna.Framework
 			GetWindowBorderless =		SDL2_FNAPlatform.GetWindowBorderless;
 			SetWindowBorderless =		SDL2_FNAPlatform.SetWindowBorderless;
 			SetWindowTitle =		SDL2_FNAPlatform.SetWindowTitle;
+			IsScreenKeyboardShown =		SDL2_FNAPlatform.IsScreenKeyboardShown;
 			RegisterGame =			SDL2_FNAPlatform.RegisterGame;
 			UnregisterGame =		SDL2_FNAPlatform.UnregisterGame;
 			PollEvents =			SDL2_FNAPlatform.PollEvents;
@@ -222,6 +223,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void SetWindowTitleFunc(IntPtr window, string title);
 		public static readonly SetWindowTitleFunc SetWindowTitle;
+
+		public delegate bool IsScreenKeyboardShownFunc(IntPtr window);
+		public static readonly IsScreenKeyboardShownFunc IsScreenKeyboardShown;
 
 		public delegate GraphicsAdapter RegisterGameFunc(Game game);
 		public static readonly RegisterGameFunc RegisterGame;

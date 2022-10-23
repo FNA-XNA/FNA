@@ -642,6 +642,11 @@ namespace Microsoft.Xna.Framework
 			);
 		}
 
+		public static bool IsScreenKeyboardShown(IntPtr window)
+		{
+			return SDL.SDL_IsScreenKeyboardShown(window) == SDL.SDL_bool.SDL_TRUE;
+		}
+
 		private static void INTERNAL_SetIcon(IntPtr window, string title)
 		{
 			string fileIn = String.Empty;

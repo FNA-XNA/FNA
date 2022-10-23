@@ -37,9 +37,22 @@ namespace Microsoft.Xna.Framework.Input
 
 		#region Public Static Methods
 
+		/// <summary>
+		/// Returns if text input state is active
+		///
+		/// Note: For on-screen keyboard, this may remain true on
+		/// some platforms if an external event closed the keyboard.
+		/// In this case, check IsScreenKeyboardShow instead.
+		/// </summary>
+		/// <returns>True if text input state is active</returns>
 		public static bool IsTextInputActive()
 		{
 			return FNAPlatform.IsTextInputActive();
+		}
+
+		public static bool IsScreenKeyboardShown(IntPtr window)
+		{
+			return FNAPlatform.IsScreenKeyboardShown(window);
 		}
 
 		public static void StartTextInput()
