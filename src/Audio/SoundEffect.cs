@@ -211,19 +211,19 @@ namespace Microsoft.Xna.Framework.Audio
 			if (extraData == null)
 			{
 				formatPtr = Marshal.AllocHGlobal(
-					Marshal.SizeOf(typeof(FAudio.FAudioWaveFormatEx))
+					MarshalHelper.SizeOf<FAudio.FAudioWaveFormatEx>()
 				);
 			}
 			else
 			{
 				formatPtr = Marshal.AllocHGlobal(
-					Marshal.SizeOf(typeof(FAudio.FAudioWaveFormatEx)) +
+					MarshalHelper.SizeOf<FAudio.FAudioWaveFormatEx>() +
 					extraData.Length
 				);
 				Marshal.Copy(
 					extraData,
 					0,
-					formatPtr + Marshal.SizeOf(typeof(FAudio.FAudioWaveFormatEx)),
+					formatPtr + MarshalHelper.SizeOf<FAudio.FAudioWaveFormatEx>(),
 					extraData.Length
 				);
 			}
@@ -632,12 +632,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 					IntPtr chainPtr;
 					chainPtr = Marshal.AllocHGlobal(
-						Marshal.SizeOf(typeof(FAudio.FAudioEffectChain))
+						MarshalHelper.SizeOf<FAudio.FAudioEffectChain>()
 					);
 					FAudio.FAudioEffectChain* reverbChain = (FAudio.FAudioEffectChain*) chainPtr;
 					reverbChain->EffectCount = 1;
 					reverbChain->pEffectDescriptors = Marshal.AllocHGlobal(
-						Marshal.SizeOf(typeof(FAudio.FAudioEffectDescriptor))
+						MarshalHelper.SizeOf<FAudio.FAudioEffectDescriptor>()
 					);
 
 					FAudio.FAudioEffectDescriptor* reverbDesc =
@@ -665,7 +665,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 					// Defaults based on FAUDIOFX_I3DL2_PRESET_GENERIC
 					IntPtr rvbParamsPtr = Marshal.AllocHGlobal(
-						Marshal.SizeOf(typeof(FAudio.FAudioFXReverbParameters))
+						MarshalHelper.SizeOf<FAudio.FAudioFXReverbParameters>()
 					);
 					FAudio.FAudioFXReverbParameters* rvbParams = (FAudio.FAudioFXReverbParameters*) rvbParamsPtr;
 					rvbParams->WetDryMix = 100.0f;
@@ -694,7 +694,7 @@ namespace Microsoft.Xna.Framework.Audio
 						ReverbVoice,
 						0,
 						rvbParamsPtr,
-						(uint) Marshal.SizeOf(typeof(FAudio.FAudioFXReverbParameters)),
+						(uint)MarshalHelper.SizeOf<FAudio.FAudioFXReverbParameters>(),
 						0
 					);
 					Marshal.FreeHGlobal(rvbParamsPtr);
@@ -702,7 +702,7 @@ namespace Microsoft.Xna.Framework.Audio
 					reverbSends = new FAudio.FAudioVoiceSends();
 					reverbSends.SendCount = 2;
 					reverbSends.pSends = Marshal.AllocHGlobal(
-						2 * Marshal.SizeOf(typeof(FAudio.FAudioSendDescriptor))
+						2 * MarshalHelper.SizeOf<FAudio.FAudioSendDescriptor>()
 					);
 					FAudio.FAudioSendDescriptor* sendDesc = (FAudio.FAudioSendDescriptor*) reverbSends.pSends;
 					sendDesc[0].Flags = 0;
