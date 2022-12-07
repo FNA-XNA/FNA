@@ -85,8 +85,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				GraphicsDevice.GLDevice,
 				buffer,
 				offsetInBytes,
-				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
-				elementCount * Marshal.SizeOf(typeof(T)),
+				handle.AddrOfPinnedObject() + (startIndex * MarshalHelper.SizeOf<T>()),
+				elementCount * MarshalHelper.SizeOf<T>(),
 				options
 			);
 			handle.Free();
@@ -105,8 +105,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				GraphicsDevice.GLDevice,
 				buffer,
 				0,
-				handle.AddrOfPinnedObject() + (startIndex * Marshal.SizeOf(typeof(T))),
-				elementCount * Marshal.SizeOf(typeof(T)),
+				handle.AddrOfPinnedObject() + (startIndex * MarshalHelper.SizeOf<T>()),
+				elementCount * MarshalHelper.SizeOf<T>(),
 				options
 			);
 			handle.Free();

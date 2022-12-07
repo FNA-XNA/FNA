@@ -315,6 +315,7 @@ SRC = \
 	src/Utilities/AssemblyHelper.cs \
 	src/Utilities/FileHelpers.cs \
 	src/Utilities/FNAInternalExtensions.cs \
+	src/Utilities/MarshalHelper.cs \
 	src/Utilities/XamarinHelper.cs \
 	src/Vector2.cs \
 	src/Vector3.cs \

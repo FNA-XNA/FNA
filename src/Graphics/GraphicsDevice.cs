@@ -803,7 +803,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				h = rect.Value.Height;
 			}
 
-			int elementSizeInBytes = Marshal.SizeOf(typeof(T));
+			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
 			Texture.ValidateGetDataFormat(
 				FNA3D.FNA3D_GetBackbufferSurfaceFormat(GLDevice),
 				elementSizeInBytes
