@@ -91,6 +91,8 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
+			Malloc =			SDL2_FNAPlatform.Malloc;
+			Free =				SDL2_FNAPlatform.Free;
 			CreateWindow =			SDL2_FNAPlatform.CreateWindow;
 			DisposeWindow =			SDL2_FNAPlatform.DisposeWindow;
 			ApplyWindowChanges =		SDL2_FNAPlatform.ApplyWindowChanges;
@@ -186,6 +188,13 @@ namespace Microsoft.Xna.Framework
 		#endregion
 
 		#region Public Static Methods
+
+		/* Technically this should be IntPtr, but oh well... */
+		public delegate IntPtr MallocFunc(int size);
+		public static readonly MallocFunc Malloc;
+
+		public delegate void FreeFunc(IntPtr ptr);
+		public static readonly FreeFunc Free;
 
 		public delegate GameWindow CreateWindowFunc();
 		public static readonly CreateWindowFunc CreateWindow;

@@ -835,7 +835,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			byte* utf8Text = SDL2.SDL.Utf8EncodeHeap(text);
 			FNA3D_SetStringMarker(device, utf8Text);
-			Marshal.FreeHGlobal((IntPtr) utf8Text);
+			FNAPlatform.Free((IntPtr) utf8Text);
 		}
 
 		#endregion

@@ -186,7 +186,7 @@ namespace Microsoft.Xna.Framework.Audio
 			// Free the settings strings
 			if (settings.pRendererID != IntPtr.Zero)
 			{
-				Marshal.FreeHGlobal(settings.pRendererID);
+				FNAPlatform.Free(settings.pRendererID);
 			}
 
 			// Init 3D audio

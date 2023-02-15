@@ -448,7 +448,7 @@ namespace Microsoft.Xna.Framework.Audio
 					parentEffect.Instances.Remove(selfReference);
 				}
 				selfReference = null;
-				Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
+				FNAPlatform.Free(dspSettings.pMatrixCoefficients);
 				IsDisposed = true;
 			}
 		}
@@ -469,7 +469,7 @@ namespace Microsoft.Xna.Framework.Audio
 				(int) dspSettings.SrcChannelCount *
 				(int) dspSettings.DstChannelCount
 			);
-			dspSettings.pMatrixCoefficients = Marshal.AllocHGlobal(memsize);
+			dspSettings.pMatrixCoefficients = FNAPlatform.Malloc(memsize);
 			unsafe
 			{
 				byte* memPtr = (byte*) dspSettings.pMatrixCoefficients;

@@ -358,6 +358,20 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Allocator
+
+		public static IntPtr Malloc(int size)
+		{
+			return SDL.SDL_malloc((IntPtr) size);
+		}
+
+		public static void Free(IntPtr ptr)
+		{
+			SDL.SDL_free(ptr);
+		}
+
+		#endregion
+
 		#region Window Methods
 
 		public static GameWindow CreateWindow()
