@@ -89,7 +89,7 @@ namespace Microsoft.Xna.Framework.Audio
 			dspSettings = new FAudio.F3DAUDIO_DSP_SETTINGS();
 			dspSettings.SrcChannelCount = 1;
 			dspSettings.DstChannelCount = engine.channels;
-			dspSettings.pMatrixCoefficients = Marshal.AllocHGlobal(
+			dspSettings.pMatrixCoefficients = FNAPlatform.Malloc(
 				4 *
 				(int) dspSettings.SrcChannelCount *
 				(int) dspSettings.DstChannelCount
@@ -274,7 +274,7 @@ namespace Microsoft.Xna.Framework.Audio
 			selfReference = null;
 			if (dspSettings.pMatrixCoefficients != IntPtr.Zero)
 			{
-				Marshal.FreeHGlobal(dspSettings.pMatrixCoefficients);
+				FNAPlatform.Free(dspSettings.pMatrixCoefficients);
 				dspSettings.pMatrixCoefficients = IntPtr.Zero;
 			}
 		}

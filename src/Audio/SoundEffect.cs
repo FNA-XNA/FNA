@@ -210,13 +210,13 @@ namespace Microsoft.Xna.Framework.Audio
 			/* Buffer format */
 			if (extraData == null)
 			{
-				formatPtr = Marshal.AllocHGlobal(
+				formatPtr = FNAPlatform.Malloc(
 					MarshalHelper.SizeOf<FAudio.FAudioWaveFormatEx>()
 				);
 			}
 			else
 			{
-				formatPtr = Marshal.AllocHGlobal(
+				formatPtr = FNAPlatform.Malloc(
 					MarshalHelper.SizeOf<FAudio.FAudioWaveFormatEx>() +
 					extraData.Length
 				);
@@ -244,7 +244,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			/* Buffer data */
 			handle.AudioBytes = (uint) count;
-			handle.pAudioData = Marshal.AllocHGlobal(count);
+			handle.pAudioData = FNAPlatform.Malloc(count);
 			Marshal.Copy(
 				buffer,
 				offset,
@@ -320,8 +320,8 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 				}
 				Instances.Clear();
-				Marshal.FreeHGlobal(formatPtr);
-				Marshal.FreeHGlobal(handle.pAudioData);
+				FNAPlatform.Free(formatPtr);
+				FNAPlatform.Free(handle.pAudioData);
 				IsDisposed = true;
 			}
 		}
@@ -609,7 +609,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					FAudio.FAudioVoice_DestroyVoice(ReverbVoice);
 					ReverbVoice = IntPtr.Zero;
-					Marshal.FreeHGlobal(reverbSends.pSends);
+					FNAPlatform.Free(reverbSends.pSends);
 				}
 				if (MasterVoice != IntPtr.Zero) 
 				{
@@ -631,12 +631,12 @@ namespace Microsoft.Xna.Framework.Audio
 					FAudio.FAudioCreateReverb(out reverb, 0);
 
 					IntPtr chainPtr;
-					chainPtr = Marshal.AllocHGlobal(
+					chainPtr = FNAPlatform.Malloc(
 						MarshalHelper.SizeOf<FAudio.FAudioEffectChain>()
 					);
 					FAudio.FAudioEffectChain* reverbChain = (FAudio.FAudioEffectChain*) chainPtr;
 					reverbChain->EffectCount = 1;
-					reverbChain->pEffectDescriptors = Marshal.AllocHGlobal(
+					reverbChain->pEffectDescriptors = FNAPlatform.Malloc(
 						MarshalHelper.SizeOf<FAudio.FAudioEffectDescriptor>()
 					);
 
@@ -660,11 +660,11 @@ namespace Microsoft.Xna.Framework.Audio
 					);
 					FAudio.FAPOBase_Release(reverb);
 
-					Marshal.FreeHGlobal(reverbChain->pEffectDescriptors);
-					Marshal.FreeHGlobal(chainPtr);
+					FNAPlatform.Free(reverbChain->pEffectDescriptors);
+					FNAPlatform.Free(chainPtr);
 
 					// Defaults based on FAUDIOFX_I3DL2_PRESET_GENERIC
-					IntPtr rvbParamsPtr = Marshal.AllocHGlobal(
+					IntPtr rvbParamsPtr = FNAPlatform.Malloc(
 						MarshalHelper.SizeOf<FAudio.FAudioFXReverbParameters>()
 					);
 					FAudio.FAudioFXReverbParameters* rvbParams = (FAudio.FAudioFXReverbParameters*) rvbParamsPtr;
@@ -697,11 +697,11 @@ namespace Microsoft.Xna.Framework.Audio
 						(uint)MarshalHelper.SizeOf<FAudio.FAudioFXReverbParameters>(),
 						0
 					);
-					Marshal.FreeHGlobal(rvbParamsPtr);
+					FNAPlatform.Free(rvbParamsPtr);
 
 					reverbSends = new FAudio.FAudioVoiceSends();
 					reverbSends.SendCount = 2;
-					reverbSends.pSends = Marshal.AllocHGlobal(
+					reverbSends.pSends = FNAPlatform.Malloc(
 						2 * MarshalHelper.SizeOf<FAudio.FAudioSendDescriptor>()
 					);
 					FAudio.FAudioSendDescriptor* sendDesc = (FAudio.FAudioSendDescriptor*) reverbSends.pSends;

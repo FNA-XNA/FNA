@@ -236,7 +236,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Use native memory for changes, .NET loves moving this around
 			unsafe
 			{
-				stateChangesPtr = Marshal.AllocHGlobal(
+				stateChangesPtr = FNAPlatform.Malloc(
 					sizeof(MOJOSHADER_effectStateChanges)
 				);
 				MOJOSHADER_effectStateChanges *stateChanges =
@@ -285,7 +285,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Use native memory for changes, .NET loves moving this around
 			unsafe
 			{
-				stateChangesPtr = Marshal.AllocHGlobal(
+				stateChangesPtr = FNAPlatform.Malloc(
 					sizeof(MOJOSHADER_effectStateChanges)
 				);
 				MOJOSHADER_effectStateChanges *stateChanges =
@@ -322,7 +322,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				if (stateChangesPtr != IntPtr.Zero)
 				{
-					Marshal.FreeHGlobal(stateChangesPtr);
+					FNAPlatform.Free(stateChangesPtr);
 					stateChangesPtr = IntPtr.Zero;
 				}
 			}
