@@ -208,6 +208,20 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
+			/* FIXME: SDL bug!
+			 * Well, really it's a Windows bug - for some reason the
+			 * Windows audio team has lost it and now you can't just
+			 * pick between directsound/wasapi, we have to go back
+			 * and forth constantly, so for convenience we're adding
+			 * this check. This shouldn't be necessary anywhere else
+			 * as far as I know, treat it like an OS bug otherwise!
+			 * -flibit
+			 */
+			if (args.TryGetValue("audiodriver", out arg))
+			{
+				Environment.SetEnvironmentVariable("SDL_AUDIODRIVER", arg);
+			}
+
 			// This _should_ be the first real SDL call we make...
 			if (SDL.SDL_Init(
 				SDL.SDL_INIT_VIDEO |
