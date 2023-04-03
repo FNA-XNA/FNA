@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.IO;
 
 using Microsoft.Xna.Framework.Graphics;
 #endregion
@@ -164,6 +165,31 @@ namespace Microsoft.Xna.Framework.Media
 		#endregion
 
 		#region Public Extensions
+		
+		public static Video FromUriEXT(Uri uri, GraphicsDevice graphicsDevice)
+		{
+			string path;
+			if (uri.IsAbsoluteUri)
+			{
+				// If it's absolute, be sure we can actually get it...
+				if (!uri.IsFile)
+				{
+					throw new InvalidOperationException(
+						"Only local file URIs are supported for now"
+					);
+				}
+				path = uri.LocalPath;
+			}
+			else
+			{
+				path = Path.Combine(
+					TitleLocation.Path,
+					uri.ToString()
+				);
+			}
+
+			return new Video(path, graphicsDevice);
+		}
 
 		public void SetAudioTrackEXT(int track)
 		{
