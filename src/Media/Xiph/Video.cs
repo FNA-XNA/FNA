@@ -169,15 +169,19 @@ namespace Microsoft.Xna.Framework.Media
 		public static Video FromUriEXT(Uri uri, GraphicsDevice graphicsDevice)
 		{
 			string path;
-			if (uri.IsAbsoluteUri) {
+			if (uri.IsAbsoluteUri)
+			{
 				// If it's absolute, be sure we can actually get it...
-				if (!uri.IsFile) {
+				if (!uri.IsFile)
+				{
 					throw new InvalidOperationException(
 						"Only local file URIs are supported for now"
 					);
 				}
 				path = uri.LocalPath;
-			} else {
+			}
+			else
+			{
 				path = Path.Combine(
 					TitleLocation.Path,
 					uri.ToString()
