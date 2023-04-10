@@ -298,7 +298,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			this.rasterizerState = rasterizerState ?? RasterizerState.CullCounterClockwise;
 
 			customEffect = effect;
-			transformMatrix = transformMatrix;
+			this.transformMatrix = transformMatrix;
 
 			if (sortMode == SpriteSortMode.Immediate)
 			{
