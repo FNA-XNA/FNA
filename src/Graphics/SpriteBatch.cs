@@ -277,7 +277,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			DepthStencilState depthStencilState,
 			RasterizerState rasterizerState,
 			Effect effect,
-			Matrix transformationMatrix
+			Matrix transformMatrix
 		) {
 			if (beginCalled)
 			{
@@ -298,7 +298,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			this.rasterizerState = rasterizerState ?? RasterizerState.CullCounterClockwise;
 
 			customEffect = effect;
-			transformMatrix = transformationMatrix;
+			transformMatrix = transformMatrix;
 
 			if (sortMode == SpriteSortMode.Immediate)
 			{
