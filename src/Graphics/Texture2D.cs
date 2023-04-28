@@ -382,7 +382,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				0,
 				0,
 				Width,
-				height,
+				Height,
 				0,
 				data,
 				len
