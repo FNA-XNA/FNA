@@ -39,4 +39,4 @@ using System.Resources;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("23.04.0.0")]
+[assembly: AssemblyVersion("23.05.0.0")]
