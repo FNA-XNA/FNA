@@ -26,7 +26,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		private static string[] supportedExtensions = new string[]
 		{
-			".bmp", ".gif", ".jpg", ".jpeg", ".png", ".tga", ".tif", ".tiff", ".dds"
+			".bmp", ".gif", ".jpg", ".jpeg", ".png", ".tga", ".tif", ".tiff", ".dds", ".qoi"
 		};
 
 		#endregion
