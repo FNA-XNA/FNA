@@ -1,0 +1,7 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<Content Include="$(MSBuildThisFileDirectory)..\..\lib\$([System.IO.Directory]::GetParent($(MSBuildThisFileDirectory)).Name)\FNA.dll.config" Condition="'$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe'">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+</Project>
