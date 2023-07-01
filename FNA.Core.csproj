@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net40;netstandard2.0;net7.0</TargetFrameworks>
-		<Platforms>x64</Platforms>
 	</PropertyGroup>
 	<PropertyGroup>
 		<EnableDefaultItems>false</EnableDefaultItems>
@@ -12,7 +11,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<IsPackable>true</IsPackable>
-		<Version>23.06</Version>
+		<Version>23.07</Version>
 		<Description>Accuracy-focused XNA4 reimplementation for open platforms</Description>
 		<Copyright>Copyright (c) 2009-2023</Copyright>
 		<Authors>flibitijibibo</Authors>
@@ -23,12 +22,10 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<AddAppConfigToBuildOutputs>true</AddAppConfigToBuildOutputs>
-		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.config</AllowedOutputExtensionsInPackageBuildOutputFolder>
 	</PropertyGroup>
 	<ItemGroup>
-		<_FNATargetFramework Include="$(TargetFrameworks)" />
-		<Content Include="FNA.Core.props" Pack="true" PackagePath="@(_FNATargetFramework->'buildTransitive/%(Identity)/FNA.props')" />
+		<None Include="FNA.Core.props" Pack="true" PackagePath="buildTransitive\FNA.props" />
+		<None Include="App.config" Pack="true" PackagePath="contentFiles\FNA.dll.config" />
 	</ItemGroup>
 	<PropertyGroup>
 		<FNASettingsPropsFilePath>$(SolutionDir)FNA.Settings.props</FNASettingsPropsFilePath>
@@ -387,9 +384,9 @@
 			<LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.YUVToRGBAEffect.fxb</LogicalName>
 		</EmbeddedResource>
 	</ItemGroup>
-	<Target Name="DownloadExpandAndPackFNALibs" BeforeTargets="DispatchToInnerBuilds">
+	<Target Name="DownloadExpandAndPackFNALibs" BeforeTargets="DispatchToInnerBuilds" Condition="'$(PackFNALibs)' == true">
 		<PropertyGroup>
-			<FNALibsRoot>$(BaseIntermediateOutputPath)fnalibs</FNALibsRoot>
+			<FNALibsRoot>$(BaseIntermediateOutputPath)fnalibs\</FNALibsRoot>
 		</PropertyGroup>
 		<DownloadFile SourceUrl="https://fna.flibitijibibo.com/archive/fnalibs.tar.bz2" DestinationFolder="$(BaseIntermediateOutputPath)">
 			<Output TaskParameter="DownloadedFile" PropertyName="FNALibsArchive" />
@@ -397,11 +394,11 @@
 		<MakeDir Directories="$(FNALibsRoot)" />
 		<Exec Command="bsdtar -xjf $(FNALibsArchive) -C $(FNALibsRoot)" />
 		<ItemGroup>
-			<Content Include="$(FNALibsRoot)/x64/*.*" Pack="true" PackagePath="runtimes/win-x64/native" />
-			<Content Include="$(FNALibsRoot)/x86/*.*" Pack="true" PackagePath="runtimes/win-x86/native" />
-			<Content Include="$(FNALibsRoot)/osx/*.*" Pack="true" PackagePath="runtimes/osx-x64/native" />
-			<Content Include="$(FNALibsRoot)/lib64/*.*" Pack="true" PackagePath="runtimes/linux-x64/native" />
-			<Content Include="$(FNALibsRoot)/libaarch64/*.*" Pack="true" PackagePath="runtimes/linux-arm64/native" />
+			<None Include="$(FNALibsRoot)x64\*.*" Pack="true" PackagePath="runtimes\win-x64\native" />
+			<None Include="$(FNALibsRoot)x86\*.*" Pack="true" PackagePath="runtimes\win-x86\native" />
+			<None Include="$(FNALibsRoot)osx\*.*" Pack="true" PackagePath="runtimes\osx-x64\native" />
+			<None Include="$(FNALibsRoot)lib64\*.*" Pack="true" PackagePath="runtimes\linux-x64\native" />
+			<None Include="$(FNALibsRoot)libaarch64\*.*" Pack="true" PackagePath="runtimes\linux-arm64\native" />
 		</ItemGroup>
 	</Target>
 </Project>
