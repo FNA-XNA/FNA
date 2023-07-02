@@ -17,6 +17,9 @@
 		<Authors>flibitijibibo</Authors>
 		<PackageProjectUrl>https://fna-xna.github.io/</PackageProjectUrl>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>FNA.png</PackageIcon>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 	</PropertyGroup>
 	<PropertyGroup>
 		<IncludeSymbols>true</IncludeSymbols>
@@ -24,8 +27,11 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 	</PropertyGroup>
 	<ItemGroup>
-		<None Include="FNA.Core.props" Pack="true" PackagePath="buildTransitive\FNA.props" />
 		<None Include="App.config" Pack="true" PackagePath="contentFiles\FNA.dll.config" />
+		<None Include="README.md" Pack="true" PackagePath="\"/>
+		<None Include="nuget\FNA.props" Pack="true" PackagePath="buildTransitive\FNA.props" />
+		<None Include="nuget\FNA.png" Pack="true" PackagePath="\"/>
+		<None Include="nuget\NuGetLicense.txt" Pack="true" PackagePath="\LICENSE.txt"/>
 	</ItemGroup>
 	<PropertyGroup>
 		<FNASettingsPropsFilePath>$(SolutionDir)FNA.Settings.props</FNASettingsPropsFilePath>
