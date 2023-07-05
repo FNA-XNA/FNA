@@ -217,24 +217,6 @@ namespace Microsoft.Xna.Framework
 				throw new Exception("SDL_Init failed: " + SDL.SDL_GetError());
 			}
 
-			if (	OSVersion.Equals("Windows") ||
-				OSVersion.Equals("WinRT")	)
-			{
-				/* Windows has terrible event pumping and doesn't give us
-				 * WM_PAINT events correctly. So we get to do this!
-				 * -flibit
-				 */
-				IntPtr prevUserData;
-				SDL.SDL_GetEventFilter(
-					out prevEventFilter,
-					out prevUserData
-				);
-				SDL.SDL_SetEventFilter(
-					win32OnPaint,
-					prevUserData
-				);
-			}
-
 			string videoDriver = SDL.SDL_GetCurrentVideoDriver();
 
 			/* A number of platforms don't support global mouse, but
@@ -307,6 +289,24 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED
 			) == 1) {
 				INTERNAL_AddInstance(evt[0].cdevice.which);
+			}
+
+			if (	OSVersion.Equals("Windows") ||
+				OSVersion.Equals("WinRT")	)
+			{
+				/* Windows has terrible event pumping and doesn't give us
+				 * WM_PAINT events correctly. So we get to do this!
+				 * -flibit
+				 */
+				IntPtr prevUserData;
+				SDL.SDL_GetEventFilter(
+					out prevEventFilter,
+					out prevUserData
+				);
+				SDL.SDL_SetEventFilter(
+					win32OnPaint,
+					prevUserData
+				);
 			}
 
 			/* Minimal, Portable, SDL-based Tesla Splash.
