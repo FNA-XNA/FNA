@@ -149,6 +149,25 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
+			// Set home indicator behavior in iOS
+			switch (Environment.GetEnvironmentVariable("FNA_IOS_HOME_INDICATOR"))
+			{
+
+				case "0":
+					SDL.SDL_SetHint(SDL.SDL_HINT_IOS_HIDE_HOME_INDICATOR, "0");
+					break;
+				case "1":
+					SDL.SDL_SetHint(SDL.SDL_HINT_IOS_HIDE_HOME_INDICATOR, "1");
+					break;
+				case "2":
+					SDL.SDL_SetHint(SDL.SDL_HINT_IOS_HIDE_HOME_INDICATOR, "2");
+					break;
+				default:
+					SDL.SDL_SetHint(SDL.SDL_HINT_IOS_HIDE_HOME_INDICATOR, "1");
+					break;
+
+			}
+
 			// Built-in SDL2 command line arguments
 			string arg;
 			if (args.TryGetValue("glprofile", out arg))
