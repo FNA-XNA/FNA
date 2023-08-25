@@ -1404,6 +1404,12 @@ namespace Microsoft.Xna.Framework
 					SDL.SDL_bool.SDL_TRUE :
 					SDL.SDL_bool.SDL_FALSE
 			);
+			if (enable)
+			{
+			    // Flush this value, it's going to be jittery
+			    int filler;
+			    SDL.SDL_GetRelativeMouseState(out filler, out filler);
+			}
 		}
 
 		#endregion
