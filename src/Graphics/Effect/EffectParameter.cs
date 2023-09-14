@@ -82,6 +82,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal IntPtr values;
 		internal uint valuesSizeBytes;
 
+
+
+		string? cachedString
+		{
+			private get;
+			internal set;
+		}
+
 		#endregion
 
 		#region Internal Constructor
@@ -103,6 +111,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("data");
 			}
+
 
 			Name = name;
 			Semantic = semantic ?? string.Empty;
@@ -173,6 +182,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Annotations = annotations;
 			values = data;
 			valuesSizeBytes = dataSizeBytes;
+			cachedString = strValue;
 		}
 
 		#endregion
@@ -397,7 +407,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * We've got the data, we just need to hook it up to FNA.
 			 * -flibit
 			 */
-			throw new NotImplementedException("effect->objects[?]");
+
+			return (cachedString.HasValue) ? cachedString : "";
+			//throw new NotImplementedException("effect->objects[?]");
 		}
 
 		public Texture2D GetValueTexture2D()

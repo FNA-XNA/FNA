@@ -925,6 +925,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					continue;
 				}
 
+				/*
+				 * The following is a draft for GetStringValue
+				 */
+
+				//EffectParameter and EffectAnnotation need those
+				MOJOSHADER_effectObject* objects = (MOJOSHADER_effectObject*)effectPtr->objects;
 				EffectParameterCollection structMembers = null;
 				if (param.value.type.member_count > 0)
 				{
@@ -953,6 +959,12 @@ namespace Microsoft.Xna.Framework.Graphics
 								param.value.values + curOffset.ToInt32(),
 								memSize * 4
 							));
+							if(param.value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
+							{
+								int* index = param.value.values;
+								memList[j].cachedString = Marshal.PtrToStringAnsi(objects[*index].stringvalue.stringvalue);
+							}
+
 							curOffset += (int) memSize * 4;
 						}
 					}
@@ -970,11 +982,18 @@ namespace Microsoft.Xna.Framework.Graphics
 					structMembers,
 					INTERNAL_readAnnotations(
 						param.annotations,
-						param.annotation_count
+						param.annotation_count,
+						objects
 					),
 					param.value.values,
 					param.value.value_count * sizeof(float)
 				));
+				if (param.value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
+				{
+					int* index = param.value.values;
+					parameters[j].cachedString = Marshal.PtrToStringAnsi(objects[*index].stringvalue.stringvalue);
+				}
+
 			}
 			Parameters = new EffectParameterCollection(parameters);
 
@@ -993,7 +1012,8 @@ namespace Microsoft.Xna.Framework.Graphics
 						Marshal.PtrToStringAnsi(pass.name),
 						INTERNAL_readAnnotations(
 							pass.annotations,
-							pass.annotation_count
+							pass.annotation_count,
+							objects
 						),
 						this,
 						(IntPtr) techPtr,
@@ -1007,7 +1027,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					new EffectPassCollection(passes),
 					INTERNAL_readAnnotations(
 						techPtr->annotations,
-						techPtr->annotation_count
+						techPtr->annotation_count,
+						objects
 					)
 				));
 			}
@@ -1016,7 +1037,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private unsafe EffectAnnotationCollection INTERNAL_readAnnotations(
 			IntPtr rawAnnotations,
-			uint numAnnotations
+			uint numAnnotations,
+			IntPtr objects
 		) {
 			MOJOSHADER_effectAnnotation* annoPtr = (MOJOSHADER_effectAnnotation*) rawAnnotations;
 			List<EffectAnnotation> annotations = new List<EffectAnnotation>((int) numAnnotations);
@@ -1032,6 +1054,11 @@ namespace Microsoft.Xna.Framework.Graphics
 					XNAType[(int) anno.type.parameter_type],
 					anno.values
 				));
+				if (anno.type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
+				{
+					int* index = anno.values;
+					annotations[i].cachedString = Marshal.PtrToStringAnsi(objects[*index].stringvalue.stringvalue);
+				}
 			}
 			return new EffectAnnotationCollection(annotations);
 		}

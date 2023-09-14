@@ -58,6 +58,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Private Variables
 
 		IntPtr values;
+		string? cachedString 
+		{ 
+			private get;
+			internal set;
+		}
 
 		#endregion
 
@@ -70,7 +75,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int columnCount,
 			EffectParameterClass parameterClass,
 			EffectParameterType parameterType,
-			IntPtr data
+			IntPtr data,
 		) {
 			Name = name;
 			Semantic = semantic ?? string.Empty;
@@ -145,7 +150,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * We've got the data, we just need to hook it up to FNA.
 			 * -flibit
 			 */
-			throw new NotImplementedException("effect->objects[?]");
+			return (cachedString.HasValue) ? cachedString : "";
+			//throw new NotImplementedException("effect->objects[?]");
 		}
 
 		public Vector2 GetValueVector2()
