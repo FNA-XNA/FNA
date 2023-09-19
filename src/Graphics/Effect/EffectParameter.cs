@@ -84,11 +84,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 
 
-		string? cachedString
-		{
-			private get;
-			internal set;
-		}
+		internal string? cachedString
+		
 
 		#endregion
 
@@ -403,13 +400,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public string GetValueString()
 		{
-			/* FIXME: This requires digging into the effect->objects list.
-			 * We've got the data, we just need to hook it up to FNA.
-			 * -flibit
-			 */
-
-			return (cachedString.HasValue) ? cachedString : "";
-			//throw new NotImplementedException("effect->objects[?]");
+			return cachedString ?? String.Empty;
 		}
 
 		public Texture2D GetValueTexture2D()
