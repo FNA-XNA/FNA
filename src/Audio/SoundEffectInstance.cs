@@ -145,6 +145,9 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 		}
 
+		// Exposed parent effect so we can use it as a hash key
+		public SoundEffect ParentEffect => parentEffect;
+
 		#endregion
 
 		#region Internal Variables

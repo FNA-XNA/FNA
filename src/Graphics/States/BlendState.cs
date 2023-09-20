@@ -193,6 +193,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			Blend.Zero
 		);
 
+		public static readonly BlendState Multiply = new BlendState(
+			"BlendState.Multiply",
+			Blend.DestinationColor,
+			Blend.One,
+			Blend.Zero,
+			Blend.Zero
+		);
+
 		#endregion
 
 		#region Internal FNA3D Variables

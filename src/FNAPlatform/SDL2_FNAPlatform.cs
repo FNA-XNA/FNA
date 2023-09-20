@@ -954,6 +954,10 @@ namespace Microsoft.Xna.Framework
 							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[6]);
 							textInputSuppress = true;
 						}
+						else
+						{
+							TextInputEXT.OnTextInputKey(key);
+						}
 					}
 					else if (evt.key.repeat > 0)
 					{
@@ -966,6 +970,10 @@ namespace Microsoft.Xna.Framework
 							&& key == Keys.V)
 						{
 							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[6]);
+						}
+						else
+						{
+							TextInputEXT.OnTextInputKey(key);
 						}
 					}
 				}

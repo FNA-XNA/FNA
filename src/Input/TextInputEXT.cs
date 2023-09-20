@@ -27,6 +27,11 @@ namespace Microsoft.Xna.Framework.Input
 		public static event Action<char> TextInput;
 
 		/// <summary>
+		/// Event for key repeat for any key (character and noncharacter).
+		/// </summary>
+		public static event Action<Keys> TextInputKeys;
+
+		/// <summary>
 		/// This event notifies you of in-progress text composition happening in an IME or other tool
 		///  and allows you to display the draft text appropriately before it has become input.
 		/// For more information, see SDL's tutorial: https://wiki.libsdl.org/Tutorials-TextInput
@@ -84,6 +89,14 @@ namespace Microsoft.Xna.Framework.Input
 			if (TextInput != null)
 			{
 				TextInput(c);
+			}
+		}
+
+		internal static void OnTextInputKey(Keys key)
+		{
+			if(TextInputKeys != null)
+			{
+				TextInputKeys(key);
 			}
 		}
 

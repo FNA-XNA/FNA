@@ -323,6 +323,7 @@
 		<Compile Include="src\Quaternion.cs" />
 		<Compile Include="src\Ray.cs" />
 		<Compile Include="src\Rectangle.cs" />
+		<Compile Include="src\RectangleF.cs" />
 		<Compile Include="src\Storage\StorageContainer.cs" />
 		<Compile Include="src\Storage\StorageDevice.cs" />
 		<Compile Include="src\Storage\StorageDeviceNotConnectedException.cs" />

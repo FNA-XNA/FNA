@@ -88,7 +88,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		#region Constructors, Destructor, Dispose()
 
-		internal Song(string fileName, string name = null)
+		public Song(string fileName, string name = null)
 		{
 			if (!File.Exists(fileName))
 			{

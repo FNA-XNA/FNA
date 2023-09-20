@@ -31,7 +31,7 @@ namespace Microsoft.Xna.Framework
 			private set;
 		}
 
-		private ContentManager INTERNAL_content;
+		/*private ContentManager INTERNAL_content;
 		public ContentManager Content
 		{
 			get
@@ -46,7 +46,7 @@ namespace Microsoft.Xna.Framework
 				}
 				INTERNAL_content = value;
 			}
-		}
+		}*/
 
 		public GraphicsDevice GraphicsDevice
 		{
@@ -245,7 +245,7 @@ namespace Microsoft.Xna.Framework
 			LaunchParameters = new LaunchParameters();
 			Components = new GameComponentCollection();
 			Services = new GameServiceContainer();
-			Content = new ContentManager(Services);
+			//Content = new ContentManager(Services);
 
 			updateableComponents = new List<IUpdateable>();
 			currentlyUpdatingComponents = new List<IUpdateable>();
@@ -318,10 +318,10 @@ namespace Microsoft.Xna.Framework
 						}
 					}
 
-					if (Content != null)
+					/*if (Content != null)
 					{
 						Content.Dispose();
-					}
+					}*/
 
 					if (graphicsDeviceService != null)
 					{

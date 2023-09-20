@@ -442,6 +442,11 @@ namespace Microsoft.Xna.Framework
 			result.Height = Math.Max(value1.Bottom, value2.Bottom) - result.Y;
 		}
 
+		public static implicit operator RectangleF(Rectangle value)
+		{
+			return new RectangleF(value.X, value.Y, value.Width, value.Height);
+		}
+
 		#endregion
 	}
 }

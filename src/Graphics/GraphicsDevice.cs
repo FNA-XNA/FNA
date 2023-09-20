@@ -56,7 +56,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			get;
 			private set;
 		}
-
+		
 		public PresentationParameters PresentationParameters
 		{
 			get;
