@@ -57,7 +57,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public EffectParameterCollection Elements
 		{
-			get {
+			get
+			{
 				if ((elementCount > 0) && (elements == null))
 					BuildElementList();
 				return elements;
@@ -66,7 +67,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public EffectParameterCollection StructureMembers
 		{
-			get {
+			get
+			{
 				if ((mojoType != IntPtr.Zero) && (members == null))
 					BuildMemberList();
 				return members;
@@ -163,12 +165,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		#endregion
 
 		#region Allocation optimizations
-		internal void BuildMemberList ()
+		internal void BuildMemberList()
 		{
 			members = Effect.INTERNAL_readEffectParameterStructureMembers(this, mojoType);
 		}
 
-		internal void BuildElementList ()
+		internal void BuildElementList()
 		{
 			if (elementCount > 0)
 			{
