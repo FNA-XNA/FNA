@@ -47,7 +47,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				if (elements == null) {
+				if (elements == null)
+				{
 					if (singleItem.Name.Equals(name))
 						return singleItem;
 					else
@@ -91,7 +92,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Allocation optimization
 		internal List<EffectPass> GetList()
 		{
-			if (elements == null) {
+			if (elements == null)
+			{
 				elements = new List<EffectPass>(1);
 				elements.Add(singleItem);
 			}
