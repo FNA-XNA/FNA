@@ -43,12 +43,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
-		public int ElementCount
-		{
-			get;
-			private set;
-		}
-
 		public EffectParameterClass ParameterClass
 		{
 			get;
@@ -64,7 +58,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public EffectParameterCollection Elements
 		{
 			get {
-				if ((ElementCount > 0) && (elements == null))
+				if ((elementCount > 0) && (elements == null))
 					BuildElementList();
 				return elements;
 			}
@@ -96,6 +90,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal IntPtr mojoType;
 
+		internal int elementCount;
 		internal EffectParameterCollection elements;
 		internal EffectParameterCollection members;
 
@@ -125,7 +120,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Semantic = semantic ?? string.Empty;
 			RowCount = rowCount;
 			ColumnCount = columnCount;
-			ElementCount = elementCount;
+			this.elementCount = elementCount;
 			ParameterClass = parameterClass;
 			ParameterType = parameterType;
 			this.mojoType = mojoType;
@@ -156,7 +151,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Semantic = semantic ?? string.Empty;
 			RowCount = rowCount;
 			ColumnCount = columnCount;
-			ElementCount = elementCount;
+			this.elementCount = elementCount;
 			ParameterClass = parameterClass;
 			ParameterType = parameterType;
 			members = structureMembers;
@@ -175,38 +170,39 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal void BuildElementList ()
 		{
-			if (ElementCount > 0)
+			if (elementCount > 0)
 			{
 				int curOffset = 0;
-				List<EffectParameter> elements = new List<EffectParameter>(ElementCount);
-				for (int i = 0; i < ElementCount; i += 1)
+				List<EffectParameter> elements = new List<EffectParameter>(elementCount);
+				EffectParameterCollection structureMembers = StructureMembers;
+				for (int i = 0; i < elementCount; i += 1)
 				{
 					EffectParameterCollection elementMembers = null;
-					if (StructureMembers != null)
+					if (structureMembers != null)
 					{
 						List<EffectParameter> memList = new List<EffectParameter>();
-						for (int j = 0; j < StructureMembers.Count; j += 1)
+						for (int j = 0; j < structureMembers.Count; j += 1)
 						{
 							int memElems = 0;
-							if (StructureMembers[j].Elements != null)
+							if (structureMembers[j].Elements != null)
 							{
-								memElems = StructureMembers[j].Elements.Count;
+								memElems = structureMembers[j].Elements.Count;
 							}
-							int memSize = StructureMembers[j].RowCount * 4;
+							int memSize = structureMembers[j].RowCount * 4;
 							if (memElems > 0)
 							{
 								memSize *= memElems;
 							}
 							memList.Add(new EffectParameter(
-								StructureMembers[j].Name,
-								StructureMembers[j].Semantic,
-								StructureMembers[j].RowCount,
-								StructureMembers[j].ColumnCount,
+								structureMembers[j].Name,
+								structureMembers[j].Semantic,
+								structureMembers[j].RowCount,
+								structureMembers[j].ColumnCount,
 								memElems,
-								StructureMembers[j].ParameterClass,
-								StructureMembers[j].ParameterType,
+								structureMembers[j].ParameterClass,
+								structureMembers[j].ParameterType,
 								IntPtr.Zero, // FIXME: Nested structs! -flibit
-								StructureMembers[j].Annotations,
+								structureMembers[j].Annotations,
 								new IntPtr(values.ToInt64() + curOffset),
 								(uint) memSize * 4
 							));
