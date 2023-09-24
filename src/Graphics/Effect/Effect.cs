@@ -1018,6 +1018,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr rawAnnotations,
 			uint numAnnotations
 		) {
+			if (numAnnotations == 0)
+				return EffectAnnotationCollection.Empty;
+
 			MOJOSHADER_effectAnnotation* annoPtr = (MOJOSHADER_effectAnnotation*) rawAnnotations;
 			List<EffectAnnotation> annotations = new List<EffectAnnotation>((int) numAnnotations);
 			for (int i = 0; i < numAnnotations; i += 1)
