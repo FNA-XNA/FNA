@@ -985,26 +985,27 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				// Set up Passes
 				MOJOSHADER_effectPass* passPtr = (MOJOSHADER_effectPass*) techPtr->passes;
-				List<EffectPass> passes = new List<EffectPass>((int) techPtr->pass_count);
-				for (int j = 0; j < passes.Capacity; j += 1)
+				EffectPassCollection passes;
+				if (techPtr->pass_count == 1)
 				{
-					MOJOSHADER_effectPass pass = passPtr[j];
-					passes.Add(new EffectPass(
-						Marshal.PtrToStringAnsi(pass.name),
-						INTERNAL_readAnnotations(
-							pass.annotations,
-							pass.annotation_count
-						),
-						this,
-						(IntPtr) techPtr,
-						(uint) j
+					passes = new EffectPassCollection(INTERNAL_readPass(
+						ref passPtr[0], (IntPtr) techPtr, 0
 					));
+				}
+				else
+				{
+					List<EffectPass> passList = new List<EffectPass>((int) techPtr->pass_count);
+					for (int j = 0; j < passList.Capacity; j += 1)
+					{
+						passList.Add(INTERNAL_readPass(ref passPtr[j], (IntPtr) techPtr, (uint) j));
+					}
+					passes = new EffectPassCollection(passList);
 				}
 
 				techniques.Add(new EffectTechnique(
 					Marshal.PtrToStringAnsi(techPtr->name),
 					(IntPtr) techPtr,
-					new EffectPassCollection(passes),
+					passes,
 					INTERNAL_readAnnotations(
 						techPtr->annotations,
 						techPtr->annotation_count
@@ -1012,6 +1013,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				));
 			}
 			Techniques = new EffectTechniqueCollection(techniques);
+		}
+
+		private unsafe EffectPass INTERNAL_readPass(
+			ref MOJOSHADER_effectPass pass,
+			IntPtr techPtr, uint index
+		) {
+			return new EffectPass(
+				Marshal.PtrToStringAnsi(pass.name),
+				INTERNAL_readAnnotations(
+					pass.annotations,
+					pass.annotation_count
+				),
+				this,
+				techPtr,
+				index
+			);
 		}
 
 		private unsafe EffectAnnotationCollection INTERNAL_readAnnotations(
