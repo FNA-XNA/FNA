@@ -43,6 +43,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
+		public int ElementCount
+		{
+			get;
+			private set;
+		}
+
 		public EffectParameterClass ParameterClass
 		{
 			get;
@@ -57,14 +63,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public EffectParameterCollection Elements
 		{
-			get;
-			private set;
+			get {
+				if ((ElementCount > 0) && (elements == null))
+					BuildElementList();
+				return elements;
+			}
 		}
 
 		public EffectParameterCollection StructureMembers
 		{
-			get;
-			private set;
+			get {
+				if ((mojoType != IntPtr.Zero) && (members == null))
+					BuildMemberList();
+				return members;
+			}
 		}
 
 		public EffectAnnotationCollection Annotations
@@ -82,9 +94,45 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal IntPtr values;
 		internal uint valuesSizeBytes;
 
+		internal IntPtr mojoType;
+
+		internal EffectParameterCollection elements;
+		internal EffectParameterCollection members;
+
 		#endregion
 
 		#region Internal Constructor
+
+		internal EffectParameter(
+			string name,
+			string semantic,
+			int rowCount,
+			int columnCount,
+			int elementCount,
+			EffectParameterClass parameterClass,
+			EffectParameterType parameterType,
+			IntPtr mojoType,
+			EffectAnnotationCollection annotations,
+			IntPtr data,
+			uint dataSizeBytes
+		) {
+			if (data == IntPtr.Zero)
+			{
+				throw new ArgumentNullException("data");
+			}
+
+			Name = name;
+			Semantic = semantic ?? string.Empty;
+			RowCount = rowCount;
+			ColumnCount = columnCount;
+			ElementCount = elementCount;
+			ParameterClass = parameterClass;
+			ParameterType = parameterType;
+			this.mojoType = mojoType;
+			Annotations = annotations;
+			values = data;
+			valuesSizeBytes = dataSizeBytes;
+		}
 
 		internal EffectParameter(
 			string name,
@@ -108,39 +156,58 @@ namespace Microsoft.Xna.Framework.Graphics
 			Semantic = semantic ?? string.Empty;
 			RowCount = rowCount;
 			ColumnCount = columnCount;
-			if (elementCount > 0)
+			ElementCount = elementCount;
+			ParameterClass = parameterClass;
+			ParameterType = parameterType;
+			members = structureMembers;
+			Annotations = annotations;
+			values = data;
+			valuesSizeBytes = dataSizeBytes;
+		}
+
+		#endregion
+
+		#region Allocation optimizations
+		internal void BuildMemberList ()
+		{
+			members = Effect.INTERNAL_readEffectParameterStructureMembers(this, mojoType);
+		}
+
+		internal void BuildElementList ()
+		{
+			if (ElementCount > 0)
 			{
 				int curOffset = 0;
-				List<EffectParameter> elements = new List<EffectParameter>(elementCount);
-				for (int i = 0; i < elementCount; i += 1)
+				List<EffectParameter> elements = new List<EffectParameter>(ElementCount);
+				for (int i = 0; i < ElementCount; i += 1)
 				{
 					EffectParameterCollection elementMembers = null;
-					if (structureMembers != null)
+					if (StructureMembers != null)
 					{
 						List<EffectParameter> memList = new List<EffectParameter>();
-						for (int j = 0; j < structureMembers.Count; j += 1)
+						for (int j = 0; j < StructureMembers.Count; j += 1)
 						{
 							int memElems = 0;
-							if (structureMembers[j].Elements != null)
+							if (StructureMembers[j].Elements != null)
 							{
-								memElems = structureMembers[j].Elements.Count;
+								memElems = StructureMembers[j].Elements.Count;
 							}
-							int memSize = structureMembers[j].RowCount * 4;
+							int memSize = StructureMembers[j].RowCount * 4;
 							if (memElems > 0)
 							{
 								memSize *= memElems;
 							}
 							memList.Add(new EffectParameter(
-								structureMembers[j].Name,
-								structureMembers[j].Semantic,
-								structureMembers[j].RowCount,
-								structureMembers[j].ColumnCount,
+								StructureMembers[j].Name,
+								StructureMembers[j].Semantic,
+								StructureMembers[j].RowCount,
+								StructureMembers[j].ColumnCount,
 								memElems,
-								structureMembers[j].ParameterClass,
-								structureMembers[j].ParameterType,
-								null, // FIXME: Nested structs! -flibit
-								structureMembers[j].Annotations,
-								new IntPtr(data.ToInt64() + curOffset),
+								StructureMembers[j].ParameterClass,
+								StructureMembers[j].ParameterType,
+								IntPtr.Zero, // FIXME: Nested structs! -flibit
+								StructureMembers[j].Annotations,
+								new IntPtr(values.ToInt64() + curOffset),
 								(uint) memSize * 4
 							));
 							curOffset += memSize * 4;
@@ -151,30 +218,23 @@ namespace Microsoft.Xna.Framework.Graphics
 					elements.Add(new EffectParameter(
 						null,
 						null,
-						rowCount,
-						columnCount,
+						RowCount,
+						ColumnCount,
 						0,
 						ParameterClass,
-						parameterType,
+						ParameterType,
 						elementMembers,
 						null,
 						new IntPtr(
-							data.ToInt64() + (i * rowCount * 16)
+							values.ToInt64() + (i * RowCount * 16)
 						),
 						// FIXME: Not obvious to me how to compute this -kg
 						0
 					));
 				}
-				Elements = new EffectParameterCollection(elements);
+				this.elements = new EffectParameterCollection(elements);
 			}
-			ParameterClass = parameterClass;
-			ParameterType = parameterType;
-			StructureMembers = structureMembers;
-			Annotations = annotations;
-			values = data;
-			valuesSizeBytes = dataSizeBytes;
 		}
-
 		#endregion
 
 		#region Public Get Methods

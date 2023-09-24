@@ -925,40 +925,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					continue;
 				}
 
-				EffectParameterCollection structMembers = null;
-				if (param.value.type.member_count > 0)
-				{
-					List<EffectParameter> memList = new List<EffectParameter>();
-					unsafe
-					{
-						MOJOSHADER_symbolStructMember* mem = (MOJOSHADER_symbolStructMember*) param.value.type.members;
-						IntPtr curOffset = IntPtr.Zero;
-						for (int j = 0; j < param.value.type.member_count; j += 1)
-						{
-							uint memSize = mem[j].info.rows * mem[j].info.columns;
-							if (mem[j].info.elements > 0)
-							{
-								memSize *= mem[j].info.elements;
-							}
-							memList.Add(new EffectParameter(
-								Marshal.PtrToStringAnsi(mem[j].name),
-								null,
-								(int) mem[j].info.rows,
-								(int) mem[j].info.columns,
-								(int) mem[j].info.elements,
-								XNAClass[(int) mem[j].info.parameter_class],
-								XNAType[(int) mem[j].info.parameter_type],
-								null, // FIXME: Nested structs! -flibit
-								null,
-								param.value.values + curOffset.ToInt32(),
-								memSize * 4
-							));
-							curOffset += (int) memSize * 4;
-						}
-					}
-					structMembers = new EffectParameterCollection(memList);
-				}
-
 				parameters.Add(new EffectParameter(
 					Marshal.PtrToStringAnsi(param.value.name),
 					Marshal.PtrToStringAnsi(param.value.semantic),
@@ -967,7 +933,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					(int) param.value.type.elements,
 					XNAClass[(int) param.value.type.parameter_class],
 					XNAType[(int) param.value.type.parameter_type],
-					structMembers,
+					new IntPtr(&paramPtr[i].value.type),
 					INTERNAL_readAnnotations(
 						param.annotations,
 						param.annotation_count
@@ -1013,6 +979,51 @@ namespace Microsoft.Xna.Framework.Graphics
 				));
 			}
 			Techniques = new EffectTechniqueCollection(techniques);
+		}
+
+		internal unsafe static EffectParameterCollection INTERNAL_readEffectParameterStructureMembers(
+			EffectParameter parameter,
+			IntPtr _type
+		) {
+			if (_type == IntPtr.Zero)
+				return null;
+
+			var type = *(MOJOSHADER_symbolTypeInfo*)_type;
+			EffectParameterCollection structMembers = null;
+			if (type.member_count > 0)
+			{
+				List<EffectParameter> memList = new List<EffectParameter>();
+				unsafe
+				{
+					MOJOSHADER_symbolStructMember* mem = (MOJOSHADER_symbolStructMember*) type.members;
+					IntPtr curOffset = IntPtr.Zero;
+					for (int j = 0; j < type.member_count; j += 1)
+					{
+						uint memSize = mem[j].info.rows * mem[j].info.columns;
+						if (mem[j].info.elements > 0)
+						{
+							memSize *= mem[j].info.elements;
+						}
+						memList.Add(new EffectParameter(
+							Marshal.PtrToStringAnsi(mem[j].name),
+							null,
+							(int) mem[j].info.rows,
+							(int) mem[j].info.columns,
+							(int) mem[j].info.elements,
+							XNAClass[(int) mem[j].info.parameter_class],
+							XNAType[(int) mem[j].info.parameter_type],
+							IntPtr.Zero, // FIXME: Nested structs! -flibit
+							null,
+							parameter.values + curOffset.ToInt32(),
+							memSize * 4
+						));
+						curOffset += (int) memSize * 4;
+					}
+				}
+				structMembers = new EffectParameterCollection(memList);
+			}
+
+			return structMembers;
 		}
 
 		private unsafe EffectPass INTERNAL_readPass(
