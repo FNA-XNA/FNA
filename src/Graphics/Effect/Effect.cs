@@ -986,7 +986,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr _type
 		) {
 			if (_type == IntPtr.Zero)
+			{
 				return null;
+			}
 
 			var type = *(MOJOSHADER_symbolTypeInfo*)_type;
 			EffectParameterCollection structMembers = null;
