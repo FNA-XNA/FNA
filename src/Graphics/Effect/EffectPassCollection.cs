@@ -24,9 +24,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			get
 			{
 				if (elements == null)
+				{
 					return singleItem != null ? 1 : 0;
-				else
-					return elements.Count;
+				}
+				return elements.Count;
 			}
 		}
 
@@ -35,10 +36,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			get
 			{
 				if (elements != null)
+				{
 					return elements[index];
+				}
 
 				if (index != 0)
+				{
 					throw new ArgumentOutOfRangeException("index");
+				}
 				return singleItem;
 			}
 		}
@@ -50,9 +55,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (elements == null)
 				{
 					if (singleItem.Name.Equals(name))
+					{
 						return singleItem;
-					else
-						return null;
+					}
+					return null;
 				}
 
 				foreach (EffectPass elem in elements)
@@ -89,7 +95,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Allocation optimization
+		#region Allocation Optimization
+
 		internal List<EffectPass> GetList()
 		{
 			if (elements == null)
@@ -99,6 +106,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			return elements;
 		}
+
 		#endregion
 
 		#region Public Methods
