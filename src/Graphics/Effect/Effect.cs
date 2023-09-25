@@ -990,7 +990,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				return null;
 			}
 
-			var type = *(MOJOSHADER_symbolTypeInfo*)_type;
+			var type = *(MOJOSHADER_symbolTypeInfo*) _type;
 			EffectParameterCollection structMembers = null;
 			if (type.member_count > 0)
 			{
