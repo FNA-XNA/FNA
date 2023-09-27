@@ -238,6 +238,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				this.elements = new EffectParameterCollection(elements);
 			}
 		}
+
 		#endregion
 
 		#region Public Get Methods
