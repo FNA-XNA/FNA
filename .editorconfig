@@ -4,3 +4,10 @@
 indent_style = tab
 trim_trailing_whitespace = true
 insert_final_newline = true
+
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_space_after_cast = true
+csharp_space_between_method_declaration_name_and_open_parenthesis = false
