@@ -50,30 +50,34 @@ namespace Microsoft.Xna.Framework
 			}
 			if (args.TryGetValue("gldevice", out arg))
 			{
-				Environment.SetEnvironmentVariable(
+				SDL2.SDL.SDL_SetHintWithPriority(
 					"FNA3D_FORCE_DRIVER",
-					arg
+					arg,
+					SDL2.SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 				);
 			}
 			if (args.TryGetValue("enablelateswaptear", out arg) && arg == "1")
 			{
-				Environment.SetEnvironmentVariable(
+				SDL2.SDL.SDL_SetHintWithPriority(
 					"FNA3D_ENABLE_LATESWAPTEAR",
-					"1"
+					"1",
+					SDL2.SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 				);
 			}
 			if (args.TryGetValue("mojoshaderprofile", out arg))
 			{
-				Environment.SetEnvironmentVariable(
+				SDL2.SDL.SDL_SetHintWithPriority(
 					"FNA3D_MOJOSHADER_PROFILE",
-					arg
+					arg,
+					SDL2.SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 				);
 			}
 			if (args.TryGetValue("backbufferscalenearest", out arg) && arg == "1")
 			{
-				Environment.SetEnvironmentVariable(
+				SDL2.SDL.SDL_SetHintWithPriority(
 					"FNA3D_BACKBUFFER_SCALE_NEAREST",
-					"1"
+					"1",
+					SDL2.SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 				);
 			}
 			if (args.TryGetValue("usescancodes", out arg) && arg == "1")
