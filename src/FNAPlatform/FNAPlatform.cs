@@ -38,6 +38,8 @@ namespace Microsoft.Xna.Framework
 
 			// Environment.GetEnvironmentVariable("FNA_PLATFORM_BACKEND");
 
+			SetEnv = SDL2_FNAPlatform.SetEnv;
+
 			// Built-in command line arguments
 			LaunchParameters args = new LaunchParameters();
 			string arg;
@@ -50,28 +52,28 @@ namespace Microsoft.Xna.Framework
 			}
 			if (args.TryGetValue("gldevice", out arg))
 			{
-				Environment.SetEnvironmentVariable(
+				SetEnv(
 					"FNA3D_FORCE_DRIVER",
 					arg
 				);
 			}
 			if (args.TryGetValue("enablelateswaptear", out arg) && arg == "1")
 			{
-				Environment.SetEnvironmentVariable(
+				SetEnv(
 					"FNA3D_ENABLE_LATESWAPTEAR",
 					"1"
 				);
 			}
 			if (args.TryGetValue("mojoshaderprofile", out arg))
 			{
-				Environment.SetEnvironmentVariable(
+				SetEnv(
 					"FNA3D_MOJOSHADER_PROFILE",
 					arg
 				);
 			}
 			if (args.TryGetValue("backbufferscalenearest", out arg) && arg == "1")
 			{
-				Environment.SetEnvironmentVariable(
+				SetEnv(
 					"FNA3D_BACKBUFFER_SCALE_NEAREST",
 					"1"
 				);
@@ -195,6 +197,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void FreeFunc(IntPtr ptr);
 		public static readonly FreeFunc Free;
+
+		public delegate void SetEnvFunc(string name, string value);
+		public static readonly SetEnvFunc SetEnv;
 
 		public delegate GameWindow CreateWindowFunc();
 		public static readonly CreateWindowFunc CreateWindow;

@@ -155,42 +155,48 @@ namespace Microsoft.Xna.Framework
 			{
 				if (arg == "es3")
 				{
-					Environment.SetEnvironmentVariable(
+					SDL.SDL_SetHintWithPriority(
 						"FNA3D_OPENGL_FORCE_ES3",
-						"1"
+						"1",
+						SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 					);
 				}
 				else if (arg == "core")
 				{
-					Environment.SetEnvironmentVariable(
+					SDL.SDL_SetHintWithPriority(
 						"FNA3D_OPENGL_FORCE_CORE_PROFILE",
-						"1"
+						"1",
+						SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 					);
 				}
 				else if (arg == "compatibility")
 				{
-					Environment.SetEnvironmentVariable(
+					SDL.SDL_SetHintWithPriority(
 						"FNA3D_OPENGL_FORCE_COMPATIBILITY_PROFILE",
-						"1"
+						"1",
+						SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 					);
 				}
 			}
 			if (args.TryGetValue("angle", out arg) && arg == "1")
 			{
-				Environment.SetEnvironmentVariable(
+				SDL.SDL_SetHintWithPriority(
 					"FNA3D_OPENGL_FORCE_ES3",
-					"1"
+					"1",
+					SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 				);
-				Environment.SetEnvironmentVariable(
+				SDL.SDL_SetHintWithPriority(
 					"SDL_OPENGL_ES_DRIVER",
-					"1"
+					"1",
+					SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 				);
 			}
 			if (args.TryGetValue("forcemailboxvsync", out arg) && arg == "1")
 			{
-				Environment.SetEnvironmentVariable(
+				SDL.SDL_SetHintWithPriority(
 					"FNA3D_VULKAN_FORCE_MAILBOX_VSYNC",
-					"1"
+					"1",
+					SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
 				);
 			}
 
@@ -205,7 +211,11 @@ namespace Microsoft.Xna.Framework
 			 */
 			if (args.TryGetValue("audiodriver", out arg))
 			{
-				Environment.SetEnvironmentVariable("SDL_AUDIODRIVER", arg);
+				SDL.SDL_SetHintWithPriority(
+					"SDL_AUDIODRIVER",
+					arg,
+					SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
+				);
 			}
 
 			// This _should_ be the first real SDL call we make...
@@ -381,6 +391,15 @@ namespace Microsoft.Xna.Framework
 		public static IntPtr Malloc(int size)
 		{
 			return SDL.SDL_malloc((IntPtr) size);
+		}
+
+		#endregion
+
+		#region Environment
+
+		public static void SetEnv(string name, string value)
+		{
+			SDL.SDL_SetHintWithPriority(name, value, SDL.SDL_HintPriority.SDL_HINT_OVERRIDE);
 		}
 
 		#endregion
