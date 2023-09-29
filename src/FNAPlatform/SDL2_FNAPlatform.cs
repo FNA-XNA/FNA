@@ -395,6 +395,11 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		public static void SetEnv(string name, string value)
+		{
+			SDL.SDL_SetHintWithPriority(name, value, SDL.SDL_HintPriority.SDL_HINT_OVERRIDE);
+		}
+
 		#region Window Methods
 
 		public static GameWindow CreateWindow()

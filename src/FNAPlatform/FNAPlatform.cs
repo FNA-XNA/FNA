@@ -50,34 +50,30 @@ namespace Microsoft.Xna.Framework
 			}
 			if (args.TryGetValue("gldevice", out arg))
 			{
-				SDL2.SDL.SDL_SetHintWithPriority(
+				SetEnv(
 					"FNA3D_FORCE_DRIVER",
-					arg,
-					SDL2.SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
+					arg
 				);
 			}
 			if (args.TryGetValue("enablelateswaptear", out arg) && arg == "1")
 			{
-				SDL2.SDL.SDL_SetHintWithPriority(
+				SetEnv(
 					"FNA3D_ENABLE_LATESWAPTEAR",
-					"1",
-					SDL2.SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
+					"1"
 				);
 			}
 			if (args.TryGetValue("mojoshaderprofile", out arg))
 			{
-				SDL2.SDL.SDL_SetHintWithPriority(
+				SetEnv(
 					"FNA3D_MOJOSHADER_PROFILE",
-					arg,
-					SDL2.SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
+					arg
 				);
 			}
 			if (args.TryGetValue("backbufferscalenearest", out arg) && arg == "1")
 			{
-				SDL2.SDL.SDL_SetHintWithPriority(
+				SetEnv(
 					"FNA3D_BACKBUFFER_SCALE_NEAREST",
-					"1",
-					SDL2.SDL.SDL_HintPriority.SDL_HINT_OVERRIDE
+					"1"
 				);
 			}
 			if (args.TryGetValue("usescancodes", out arg) && arg == "1")
@@ -97,6 +93,7 @@ namespace Microsoft.Xna.Framework
 
 			Malloc =			SDL2_FNAPlatform.Malloc;
 			Free =				SDL2.SDL.SDL_free;
+			SetEnv =			SDL2_FNAPlatform.SetEnv;
 			CreateWindow =			SDL2_FNAPlatform.CreateWindow;
 			DisposeWindow =			SDL2_FNAPlatform.DisposeWindow;
 			ApplyWindowChanges =		SDL2_FNAPlatform.ApplyWindowChanges;
@@ -199,6 +196,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void FreeFunc(IntPtr ptr);
 		public static readonly FreeFunc Free;
+
+		public delegate void SetEnvFunc(string name, string value);
+		public static readonly SetEnvFunc SetEnv;
 
 		public delegate GameWindow CreateWindowFunc();
 		public static readonly CreateWindowFunc CreateWindow;
