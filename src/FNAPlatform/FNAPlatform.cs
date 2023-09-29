@@ -38,6 +38,8 @@ namespace Microsoft.Xna.Framework
 
 			// Environment.GetEnvironmentVariable("FNA_PLATFORM_BACKEND");
 
+			SetEnv = SDL2_FNAPlatform.SetEnv;
+
 			// Built-in command line arguments
 			LaunchParameters args = new LaunchParameters();
 			string arg;
@@ -93,7 +95,6 @@ namespace Microsoft.Xna.Framework
 
 			Malloc =			SDL2_FNAPlatform.Malloc;
 			Free =				SDL2.SDL.SDL_free;
-			SetEnv =			SDL2_FNAPlatform.SetEnv;
 			CreateWindow =			SDL2_FNAPlatform.CreateWindow;
 			DisposeWindow =			SDL2_FNAPlatform.DisposeWindow;
 			ApplyWindowChanges =		SDL2_FNAPlatform.ApplyWindowChanges;
