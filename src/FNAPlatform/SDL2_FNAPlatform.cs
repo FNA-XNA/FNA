@@ -395,10 +395,14 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Environment
+
 		public static void SetEnv(string name, string value)
 		{
 			SDL.SDL_SetHintWithPriority(name, value, SDL.SDL_HintPriority.SDL_HINT_OVERRIDE);
 		}
+
+		#endregion
 
 		#region Window Methods
 
