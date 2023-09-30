@@ -17,21 +17,6 @@ namespace Microsoft.Xna.Framework.Content
 {
 	internal class SoundEffectReader : ContentTypeReader<SoundEffect>
 	{
-		#region Private Supported File Extensions Variable
-
-		static string[] supportedExtensions = new string[] { ".wav" };
-
-		#endregion
-
-		#region Internal Filename Normalizer Method
-
-		internal static string Normalize(string fileName)
-		{
-			return Normalize(fileName, supportedExtensions);
-		}
-
-		#endregion
-
 		#region Protected Read Method
 
 		protected internal override SoundEffect Read(

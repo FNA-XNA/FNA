@@ -18,18 +18,9 @@ namespace Microsoft.Xna.Framework.Content
 {
 	internal class VideoReader : ContentTypeReader<Video>
 	{
-		#region Private Supported File Extensions Variable
+		#region Internal Static Supported File Extensions Variable
 
-		static string[] supportedExtensions = new string[] { ".ogv", ".ogg" };
-
-		#endregion
-
-		#region Internal Filename Normalizer Method
-
-		internal static string Normalize(string fileName)
-		{
-			return Normalize(fileName, supportedExtensions);
-		}
+		internal static readonly string[] supportedExtensions = new string[] { ".ogv", ".ogg" };
 
 		#endregion
 
@@ -71,6 +62,28 @@ namespace Microsoft.Xna.Framework.Content
 				framesPerSecond,
 				soundTrackType
 			);
+		}
+
+		#endregion
+
+		#region Private Static Extension Check Method
+
+		private static string Normalize(string fileName)
+		{
+			if (File.Exists(fileName))
+			{
+				return fileName;
+			}
+			foreach (string ext in supportedExtensions)
+			{
+				// Concatenate the file name with valid extensions.
+				string fileNamePlusExt = fileName + ext;
+				if (File.Exists(fileNamePlusExt))
+				{
+					return fileNamePlusExt;
+				}
+			}
+			return null;
 		}
 
 		#endregion

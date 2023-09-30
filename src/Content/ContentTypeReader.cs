@@ -64,29 +64,6 @@ namespace Microsoft.Xna.Framework.Content
 
 		#endregion
 
-		#region Protected Internal Filename Normalizer Method
-
-		protected internal static string Normalize(string fileName, string[] extensions)
-		{
-			if (File.Exists(fileName))
-			{
-				return fileName;
-			}
-
-			foreach (string ext in extensions)
-			{
-				// Concatenate the file name with valid extensions.
-				string fileNamePlusExt = fileName + ext;
-				if (File.Exists(fileNamePlusExt))
-				{
-					return fileNamePlusExt;
-				}
-			}
-			return null;
-		}
-
-		#endregion
-
 		#region Protected Initialization Method
 
 		protected internal virtual void Initialize(ContentTypeReaderManager manager)

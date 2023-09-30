@@ -22,28 +22,10 @@ namespace Microsoft.Xna.Framework.Content
 {
 	internal class Texture2DReader : ContentTypeReader<Texture2D>
 	{
-		#region Private Supported File Extensions Variable
-
-		private static string[] supportedExtensions = new string[]
-		{
-			".bmp", ".gif", ".jpg", ".jpeg", ".png", ".tga", ".tif", ".tiff", ".dds", ".qoi"
-		};
-
-		#endregion
-
 		#region Internal Constructor
 
 		internal Texture2DReader()
 		{
-		}
-
-		#endregion
-
-		#region Internal Filename Normalizer Method
-
-		internal static string Normalize(string fileName)
-		{
-			return Normalize(fileName, supportedExtensions);
 		}
 
 		#endregion
