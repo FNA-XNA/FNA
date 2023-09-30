@@ -279,7 +279,6 @@ namespace Microsoft.Xna.Framework.Content
 
 			object result = null;
 			Stream stream = null;
-			string modifiedAssetName = String.Empty; // Will be used if we have to guess a filename
 			try
 			{
 				stream = OpenStream(assetName);
@@ -370,16 +369,22 @@ namespace Microsoft.Xna.Framework.Content
 				}
 				else if (typeof(T) == typeof(Song))
 				{
-					// FIXME: Not using the stream! -flibit
-					result = new Song(modifiedAssetName);
+					// Song can't use the stream, get the file name and free the handle
+					string fileName = (stream as FileStream).Name;
+					stream.Close();
+
+					result = new Song(fileName);
 				}
 				else if (typeof(T) == typeof(Video))
 				{
-					// FIXME: Not using the stream! -flibit
-					result = new Video(modifiedAssetName, GetGraphicsDevice());
+					// Video can't use the stream, get the file name and free the handle
+					string fileName = (stream as FileStream).Name;
+					stream.Close();
+
+					result = new Video(fileName, GetGraphicsDevice());
 					FNALoggerEXT.LogWarn(
 						"Video " +
-						modifiedAssetName +
+						fileName +
 						" does not have an XNB file! Hacking Duration property!"
 					);
 				}
