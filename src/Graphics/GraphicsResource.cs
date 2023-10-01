@@ -92,12 +92,18 @@ namespace Microsoft.Xna.Framework.Graphics
 		~GraphicsResource()
 		{
 #if DEBUG
-			if (!IsDisposed) 
+			// If the graphics device associated with this resource was already disposed, we assume
+			//  that your game is in the middle of shutting down, and you don't care about leaks of stray
+			//  resources like SamplerStates or other odds and ends.
+			// We also ignore leaks of resources with no graphicsDevice yet, because they don't have
+			//  any way to have native memory associated with them yet.
+			// We also ignore leaks of resources with no associated native memory (via IsHarmlessToLeakInstance).
+			if (!IsDisposed)
 			{
-				// If you hit this breakpoint, that means you leaked a graphics resource!
+				// If you see this log message, you leaked a graphics resource without disposing it!
 				// This means your game may eventually run out of native memory for mysterious reasons.
 				// To troubleshoot this, try setting a Name and/or Tag on your resources to identify them. -kg
-				System.Diagnostics.Debugger.Break();
+				FNALoggerEXT.LogWarn(string.Format("A resource of type {0} with tag {1} and name {2} was not Disposed.", GetType().Name, Tag, Name));
 			}
 #endif
 
@@ -138,6 +144,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// </summary>
 		internal protected virtual void GraphicsDeviceResetting()
 		{
+		}
+
+		internal protected virtual bool IsHarmlessToLeakInstance
+		{
+			get
+			{
+				return false;
+			}
 		}
 
 		#endregion

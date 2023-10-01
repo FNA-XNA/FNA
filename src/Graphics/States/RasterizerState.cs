@@ -110,6 +110,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal FNA3D.FNA3D_RasterizerState state;
 
+		internal protected override bool IsHarmlessToLeakInstance
+		{
+			get
+			{
+				return true;
+			}
+		}
+
 		#endregion
 
 		#region Public Constructor

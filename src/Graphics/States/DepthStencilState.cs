@@ -237,6 +237,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal FNA3D.FNA3D_DepthStencilState state;
 
+		internal protected override bool IsHarmlessToLeakInstance
+		{
+			get
+			{
+				return true;
+			}
+		}
+
 		#endregion
 
 		#region Public Constructor
