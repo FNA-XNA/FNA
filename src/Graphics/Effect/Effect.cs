@@ -884,7 +884,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Set up Parameters
 			MOJOSHADER_effectParam* paramPtr = (MOJOSHADER_effectParam*) effectPtr->parameters;
 			List<EffectParameter> parameters = new List<EffectParameter>();
-			string stringVal;
 			for (int i = 0; i < effectPtr->param_count; i += 1)
 			{
 				MOJOSHADER_effectParam param = paramPtr[i];
@@ -925,12 +924,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 					continue;
 				}
-				else if (states[j].value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
-				{
-					MOJOSHADER_effectObject* objectPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
-					int* index = param.value.values;
-					stringVal = Marshal.PtrToStringAnsi(objectPtr[*index].stringvalue.stringvalue);
-				}
 
 				EffectParameterCollection structMembers = null;
 				if (param.value.type.member_count > 0)
@@ -947,13 +940,6 @@ namespace Microsoft.Xna.Framework.Graphics
 							{
 								memSize *= mem[j].info.elements;
 							}
-							string cachedString = String.Empty;
-							if (mem[j].info.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
-							{
-								MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
-								int* index = param.value.values + curOffset;
-								cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
-							}
 
 
 							EffectParameter toAdd = new EffectParameter(
@@ -969,18 +955,17 @@ namespace Microsoft.Xna.Framework.Graphics
 								param.value.values + curOffset.ToInt32(),
 								memSize * 4
 							);
-							toAdd.cachedString = cachedString;
+							if (mem[j].info.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
+							{
+								MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
+								int* index = param.value.values + curOffset;
+								toAdd.cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
+							}
+
 
 							memList.Add(toAdd);
 
-							for(int j=0;j<memList.Count;j++)
-							{
-								if(memList[j].GetType() == EffectParameterType.String)
-								{
-									int stringIndex = memList[j].GetValueInt32();
-									memList[j].cachedString = Marshal.PtrToStringAnsi(objectsPtr[stringIndex].stringvalue.stringvalue);
-								}
-							}
+						
 							curOffset += (int) memSize * 4;
 						}
 					}
@@ -1002,7 +987,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					param.value.values,
 					param.value.value_count * sizeof(float)
 				)
-				toAdd.cachedString = stringVal;
+				if (param.value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
+					{
+						MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
+						int* index = param.value.values + curOffset;
+						toAdd.cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
+					}
 				parameters.Add(toAdd);
 
 			}
@@ -1054,13 +1044,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				MOJOSHADER_effectAnnotation anno = annoPtr[i];
 
-				string cachedString = String.Empty;
-				if (anno.type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
-				{
-					MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
-					int* index = anno.values;
-					cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
-				}
+
 				EffectAnnotation toAdd = new EffectAnnotation(
 					Marshal.PtrToStringAnsi(anno.name),
 					Marshal.PtrToStringAnsi(anno.semantic),
@@ -1070,7 +1054,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					XNAType[(int) anno.type.parameter_type],
 					anno.values
 				);
-				toAdd.cachedString = cachedString;
+				if (anno.type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
+				{
+					MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
+					int* index = anno.values;
+					toAdd.cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
+				}
 				annotations.Add(toAdd);
 			}
 			return new EffectAnnotationCollection(annotations);
