@@ -925,53 +925,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					continue;
 				}
 
-				EffectParameterCollection structMembers = null;
-				if (param.value.type.member_count > 0)
-				{
-					List<EffectParameter> memList = new List<EffectParameter>();
-					unsafe
-					{
-						MOJOSHADER_symbolStructMember* mem = (MOJOSHADER_symbolStructMember*) param.value.type.members;
-						IntPtr curOffset = IntPtr.Zero;
-						for (int j = 0; j < param.value.type.member_count; j += 1)
-						{
-							uint memSize = mem[j].info.rows * mem[j].info.columns;
-							if (mem[j].info.elements > 0)
-							{
-								memSize *= mem[j].info.elements;
-							}
-
-
-							EffectParameter toAdd = new EffectParameter(
-								Marshal.PtrToStringAnsi(mem[j].name),
-								null,
-								(int) mem[j].info.rows,
-								(int) mem[j].info.columns,
-								(int) mem[j].info.elements,
-								XNAClass[(int) mem[j].info.parameter_class],
-								XNAType[(int) mem[j].info.parameter_type],
-								null, // FIXME: Nested structs! -flibit
-								null,
-								param.value.values + curOffset.ToInt32(),
-								memSize * 4
-							);
-							if (mem[j].info.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
-							{
-								MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
-								int* index = param.value.values + curOffset;
-								toAdd.cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
-							}
-
-
-							memList.Add(toAdd);
-
-						
-							curOffset += (int) memSize * 4;
-						}
-					}
-					structMembers = new EffectParameterCollection(memList);
-				}
+			
 				EffectParameter toAdd = new EffectParameter(
+
 					Marshal.PtrToStringAnsi(param.value.name),
 					Marshal.PtrToStringAnsi(param.value.semantic),
 					(int) param.value.type.rows,
@@ -979,7 +935,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					(int) param.value.type.elements,
 					XNAClass[(int) param.value.type.parameter_class],
 					XNAType[(int) param.value.type.parameter_type],
-					structMembers,
+					new IntPtr(&paramPtr[i].value.type),
 					INTERNAL_readAnnotations(
 						param.annotations,
 						param.annotation_count
@@ -1005,26 +961,27 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				// Set up Passes
 				MOJOSHADER_effectPass* passPtr = (MOJOSHADER_effectPass*) techPtr->passes;
-				List<EffectPass> passes = new List<EffectPass>((int) techPtr->pass_count);
-				for (int j = 0; j < passes.Capacity; j += 1)
+				EffectPassCollection passes;
+				if (techPtr->pass_count == 1)
 				{
-					MOJOSHADER_effectPass pass = passPtr[j];
-					passes.Add(new EffectPass(
-						Marshal.PtrToStringAnsi(pass.name),
-						INTERNAL_readAnnotations(
-							pass.annotations,
-							pass.annotation_count
-						),
-						this,
-						(IntPtr) techPtr,
-						(uint) j
+					passes = new EffectPassCollection(INTERNAL_readPass(
+						ref passPtr[0], (IntPtr) techPtr, 0
 					));
+				}
+				else
+				{
+					List<EffectPass> passList = new List<EffectPass>((int) techPtr->pass_count);
+					for (int j = 0; j < passList.Capacity; j += 1)
+					{
+						passList.Add(INTERNAL_readPass(ref passPtr[j], (IntPtr) techPtr, (uint) j));
+					}
+					passes = new EffectPassCollection(passList);
 				}
 
 				techniques.Add(new EffectTechnique(
 					Marshal.PtrToStringAnsi(techPtr->name),
 					(IntPtr) techPtr,
-					new EffectPassCollection(passes),
+					passes,
 					INTERNAL_readAnnotations(
 						techPtr->annotations,
 						techPtr->annotation_count
@@ -1034,10 +991,89 @@ namespace Microsoft.Xna.Framework.Graphics
 			Techniques = new EffectTechniqueCollection(techniques);
 		}
 
+		internal unsafe static EffectParameterCollection INTERNAL_readEffectParameterStructureMembers(
+			EffectParameter parameter,
+			IntPtr _type
+		) {
+			if (_type == IntPtr.Zero)
+			{
+				return null;
+			}
+
+			var type = *(MOJOSHADER_symbolTypeInfo*) _type;
+			EffectParameterCollection structMembers = null;
+			if (type.member_count > 0)
+			{
+				List<EffectParameter> memList = new List<EffectParameter>();
+				unsafe
+				{
+					MOJOSHADER_symbolStructMember* mem = (MOJOSHADER_symbolStructMember*) type.members;
+					IntPtr curOffset = IntPtr.Zero;
+					for (int j = 0; j < type.member_count; j += 1)
+					{
+						uint memSize = mem[j].info.rows * mem[j].info.columns;
+						if (mem[j].info.elements > 0)
+						{
+							memSize *= mem[j].info.elements;
+						}
+						EffectParameter toAdd = new EffectParameter(
+								Marshal.PtrToStringAnsi(mem[j].name),
+								null,
+								(int) mem[j].info.rows,
+								(int) mem[j].info.columns,
+								(int) mem[j].info.elements,
+								XNAClass[(int) mem[j].info.parameter_class],
+								XNAType[(int) mem[j].info.parameter_type],
+								null, // FIXME: Nested structs! -flibit
+								null,
+								param.value.values + curOffset.ToInt32(),
+								memSize * 4
+							);
+							
+
+
+						if (mem[j].info.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
+						{
+							MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
+							int* index = param.value.values + curOffset;
+							toAdd.cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
+						}
+
+							memList.Add(toAdd);
+						curOffset += (int) memSize * 4;
+					}
+				}
+				structMembers = new EffectParameterCollection(memList);
+			}
+
+			return structMembers;
+		}
+
+		private unsafe EffectPass INTERNAL_readPass(
+			ref MOJOSHADER_effectPass pass,
+			IntPtr techPtr, uint index
+		) {
+			return new EffectPass(
+				Marshal.PtrToStringAnsi(pass.name),
+				INTERNAL_readAnnotations(
+					pass.annotations,
+					pass.annotation_count
+				),
+				this,
+				techPtr,
+				index
+			);
+		}
+
 		private unsafe EffectAnnotationCollection INTERNAL_readAnnotations(
 			IntPtr rawAnnotations,
 			uint numAnnotations
 		) {
+			if (numAnnotations == 0)
+			{
+				return EffectAnnotationCollection.Empty;
+			}
+
 			MOJOSHADER_effectAnnotation* annoPtr = (MOJOSHADER_effectAnnotation*) rawAnnotations;
 			List<EffectAnnotation> annotations = new List<EffectAnnotation>((int) numAnnotations);
 			for (int i = 0; i < numAnnotations; i += 1)

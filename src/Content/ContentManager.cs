@@ -94,6 +94,15 @@ namespace Microsoft.Xna.Framework.Content
 			'l', // Linux (deprecated for DesktopGL)
 		};
 
+		// Note: These may not be in alphabetical order, for performance reasons
+		private static readonly string[] effectExtensions = new string[] { ".fxb" };
+		private static readonly string[] texture2DExtensions = new string[]
+		{
+			".png", ".jpg", ".jpeg", ".dds", ".qoi", ".bmp", ".gif", ".tga", ".tif", ".tiff"
+		};
+		private static readonly string[] textureCubeExtensions = new string[] {	".dds" };
+		private static readonly string[] soundEffectExtensions = new string[] { ".wav" };
+
 		#endregion
 
 		#region Public Constructors
@@ -270,7 +279,6 @@ namespace Microsoft.Xna.Framework.Content
 
 			object result = null;
 			Stream stream = null;
-			string modifiedAssetName = String.Empty; // Will be used if we have to guess a filename
 			try
 			{
 				stream = OpenStream(assetName);
@@ -278,51 +286,14 @@ namespace Microsoft.Xna.Framework.Content
 			catch (Exception e)
 			{
 				// Okay, so we couldn't open it. Maybe it needs a different extension?
-				// FIXME: This only works for files on the disk, what about custom streams? -flibit
-				modifiedAssetName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(
-					Path.Combine(RootDirectoryFullPath, assetName)
-				);
-				if (typeof(T) == typeof(Texture2D) || typeof(T) == typeof(Texture))
+				stream = OpenStreamRaw<T>(assetName);
+				if (stream == null)
 				{
-					modifiedAssetName = Texture2DReader.Normalize(modifiedAssetName);
-				}
-				else if (typeof(T) == typeof(TextureCube))
-				{
-					modifiedAssetName = Texture2DReader.Normalize(modifiedAssetName);
-				}
-				else if ((typeof(T) == typeof(SoundEffect)))
-				{
-					modifiedAssetName = SoundEffectReader.Normalize(modifiedAssetName);
-				}
-				else if ((typeof(T) == typeof(Effect)))
-				{
-					modifiedAssetName = EffectReader.Normalize(modifiedAssetName);
-				}
-				else if ((typeof(T) == typeof(Song)))
-				{
-					modifiedAssetName = SongReader.Normalize(modifiedAssetName);
-				}
-				else if ((typeof(T) == typeof(Video)))
-				{
-					modifiedAssetName = VideoReader.Normalize(modifiedAssetName);
-				}
-				else
-				{
-					// No raw format available, disregard!
-					modifiedAssetName = null;
-				}
-
-				// Did we get anything...?
-				if (String.IsNullOrEmpty(modifiedAssetName))
-				{
-					// Nope, nothing we're aware of!
 					throw new ContentLoadException(
 						"Could not load asset " + assetName + "! Error: " + e.Message,
 						e
 					);
 				}
-
-				stream = TitleContainer.OpenStream(modifiedAssetName);
 			}
 
 			// Check for XNB header
@@ -398,16 +369,22 @@ namespace Microsoft.Xna.Framework.Content
 				}
 				else if (typeof(T) == typeof(Song))
 				{
-					// FIXME: Not using the stream! -flibit
-					result = new Song(modifiedAssetName);
+					// Song can't use the stream, get the file name and free the handle
+					string fileName = (stream as FileStream).Name;
+					stream.Close();
+
+					result = new Song(fileName);
 				}
 				else if (typeof(T) == typeof(Video))
 				{
-					// FIXME: Not using the stream! -flibit
-					result = new Video(modifiedAssetName, GetGraphicsDevice());
+					// Video can't use the stream, get the file name and free the handle
+					string fileName = (stream as FileStream).Name;
+					stream.Close();
+
+					result = new Video(fileName, GetGraphicsDevice());
 					FNALoggerEXT.LogWarn(
 						"Video " +
-						modifiedAssetName +
+						fileName +
 						" does not have an XNB file! Hacking Duration property!"
 					);
 				}
@@ -600,6 +577,84 @@ namespace Microsoft.Xna.Framework.Content
 				);
 			}
 			return reader;
+		}
+
+		private Stream CheckRawExtensions(string assetName, string[] extensions)
+		{
+			// Start with the fastest path...
+			string fileName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(
+				Path.Combine(RootDirectoryFullPath, assetName)
+			);
+			if (File.Exists(fileName))
+			{
+				return TitleContainer.OpenStream(fileName);
+			}
+			foreach (string ext in extensions)
+			{
+				// Concatenate the file name with valid extensions.
+				string fileNamePlusExt = fileName + ext;
+				if (File.Exists(fileNamePlusExt))
+				{
+					return TitleContainer.OpenStream(fileNamePlusExt);
+				}
+			}
+
+			// If we got here, we need to try the slower path :(
+			fileName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(
+				assetName
+			);
+			try
+			{
+				return OpenStream(fileName);
+			}
+			catch
+			{
+				foreach (string ext in extensions)
+				{
+					// Concatenate the file name with valid extensions.
+					string fileNamePlusExt = fileName + ext;
+					try
+					{
+						return OpenStream(fileNamePlusExt);
+					}
+					catch
+					{
+						continue;
+					}
+				}
+			}
+
+			// No idea what we're looking at here!
+			return null;
+		}
+
+		private Stream OpenStreamRaw<T>(string assetName)
+		{
+			if (typeof(T) == typeof(Texture2D) || typeof(T) == typeof(Texture))
+			{
+				return CheckRawExtensions(assetName, texture2DExtensions);
+			}
+			else if (typeof(T) == typeof(TextureCube))
+			{
+				return CheckRawExtensions(assetName, textureCubeExtensions);
+			}
+			else if (typeof(T) == typeof(SoundEffect))
+			{
+				return CheckRawExtensions(assetName, soundEffectExtensions);
+			}
+			else if (typeof(T) == typeof(Effect))
+			{
+				return CheckRawExtensions(assetName, effectExtensions);
+			}
+			else if (typeof(T) == typeof(Song))
+			{
+				return CheckRawExtensions(assetName, SongReader.supportedExtensions);
+			}
+			else if (typeof(T) == typeof(Video))
+			{
+				return CheckRawExtensions(assetName, VideoReader.supportedExtensions);
+			}
+			return null;
 		}
 
 		#endregion

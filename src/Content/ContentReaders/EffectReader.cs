@@ -15,21 +15,6 @@ namespace Microsoft.Xna.Framework.Content
 {
 	internal class EffectReader : ContentTypeReader<Effect>
 	{
-		#region Private Supported File Extensions Variable
-
-		private static string[] supportedExtensions = new string[] { ".fxb" };
-
-		#endregion
-
-		#region Internal Filename Normalizer Method
-
-		internal static string Normalize(string FileName)
-		{
-			return Normalize(FileName, supportedExtensions);
-		}
-
-		#endregion
-
 		#region Protected Read Method
 
 		protected internal override Effect Read(

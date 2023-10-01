@@ -8,6 +8,7 @@
 #endregion
 
 #region Using Statements
+using System;
 using System.Collections;
 using System.Collections.Generic;
 #endregion
@@ -22,6 +23,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				if (elements == null)
+				{
+					return singleItem != null ? 1 : 0;
+				}
 				return elements.Count;
 			}
 		}
@@ -30,7 +35,16 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return elements[index];
+				if (elements != null)
+				{
+					return elements[index];
+				}
+
+				if (index != 0)
+				{
+					throw new ArgumentOutOfRangeException("index");
+				}
+				return singleItem;
 			}
 		}
 
@@ -38,6 +52,15 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				if (elements == null)
+				{
+					if (singleItem.Name.Equals(name))
+					{
+						return singleItem;
+					}
+					return null;
+				}
+
 				foreach (EffectPass elem in elements)
 				{
 					if (name.Equals(elem.Name))
@@ -54,6 +77,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Private Variables
 
 		private List<EffectPass> elements;
+		private EffectPass singleItem;
 
 		#endregion
 
@@ -64,13 +88,32 @@ namespace Microsoft.Xna.Framework.Graphics
 			elements = value;
 		}
 
+		internal EffectPassCollection(EffectPass pass)
+		{
+			singleItem = pass;
+		}
+
+		#endregion
+
+		#region Allocation Optimization
+
+		internal List<EffectPass> GetList()
+		{
+			if (elements == null)
+			{
+				elements = new List<EffectPass>(1);
+				elements.Add(singleItem);
+			}
+			return elements;
+		}
+
 		#endregion
 
 		#region Public Methods
 
 		public List<EffectPass>.Enumerator GetEnumerator()
 		{
-			return elements.GetEnumerator();
+			return GetList().GetEnumerator();
 		}
 
 		#endregion
@@ -79,12 +122,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		IEnumerator System.Collections.IEnumerable.GetEnumerator()
 		{
-			return elements.GetEnumerator();
+			return GetList().GetEnumerator();
 		}
 
 		IEnumerator<EffectPass> System.Collections.Generic.IEnumerable<EffectPass>.GetEnumerator()
 		{
-			return elements.GetEnumerator();
+			return GetList().GetEnumerator();
 		}
 
 		#endregion

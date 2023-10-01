@@ -57,14 +57,26 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public EffectParameterCollection Elements
 		{
-			get;
-			private set;
+			get
+			{
+				if ((elementCount > 0) && (elements == null))
+				{
+					BuildElementList();
+				}
+				return elements;
+			}
 		}
 
 		public EffectParameterCollection StructureMembers
 		{
-			get;
-			private set;
+			get
+			{
+				if ((mojoType != IntPtr.Zero) && (members == null))
+				{
+					BuildMemberList();
+				}
+				return members;
+			}
 		}
 
 		public EffectAnnotationCollection Annotations
@@ -83,9 +95,46 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal uint valuesSizeBytes;
 
 		internal string cachedString = string.Empty;
+		internal IntPtr mojoType;
+
+		internal int elementCount;
+		internal EffectParameterCollection elements;
+		internal EffectParameterCollection members;
 		#endregion
 
 		#region Internal Constructor
+
+		internal EffectParameter(
+			string name,
+			string semantic,
+			int rowCount,
+			int columnCount,
+			int elementCount,
+			EffectParameterClass parameterClass,
+			EffectParameterType parameterType,
+			IntPtr mojoType,
+			EffectAnnotationCollection annotations,
+			IntPtr data,
+			uint dataSizeBytes
+		)
+		{
+			if (data == IntPtr.Zero)
+			{
+				throw new ArgumentNullException("data");
+			}
+
+			Name = name;
+			Semantic = semantic ?? string.Empty;
+			RowCount = rowCount;
+			ColumnCount = columnCount;
+			this.elementCount = elementCount;
+			ParameterClass = parameterClass;
+			ParameterType = parameterType;
+			this.mojoType = mojoType;
+			Annotations = annotations;
+			values = data;
+			valuesSizeBytes = dataSizeBytes;
+		}
 
 		internal EffectParameter(
 			string name,
@@ -99,7 +148,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			EffectAnnotationCollection annotations,
 			IntPtr data,
 			uint dataSizeBytes
-		) {
+		)
+		{
 			if (data == IntPtr.Zero)
 			{
 				throw new ArgumentNullException("data");
@@ -109,10 +159,31 @@ namespace Microsoft.Xna.Framework.Graphics
 			Semantic = semantic ?? string.Empty;
 			RowCount = rowCount;
 			ColumnCount = columnCount;
+			this.elementCount = elementCount;
+			ParameterClass = parameterClass;
+			ParameterType = parameterType;
+			members = structureMembers;
+			Annotations = annotations;
+			values = data;
+			valuesSizeBytes = dataSizeBytes;
+		}
+
+		#endregion
+
+		#region Allocation Optimizations
+
+		internal void BuildMemberList()
+		{
+			members = Effect.INTERNAL_readEffectParameterStructureMembers(this, mojoType);
+		}
+
+		internal void BuildElementList()
+		{
 			if (elementCount > 0)
 			{
 				int curOffset = 0;
 				List<EffectParameter> elements = new List<EffectParameter>(elementCount);
+				EffectParameterCollection structureMembers = StructureMembers;
 				for (int i = 0; i < elementCount; i += 1)
 				{
 					EffectParameterCollection elementMembers = null;
@@ -139,10 +210,10 @@ namespace Microsoft.Xna.Framework.Graphics
 								memElems,
 								structureMembers[j].ParameterClass,
 								structureMembers[j].ParameterType,
-								null, // FIXME: Nested structs! -flibit
+								IntPtr.Zero, // FIXME: Nested structs! -flibit
 								structureMembers[j].Annotations,
-								new IntPtr(data.ToInt64() + curOffset),
-								(uint) memSize * 4
+								new IntPtr(values.ToInt64() + curOffset),
+								(uint)memSize * 4
 							));
 							curOffset += memSize * 4;
 						}
@@ -152,29 +223,22 @@ namespace Microsoft.Xna.Framework.Graphics
 					elements.Add(new EffectParameter(
 						null,
 						null,
-						rowCount,
-						columnCount,
+						RowCount,
+						ColumnCount,
 						0,
 						ParameterClass,
-						parameterType,
+						ParameterType,
 						elementMembers,
 						null,
 						new IntPtr(
-							data.ToInt64() + (i * rowCount * 16)
+							values.ToInt64() + (i * RowCount * 16)
 						),
 						// FIXME: Not obvious to me how to compute this -kg
 						0
 					));
 				}
-				Elements = new EffectParameterCollection(elements);
+				this.elements = new EffectParameterCollection(elements);
 			}
-			ParameterClass = parameterClass;
-			ParameterType = parameterType;
-			StructureMembers = structureMembers;
-			Annotations = annotations;
-			values = data;
-			valuesSizeBytes = dataSizeBytes;
-			cachedString = strValue;
 		}
 
 		#endregion
@@ -186,7 +250,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				// Values are always 4 bytes, so we get to do this. -flibit
-				int* resPtr = (int*) values;
+				int* resPtr = (int*)values;
 				return *resPtr != 0;
 			}
 		}
@@ -196,7 +260,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			bool[] result = new bool[count];
 			unsafe
 			{
-				int* resPtr = (int*) values;
+				int* resPtr = (int*)values;
 				for (int i = 0; i < result.Length; resPtr += 4)
 				{
 					for (int j = 0; j < ColumnCount; j += 1, i += 1)
@@ -212,7 +276,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				int* resPtr = (int*) values;
+				int* resPtr = (int*)values;
 				return *resPtr;
 			}
 		}
@@ -231,7 +295,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				return new Matrix(
 					resPtr[0],
 					resPtr[1],
@@ -258,7 +322,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Matrix[] result = new Matrix[count];
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				for (int i = 0; i < count; i += 1, resPtr += 16)
 				{
 					result[i] = new Matrix(
@@ -288,7 +352,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				return new Matrix(
 					resPtr[0],
 					resPtr[4],
@@ -315,7 +379,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Matrix[] result = new Matrix[count];
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				for (int i = 0; i < count; i += 1, resPtr += 16)
 				{
 					result[i] = new Matrix(
@@ -345,7 +409,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				return new Quaternion(
 					resPtr[0],
 					resPtr[1],
@@ -360,7 +424,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Quaternion[] result = new Quaternion[count];
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				for (int i = 0; i < count; i += 1, resPtr += 4)
 				{
 					result[i] = new Quaternion(
@@ -378,7 +442,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				return *resPtr;
 			}
 		}
@@ -400,24 +464,24 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public Texture2D GetValueTexture2D()
 		{
-			return (Texture2D) texture;
+			return (Texture2D)texture;
 		}
 
 		public Texture3D GetValueTexture3D()
 		{
-			return (Texture3D) texture;
+			return (Texture3D)texture;
 		}
 
 		public TextureCube GetValueTextureCube()
 		{
-			return (TextureCube) texture;
+			return (TextureCube)texture;
 		}
 
 		public Vector2 GetValueVector2()
 		{
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				return new Vector2(resPtr[0], resPtr[1]);
 			}
 		}
@@ -427,7 +491,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Vector2[] result = new Vector2[count];
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				for (int i = 0; i < count; i += 1, resPtr += 4)
 				{
 					result[i] = new Vector2(
@@ -443,7 +507,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				return new Vector3(resPtr[0], resPtr[1], resPtr[2]);
 			}
 		}
@@ -453,7 +517,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Vector3[] result = new Vector3[count];
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				for (int i = 0; i < count; i += 1, resPtr += 4)
 				{
 					result[i] = new Vector3(
@@ -470,7 +534,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				return new Vector4(
 					resPtr[0],
 					resPtr[1],
@@ -485,7 +549,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Vector4[] result = new Vector4[count];
 			unsafe
 			{
-				float* resPtr = (float*) values;
+				float* resPtr = (float*)values;
 				for (int i = 0; i < count; i += 1, resPtr += 4)
 				{
 					result[i] = new Vector4(
@@ -507,7 +571,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				int* dstPtr = (int*) values;
+				int* dstPtr = (int*)values;
 				// Ugh, this branch, stupid C#.
 				*dstPtr = value ? 1 : 0;
 			}
@@ -517,7 +581,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				int* dstPtr = (int*) values;
+				int* dstPtr = (int*)values;
 				for (int i = 0; i < value.Length; dstPtr += 4)
 				{
 					for (int j = 0; j < ColumnCount; j += 1, i += 1)
@@ -535,15 +599,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				unsafe
 				{
-					float *dstPtr = (float*) values;
-					*dstPtr = (float) value;
+					float* dstPtr = (float*)values;
+					*dstPtr = (float)value;
 				}
 			}
 			else
 			{
 				unsafe
 				{
-					int* dstPtr = (int*) values;
+					int* dstPtr = (int*)values;
 					*dstPtr = value;
 				}
 			}
@@ -565,7 +629,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				if (ColumnCount == 4 && RowCount == 4)
 				{
 					dstPtr[0] = value.M11;
@@ -650,7 +714,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				if (ColumnCount == 4 && RowCount == 4)
 				{
 					for (int i = 0; i < value.Length; i += 1, dstPtr += 16)
@@ -768,7 +832,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				if (ColumnCount == 4 && RowCount == 4)
 				{
 					dstPtr[0] = value.M11;
@@ -853,7 +917,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				if (ColumnCount == 4 && RowCount == 4)
 				{
 					for (int i = 0; i < value.Length; i += 1, dstPtr += 16)
@@ -970,7 +1034,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				dstPtr[0] = value.X;
 				dstPtr[1] = value.Y;
 				dstPtr[2] = value.Z;
@@ -982,7 +1046,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
 				{
 #if DEBUG
@@ -1006,7 +1070,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				*dstPtr = value;
 			}
 		}
@@ -1049,7 +1113,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				dstPtr[0] = value.X;
 				dstPtr[1] = value.Y;
 			}
@@ -1059,7 +1123,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
 				{
 #if DEBUG
@@ -1078,7 +1142,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				dstPtr[0] = value.X;
 				dstPtr[1] = value.Y;
 				dstPtr[2] = value.Z;
@@ -1089,7 +1153,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
 				{
 #if DEBUG
@@ -1109,7 +1173,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #endif
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				dstPtr[0] = value.X;
 				dstPtr[1] = value.Y;
 				dstPtr[2] = value.Z;
@@ -1121,7 +1185,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* dstPtr = (float*) values;
+				float* dstPtr = (float*)values;
 				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
 				{
 #if DEBUG

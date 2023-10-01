@@ -16,6 +16,13 @@ namespace Microsoft.Xna.Framework.Graphics
 {
 	public sealed class EffectAnnotationCollection : IEnumerable<EffectAnnotation>, IEnumerable
 	{
+		#region Allocation optimization
+
+		internal static readonly EffectAnnotationCollection Empty =
+			new EffectAnnotationCollection(new List<EffectAnnotation>());
+
+		#endregion
+
 		#region Public Properties
 
 		public int Count
