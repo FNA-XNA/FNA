@@ -91,6 +91,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		~GraphicsResource()
 		{
+#if DEBUG
+			if (!IsDisposed) 
+			{
+				// If you hit this breakpoint, that means you leaked a graphics resource!
+				// This means your game may eventually run out of native memory for mysterious reasons.
+				// To troubleshoot this, try setting a Name and/or Tag on your resources to identify them. -kg
+				System.Diagnostics.Debugger.Break();
+			}
+#endif
+
 			// FIXME: We really should call Dispose() here! -flibit
 		}
 
