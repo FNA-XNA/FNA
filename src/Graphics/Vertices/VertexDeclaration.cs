@@ -31,6 +31,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal VertexElement[] elements;
 		internal IntPtr elementsPin;
 
+		internal protected override bool IsHarmlessToLeakInstance
+		{
+			get
+			{
+				return true;
+			}
+		}
+
 		#endregion
 
 		#region Private Variables
