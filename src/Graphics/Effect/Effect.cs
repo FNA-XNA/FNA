@@ -888,7 +888,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			for (int i = 0; i < effectPtr->param_count; i += 1)
 			{
 				MOJOSHADER_effectParam param = paramPtr[i];
-				
 				if (	param.value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_VERTEXSHADER ||
 					param.value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_PIXELSHADER	)
 				{
@@ -925,25 +924,20 @@ namespace Microsoft.Xna.Framework.Graphics
 						}
 					}
 					continue;
-				} else if (states[j].value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
+				}
+				else if (states[j].value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
 				{
 					MOJOSHADER_effectObject* objectPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
 					int* index = param.value.values;
 					stringVal = Marshal.PtrToStringAnsi(objectPtr[*index].stringvalue.stringvalue);
 				}
 
-
-
 				EffectParameterCollection structMembers = null;
-
 				if (param.value.type.member_count > 0)
 				{
 					List<EffectParameter> memList = new List<EffectParameter>();
-
-
 					unsafe
 					{
-
 						MOJOSHADER_symbolStructMember* mem = (MOJOSHADER_symbolStructMember*) param.value.type.members;
 						IntPtr curOffset = IntPtr.Zero;
 						for (int j = 0; j < param.value.type.member_count; j += 1)
@@ -965,11 +959,11 @@ namespace Microsoft.Xna.Framework.Graphics
 							EffectParameter toAdd = new EffectParameter(
 								Marshal.PtrToStringAnsi(mem[j].name),
 								null,
-								(int)mem[j].info.rows,
-								(int)mem[j].info.columns,
-								(int)mem[j].info.elements,
-								XNAClass[(int)mem[j].info.parameter_class],
-								XNAType[(int)mem[j].info.parameter_type],
+								(int) mem[j].info.rows,
+								(int) mem[j].info.columns,
+								(int) mem[j].info.elements,
+								XNAClass[(int) mem[j].info.parameter_class],
+								XNAType[(int) mem[j].info.parameter_type],
 								null, // FIXME: Nested structs! -flibit
 								null,
 								param.value.values + curOffset.ToInt32(),
@@ -978,11 +972,6 @@ namespace Microsoft.Xna.Framework.Graphics
 							toAdd.cachedString = cachedString;
 
 							memList.Add(toAdd);
-							//if(param.value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
-							//{
-							//	int* index = param.value.values;
-							//	memList[j].cachedString = Marshal.PtrToStringAnsi(objects[*index].stringvalue.stringvalue);
-							//}
 
 							for(int j=0;j<memList.Count;j++)
 							{
@@ -994,19 +983,17 @@ namespace Microsoft.Xna.Framework.Graphics
 							}
 							curOffset += (int) memSize * 4;
 						}
-
 					}
 					structMembers = new EffectParameterCollection(memList);
-				
 				}
 				EffectParameter toAdd = new EffectParameter(
 					Marshal.PtrToStringAnsi(param.value.name),
 					Marshal.PtrToStringAnsi(param.value.semantic),
-					(int)param.value.type.rows,
-					(int)param.value.type.columns,
-					(int)param.value.type.elements,
-					XNAClass[(int)param.value.type.parameter_class],
-					XNAType[(int)param.value.type.parameter_type],
+					(int) param.value.type.rows,
+					(int) param.value.type.columns,
+					(int) param.value.type.elements,
+					XNAClass[(int) param.value.type.parameter_class],
+					XNAType[(int) param.value.type.parameter_type],
 					structMembers,
 					INTERNAL_readAnnotations(
 						param.annotations,
@@ -1077,17 +1064,15 @@ namespace Microsoft.Xna.Framework.Graphics
 				EffectAnnotation toAdd = new EffectAnnotation(
 					Marshal.PtrToStringAnsi(anno.name),
 					Marshal.PtrToStringAnsi(anno.semantic),
-					(int)anno.type.rows,
-					(int)anno.type.columns,
-					XNAClass[(int)anno.type.parameter_class],
-					XNAType[(int)anno.type.parameter_type],
+					(int) anno.type.rows,
+					(int) anno.type.columns,
+					XNAClass[(int) anno.type.parameter_class],
+					XNAType[(int) anno.type.parameter_type],
 					anno.values
 				);
 				toAdd.cachedString = cachedString;
 				annotations.Add(toAdd);
 			}
-
-
 			return new EffectAnnotationCollection(annotations);
 		}
 

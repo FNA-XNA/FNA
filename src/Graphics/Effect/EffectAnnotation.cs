@@ -58,7 +58,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Private Variables
 
 		IntPtr values;
-		internal string? cachedString 
+		internal string cachedString = string.Empty;
 		
 		#endregion
 
@@ -71,7 +71,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int columnCount,
 			EffectParameterClass parameterClass,
 			EffectParameterType parameterType,
-			IntPtr data,
+			IntPtr data
 		) {
 			Name = name;
 			Semantic = semantic ?? string.Empty;
@@ -142,7 +142,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public string GetValueString()
 		{
-			return cachedString ?? String.Empty;
+			return cachedString;
 		}
 
 		public Vector2 GetValueVector2()

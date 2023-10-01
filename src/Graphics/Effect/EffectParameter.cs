@@ -82,11 +82,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal IntPtr values;
 		internal uint valuesSizeBytes;
 
-
-
-		internal string? cachedString
-		
-
+		internal string cachedString = string.Empty;
 		#endregion
 
 		#region Internal Constructor
@@ -108,7 +104,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("data");
 			}
-
 
 			Name = name;
 			Semantic = semantic ?? string.Empty;
@@ -400,7 +395,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public string GetValueString()
 		{
-			return cachedString ?? String.Empty;
+			return cachedString;
 		}
 
 		public Texture2D GetValueTexture2D()
