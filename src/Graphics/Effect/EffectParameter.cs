@@ -90,6 +90,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Internal Variables
 
 		internal Texture texture;
+		internal string cachedString = string.Empty;
 
 		internal IntPtr values;
 		internal uint valuesSizeBytes;

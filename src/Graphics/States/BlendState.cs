@@ -199,6 +199,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal FNA3D.FNA3D_BlendState state;
 
+		internal protected override bool IsHarmlessToLeakInstance
+		{
+			get
+			{
+				return true;
+			}
+		}
+
 		#endregion
 
 		#region Public Constructor
