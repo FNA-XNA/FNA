@@ -55,6 +55,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Internal Variables
+
+		internal string cachedString = string.Empty;
+
+		#endregion
+
 		#region Private Variables
 
 		IntPtr values;
@@ -141,11 +147,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public string GetValueString()
 		{
-			/* FIXME: This requires digging into the effect->objects list.
-			 * We've got the data, we just need to hook it up to FNA.
-			 * -flibit
-			 */
-			throw new NotImplementedException("effect->objects[?]");
+			return cachedString;
 		}
 
 		public Vector2 GetValueVector2()

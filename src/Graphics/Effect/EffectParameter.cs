@@ -90,6 +90,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Internal Variables
 
 		internal Texture texture;
+		internal string cachedString = string.Empty;
 
 		internal IntPtr values;
 		internal uint valuesSizeBytes;
@@ -457,11 +458,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public string GetValueString()
 		{
-			/* FIXME: This requires digging into the effect->objects list.
-			 * We've got the data, we just need to hook it up to FNA.
-			 * -flibit
-			 */
-			throw new NotImplementedException("effect->objects[?]");
+			return cachedString;
 		}
 
 		public Texture2D GetValueTexture2D()
