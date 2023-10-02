@@ -98,7 +98,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// We also ignore leaks of resources with no graphicsDevice yet, because they don't have
 			//  any way to have native memory associated with them yet.
 			// We also ignore leaks of resources with no associated native memory (via IsHarmlessToLeakInstance).
-			if (!IsDisposed)
+			if (!IsDisposed && !IsHarmlessToLeakInstance && (graphicsDevice != null && !graphicsDevice.IsDisposed))
 			{
 				// If you see this log message, you leaked a graphics resource without disposing it!
 				// This means your game may eventually run out of native memory for mysterious reasons.
