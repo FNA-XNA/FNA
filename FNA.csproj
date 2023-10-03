@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -248,6 +248,7 @@
     <Compile Include="src\Graphics\Effect\StockEffects\EnvironmentMapEffect.cs" />
     <Compile Include="src\Graphics\Effect\StockEffects\SkinnedEffect.cs" />
     <Compile Include="src\Graphics\Effect\StockEffects\SpriteEffect.cs" />
+    <Compile Include="src\Graphics\GraphicsResourceHandles.cs" />
     <Compile Include="src\Graphics\FNA3D.cs" />
     <Compile Include="src\Graphics\GraphicsAdapter.cs" />
     <Compile Include="src\Graphics\GraphicsDevice.cs" />

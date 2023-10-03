@@ -122,21 +122,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Protected Dispose Method
-
-		protected override void Dispose(bool disposing)
+        #region Emergency Disposal
+        internal override GraphicsResourceHandles GetHandlesForDisposal ()
 		{
-			if (!IsDisposed)
-			{
-				FNA3D.FNA3D_AddDisposeIndexBuffer(
-					GraphicsDevice.GLDevice,
-					buffer
-				);
-			}
-			base.Dispose(disposing);
-		}
-
-		#endregion
+			GraphicsResourceHandles result = base.GetHandlesForDisposal();
+			result.indexBuffer = buffer;
+			return result;
+        }
+        #endregion
 
 		#region Public GetData Methods
 

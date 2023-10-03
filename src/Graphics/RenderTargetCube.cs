@@ -208,6 +208,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+        #region Emergency Disposal
+        internal override GraphicsResourceHandles GetHandlesForDisposal ()
+		{
+			GraphicsResourceHandles result = base.GetHandlesForDisposal();
+			result.renderbuffer1 = glColorBuffer;
+			result.renderbuffer2 = glDepthStencilBuffer;
+			return result;
+        }
+        #endregion
+
 		#region Protected Dispose Method
 
 		/// <summary>
@@ -221,24 +231,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// </param>
 		protected override void Dispose(bool disposing)
 		{
-			if (!IsDisposed)
-			{
-				if (glColorBuffer != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeRenderbuffer(
-						GraphicsDevice.GLDevice,
-						glColorBuffer
-					);
-				}
-
-				if (glDepthStencilBuffer != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeRenderbuffer(
-						GraphicsDevice.GLDevice,
-						glDepthStencilBuffer
-					);
-				}
-			}
+			// GraphicsResource.Dispose will already do GetHandlesForDisposal().Dispose()
 			base.Dispose(disposing);
 		}
 

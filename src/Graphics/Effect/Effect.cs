@@ -307,27 +307,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Protected Methods
-
-		protected override void Dispose(bool disposing)
+        #region Emergency Disposal
+        internal override GraphicsResourceHandles GetHandlesForDisposal ()
 		{
-			if (!IsDisposed)
-			{
-				if (glEffect != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeEffect(
-						GraphicsDevice.GLDevice,
-						glEffect
-					);
-				}
-				if (stateChangesPtr != IntPtr.Zero)
-				{
-					FNAPlatform.Free(stateChangesPtr);
-					stateChangesPtr = IntPtr.Zero;
-				}
-			}
-			base.Dispose(disposing);
-		}
+			GraphicsResourceHandles result = base.GetHandlesForDisposal();
+			result.effect = glEffect;
+			result.mallocedPointer = stateChangesPtr;
+			stateChangesPtr = IntPtr.Zero;
+			return result;
+        }
+        #endregion
+
+		#region Protected Methods
 
 		protected internal virtual void OnApply()
 		{

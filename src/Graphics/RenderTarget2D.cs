@@ -173,32 +173,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Protected Dispose Method
-
-		protected override void Dispose(bool disposing)
+        #region Emergency Disposal
+        internal override GraphicsResourceHandles GetHandlesForDisposal ()
 		{
-			if (!IsDisposed)
-			{
-				if (glColorBuffer != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeRenderbuffer(
-						GraphicsDevice.GLDevice,
-						glColorBuffer
-					);
-				}
-
-				if (glDepthStencilBuffer != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeRenderbuffer(
-						GraphicsDevice.GLDevice,
-						glDepthStencilBuffer
-					);
-				}
-			}
-			base.Dispose(disposing);
-		}
-
-		#endregion
+			GraphicsResourceHandles result = base.GetHandlesForDisposal();
+			result.renderbuffer1 = glColorBuffer;
+			result.renderbuffer2 = glDepthStencilBuffer;
+			return result;
+        }
+        #endregion
 
 		#region Internal Context Reset Method
 

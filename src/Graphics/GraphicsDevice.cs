@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 #endregion
@@ -486,6 +487,8 @@ namespace Microsoft.Xna.Framework.Graphics
 						Disposing(this, EventArgs.Empty);
 					}
 
+					FlushEmergencyDisposalQueue();
+
 					/* Dispose of all remaining graphics resources before
 					 * disposing of the GraphicsDevice.
 					 */
@@ -547,6 +550,26 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Emergency Disposal / Finalization
+
+		ConcurrentQueue<GraphicsResourceHandles> emergencyDisposalQueue = new ConcurrentQueue<GraphicsResourceHandles>();
+
+		internal void RegisterForEmergencyDisposal (GraphicsResourceHandles handles)
+		{
+			emergencyDisposalQueue.Enqueue(handles);
+		}
+
+		private void FlushEmergencyDisposalQueue ()
+		{
+			GraphicsResourceHandles handles;
+			while (emergencyDisposalQueue.TryDequeue(out handles))
+			{
+				handles.Dispose(this);
+			}
+		}
+
+		#endregion
+
 		#region Public Present Method
 
 		public void Present()
@@ -557,6 +580,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr.Zero,
 				PresentationParameters.DeviceWindowHandle
 			);
+
+			FlushEmergencyDisposalQueue();
 		}
 
 		public void Present(
@@ -608,6 +633,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					overrideWindowHandle
 				);
 			}
+
+			FlushEmergencyDisposalQueue();
 		}
 
 		#endregion
