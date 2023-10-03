@@ -55,7 +55,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			EffectPassCollection passes,
 			EffectAnnotationCollection annotations
 		) {
-			Name = (name != null) ? string.Intern(name) : null;
+			Name = name;
 			Passes = passes;
 			Annotations = annotations;
 			TechniquePointer = pointer;

@@ -48,7 +48,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr technique,
 			uint passIndex
 		) {
-			Name = (name != null) ? string.Intern(name) : null;
+			Name = name;
 			Annotations = annotations;
 			parentEffect = parent;
 			parentTechnique = technique;

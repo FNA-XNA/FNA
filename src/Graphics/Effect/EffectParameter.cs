@@ -123,8 +123,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentNullException("data");
 			}
 
-			Name = (name != null) ? string.Intern(name) : null;
-			Semantic = (semantic != null) ? string.Intern(semantic) : string.Empty;
+			Name = name;
+			Semantic = semantic ?? string.Empty;
 			RowCount = rowCount;
 			ColumnCount = columnCount;
 			this.elementCount = elementCount;
@@ -154,8 +154,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentNullException("data");
 			}
 
-			Name = (name != null) ? string.Intern(name) : null;
-			Semantic = (semantic != null) ? string.Intern(semantic) : string.Empty;
+			Name = name;
+			Semantic = semantic ?? string.Empty;
 			RowCount = rowCount;
 			ColumnCount = columnCount;
 			this.elementCount = elementCount;
