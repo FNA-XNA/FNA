@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.Xna.Framework.Graphics {
-    internal struct GraphicsResourceHandles
+namespace Microsoft.Xna.Framework.Graphics
+{
+	internal struct GraphicsResourceHandles
 	{
 		public IntPtr effect;
 		public IntPtr indexBuffer;
@@ -15,7 +16,7 @@ namespace Microsoft.Xna.Framework.Graphics {
 		// Untyped data that needs to be released using Free (i.e. Effect.stateChangesPtr)
 		public IntPtr mallocedPointer;
 
-		public void Dispose (GraphicsDevice device)
+		public void Dispose(GraphicsDevice device)
 		{
 			if (device == null)
 			{
@@ -86,5 +87,5 @@ namespace Microsoft.Xna.Framework.Graphics {
 			// Zero out all our fields to prevent a double-free
 			this = default;
 		}
-    }
+	}
 }

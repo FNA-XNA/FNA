@@ -307,16 +307,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-        #region Emergency Disposal
-        internal override GraphicsResourceHandles GetHandlesForDisposal ()
+		#region Emergency Disposal
+		internal override GraphicsResourceHandles GetHandlesForDisposal()
 		{
 			GraphicsResourceHandles result = base.GetHandlesForDisposal();
 			result.effect = glEffect;
 			result.mallocedPointer = stateChangesPtr;
 			stateChangesPtr = IntPtr.Zero;
 			return result;
-        }
-        #endregion
+		}
+		#endregion
 
 		#region Protected Methods
 

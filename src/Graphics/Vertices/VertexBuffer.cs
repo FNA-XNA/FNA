@@ -111,14 +111,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-        #region Emergency Disposal
-        internal override GraphicsResourceHandles GetHandlesForDisposal ()
+		#region Emergency Disposal
+		internal override GraphicsResourceHandles GetHandlesForDisposal()
 		{
 			GraphicsResourceHandles result = base.GetHandlesForDisposal();
 			result.vertexBuffer = buffer;
 			return result;
-        }
-        #endregion
+		}
+		#endregion
 
 		#region Public GetData Methods
 

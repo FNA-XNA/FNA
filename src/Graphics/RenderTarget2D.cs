@@ -173,15 +173,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-        #region Emergency Disposal
-        internal override GraphicsResourceHandles GetHandlesForDisposal ()
+		#region Emergency Disposal
+		internal override GraphicsResourceHandles GetHandlesForDisposal()
 		{
 			GraphicsResourceHandles result = base.GetHandlesForDisposal();
 			result.renderbuffer1 = glColorBuffer;
 			result.renderbuffer2 = glDepthStencilBuffer;
 			return result;
-        }
-        #endregion
+		}
+		#endregion
 
 		#region Internal Context Reset Method
 

@@ -36,20 +36,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal IntPtr texture;
 
-        #endregion
+		#endregion
 
-        #region Emergency Disposal
-        internal override GraphicsResourceHandles GetHandlesForDisposal ()
+		#region Emergency Disposal
+		internal override GraphicsResourceHandles GetHandlesForDisposal()
 		{
 			GraphicsResourceHandles result = base.GetHandlesForDisposal();
 			result.texture = texture;
 			return result;
-        }
-        #endregion
+		}
+		#endregion
 
-        #region Protected Dispose Method
+		#region Protected Dispose Method
 
-        protected override void Dispose(bool disposing)
+		protected override void Dispose(bool disposing)
 		{
 			if (!IsDisposed)
 			{
