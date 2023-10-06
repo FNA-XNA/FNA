@@ -75,7 +75,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private IntPtr stateChangesPtr;
 
-		private IntPtr effectPtr;
+		private IntPtr effectData;
 
 		#endregion
 
@@ -228,7 +228,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				out glEffect,
 				out effectData
 			);
-			effectPtr = effectData;
+			this.effectData = effectData;
 			// This is where it gets ugly...
 			INTERNAL_parseEffectStruct(effectData);
 
@@ -266,7 +266,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				out effectData
 			);
 
-			effectPtr = effectData;
+			this.effectData = effectData;
 			// Double the ugly, double the fun!
 			INTERNAL_parseEffectStruct(effectData);
 
@@ -944,13 +944,14 @@ namespace Microsoft.Xna.Framework.Graphics
 						param.annotation_count
 					),
 					param.value.values,
-					param.value.value_count * sizeof(float)
+					param.value.value_count * sizeof(float),
+					this
 				);
 				if (param.value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
 					{
-						MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
+
 						int* index = (int*)param.value.values;
-						toAdd.cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
+						toAdd.cachedString = INTERNAL_GetStringFromObjectTable(*index);
 					}
 				parameters.Add(toAdd);
 
@@ -996,7 +997,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal unsafe static EffectParameterCollection INTERNAL_readEffectParameterStructureMembers(
 			EffectParameter parameter,
-			IntPtr _type
+			IntPtr _type,
+			Effect outer
 		) {
 			if (_type == IntPtr.Zero)
 			{
@@ -1030,19 +1032,20 @@ namespace Microsoft.Xna.Framework.Graphics
 								null, // FIXME: Nested structs! -flibit
 								null,
 								parameter.values + curOffset.ToInt32(),
-								memSize * 4
+								memSize * 4,
+								outer
 							);
 
 
 
 						if (mem[j].info.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
-						{
-							MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
-							int* index = (int*)(parameter.values + curOffset.ToInt32());
-							toAdd.cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
-						}
+                        {
 
-							memList.Add(toAdd);
+                            int* index = (int*)(parameter.values + curOffset.ToInt32());
+                            toAdd.cachedString = outer.INTERNAL_GetStringFromObjectTable(*index);
+                        }
+
+                        memList.Add(toAdd);
 						curOffset += (int) memSize * 4;
 					}
 				}
@@ -1052,7 +1055,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			return structMembers;
 		}
 
-		private unsafe EffectPass INTERNAL_readPass(
+        private unsafe string INTERNAL_GetStringFromObjectTable(int index)
+        {
+			//TODO: Bound checking
+			MOJOSHADER_effect* effectPtr = (MOJOSHADER_effect*)effectData;
+			MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
+            return Marshal.PtrToStringAnsi(objectsPtr[index].stringvalue.stringvalue);
+        }
+
+        private unsafe EffectPass INTERNAL_readPass(
 			ref MOJOSHADER_effectPass pass,
 			IntPtr techPtr, uint index
 		) {
@@ -1095,10 +1106,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 				if (anno.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
 				{
-					MOJOSHADER_effect* effect = (MOJOSHADER_effect*) effectPtr;
-					MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effect->objects;
 					int* index = (int*)anno.values;
-					toAdd.cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
+					toAdd.cachedString = INTERNAL_GetStringFromObjectTable(*index);
 				}
 				annotations.Add(toAdd);
 			}
