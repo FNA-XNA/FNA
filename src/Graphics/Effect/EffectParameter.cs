@@ -95,7 +95,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal IntPtr values;
 		internal uint valuesSizeBytes;
 
-		internal string cachedString = string.Empty;
 		internal IntPtr mojoType;
 
 		internal int elementCount;

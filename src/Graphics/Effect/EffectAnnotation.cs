@@ -64,8 +64,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Private Variables
 
 		IntPtr values;
-		internal string cachedString = string.Empty;
-		
+
 		#endregion
 
 		#region Internal Constructor

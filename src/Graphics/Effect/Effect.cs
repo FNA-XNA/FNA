@@ -75,6 +75,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private IntPtr stateChangesPtr;
 
+		private IntPtr effectPtr;
+
 		#endregion
 
 		#region Private Static Variables
@@ -226,7 +228,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				out glEffect,
 				out effectData
 			);
-
+			effectPtr = effectData;
 			// This is where it gets ugly...
 			INTERNAL_parseEffectStruct(effectData);
 
@@ -264,6 +266,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				out effectData
 			);
 
+			effectPtr = effectData;
 			// Double the ugly, double the fun!
 			INTERNAL_parseEffectStruct(effectData);
 
@@ -925,7 +928,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					continue;
 				}
 
-			
+
 				EffectParameter toAdd = new EffectParameter(
 
 					Marshal.PtrToStringAnsi(param.value.name),
@@ -942,11 +945,11 @@ namespace Microsoft.Xna.Framework.Graphics
 					),
 					param.value.values,
 					param.value.value_count * sizeof(float)
-				)
+				);
 				if (param.value.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
 					{
 						MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
-						int* index = param.value.values + curOffset;
+						int* index = (int*)param.value.values;
 						toAdd.cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
 					}
 				parameters.Add(toAdd);
@@ -1026,16 +1029,16 @@ namespace Microsoft.Xna.Framework.Graphics
 								XNAType[(int) mem[j].info.parameter_type],
 								null, // FIXME: Nested structs! -flibit
 								null,
-								param.value.values + curOffset.ToInt32(),
+								parameter.values + curOffset.ToInt32(),
 								memSize * 4
 							);
-							
+
 
 
 						if (mem[j].info.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
 						{
 							MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
-							int* index = param.value.values + curOffset;
+							int* index = (int*)(parameter.values + curOffset.ToInt32());
 							toAdd.cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
 						}
 
@@ -1090,10 +1093,11 @@ namespace Microsoft.Xna.Framework.Graphics
 					XNAType[(int) anno.type.parameter_type],
 					anno.values
 				);
-				if (anno.type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
+				if (anno.type.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
 				{
-					MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
-					int* index = anno.values;
+					MOJOSHADER_effect* effect = (MOJOSHADER_effect*) effectPtr;
+					MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effect->objects;
+					int* index = (int*)anno.values;
 					toAdd.cachedString = Marshal.PtrToStringAnsi(objectsPtr[*index].stringvalue.stringvalue);
 				}
 				annotations.Add(toAdd);
