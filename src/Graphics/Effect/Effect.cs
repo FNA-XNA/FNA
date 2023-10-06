@@ -1060,7 +1060,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			//TODO: Bound checking
 			MOJOSHADER_effect* effectPtr = (MOJOSHADER_effect*)effectData;
 			MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
-            return Marshal.PtrToStringAnsi(objectsPtr[index].stringvalue.stringvalue);
+			if (index< effectPtr->object_count)
+			{
+            	return Marshal.PtrToStringAnsi(objectsPtr[index].stringvalue.stringvalue);
+			}
+			else
+			{
+				return ""; //Should we throw here?
+			}
         }
 
         private unsafe EffectPass INTERNAL_readPass(
