@@ -1062,7 +1062,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			MOJOSHADER_effectObject* objectsPtr = (MOJOSHADER_effectObject*)effectPtr->objects;
 			if (index< effectPtr->object_count)
 			{
-            	return Marshal.PtrToStringAnsi(objectsPtr[index].stringvalue.stringvalue);
+				return Marshal.PtrToStringAnsi(objectsPtr[index].stringvalue.stringvalue);
 			}
 			else
 			{
