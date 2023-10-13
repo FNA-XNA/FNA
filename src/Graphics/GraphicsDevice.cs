@@ -975,12 +975,34 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		/// <summary>
+		/// Returns a new array containing all of the render target(s) currently bound to the device.
+		/// </summary>
 		public RenderTargetBinding[] GetRenderTargets()
 		{
 			// Return a correctly sized copy our internal array.
 			RenderTargetBinding[] bindings = new RenderTargetBinding[renderTargetCount];
 			Array.Copy(renderTargetBindings, bindings, renderTargetCount);
 			return bindings;
+		}
+
+		/// <summary>
+		/// Copies the currently bound render target(s) into an output buffer (if provided), and returns the number of bound render targets.
+		/// </summary>
+		/// <param name="output">A buffer sized to contain all of the currently bound render targets, or null.</param>
+		/// <returns>The number of render targets currently bound.</returns>
+		public int GetRenderTargetsNoAllocEXT(RenderTargetBinding[] output)
+		{
+			if (output == null)
+			{
+				return renderTargetCount;
+			}
+			else if (output.Length != renderTargetCount)
+			{
+				throw new ArgumentException("Output buffer size incorrect");
+			}
+			Array.Copy(renderTargetBindings, output, renderTargetCount);
+			return renderTargetCount;
 		}
 
 		#endregion
