@@ -186,7 +186,9 @@ namespace Microsoft.Xna.Framework.Media
 			currentDevice.SetVertexBuffers(vertBuffer);
 
 			// Prep target bindings
-			oldTargets = currentDevice.GetRenderTargets();
+			int oldTargetCount = currentDevice.GetRenderTargetsNoAllocEXT(null);
+			Array.Resize(ref oldTargets, oldTargetCount);
+			currentDevice.GetRenderTargetsNoAllocEXT(oldTargets);
 
 			unsafe
 			{
