@@ -107,7 +107,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 #endif
 
-			// FIXME: We really should call Dispose() here! -flibit
+			// While we only log in debug builds, in both debug and release builds we want to free
+			// any native resources associated with this object at the earliest opportunity.
+			// This will at least prevent you from running out of memory rapidly.
+			var handles = CreateDisposalHandles();
+			if (handles != null)
+			{
+				graphicsDevice.RegisterForEmergencyDisposal(handles);
+			}
 		}
 
 		#endregion
@@ -152,6 +159,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				return false;
 			}
+		}
+
+		// This has to return an array because some resources have multiple handles... d'oh!
+		internal virtual GraphicsResourceDisposalHandle[] CreateDisposalHandles() 
+		{
+			return null;
 		}
 
 		#endregion
