@@ -275,6 +275,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Internal State Changes Pointer
+
+		internal IntPtr effectStateChangesPtr;
+
+		#endregion
+
 		#region Private Disposal Variables
 
 		/* Use WeakReference for the global resources list as we do not
@@ -461,6 +467,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Allocate the pipeline cache to be used by Effects
 			PipelineCache = new PipelineCache(this);
+
+			// Set up the effect state changes pointer.
+			unsafe
+			{
+				effectStateChangesPtr = FNAPlatform.Malloc(
+					sizeof(Effect.MOJOSHADER_effectStateChanges)
+				);
+                Effect.MOJOSHADER_effectStateChanges* stateChanges =
+					(Effect.MOJOSHADER_effectStateChanges*) effectStateChangesPtr;
+				stateChanges->render_state_change_count = 0;
+				stateChanges->sampler_state_change_count = 0;
+				stateChanges->vertex_sampler_state_change_count = 0;
+			}
 		}
 
 		~GraphicsDevice()
@@ -516,6 +535,8 @@ namespace Microsoft.Xna.Framework.Graphics
 							userIndexBuffer
 						);
 					}
+
+					FNAPlatform.Free(effectStateChangesPtr);
 
 					// Dispose of the GL Device/Context
 					FNA3D.FNA3D_DestroyDevice(GLDevice);
