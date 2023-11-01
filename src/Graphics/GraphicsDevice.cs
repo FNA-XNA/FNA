@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 #endregion
@@ -290,6 +291,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		 */
 		private readonly List<WeakReference> resources = new List<WeakReference>();
 		private readonly object resourcesLock = new object();
+		ConcurrentQueue<GraphicsResourceDisposalHandle> emergencyDisposalQueue = new ConcurrentQueue<GraphicsResourceDisposalHandle>();
 
 		#endregion
 
@@ -505,6 +507,8 @@ namespace Microsoft.Xna.Framework.Graphics
 						Disposing(this, EventArgs.Empty);
 					}
 
+					FlushEmergencyDisposalQueue();
+
 					/* Dispose of all remaining graphics resources before
 					 * disposing of the GraphicsDevice.
 					 */
@@ -568,6 +572,28 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Emergency Disposal / Finalization
+
+		internal void RegisterForEmergencyDisposal(GraphicsResourceDisposalHandle[] handles)
+		{
+			for (int i = 0; i < handles.Length; i += 1)
+			{
+				emergencyDisposalQueue.Enqueue(handles[i]);
+			}
+		}
+
+		private void FlushEmergencyDisposalQueue()
+		{
+			GraphicsResourceDisposalHandle handle;
+
+			while (emergencyDisposalQueue.TryDequeue(out handle))
+			{
+				handle.Dispose(this);
+			}
+		}
+
+		#endregion
+
 		#region Public Present Method
 
 		public void Present()
@@ -578,6 +604,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr.Zero,
 				PresentationParameters.DeviceWindowHandle
 			);
+
+			FlushEmergencyDisposalQueue();
 		}
 
 		public void Present(
@@ -629,6 +657,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					overrideWindowHandle
 				);
 			}
+
+			FlushEmergencyDisposalQueue();
 		}
 
 		#endregion
@@ -1554,7 +1584,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			for (int sampler = 0; sampler < modifiedVertexSamplers.Length; sampler += 1) 
+			for (int sampler = 0; sampler < modifiedVertexSamplers.Length; sampler += 1)
 			{
 				if (!modifiedVertexSamplers[sampler])
 				{
