@@ -285,6 +285,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		 */
 		private readonly List<WeakReference> resources = new List<WeakReference>();
 		private readonly object resourcesLock = new object();
+		ConcurrentQueue<GraphicsResourceDisposalHandle> emergencyDisposalQueue = new ConcurrentQueue<GraphicsResourceDisposalHandle>();
 
 		#endregion
 
@@ -551,8 +552,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		#endregion
 
 		#region Emergency Disposal / Finalization
-
-		ConcurrentQueue<GraphicsResourceDisposalHandle> emergencyDisposalQueue = new ConcurrentQueue<GraphicsResourceDisposalHandle>();
 
 		internal void RegisterForEmergencyDisposal(GraphicsResourceDisposalHandle[] handles)
 		{
@@ -1542,7 +1541,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				);
 			}
 
-			for (int sampler = 0; sampler < modifiedVertexSamplers.Length; sampler += 1) 
+			for (int sampler = 0; sampler < modifiedVertexSamplers.Length; sampler += 1)
 			{
 				if (!modifiedVertexSamplers[sampler])
 				{

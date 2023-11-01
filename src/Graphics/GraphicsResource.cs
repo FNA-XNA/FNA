@@ -13,7 +13,7 @@ using System.Collections.Generic;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
-{	
+{
 	public abstract class GraphicsResource : IDisposable
 	{
 		#region Public Properties
@@ -110,7 +110,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			// While we only log in debug builds, in both debug and release builds we want to free
 			// any native resources associated with this object at the earliest opportunity.
 			// This will at least prevent you from running out of memory rapidly.
-			var handles = CreateDisposalHandles();
+			GraphicsResourceDisposalHandle[] handles = CreateDisposalHandles();
 			if (handles != null)
 			{
 				graphicsDevice.RegisterForEmergencyDisposal(handles);
@@ -161,9 +161,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		// This has to return an array because some resources have multiple handles... d'oh!
-		internal virtual GraphicsResourceDisposalHandle[] CreateDisposalHandles() 
+		// This has to return an array because some resources have multiple handles...
+		internal virtual GraphicsResourceDisposalHandle[] CreateDisposalHandles()
 		{
+			// ... But only certain GraphicsResource types have pointers to dispose!
 			return null;
 		}
 
