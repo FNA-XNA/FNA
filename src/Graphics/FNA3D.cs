@@ -837,6 +837,23 @@ namespace Microsoft.Xna.Framework.Graphics
 			FNA3D_SetStringMarker(device, utf8Text);
 			Marshal.FreeHGlobal((IntPtr) utf8Text);
 		}
+		
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		private static extern unsafe void FNA3D_SetTextureName(
+			IntPtr device,
+			IntPtr texture,
+			byte* text
+		);
+
+		public static unsafe void FNA3D_SetTextureName(
+			IntPtr device,
+			IntPtr texture,
+			string text 
+		) {
+			byte* utf8Text = SDL2.SDL.Utf8EncodeHeap(text);
+			FNA3D_SetTextureName(device, texture, utf8Text);
+			Marshal.FreeHGlobal((IntPtr) utf8Text);
+		}
 
 		#endregion
 

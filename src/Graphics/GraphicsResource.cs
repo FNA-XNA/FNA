@@ -55,10 +55,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
-		public string Name
+		protected string _Name;
+
+		public virtual string Name
 		{
-			get;
-			set;
+			get
+			{
+				return _Name;
+			}
+			set
+			{
+				_Name = value;
+			}
 		}
 
 		public Object Tag
