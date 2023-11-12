@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
@@ -39,12 +40,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (graphicsDevice != null && selfReference != null)
 				{
 					graphicsDevice.RemoveResourceReference(selfReference);
-					selfReference = null;
+					selfReference.Free();
 				}
 
 				graphicsDevice = value;
 
-				selfReference = new WeakReference(this);
+				selfReference = GCHandle.Alloc(this, GCHandleType.Weak);
 				graphicsDevice.AddResourceReference(selfReference);
 			}
 		}
@@ -79,7 +80,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Variables
 
-		private WeakReference selfReference;
+		private GCHandle selfReference;
 
 		private GraphicsDevice graphicsDevice;
 
@@ -203,7 +204,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (graphicsDevice != null && selfReference != null)
 				{
 					graphicsDevice.RemoveResourceReference(selfReference);
-					selfReference = null;
+					selfReference.Free();
 				}
 
 				IsDisposed = true;
