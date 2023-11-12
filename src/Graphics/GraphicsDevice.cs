@@ -284,12 +284,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Disposal Variables
 
-		/* Use WeakReference for the global resources list as we do not
+		/* 
+		 * Use weak GCHandles for the global resources list as we do not
 		 * know when a resource may be disposed and collected. We do not
 		 * want to prevent a resource from being collected by holding a
-		 * strong reference to it in this list.
+		 * strong reference to it in this list. Using the WeakReference
+		 * class would produce unnecessary allocations - we don't need
+		 * its finalizer or shareability for this scenario since every
+		 * GraphicsResource has a finalizer.
 		 */
-		private readonly List<WeakReference> resources = new List<WeakReference>();
+		private readonly List<GCHandle> resources = new List<GCHandle>();
 		private readonly object resourcesLock = new object();
 		ConcurrentQueue<GraphicsResourceDisposalHandle> emergencyDisposalQueue = new ConcurrentQueue<GraphicsResourceDisposalHandle>();
 
@@ -514,7 +518,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					 */
 					lock (resourcesLock)
 					{
-						foreach (WeakReference resource in resources.ToArray())
+						foreach (GCHandle resource in resources.ToArray())
 						{
 							object target = resource.Target;
 							if (target != null)
@@ -554,7 +558,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Resource Management Methods
 
-		internal void AddResourceReference(WeakReference resourceReference)
+		internal void AddResourceReference(GCHandle resourceReference)
 		{
 			lock (resourcesLock)
 			{
@@ -562,11 +566,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		internal void RemoveResourceReference(WeakReference resourceReference)
+		internal void RemoveResourceReference(GCHandle resourceReference)
 		{
 			lock (resourcesLock)
 			{
-				resources.Remove(resourceReference);
+				// Scan the list and do value comparisons (List.Remove will box the handles)
+				for (int i = 0, c = resources.Count; i < c; i++)
+				{
+					if (resources[i] != resourceReference)
+						continue;
+
+					// Perform an unordered removal, the order of items in this list does not matter
+					resources[i] = resources[resources.Count - 1];
+					resources.RemoveAt(resources.Count - 1);
+					return;
+				}
 			}
 		}
 
