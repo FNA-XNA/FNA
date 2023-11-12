@@ -38,17 +38,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
-				// HACK: Avoid calling SetTextureName when the value hasn't changed.
+				// Avoid calling SetTextureName when the value hasn't changed.
 				if (value == base.Name)
+				{
 					return;
+				}
 
 				base.Name = value;
 
-				// HACK: Never pass a null string pointer through to SetTextureName.
+				// Never pass a null string pointer through to SetTextureName.
 				// Since base.Name will be null by default, this will only happen if
 				//  you first set a name for the texture, then try to null it out.
 				if (value == null)
-					value = "";
+				{
+					value = string.Empty;
+				}
 				FNA3D.FNA3D_SetTextureName(GraphicsDevice.GLDevice, texture, value);
 			}
 		}
