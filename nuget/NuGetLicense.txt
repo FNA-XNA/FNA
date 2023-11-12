@@ -1,0 +1,7 @@
+FNA is released under the Microsoft Public License.
+
+FNA uses LzxDecoder.cs, released under a dual MSPL/LGPL license.
+
+FNA uses code from the Mono.Xna project, released under the MIT license.
+
+Full license information can be found at https://fna-xna.github.io/license/.
