@@ -8,6 +8,7 @@
 #endregion
 
 #region Using Statements
+using System;
 using System.Runtime.InteropServices;
 #endregion
 
@@ -22,6 +23,14 @@ namespace Microsoft.Xna.Framework
 #else
 			return Marshal.SizeOf(typeof(T));
 #endif
+		}
+
+		internal static string PtrToInternedStringAnsi(IntPtr ptr)
+		{
+			string result = Marshal.PtrToStringAnsi(ptr);
+			if (result != null)
+				result = string.Intern(result);
+			return result;
 		}
 	}
 }
