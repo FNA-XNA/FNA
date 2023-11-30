@@ -37,7 +37,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				 * lifetime. But only one GraphicsDevice should
 				 * retain ownership.
 				 */
-				if (graphicsDevice != null && selfReference != null)
+				if (graphicsDevice != null && selfReference.IsAllocated)
 				{
 					graphicsDevice.RemoveResourceReference(selfReference);
 					selfReference.Free();
@@ -201,7 +201,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Remove from the list of graphics resources
-				if (graphicsDevice != null && selfReference != null)
+				if (graphicsDevice != null && selfReference.IsAllocated)
 				{
 					graphicsDevice.RemoveResourceReference(selfReference);
 					selfReference.Free();
