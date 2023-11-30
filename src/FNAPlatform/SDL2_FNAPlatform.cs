@@ -2302,10 +2302,6 @@ namespace Microsoft.Xna.Framework
 				{
 					INTERNAL_guids[which] = "4c05c405";
 				}
-				else if (gct == SDL.SDL_GameControllerType.SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO)
-				{
-					INTERNAL_guids[which] = "7e050920";
-				}
 				else if (gct == SDL.SDL_GameControllerType.SDL_CONTROLLER_TYPE_PS5)
 				{
 					INTERNAL_guids[which] = "4c05e60c";
