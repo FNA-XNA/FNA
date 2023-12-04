@@ -184,7 +184,6 @@
 		<Compile Include="src\Graphics\GraphicsDeviceStatus.cs" />
 		<Compile Include="src\Graphics\GraphicsProfile.cs" />
 		<Compile Include="src\Graphics\GraphicsResource.cs" />
-		<Compile Include="src\Graphics\GraphicsResourceDisposalHandle.cs" />
 		<Compile Include="src\Graphics\IGraphicsDeviceService.cs" />
 		<Compile Include="src\Graphics\IRenderTarget.cs" />
 		<Compile Include="src\Graphics\Model.cs" />
