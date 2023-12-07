@@ -126,7 +126,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!IsDisposed)
+			if (!IsDisposed && !NativeDisposeFunctionQueued)
 			{
 				FNA3D.FNA3D_AddDisposeIndexBuffer(
 					GraphicsDevice.GLDevice,
@@ -309,7 +309,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#endregion
 
 		#region Private Type Size Calculator
-		
+
 		/// <summary>
 		/// Gets the relevant IndexElementSize enum value for the given type.
 		/// </summary>
@@ -334,6 +334,22 @@ namespace Microsoft.Xna.Framework.Graphics
 				"Index buffers can only be created for types" +
 				" that are sixteen or thirty two bits in length"
 			);
+		}
+
+		#endregion
+
+		#region Emergency Disposal
+
+		internal override GraphicsResourceDisposalHandle[] CreateDisposalHandles()
+		{
+			return new GraphicsResourceDisposalHandle[]
+			{
+				new GraphicsResourceDisposalHandle
+				{
+					disposeAction = FNA3D.FNA3D_AddDisposeIndexBuffer,
+					resourceHandle = buffer
+				}
+			};
 		}
 
 		#endregion

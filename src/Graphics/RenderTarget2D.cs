@@ -177,7 +177,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!IsDisposed)
+			if (!IsDisposed && !NativeDisposeFunctionQueued)
 			{
 				if (glColorBuffer != IntPtr.Zero)
 				{
@@ -205,6 +205,56 @@ namespace Microsoft.Xna.Framework.Graphics
 		protected internal override void GraphicsDeviceResetting()
 		{
 			base.GraphicsDeviceResetting();
+		}
+
+		#endregion
+
+		#region Emergency Disposal
+
+		internal override GraphicsResourceDisposalHandle[] CreateDisposalHandles()
+		{
+			int length = 1;
+			int index = 0;
+
+			if (glColorBuffer != IntPtr.Zero)
+			{
+				length += 1;
+			}
+
+			if (glDepthStencilBuffer != IntPtr.Zero)
+			{
+				length += 1;
+			}
+
+			GraphicsResourceDisposalHandle[] handles = new GraphicsResourceDisposalHandle[length];
+
+			handles[index] = new GraphicsResourceDisposalHandle
+			{
+				disposeAction = FNA3D.FNA3D_AddDisposeTexture,
+				resourceHandle = texture
+			};
+
+			if (glColorBuffer != IntPtr.Zero)
+			{
+				handles[index] = new GraphicsResourceDisposalHandle
+				{
+					disposeAction = FNA3D.FNA3D_AddDisposeRenderbuffer,
+					resourceHandle = glColorBuffer
+				};
+				index += 1;
+			}
+
+			if (glDepthStencilBuffer != IntPtr.Zero)
+			{
+				handles[index] = new GraphicsResourceDisposalHandle
+				{
+					disposeAction = FNA3D.FNA3D_AddDisposeRenderbuffer,
+					resourceHandle = glDepthStencilBuffer
+				};
+				index += 1;
+			}
+
+			return handles;
 		}
 
 		#endregion

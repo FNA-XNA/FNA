@@ -285,13 +285,29 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Emergency Disposal
+
+		internal override GraphicsResourceDisposalHandle[] CreateDisposalHandles()
+		{
+			return new GraphicsResourceDisposalHandle[]
+			{
+				new GraphicsResourceDisposalHandle
+				{
+					disposeAction = FNA3D.FNA3D_AddDisposeEffect,
+					resourceHandle = glEffect
+				}
+			};
+		}
+
+		#endregion
+
 		#region Protected Methods
 
 		protected override void Dispose(bool disposing)
 		{
 			if (!IsDisposed)
 			{
-				if (glEffect != IntPtr.Zero)
+				if (glEffect != IntPtr.Zero && !NativeDisposeFunctionQueued)
 				{
 					FNA3D.FNA3D_AddDisposeEffect(
 						GraphicsDevice.GLDevice,

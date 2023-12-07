@@ -115,7 +115,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!IsDisposed)
+			if (!IsDisposed && !NativeDisposeFunctionQueued)
 			{
 				FNA3D.FNA3D_AddDisposeVertexBuffer(
 					GraphicsDevice.GLDevice,
@@ -339,6 +339,22 @@ namespace Microsoft.Xna.Framework.Graphics
 		internal protected override void GraphicsDeviceResetting()
 		{
 			// FIXME: Do we even want to bother with DeviceResetting for GL? -flibit
+		}
+
+		#endregion
+
+		#region Emergency Disposal
+
+		internal override GraphicsResourceDisposalHandle[] CreateDisposalHandles()
+		{
+			return new GraphicsResourceDisposalHandle[]
+			{
+				new GraphicsResourceDisposalHandle
+				{
+					disposeAction = FNA3D.FNA3D_AddDisposeVertexBuffer,
+					resourceHandle = buffer
+				}
+			};
 		}
 
 		#endregion

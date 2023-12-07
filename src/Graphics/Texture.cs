@@ -73,10 +73,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				GraphicsDevice.Textures.RemoveDisposedTexture(this);
 				GraphicsDevice.VertexTextures.RemoveDisposedTexture(this);
-				FNA3D.FNA3D_AddDisposeTexture(
-					GraphicsDevice.GLDevice,
-					texture
-				);
+
+				if (!NativeDisposeFunctionQueued)
+				{
+					FNA3D.FNA3D_AddDisposeTexture(
+						GraphicsDevice.GLDevice,
+						texture
+					);
+				}
 			}
 			base.Dispose(disposing);
 		}
@@ -491,6 +495,22 @@ namespace Microsoft.Xna.Framework.Graphics
 					"Unsupported DDS texture format"
 				);
 			}
+		}
+
+		#endregion
+
+		#region Emergency Disposal
+
+		internal override GraphicsResourceDisposalHandle[] CreateDisposalHandles()
+		{
+			return new GraphicsResourceDisposalHandle[]
+			{
+				new GraphicsResourceDisposalHandle
+				{
+					disposeAction = FNA3D.FNA3D_AddDisposeTexture,
+					resourceHandle = texture
+				}
+			};
 		}
 
 		#endregion

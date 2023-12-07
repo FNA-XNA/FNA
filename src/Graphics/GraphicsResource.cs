@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
-{	
+{
 	public abstract class GraphicsResource : IDisposable
 	{
 		#region Public Properties
@@ -84,6 +84,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private GraphicsDevice graphicsDevice;
 
+		protected bool NativeDisposeFunctionQueued;
+
 		#endregion
 
 		#region Disposing Event
@@ -100,23 +102,32 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		~GraphicsResource()
 		{
-#if DEBUG
 			// If the graphics device associated with this resource was already disposed, we assume
 			//  that your game is in the middle of shutting down, and you don't care about leaks of stray
 			//  resources like SamplerStates or other odds and ends.
 			// We also ignore leaks of resources with no graphicsDevice yet, because they don't have
 			//  any way to have native memory associated with them yet.
 			// We also ignore leaks of resources with no associated native memory (via IsHarmlessToLeakInstance).
-			if (!IsDisposed && !IsHarmlessToLeakInstance && (graphicsDevice != null && !graphicsDevice.IsDisposed))
+			if (!IsDisposed && !IsHarmlessToLeakInstance && !NativeDisposeFunctionQueued && (graphicsDevice != null && !graphicsDevice.IsDisposed))
 			{
 				// If you see this log message, you leaked a graphics resource without disposing it!
 				// This means your game may eventually run out of native memory for mysterious reasons.
 				// To troubleshoot this, try setting a Name and/or Tag on your resources to identify them. -kg
+				#if DEBUG
 				FNALoggerEXT.LogWarn(string.Format("A resource of type {0} with tag {1} and name {2} was not Disposed.", GetType().Name, Tag, Name));
-			}
-#endif
+				#endif
 
-			// FIXME: We really should call Dispose() here! -flibit
+				// While we only log in debug builds, in both debug and release builds we want to free
+				// any native resources associated with this object at the earliest opportunity.
+				// This will at least prevent you from running out of memory rapidly.
+				// We don't want to call the native dispose methods on the finalizer thread, so we queue the action.
+				GraphicsResourceDisposalHandle[] handles = CreateDisposalHandles();
+				if (handles != null)
+				{
+					graphicsDevice.RegisterForEmergencyDisposal(handles);
+					NativeDisposeFunctionQueued = true;
+				}
+			}
 		}
 
 		#endregion
@@ -161,6 +172,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				return false;
 			}
+		}
+
+		// This has to return an array because some resources have multiple handles...
+		internal virtual GraphicsResourceDisposalHandle[] CreateDisposalHandles()
+		{
+			// ... But only certain GraphicsResource types have pointers to dispose!
+			return null;
 		}
 
 		#endregion

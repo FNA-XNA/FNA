@@ -221,7 +221,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// </param>
 		protected override void Dispose(bool disposing)
 		{
-			if (!IsDisposed)
+			if (!IsDisposed && !NativeDisposeFunctionQueued)
 			{
 				if (glColorBuffer != IntPtr.Zero)
 				{

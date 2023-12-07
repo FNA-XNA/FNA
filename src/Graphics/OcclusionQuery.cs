@@ -61,7 +61,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!IsDisposed)
+			if (!IsDisposed && !NativeDisposeFunctionQueued)
 			{
 				FNA3D.FNA3D_AddDisposeQuery(GraphicsDevice.GLDevice, query);
 			}
@@ -80,6 +80,22 @@ namespace Microsoft.Xna.Framework.Graphics
 		public void End()
 		{
 			FNA3D.FNA3D_QueryEnd(GraphicsDevice.GLDevice, query);
+		}
+
+		#endregion
+
+		#region Emergency Disposal
+
+		internal override GraphicsResourceDisposalHandle[] CreateDisposalHandles()
+		{
+			return new GraphicsResourceDisposalHandle[]
+			{
+				new GraphicsResourceDisposalHandle
+				{
+					disposeAction = FNA3D.FNA3D_AddDisposeQuery,
+					resourceHandle = query
+				}
+			};
 		}
 
 		#endregion
