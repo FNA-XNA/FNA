@@ -168,6 +168,7 @@ SRC = \
 	src/Graphics/GraphicsDeviceStatus.cs \
 	src/Graphics/GraphicsProfile.cs \
 	src/Graphics/GraphicsResource.cs \
+	src/Graphics/GraphicsResourceDisposalHandle.cs \
 	src/Graphics/IGraphicsDeviceService.cs \
 	src/Graphics/IRenderTarget.cs \
 	src/Graphics/Model.cs \
