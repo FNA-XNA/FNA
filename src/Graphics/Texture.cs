@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.IO;
+using System.Threading;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
@@ -73,10 +74,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				GraphicsDevice.Textures.RemoveDisposedTexture(this);
 				GraphicsDevice.VertexTextures.RemoveDisposedTexture(this);
-				FNA3D.FNA3D_AddDisposeTexture(
-					GraphicsDevice.GLDevice,
-					texture
-				);
+
+				IntPtr toDispose = Interlocked.Exchange(ref texture, IntPtr.Zero);
+				if (toDispose != IntPtr.Zero)
+				{
+					FNA3D.FNA3D_AddDisposeTexture(
+						GraphicsDevice.GLDevice,
+						toDispose
+					);
+				}
 			}
 			base.Dispose(disposing);
 		}

@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Threading;
 using System.Runtime.InteropServices;
 #endregion
 
@@ -117,10 +118,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				FNA3D.FNA3D_AddDisposeVertexBuffer(
-					GraphicsDevice.GLDevice,
-					buffer
-				);
+				IntPtr toDispose = Interlocked.Exchange(ref buffer, IntPtr.Zero);
+				if (toDispose != IntPtr.Zero)
+				{
+					FNA3D.FNA3D_AddDisposeVertexBuffer(
+						GraphicsDevice.GLDevice,
+						toDispose
+					);
+				}
 			}
 			base.Dispose(disposing);
 		}

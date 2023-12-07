@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 #endregion
@@ -291,11 +292,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				if (glEffect != IntPtr.Zero)
+				IntPtr toDispose = Interlocked.Exchange(ref glEffect, IntPtr.Zero);
+				if (toDispose != IntPtr.Zero)
 				{
 					FNA3D.FNA3D_AddDisposeEffect(
 						GraphicsDevice.GLDevice,
-						glEffect
+						toDispose
 					);
 				}
 			}

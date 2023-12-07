@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Threading;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
@@ -179,19 +180,21 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				if (glColorBuffer != IntPtr.Zero)
+				IntPtr toDispose = Interlocked.Exchange(ref glColorBuffer, IntPtr.Zero);
+				if (toDispose != IntPtr.Zero)
 				{
 					FNA3D.FNA3D_AddDisposeRenderbuffer(
 						GraphicsDevice.GLDevice,
-						glColorBuffer
+						toDispose
 					);
 				}
 
-				if (glDepthStencilBuffer != IntPtr.Zero)
+				toDispose = Interlocked.Exchange(ref glDepthStencilBuffer, IntPtr.Zero);
+				if (toDispose != IntPtr.Zero)
 				{
 					FNA3D.FNA3D_AddDisposeRenderbuffer(
 						GraphicsDevice.GLDevice,
-						glDepthStencilBuffer
+						toDispose
 					);
 				}
 			}
