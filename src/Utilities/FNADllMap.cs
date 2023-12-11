@@ -39,7 +39,7 @@ namespace Microsoft.Xna.Framework
 			{
 				return "windows";
 			}
-			else if (OperatingSystem.IsMacOS() || OperatingSystem.IsIOS())
+			else if (OperatingSystem.IsMacOS() || OperatingSystem.IsIOS() || OperatingSystem.IsTvOS())
 			{
 				return  "osx";
 			}
