@@ -33,13 +33,21 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Static Methods
 
+		private static bool IsAppleAOTPlatform()
+		{
+			/* These platforms require a bit of special handling since
+			 * they are the only platforms that compile via Mono AOT.
+			 */
+			return OperatingSystem.IsIOS() || OperatingSystem.IsTvOS();
+		}
+
 		private static string GetPlatformName()
 		{
 			if (OperatingSystem.IsWindows())
 			{
 				return "windows";
 			}
-			else if (OperatingSystem.IsMacOS() || OperatingSystem.IsIOS() || OperatingSystem.IsTvOS())
+			else if (OperatingSystem.IsMacOS() || IsAppleAOTPlatform())
 			{
 				return  "osx";
 			}
@@ -83,7 +91,7 @@ namespace Microsoft.Xna.Framework
 		public static void Init()
 		{
 			// Ignore NativeAOT platforms since they don't perform dynamic loading.
-			if (!RuntimeFeature.IsDynamicCodeSupported && !OperatingSystem.IsIOS())
+			if (!RuntimeFeature.IsDynamicCodeSupported && !IsAppleAOTPlatform())
 			{
 				return;
 			}
