@@ -39,7 +39,7 @@ namespace Microsoft.Xna.Framework
 			{
 				return "windows";
 			}
-			else if (OperatingSystem.IsMacOS())
+			else if (OperatingSystem.IsMacOS() || OperatingSystem.IsIOS())
 			{
 				return  "osx";
 			}
@@ -83,7 +83,6 @@ namespace Microsoft.Xna.Framework
 		public static void Init()
 		{
 			// Ignore NativeAOT platforms since they don't perform dynamic loading.
-			// FIXME: Is the iOS check needed?
 			if (!RuntimeFeature.IsDynamicCodeSupported && !OperatingSystem.IsIOS())
 			{
 				return;
