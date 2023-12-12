@@ -21,7 +21,7 @@ namespace Microsoft.Xna.Framework
 		#region Public Properties
 
 		public GraphicsProfile GraphicsProfile
-		{ 
+		{
 			get;
 			set;
 		}
@@ -281,6 +281,10 @@ namespace Microsoft.Xna.Framework
 			 */
 			if (graphicsDevice == null)
 			{
+				#if DEBUG
+				FNALoggerEXT.LogWarn("Forcing CreateDevice! Avoid calling ApplyChanges before Game.Run!");
+				#endif
+
 				(this as IGraphicsDeviceManager).CreateDevice();
 				return;
 			}
