@@ -81,8 +81,7 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_SetMainReady();
 
 			// Also, Windows is an idiot. -flibit
-			if (	OSVersion.Equals("Windows") ||
-				OSVersion.Equals("WinRT")	)
+			if (OSVersion.Equals("Windows"))
 			{
 				// Visual Studio is an idiot.
 				if (System.Diagnostics.Debugger.IsAttached)
@@ -263,8 +262,7 @@ namespace Microsoft.Xna.Framework
 			 * the user (rightfully) will have no idea why.
 			 * -flibit
 			 */
-			if (	OSVersion.Equals("Windows") ||
-				OSVersion.Equals("WinRT")	)
+			if (OSVersion.Equals("Windows"))
 			{
 				SDL.SDL_SetHint(
 					SDL.SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS,
@@ -301,8 +299,7 @@ namespace Microsoft.Xna.Framework
 				INTERNAL_AddInstance(evt[0].cdevice.which);
 			}
 
-			if (	OSVersion.Equals("Windows") ||
-				OSVersion.Equals("WinRT")	)
+			if (OSVersion.Equals("Windows"))
 			{
 				/* Windows has terrible event pumping and doesn't give us
 				 * WM_PAINT events correctly. So we get to do this!
@@ -1545,12 +1542,6 @@ namespace Microsoft.Xna.Framework
 
 		public static DriveInfo GetDriveInfo(string storageRoot)
 		{
-			if (OSVersion.Equals("WinRT"))
-			{
-				// WinRT DriveInfo is a bunch of crap -flibit
-				return null;
-			}
-
 			DriveInfo result;
 			try
 			{
