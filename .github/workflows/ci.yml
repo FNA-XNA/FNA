@@ -1,0 +1,37 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: make FNA
+      run: |
+        make debug
+        make release
+
+    - name: msbuild FNA
+      run: |
+        msbuild FNA.sln /p:Configuration=Debug /p:Platform=x86
+        msbuild FNA.sln /p:Configuration=Release /p:Platform=x86
+
+    - name: dotnet build FNA.Core
+      run: |
+        dotnet build -c Debug FNA.Core.csproj
+        dotnet build -c Release FNA.Core.csproj
+
+    - name: dotnet build FNA.NetFramework
+      run: |
+        dotnet build -c Debug FNA.NetFramework.csproj
+        dotnet build -c Release FNA.NetFramework.csproj
+
+    - name: dotnet build FNA.NetStandard
+      run: |
+        dotnet build -c Debug FNA.NetStandard.csproj
+        dotnet build -c Release FNA.NetStandard.csproj
