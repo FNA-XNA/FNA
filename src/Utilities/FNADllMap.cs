@@ -7,7 +7,7 @@
  */
 #endregion
 
-#if NET
+#if NET7_0_OR_GREATER
 
 #region Using Statements
 using System;
@@ -80,7 +80,10 @@ namespace Microsoft.Xna.Framework
 			{
 				mappedName = libraryName;
 			}
-			return NativeLibrary.Load(mappedName, assembly, dllImportSearchPath);
+
+			return (mappedName == "__Internal") ?
+				NativeLibrary.GetMainProgramHandle() :
+				NativeLibrary.Load(mappedName, assembly, dllImportSearchPath);
 		}
 
 		#endregion
@@ -206,4 +209,4 @@ namespace Microsoft.Xna.Framework
 	}
 }
 
-#endif // NET
+#endif // NET7_0_OR_GREATER
