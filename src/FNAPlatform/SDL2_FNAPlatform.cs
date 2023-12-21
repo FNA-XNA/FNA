@@ -2244,21 +2244,6 @@ namespace Microsoft.Xna.Framework
 			) == SDL.SDL_bool.SDL_TRUE;
 			INTERNAL_capabilities[which] = caps;
 
-			// Get some basic information about the controller mapping
-			string deviceInfo;
-			bool overrideGUID;
-			string mapping = SDL.SDL_GameControllerMapping(INTERNAL_devices[which]);
-			if (string.IsNullOrEmpty(mapping))
-			{
-				deviceInfo = "Mapping not found";
-				overrideGUID = false;
-			}
-			else
-			{
-				deviceInfo = "Mapping: " + mapping;
-				overrideGUID = mapping.Contains("type:");
-			}
-
 			/* Store the GUID string for this device
 			 * FIXME: Replace GetGUIDEXT string with 3 short values -flibit
 			 */
@@ -2279,7 +2264,7 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
-			if (overrideGUID)
+			if (vendor == 0x28de) // Valve
 			{
 				SDL.SDL_GameControllerType gct = SDL.SDL_GameControllerGetType(
 					INTERNAL_devices[which]
@@ -2300,6 +2285,16 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// Print controller information to stdout.
+			string deviceInfo;
+			string mapping = SDL.SDL_GameControllerMapping(INTERNAL_devices[which]);
+			if (string.IsNullOrEmpty(mapping))
+			{
+				deviceInfo = "Mapping not found";
+			}
+			else
+			{
+				deviceInfo = "Mapping: " + mapping;
+			}
 			FNALoggerEXT.LogInfo(
 				"Controller " + which.ToString() + ": " +
 				SDL.SDL_GameControllerName(INTERNAL_devices[which]) + ", " +
