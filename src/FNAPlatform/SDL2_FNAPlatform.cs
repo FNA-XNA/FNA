@@ -1967,6 +1967,15 @@ namespace Microsoft.Xna.Framework
 			return INTERNAL_guids[index];
 		}
 
+		public static string GetGameControllerName(int index)
+		{
+			IntPtr device = INTERNAL_devices[index];
+			if (device == IntPtr.Zero)
+			{
+				return "";
+			}
+			return SDL.SDL_GameControllerName(SDL2_FNAPlatform.INTERNAL_devices[index]);
+		}
 		public static void SetGamePadLightBar(int index, Color color)
 		{
 			IntPtr device = INTERNAL_devices[index];
