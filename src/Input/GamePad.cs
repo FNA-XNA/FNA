@@ -187,6 +187,8 @@ namespace Microsoft.Xna.Framework.Input
 			);
 		}
 
+		public delegate void OnDeviceChangeEvent(int dev, bool removed);
+		public static event OnDeviceChangeEvent DeviceChangeEvent;
 		#endregion
 
 		#region Internal Static Methods
@@ -206,6 +208,11 @@ namespace Microsoft.Xna.Framework.Input
 				return 0.0f;
 			}
 			return value / (1.0f - deadZone);
+		}
+
+		internal static void OnDeviceChange(int dev, bool removed)
+		{
+			GamePad.DeviceChangeEvent.Invoke(dev, removed);
 		}
 
 		#endregion
