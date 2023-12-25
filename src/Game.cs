@@ -120,6 +120,29 @@ namespace Microsoft.Xna.Framework
 			get;
 			set;
 		}
+		public bool UnFixedDraw
+		{
+			get;
+			set;
+		}
+		private int INTERAL_TargetFrameRate = 1000;
+		public int FrameLimiterTarget
+		{
+			get
+			{
+				return INTERAL_TargetFrameRate;
+			}
+			set
+			{
+				INTERAL_TargetFrameRate = value;
+				targetDrawTimeTicks = (long) (Stopwatch.Frequency / (double) INTERAL_TargetFrameRate);
+			}
+		}
+
+		public bool UseDrawRateLimiter = false;
+		private Stopwatch drawTimer = new Stopwatch();
+		private long targetDrawTimeTicks = (long) (Stopwatch.Frequency / 1000.0);
+		private long drawSpinWaitThresholdTicks = (long) (Stopwatch.Frequency / 500.0); // SpinWait for up to 2ms
 
 		private bool INTERNAL_isMouseVisible;
 		public bool IsMouseVisible
@@ -429,7 +452,7 @@ namespace Microsoft.Xna.Framework
 
 			AdvanceElapsedTime();
 
-			if (IsFixedTimeStep)
+			if (IsFixedTimeStep && !UnFixedDraw)
 			{
 				/* If we are in fixed timestep, we want to wait until the next frame,
 				 * but we don't want to oversleep. Requesting repeated 1ms sleeps and
@@ -514,10 +537,35 @@ namespace Microsoft.Xna.Framework
 					updateFrameLag -= 1;
 				}
 
-				/* Draw needs to know the total elapsed time
-				 * that occured for the fixed length updates.
-				 */
-				gameTime.ElapsedGameTime = TimeSpan.FromTicks(TargetElapsedTime.Ticks * stepCount);
+				if (UnFixedDraw)
+				{
+					if (UseDrawRateLimiter)
+					{
+						long remainingTicks = targetDrawTimeTicks - drawTimer.ElapsedTicks;
+						// If there's a significant amount of time left, use Thread.Sleep
+						if (remainingTicks > drawSpinWaitThresholdTicks)
+						{
+							/* Tater: If the sleep precision is worse than 2ms the user will be screwed but until someone reports that the fps limiter
+							 * is super wrong I am not going to bother with the shit that FNA does to time the updates.
+							 */
+							System.Threading.Thread.Sleep(1);
+						}
+
+						// SpinWait for the remaining time.
+						while (drawTimer.ElapsedTicks < targetDrawTimeTicks)
+						{
+							System.Threading.Thread.SpinWait(1);
+						}
+					}
+					gameTime.ElapsedGameTime = accumulatedElapsedTime;
+				}
+				else
+				{
+					/* Draw needs to know the total elapsed time
+					* that occured for the fixed length updates.
+					*/
+					gameTime.ElapsedGameTime = TimeSpan.FromTicks(TargetElapsedTime.Ticks * stepCount);
+				}
 			}
 			else
 			{
