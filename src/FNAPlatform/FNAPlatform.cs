@@ -126,6 +126,7 @@ namespace Microsoft.Xna.Framework
 			SetGamePadVibration =		SDL2_FNAPlatform.SetGamePadVibration;
 			SetGamePadTriggerVibration =	SDL2_FNAPlatform.SetGamePadTriggerVibration;
 			GetGamePadGUID =		SDL2_FNAPlatform.GetGamePadGUID;
+			GetGameControllerName = SDL2_FNAPlatform.GetGameControllerName;
 			SetGamePadLightBar =		SDL2_FNAPlatform.SetGamePadLightBar;
 			GetGamePadGyro = 		SDL2_FNAPlatform.GetGamePadGyro;
 			GetGamePadAccelerometer =	SDL2_FNAPlatform.GetGamePadAccelerometer;
@@ -329,6 +330,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate string GetGamePadGUIDFunc(int index);
 		public static readonly GetGamePadGUIDFunc GetGamePadGUID;
+
+		public delegate string GetGameControllerNameFunc(int index);
+		public static readonly GetGameControllerNameFunc GetGameControllerName;
 
 		public delegate void SetGamePadLightBarFunc(int index, Color color);
 		public static readonly SetGamePadLightBarFunc SetGamePadLightBar;

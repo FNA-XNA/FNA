@@ -60,6 +60,10 @@ namespace Microsoft.Xna.Framework.Input
 		{
 			return FNAPlatform.GetGamePadCapabilities((int) playerIndex);
 		}
+		public static GamePadCapabilities GetCapabilities(int playerIndex)
+		{
+			return FNAPlatform.GetGamePadCapabilities(playerIndex);
+		}
 
 		public static GamePadState GetState(PlayerIndex playerIndex)
 		{
@@ -68,11 +72,25 @@ namespace Microsoft.Xna.Framework.Input
 				GamePadDeadZone.IndependentAxes
 			);
 		}
+		public static GamePadState GetState(int playerIndex)
+		{
+			return FNAPlatform.GetGamePadState(
+				playerIndex,
+				GamePadDeadZone.IndependentAxes
+			);
+		}
 
 		public static GamePadState GetState(PlayerIndex playerIndex, GamePadDeadZone deadZoneMode)
 		{
 			return FNAPlatform.GetGamePadState(
 				(int) playerIndex,
+				deadZoneMode
+			);
+		}
+		public static GamePadState GetState(int playerIndex, GamePadDeadZone deadZoneMode)
+		{
+			return FNAPlatform.GetGamePadState(
+				playerIndex,
 				deadZoneMode
 			);
 		}
@@ -86,6 +104,15 @@ namespace Microsoft.Xna.Framework.Input
 			);
 		}
 
+		public static bool SetVibration(int playerIndex, float leftMotor, float rightMotor)
+		{
+			return FNAPlatform.SetGamePadVibration(
+				playerIndex,
+				leftMotor,
+				rightMotor
+			);
+		}
+
 		#endregion
 
 		#region Public GamePad API, FNA Extensions
@@ -94,13 +121,33 @@ namespace Microsoft.Xna.Framework.Input
 		{
 			return FNAPlatform.GetGamePadGUID((int) playerIndex);
 		}
+		public static string GetGUIDEXT(int playerIndex)
+		{
+			return FNAPlatform.GetGamePadGUID(playerIndex);
+		}
+		public static string GetControllerName(int playerIndex)
+		{
+			return FNAPlatform.GetGameControllerName(playerIndex);
+		}
 
 		public static void SetLightBarEXT(PlayerIndex playerIndex, Color color)
 		{
 			FNAPlatform.SetGamePadLightBar((int) playerIndex, color);
 		}
+		public static void SetLightBarEXT(int playerIndex, Color color)
+		{
+			FNAPlatform.SetGamePadLightBar(playerIndex, color);
+		}
 
 		public static bool SetTriggerVibrationEXT(PlayerIndex playerIndex, float leftTrigger, float rightTrigger)
+		{
+			return FNAPlatform.SetGamePadTriggerVibration(
+				(int) playerIndex,
+				leftTrigger,
+				rightTrigger
+			);
+		}
+		public static bool SetTriggerVibrationEXT(int playerIndex, float leftTrigger, float rightTrigger)
 		{
 			return FNAPlatform.SetGamePadTriggerVibration(
 				(int) playerIndex,
@@ -116,8 +163,23 @@ namespace Microsoft.Xna.Framework.Input
 				out gyro
 			);
 		}
+		public static bool GetGyroEXT(int playerIndex, out Vector3 gyro)
+		{
+			return FNAPlatform.GetGamePadGyro(
+				(int) playerIndex,
+				out gyro
+			);
+		}
 
 		public static bool GetAccelerometerEXT(PlayerIndex playerIndex, out Vector3 accel)
+		{
+			return FNAPlatform.GetGamePadAccelerometer(
+				(int) playerIndex,
+				out accel
+			);
+		}
+
+		public static bool GetAccelerometerEXT(int playerIndex, out Vector3 accel)
 		{
 			return FNAPlatform.GetGamePadAccelerometer(
 				(int) playerIndex,
