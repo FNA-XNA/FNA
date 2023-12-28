@@ -45,6 +45,14 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Keyboard State
+
+		// Used for special copy-paste text input
+		private static bool LeftControlDown = false;
+		private static bool RightControlDown = false;
+
+		#endregion
+
 		#region Init/Exit Methods
 
 		public static string ProgramInit(LaunchParameters args)
@@ -954,16 +962,24 @@ namespace Microsoft.Xna.Framework
 				if (evt.type == SDL.SDL_EventType.SDL_KEYDOWN)
 				{
 					Keys key = ToXNAKey(ref evt.key.keysym);
-					if (!Keyboard.keys.Contains(key))
+					if (key == Keys.LeftControl)
 					{
-						Keyboard.keys.Add(key);
+						LeftControlDown = true;
+					}
+					else if (key == Keys.RightControl)
+					{
+						RightControlDown = true;
+					}
+
+					if (evt.key.repeat == 0)
+					{
 						int textIndex;
 						if (FNAPlatform.TextInputBindings.TryGetValue(key, out textIndex))
 						{
 							textInputControlDown[textIndex] = true;
 							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[textIndex]);
 						}
-						else if ((Keyboard.keys.Contains(Keys.LeftControl) || Keyboard.keys.Contains(Keys.RightControl))
+						else if ((LeftControlDown || RightControlDown)
 							&& key == Keys.V)
 						{
 							textInputControlDown[6] = true;
@@ -971,14 +987,14 @@ namespace Microsoft.Xna.Framework
 							textInputSuppress = true;
 						}
 					}
-					else if (evt.key.repeat > 0)
+					else
 					{
 						int textIndex;
 						if (FNAPlatform.TextInputBindings.TryGetValue(key, out textIndex))
 						{
 							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[textIndex]);
 						}
-						else if ((Keyboard.keys.Contains(Keys.LeftControl) || Keyboard.keys.Contains(Keys.RightControl))
+						else if ((LeftControlDown || RightControlDown)
 							&& key == Keys.V)
 						{
 							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[6]);
@@ -988,19 +1004,26 @@ namespace Microsoft.Xna.Framework
 				else if (evt.type == SDL.SDL_EventType.SDL_KEYUP)
 				{
 					Keys key = ToXNAKey(ref evt.key.keysym);
-					if (Keyboard.keys.Remove(key))
+
+					if (key == Keys.LeftControl)
 					{
-						int value;
-						if (FNAPlatform.TextInputBindings.TryGetValue(key, out value))
-						{
-							textInputControlDown[value] = false;
-						}
-						else if (((!Keyboard.keys.Contains(Keys.LeftControl) && !Keyboard.keys.Contains(Keys.RightControl)) && textInputControlDown[6])
-							|| key == Keys.V)
-						{
-							textInputControlDown[6] = false;
-							textInputSuppress = false;
-						}
+						LeftControlDown = false;
+					}
+					else if (key == Keys.RightControl)
+					{
+						RightControlDown = false;
+					}
+
+					int value;
+					if (FNAPlatform.TextInputBindings.TryGetValue(key, out value))
+					{
+						textInputControlDown[value] = false;
+					}
+					else if (((!LeftControlDown && !RightControlDown) && textInputControlDown[6])
+						|| key == Keys.V)
+					{
+						textInputControlDown[6] = false;
+						textInputSuppress = false;
 					}
 				}
 
@@ -1215,7 +1238,7 @@ namespace Microsoft.Xna.Framework
 					}
 				}
 
-				else if (evt.type == SDL.SDL_EventType.SDL_TEXTEDITING) 
+				else if (evt.type == SDL.SDL_EventType.SDL_TEXTEDITING)
 				{
 					int bytes = MeasureStringLength(evt.edit.text);
 					if (bytes > 0)
@@ -2841,6 +2864,42 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 			return Keys.None;
+		}
+
+		public static unsafe void GetKeyboardState(List<Keys> activeKeys)
+		{
+			int numkeys;
+			byte* state = (byte*) SDL.SDL_GetKeyboardState(out numkeys);
+			if (UseScancodes)
+			{
+				for (int i = 0; i < numkeys; i += 1)
+				{
+					if (state[i] != 0)
+					{
+						Keys key;
+						if (INTERNAL_scanMap.TryGetValue(i, out key))
+						{
+							activeKeys.Add(key);
+						}
+					}
+				}
+			}
+			else
+			{
+				for (int i = 0; i < numkeys; i += 1)
+				{
+					if (state[i] != 0)
+					{
+						Keys key;
+						if (INTERNAL_keyMap.TryGetValue(
+							(int) SDL.SDL_GetKeyFromScancode((SDL.SDL_Scancode) i),
+							out key
+						)) {
+							activeKeys.Add(key);
+						}
+					}
+				}
+			}
 		}
 
 		#endregion

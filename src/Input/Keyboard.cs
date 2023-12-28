@@ -27,7 +27,9 @@ namespace Microsoft.Xna.Framework.Input
 		/// <returns>Current keyboard state.</returns>
 		public static KeyboardState GetState()
 		{
-			return new KeyboardState(keys);
+			activeKeys.Clear();
+			FNAPlatform.GetKeyboardState(activeKeys);
+			return new KeyboardState(activeKeys);
 		}
 
 		/// <summary>
@@ -37,7 +39,7 @@ namespace Microsoft.Xna.Framework.Input
 		/// <returns>Current keyboard state.</returns>
 		public static KeyboardState GetState(PlayerIndex playerIndex)
 		{
-			return new KeyboardState(keys);
+			return GetState();
 		}
 
 		#endregion
@@ -51,9 +53,9 @@ namespace Microsoft.Xna.Framework.Input
 
 		#endregion
 
-		#region Internal Static Variables
+		#region Private Static Variables
 
-		internal static List<Keys> keys = new List<Keys>();
+		private static List<Keys> activeKeys = new List<Keys>();
 
 		#endregion
 	}
