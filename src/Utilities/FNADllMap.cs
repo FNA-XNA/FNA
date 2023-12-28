@@ -33,21 +33,13 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Static Methods
 
-		private static bool IsAppleAOTPlatform()
-		{
-			/* These platforms require a bit of special handling since
-			 * they are the only platforms that compile via Mono AOT.
-			 */
-			return OperatingSystem.IsIOS() || OperatingSystem.IsTvOS();
-		}
-
 		private static string GetPlatformName()
 		{
 			if (OperatingSystem.IsWindows())
 			{
 				return "windows";
 			}
-			else if (OperatingSystem.IsMacOS() || IsAppleAOTPlatform())
+			else if (OperatingSystem.IsMacOS())
 			{
 				return  "osx";
 			}
@@ -61,14 +53,14 @@ namespace Microsoft.Xna.Framework
 			}
 			else
 			{
-				// Maybe this platform statically links?
+				// What is this platform??
 				return "unknown";
 			}
 		}
 
 		#endregion
 
-		#region DllImportResolver Callback Method
+		#region DllImportResolver Callback Methods
 
 		private static IntPtr MapAndLoad(
 			string libraryName,
@@ -81,9 +73,15 @@ namespace Microsoft.Xna.Framework
 				mappedName = libraryName;
 			}
 
-			return (mappedName == "__Internal") ?
-				NativeLibrary.GetMainProgramHandle() :
-				NativeLibrary.Load(mappedName, assembly, dllImportSearchPath);
+			return NativeLibrary.Load(mappedName, assembly, dllImportSearchPath);
+		}
+
+		private static IntPtr LoadStaticLibrary(
+			string libraryName,
+			Assembly assembly,
+			DllImportSearchPath? dllImportSearchPath
+		) {
+			return NativeLibrary.GetMainProgramHandle();
 		}
 
 		#endregion
@@ -93,9 +91,19 @@ namespace Microsoft.Xna.Framework
 		[ModuleInitializer]
 		public static void Init()
 		{
-			// Ignore NativeAOT platforms since they don't perform dynamic loading.
-			if (!RuntimeFeature.IsDynamicCodeSupported && !IsAppleAOTPlatform())
+			if (!RuntimeFeature.IsDynamicCodeCompiled)
 			{
+				/* NativeAOT platforms don't perform dynamic loading,
+				 * so setting a DllImportResolver is unnecessary.
+				 *
+				 * However, iOS and tvOS with Mono AOT statically link
+				 * their dependencies, so we need special handling for them.
+				 */
+				if (OperatingSystem.IsIOS() || OperatingSystem.IsTvOS())
+				{
+					NativeLibrary.SetDllImportResolver(Assembly.GetExecutingAssembly(), LoadStaticLibrary);
+				}
+
 				return;
 			}
 
@@ -104,7 +112,7 @@ namespace Microsoft.Xna.Framework
 			string cpu = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
 			string wordsize = (IntPtr.Size * 8).ToString();
 
-			// Get the path to the assembly
+			// Get the executing assembly
 			Assembly assembly = Assembly.GetExecutingAssembly();
 
 			// Locate the config file
