@@ -2304,23 +2304,37 @@ namespace Microsoft.Xna.Framework
 			{
 				deviceInfo = "Mapping: " + mapping;
 			}
-			GamePad.OnDeviceChange(dev, false);
-			FNALoggerEXT.LogInfo(
-				"Controller " + which.ToString() + ": " +
+			string info = "Added Controller " + which.ToString() + ": " +
 				SDL.SDL_GameControllerName(INTERNAL_devices[which]) + ", " +
 				"GUID: " + INTERNAL_guids[which] + ", " +
-				deviceInfo
-			);
+				deviceInfo;
+			GamePad.OnDeviceChange(dev, false, info);
+			FNALoggerEXT.LogInfo(info);
 		}
 
 		private static void INTERNAL_RemoveInstance(int dev)
 		{
+
 			int output;
 			if (!INTERNAL_instanceList.TryGetValue(dev, out output))
 			{
 				// Odds are, this is controller 5+ getting removed.
 				return;
 			}
+			string deviceInfo;
+			string mapping = SDL.SDL_GameControllerMapping(INTERNAL_devices[output]);
+			if (string.IsNullOrEmpty(mapping))
+			{
+				deviceInfo = "Mapping not found";
+			}
+			else
+			{
+				deviceInfo = "Mapping: " + mapping;
+			}
+			string info = "Removed Controller " + output.ToString() + ": " +
+				SDL.SDL_GameControllerName(INTERNAL_devices[output]) + ", " +
+				"GUID: " + INTERNAL_guids[output] + ", " +
+				deviceInfo;
 			INTERNAL_instanceList.Remove(dev);
 			SDL.SDL_GameControllerClose(INTERNAL_devices[output]);
 			INTERNAL_devices[output] = IntPtr.Zero;
@@ -2330,8 +2344,8 @@ namespace Microsoft.Xna.Framework
 			// A lot of errors can happen here, but honestly, they can be ignored...
 			SDL.SDL_ClearError();
 
-			GamePad.OnDeviceChange(dev, true);
-			FNALoggerEXT.LogInfo("Removed device, player: " + output.ToString());
+			GamePad.OnDeviceChange(dev, true, info);
+			FNALoggerEXT.LogInfo(info);
 		}
 
 		private static string[] GenStringArray()
