@@ -578,14 +578,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Set Methods
 
-		internal void BoundsCheckArray(Array value)
-		{
-			if (value == null)
-				throw new ArgumentNullException("value");
-			else if (value.Length > elementCount)
-				throw new ArgumentOutOfRangeException("value.Length");
-		}
-
 		public void SetValue(bool value)
 		{
 			unsafe
@@ -598,8 +590,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(bool[] value)
 		{
-			BoundsCheckArray(value);
-
 			unsafe
 			{
 				int* dstPtr = (int*) values;
@@ -636,8 +626,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(int[] value)
 		{
-			BoundsCheckArray(value);
-
 			for (int i = 0, j = 0; i < value.Length; i += ColumnCount, j += 16)
 			{
 				Marshal.Copy(value, i, values + j, ColumnCount);
@@ -734,8 +722,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValueTranspose(Matrix[] value)
 		{
-			BoundsCheckArray(value);
-
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
 			{
@@ -939,8 +925,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Matrix[] value)
 		{
-			BoundsCheckArray(value);
-
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
 			{
@@ -1071,8 +1055,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Quaternion[] value)
 		{
-			BoundsCheckArray(value);
-
 			unsafe
 			{
 				float* dstPtr = (float*) values;
@@ -1106,8 +1088,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(float[] value)
 		{
-			BoundsCheckArray(value);
-
 #if DEBUG
 			foreach (float f in value)
 			{
@@ -1152,8 +1132,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Vector2[] value)
 		{
-			BoundsCheckArray(value);
-
 			unsafe
 			{
 				float* dstPtr = (float*) values;
@@ -1184,8 +1162,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Vector3[] value)
 		{
-			BoundsCheckArray(value);
-
 			unsafe
 			{
 				float* dstPtr = (float*) values;
@@ -1218,8 +1194,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Vector4[] value)
 		{
-			BoundsCheckArray(value);
-
 			unsafe
 			{
 				float* dstPtr = (float*) values;
