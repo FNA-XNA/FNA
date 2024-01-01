@@ -873,6 +873,9 @@ namespace Microsoft.Xna.Framework
 				case SDL.SDL_DisplayOrientation.SDL_ORIENTATION_PORTRAIT:
 					return DisplayOrientation.Portrait;
 
+				case SDL.SDL_DisplayOrientation.SDL_ORIENTATION_PORTRAIT_FLIPPED:
+					return DisplayOrientation.PortraitUpsideDown;
+
 				default:
 					throw new NotSupportedException("FNA does not support this device orientation.");
 			}
@@ -890,7 +893,7 @@ namespace Microsoft.Xna.Framework
 			int min = Math.Min(width, height);
 			int max = Math.Max(width, height);
 
-			if (orientation == DisplayOrientation.Portrait)
+			if (orientation == DisplayOrientation.Portrait || orientation == DisplayOrientation.PortraitUpsideDown)
 			{
 				graphicsDevice.PresentationParameters.BackBufferWidth = min;
 				graphicsDevice.PresentationParameters.BackBufferHeight = max;

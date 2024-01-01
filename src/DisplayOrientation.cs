@@ -34,6 +34,10 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// The display is rotated as portrait, where height is greater than width.
 		/// </summary>
-		Portrait = 4
+		Portrait = 4,
+		/// <summary>
+		/// The display is rotated as portrait, where height is greater than width, but upside down.
+		/// </summary>
+		PortraitUpsideDown = 8
 	}
 }
