@@ -1126,6 +1126,12 @@ namespace Microsoft.Xna.Framework
 						int newIndex = SDL.SDL_GetWindowDisplayIndex(
 							game.Window.Handle
 						);
+
+						if (newIndex >= GraphicsAdapter.Adapters.Count)
+						{
+							GraphicsAdapter.AdaptersChanged(); // quickfix for this event coming in before the display reattach event. (must be fixed in sdl)
+						}
+
 						if (GraphicsAdapter.Adapters[newIndex] != currentAdapter)
 						{
 							currentAdapter = GraphicsAdapter.Adapters[newIndex];
