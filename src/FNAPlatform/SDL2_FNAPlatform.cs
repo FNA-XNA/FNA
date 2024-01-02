@@ -871,6 +871,7 @@ namespace Microsoft.Xna.Framework
 					return DisplayOrientation.LandscapeRight;
 
 				case SDL.SDL_DisplayOrientation.SDL_ORIENTATION_PORTRAIT:
+				case SDL.SDL_DisplayOrientation.SDL_ORIENTATION_PORTRAIT_FLIPPED:
 					return DisplayOrientation.Portrait;
 
 				default:
