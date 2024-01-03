@@ -36,6 +36,8 @@ namespace Microsoft.Xna.Framework
 
 		private static bool SupportsGlobalMouse;
 
+		private static bool SupportsOrientations;
+
 		#endregion
 
 		#region Game Objects
@@ -235,6 +237,10 @@ namespace Microsoft.Xna.Framework
 			SupportsGlobalMouse = (	OSVersion.Equals("Windows") ||
 						OSVersion.Equals("Mac OS X") ||
 						videoDriver.Equals("x11")	);
+
+			// Only iOS and Android care about device orientation.
+			SupportsOrientations = ( OSVersion.Equals("iOS") ||
+						 OSVersion.Equals("Android")	);
 
 			/* High-DPI is really annoying and only some platforms
 			 * actually let you control the drawable surface.
@@ -915,7 +921,7 @@ namespace Microsoft.Xna.Framework
 
 		public static bool SupportsOrientationChanges()
 		{
-			return OSVersion.Equals("iOS") || OSVersion.Equals("Android");
+			return SupportsOrientations;
 		}
 
 		#endregion
@@ -1166,16 +1172,19 @@ namespace Microsoft.Xna.Framework
 					// Orientation Change
 					if (evt.display.displayEvent == SDL.SDL_DisplayEventID.SDL_DISPLAYEVENT_ORIENTATION)
 					{
-						DisplayOrientation orientation = INTERNAL_ConvertOrientation(
-							(SDL.SDL_DisplayOrientation) evt.display.data1
-						);
+						if (SupportsOrientationChanges())
+						{
+							DisplayOrientation orientation = INTERNAL_ConvertOrientation(
+								(SDL.SDL_DisplayOrientation) evt.display.data1
+							);
 
-						INTERNAL_HandleOrientationChange(
-							orientation,
-							game.GraphicsDevice,
-							currentAdapter,
-							(FNAWindow) game.Window
-						);
+							INTERNAL_HandleOrientationChange(
+								orientation,
+								game.GraphicsDevice,
+								currentAdapter,
+								(FNAWindow) game.Window
+							);
+						}
 					}
 					else
 					{
