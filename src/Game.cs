@@ -126,7 +126,7 @@ namespace Microsoft.Xna.Framework
 			set;
 		}
 		private int INTERAL_TargetFrameRate = 1000;
-		public int FrameLimiterTarget
+		public int DrawRateLimiterTarget
 		{
 			get
 			{
@@ -277,6 +277,7 @@ namespace Microsoft.Xna.Framework
 
 			IsMouseVisible = false;
 			IsFixedTimeStep = true;
+			UnFixedDraw = false;
 			TargetElapsedTime = TimeSpan.FromTicks(166667); // 60fps
 			InactiveSleepTime = TimeSpan.FromSeconds(0.02);
 			for (int i = 0; i < previousSleepTimes.Length; i += 1)
@@ -604,6 +605,7 @@ namespace Microsoft.Xna.Framework
 				 */
 				if (BeginDraw())
 				{
+					drawTimer.Restart(); // Restart the draw timer after drawing
 					Draw(gameTime);
 					EndDraw();
 				}
