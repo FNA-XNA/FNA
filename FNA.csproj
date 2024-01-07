@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.Xna.Framework</RootNamespace>
     <AssemblyName>FNA</AssemblyName>
-    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
