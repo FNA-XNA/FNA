@@ -478,18 +478,24 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			else if ((formatFlags & DDPF_RGB) == DDPF_RGB)
 			{
-				if (	formatRGBBitCount != 32 ||
-					formatRBitMask != 0x00FF0000 ||
-					formatGBitMask != 0x0000FF00 ||
-					formatBBitMask != 0x000000FF ||
-					formatABitMask != 0xFF000000	)
-				{
-					throw new NotSupportedException(
-						"Unsupported DDS texture format"
-					);
-				}
+				if (formatRGBBitCount != 32)
+					throw new NotSupportedException("Unsupported DDS texture format: Alpha channel required");
 
-				format = SurfaceFormat.ColorBgraEXT;
+				bool isBgra = (formatRBitMask == 0x00FF0000 ||
+					formatGBitMask == 0x0000FF00 ||
+					formatBBitMask == 0x000000FF ||
+					formatABitMask == 0xFF000000);
+				bool isRgba = (formatRBitMask == 0x000000FF ||
+					formatGBitMask == 0x0000FF00 ||
+					formatBBitMask == 0x00FF0000 ||
+					formatABitMask == 0xFF000000);
+
+				if (isBgra)
+					format = SurfaceFormat.ColorBgraEXT;
+				else if (isRgba)
+					format = SurfaceFormat.Color;
+				else
+					throw new NotSupportedException("Unsupported DDS texture format: Only RGBA and BGRA are supported");
 			}
 			else
 			{
