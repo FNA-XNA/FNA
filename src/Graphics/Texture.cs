@@ -230,7 +230,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int height,
 			SurfaceFormat format
 		) {
-			if (format == SurfaceFormat.ColorBgraEXT)
+			if (format == SurfaceFormat.Color || format == SurfaceFormat.ColorBgraEXT)
 			{
 				return (((width * 32) + 7) / 8) * height;
 			}
@@ -481,13 +481,13 @@ namespace Microsoft.Xna.Framework.Graphics
 				if (formatRGBBitCount != 32)
 					throw new NotSupportedException("Unsupported DDS texture format: Alpha channel required");
 
-				bool isBgra = (formatRBitMask == 0x00FF0000 ||
-					formatGBitMask == 0x0000FF00 ||
-					formatBBitMask == 0x000000FF ||
+				bool isBgra = (formatRBitMask == 0x00FF0000 &&
+					formatGBitMask == 0x0000FF00 &&
+					formatBBitMask == 0x000000FF &&
 					formatABitMask == 0xFF000000);
-				bool isRgba = (formatRBitMask == 0x000000FF ||
-					formatGBitMask == 0x0000FF00 ||
-					formatBBitMask == 0x00FF0000 ||
+				bool isRgba = (formatRBitMask == 0x000000FF &&
+					formatGBitMask == 0x0000FF00 &&
+					formatBBitMask == 0x00FF0000 &&
 					formatABitMask == 0xFF000000);
 
 				if (isBgra)
