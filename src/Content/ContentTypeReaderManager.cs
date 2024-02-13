@@ -220,6 +220,20 @@ namespace Microsoft.Xna.Framework.Content
 										ex
 									);
 								}
+								catch (NullReferenceException ex)
+								{
+									/* If you are getting here, you are
+									 * probably using .NET AOT and have
+									 * an incomplete rd.xml, to aid with
+									 * this, show a helpful exception
+									 */
+									throw new InvalidOperationException(
+										"Failed to get default constructor for ContentTypeReader. " +
+										"If you're using .NET Native AOT, ensure your rd.xml contains the following type: " +
+										originalReaderTypeString,
+										ex
+									);
+								}
 
 								needsInitialize[i] = true;
 
