@@ -2,4 +2,10 @@
   <PropertyGroup Condition="$(MSBuildProjectName.Contains('FNA.Core'))">
     <BaseIntermediateOutputPath>obj_core\</BaseIntermediateOutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('FNA.NetFramework'))">
+    <BaseIntermediateOutputPath>obj_framework\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('FNA.NetStandard'))">
+    <BaseIntermediateOutputPath>obj_netstandard\</BaseIntermediateOutputPath>
+  </PropertyGroup>
 </Project>
