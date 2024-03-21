@@ -91,7 +91,9 @@ namespace Microsoft.Xna.Framework
 		[ModuleInitializer]
 		public static void Init()
 		{
-			if (!RuntimeFeature.IsDynamicCodeCompiled)
+  			var stackTrace = new StackTrace(false);
+			var isAot = stackTrace.GetFrame(0)?.GetMethod() is null;
+			if (isAot)
 			{
 				/* NativeAOT platforms don't perform dynamic loading,
 				 * so setting a DllImportResolver is unnecessary.
