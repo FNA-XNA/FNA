@@ -461,7 +461,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				(float) Math.Sin(rotation),
 				(float) Math.Cos(rotation),
 				layerDepth,
-				(byte) (effects & (SpriteEffects) 0x03)
+				(int) (effects & (SpriteEffects) 0x03)
 			);
 		}
 
@@ -518,7 +518,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				(float) Math.Sin(rotation),
 				(float) Math.Cos(rotation),
 				layerDepth,
-				(byte) (effects & (SpriteEffects) 0x03)
+				(int) (effects & (SpriteEffects) 0x03)
 			);
 		}
 
@@ -638,7 +638,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				(float) Math.Sin(rotation),
 				(float) Math.Cos(rotation),
 				layerDepth,
-				(byte) (effects & (SpriteEffects) 0x03)
+				(int) (effects & (SpriteEffects) 0x03)
 			);
 		}
 
@@ -843,7 +843,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					(float) Math.Sin(rotation),
 					(float) Math.Cos(rotation),
 					layerDepth,
-					(byte) effects
+					(int) effects
 				);
 
 				/* Add the character width and right-side
@@ -1039,7 +1039,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					(float) Math.Sin(rotation),
 					(float) Math.Cos(rotation),
 					layerDepth,
-					(byte) effects
+					(int) effects
 				);
 
 				/* Add the character width and right-side
@@ -1069,7 +1069,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			float rotationSin,
 			float rotationCos,
 			float depth,
-			byte effects
+			int effects
 		) {
 			if (numSprites >= vertexInfo.Length)
 			{
@@ -1348,7 +1348,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			float rotationSin,
 			float rotationCos,
 			float depth,
-			byte effects
+			int effects
 		) {
 			float cornerX = -originX * destinationW;
 			float cornerY = -originY * destinationH;
@@ -1582,7 +1582,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			public float rotationSin;
 			public float rotationCos;
 			public float depth;
-			public byte effects;
+			public int effects; // actually 4 bits, but we're using int for alignment (fixes vfp inst SIGBUS on armhf)
 		}
 
 		#endregion
