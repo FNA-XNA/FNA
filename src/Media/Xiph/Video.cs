@@ -89,38 +89,41 @@ namespace Microsoft.Xna.Framework.Media
 
 			Theorafile.th_pixel_fmt fmt;
 			Theorafile.tf_fopen(fileName, out theora);
-			Theorafile.tf_videoinfo(
-				theora,
-				out yWidth,
-				out yHeight,
-				out fps,
-				out fmt
-			);
-			if (fmt == Theorafile.th_pixel_fmt.TH_PF_420)
+			if (theora != IntPtr.Zero)
 			{
-				uvWidth = yWidth / 2;
-				uvHeight = yHeight / 2;
-			}
-			else if (fmt == Theorafile.th_pixel_fmt.TH_PF_422)
-			{
-				uvWidth = yWidth / 2;
-				uvHeight = yHeight;
-			}
-			else if (fmt == Theorafile.th_pixel_fmt.TH_PF_444)
-			{
-				uvWidth = yWidth;
-				uvHeight = yHeight;
-			}
-			else
-			{
-				throw new NotSupportedException(
-					"Unrecognized YUV format!"
+				Theorafile.tf_videoinfo(
+					theora,
+					out yWidth,
+					out yHeight,
+					out fps,
+					out fmt
 				);
-			}
+				if (fmt == Theorafile.th_pixel_fmt.TH_PF_420)
+				{
+					uvWidth = yWidth / 2;
+					uvHeight = yHeight / 2;
+				}
+				else if (fmt == Theorafile.th_pixel_fmt.TH_PF_422)
+				{
+					uvWidth = yWidth / 2;
+					uvHeight = yHeight;
+				}
+				else if (fmt == Theorafile.th_pixel_fmt.TH_PF_444)
+				{
+					uvWidth = yWidth;
+					uvHeight = yHeight;
+				}
+				else
+				{
+					throw new NotSupportedException(
+						"Unrecognized YUV format!"
+					);
+				}
 
-			// FIXME: This is a part of the Duration hack!
-			Duration = TimeSpan.MaxValue;
-			needsDurationHack = true;
+				// FIXME: This is a part of the Duration hack!
+				Duration = TimeSpan.MaxValue;
+				needsDurationHack = true;
+			}
 		}
 
 		internal Video(
@@ -139,20 +142,29 @@ namespace Microsoft.Xna.Framework.Media
 			 * you, just remove the XNB file and we'll read the OGV straight up.
 			 * -flibit
 			 */
-			if (width != Width || height != Height)
+			if (theora == IntPtr.Zero)
 			{
-				throw new InvalidOperationException(
-					"XNB/OGV width/height mismatch!" +
-					" Width: " + Width.ToString() +
-					" Height: " + Height.ToString()
-				);
+				yWidth = width;
+				yHeight = height;
+				fps = framesPerSecond;
 			}
-			if (Math.Abs(FramesPerSecond - framesPerSecond) >= 1.0f)
+			else
 			{
-				throw new InvalidOperationException(
-					"XNB/OGV framesPerSecond mismatch!" +
-					" FPS: " + FramesPerSecond.ToString()
-				);
+			    if (width != Width || height != Height)
+			    {
+				    throw new InvalidOperationException(
+					    "XNB/OGV width/height mismatch!" +
+					    " Width: " + Width.ToString() +
+					    " Height: " + Height.ToString()
+				    );
+			    }
+			    if (Math.Abs(FramesPerSecond - framesPerSecond) >= 1.0f)
+			    {
+				    throw new InvalidOperationException(
+					    "XNB/OGV framesPerSecond mismatch!" +
+					    " FPS: " + FramesPerSecond.ToString()
+				    );
+			    }
 			}
 
 			// FIXME: Oh, hey! I wish we had this info in Theora!

@@ -41,10 +41,11 @@ namespace Microsoft.Xna.Framework.Content
 			/* The path string includes the ".wmv" extension. Let's see if this
 			 * file exists in a format we actually support...
 			 */
+			string origpath = path;
 			path = Normalize(path.Substring(0, path.Length - 4));
 			if (String.IsNullOrEmpty(path))
 			{
-				throw new ContentLoadException();
+				path = origpath;
 			}
 
 			int durationMS = input.ReadObject<int>();

@@ -594,6 +594,15 @@ namespace Microsoft.Xna.Framework.Media
 
 		public void Play(Video video)
 		{
+			if (video == null)
+			{
+				throw new System.ArgumentNullException();
+			}
+			if (video.theora == IntPtr.Zero)
+			{
+				throw new System.ArgumentException();
+			}
+
 			checkDisposed();
 
 			// We need to assign this regardless of what happens next.
