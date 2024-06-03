@@ -39,10 +39,10 @@ namespace Microsoft.Xna.Framework.Content
 			/* The path string includes the ".wma" extension. Let's see if this
 			 * file exists in a format we actually support...
 			 */
-			path = Normalize(path.Substring(0, path.Length - 4));
-			if (String.IsNullOrEmpty(path))
+			string realPath = Normalize(path.Substring(0, path.Length - 4));
+			if (!String.IsNullOrEmpty(realPath))
 			{
-				throw new ContentLoadException();
+				path = realPath;
 			}
 
 			int durationMs = input.ReadInt32();
