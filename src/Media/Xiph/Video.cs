@@ -153,10 +153,13 @@ namespace Microsoft.Xna.Framework.Media
 
 		// FIXME: These should be in VideoPlayer instead!
 
-		internal VideoPlayer parent; // FIXME: Remove this when extension is replaced!!!
+		internal int audioTrack = -1;
+		internal int videoTrack = -1;
+		internal VideoPlayer parent;
 
 		public void SetAudioTrackEXT(int track)
 		{
+			audioTrack = track;
 			if (parent != null)
 			{
 				parent.SetAudioTrackEXT(track);
@@ -165,6 +168,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		public void SetVideoTrackEXT(int track)
 		{
+			videoTrack = track;
 			if (parent != null)
 			{
 				parent.SetVideoTrackEXT(track);

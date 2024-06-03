@@ -695,6 +695,16 @@ namespace Microsoft.Xna.Framework.Media
 				Video.FramesPerSecond = (float) fps;
 			}
 
+			// Per-video track settings should always take priority
+			if (Video.audioTrack >= 0)
+			{
+				SetAudioTrackEXT(Video.audioTrack);
+			}
+			if (Video.videoTrack >= 0)
+			{
+				SetVideoTrackEXT(Video.videoTrack);
+			}
+
 			// Check the player state before attempting anything.
 			if (State != MediaState.Stopped)
 			{
