@@ -662,37 +662,20 @@ namespace Microsoft.Xna.Framework.Media
 			}
 
 			// Sanity checks for video metadata
-			if (Video.Width > 0 && Video.Height > 0)
+			if (Video.Width != yWidth || Video.Height != yHeight)
 			{
-				if (Video.Width != yWidth || Video.Height != yHeight)
-				{
-					throw new InvalidOperationException(
-						"XNB/OGV width/height mismatch!" +
-						" Width: " + Video.Width.ToString() +
-						" Height: " + Video.Height.ToString()
-					);
-				}
+				throw new InvalidOperationException(
+					"XNB/OGV width/height mismatch!" +
+					" Width: " + Video.Width.ToString() +
+					" Height: " + Video.Height.ToString()
+				);
 			}
-			else
+			if (Math.Abs(Video.FramesPerSecond - fps) >= 1.0f)
 			{
-				// Probably the raw path, fill it in
-				Video.Width = yWidth;
-				Video.Height = yHeight;
-			}
-			if (Video.FramesPerSecond > 0)
-			{
-				if (Math.Abs(Video.FramesPerSecond - fps) >= 1.0f)
-				{
-					throw new InvalidOperationException(
-						"XNB/OGV framesPerSecond mismatch!" +
-						" FPS: " + Video.FramesPerSecond.ToString()
-					);
-				}
-			}
-			else
-			{
-				// Probably the raw path, fill it in
-				Video.FramesPerSecond = (float) fps;
+				throw new InvalidOperationException(
+					"XNB/OGV framesPerSecond mismatch!" +
+					" FPS: " + Video.FramesPerSecond.ToString()
+				);
 			}
 
 			// Per-video track settings should always take priority

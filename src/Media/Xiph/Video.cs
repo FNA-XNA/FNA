@@ -23,19 +23,19 @@ namespace Microsoft.Xna.Framework.Media
 		public int Width
 		{
 			get;
-			internal set;
+			private set;
 		}
 
 		public int Height
 		{
 			get;
-			internal set;
+			private set;
 		}
 
 		public float FramesPerSecond
 		{
 			get;
-			internal set;
+			private set;
 		}
 
 		public VideoSoundtrackType VideoSoundtrackType
@@ -87,6 +87,20 @@ namespace Microsoft.Xna.Framework.Media
 			{
 				throw new FileNotFoundException(fileName);
 			}
+			int width;
+			int height;
+			double fps;
+			Theorafile.th_pixel_fmt fmt;
+			Theorafile.tf_videoinfo(
+				theora,
+				out width,
+				out height,
+				out fps,
+				out fmt
+			);
+			Width = width;
+			Height = height;
+			FramesPerSecond = (float) fps;
 			Theorafile.tf_close(ref theora);
 
 			// FIXME: This is a part of the Duration hack!
