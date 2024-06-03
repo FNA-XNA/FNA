@@ -402,10 +402,6 @@ namespace Microsoft.Xna.Framework.Media
 		#region Private Member Data: Theorafile
 
 		private IntPtr theora;
-		private int yWidth;
-		private int yHeight;
-		private int uvWidth;
-		private int uvHeight;
 		private double fps;
 
 		private IntPtr yuvData;
@@ -626,6 +622,11 @@ namespace Microsoft.Xna.Framework.Media
 			}
 
 			Theorafile.th_pixel_fmt fmt;
+			int yWidth;
+			int yHeight;
+			int uvWidth;
+			int uvHeight;
+
 			Theorafile.tf_fopen(Video.handle, out theora);
 			if (theora == IntPtr.Zero)
 			{
@@ -889,10 +890,10 @@ namespace Microsoft.Xna.Framework.Media
 				yuvTextures[0].texture,
 				yuvTextures[1].texture,
 				yuvTextures[2].texture,
-				yWidth,
-				yHeight,
-				uvWidth,
-				uvHeight,
+				yuvTextures[0].Width,
+				yuvTextures[0].Height,
+				yuvTextures[1].Width,
+				yuvTextures[1].Height,
 				yuvData,
 				yuvDataLen
 			);
