@@ -81,16 +81,17 @@ namespace Microsoft.Xna.Framework.Media
 			 * constructor we can be up front about files not
 			 * existing, so let's do that!
 			 */
-			IntPtr theora;
-			Theorafile.tf_fopen(fileName, out theora);
-			if (theora == IntPtr.Zero)
+			if (!File.Exists(fileName))
 			{
 				throw new FileNotFoundException(fileName);
 			}
+
+			IntPtr theora;
 			int width;
 			int height;
 			double fps;
 			Theorafile.th_pixel_fmt fmt;
+			Theorafile.tf_fopen(fileName, out theora);
 			Theorafile.tf_videoinfo(
 				theora,
 				out width,
@@ -98,10 +99,11 @@ namespace Microsoft.Xna.Framework.Media
 				out fps,
 				out fmt
 			);
+			Theorafile.tf_close(ref theora);
+
 			Width = width;
 			Height = height;
 			FramesPerSecond = (float) fps;
-			Theorafile.tf_close(ref theora);
 
 			// FIXME: This is a part of the Duration hack!
 			Duration = TimeSpan.MaxValue;
