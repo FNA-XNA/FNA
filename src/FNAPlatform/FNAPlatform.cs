@@ -111,6 +111,7 @@ namespace Microsoft.Xna.Framework
 			PollEvents =			SDL2_FNAPlatform.PollEvents;
 			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
 			GetCurrentDisplayMode =		SDL2_FNAPlatform.GetCurrentDisplayMode;
+			GetKeyboardState =		SDL2_FNAPlatform.GetKeyboardState;
 			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
 			IsTextInputActive =		SDL2_FNAPlatform.IsTextInputActive;
 			StartTextInput =		SDL2.SDL.SDL_StartTextInput;
@@ -260,6 +261,9 @@ namespace Microsoft.Xna.Framework
 
 		public delegate DisplayMode GetCurrentDisplayModeFunc(int adapterIndex);
 		public static readonly GetCurrentDisplayModeFunc GetCurrentDisplayMode;
+
+		public delegate void GetKeyboardStateFunc(List<Keys> activeKeys);
+		public static readonly GetKeyboardStateFunc GetKeyboardState;
 
 		public delegate Keys GetKeyFromScancodeFunc(Keys scancode);
 		public static readonly GetKeyFromScancodeFunc GetKeyFromScancode;
