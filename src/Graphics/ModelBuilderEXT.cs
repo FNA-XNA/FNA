@@ -1,66 +1,39 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.Xna.Framework
 {
 	/// <summary>
-	/// Grants ability to create a Model at the run-time
+	/// Model mesh descriptor
 	/// </summary>
-	public class ModelBuilderEXT
+	public class ModelMeshDescEXT
 	{
-		private class ModelMeshDesc
-		{
-			public string Name;
-			public readonly List<ModelMeshPart> Parts = new List<ModelMeshPart>();
-			public BoundingSphere BoundingSphere;
-			public int? ParentBoneIndex;
-		}
-
-		private class ModelBoneDesc
-		{
-			public string Name;
-			public int? ParentBoneIndex;
-			public readonly HashSet<int> MeshesIndexes = new HashSet<int>();
-			public readonly HashSet<int> ChildBonesIndexes = new HashSet<int>();
-			public Matrix Transform;
-		}
-
-		private readonly List<ModelMeshDesc> _meshData = new List<ModelMeshDesc>();
-		private readonly List<ModelBoneDesc> _boneData = new List<ModelBoneDesc>();
+		/// <summary>
+		/// Name of the model mesh
+		/// </summary>
+		public string Name { get; set; }
 
 		/// <summary>
-		/// Adds a model mesh
+		/// Parts of the model mesh
 		/// </summary>
-		/// <returns>Index of the new model mesh</returns>
-		public int AddModelMesh()
-		{
-			var index = _meshData.Count;
-
-			_meshData.Add(new ModelMeshDesc());
-
-			return index;
-		}
 
 		/// <summary>
-		/// Sets the name of the specified model mesh
+		/// Bounding Sphere of the model mesh
 		/// </summary>
-		/// <param name="modelMeshIndex">Index of the model mesh</param>
-		/// <param name="name">The name of the model mesh</param>
-		public void SetModelMeshName(int modelMeshIndex, string name)
-		{
-			if (modelMeshIndex < 0 || modelMeshIndex >= _meshData.Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(modelMeshIndex));
-			}
+		public BoundingSphere BoundingSphere { get; set; }
 
-			_meshData[modelMeshIndex].Name = name;
-		}
+		/// <summary>
+		/// Parts of the model mesh
+		/// </summary>
+		public readonly List<ModelMeshPart> Parts = new List<ModelMeshPart>();
+
+		internal int Index { get; set; }
 
 		/// <summary>
 		/// Adds a mesh part to the model mesh
 		/// </summary>
-		/// <param name="modelMeshIndex">Index of the model mesh</param>
 		/// <param name="indexBuffer">The index buffer for this mesh part</param>
 		/// <param name="startIndex">The location in the index array at which to start reading vertices</param>
 		/// <param name="vertexBuffer">The vertex buffer for this mesh part</param>
@@ -69,16 +42,10 @@ namespace Microsoft.Xna.Framework
 		/// <param name="primitiveCount">The number of primitives to render</param>
 		/// <exception cref="ArgumentNullException"></exception>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public void AddModelMeshPart(int modelMeshIndex,
-			IndexBuffer indexBuffer, int startIndex,
+		public void AddModelMeshPart(IndexBuffer indexBuffer, int startIndex,
 			VertexBuffer vertexBuffer, int vertexOffset, int numVertices,
 			int primitiveCount)
 		{
-			if (modelMeshIndex < 0 || modelMeshIndex >= _meshData.Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(modelMeshIndex));
-			}
-
 			if (indexBuffer == null)
 			{
 				throw new ArgumentNullException(nameof(indexBuffer));
@@ -119,141 +86,98 @@ namespace Microsoft.Xna.Framework
 				PrimitiveCount = primitiveCount
 			};
 
-			_meshData[modelMeshIndex].Parts.Add(part);
+			Parts.Add(part);
 		}
+	}
+
+	/// <summary>
+	/// Model bone descriptor
+	/// </summary>
+	public class ModelBoneDescEXT
+	{
+		/// <summary>
+		/// Name of the model bone
+		/// </summary>
+		public string Name { get; set; }
 
 		/// <summary>
-		/// Sets the bounding sphere for the specified model mesh.
+		/// Transform of the model bone
 		/// </summary>
-		/// <param name="modelMeshIndex">Index of the model mesh</param>
-		/// <param name="sphere">The bounding sphere</param>
-		public void SetModelMeshBoundingSphere(int modelMeshIndex, BoundingSphere sphere)
-		{
-			if (modelMeshIndex < 0 || modelMeshIndex >= _meshData.Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(modelMeshIndex));
-			}
-
-			_meshData[modelMeshIndex].BoundingSphere = sphere;
-		}
+		public Matrix Transform { get; set; }
 
 		/// <summary>
-		/// Adds a new model bone
+		/// Meshes of the model bone
 		/// </summary>
-		/// <returns>Index of the new model bone</returns>
-		public int AddModelBone()
-		{
-			var index = _boneData.Count;
-
-			_boneData.Add(new ModelBoneDesc());
-
-			return index;
-		}
+		public readonly List<ModelMeshDescEXT> Meshes = new List<ModelMeshDescEXT>();
 
 		/// <summary>
-		/// Sets the name of the specified model bone
+		/// Children of the model bone
 		/// </summary>
-		/// <param name="modelBoneIndex">Index of the model bone</param>
-		/// <param name="name">The name of the model bone</param>
-		public void SetModelBoneName(int modelBoneIndex, string name)
-		{
-			if (modelBoneIndex < 0 || modelBoneIndex >= _boneData.Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(modelBoneIndex));
-			}
+		public readonly List<ModelBoneDescEXT> Children = new List<ModelBoneDescEXT>();
 
-			_boneData[modelBoneIndex].Name = name;
-		}
+		internal int Index { get; set; }
+	}
 
-		/// <summary>
-		/// Sets the transform of the specified model bone
-		/// </summary>
-		/// <param name="modelBoneIndex">Index of the model bone</param>
-		/// <param name="transform">The transform of the model bone</param>
-		public void SetModelBoneTransform(int modelBoneIndex, Matrix transform)
-		{
-			if (modelBoneIndex < 0 || modelBoneIndex >= _boneData.Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(modelBoneIndex));
-			}
-
-			_boneData[modelBoneIndex].Transform = transform;
-		}
-
-		/// <summary>
-		/// Adds the specified model mesh to the specified model bone
-		/// </summary>
-		/// <param name="modelBoneIndex">Index of the model bone</param>
-		/// <param name="modelMeshIndex">Index of the model mesh</param>
-		public void AddMeshToBone(int modelBoneIndex, int modelMeshIndex)
-		{
-			if (modelBoneIndex < 0 || modelBoneIndex >= _boneData.Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(modelBoneIndex));
-			}
-
-			if (modelMeshIndex < 0 || modelMeshIndex >= _meshData.Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(modelMeshIndex));
-			}
-
-			_boneData[modelBoneIndex].MeshesIndexes.Add(modelMeshIndex);
-			_meshData[modelMeshIndex].ParentBoneIndex = modelBoneIndex;
-		}
-
-		/// <summary>
-		/// Adds a child model bone to the parent model bone
-		/// </summary>
-		/// <param name="parentBoneIndex">Index of the parent bone</param>
-		/// <param name="childBoneIndex">Index of the child bone</param>
-		public void AddBoneToBone(int parentBoneIndex, int childBoneIndex)
-		{
-			if (parentBoneIndex < 0 || parentBoneIndex >= _boneData.Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(parentBoneIndex));
-			}
-
-			if (childBoneIndex < 0 || childBoneIndex >= _boneData.Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(childBoneIndex));
-			}
-
-			_boneData[childBoneIndex].ParentBoneIndex = parentBoneIndex;
-			_boneData[parentBoneIndex].ChildBonesIndexes.Add(childBoneIndex);
-		}
-
+	/// <summary>
+	/// Grants ability to create a Model at the run-time
+	/// </summary>
+	public static class ModelBuilderEXT
+	{
 		/// <summary>
 		/// Creates the model
 		/// </summary>
 		/// <param name="device">Graphics Device</param>
-		/// <param name="rootBoneIndex">Index of the root bone</param>
+		/// <param name="meshes">Meshes of the model</param>
+		/// <param name="bones">Bones of the model</param>
+		/// <param name="root">Root bone of the model</param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		public Model Create(GraphicsDevice device, int rootBoneIndex)
+		public static Model Create(GraphicsDevice device, List<ModelMeshDescEXT> meshes, List<ModelBoneDescEXT> bones, ModelBoneDescEXT root)
 		{
-			if (rootBoneIndex < 0 || rootBoneIndex >= _boneData.Count)
+			if (meshes == null)
 			{
-				throw new ArgumentOutOfRangeException(nameof(rootBoneIndex));
+				throw new ArgumentNullException(nameof(meshes));
+			}
+
+			if (bones == null)
+			{
+				throw new ArgumentNullException(nameof(bones));
+			}
+
+			if (root == null)
+			{
+				throw new ArgumentNullException(nameof(root));
+			}
+
+			// Assign indexes
+			for (var i = 0; i < meshes.Count; ++i)
+			{
+				meshes[i].Index = i;
+			}
+
+			for (var i = 0; i < bones.Count; ++i)
+			{
+				bones[i].Index = i;
 			}
 
 			// Create meshes
-			var meshes = new List<ModelMesh>();
-			foreach (var desc in _meshData)
+			var modelMeshes = new List<ModelMesh>();
+			foreach (var desc in meshes)
 			{
-				var mesh = new ModelMesh(device, desc.Parts)
+				var modelMesh = new ModelMesh(device, desc.Parts.ToList())
 				{
 					Name = desc.Name,
 					BoundingSphere = desc.BoundingSphere,
 				};
 
-				meshes.Add(mesh);
+				modelMeshes.Add(modelMesh);
 			}
 
 			// Create bones
-			var bones = new List<ModelBone>();
-			for (var i = 0; i < _boneData.Count; ++i)
+			var modelBones = new List<ModelBone>();
+			for (var i = 0; i < bones.Count; ++i)
 			{
-				var desc = _boneData[i];
+				var desc = bones[i];
 				var bone = new ModelBone
 				{
 					Index = i,
@@ -261,46 +185,37 @@ namespace Microsoft.Xna.Framework
 					Transform = desc.Transform
 				};
 
-				foreach (var meshIndex in desc.MeshesIndexes)
+				foreach (var mesh in desc.Meshes)
 				{
-					var mesh = meshes[meshIndex];
-					mesh.ParentBone = bone;
-					bone.AddMesh(meshes[meshIndex]);
+					var modelMesh = modelMeshes[mesh.Index];
+					modelMesh.ParentBone = bone;
+					bone.AddMesh(modelMesh);
 				}
 
-				bones.Add(bone);
+				modelBones.Add(bone);
 			}
 
 			// Assign children
-			for (var i = 0; i < _boneData.Count; ++i)
+			for (var i = 0; i < bones.Count; ++i)
 			{
-				var desc = _boneData[i];
-				var bone = bones[i];
+				var desc = bones[i];
+				var bone = modelBones[i];
 
-				foreach (var childIndex in desc.ChildBonesIndexes)
+				foreach (var child in desc.Children)
 				{
-					var childBone = bones[childIndex];
+					var childBone = modelBones[child.Index];
 					childBone.Parent = bone;
 					bone.AddChild(childBone);
 				}
 			}
 
 			// Create the model
-			var model = new Model(device, bones, meshes)
+			var model = new Model(device, modelBones, modelMeshes)
 			{
-				Root = bones[rootBoneIndex]
+				Root = modelBones[root.Index]
 			};
 
 			return model;
-		}
-
-		/// <summary>
-		/// Clears internal lists so the new model could be created
-		/// </summary>
-		public void Reset()
-		{
-			_meshData.Clear();
-			_boneData.Clear();
 		}
 	}
 }
