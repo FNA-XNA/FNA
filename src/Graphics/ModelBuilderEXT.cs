@@ -16,10 +16,6 @@ namespace Microsoft.Xna.Framework
 		public string Name { get; set; }
 
 		/// <summary>
-		/// Parts of the model mesh
-		/// </summary>
-
-		/// <summary>
 		/// Bounding Sphere of the model mesh
 		/// </summary>
 		public BoundingSphere BoundingSphere { get; set; }
