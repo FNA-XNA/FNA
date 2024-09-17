@@ -164,7 +164,7 @@ namespace Microsoft.Xna.Framework
 			var modelMeshes = new List<ModelMesh>();
 			foreach (var desc in meshes)
 			{
-				var modelMesh = new ModelMesh(device, desc.Parts.ToList())
+				var modelMesh = new ModelMesh(device, desc.Parts)
 				{
 					Name = desc.Name,
 					BoundingSphere = desc.BoundingSphere,
