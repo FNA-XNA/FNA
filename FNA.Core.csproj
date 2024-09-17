@@ -188,6 +188,7 @@
 		<Compile Include="src\Graphics\Model.cs" />
 		<Compile Include="src\Graphics\ModelBone.cs" />
 		<Compile Include="src\Graphics\ModelBoneCollection.cs" />
+		<Compile Include="src\Graphics\ModelBuilderEXT.cs" />
 		<Compile Include="src\Graphics\ModelEffectCollection.cs" />
 		<Compile Include="src\Graphics\ModelMesh.cs" />
 		<Compile Include="src\Graphics\ModelMeshCollection.cs" />
