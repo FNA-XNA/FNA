@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace Microsoft.Xna.Framework.Graphics
 {
@@ -82,6 +83,22 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			Parts.Add(part);
 		}
+
+		/// <summary>
+		/// Creates the model mesh
+		/// </summary>
+		/// <param name="device">Graphics Device</param>
+		/// <returns></returns>
+		public ModelMesh Create(GraphicsDevice device)
+		{
+			var modelMesh = new ModelMesh(device, Parts)
+			{
+				Name = Name,
+				BoundingSphere = BoundingSphere,
+			};
+
+			return modelMesh;
+		}
 	}
 
 	/// <summary>
@@ -158,12 +175,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			var modelMeshes = new List<ModelMesh>();
 			foreach (var desc in meshes)
 			{
-				var modelMesh = new ModelMesh(device, desc.Parts)
-				{
-					Name = desc.Name,
-					BoundingSphere = desc.BoundingSphere,
-				};
-
+				var modelMesh = desc.Create(device);
 				modelMeshes.Add(modelMesh);
 			}
 
