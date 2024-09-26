@@ -190,7 +190,7 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// This _should_ be the first real SDL call we make...
-			if (SDL.SDL_Init(
+			if (!SDL.SDL_Init(
 				SDL.SDL_InitFlags.SDL_INIT_VIDEO |
 				SDL.SDL_InitFlags.SDL_INIT_GAMEPAD
 			))
@@ -412,7 +412,7 @@ namespace Microsoft.Xna.Framework
 			return new FNAWindow(
 				window,
 				@"\\.\DISPLAY" + (
-					SDL.SDL_GetDisplayForWindow(window) + 1
+					SDL.SDL_GetDisplayForWindow(window)
 				).ToString()
 			);
 		}
@@ -849,7 +849,7 @@ namespace Microsoft.Xna.Framework
 			// Which display did we end up on?
 			uint displayIndex = SDL.SDL_GetDisplayForWindow(
 				game.Window.Handle
-			);
+			) - 1;
 			return GraphicsAdapter.Adapters[(int) displayIndex];
 		}
 
@@ -1042,7 +1042,7 @@ namespace Microsoft.Xna.Framework
 						 */
 						int newIndex = (int) SDL.SDL_GetDisplayForWindow(
 							game.Window.Handle
-						);
+						) - 1;
 
 						if (newIndex >= GraphicsAdapter.Adapters.Count)
 						{
@@ -1077,7 +1077,7 @@ namespace Microsoft.Xna.Framework
 
 					uint displayIndex = SDL.SDL_GetDisplayForWindow(
 						game.Window.Handle
-					);
+					) - 1;
 					currentAdapter = GraphicsAdapter.Adapters[(int) displayIndex];
 
 					// Orientation Change
@@ -1280,6 +1280,13 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 			*/
+			List<DisplayMode> whatever = new List<DisplayMode>(1);
+			whatever.Add(new DisplayMode(1920, 1080, SurfaceFormat.Color));
+			adapters[0] = new GraphicsAdapter(
+				new DisplayModeCollection(whatever),
+				@"\\.\DISPLAY1",
+				"FIXME SDL3"
+			);
 			return adapters;
 		}
 
