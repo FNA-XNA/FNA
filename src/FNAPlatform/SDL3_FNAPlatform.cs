@@ -1341,6 +1341,12 @@ namespace Microsoft.Xna.Framework
 			x2 =		(ButtonState) ((uint) (flags & SDL.SDL_MouseButtonFlags.SDL_BUTTON_X2MASK) >> 4);
 		}
 
+		public static void WarpMouseInWindow(IntPtr window, int x, int y)
+		{
+			// Implicit conversion to float
+			SDL.SDL_WarpMouseInWindow(window, x, y);
+		}
+
 		public static void OnIsMouseVisibleChanged(bool visible)
 		{
 			if (visible)
@@ -2243,6 +2249,18 @@ namespace Microsoft.Xna.Framework
 		{
 			// FIXME SDL3: Need a window...
 			return SDL.SDL_TextInputActive(IntPtr.Zero);
+		}
+
+		public static void StartTextInput()
+		{
+			// FIXME SDL3: Need a window...
+			SDL.SDL_StartTextInput(IntPtr.Zero);
+		}
+
+		public static void StopTextInput()
+		{
+			// FIXME SDL3: Need a window...
+			SDL.SDL_StopTextInput(IntPtr.Zero);
 		}
 
 		#endregion
