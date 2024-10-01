@@ -822,10 +822,11 @@ namespace Microsoft.Xna.Framework
 			activeGames.Add(game);
 
 			// Which display did we end up on?
-			uint displayIndex = SDL.SDL_GetDisplayForWindow(
+			uint displayId = SDL.SDL_GetDisplayForWindow(
 				game.Window.Handle
-			) - 1;
-			return GraphicsAdapter.Adapters[(int) displayIndex];
+			);
+			int displayIndex = FetchDisplayIndex(displayId);
+			return GraphicsAdapter.Adapters[displayIndex];
 		}
 
 		public static void UnregisterGame(Game game)
@@ -1014,9 +1015,10 @@ namespace Microsoft.Xna.Framework
 						 * display, a GraphicsDevice Reset occurs.
 						 * -flibit
 						 */
-						int newIndex = (int) SDL.SDL_GetDisplayForWindow(
+						uint newId = SDL.SDL_GetDisplayForWindow(
 							game.Window.Handle
-						) - 1;
+						);
+						int newIndex = FetchDisplayIndex(newId);
 
 						if (newIndex >= GraphicsAdapter.Adapters.Count)
 						{
@@ -1049,10 +1051,11 @@ namespace Microsoft.Xna.Framework
 				{
 					GraphicsAdapter.AdaptersChanged();
 
-					uint displayIndex = SDL.SDL_GetDisplayForWindow(
+					uint displayId = SDL.SDL_GetDisplayForWindow(
 						game.Window.Handle
-					) - 1;
-					currentAdapter = GraphicsAdapter.Adapters[(int) displayIndex];
+					);
+					int displayIndex = FetchDisplayIndex(displayId);
+					currentAdapter = GraphicsAdapter.Adapters[displayIndex];
 
 					// Orientation Change
 					if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_DISPLAY_ORIENTATION)
@@ -1212,6 +1215,17 @@ namespace Microsoft.Xna.Framework
 
 		// FIXME SDL3: This is really sloppy -flibit
 		private static uint[] displayIds;
+		private static int FetchDisplayIndex(uint id)
+		{
+			for (int i = 0; i < displayIds.Length; i += 1)
+			{
+				if (id == displayIds[i])
+				{
+					return i;
+				}
+			}
+			throw new InvalidOperationException();
+		}
 
 		public static GraphicsAdapter[] GetGraphicsAdapters()
 		{
