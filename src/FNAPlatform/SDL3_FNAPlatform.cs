@@ -438,6 +438,11 @@ namespace Microsoft.Xna.Framework
 				TouchPanel.WindowHandle = IntPtr.Zero;
 			}
 
+			if (TextInputEXT.WindowHandle == window.Handle)
+			{
+				TextInputEXT.WindowHandle = IntPtr.Zero;
+			}
+
 			SDL.SDL_DestroyWindow(window.Handle);
 		}
 

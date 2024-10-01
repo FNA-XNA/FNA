@@ -272,6 +272,7 @@ namespace Microsoft.Xna.Framework
 			Window = FNAPlatform.CreateWindow();
 			Mouse.WindowHandle = Window.Handle;
 			TouchPanel.WindowHandle = Window.Handle;
+			TextInputEXT.WindowHandle = Window.Handle;
 
 			FrameworkDispatcher.Update();
 
