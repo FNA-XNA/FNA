@@ -74,13 +74,13 @@ namespace Microsoft.Xna.Framework
 				throw new BadImageFormatException(error, e);
 			}
 
-			/* SDL2 might complain if an OS that uses SDL_main has not actually
-			 * used SDL_main by the time you initialize SDL2.
+			/* SDL3 might complain if an OS that uses SDL_main has not actually
+			 * used SDL_main by the time you initialize SDL3.
 			 * The only platform that is affected is Windows, but we can skip
 			 * their WinMain. This was only added to prevent iOS from exploding.
 			 * -flibit
 			 */
-			// FIXME CSHARP SDL.SDL_SetMainReady();
+			SDL.SDL_SetMainReady();
 
 			/* Mount TitleLocation.Path */
 			string titleLocation = GetBaseDirectory();
@@ -246,7 +246,7 @@ namespace Microsoft.Xna.Framework
 			);
 
 			// We want to initialize the controllers ASAP!
-			SDL.SDL_Event* evt = stackalloc SDL.SDL_Event[1];
+			SDL.SDL_Event[] evt = new SDL.SDL_Event[1];
 			SDL.SDL_PumpEvents();
 			while (SDL.SDL_PeepEvents(
 				evt,
@@ -471,11 +471,10 @@ namespace Microsoft.Xna.Framework
 				else
 				{
 					int w, h;
-					w = 0; h = 0; // FIXME CSHARP: should be out
 					SDL.SDL_GetWindowSize(
 						window,
-						ref w,
-						ref h
+						out w,
+						out h
 					);
 					resize = (clientWidth != w || clientHeight != h);
 				}
@@ -555,8 +554,7 @@ namespace Microsoft.Xna.Framework
 		public static void ScaleForWindow(IntPtr window, bool invert, ref int w, ref int h)
 		{
 			int ww, wh, dw, dh;
-			ww = 0; wh = 0; // FIXME CSHARP: Should be out
-			SDL.SDL_GetWindowSize(window, ref ww, ref wh);
+			SDL.SDL_GetWindowSize(window, out ww, out wh);
 			FNA3D.FNA3D_GetDrawableSize(window, out dw, out dh);
 			if (	ww != 0 &&
 				wh != 0 &&
@@ -600,16 +598,15 @@ namespace Microsoft.Xna.Framework
 			}
 			else
 			{
-				result.X = 0; result.Y = 0; result.Width = 0; result.Height = 0; // FIXME CSHARP: Should be out
 				SDL.SDL_GetWindowPosition(
 					window,
-					ref result.X,
-					ref result.Y
+					out result.X,
+					out result.Y
 				);
 				SDL.SDL_GetWindowSize(
 					window,
-					ref result.Width,
-					ref result.Height
+					out result.Width,
+					out result.Height
 				);
 			}
 			return result;
@@ -685,10 +682,8 @@ namespace Microsoft.Xna.Framework
 							w * 4
 						);
 					}
-					/* FIXME CSHARP
 					SDL.SDL_SetWindowIcon(window, icon);
 					SDL.SDL_DestroySurface(icon);
-					*/
 					FNA3D.FNA3D_Image_Free(pixels);
 					return;
 				}
@@ -702,10 +697,8 @@ namespace Microsoft.Xna.Framework
 			if (!String.IsNullOrEmpty(fileIn))
 			{
 				IntPtr icon = SDL.SDL_LoadBMP(fileIn);
-				/* FIXME CSHARP
 				SDL.SDL_SetWindowIcon(window, icon);
-				SDL.SDL_FreeSurface(icon);
-				*/
+				SDL.SDL_DestroySurface(icon);
 			}
 		}
 
@@ -866,8 +859,7 @@ namespace Microsoft.Xna.Framework
 		) {
 			SDL.SDL_Event evt;
 			char* charsBuffer = stackalloc char[32]; // SDL_TEXTINPUTEVENT_TEXT_SIZE
-			evt = new SDL.SDL_Event(); // FIXME CSHARP: Should be out
-			while (SDL.SDL_PollEvent(ref evt))
+			while (SDL.SDL_PollEvent(out evt))
 			{
 				// Keyboard
 				if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_KEY_DOWN)
@@ -1120,9 +1112,8 @@ namespace Microsoft.Xna.Framework
 				// Text Input
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_TEXT_INPUT && !textInputSuppress)
 				{
-					// FIXME CSHARP: char* should be byte*, it's utf8-encoded
 					// Based on the SDL2# LPUtf8StrMarshaler
-					int bytes = MeasureStringLength((byte*) evt.text.text);
+					int bytes = MeasureStringLength(evt.text.text);
 					if (bytes > 0)
 					{
 						/* UTF8 will never encode more characters
@@ -1145,8 +1136,7 @@ namespace Microsoft.Xna.Framework
 
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_TEXT_EDITING)
 				{
-					// FIXME CSHARP: char* should be byte*, it's utf8-encoded
-					int bytes = MeasureStringLength((byte*) evt.edit.text);
+					int bytes = MeasureStringLength(evt.edit.text);
 					if (bytes > 0)
 					{
 						int chars = Encoding.UTF8.GetChars(
@@ -1241,8 +1231,8 @@ namespace Microsoft.Xna.Framework
 		public static GraphicsAdapter[] GetGraphicsAdapters()
 		{
 			SDL.SDL_DisplayMode filler = new SDL.SDL_DisplayMode();
-			int numDisplays = 0; // FIXME CSHARP: Should be out
-			SDL.SDL_GetDisplays(ref numDisplays);
+			int numDisplays;
+			SDL.SDL_GetDisplays(out numDisplays);
 			GraphicsAdapter[] adapters = new GraphicsAdapter[numDisplays];
 			/* FIXME CSHARP Oh fuck
 			for (int i = 0; i < adapters.Length; i += 1)
@@ -1319,26 +1309,26 @@ namespace Microsoft.Xna.Framework
 			out ButtonState x2
 		) {
 			SDL.SDL_MouseButtonFlags flags;
-			float fx = 0, fy = 0;
-			// FIXME CSHARP: All of these should be out, not ref
+			float fx, fy;
 			if (GetRelativeMouseMode())
 			{
-				flags = SDL.SDL_GetRelativeMouseState(ref fx, ref fy);
+				flags = SDL.SDL_GetRelativeMouseState(out fx, out fy);
 			}
 			else if (SupportsGlobalMouse)
 			{
-				flags = SDL.SDL_GetGlobalMouseState(ref fx, ref fy);
+				flags = SDL.SDL_GetGlobalMouseState(out fx, out fy);
 				int wx = 0, wy = 0;
-				SDL.SDL_GetWindowPosition(window, ref wx, ref wy);
-				// FIXME CSHARP see above x -= wx;
-				// FIXME CSHARP see above y -= wy;
+				SDL.SDL_GetWindowPosition(window, out wx, out wy);
+				fx -= wx;
+				fy -= wy;
 			}
 			else
 			{
 				/* This is inaccurate, but what can you do... */
-				flags = SDL.SDL_GetMouseState(ref fx, ref fy);
+				flags = SDL.SDL_GetMouseState(out fx, out fy);
 				
 			}
+			// FIXME SDL3: Should this be rounded?
 			x = (int) fx;
 			y = (int) fy;
 			left =		(ButtonState) (flags & SDL.SDL_MouseButtonFlags.SDL_BUTTON_LMASK);
@@ -1379,8 +1369,8 @@ namespace Microsoft.Xna.Framework
 			if (enable)
 			{
 			    // Flush this value, it's going to be jittery
-			    float filler = 0; // FIXME CSHARP: Should be out
-			    SDL.SDL_GetRelativeMouseState(ref filler, ref filler);
+			    float filler;
+			    SDL.SDL_GetRelativeMouseState(out filler, out filler);
 			}
 		}
 
@@ -1576,9 +1566,8 @@ namespace Microsoft.Xna.Framework
 
 		public static IntPtr ReadToPointer(string path, out IntPtr size)
 		{
-			// FIXME CSHARP: Should be out, also need an IntPtr overload
-			UIntPtr resultSize = UIntPtr.Zero;
-			IntPtr result = SDL.SDL_LoadFile(path, ref resultSize);
+			UIntPtr resultSize;
+			IntPtr result = SDL.SDL_LoadFile(path, out resultSize);
 			size = (IntPtr) resultSize.ToPointer();
 			return result;
 		}
@@ -1623,9 +1612,9 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// How many devices do we have...?
-			int numDev = 0; // FIXME CSHARP: Should be out
-			// FIXME CSHARP: Need the AudioDeviceIDs
-			SDL.SDL_GetAudioRecordingDevices(ref numDev);
+			int numDev;
+			// FIXME SDL3: Need the AudioDeviceIDs
+			SDL.SDL_GetAudioRecordingDevices(out numDev);
 			if (numDev < 1)
 			{
 				// Blech
@@ -2202,8 +2191,8 @@ namespace Microsoft.Xna.Framework
 			 *
 			 * -caleb
 			 */
-			int numDevices = 0; // FIXME CSHARP: Should be out
-			SDL.SDL_GetTouchDevices(ref numDevices);
+			int numDevices;
+			SDL.SDL_GetTouchDevices(out numDevices);
 			bool touchDeviceExists = numDevices > 0;
 			return new TouchPanelCapabilities(
 				touchDeviceExists,
@@ -2726,14 +2715,14 @@ namespace Microsoft.Xna.Framework
 
 		private static SDL.SDL_EventFilter win32OnPaint = Win32OnPaint;
 		private static SDL.SDL_EventFilter prevEventFilter;
-		private static unsafe bool Win32OnPaint(IntPtr userdata, ref SDL.SDL_Event evt)
+		private static unsafe bool Win32OnPaint(IntPtr userdata, SDL.SDL_Event* evt)
 		{
-			if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_EXPOSED)
+			if (evt->type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_EXPOSED)
 			{
 				foreach (Game game in activeGames)
 				{
 					if (	game.Window != null &&
-						evt.window.windowID == SDL.SDL_GetWindowID(game.Window.Handle)	)
+						evt->window.windowID == SDL.SDL_GetWindowID(game.Window.Handle)	)
 					{
 						game.RedrawWindow();
 						return false;
@@ -2742,7 +2731,7 @@ namespace Microsoft.Xna.Framework
 			}
 			if (prevEventFilter != null)
 			{
-				return prevEventFilter(userdata, ref evt);
+				return prevEventFilter(userdata, evt);
 			}
 			return true;
 		}
