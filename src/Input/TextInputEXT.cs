@@ -35,6 +35,16 @@ namespace Microsoft.Xna.Framework.Input
 
 		#endregion
 
+		#region Public Properties
+
+		public static IntPtr WindowHandle
+		{
+			get;
+			set;
+		}
+
+		#endregion
+
 		#region Public Static Methods
 
 		/// <summary>
@@ -47,7 +57,12 @@ namespace Microsoft.Xna.Framework.Input
 		/// <returns>True if text input state is active</returns>
 		public static bool IsTextInputActive()
 		{
-			return FNAPlatform.IsTextInputActive();
+			return FNAPlatform.IsTextInputActive(WindowHandle);
+		}
+
+		public static bool IsScreenKeyboardShown()
+		{
+			return FNAPlatform.IsScreenKeyboardShown(WindowHandle);
 		}
 
 		public static bool IsScreenKeyboardShown(IntPtr window)
@@ -57,12 +72,12 @@ namespace Microsoft.Xna.Framework.Input
 
 		public static void StartTextInput()
 		{
-			FNAPlatform.StartTextInput();
+			FNAPlatform.StartTextInput(WindowHandle);
 		}
 
 		public static void StopTextInput()
 		{
-			FNAPlatform.StopTextInput();
+			FNAPlatform.StopTextInput(WindowHandle);
 		}
 
 		/// <summary>
@@ -72,7 +87,7 @@ namespace Microsoft.Xna.Framework.Input
 		/// <param name="rectangle">Text input location relative to GameWindow.ClientBounds</param>
 		public static void SetInputRectangle(Rectangle rectangle)
 		{
-			FNAPlatform.SetTextInputRectangle(rectangle);
+			FNAPlatform.SetTextInputRectangle(WindowHandle, rectangle);
 		}
 
 		#endregion

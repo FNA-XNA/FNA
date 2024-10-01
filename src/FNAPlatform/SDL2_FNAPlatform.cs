@@ -852,7 +852,7 @@ namespace Microsoft.Xna.Framework
 			return stripChars;
 		}
 
-		public static void SetTextInputRectangle(Rectangle rectangle)
+		public static void SetTextInputRectangle(IntPtr window, Rectangle rectangle)
 		{
 			SDL.SDL_Rect rect = new SDL.SDL_Rect();
 			rect.x = rectangle.X;
@@ -1395,7 +1395,7 @@ namespace Microsoft.Xna.Framework
 			out ButtonState x2
 		) {
 			uint flags;
-			if (GetRelativeMouseMode())
+			if (GetRelativeMouseMode(window))
 			{
 				flags = SDL.SDL_GetRelativeMouseState(out x, out y);
 			}
@@ -1424,12 +1424,12 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_ShowCursor(visible ? 1 : 0);
 		}
 
-		public static bool GetRelativeMouseMode()
+		public static bool GetRelativeMouseMode(IntPtr window)
 		{
 			return SDL.SDL_GetRelativeMouseMode() == SDL.SDL_bool.SDL_TRUE;
 		}
 
-		public static void SetRelativeMouseMode(bool enable)
+		public static void SetRelativeMouseMode(IntPtr window, bool enable)
 		{
 			SDL.SDL_SetRelativeMouseMode(
 				enable ?
@@ -2405,9 +2405,20 @@ namespace Microsoft.Xna.Framework
 		#endregion
 
 		#region TextInput Methods
-		public static bool IsTextInputActive()
+
+		public static bool IsTextInputActive(IntPtr window)
 		{
 			return SDL.SDL_IsTextInputActive() != 0;
+		}
+
+		public static void StartTextInput(IntPtr window)
+		{
+			SDL.SDL_StartTextInput();
+		}
+
+		public static void StopTextInput(IntPtr window)
+		{
+			SDL.SDL_StopTextInput();
 		}
 
 		#endregion

@@ -508,8 +508,9 @@ namespace Microsoft.Xna.Framework
 			// Window always gets centered on changes, per XNA behavior
 			if (center)
 			{
-				// FIXME CSHARP
-				int pos = 0; // SDL.SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex);
+				// FIXME CSHARP: SDL_WINDOWPOS_CENTERED_DISPLAY
+				// FIXME SDL3: I dunno if I like this +1...
+				int pos = 0x2FFF0000 | (displayIndex + 1);
 				SDL.SDL_SetWindowPosition(
 					window,
 					pos,
@@ -527,14 +528,10 @@ namespace Microsoft.Xna.Framework
 					 * what the window/drawable sizes will eventually be later.
 					 * -flibit
 					 */
-					/* FIXME CSHARP
-					SDL.SDL_DisplayMode mode;
-					SDL.SDL_GetCurrentDisplayMode(
-						displayIndex,
-						out mode
+					SDL.SDL_DisplayMode* mode = (SDL.SDL_DisplayMode*) SDL.SDL_GetCurrentDisplayMode(
+						SDL.SDL_GetDisplayForWindow(window)
 					);
-					SDL.SDL_SetWindowSize(window, mode.w, mode.h);
-					*/
+					SDL.SDL_SetWindowSize(window, mode->w, mode->h);
 				}
 				SDL.SDL_SetWindowFullscreen(
 					window,
@@ -581,20 +578,13 @@ namespace Microsoft.Xna.Framework
 			if ((SDL.SDL_GetWindowFlags(window) & SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN) != 0)
 			{
 				/* It's easier/safer to just use the display mode here */
-				SDL.SDL_DisplayMode mode;
-				/* FIXME CSHARP
-				SDL.SDL_GetCurrentDisplayMode(
-					SDL.SDL_GetDisplayForWindow(
-						window
-					),
-					out mode
+				SDL.SDL_DisplayMode* mode = (SDL.SDL_DisplayMode*) SDL.SDL_GetCurrentDisplayMode(
+					SDL.SDL_GetDisplayForWindow(window)
 				);
 				result.X = 0;
 				result.Y = 0;
-				result.Width = mode.w;
-				result.Height = mode.h;
-				*/
-				result.X = 0; result.Y = 0; result.Width = 0; result.Height = 0;
+				result.Width = mode->w;
+				result.Height = mode->h;
 			}
 			else
 			{
@@ -755,15 +745,15 @@ namespace Microsoft.Xna.Framework
 			return stripChars;
 		}
 
-		public static void SetTextInputRectangle(Rectangle rectangle)
+		public static void SetTextInputRectangle(IntPtr window, Rectangle rectangle)
 		{
 			SDL.SDL_Rect rect = new SDL.SDL_Rect();
 			rect.x = rectangle.X;
 			rect.y = rectangle.Y;
 			rect.w = rectangle.Width;
 			rect.h = rectangle.Height;
-			// FIXME SDL3: Do we need a window/cursor here?
-			SDL.SDL_SetTextInputArea(IntPtr.Zero, ref rect, 0);
+			// FIXME SDL3: Do we need a cursor here?
+			SDL.SDL_SetTextInputArea(window, ref rect, 0);
 		}
 
 		#endregion
@@ -922,7 +912,7 @@ namespace Microsoft.Xna.Framework
 				}
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_MOUSE_WHEEL)
 				{
-					// FIXME SDL3: This is float now...
+					// FIXME SDL3: Should this be rounded?
 					// 120 units per notch. Because reasons.
 					Mouse.INTERNAL_MouseWheel += (int) evt.wheel.y * 120;
 				}
@@ -1230,24 +1220,21 @@ namespace Microsoft.Xna.Framework
 
 		public static GraphicsAdapter[] GetGraphicsAdapters()
 		{
-			SDL.SDL_DisplayMode filler = new SDL.SDL_DisplayMode();
 			int numDisplays;
-			SDL.SDL_GetDisplays(out numDisplays);
+			uint* displays = (uint*) SDL.SDL_GetDisplays(out numDisplays);
 			GraphicsAdapter[] adapters = new GraphicsAdapter[numDisplays];
-			/* FIXME CSHARP Oh fuck
 			for (int i = 0; i < adapters.Length; i += 1)
 			{
 				List<DisplayMode> modes = new List<DisplayMode>();
-				int numModes = SDL.SDL_GetNumDisplayModes(i);
+				int numModes;
+				SDL.SDL_DisplayMode** displayModes = (SDL.SDL_DisplayMode**) SDL.SDL_GetFullscreenDisplayModes(displays[i], out numModes);
 				for (int j = numModes - 1; j >= 0; j -= 1)
 				{
-					SDL.SDL_GetDisplayMode(i, j, out filler);
-
 					// Check for dupes caused by varying refresh rates.
 					bool dupe = false;
 					foreach (DisplayMode mode in modes)
 					{
-						if (filler.w == mode.Width && filler.h == mode.Height)
+						if (displayModes[j]->w == mode.Width && displayModes[j]->h == mode.Height)
 						{
 							dupe = true;
 						}
@@ -1256,40 +1243,34 @@ namespace Microsoft.Xna.Framework
 					{
 						modes.Add(
 							new DisplayMode(
-								filler.w,
-								filler.h,
+								displayModes[j]->w,
+								displayModes[j]->h,
 								SurfaceFormat.Color // FIXME: Assumption!
 							)
 						);
 					}
 				}
+				SDL.SDL_free((IntPtr) displayModes);
 				adapters[i] = new GraphicsAdapter(
 					new DisplayModeCollection(modes),
 					@"\\.\DISPLAY" + (i + 1).ToString(),
-					SDL.SDL_GetDisplayName(i)
+					SDL.SDL_GetDisplayName(displays[i])
 				);
 			}
-			*/
-			List<DisplayMode> whatever = new List<DisplayMode>(1);
-			whatever.Add(new DisplayMode(1920, 1080, SurfaceFormat.Color));
-			adapters[0] = new GraphicsAdapter(
-				new DisplayModeCollection(whatever),
-				@"\\.\DISPLAY1",
-				"FIXME SDL3"
-			);
+			SDL.SDL_free((IntPtr) displays);
 			return adapters;
 		}
 
 		public static DisplayMode GetCurrentDisplayMode(int adapterIndex)
 		{
-			SDL.SDL_DisplayMode filler = new SDL.SDL_DisplayMode();
-			// FIXME CSHARP SDL.SDL_GetCurrentDisplayMode(adapterIndex, out filler);
+			// FIXME SDL3: I dunno if I like this +1...
+			SDL.SDL_DisplayMode *mode = (SDL.SDL_DisplayMode*) SDL.SDL_GetCurrentDisplayMode((uint) adapterIndex + 1);
 
 			// FIXME: iOS needs to factor in the DPI!
 
 			return new DisplayMode(
-				filler.w,
-				filler.h,
+				mode->w,
+				mode->h,
 				SurfaceFormat.Color // FIXME: Assumption!
 			);
 		}
@@ -1310,7 +1291,7 @@ namespace Microsoft.Xna.Framework
 		) {
 			SDL.SDL_MouseButtonFlags flags;
 			float fx, fy;
-			if (GetRelativeMouseMode())
+			if (GetRelativeMouseMode(window))
 			{
 				flags = SDL.SDL_GetRelativeMouseState(out fx, out fy);
 			}
@@ -1356,16 +1337,14 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		public static bool GetRelativeMouseMode()
+		public static bool GetRelativeMouseMode(IntPtr window)
 		{
-			// FIXME SDL3: Need a window now?
-			return SDL.SDL_GetWindowRelativeMouseMode(IntPtr.Zero);
+			return SDL.SDL_GetWindowRelativeMouseMode(window);
 		}
 
-		public static void SetRelativeMouseMode(bool enable)
+		public static void SetRelativeMouseMode(IntPtr window, bool enable)
 		{
-			// FIXME SDL3: Need a window now?
-			SDL.SDL_SetWindowRelativeMouseMode(IntPtr.Zero, enable);
+			SDL.SDL_SetWindowRelativeMouseMode(window, enable);
 			if (enable)
 			{
 			    // Flush this value, it's going to be jittery
@@ -1602,19 +1581,22 @@ namespace Microsoft.Xna.Framework
 		 */
 		private static bool micInit = false;
 
+		// FIXME SDL3: This is really sloppy -flibit
+		private static Dictionary<uint, IntPtr> micStreams;
+
 		public static Microphone[] GetMicrophones()
 		{
 			// Init subsystem if needed
 			if (!micInit)
 			{
 				SDL.SDL_InitSubSystem(SDL.SDL_InitFlags.SDL_INIT_AUDIO);
+				micStreams = new Dictionary<uint, IntPtr>();
 				micInit = true;
 			}
 
 			// How many devices do we have...?
 			int numDev;
-			// FIXME SDL3: Need the AudioDeviceIDs
-			SDL.SDL_GetAudioRecordingDevices(out numDev);
+			uint* devices = (uint*) SDL.SDL_GetAudioRecordingDevices(out numDev);
 			if (numDev < 1)
 			{
 				// Blech
@@ -1631,22 +1613,32 @@ namespace Microsoft.Xna.Framework
 			// First mic is always OS default
 			result[0] = new Microphone(
 				SDL.SDL_OpenAudioDevice(
-					0, // FIXME SDL3
+					0xFFFFFFFEu, // FIXME CSHARP: SDL_AUDIO_DEVICE_DEFAULT_RECORDING
 					ref want
 				),
 				"Default Device"
 			);
 			for (int i = 0; i < numDev; i += 1)
 			{
-				string name = SDL.SDL_GetAudioDeviceName(0); // FIXME SDL3
+				string name = SDL.SDL_GetAudioDeviceName(devices[i]);
 				result[i + 1] = new Microphone(
 					SDL.SDL_OpenAudioDevice(
-						0, // FIXME SDL3
+						devices[i],
 						ref want
 					),
 					name
 				);
+
+				IntPtr stream;
+				SDL.SDL_AudioSpec have;
+				int filler;
+				SDL.SDL_GetAudioDeviceFormat(devices[i], out have, out filler);
+				stream = SDL.SDL_CreateAudioStream(ref want, ref have);
+
+				SDL.SDL_BindAudioStream(devices[i], stream);
+				micStreams.Add(devices[i], stream);
 			}
+			SDL.SDL_free((IntPtr) devices);
 			return result;
 		}
 
@@ -1656,25 +1648,19 @@ namespace Microsoft.Xna.Framework
 			int offset,
 			int count
 		) {
-			/* FIXME SDL3: Need an SDL_AudioStream
 			fixed (byte* ptr = &buffer[offset])
 			{
-				return (int) SDL.SDL_DequeueAudio(
-					handle,
+				return (int) SDL.SDL_GetAudioStreamData(
+					micStreams[handle],
 					(IntPtr) ptr,
-					(uint) count
+					count
 				);
 			}
-			*/
-			return 0;
 		}
 
 		public static int GetMicrophoneQueuedBytes(uint handle)
 		{
-			/* FIXME SDL3: Need an SDL_AudioStream
-			return (int) SDL.SDL_GetQueuedAudioSize(handle);
-			*/
-			return 0;
+			return SDL.SDL_GetAudioStreamQueued(micStreams[handle]);
 		}
 
 		public static void StartMicrophone(uint handle)
@@ -2202,9 +2188,9 @@ namespace Microsoft.Xna.Framework
 
 		public static unsafe void UpdateTouchPanelState()
 		{
-			// Poll the touch device for all active fingers
-			long touchDevice = 0; // FIXME CSHARP: Need SDL_TouchID* SDL.SDL_GetTouchDevice(0);
 			/* FIXME SDL3: Touch
+			// Poll the touch device for all active fingers
+			long touchDevice = SDL.SDL_GetTouchDevice(0);
 			for (int i = 0; i < TouchPanel.MAX_TOUCHES; i += 1)
 			{
 				SDL.SDL_Finger* finger = (SDL.SDL_Finger*) SDL.SDL_GetTouchFinger(touchDevice, i);
@@ -2241,22 +2227,20 @@ namespace Microsoft.Xna.Framework
 		#endregion
 
 		#region TextInput Methods
-		public static bool IsTextInputActive()
+
+		public static bool IsTextInputActive(IntPtr window)
 		{
-			// FIXME SDL3: Need a window...
-			return SDL.SDL_TextInputActive(IntPtr.Zero);
+			return SDL.SDL_TextInputActive(window);
 		}
 
-		public static void StartTextInput()
+		public static void StartTextInput(IntPtr window)
 		{
-			// FIXME SDL3: Need a window...
-			SDL.SDL_StartTextInput(IntPtr.Zero);
+			SDL.SDL_StartTextInput(window);
 		}
 
-		public static void StopTextInput()
+		public static void StopTextInput(IntPtr window)
 		{
-			// FIXME SDL3: Need a window...
-			SDL.SDL_StopTextInput(IntPtr.Zero);
+			SDL.SDL_StopTextInput(window);
 		}
 
 		#endregion

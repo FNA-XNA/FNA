@@ -177,8 +177,8 @@ namespace Microsoft.Xna.Framework
 				GetCurrentDisplayMode =		SDL2_FNAPlatform.GetCurrentDisplayMode;
 				GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
 				IsTextInputActive =		SDL2_FNAPlatform.IsTextInputActive;
-				StartTextInput =		SDL2.SDL.SDL_StartTextInput;
-				StopTextInput =			SDL2.SDL.SDL_StopTextInput;
+				StartTextInput =		SDL2_FNAPlatform.StartTextInput;
+				StopTextInput =			SDL2_FNAPlatform.StopTextInput;
 				SetTextInputRectangle =		SDL2_FNAPlatform.SetTextInputRectangle;
 				GetMouseState =			SDL2_FNAPlatform.GetMouseState;
 				SetMousePosition =		SDL2.SDL.SDL_WarpMouseInWindow;
@@ -337,16 +337,16 @@ namespace Microsoft.Xna.Framework
 		public delegate Keys GetKeyFromScancodeFunc(Keys scancode);
 		public static readonly GetKeyFromScancodeFunc GetKeyFromScancode;
 
-		public delegate bool IsTextInputActiveFunc();
+		public delegate bool IsTextInputActiveFunc(IntPtr window);
 		public static readonly IsTextInputActiveFunc IsTextInputActive;
 
-		public delegate void StartTextInputFunc();
+		public delegate void StartTextInputFunc(IntPtr window);
 		public static readonly StartTextInputFunc StartTextInput;
 
-		public delegate void StopTextInputFunc();
+		public delegate void StopTextInputFunc(IntPtr window);
 		public static readonly StopTextInputFunc StopTextInput;
 
-		public delegate void SetTextInputRectangleFunc(Rectangle rectangle);
+		public delegate void SetTextInputRectangleFunc(IntPtr window, Rectangle rectangle);
 		public static readonly SetTextInputRectangleFunc SetTextInputRectangle;
 
 		public delegate void GetMouseStateFunc(
@@ -371,10 +371,10 @@ namespace Microsoft.Xna.Framework
 		public delegate void OnIsMouseVisibleChangedFunc(bool visible);
 		public static readonly OnIsMouseVisibleChangedFunc OnIsMouseVisibleChanged;
 
-		public delegate bool GetRelativeMouseModeFunc();
+		public delegate bool GetRelativeMouseModeFunc(IntPtr window);
 		public static readonly GetRelativeMouseModeFunc GetRelativeMouseMode;
 
-		public delegate void SetRelativeMouseModeFunc(bool enable);
+		public delegate void SetRelativeMouseModeFunc(IntPtr window, bool enable);
 		public static readonly SetRelativeMouseModeFunc SetRelativeMouseMode;
 
 		public delegate GamePadCapabilities GetGamePadCapabilitiesFunc(int index);
