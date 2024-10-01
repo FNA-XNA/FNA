@@ -30,11 +30,11 @@ namespace Microsoft.Xna.Framework.Input
 		{
 			get
 			{
-				return FNAPlatform.GetRelativeMouseMode();
+				return FNAPlatform.GetRelativeMouseMode(WindowHandle);
 			}
 			set
 			{
-				FNAPlatform.SetRelativeMouseMode(value);
+				FNAPlatform.SetRelativeMouseMode(WindowHandle, value);
 			}
 		}
 

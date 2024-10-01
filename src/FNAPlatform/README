@@ -11,8 +11,8 @@ platforms as well as multiple backends for each platform all simultaneously.
 
 That said, if you are adding a new platform, it is extremely likely that you
 will NOT be touching anything in FNA itself! The expectation is that 100% of
-your work will end up in SDL2 and FNA3D. You _might_ add some OSVersion checks
-to SDL2_FNAPlatform.cs, but that should be the only change in the managed code.
+your work will end up in SDL3 and FNA3D. You _might_ add some OSVersion checks
+to SDL3_FNAPlatform.cs, but that should be the only change in the managed code.
 
 If for some reason you REALLY need a new FNAPlatform, the new platforms will add
 code exclusively to this folder. Some interfaces may need to change for new

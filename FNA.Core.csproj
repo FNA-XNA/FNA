@@ -136,6 +136,7 @@
 		<Compile Include="src\FNAPlatform\FNAPlatform.cs" />
 		<Compile Include="src\FNAPlatform\FNAWindow.cs" />
 		<Compile Include="src\FNAPlatform\SDL2_FNAPlatform.cs" />
+		<Compile Include="src\FNAPlatform\SDL3_FNAPlatform.cs" />
 		<Compile Include="src\FrameworkDispatcher.cs" />
 		<Compile Include="src\Game.cs" />
 		<Compile Include="src\GameComponent.cs" />
@@ -337,6 +338,7 @@
 		<Compile Include="src\Vector3.cs" />
 		<Compile Include="src\Vector4.cs" />
 		<Compile Include="lib\SDL2-CS\src\SDL2.cs" />
+		<Compile Include="lib\SDL3-CS\SDL3\SDL3.cs" />
 		<Compile Include="lib\FAudio\csharp\FAudio.cs" />
 		<Compile Include="lib\Theorafile\csharp\Theorafile.cs" />
 	</ItemGroup>

@@ -36,9 +36,16 @@ namespace Microsoft.Xna.Framework
 			 * -flibit
 			 */
 
-			// Environment.GetEnvironmentVariable("FNA_PLATFORM_BACKEND");
+			bool useSDL3 = Environment.GetEnvironmentVariable("FNA_PLATFORM_BACKEND") == "SDL3";
 
-			SetEnv = SDL2_FNAPlatform.SetEnv;
+			if (useSDL3)
+			{
+				SetEnv = SDL3_FNAPlatform.SetEnv;
+			}
+			else
+			{
+				SetEnv = SDL2_FNAPlatform.SetEnv;
+			}
 
 			// Built-in command line arguments
 			LaunchParameters args = new LaunchParameters();
@@ -93,63 +100,129 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
-			Malloc =			SDL2_FNAPlatform.Malloc;
-			Free =				SDL2.SDL.SDL_free;
-			CreateWindow =			SDL2_FNAPlatform.CreateWindow;
-			DisposeWindow =			SDL2_FNAPlatform.DisposeWindow;
-			ApplyWindowChanges =		SDL2_FNAPlatform.ApplyWindowChanges;
-			ScaleForWindow =		SDL2_FNAPlatform.ScaleForWindow;
-			GetWindowBounds =		SDL2_FNAPlatform.GetWindowBounds;
-			GetWindowResizable =		SDL2_FNAPlatform.GetWindowResizable;
-			SetWindowResizable =		SDL2_FNAPlatform.SetWindowResizable;
-			GetWindowBorderless =		SDL2_FNAPlatform.GetWindowBorderless;
-			SetWindowBorderless =		SDL2_FNAPlatform.SetWindowBorderless;
-			SetWindowTitle =		SDL2_FNAPlatform.SetWindowTitle;
-			IsScreenKeyboardShown =		SDL2_FNAPlatform.IsScreenKeyboardShown;
-			RegisterGame =			SDL2_FNAPlatform.RegisterGame;
-			UnregisterGame =		SDL2_FNAPlatform.UnregisterGame;
-			PollEvents =			SDL2_FNAPlatform.PollEvents;
-			GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
-			GetCurrentDisplayMode =		SDL2_FNAPlatform.GetCurrentDisplayMode;
-			GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
-			IsTextInputActive =		SDL2_FNAPlatform.IsTextInputActive;
-			StartTextInput =		SDL2.SDL.SDL_StartTextInput;
-			StopTextInput =			SDL2.SDL.SDL_StopTextInput;
-			SetTextInputRectangle =		SDL2_FNAPlatform.SetTextInputRectangle;
-			GetMouseState =			SDL2_FNAPlatform.GetMouseState;
-			SetMousePosition =		SDL2.SDL.SDL_WarpMouseInWindow;
-			OnIsMouseVisibleChanged =	SDL2_FNAPlatform.OnIsMouseVisibleChanged;
-			GetRelativeMouseMode =		SDL2_FNAPlatform.GetRelativeMouseMode;
-			SetRelativeMouseMode =		SDL2_FNAPlatform.SetRelativeMouseMode;
-			GetGamePadCapabilities =	SDL2_FNAPlatform.GetGamePadCapabilities;
-			GetGamePadState =		SDL2_FNAPlatform.GetGamePadState;
-			SetGamePadVibration =		SDL2_FNAPlatform.SetGamePadVibration;
-			SetGamePadTriggerVibration =	SDL2_FNAPlatform.SetGamePadTriggerVibration;
-			GetGamePadGUID =		SDL2_FNAPlatform.GetGamePadGUID;
-			SetGamePadLightBar =		SDL2_FNAPlatform.SetGamePadLightBar;
-			GetGamePadGyro = 		SDL2_FNAPlatform.GetGamePadGyro;
-			GetGamePadAccelerometer =	SDL2_FNAPlatform.GetGamePadAccelerometer;
-			GetStorageRoot =		SDL2_FNAPlatform.GetStorageRoot;
-			GetDriveInfo =			SDL2_FNAPlatform.GetDriveInfo;
-			ReadFileToPointer =		SDL2_FNAPlatform.ReadToPointer;
-			FreeFilePointer =		SDL2_FNAPlatform.FreeFilePointer;
-			ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
-			GetMicrophones =		SDL2_FNAPlatform.GetMicrophones;
-			GetMicrophoneSamples =		SDL2_FNAPlatform.GetMicrophoneSamples;
-			GetMicrophoneQueuedBytes =	SDL2_FNAPlatform.GetMicrophoneQueuedBytes;
-			StartMicrophone =		SDL2_FNAPlatform.StartMicrophone;
-			StopMicrophone =		SDL2_FNAPlatform.StopMicrophone;
-			GetTouchCapabilities =		SDL2_FNAPlatform.GetTouchCapabilities;
-			UpdateTouchPanelState =		SDL2_FNAPlatform.UpdateTouchPanelState;
-			GetNumTouchFingers =		SDL2_FNAPlatform.GetNumTouchFingers;
-			SupportsOrientationChanges =	SDL2_FNAPlatform.SupportsOrientationChanges;
-			NeedsPlatformMainLoop = 	SDL2_FNAPlatform.NeedsPlatformMainLoop;
-			RunPlatformMainLoop =		SDL2_FNAPlatform.RunPlatformMainLoop;
+			if (useSDL3)
+			{
+				Malloc =			SDL3_FNAPlatform.Malloc;
+				Free =				SDL3.SDL.SDL_free;
+				CreateWindow =			SDL3_FNAPlatform.CreateWindow;
+				DisposeWindow =			SDL3_FNAPlatform.DisposeWindow;
+				ApplyWindowChanges =		SDL3_FNAPlatform.ApplyWindowChanges;
+				ScaleForWindow =		SDL3_FNAPlatform.ScaleForWindow;
+				GetWindowBounds =		SDL3_FNAPlatform.GetWindowBounds;
+				GetWindowResizable =		SDL3_FNAPlatform.GetWindowResizable;
+				SetWindowResizable =		SDL3_FNAPlatform.SetWindowResizable;
+				GetWindowBorderless =		SDL3_FNAPlatform.GetWindowBorderless;
+				SetWindowBorderless =		SDL3_FNAPlatform.SetWindowBorderless;
+				SetWindowTitle =		SDL3_FNAPlatform.SetWindowTitle;
+				IsScreenKeyboardShown =		SDL3_FNAPlatform.IsScreenKeyboardShown;
+				RegisterGame =			SDL3_FNAPlatform.RegisterGame;
+				UnregisterGame =		SDL3_FNAPlatform.UnregisterGame;
+				PollEvents =			SDL3_FNAPlatform.PollEvents;
+				GetGraphicsAdapters =		SDL3_FNAPlatform.GetGraphicsAdapters;
+				GetCurrentDisplayMode =		SDL3_FNAPlatform.GetCurrentDisplayMode;
+				GetKeyFromScancode =		SDL3_FNAPlatform.GetKeyFromScancode;
+				IsTextInputActive =		SDL3_FNAPlatform.IsTextInputActive;
+				StartTextInput =		SDL3_FNAPlatform.StartTextInput;
+				StopTextInput =			SDL3_FNAPlatform.StopTextInput;
+				SetTextInputRectangle =		SDL3_FNAPlatform.SetTextInputRectangle;
+				GetMouseState =			SDL3_FNAPlatform.GetMouseState;
+				SetMousePosition =		SDL3_FNAPlatform.WarpMouseInWindow;
+				OnIsMouseVisibleChanged =	SDL3_FNAPlatform.OnIsMouseVisibleChanged;
+				GetRelativeMouseMode =		SDL3_FNAPlatform.GetRelativeMouseMode;
+				SetRelativeMouseMode =		SDL3_FNAPlatform.SetRelativeMouseMode;
+				GetGamePadCapabilities =	SDL3_FNAPlatform.GetGamePadCapabilities;
+				GetGamePadState =		SDL3_FNAPlatform.GetGamePadState;
+				SetGamePadVibration =		SDL3_FNAPlatform.SetGamePadVibration;
+				SetGamePadTriggerVibration =	SDL3_FNAPlatform.SetGamePadTriggerVibration;
+				GetGamePadGUID =		SDL3_FNAPlatform.GetGamePadGUID;
+				SetGamePadLightBar =		SDL3_FNAPlatform.SetGamePadLightBar;
+				GetGamePadGyro = 		SDL3_FNAPlatform.GetGamePadGyro;
+				GetGamePadAccelerometer =	SDL3_FNAPlatform.GetGamePadAccelerometer;
+				GetStorageRoot =		SDL3_FNAPlatform.GetStorageRoot;
+				GetDriveInfo =			SDL3_FNAPlatform.GetDriveInfo;
+				ReadFileToPointer =		SDL3_FNAPlatform.ReadToPointer;
+				FreeFilePointer =		SDL3_FNAPlatform.FreeFilePointer;
+				ShowRuntimeError =		SDL3_FNAPlatform.ShowRuntimeError;
+				GetMicrophones =		SDL3_FNAPlatform.GetMicrophones;
+				GetMicrophoneSamples =		SDL3_FNAPlatform.GetMicrophoneSamples;
+				GetMicrophoneQueuedBytes =	SDL3_FNAPlatform.GetMicrophoneQueuedBytes;
+				StartMicrophone =		SDL3_FNAPlatform.StartMicrophone;
+				StopMicrophone =		SDL3_FNAPlatform.StopMicrophone;
+				GetTouchCapabilities =		SDL3_FNAPlatform.GetTouchCapabilities;
+				UpdateTouchPanelState =		SDL3_FNAPlatform.UpdateTouchPanelState;
+				GetNumTouchFingers =		SDL3_FNAPlatform.GetNumTouchFingers;
+				SupportsOrientationChanges =	SDL3_FNAPlatform.SupportsOrientationChanges;
+				NeedsPlatformMainLoop = 	SDL3_FNAPlatform.NeedsPlatformMainLoop;
+				RunPlatformMainLoop =		SDL3_FNAPlatform.RunPlatformMainLoop;
+			}
+			else
+			{
+				Malloc =			SDL2_FNAPlatform.Malloc;
+				Free =				SDL2.SDL.SDL_free;
+				CreateWindow =			SDL2_FNAPlatform.CreateWindow;
+				DisposeWindow =			SDL2_FNAPlatform.DisposeWindow;
+				ApplyWindowChanges =		SDL2_FNAPlatform.ApplyWindowChanges;
+				ScaleForWindow =		SDL2_FNAPlatform.ScaleForWindow;
+				GetWindowBounds =		SDL2_FNAPlatform.GetWindowBounds;
+				GetWindowResizable =		SDL2_FNAPlatform.GetWindowResizable;
+				SetWindowResizable =		SDL2_FNAPlatform.SetWindowResizable;
+				GetWindowBorderless =		SDL2_FNAPlatform.GetWindowBorderless;
+				SetWindowBorderless =		SDL2_FNAPlatform.SetWindowBorderless;
+				SetWindowTitle =		SDL2_FNAPlatform.SetWindowTitle;
+				IsScreenKeyboardShown =		SDL2_FNAPlatform.IsScreenKeyboardShown;
+				RegisterGame =			SDL2_FNAPlatform.RegisterGame;
+				UnregisterGame =		SDL2_FNAPlatform.UnregisterGame;
+				PollEvents =			SDL2_FNAPlatform.PollEvents;
+				GetGraphicsAdapters =		SDL2_FNAPlatform.GetGraphicsAdapters;
+				GetCurrentDisplayMode =		SDL2_FNAPlatform.GetCurrentDisplayMode;
+				GetKeyFromScancode =		SDL2_FNAPlatform.GetKeyFromScancode;
+				IsTextInputActive =		SDL2_FNAPlatform.IsTextInputActive;
+				StartTextInput =		SDL2_FNAPlatform.StartTextInput;
+				StopTextInput =			SDL2_FNAPlatform.StopTextInput;
+				SetTextInputRectangle =		SDL2_FNAPlatform.SetTextInputRectangle;
+				GetMouseState =			SDL2_FNAPlatform.GetMouseState;
+				SetMousePosition =		SDL2.SDL.SDL_WarpMouseInWindow;
+				OnIsMouseVisibleChanged =	SDL2_FNAPlatform.OnIsMouseVisibleChanged;
+				GetRelativeMouseMode =		SDL2_FNAPlatform.GetRelativeMouseMode;
+				SetRelativeMouseMode =		SDL2_FNAPlatform.SetRelativeMouseMode;
+				GetGamePadCapabilities =	SDL2_FNAPlatform.GetGamePadCapabilities;
+				GetGamePadState =		SDL2_FNAPlatform.GetGamePadState;
+				SetGamePadVibration =		SDL2_FNAPlatform.SetGamePadVibration;
+				SetGamePadTriggerVibration =	SDL2_FNAPlatform.SetGamePadTriggerVibration;
+				GetGamePadGUID =		SDL2_FNAPlatform.GetGamePadGUID;
+				SetGamePadLightBar =		SDL2_FNAPlatform.SetGamePadLightBar;
+				GetGamePadGyro = 		SDL2_FNAPlatform.GetGamePadGyro;
+				GetGamePadAccelerometer =	SDL2_FNAPlatform.GetGamePadAccelerometer;
+				GetStorageRoot =		SDL2_FNAPlatform.GetStorageRoot;
+				GetDriveInfo =			SDL2_FNAPlatform.GetDriveInfo;
+				ReadFileToPointer =		SDL2_FNAPlatform.ReadToPointer;
+				FreeFilePointer =		SDL2_FNAPlatform.FreeFilePointer;
+				ShowRuntimeError =		SDL2_FNAPlatform.ShowRuntimeError;
+				GetMicrophones =		SDL2_FNAPlatform.GetMicrophones;
+				GetMicrophoneSamples =		SDL2_FNAPlatform.GetMicrophoneSamples;
+				GetMicrophoneQueuedBytes =	SDL2_FNAPlatform.GetMicrophoneQueuedBytes;
+				StartMicrophone =		SDL2_FNAPlatform.StartMicrophone;
+				StopMicrophone =		SDL2_FNAPlatform.StopMicrophone;
+				GetTouchCapabilities =		SDL2_FNAPlatform.GetTouchCapabilities;
+				UpdateTouchPanelState =		SDL2_FNAPlatform.UpdateTouchPanelState;
+				GetNumTouchFingers =		SDL2_FNAPlatform.GetNumTouchFingers;
+				SupportsOrientationChanges =	SDL2_FNAPlatform.SupportsOrientationChanges;
+				NeedsPlatformMainLoop = 	SDL2_FNAPlatform.NeedsPlatformMainLoop;
+				RunPlatformMainLoop =		SDL2_FNAPlatform.RunPlatformMainLoop;
+			}
 
 			FNALoggerEXT.Initialize();
 
-			AppDomain.CurrentDomain.ProcessExit += SDL2_FNAPlatform.ProgramExit;
-			TitleLocation = SDL2_FNAPlatform.ProgramInit(args);
+			if (useSDL3)
+			{
+				AppDomain.CurrentDomain.ProcessExit += SDL3_FNAPlatform.ProgramExit;
+				TitleLocation = SDL3_FNAPlatform.ProgramInit(args);
+			}
+			else
+			{
+				AppDomain.CurrentDomain.ProcessExit += SDL2_FNAPlatform.ProgramExit;
+				TitleLocation = SDL2_FNAPlatform.ProgramInit(args);
+			}
 
 			/* Do this AFTER ProgramInit so the platform library
 			 * has a chance to load first!
@@ -264,16 +337,16 @@ namespace Microsoft.Xna.Framework
 		public delegate Keys GetKeyFromScancodeFunc(Keys scancode);
 		public static readonly GetKeyFromScancodeFunc GetKeyFromScancode;
 
-		public delegate bool IsTextInputActiveFunc();
+		public delegate bool IsTextInputActiveFunc(IntPtr window);
 		public static readonly IsTextInputActiveFunc IsTextInputActive;
 
-		public delegate void StartTextInputFunc();
+		public delegate void StartTextInputFunc(IntPtr window);
 		public static readonly StartTextInputFunc StartTextInput;
 
-		public delegate void StopTextInputFunc();
+		public delegate void StopTextInputFunc(IntPtr window);
 		public static readonly StopTextInputFunc StopTextInput;
 
-		public delegate void SetTextInputRectangleFunc(Rectangle rectangle);
+		public delegate void SetTextInputRectangleFunc(IntPtr window, Rectangle rectangle);
 		public static readonly SetTextInputRectangleFunc SetTextInputRectangle;
 
 		public delegate void GetMouseStateFunc(
@@ -298,10 +371,10 @@ namespace Microsoft.Xna.Framework
 		public delegate void OnIsMouseVisibleChangedFunc(bool visible);
 		public static readonly OnIsMouseVisibleChangedFunc OnIsMouseVisibleChanged;
 
-		public delegate bool GetRelativeMouseModeFunc();
+		public delegate bool GetRelativeMouseModeFunc(IntPtr window);
 		public static readonly GetRelativeMouseModeFunc GetRelativeMouseMode;
 
-		public delegate void SetRelativeMouseModeFunc(bool enable);
+		public delegate void SetRelativeMouseModeFunc(IntPtr window, bool enable);
 		public static readonly SetRelativeMouseModeFunc SetRelativeMouseMode;
 
 		public delegate GamePadCapabilities GetGamePadCapabilitiesFunc(int index);

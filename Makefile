@@ -121,6 +121,7 @@ SRC = \
 	src/FNAPlatform/FNAPlatform.cs \
 	src/FNAPlatform/FNAWindow.cs \
 	src/FNAPlatform/SDL2_FNAPlatform.cs \
+	src/FNAPlatform/SDL3_FNAPlatform.cs \
 	src/FrameworkDispatcher.cs \
 	src/Game.cs \
 	src/GameComponent.cs \
@@ -321,6 +322,7 @@ SRC = \
 	src/Vector3.cs \
 	src/Vector4.cs \
 	lib/SDL2-CS/src/SDL2.cs \
+	lib/SDL3-CS/SDL3/SDL3.cs \
 	lib/FAudio/csharp/FAudio.cs \
 	lib/Theorafile/csharp/Theorafile.cs
 

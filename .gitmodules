@@ -10,3 +10,6 @@
 [submodule "lib/Theorafile"]
 	path = lib/Theorafile
 	url = https://github.com/FNA-XNA/Theorafile
+[submodule "lib/SDL3-CS"]
+	path = lib/SDL3-CS
+	url = https://github.com/flibitijibibo/SDL3-CS.git
