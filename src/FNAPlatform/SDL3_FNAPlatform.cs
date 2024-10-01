@@ -509,8 +509,7 @@ namespace Microsoft.Xna.Framework
 			if (center)
 			{
 				// FIXME CSHARP: SDL_WINDOWPOS_CENTERED_DISPLAY
-				// FIXME SDL3: I dunno if I like this +1...
-				int pos = 0x2FFF0000 | (displayIndex + 1);
+				int pos = (int) (0x2FFF0000 | displayIds[displayIndex]);
 				SDL.SDL_SetWindowPosition(
 					window,
 					pos,
@@ -1218,11 +1217,15 @@ namespace Microsoft.Xna.Framework
 
 		#region Graphics Methods
 
+		// FIXME SDL3: This is really sloppy -flibit
+		private static uint[] displayIds;
+
 		public static GraphicsAdapter[] GetGraphicsAdapters()
 		{
 			int numDisplays;
 			uint* displays = (uint*) SDL.SDL_GetDisplays(out numDisplays);
 			GraphicsAdapter[] adapters = new GraphicsAdapter[numDisplays];
+			displayIds = new uint[numDisplays];
 			for (int i = 0; i < adapters.Length; i += 1)
 			{
 				List<DisplayMode> modes = new List<DisplayMode>();
@@ -1256,6 +1259,7 @@ namespace Microsoft.Xna.Framework
 					@"\\.\DISPLAY" + (i + 1).ToString(),
 					SDL.SDL_GetDisplayName(displays[i])
 				);
+				displayIds[i] = displays[i];
 			}
 			SDL.SDL_free((IntPtr) displays);
 			return adapters;
@@ -1263,8 +1267,7 @@ namespace Microsoft.Xna.Framework
 
 		public static DisplayMode GetCurrentDisplayMode(int adapterIndex)
 		{
-			// FIXME SDL3: I dunno if I like this +1...
-			SDL.SDL_DisplayMode *mode = (SDL.SDL_DisplayMode*) SDL.SDL_GetCurrentDisplayMode((uint) adapterIndex + 1);
+			SDL.SDL_DisplayMode *mode = (SDL.SDL_DisplayMode*) SDL.SDL_GetCurrentDisplayMode(displayIds[adapterIndex]);
 
 			// FIXME: iOS needs to factor in the DPI!
 
