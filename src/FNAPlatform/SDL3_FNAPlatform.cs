@@ -264,7 +264,6 @@ namespace Microsoft.Xna.Framework
 				 * WM_PAINT events correctly. So we get to do this!
 				 * -flibit
 				 */
-				/* FIXME CSHARP
 				IntPtr prevUserData;
 				SDL.SDL_GetEventFilter(
 					out prevEventFilter,
@@ -274,7 +273,6 @@ namespace Microsoft.Xna.Framework
 					win32OnPaint,
 					prevUserData
 				);
-				*/
 			}
 
 			return titleLocation;
