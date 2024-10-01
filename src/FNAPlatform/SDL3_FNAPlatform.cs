@@ -120,7 +120,7 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
-			// Built-in SDL2 command line arguments
+			// Built-in SDL3 command line arguments
 			string arg;
 			if (args.TryGetValue("glprofile", out arg))
 			{
@@ -318,7 +318,7 @@ namespace Microsoft.Xna.Framework
 
 		public static GameWindow CreateWindow()
 		{
-			// Set and initialize the SDL2 window
+			// Set and initialize the SDL3 window
 			SDL.SDL_WindowFlags initFlags = (
 				SDL.SDL_WindowFlags.SDL_WINDOW_HIDDEN |
 				SDL.SDL_WindowFlags.SDL_WINDOW_INPUT_FOCUS |
@@ -643,11 +643,6 @@ namespace Microsoft.Xna.Framework
 		private static void INTERNAL_SetIcon(IntPtr window, string title)
 		{
 			string fileIn = String.Empty;
-
-			/* If the game's using SDL2_image, provide the option to use a PNG
-			 * instead of a BMP. Nice for anyone who cares about transparency.
-			 * -flibit
-			 */
 			try
 			{
 				fileIn = INTERNAL_GetIconName(title + ".png");
@@ -2248,7 +2243,7 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region SDL2<->XNA Key Conversion Methods
+		#region SDL3<->XNA Key Conversion Methods
 
 		/* From: http://blogs.msdn.com/b/shawnhar/archive/2007/07/02/twin-paths-to-garbage-collector-nirvana.aspx
 		 * "If you use an enum type as a dictionary key, internal dictionary operations will cause boxing.
@@ -2379,12 +2374,12 @@ namespace Microsoft.Xna.Framework
 			{ (int) SDL.SDL_Keycode.SDLK_GRAVE,		Keys.OemTilde },
 			{ (int) SDL.SDL_Keycode.SDLK_VOLUMEUP,		Keys.VolumeUp },
 			{ (int) SDL.SDL_Keycode.SDLK_VOLUMEDOWN,	Keys.VolumeDown },
-			{ '²' /* FIXME: AZERTY SDL2? -flibit */,	Keys.OemTilde },
-			{ 'é' /* FIXME: BEPO SDL2? -flibit */,		Keys.None },
-			{ '|' /* FIXME: Norwegian SDL2? -flibit */,	Keys.OemPipe },
-			{ '+' /* FIXME: Norwegian SDL2? -flibit */,	Keys.OemPlus },
-			{ 'ø' /* FIXME: Norwegian SDL2? -flibit */,	Keys.OemSemicolon },
-			{ 'æ' /* FIXME: Norwegian SDL2? -flibit */,	Keys.OemQuotes },
+			{ '²' /* FIXME: AZERTY SDL3? -flibit */,	Keys.OemTilde },
+			{ 'é' /* FIXME: BEPO SDL3? -flibit */,		Keys.None },
+			{ '|' /* FIXME: Norwegian SDL3? -flibit */,	Keys.OemPipe },
+			{ '+' /* FIXME: Norwegian SDL3? -flibit */,	Keys.OemPlus },
+			{ 'ø' /* FIXME: Norwegian SDL3? -flibit */,	Keys.OemSemicolon },
+			{ 'æ' /* FIXME: Norwegian SDL3? -flibit */,	Keys.OemQuotes },
 			{ (int) SDL.SDL_Keycode.SDLK_UNKNOWN,		Keys.None }
 		};
 		private static Dictionary<int, Keys> INTERNAL_scanMap = new Dictionary<int, Keys>()
@@ -2658,7 +2653,7 @@ namespace Microsoft.Xna.Framework
 				}
 			}
 			FNALoggerEXT.LogWarn(
-				"KEY/SCANCODE MISSING FROM SDL2->XNA DICTIONARY: " +
+				"KEY/SCANCODE MISSING FROM SDL3->XNA DICTIONARY: " +
 				sym.ToString() + " " +
 				scancode.ToString()
 			);
@@ -2682,14 +2677,14 @@ namespace Microsoft.Xna.Framework
 					return result;
 				}
 				FNALoggerEXT.LogWarn(
-					"KEYCODE MISSING FROM SDL2->XNA DICTIONARY: " +
+					"KEYCODE MISSING FROM SDL3->XNA DICTIONARY: " +
 					sym.ToString()
 				);
 			}
 			else
 			{
 				FNALoggerEXT.LogWarn(
-					"SCANCODE MISSING FROM XNA->SDL2 DICTIONARY: " +
+					"SCANCODE MISSING FROM XNA->SDL3 DICTIONARY: " +
 					scancode.ToString()
 				);
 			}
