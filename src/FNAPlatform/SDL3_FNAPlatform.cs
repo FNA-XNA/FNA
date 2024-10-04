@@ -190,10 +190,11 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// This _should_ be the first real SDL call we make...
-			if (SDL.SDL_Init(
+			if (!SDL.SDL_Init(
 				SDL.SDL_InitFlags.SDL_INIT_VIDEO |
 				SDL.SDL_InitFlags.SDL_INIT_GAMEPAD
-			) == 0) {
+			))
+			{
 				throw new Exception("SDL_Init failed: " + SDL.SDL_GetError());
 			}
 
@@ -467,7 +468,7 @@ namespace Microsoft.Xna.Framework
 				bool resize = false;
 				if ((SDL.SDL_GetWindowFlags(window) & SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN) != 0)
 				{
-					SDL.SDL_SetWindowFullscreen(window, 0);
+					SDL.SDL_SetWindowFullscreen(window, false);
 					resize = true;
 				}
 				else
@@ -502,7 +503,7 @@ namespace Microsoft.Xna.Framework
 			// Just to be sure, become a window first before changing displays
 			if (resultDeviceName != screenDeviceName)
 			{
-				SDL.SDL_SetWindowFullscreen(window, 0);
+				SDL.SDL_SetWindowFullscreen(window, false);
 				resultDeviceName = screenDeviceName;
 				center = true;
 			}
@@ -536,7 +537,7 @@ namespace Microsoft.Xna.Framework
 				}
 				SDL.SDL_SetWindowFullscreen(
 					window,
-					1
+					true
 				);
 			}
 
@@ -612,7 +613,7 @@ namespace Microsoft.Xna.Framework
 		{
 			SDL.SDL_SetWindowResizable(
 				window,
-				(byte) (resizable ? 1 : 0)
+				resizable
 			);
 		}
 
@@ -625,7 +626,7 @@ namespace Microsoft.Xna.Framework
 		{
 			SDL.SDL_SetWindowBordered(
 				window,
-				(byte) (borderless ? 0 : 1)
+				!borderless
 			);
 		}
 
@@ -639,7 +640,7 @@ namespace Microsoft.Xna.Framework
 
 		public static bool IsScreenKeyboardShown(IntPtr window)
 		{
-			return SDL.SDL_ScreenKeyboardShown(window) != 0;
+			return SDL.SDL_ScreenKeyboardShown(window);
 		}
 
 		private static void INTERNAL_SetIcon(IntPtr window, string title)
@@ -846,7 +847,7 @@ namespace Microsoft.Xna.Framework
 		) {
 			SDL.SDL_Event evt;
 			char* charsBuffer = stackalloc char[32]; // SDL_TEXTINPUTEVENT_TEXT_SIZE
-			while (SDL.SDL_PollEvent(out evt) != 0)
+			while (SDL.SDL_PollEvent(out evt))
 			{
 				// Keyboard
 				if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_KEY_DOWN)
@@ -869,7 +870,7 @@ namespace Microsoft.Xna.Framework
 							textInputSuppress = true;
 						}
 					}
-					else if (evt.key.repeat != 0)
+					else if (evt.key.repeat)
 					{
 						int textIndex;
 						if (FNAPlatform.TextInputBindings.TryGetValue(key, out textIndex))
@@ -965,7 +966,7 @@ namespace Microsoft.Xna.Framework
 							// If we alt-tab away, we lose the 'fullscreen desktop' flag on some WMs
 							SDL.SDL_SetWindowFullscreen(
 								game.Window.Handle,
-								(byte) (game.GraphicsDevice.PresentationParameters.IsFullScreen ? 1 : 0)
+								game.GraphicsDevice.PresentationParameters.IsFullScreen
 							);
 						}
 
@@ -978,7 +979,7 @@ namespace Microsoft.Xna.Framework
 
 						if (SDL.SDL_GetCurrentVideoDriver() == "x11")
 						{
-							SDL.SDL_SetWindowFullscreen(game.Window.Handle, 0);
+							SDL.SDL_SetWindowFullscreen(game.Window.Handle, false);
 						}
 
 						// Give the screensaver back, we're not that important now.
@@ -1353,12 +1354,12 @@ namespace Microsoft.Xna.Framework
 
 		public static bool GetRelativeMouseMode(IntPtr window)
 		{
-			return SDL.SDL_GetWindowRelativeMouseMode(window) != 0;
+			return SDL.SDL_GetWindowRelativeMouseMode(window);
 		}
 
 		public static void SetRelativeMouseMode(IntPtr window, bool enable)
 		{
-			SDL.SDL_SetWindowRelativeMouseMode(window, (byte) (enable ? 1 : 0));
+			SDL.SDL_SetWindowRelativeMouseMode(window, enable);
 			if (enable)
 			{
 			    // Flush this value, it's going to be jittery
@@ -1747,47 +1748,47 @@ namespace Microsoft.Xna.Framework
 
 			// Buttons
 			Buttons gc_buttonState = (Buttons) 0;
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_SOUTH) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_SOUTH))
 			{
 				gc_buttonState |= Buttons.A;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_EAST) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_EAST))
 			{
 				gc_buttonState |= Buttons.B;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_WEST) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_WEST))
 			{
 				gc_buttonState |= Buttons.X;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_NORTH) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_NORTH))
 			{
 				gc_buttonState |= Buttons.Y;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_BACK) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_BACK))
 			{
 				gc_buttonState |= Buttons.Back;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_GUIDE) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_GUIDE))
 			{
 				gc_buttonState |= Buttons.BigButton;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_START) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_START))
 			{
 				gc_buttonState |= Buttons.Start;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_STICK) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_STICK))
 			{
 				gc_buttonState |= Buttons.LeftStick;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_STICK) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_STICK))
 			{
 				gc_buttonState |= Buttons.RightStick;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_SHOULDER) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_SHOULDER))
 			{
 				gc_buttonState |= Buttons.LeftShoulder;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER))
 			{
 				gc_buttonState |= Buttons.RightShoulder;
 			}
@@ -1797,49 +1798,49 @@ namespace Microsoft.Xna.Framework
 			ButtonState dpadDown = ButtonState.Released;
 			ButtonState dpadLeft = ButtonState.Released;
 			ButtonState dpadRight = ButtonState.Released;
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_UP) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_UP))
 			{
 				gc_buttonState |= Buttons.DPadUp;
 				dpadUp = ButtonState.Pressed;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_DOWN) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_DOWN))
 			{
 				gc_buttonState |= Buttons.DPadDown;
 				dpadDown = ButtonState.Pressed;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_LEFT) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_LEFT))
 			{
 				gc_buttonState |= Buttons.DPadLeft;
 				dpadLeft = ButtonState.Pressed;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_RIGHT) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_RIGHT))
 			{
 				gc_buttonState |= Buttons.DPadRight;
 				dpadRight = ButtonState.Pressed;
 			}
 
 			// Extensions
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_MISC1) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_MISC1))
 			{
 				gc_buttonState |= Buttons.Misc1EXT;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1))
 			{
 				gc_buttonState |= Buttons.Paddle1EXT;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE1) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE1))
 			{
 				gc_buttonState |= Buttons.Paddle2EXT;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2))
 			{
 				gc_buttonState |= Buttons.Paddle3EXT;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE2) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE2))
 			{
 				gc_buttonState |= Buttons.Paddle4EXT;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_TOUCHPAD) != 0)
+			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_TOUCHPAD))
 			{
 				gc_buttonState |= Buttons.TouchPadEXT;
 			}
@@ -1875,7 +1876,7 @@ namespace Microsoft.Xna.Framework
 				(ushort) (MathHelper.Clamp(leftMotor, 0.0f, 1.0f) * 0xFFFF),
 				(ushort) (MathHelper.Clamp(rightMotor, 0.0f, 1.0f) * 0xFFFF),
 				0
-			) != 0;
+			);
 		}
 
 		public static bool SetGamePadTriggerVibration(int index, float leftTrigger, float rightTrigger)
@@ -1891,7 +1892,7 @@ namespace Microsoft.Xna.Framework
 				(ushort) (MathHelper.Clamp(leftTrigger, 0.0f, 1.0f) * 0xFFFF),
 				(ushort) (MathHelper.Clamp(rightTrigger, 0.0f, 1.0f) * 0xFFFF),
 				0
-			) != 0;
+			);
 		}
 
 		public static string GetGamePadGUID(int index)
@@ -1924,26 +1925,26 @@ namespace Microsoft.Xna.Framework
 				return false;
 			}
 
-			if (SDL.SDL_GamepadSensorEnabled(
+			if (!SDL.SDL_GamepadSensorEnabled(
 				device,
 				SDL.SDL_SensorType.SDL_SENSOR_GYRO
-			) == 0) {
+			)) {
 				SDL.SDL_SetGamepadSensorEnabled(
 					device,
 					SDL.SDL_SensorType.SDL_SENSOR_GYRO,
-					1
+					true
 				);
 			}
 
 			unsafe
 			{
 				float* data = stackalloc float[3];
-				if (SDL.SDL_GetGamepadSensorData(
+				if (!SDL.SDL_GetGamepadSensorData(
 					device,
 					SDL.SDL_SensorType.SDL_SENSOR_GYRO,
 					data,
 					3
-				) == 0) {
+				)) {
 					gyro = Vector3.Zero;
 					return false;
 				}
@@ -1963,26 +1964,26 @@ namespace Microsoft.Xna.Framework
 				return false;
 			}
 
-			if (SDL.SDL_GamepadSensorEnabled(
+			if (!SDL.SDL_GamepadSensorEnabled(
 				device,
 				SDL.SDL_SensorType.SDL_SENSOR_ACCEL
-			) == 0) {
+			)) {
 				SDL.SDL_SetGamepadSensorEnabled(
 					device,
 					SDL.SDL_SensorType.SDL_SENSOR_ACCEL,
-					1
+					true
 				);
 			}
 
 			unsafe
 			{
 				float* data = stackalloc float[3];
-				if (SDL.SDL_GetGamepadSensorData(
+				if (!SDL.SDL_GetGamepadSensorData(
 					device,
 					SDL.SDL_SensorType.SDL_SENSOR_ACCEL,
 					data,
 					3
-				) == 0) {
+				)) {
 					accel = Vector3.Zero;
 					return false;
 				}
@@ -2039,13 +2040,13 @@ namespace Microsoft.Xna.Framework
 				0,
 				0,
 				0
-			) != 0;
+			);
 			bool hasTriggerRumble = SDL.SDL_RumbleGamepadTriggers(
 				INTERNAL_devices[which],
 				0,
 				0,
 				0
-			) != 0;
+			);
 
 			// Need gamepad properties for things like LED
 			uint propertiesID = SDL.SDL_GetGamepadProperties(INTERNAL_devices[which]);
@@ -2054,40 +2055,40 @@ namespace Microsoft.Xna.Framework
 			GamePadCapabilities caps = new GamePadCapabilities();
 			caps.IsConnected = true;
 			caps.GamePadType = INTERNAL_gamepadType[(int) SDL.SDL_GetJoystickType(thisJoystick)];
-			caps.HasAButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_SOUTH) != 0;
-			caps.HasBButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_EAST) != 0;
-			caps.HasXButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_WEST) != 0;
-			caps.HasYButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_NORTH) != 0;
-			caps.HasBackButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_BACK) != 0;
-			caps.HasBigButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_GUIDE) != 0;
-			caps.HasStartButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_START) != 0;
-			caps.HasLeftStickButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_STICK) != 0;
-			caps.HasRightStickButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_STICK) != 0;
-			caps.HasLeftShoulderButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_SHOULDER) != 0;
-			caps.HasRightShoulderButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER) != 0;
-			caps.HasDPadUpButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_UP) != 0;
-			caps.HasDPadDownButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_DOWN) != 0;
-			caps.HasDPadLeftButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_LEFT) != 0;
-			caps.HasDPadRightButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_RIGHT) != 0;
-			caps.HasLeftXThumbStick = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFTX) != 0;
-			caps.HasLeftYThumbStick = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFTY) != 0;
-			caps.HasRightXThumbStick = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHTX) != 0;
-			caps.HasRightYThumbStick = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHTY) != 0;
-			caps.HasLeftTrigger = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFT_TRIGGER) != 0;
-			caps.HasRightTrigger = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) != 0;
+			caps.HasAButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_SOUTH);
+			caps.HasBButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_EAST);
+			caps.HasXButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_WEST);
+			caps.HasYButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_NORTH);
+			caps.HasBackButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_BACK);
+			caps.HasBigButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_GUIDE);
+			caps.HasStartButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_START);
+			caps.HasLeftStickButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_STICK);
+			caps.HasRightStickButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_STICK);
+			caps.HasLeftShoulderButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_SHOULDER);
+			caps.HasRightShoulderButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER);
+			caps.HasDPadUpButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_UP);
+			caps.HasDPadDownButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+			caps.HasDPadLeftButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+			caps.HasDPadRightButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+			caps.HasLeftXThumbStick = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFTX);
+			caps.HasLeftYThumbStick = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFTY);
+			caps.HasRightXThumbStick = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHTX);
+			caps.HasRightYThumbStick = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHTY);
+			caps.HasLeftTrigger = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
+			caps.HasRightTrigger = SDL.SDL_GamepadHasAxis(INTERNAL_devices[which], SDL.SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
 			caps.HasLeftVibrationMotor = hasRumble;
 			caps.HasRightVibrationMotor = hasRumble;
 			caps.HasVoiceSupport = false;
-			caps.HasLightBarEXT = SDL.SDL_GetBooleanProperty(propertiesID, "SDL.joystick.cap.rgb_led", 0) != 0;
+			caps.HasLightBarEXT = SDL.SDL_GetBooleanProperty(propertiesID, "SDL.joystick.cap.rgb_led", false);
 			caps.HasTriggerVibrationMotorsEXT = hasTriggerRumble;
-			caps.HasMisc1EXT = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_MISC1) != 0;
-			caps.HasPaddle1EXT = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1) != 0;
-			caps.HasPaddle2EXT = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE1) != 0;
-			caps.HasPaddle3EXT = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2) != 0;
-			caps.HasPaddle4EXT = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE2) != 0;
+			caps.HasMisc1EXT = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_MISC1);
+			caps.HasPaddle1EXT = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1);
+			caps.HasPaddle2EXT = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE1);
+			caps.HasPaddle3EXT = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2);
+			caps.HasPaddle4EXT = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE2);
 			caps.HasTouchPadEXT = SDL.SDL_GetNumGamepadTouchpads(INTERNAL_devices[which]) > 0;
-			caps.HasGyroEXT = SDL.SDL_GamepadHasSensor(INTERNAL_devices[which], SDL.SDL_SensorType.SDL_SENSOR_GYRO) != 0;
-			caps.HasAccelerometerEXT = SDL.SDL_GamepadHasSensor(INTERNAL_devices[which], SDL.SDL_SensorType.SDL_SENSOR_ACCEL) != 0;
+			caps.HasGyroEXT = SDL.SDL_GamepadHasSensor(INTERNAL_devices[which], SDL.SDL_SensorType.SDL_SENSOR_GYRO);
+			caps.HasAccelerometerEXT = SDL.SDL_GamepadHasSensor(INTERNAL_devices[which], SDL.SDL_SensorType.SDL_SENSOR_ACCEL);
 			INTERNAL_capabilities[which] = caps;
 
 			/* Store the GUID string for this device
@@ -2244,7 +2245,7 @@ namespace Microsoft.Xna.Framework
 
 		public static bool IsTextInputActive(IntPtr window)
 		{
-			return SDL.SDL_TextInputActive(window) != 0;
+			return SDL.SDL_TextInputActive(window);
 		}
 
 		public static void StartTextInput(IntPtr window)
@@ -2687,7 +2688,7 @@ namespace Microsoft.Xna.Framework
 			{
 				Keys result;
 				// FIXME SDL3: Do we need mod state?
-				uint sym = SDL.SDL_GetKeyFromScancode(retVal, 0, 1);
+				uint sym = SDL.SDL_GetKeyFromScancode(retVal, 0, true);
 				if (INTERNAL_keyMap.TryGetValue((int) sym, out result))
 				{
 					return result;
