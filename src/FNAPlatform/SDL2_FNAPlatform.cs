@@ -384,7 +384,10 @@ namespace Microsoft.Xna.Framework
 			Media.MediaPlayer.DisposeIfNecessary();
 
 			// This _should_ be the last SDL call we make...
-			SDL.SDL_Quit();
+			SDL.SDL_QuitSubSystem(
+				SDL.SDL_INIT_VIDEO |
+				SDL.SDL_INIT_GAMECONTROLLER
+			);
 		}
 
 		#endregion
