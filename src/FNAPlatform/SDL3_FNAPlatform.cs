@@ -205,7 +205,7 @@ namespace Microsoft.Xna.Framework
 			 * screen may not be covering the whole display.
 			 */
 			SupportsGlobalMouse = (	OSVersion.Equals("Windows") ||
-						OSVersion.Equals("Mac OS X") ||
+						OSVersion.Equals("macOS") ||
 						videoDriver.Equals("x11")	);
 
 			// Only iOS and Android care about device orientation.
@@ -334,7 +334,7 @@ namespace Microsoft.Xna.Framework
 				if (cachePath == null) // Empty is a valid value
 				{
 					if (	OSVersion.Equals("Windows") ||
-						OSVersion.Equals("Mac OS X") ||
+						OSVersion.Equals("macOS") ||
 						OSVersion.Equals("Linux") ||
 						OSVersion.Equals("FreeBSD") ||
 						OSVersion.Equals("OpenBSD") ||
@@ -1381,7 +1381,7 @@ namespace Microsoft.Xna.Framework
 			{
 				// If your platform uses a CLR, you want to be in this list!
 				if (	OSVersion.Equals("Windows") ||
-					OSVersion.Equals("Mac OS X") ||
+					OSVersion.Equals("macOS") ||
 					OSVersion.Equals("Linux") ||
 					OSVersion.Equals("FreeBSD") ||
 					OSVersion.Equals("OpenBSD") ||
@@ -1441,7 +1441,7 @@ namespace Microsoft.Xna.Framework
 					exeName
 				);
 			}
-			if (OSVersion.Equals("Mac OS X"))
+			if (OSVersion.Equals("macOS"))
 			{
 				string osConfigDir = Environment.GetEnvironmentVariable("HOME");
 				if (String.IsNullOrEmpty(osConfigDir))
