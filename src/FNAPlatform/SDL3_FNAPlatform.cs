@@ -2207,7 +2207,8 @@ namespace Microsoft.Xna.Framework
 		public static unsafe void UpdateTouchPanelState()
 		{
 			// Poll the touch device for all active fingers
-			IntPtr fingerArray = SDL.SDL_GetTouchFingers(GetTouchDeviceId(0), out int fingers);
+			int fingers;
+			IntPtr fingerArray = SDL.SDL_GetTouchFingers(GetTouchDeviceId(0), out fingers);
 
 			for (int i = 0; i < TouchPanel.MAX_TOUCHES; i += 1)
 			{
@@ -2236,13 +2237,15 @@ namespace Microsoft.Xna.Framework
 
 		public static int GetNumTouchFingers()
 		{
-			SDL.SDL_free(SDL.SDL_GetTouchFingers(GetTouchDeviceId(0), out int fingers));
+			int fingers;
+			SDL.SDL_free(SDL.SDL_GetTouchFingers(GetTouchDeviceId(0), out fingers));
 			return fingers;
 		}
 
 		private static unsafe ulong GetTouchDeviceId(int index)
 		{
-			IntPtr touchDeviceIDs = SDL.SDL_GetTouchDevices(out int touchDeviceCount);
+			int touchDeviceCount;
+			IntPtr touchDeviceIDs = SDL.SDL_GetTouchDevices(out touchDeviceCount);
 			ulong result = index >= 0 && index < touchDeviceCount ? ((ulong*) touchDeviceIDs)[index] : 0;
 			SDL.SDL_free(touchDeviceIDs);
 			return result;
