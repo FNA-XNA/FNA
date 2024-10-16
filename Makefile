@@ -342,7 +342,7 @@ RES = \
 debug: clean-debug
 	mkdir -p bin/Debug
 	cp app.config bin/Debug/FNA.dll.config
-	mcs /unsafe -debug -define:DEBUG -out:bin/Debug/FNA.dll -target:library $(SRC) $(RES)
+	mcs /unsafe /langversion:4 -debug -define:DEBUG -out:bin/Debug/FNA.dll -target:library $(SRC) $(RES)
 
 clean-debug:
 	rm -rf bin/Debug
@@ -350,7 +350,7 @@ clean-debug:
 release: clean-release
 	mkdir -p bin/Release
 	cp app.config bin/Release/FNA.dll.config
-	mcs /unsafe -optimize -out:bin/Release/FNA.dll -target:library $(SRC) $(RES)
+	mcs /unsafe /langversion:4 -optimize -out:bin/Release/FNA.dll -target:library $(SRC) $(RES)
 
 clean-release:
 	rm -rf bin/Release
