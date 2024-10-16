@@ -1325,7 +1325,7 @@ namespace Microsoft.Xna.Framework
 			{
 				/* This is inaccurate, but what can you do... */
 				flags = SDL.SDL_GetMouseState(out fx, out fy);
-				
+
 			}
 			// FIXME SDL3: Should this be rounded?
 			x = (int) fx;
@@ -2196,7 +2196,7 @@ namespace Microsoft.Xna.Framework
 			 * -caleb
 			 */
 			int numDevices;
-			SDL.SDL_GetTouchDevices(out numDevices);
+			SDL.SDL_free(SDL.SDL_GetTouchDevices(out numDevices));
 			bool touchDeviceExists = numDevices > 0;
 			return new TouchPanelCapabilities(
 				touchDeviceExists,
@@ -2206,18 +2206,19 @@ namespace Microsoft.Xna.Framework
 
 		public static unsafe void UpdateTouchPanelState()
 		{
-			/* FIXME SDL3: Touch
 			// Poll the touch device for all active fingers
-			long touchDevice = SDL.SDL_GetTouchDevice(0);
+			IntPtr fingerArray = SDL.SDL_GetTouchFingers(GetTouchDeviceId(0), out int fingers);
+
 			for (int i = 0; i < TouchPanel.MAX_TOUCHES; i += 1)
 			{
-				SDL.SDL_Finger* finger = (SDL.SDL_Finger*) SDL.SDL_GetTouchFinger(touchDevice, i);
-				if (finger == null)
+				if (i >= fingers)
 				{
 					// No finger found at this index
 					TouchPanel.SetFinger(i, TouchPanel.NO_FINGER, Vector2.Zero);
 					continue;
 				}
+
+				SDL.SDL_Finger* finger = ((SDL.SDL_Finger**) fingerArray)[i];
 
 				// Send the finger data to the TouchPanel
 				TouchPanel.SetFinger(
@@ -2229,17 +2230,22 @@ namespace Microsoft.Xna.Framework
 					)
 				);
 			}
-			*/
+
+			SDL.SDL_free(fingerArray);
 		}
 
 		public static int GetNumTouchFingers()
 		{
-			/* FIXME SDL3: Touch
-			return SDL.SDL_GetNumTouchFingers(
-				SDL.SDL_GetTouchDevice(0)
-			);
-			*/
-			return 0;
+			SDL.SDL_free(SDL.SDL_GetTouchFingers(GetTouchDeviceId(0), out int fingers));
+			return fingers;
+		}
+
+		private static unsafe ulong GetTouchDeviceId(int index)
+		{
+			IntPtr touchDeviceIDs = SDL.SDL_GetTouchDevices(out int touchDeviceCount);
+			ulong result = index >= 0 && index < touchDeviceCount ? ((ulong*) touchDeviceIDs)[index] : 0;
+			SDL.SDL_free(touchDeviceIDs);
+			return result;
 		}
 
 		#endregion
