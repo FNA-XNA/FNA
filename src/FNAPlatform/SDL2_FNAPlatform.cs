@@ -1196,9 +1196,8 @@ namespace Microsoft.Xna.Framework
 					}
 					else
 					{
-						// Just reset, this is probably a hotplug
-						game.GraphicsDevice.Reset(
-							game.GraphicsDevice.PresentationParameters,
+						// Quietly update, this is probably a hotplug
+						game.GraphicsDevice.QuietlyUpdateAdapter(
 							currentAdapter
 						);
 					}

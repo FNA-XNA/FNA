@@ -582,6 +582,26 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Internal Adapter Updates
+
+		/* This exists because display hotplugging is fragile and can
+		 * cause problems if we try to do a hard Reset(). Even after
+		 * refreshing the static Adapters list you find weird cases
+		 * where a reset on an unrelated display will insist on a 0x0
+		 * window size??? :psyduck:
+		 *
+		 * So instead, just quietly swap the Adapter so that the device
+		 * state is valid, and avoid messing with the window further.
+		 * -flibit
+		 */
+
+		internal void QuietlyUpdateAdapter(GraphicsAdapter adapter)
+		{
+			Adapter = adapter;
+		}
+
+		#endregion
+
 		#region Public Present Method
 
 		public void Present()
