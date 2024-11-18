@@ -1194,14 +1194,6 @@ namespace Microsoft.Xna.Framework
 							);
 						}
 					}
-					else
-					{
-						// Just reset, this is probably a hotplug
-						game.GraphicsDevice.Reset(
-							game.GraphicsDevice.PresentationParameters,
-							currentAdapter
-						);
-					}
 				}
 
 				// Controller device management
