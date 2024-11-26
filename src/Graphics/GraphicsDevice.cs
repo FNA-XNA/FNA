@@ -1052,7 +1052,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				return renderTargetCount;
 			}
-			else if (output.Length != renderTargetCount)
+			else if (output.Length < renderTargetCount)
 			{
 				throw new ArgumentException("Output buffer size incorrect");
 			}
