@@ -1,6 +1,8 @@
 bin/
 obj/
 obj_core/
+obj_framework/
+obj_netstandard/
 *.pidb
 *.user
 *.userprefs
