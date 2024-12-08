@@ -255,7 +255,7 @@ namespace Microsoft.Xna.Framework
 				(uint) SDL.SDL_EventType.SDL_EVENT_GAMEPAD_ADDED,
 				(uint) SDL.SDL_EventType.SDL_EVENT_GAMEPAD_ADDED
 			) == 1) {
-				INTERNAL_AddInstance(evt[0].cdevice.which);
+				INTERNAL_AddInstance(evt[0].gdevice.which);
 			}
 
 			if (OSVersion.Equals("Windows"))
@@ -1094,11 +1094,11 @@ namespace Microsoft.Xna.Framework
 				// Controller device management
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_GAMEPAD_ADDED)
 				{
-					INTERNAL_AddInstance(evt.cdevice.which);
+					INTERNAL_AddInstance(evt.gdevice.which);
 				}
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_GAMEPAD_REMOVED)
 				{
-					INTERNAL_RemoveInstance(evt.cdevice.which);
+					INTERNAL_RemoveInstance(evt.gdevice.which);
 				}
 
 				// Text Input
@@ -2017,9 +2017,19 @@ namespace Microsoft.Xna.Framework
 
 			// Open the device!
 			INTERNAL_devices[which] = SDL.SDL_OpenGamepad(dev);
+			string error = SDL.SDL_GetError();
+			if (!string.IsNullOrEmpty(error)) {
+				FNALoggerEXT.LogWarn("Failed to OpenGamepad: " + error);
+				return;
+			}
 
 			// We use this when dealing with GUID initialization.
 			IntPtr thisJoystick = SDL.SDL_GetGamepadJoystick(INTERNAL_devices[which]);
+			error = SDL.SDL_GetError();
+			if (!string.IsNullOrEmpty(error)) {
+				FNALoggerEXT.LogWarn("Failed to GetGamepadJoystick: " + error);
+				return;
+			}
 
 			// Pair up the instance ID to the player index.
 			// FIXME: Remove check after 2.0.4? -flibit
@@ -2093,6 +2103,12 @@ namespace Microsoft.Xna.Framework
 			caps.HasAccelerometerEXT = SDL.SDL_GamepadHasSensor(INTERNAL_devices[which], SDL.SDL_SensorType.SDL_SENSOR_ACCEL);
 			INTERNAL_capabilities[which] = caps;
 
+			error = SDL.SDL_GetError();
+			if (!string.IsNullOrEmpty(error)) {
+				FNALoggerEXT.LogWarn("Error(s) while building gamepad caps: " + error);
+				return;
+			}
+
 			/* Store the GUID string for this device
 			 * FIXME: Replace GetGUIDEXT string with 3 short values -flibit
 			 */
@@ -2135,6 +2151,11 @@ namespace Microsoft.Xna.Framework
 			// Print controller information to stdout.
 			string deviceInfo;
 			string mapping = SDL.SDL_GetGamepadMapping(INTERNAL_devices[which]);
+			error = SDL.SDL_GetError();
+			if (!string.IsNullOrEmpty(error)) {
+				FNALoggerEXT.LogWarn("Failed to GetGamepadMapping: " + error);
+				return;
+			}
 			if (string.IsNullOrEmpty(mapping))
 			{
 				deviceInfo = "Mapping not found";
