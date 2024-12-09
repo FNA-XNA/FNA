@@ -255,7 +255,7 @@ namespace Microsoft.Xna.Framework
 				(uint) SDL.SDL_EventType.SDL_EVENT_GAMEPAD_ADDED,
 				(uint) SDL.SDL_EventType.SDL_EVENT_GAMEPAD_ADDED
 			) == 1) {
-				INTERNAL_AddInstance(evt[0].cdevice.which);
+				INTERNAL_AddInstance(evt[0].gdevice.which);
 			}
 
 			if (OSVersion.Equals("Windows"))
@@ -1094,11 +1094,11 @@ namespace Microsoft.Xna.Framework
 				// Controller device management
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_GAMEPAD_ADDED)
 				{
-					INTERNAL_AddInstance(evt.cdevice.which);
+					INTERNAL_AddInstance(evt.gdevice.which);
 				}
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_GAMEPAD_REMOVED)
 				{
-					INTERNAL_RemoveInstance(evt.cdevice.which);
+					INTERNAL_RemoveInstance(evt.gdevice.which);
 				}
 
 				// Text Input
