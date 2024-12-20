@@ -82,6 +82,34 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
+		/// <summary>
+		/// Determines whether the window is minimized.
+		/// </summary>
+		/// <exception cref="System.NotImplementedException">
+		/// Thrown when trying to use this property on an unsupported platform.
+		/// </exception>
+		public virtual bool IsMinimizedEXT
+		{
+			get
+			{
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Determines whether the window is maximized.
+		/// </summary>
+		/// <exception cref="System.NotImplementedException">
+		/// Thrown when trying to use this property on an unsupported platform.
+		/// </exception>
+		public virtual bool IsMaximizedEXT
+		{
+			get
+			{
+				return false;
+			}
+		}
+
 		#endregion
 
 		#region Private Variables

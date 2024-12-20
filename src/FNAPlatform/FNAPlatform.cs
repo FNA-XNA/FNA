@@ -113,6 +113,8 @@ namespace Microsoft.Xna.Framework
 				SetWindowResizable =		SDL3_FNAPlatform.SetWindowResizable;
 				GetWindowBorderless =		SDL3_FNAPlatform.GetWindowBorderless;
 				SetWindowBorderless =		SDL3_FNAPlatform.SetWindowBorderless;
+				GetWindowMinimized =		SDL3_FNAPlatform.GetWindowMinimized;
+				GetWindowMaximized =		SDL3_FNAPlatform.GetWindowMaximized;
 				SetWindowTitle =		SDL3_FNAPlatform.SetWindowTitle;
 				IsScreenKeyboardShown =		SDL3_FNAPlatform.IsScreenKeyboardShown;
 				RegisterGame =			SDL3_FNAPlatform.RegisterGame;
@@ -168,6 +170,8 @@ namespace Microsoft.Xna.Framework
 				SetWindowResizable =		SDL2_FNAPlatform.SetWindowResizable;
 				GetWindowBorderless =		SDL2_FNAPlatform.GetWindowBorderless;
 				SetWindowBorderless =		SDL2_FNAPlatform.SetWindowBorderless;
+				GetWindowMinimized =		SDL2_FNAPlatform.GetWindowMinimized;
+				GetWindowMaximized =		SDL2_FNAPlatform.GetWindowMaximized;
 				SetWindowTitle =		SDL2_FNAPlatform.SetWindowTitle;
 				IsScreenKeyboardShown =		SDL2_FNAPlatform.IsScreenKeyboardShown;
 				RegisterGame =			SDL2_FNAPlatform.RegisterGame;
@@ -302,8 +306,10 @@ namespace Microsoft.Xna.Framework
 		public delegate void SetWindowResizableFunc(IntPtr window, bool resizable);
 		public static readonly SetWindowResizableFunc SetWindowResizable;
 
-		public delegate bool GetWindowBorderlessFunc(IntPtr window);
-		public static readonly GetWindowBorderlessFunc GetWindowBorderless;
+		public delegate bool GetWindowBoolFunc(IntPtr window);
+		public static readonly GetWindowBoolFunc GetWindowBorderless,
+			GetWindowMinimized,
+			GetWindowMaximized;
 
 		public delegate void SetWindowBorderlessFunc(IntPtr window, bool borderless);
 		public static readonly SetWindowBorderlessFunc SetWindowBorderless;
