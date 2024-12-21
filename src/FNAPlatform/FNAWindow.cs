@@ -76,6 +76,22 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
+		public override bool IsMinimizedEXT
+		{
+			get
+			{
+				return FNAPlatform.GetWindowMinimized(window);
+			}
+		}
+
+		public override bool IsMaximizedEXT
+		{
+			get
+			{
+				return FNAPlatform.GetWindowMaximized(window);
+			}
+		}
+
 		public override string ScreenDeviceName
 		{
 			get

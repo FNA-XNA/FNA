@@ -729,6 +729,16 @@ namespace Microsoft.Xna.Framework
 			return ((SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_BORDERLESS) != 0);
 		}
 
+		public static bool GetWindowMinimized(IntPtr window)
+		{
+			return ((SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_MINIMIZED) != 0);
+		}
+
+		public static bool GetWindowMaximized(IntPtr window)
+		{
+			return ((SDL.SDL_GetWindowFlags(window) & (uint) SDL.SDL_WindowFlags.SDL_WINDOW_MAXIMIZED) != 0);
+		}
+
 		public static void SetWindowBorderless(IntPtr window, bool borderless)
 		{
 			SDL.SDL_SetWindowBordered(
