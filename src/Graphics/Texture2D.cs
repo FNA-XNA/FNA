@@ -320,8 +320,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			int subX, subY, subW, subH;
 			if (rect == null)
 			{
-                subX = 0;
-                subY = 0;
+				subX = 0;
+				subY = 0;
 				subW = Width >> level;
 				subH = Height >> level;
 			}
