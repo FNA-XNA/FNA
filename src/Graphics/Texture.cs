@@ -130,6 +130,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				case SurfaceFormat.Vector2:
 				case SurfaceFormat.HdrBlendable:
 				case SurfaceFormat.Vector4:
+				case SurfaceFormat.ByteEXT:
+				case SurfaceFormat.UShortEXT:
 					return 1;
 				default:
 					throw new ArgumentException("Should be a value defined in SurfaceFormat", "Format");
@@ -149,12 +151,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				case SurfaceFormat.Bc7SrgbEXT:
 					return 16;
 				case SurfaceFormat.Alpha8:
+				case SurfaceFormat.ByteEXT:
 					return 1;
 				case SurfaceFormat.Bgr565:
 				case SurfaceFormat.Bgra4444:
 				case SurfaceFormat.Bgra5551:
 				case SurfaceFormat.HalfSingle:
 				case SurfaceFormat.NormalizedByte2:
+				case SurfaceFormat.UShortEXT:
 					return 2;
 				case SurfaceFormat.Color:
 				case SurfaceFormat.Single:
