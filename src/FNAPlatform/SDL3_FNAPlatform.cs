@@ -284,6 +284,8 @@ namespace Microsoft.Xna.Framework
 
 			if (SoundEffect.FAudioContext.Context != null)
 			{
+				GC.Collect(); // Desperate last bid to collect SoundEffectInstances
+
 				SoundEffect.FAudioContext.Context.Dispose();
 			}
 			Media.MediaPlayer.DisposeIfNecessary();
