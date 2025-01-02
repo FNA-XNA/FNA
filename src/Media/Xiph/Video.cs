@@ -167,8 +167,6 @@ namespace Microsoft.Xna.Framework.Media
 			return new Video(path, graphicsDevice);
 		}
 
-		// FIXME: These should be in VideoPlayer instead!
-
 		internal int audioTrack = -1;
 		internal int videoTrack = -1;
 		internal VideoPlayer parent;
