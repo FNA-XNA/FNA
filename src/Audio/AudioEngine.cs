@@ -226,6 +226,15 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
+		#region Static Constructor
+
+		static AudioEngine()
+		{
+			AppDomain.CurrentDomain.ProcessExit += ProgramExit;
+		}
+
+		#endregion
+
 		#region Destructor
 
 		~AudioEngine()
@@ -420,6 +429,15 @@ namespace Microsoft.Xna.Framework.Audio
 					xactPtrs.Remove(target);
 				}
 			}
+		}
+
+		#endregion
+
+		#region Internal Static Methods
+
+		internal static void ProgramExit(object sender, EventArgs e)
+		{
+			ProgramExiting = true;
 		}
 
 		#endregion

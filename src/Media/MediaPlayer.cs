@@ -162,6 +162,7 @@ namespace Microsoft.Xna.Framework.Media
 		static MediaPlayer()
 		{
 			Queue = new MediaQueue();
+			AppDomain.CurrentDomain.ProcessExit += ProgramExit;
 		}
 
 		#endregion
@@ -305,15 +306,6 @@ namespace Microsoft.Xna.Framework.Media
 			MoveNext();
 		}
 
-		internal static void DisposeIfNecessary()
-		{
-			if (initialized)
-			{
-				FAudio.XNA_SongQuit();
-				initialized = false;
-			}
-		}
-
 		internal static void OnActiveSongChanged()
 		{
 			if (ActiveSongChanged != null)
@@ -390,6 +382,15 @@ namespace Microsoft.Xna.Framework.Media
 			song.Duration = TimeSpan.FromSeconds(FAudio.XNA_PlaySong(song.handle));
 			timer.Start();
 			State = MediaState.Playing;
+		}
+
+		private static void ProgramExit(object sender, EventArgs e)
+		{
+			if (initialized)
+			{
+				FAudio.XNA_SongQuit();
+				initialized = false;
+			}
 		}
 
 		#endregion
