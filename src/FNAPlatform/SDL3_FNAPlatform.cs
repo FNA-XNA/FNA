@@ -825,7 +825,8 @@ namespace Microsoft.Xna.Framework
 			uint displayId = SDL.SDL_GetDisplayForWindow(
 				game.Window.Handle
 			);
-			int displayIndex = FetchDisplayIndex(displayId);
+			int displayIndex;
+			TryFetchDisplayIndex(displayId, out displayIndex);
 			return GraphicsAdapter.Adapters[displayIndex];
 		}
 
@@ -1018,11 +1019,12 @@ namespace Microsoft.Xna.Framework
 						uint newId = SDL.SDL_GetDisplayForWindow(
 							game.Window.Handle
 						);
-						int newIndex = FetchDisplayIndex(newId);
-
-						if (newIndex >= GraphicsAdapter.Adapters.Count)
+						int newIndex;
+						if (	!TryFetchDisplayIndex(newId, out newIndex) ||
+							newIndex >= GraphicsAdapter.Adapters.Count	)
 						{
 							GraphicsAdapter.AdaptersChanged(); // quickfix for this event coming in before the display reattach event. (must be fixed in sdl)
+							TryFetchDisplayIndex(newId, out newIndex);
 						}
 
 						if (GraphicsAdapter.Adapters[newIndex] != currentAdapter)
@@ -1054,8 +1056,15 @@ namespace Microsoft.Xna.Framework
 					uint displayId = SDL.SDL_GetDisplayForWindow(
 						game.Window.Handle
 					);
-					int displayIndex = FetchDisplayIndex(displayId);
-					currentAdapter = GraphicsAdapter.Adapters[displayIndex];
+					int displayIndex;
+					if (TryFetchDisplayIndex(displayId, out displayIndex))
+					{
+						currentAdapter = GraphicsAdapter.Adapters[displayIndex];
+					}
+					else
+					{
+						currentAdapter = GraphicsAdapter.DefaultAdapter;
+					}
 
 					// Orientation Change
 					if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_DISPLAY_ORIENTATION)
@@ -1214,16 +1223,19 @@ namespace Microsoft.Xna.Framework
 
 		// FIXME SDL3: This is really sloppy -flibit
 		private static uint[] displayIds;
-		private static int FetchDisplayIndex(uint id)
+		private static bool TryFetchDisplayIndex(uint id, out int index)
 		{
 			for (int i = 0; i < displayIds.Length; i += 1)
 			{
 				if (id == displayIds[i])
 				{
-					return i;
+					index = i;
+					return true;
 				}
 			}
-			throw new InvalidOperationException();
+			FNALoggerEXT.LogWarn("SDL3 Window ID and display ID desync'd");
+			index = -1;
+			return false;
 		}
 
 		public static GraphicsAdapter[] GetGraphicsAdapters()
