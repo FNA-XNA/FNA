@@ -821,13 +821,7 @@ namespace Microsoft.Xna.Framework
 			// Store this for internal event filter work
 			activeGames.Add(game);
 
-			// Which display did we end up on?
-			uint displayId = SDL.SDL_GetDisplayForWindow(
-				game.Window.Handle
-			);
-			int displayIndex;
-			TryFetchDisplayIndex(displayId, out displayIndex);
-			return GraphicsAdapter.Adapters[displayIndex];
+			return FetchDisplayAdapter(game.Window.Handle);
 		}
 
 		public static void UnregisterGame(Game game)
@@ -1016,20 +1010,11 @@ namespace Microsoft.Xna.Framework
 						 * display, a GraphicsDevice Reset occurs.
 						 * -flibit
 						 */
-						uint newId = SDL.SDL_GetDisplayForWindow(
-							game.Window.Handle
-						);
-						int newIndex;
-						if (	!TryFetchDisplayIndex(newId, out newIndex) ||
-							newIndex >= GraphicsAdapter.Adapters.Count	)
-						{
-							GraphicsAdapter.AdaptersChanged(); // quickfix for this event coming in before the display reattach event. (must be fixed in sdl)
-							TryFetchDisplayIndex(newId, out newIndex);
-						}
+						GraphicsAdapter next = FetchDisplayAdapter(game.Window.Handle);
 
-						if (GraphicsAdapter.Adapters[newIndex] != currentAdapter)
+						if (next != currentAdapter)
 						{
-							currentAdapter = GraphicsAdapter.Adapters[newIndex];
+							currentAdapter = next;
 							game.GraphicsDevice.Reset(
 								game.GraphicsDevice.PresentationParameters,
 								currentAdapter
@@ -1053,18 +1038,7 @@ namespace Microsoft.Xna.Framework
 				{
 					GraphicsAdapter.AdaptersChanged();
 
-					uint displayId = SDL.SDL_GetDisplayForWindow(
-						game.Window.Handle
-					);
-					int displayIndex;
-					if (TryFetchDisplayIndex(displayId, out displayIndex))
-					{
-						currentAdapter = GraphicsAdapter.Adapters[displayIndex];
-					}
-					else
-					{
-						currentAdapter = GraphicsAdapter.DefaultAdapter;
-					}
+					currentAdapter = FetchDisplayAdapter(game.Window.Handle);
 
 					// Orientation Change
 					if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_DISPLAY_ORIENTATION)
@@ -1223,19 +1197,32 @@ namespace Microsoft.Xna.Framework
 
 		// FIXME SDL3: This is really sloppy -flibit
 		private static uint[] displayIds;
-		private static bool TryFetchDisplayIndex(uint id, out int index)
+		private static GraphicsAdapter FetchDisplayAdapter(IntPtr window, bool retry = true)
 		{
+			uint displayId = SDL.SDL_GetDisplayForWindow(window);
+
+			int index = -1;
 			for (int i = 0; i < displayIds.Length; i += 1)
 			{
-				if (id == displayIds[i])
+				if (displayId == displayIds[i])
 				{
 					index = i;
-					return true;
+					break;
 				}
 			}
-			FNALoggerEXT.LogWarn("SDL3 Window ID and display ID desync'd");
-			index = -1;
-			return false;
+
+			if (index < 0 || index > GraphicsAdapter.Adapters.Count)
+			{
+				FNALoggerEXT.LogWarn("SDL3 Window ID and Display ID desync'd");
+				if (retry)
+				{
+					GraphicsAdapter.AdaptersChanged();
+					return FetchDisplayAdapter(window, false);
+				}
+				FNALoggerEXT.LogWarn("SDL3 Window ID and Display ID desync'd really badly");
+				return GraphicsAdapter.DefaultAdapter;
+			}
+			return GraphicsAdapter.Adapters[index];
 		}
 
 		public static GraphicsAdapter[] GetGraphicsAdapters()
