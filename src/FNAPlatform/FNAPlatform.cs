@@ -100,6 +100,12 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
+			// Compatibility for old variable names
+			Environment.SetEnvironmentVariable(
+				"FNA_SDL_FORCE_BASE_PATH",
+				Environment.GetEnvironmentVariable("FNA_SDL2_FORCE_BASE_PATH")
+			);
+
 			if (useSDL3)
 			{
 				Malloc =			SDL3_FNAPlatform.Malloc;
