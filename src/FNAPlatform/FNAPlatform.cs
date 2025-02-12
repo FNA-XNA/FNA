@@ -36,9 +36,9 @@ namespace Microsoft.Xna.Framework
 			 * -flibit
 			 */
 
-			bool useSDL3 = Environment.GetEnvironmentVariable("FNA_PLATFORM_BACKEND") == "SDL3";
+			bool useSDL2 = Environment.GetEnvironmentVariable("FNA_PLATFORM_BACKEND") == "SDL2";
 
-			if (useSDL3)
+			if (!useSDL2)
 			{
 				SetEnv = SDL3_FNAPlatform.SetEnv;
 			}
@@ -106,7 +106,7 @@ namespace Microsoft.Xna.Framework
 				Environment.GetEnvironmentVariable("FNA_SDL2_FORCE_BASE_PATH")
 			);
 
-			if (useSDL3)
+			if (!useSDL2)
 			{
 				Malloc =			SDL3_FNAPlatform.Malloc;
 				Free =				SDL3.SDL.SDL_free;
@@ -219,7 +219,7 @@ namespace Microsoft.Xna.Framework
 
 			FNALoggerEXT.Initialize();
 
-			if (useSDL3)
+			if (!useSDL2)
 			{
 				AppDomain.CurrentDomain.ProcessExit += SDL3_FNAPlatform.ProgramExit;
 				TitleLocation = SDL3_FNAPlatform.ProgramInit(args);
