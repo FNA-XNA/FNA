@@ -1100,57 +1100,48 @@ namespace Microsoft.Xna.Framework
 				// Text Input
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_TEXT_INPUT && !textInputSuppress)
 				{
-					// Based on the SDL2# LPUtf8StrMarshaler
-					int bytes = MeasureStringLength(evt.text.text);
-					if (bytes > 0)
+					int len = 0;
+					int utf8character = 0; // using an int to encode multibyte characters longer than 2 bytes
+					byte currentByte = 0;
+					int charByteSize = 0; // UTF8 char length to decode
+					int remainingShift = 0;
+					while ((currentByte = Marshal.ReadByte((IntPtr) evt.text.text, len)) != 0)
 					{
-						/* UTF8 will never encode more characters
-						 * than bytes in a string, so bytes is a
-						 * suitable upper estimate of size needed
-						 */
-						int len = 0;
-						int utf8character = 0; // using an int to encode multibyte characters longer than 2 bytes
-						byte currentByte = 0;
-						int charByteSize = 0; // UTF8 char length to decode
-						int remainingShift = 0;
-						while ((currentByte = Marshal.ReadByte((IntPtr) evt.text.text, len)) != 0)
+						// we're reading the first UTF8 byte, we need to check if it's multibyte
+						if (charByteSize == 0)
 						{
-							// we're reading the first UTF8 byte, we need to check if it's multibyte
-							if (charByteSize == 0)
-							{
-								if (currentByte < 192)
-									charByteSize = 1;
-								else if (currentByte < 224)
-									charByteSize = 2;
-								else if (currentByte < 240)
-									charByteSize = 3;
-								else
-									charByteSize = 4;
+							if (currentByte < 192)
+								charByteSize = 1;
+							else if (currentByte < 224)
+								charByteSize = 2;
+							else if (currentByte < 240)
+								charByteSize = 3;
+							else
+								charByteSize = 4;
 
-								utf8character = 0;
-								remainingShift = 4;
-							}
-
-							// assembling the character
-							utf8character <<= 8;
-							utf8character |= currentByte;
-
-							charByteSize--;
-							remainingShift--;
-
-							if (charByteSize == 0) // finished decoding the current character
-							{
-								utf8character <<= remainingShift * 8; // shifting it to full UTF8 scope
-								int codePoint = UTF8ToUnicode(utf8character);
-
-								if (codePoint >= 0)
-								{
-									TextInputEXT.OnTextInput(codePoint);
-								}
-							}
-
-							len++;
+							utf8character = 0;
+							remainingShift = 4;
 						}
+
+						// assembling the character
+						utf8character <<= 8;
+						utf8character |= currentByte;
+
+						charByteSize--;
+						remainingShift--;
+
+						if (charByteSize == 0) // finished decoding the current character
+						{
+							utf8character <<= remainingShift * 8; // shifting it to full UTF8 scope
+							int codePoint = UTF8ToUnicode(utf8character);
+
+							if (codePoint >= 0)
+							{
+								TextInputEXT.OnTextInput(codePoint);
+							}
+						}
+
+						len++;
 					}
 				}
 
