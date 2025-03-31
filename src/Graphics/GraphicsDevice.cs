@@ -909,7 +909,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetRenderTargets(params RenderTargetBinding[] renderTargets)
 		{
-			// Flush scissor state if changed
+			// Flush scissor state - using a rect outside of the viewport has been observed
+			// causing errors in Metal on iOS (via SDLGPU), for example when scissoring was just
+			// disabled and we're changing viewport size.
 			FNA3D.FNA3D_ApplyRasterizerState(
 				GLDevice,
 				ref RasterizerState.state
