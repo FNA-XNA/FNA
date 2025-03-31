@@ -909,6 +909,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetRenderTargets(params RenderTargetBinding[] renderTargets)
 		{
+			// Flush scissor state if changed
+			FNA3D.FNA3D_ApplyRasterizerState(
+				GLDevice,
+				ref RasterizerState.state
+			);
+
 			// D3D11 requires our sampler state to be valid (i.e. not point to any of our new RTs)
 			//  before we call SetRenderTargets. At this point FNA3D does not have a current copy
 			//  of the managed sampler state, so we need to apply our current state now instead of
