@@ -297,7 +297,7 @@ namespace Microsoft.Xna.Framework.Audio
 					out handle,
 					ref (this as DynamicSoundEffectInstance).format,
 					FAudio.FAUDIO_VOICE_USEFILTER,
-					FAudio.FAUDIO_DEFAULT_FREQ_RATIO,
+					FAudio.FAUDIO_MAX_FREQ_RATIO,
 					IntPtr.Zero,
 					IntPtr.Zero,
 					IntPtr.Zero
@@ -310,7 +310,7 @@ namespace Microsoft.Xna.Framework.Audio
 					out handle,
 					parentEffect.formatPtr,
 					FAudio.FAUDIO_VOICE_USEFILTER,
-					FAudio.FAUDIO_DEFAULT_FREQ_RATIO,
+					FAudio.FAUDIO_MAX_FREQ_RATIO,
 					IntPtr.Zero,
 					IntPtr.Zero,
 					IntPtr.Zero
