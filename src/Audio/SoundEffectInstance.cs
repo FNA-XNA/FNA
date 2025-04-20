@@ -165,6 +165,14 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
+		#region Private Static Variables
+
+		private static readonly float maxFreqRatio = Environment.GetEnvironmentVariable(
+			"FNA_SOUNDEFFECT_UNCAPPED_PITCH"
+		) == "1" ? FAudio.FAUDIO_MAX_FREQ_RATIO : FAudio.FAUDIO_DEFAULT_FREQ_RATIO;
+
+		#endregion
+
 		#region Internal Constructor
 
 		internal SoundEffectInstance(SoundEffect parent = null)
@@ -297,7 +305,7 @@ namespace Microsoft.Xna.Framework.Audio
 					out handle,
 					ref (this as DynamicSoundEffectInstance).format,
 					FAudio.FAUDIO_VOICE_USEFILTER,
-					FAudio.FAUDIO_DEFAULT_FREQ_RATIO,
+					maxFreqRatio,
 					IntPtr.Zero,
 					IntPtr.Zero,
 					IntPtr.Zero
@@ -310,7 +318,7 @@ namespace Microsoft.Xna.Framework.Audio
 					out handle,
 					parentEffect.formatPtr,
 					FAudio.FAUDIO_VOICE_USEFILTER,
-					FAudio.FAUDIO_DEFAULT_FREQ_RATIO,
+					maxFreqRatio,
 					IntPtr.Zero,
 					IntPtr.Zero,
 					IntPtr.Zero

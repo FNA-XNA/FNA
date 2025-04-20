@@ -909,6 +909,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetRenderTargets(params RenderTargetBinding[] renderTargets)
 		{
+			// Flush scissor state - using a rect outside of the viewport has been observed
+			// causing errors in Metal on iOS (via SDLGPU), for example when scissoring was just
+			// disabled and we're changing viewport size.
+			FNA3D.FNA3D_ApplyRasterizerState(
+				GLDevice,
+				ref RasterizerState.state
+			);
+
 			// D3D11 requires our sampler state to be valid (i.e. not point to any of our new RTs)
 			//  before we call SetRenderTargets. At this point FNA3D does not have a current copy
 			//  of the managed sampler state, so we need to apply our current state now instead of
