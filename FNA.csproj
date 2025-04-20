@@ -348,6 +348,7 @@
     <Compile Include="src\IGraphicsDeviceManager.cs" />
     <Compile Include="src\Input\Buttons.cs" />
     <Compile Include="src\Input\ButtonState.cs" />
+		<Compile Include="src\Input\DropInputEXT.cs" />
     <Compile Include="src\Input\GamePad.cs" />
     <Compile Include="src\Input\GamePadButtons.cs" />
     <Compile Include="src\Input\GamePadCapabilities.cs" />

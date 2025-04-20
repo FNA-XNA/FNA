@@ -20,6 +20,10 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
+using System.Globalization;
+using static System.Net.Mime.MediaTypeNames;
+
+
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -1100,73 +1104,79 @@ namespace Microsoft.Xna.Framework
 				// Text Input
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_TEXT_INPUT && !textInputSuppress)
 				{
-					int len = 0;
-					int utf8character = 0; // using an int to encode multibyte characters longer than 2 bytes
-					byte currentByte = 0;
-					int charByteSize = 0; // UTF8 char length to decode
-					int remainingShift = 0;
-					while ((currentByte = Marshal.ReadByte((IntPtr) evt.text.text, len)) != 0)
+					int len = MeasureStringLength(evt.text.text);
+					string text = new string(
+						(sbyte*) evt.text.text,
+						0,
+						len,
+						Encoding.UTF8
+					);
+					int[] index = StringInfo.ParseCombiningCharacters(text);
+					if (index.Length > 0)
 					{
-						// we're reading the first UTF8 byte, we need to check if it's multibyte
-						if (charByteSize == 0)
+						int prve = index[0];
+						for (int i = 1; i < index.Length; i++)
 						{
-							if (currentByte < 192)
-								charByteSize = 1;
-							else if (currentByte < 224)
-								charByteSize = 2;
-							else if (currentByte < 240)
-								charByteSize = 3;
-							else
-								charByteSize = 4;
-
-							utf8character = 0;
-							remainingShift = 4;
+							int next = index[i];
+							TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[next - 1]));
+							prve = next;
 						}
-
-						// assembling the character
-						utf8character <<= 8;
-						utf8character |= currentByte;
-
-						charByteSize--;
-						remainingShift--;
-
-						if (charByteSize == 0) // finished decoding the current character
-						{
-							utf8character <<= remainingShift * 8; // shifting it to full UTF8 scope
-							int codePoint = UTF8ToUnicode(utf8character);
-
-							if (codePoint >= 0)
-							{
-								TextInputEXT.OnTextInput(codePoint);
-							}
-						}
-
-						len++;
+						TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[text.Length - 1]));
 					}
 				}
 
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_TEXT_EDITING)
 				{
-					int bytes = MeasureStringLength(evt.edit.text);
-					if (bytes > 0)
+					if ((IntPtr) evt.edit.text != IntPtr.Zero)
 					{
-						char[] charsBuffer = new char[bytes];
-						fixed (char* buf = &charsBuffer[0])
+						int len = MeasureStringLength(evt.edit.text);
+						string text = new string(
+							(sbyte*) evt.text.text,
+							0,
+							len,
+							Encoding.UTF8
+						);
+						if (text.Length > 0)
 						{
-							int chars = Encoding.UTF8.GetChars(
-								evt.edit.text,
-								bytes,
-								buf,
-								bytes
-							);
-							string text = new string(charsBuffer, 0, chars);
 							TextInputEXT.OnTextEditing(text, evt.edit.start, evt.edit.length);
+							continue;
 						}
 					}
-					else
+					TextInputEXT.OnTextEditing(null, 0, 0);
+				}
+
+				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_DROP_FILE)
+				{
+					if ((IntPtr) evt.drop.data != IntPtr.Zero)
 					{
-						TextInputEXT.OnTextEditing(null, 0, 0);
+						int len = MeasureStringLength(evt.drop.data);
+						string fileName = new string(
+							(sbyte*) evt.text.text,
+							0,
+							len,
+							Encoding.UTF8
+						);
+						DropInputEXT.OnFileDrop(fileName);
+						continue;
 					}
+					DropInputEXT.OnFileDrop(null);
+				}
+
+				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_DROP_TEXT)
+				{
+					if ((IntPtr) evt.drop.data != IntPtr.Zero)
+					{
+						int len = MeasureStringLength(evt.drop.data);
+						string text = new string(
+							(sbyte*) evt.text.text,
+							0,
+							len,
+							Encoding.UTF8
+						);
+						DropInputEXT.OnTextDrop(text);
+						continue;
+					}
+					DropInputEXT.OnTextDrop(null);
 				}
 
 				// Quit
