@@ -1168,7 +1168,7 @@ namespace Microsoft.Xna.Framework
 					{
 						int len = MeasureStringLength(evt.drop.data);
 						string fileName = new string(
-							(sbyte*) evt.text.text,
+							(sbyte*) evt.drop.data,
 							0,
 							len,
 							Encoding.UTF8
@@ -1185,7 +1185,7 @@ namespace Microsoft.Xna.Framework
 					{
 						int len = MeasureStringLength(evt.drop.data);
 						string text = new string(
-							(sbyte*) evt.text.text,
+							(sbyte*) evt.drop.data,
 							0,
 							len,
 							Encoding.UTF8
