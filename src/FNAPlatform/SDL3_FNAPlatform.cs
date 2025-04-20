@@ -1104,24 +1104,41 @@ namespace Microsoft.Xna.Framework
 				// Text Input
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_TEXT_INPUT && !textInputSuppress)
 				{
-					int len = MeasureStringLength(evt.text.text);
-					string text = new string(
-						(sbyte*) evt.text.text,
-						0,
-						len,
-						Encoding.UTF8
-					);
-					int[] index = StringInfo.ParseCombiningCharacters(text);
-					if (index.Length > 0)
+					if ((IntPtr) evt.text.text != IntPtr.Zero)
 					{
-						int prve = index[0];
-						for (int i = 1; i < index.Length; i++)
+						int len = MeasureStringLength(evt.text.text);
+						string text = new string(
+							(sbyte*) evt.text.text,
+							0,
+							len,
+							Encoding.UTF8
+						);
+						int[] index = StringInfo.ParseCombiningCharacters(text);
+						if (index.Length > 0)
 						{
-							int next = index[i];
-							TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[next - 1]));
-							prve = next;
+							int prve = index[0];
+							for (int i = 1; i < index.Length; i++)
+							{
+								int next = index[i];
+								if (next - prve > 1)
+								{
+									TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[next - 1]));
+								}
+								else
+								{
+									TextInputEXT.OnTextInput(text[prve]);
+								}
+								prve = next;
+							}
+							if (text.Length - prve > 1)
+							{
+								TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[text.Length - 1]));
+							}
+							else
+							{
+								TextInputEXT.OnTextInput(text[prve]);
+							}
 						}
-						TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[text.Length - 1]));
 					}
 				}
 
@@ -1131,7 +1148,7 @@ namespace Microsoft.Xna.Framework
 					{
 						int len = MeasureStringLength(evt.edit.text);
 						string text = new string(
-							(sbyte*) evt.text.text,
+							(sbyte*) evt.edit.text,
 							0,
 							len,
 							Encoding.UTF8

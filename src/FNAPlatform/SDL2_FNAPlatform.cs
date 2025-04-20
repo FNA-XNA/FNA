@@ -1241,16 +1241,30 @@ namespace Microsoft.Xna.Framework
 						Encoding.UTF8
 					);
 					int[] index = StringInfo.ParseCombiningCharacters(text);
-					if(index.Length > 0)
+					if (index.Length > 0)
 					{
 						int prve = index[0];
 						for (int i = 1; i < index.Length; i++)
 						{
 							int next = index[i];
-							TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[next - 1]));
+							if (next - prve > 1)
+							{
+								TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[next - 1]));
+							}
+							else
+							{
+								TextInputEXT.OnTextInput(text[prve]);
+							}
 							prve = next;
 						}
-						TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[text.Length - 1]));
+						if (text.Length - prve > 1)
+						{
+							TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[text.Length - 1]));
+						}
+						else
+						{
+							TextInputEXT.OnTextInput(text[prve]);
+						}
 					}
 				}
 
