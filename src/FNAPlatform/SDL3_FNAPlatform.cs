@@ -1104,39 +1104,44 @@ namespace Microsoft.Xna.Framework
 				// Text Input
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_TEXT_INPUT && !textInputSuppress)
 				{
-					if ((IntPtr) evt.text.text != IntPtr.Zero)
+					if((IntPtr) evt.text.text == IntPtr.Zero)
 					{
-						int len = MeasureStringLength(evt.text.text);
-						string text = new string(
-							(sbyte*) evt.text.text,
-							0,
-							len,
-							Encoding.UTF8
-						);
-						int[] index = StringInfo.ParseCombiningCharacters(text);
-						if (index.Length > 0)
+						continue;
+					}
+					int utf8character = 0; // using an int to encode multibyte characters longer than 2 bytes
+					byte currentByte = 0;
+					int charByteSize = 0; // UTF8 char length to decode
+					int remainingShift = 0;
+					while ((currentByte = Marshal.ReadByte((IntPtr) evt.text.text, len)) != 0)
+					{
+						if (charByteSize == 0)
 						{
-							int prve = index[0];
-							for (int i = 1; i < index.Length; i++)
-							{
-								int next = index[i];
-								if (next - prve > 1)
-								{
-									TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[next - 1]));
-								}
-								else
-								{
-									TextInputEXT.OnTextInput(text[prve]);
-								}
-								prve = next;
-							}
-							if (text.Length - prve > 1)
-							{
-								TextInputEXT.OnTextInput(char.ConvertToUtf32(text[prve], text[text.Length - 1]));
-							}
+							if (currentByte < 192)
+								charByteSize = 1;
+							else if (currentByte < 224)
+								charByteSize = 2;
+							else if (currentByte < 240)
+								charByteSize = 3;
 							else
+								charByteSize = 4;
+
+							utf8character = 0;
+							remainingShift = 4;
+						}
+
+						utf8character <<= 8;
+						utf8character |= currentByte;
+
+						charByteSize--;
+						remainingShift--;
+
+						if (charByteSize == 0) // finished decoding the current character
+						{
+							utf8character <<= remainingShift * 8; // shifting it to full UTF8 scope
+							int codePoint = UTF8ToUnicode(utf8character);
+							if (codePoint >= 0)
 							{
-								TextInputEXT.OnTextInput(text[prve]);
+								TextInputEXT.OnTextInput(codePoint);
 							}
 						}
 					}
