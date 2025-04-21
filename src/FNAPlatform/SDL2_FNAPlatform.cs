@@ -1237,11 +1237,12 @@ namespace Microsoft.Xna.Framework
 					{
 						continue;
 					}
+					int index = 0;
 					int utf8character = 0; // using an int to encode multibyte characters longer than 2 bytes
 					byte currentByte = 0;
 					int charByteSize = 0; // UTF8 char length to decode
 					int remainingShift = 0;
-					while ((currentByte = Marshal.ReadByte((IntPtr) evt.text.text, len)) != 0)
+					while ((currentByte = Marshal.ReadByte((IntPtr) evt.text.text, index)) != 0)
 					{
 						if (charByteSize == 0)
 						{
@@ -1273,6 +1274,8 @@ namespace Microsoft.Xna.Framework
 								TextInputEXT.OnTextInput(codePoint);
 							}
 						}
+
+						index++;
 					}
 				}
 
