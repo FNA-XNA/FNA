@@ -1031,6 +1031,24 @@ namespace Microsoft.Xna.Framework
 					{
 						SDL.SDL_EnableScreenSaver();
 					}
+
+					// Full screen
+					else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_ENTER_FULLSCREEN)
+					{
+						Object manager = game.Services.GetService(typeof(IGraphicsDeviceManager));
+						if (manager != null && manager is GraphicsDeviceManager)
+						{
+							((GraphicsDeviceManager) manager).IsFullScreen = true;
+						}
+					}
+					else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_LEAVE_FULLSCREEN)
+					{
+						Object manager = game.Services.GetService(typeof(IGraphicsDeviceManager));
+						if (manager != null && manager is GraphicsDeviceManager)
+						{
+							((GraphicsDeviceManager) manager).IsFullScreen = false;
+						}
+					}
 				}
 
 				// Display Events
