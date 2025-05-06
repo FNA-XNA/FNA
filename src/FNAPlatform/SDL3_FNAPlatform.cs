@@ -1036,7 +1036,7 @@ namespace Microsoft.Xna.Framework
 					else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_ENTER_FULLSCREEN)
 					{
 						Object manager = game.Services.GetService(typeof(IGraphicsDeviceManager));
-						if (manager is GraphicsDeviceManager)
+						if (manager != null && manager is GraphicsDeviceManager)
 						{
 							((GraphicsDeviceManager) manager).IsFullScreen = true;
 						}
@@ -1044,7 +1044,7 @@ namespace Microsoft.Xna.Framework
 					else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_LEAVE_FULLSCREEN)
 					{
 						Object manager = game.Services.GetService(typeof(IGraphicsDeviceManager));
-						if (manager is GraphicsDeviceManager)
+						if (manager != null && manager is GraphicsDeviceManager)
 						{
 							((GraphicsDeviceManager) manager).IsFullScreen = false;
 						}
