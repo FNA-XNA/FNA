@@ -26,7 +26,8 @@ namespace Microsoft.Xna.Framework.Graphics
 {
 	#region Internal PSO Hash Struct
 
-	internal sealed class StateHashComparer : IEqualityComparer<StateHash> {
+	internal sealed class StateHashComparer : IEqualityComparer<StateHash>
+	{
 		public static readonly StateHashComparer Instance = new StateHashComparer();
 
 		public bool Equals (StateHash x, StateHash y) 
