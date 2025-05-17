@@ -24,9 +24,21 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Xna.Framework.Graphics
 {
-	#region Internal PSO Hash Struct
+    #region Internal PSO Hash Struct
 
-	[StructLayout(LayoutKind.Sequential)]
+    internal sealed class StateHashComparer : IEqualityComparer<StateHash> {
+		public static readonly StateHashComparer Instance = new StateHashComparer();
+
+        public bool Equals (StateHash x, StateHash y) {
+			return x.Equals(y);
+        }
+
+        public int GetHashCode (StateHash obj) {
+			return obj.GetHashCode();
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
 	internal struct StateHash : IEquatable<StateHash>
 	{
 		readonly ulong a;
@@ -44,7 +56,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				Convert.ToString((long) b, 2).PadLeft(64, '0');
 		}
 
-		bool IEquatable<StateHash>.Equals(StateHash hash)
+		public bool Equals(StateHash hash)
 		{
 			return a == hash.a && b == hash.b;
 		}
@@ -116,7 +128,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/* Private Cache Storage */
 
 		private Dictionary<StateHash, BlendState> blendCache =
-			new Dictionary<StateHash, BlendState>();
+			new Dictionary<StateHash, BlendState>(StateHashComparer.Instance);
 
 		/* Private Hashing Functions */
 
@@ -279,7 +291,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/* Private Cache Storage */
 
 		private Dictionary<StateHash, DepthStencilState> depthStencilCache =
-			new Dictionary<StateHash, DepthStencilState>();
+			new Dictionary<StateHash, DepthStencilState>(StateHashComparer.Instance);
 
 		/* Private Hashing Functions */
 
@@ -458,7 +470,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/* Private Cache Storage */
 
 		private Dictionary<StateHash, RasterizerState> rasterizerCache =
-			new Dictionary<StateHash, RasterizerState>();
+			new Dictionary<StateHash, RasterizerState>(StateHashComparer.Instance);
 
 		/* Private Hashing Functions */
 
@@ -577,7 +589,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/* Private Cache Storage */
 
 		private Dictionary<StateHash, SamplerState> samplerCache =
-			new Dictionary<StateHash, SamplerState>();
+			new Dictionary<StateHash, SamplerState>(StateHashComparer.Instance);
 
 		/* Private Hashing Functions */
 
