@@ -24,21 +24,23 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Xna.Framework.Graphics
 {
-    #region Internal PSO Hash Struct
+	#region Internal PSO Hash Struct
 
-    internal sealed class StateHashComparer : IEqualityComparer<StateHash> {
+	internal sealed class StateHashComparer : IEqualityComparer<StateHash> {
 		public static readonly StateHashComparer Instance = new StateHashComparer();
 
-        public bool Equals (StateHash x, StateHash y) {
+		public bool Equals (StateHash x, StateHash y) 
+		{
 			return x.Equals(y);
-        }
+		}
 
-        public int GetHashCode (StateHash obj) {
+		public int GetHashCode (StateHash obj) 
+		{
 			return obj.GetHashCode();
-        }
-    }
+		}
+	}
 
-    [StructLayout(LayoutKind.Sequential)]
+	[StructLayout(LayoutKind.Sequential)]
 	internal struct StateHash : IEquatable<StateHash>
 	{
 		readonly ulong a;
