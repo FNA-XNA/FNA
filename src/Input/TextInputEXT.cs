@@ -24,7 +24,7 @@ namespace Microsoft.Xna.Framework.Input
 		/// For more information this event is based off:
 		/// http://msdn.microsoft.com/en-AU/library/system.windows.forms.control.keypress.aspx
 		/// </summary>
-		public static event Action<char> TextInput;
+		public static event Action<int> TextInput;
 
 		/// <summary>
 		/// This event notifies you of in-progress text composition happening in an IME or other tool
@@ -94,11 +94,11 @@ namespace Microsoft.Xna.Framework.Input
 
 		#region Internal Event Access Method
 
-		internal static void OnTextInput(char c)
+		internal static void OnTextInput(int codepoint)
 		{
 			if (TextInput != null)
 			{
-				TextInput(c);
+				TextInput(codepoint);
 			}
 		}
 
