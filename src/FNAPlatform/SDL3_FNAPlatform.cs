@@ -932,7 +932,7 @@ namespace Microsoft.Xna.Framework
 						evt.tfinger.dy
 					);
 				}
-				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_FINGER_UP)
+				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_FINGER_UP || evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_FINGER_CANCELED)
 				{
 					TouchPanel.INTERNAL_onTouchEvent(
 						(int) evt.tfinger.fingerID,
