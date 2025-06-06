@@ -1,10 +1,13 @@
 # Makefile for FNA ABI Compatibility Files
 # Written by Ethan "flibitijibibo" Lee
 
-all: Microsoft.Xna.Framework Game Graphics GamerServices Graphics Input.Touch Net Storage Video Xact
+all: Microsoft.Xna.Framework Avatar Game Graphics GamerServices Graphics Input.Touch Net Storage Video Xact
 
 Microsoft.Xna.Framework: fnacopy
 	mcs Microsoft.Xna.Framework.cs -target:library -r:FNA.dll
+
+Avatar: fnacopy
+	mcs Microsoft.Xna.Framework.Avatar.cs -target:library -r:FNA.dll -r:FNA.NetStub.dll
 
 Game: fnacopy
 	mcs Microsoft.Xna.Framework.Game.cs -target:library -r:FNA.dll -r:FNA.NetStub.dll
