@@ -59,7 +59,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				if ((elementCount > 0) && (elements == null))
+				if ((elements == null))
 				{
 					BuildElementList();
 				}
@@ -188,68 +188,65 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal void BuildElementList()
 		{
-			if (elementCount > 0)
+			int curOffset = 0;
+			List<EffectParameter> elements = new List<EffectParameter>(elementCount);
+			EffectParameterCollection structureMembers = StructureMembers;
+			for (int i = 0; i < elementCount; i += 1)
 			{
-				int curOffset = 0;
-				List<EffectParameter> elements = new List<EffectParameter>(elementCount);
-				EffectParameterCollection structureMembers = StructureMembers;
-				for (int i = 0; i < elementCount; i += 1)
+				EffectParameterCollection elementMembers = null;
+				if (structureMembers != null)
 				{
-					EffectParameterCollection elementMembers = null;
-					if (structureMembers != null)
+					List<EffectParameter> memList = new List<EffectParameter>();
+					for (int j = 0; j < structureMembers.Count; j += 1)
 					{
-						List<EffectParameter> memList = new List<EffectParameter>();
-						for (int j = 0; j < structureMembers.Count; j += 1)
+						int memElems = 0;
+						if (structureMembers[j].Elements != null)
 						{
-							int memElems = 0;
-							if (structureMembers[j].Elements != null)
-							{
-								memElems = structureMembers[j].Elements.Count;
-							}
-							int memSize = structureMembers[j].RowCount * 4;
-							if (memElems > 0)
-							{
-								memSize *= memElems;
-							}
-							memList.Add(new EffectParameter(
-								structureMembers[j].Name,
-								structureMembers[j].Semantic,
-								structureMembers[j].RowCount,
-								structureMembers[j].ColumnCount,
-								memElems,
-								structureMembers[j].ParameterClass,
-								structureMembers[j].ParameterType,
-								IntPtr.Zero, // FIXME: Nested structs! -flibit
-								structureMembers[j].Annotations,
-								new IntPtr(values.ToInt64() + curOffset),
-								(uint) memSize * 4,
-								outer
-							));
-							curOffset += memSize * 4;
+							memElems = structureMembers[j].Elements.Count;
 						}
-						elementMembers = new EffectParameterCollection(memList);
+						int memSize = structureMembers[j].RowCount * 4;
+						if (memElems > 0)
+						{
+							memSize *= memElems;
+						}
+						memList.Add(new EffectParameter(
+							structureMembers[j].Name,
+							structureMembers[j].Semantic,
+							structureMembers[j].RowCount,
+							structureMembers[j].ColumnCount,
+							memElems,
+							structureMembers[j].ParameterClass,
+							structureMembers[j].ParameterType,
+							IntPtr.Zero, // FIXME: Nested structs! -flibit
+							structureMembers[j].Annotations,
+							new IntPtr(values.ToInt64() + curOffset),
+							(uint) memSize * 4,
+							outer
+						));
+						curOffset += memSize * 4;
 					}
-					// FIXME: Probably incomplete? -flibit
-					elements.Add(new EffectParameter(
-						null,
-						null,
-						RowCount,
-						ColumnCount,
-						0,
-						ParameterClass,
-						ParameterType,
-						elementMembers,
-						null,
-						new IntPtr(
-							values.ToInt64() + (i * RowCount * 16)
-						),
-						// FIXME: Not obvious to me how to compute this -kg
-						0,
-						outer
-					));
+					elementMembers = new EffectParameterCollection(memList);
 				}
-				this.elements = new EffectParameterCollection(elements);
+				// FIXME: Probably incomplete? -flibit
+				elements.Add(new EffectParameter(
+					null,
+					null,
+					RowCount,
+					ColumnCount,
+					0,
+					ParameterClass,
+					ParameterType,
+					elementMembers,
+					null,
+					new IntPtr(
+						values.ToInt64() + (i * RowCount * 16)
+					),
+					// FIXME: Not obvious to me how to compute this -kg
+					0,
+					outer
+				));
 			}
+			this.elements = new EffectParameterCollection(elements);
 		}
 
 		#endregion
