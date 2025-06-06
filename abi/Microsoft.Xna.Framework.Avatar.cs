@@ -1,0 +1,15 @@
+using System.Reflection;
+using System.Runtime.CompilerServices;
+[assembly: AssemblyVersion("4.0.0.0")]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.AvatarAnimation))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.AvatarAnimationPreset))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.AvatarBodyType))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.AvatarBone))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.AvatarDescription))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.AvatarExpression))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.AvatarEyebrow))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.AvatarEye))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.AvatarMouth))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.AvatarRenderer))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.AvatarRendererState))]
+[assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.GamerServices.IAvatarAnimation))]
