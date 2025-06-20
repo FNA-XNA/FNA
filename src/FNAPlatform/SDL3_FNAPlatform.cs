@@ -980,9 +980,13 @@ namespace Microsoft.Xna.Framework
 					// Window Resize
 					else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED)
 					{
-						// This is called on both API and WM resizes
-						Mouse.INTERNAL_WindowWidth = evt.window.data1;
-						Mouse.INTERNAL_WindowHeight = evt.window.data2;
+						/* This is called on both API and WM resizes.
+						 * We have to use WindowBounds instead of data1/2,
+						 * since data1/2 are in pixels, not desktop units.
+						 */
+						Rectangle b = GetWindowBounds(Mouse.WindowHandle);
+						Mouse.INTERNAL_WindowWidth = b.Width;
+						Mouse.INTERNAL_WindowHeight = b.Height;
 					}
 					else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_RESIZED)
 					{
@@ -1334,7 +1338,6 @@ namespace Microsoft.Xna.Framework
 			{
 				/* This is inaccurate, but what can you do... */
 				flags = SDL.SDL_GetMouseState(out fx, out fy);
-
 			}
 			// FIXME SDL3: Should this be rounded?
 			x = (int) fx;
