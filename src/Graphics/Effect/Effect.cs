@@ -971,48 +971,45 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			if (_type == IntPtr.Zero)
 			{
-				return null;
+				return new EffectParameterCollection(new List<EffectParameter>(0));
 			}
 
 			var type = *(MOJOSHADER_symbolTypeInfo*) _type;
 			EffectParameterCollection structMembers = null;
-			if (type.member_count > 0)
+			List<EffectParameter> memList = new List<EffectParameter>();
+			unsafe
 			{
-				List<EffectParameter> memList = new List<EffectParameter>();
-				unsafe
+				MOJOSHADER_symbolStructMember* mem = (MOJOSHADER_symbolStructMember*) type.members;
+				IntPtr curOffset = IntPtr.Zero;
+				for (int j = 0; j < type.member_count; j += 1)
 				{
-					MOJOSHADER_symbolStructMember* mem = (MOJOSHADER_symbolStructMember*) type.members;
-					IntPtr curOffset = IntPtr.Zero;
-					for (int j = 0; j < type.member_count; j += 1)
+					uint memSize = mem[j].info.rows * mem[j].info.columns;
+					if (mem[j].info.elements > 0)
 					{
-						uint memSize = mem[j].info.rows * mem[j].info.columns;
-						if (mem[j].info.elements > 0)
-						{
-							memSize *= mem[j].info.elements;
-						}
-						EffectParameter toAdd = new EffectParameter(
-							MarshalHelper.PtrToInternedStringAnsi(mem[j].name),
-							null,
-							(int) mem[j].info.rows,
-							(int) mem[j].info.columns,
-							(int) mem[j].info.elements,
-							XNAClass[(int) mem[j].info.parameter_class],
-							XNAType[(int) mem[j].info.parameter_type],
-							null, // FIXME: Nested structs! -flibit
-							null,
-							parameter.values + curOffset.ToInt32(),
-							memSize * 4,
-							outer
-						);
-
-						if (mem[j].info.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
-						{
-							int* index = (int*) (parameter.values + curOffset.ToInt32());
-							toAdd.cachedString = outer.INTERNAL_GetStringFromObjectTable(*index);
-						}
-						memList.Add(toAdd);
-						curOffset += (int) memSize * 4;
+						memSize *= mem[j].info.elements;
 					}
+					EffectParameter toAdd = new EffectParameter(
+						MarshalHelper.PtrToInternedStringAnsi(mem[j].name),
+						null,
+						(int) mem[j].info.rows,
+						(int) mem[j].info.columns,
+						(int) mem[j].info.elements,
+						XNAClass[(int) mem[j].info.parameter_class],
+						XNAType[(int) mem[j].info.parameter_type],
+						null, // FIXME: Nested structs! -flibit
+						null,
+						parameter.values + curOffset.ToInt32(),
+						memSize * 4,
+						outer
+					);
+
+					if (mem[j].info.parameter_type == MOJOSHADER_symbolType.MOJOSHADER_SYMTYPE_STRING)
+					{
+						int* index = (int*) (parameter.values + curOffset.ToInt32());
+						toAdd.cachedString = outer.INTERNAL_GetStringFromObjectTable(*index);
+					}
+					memList.Add(toAdd);
+					curOffset += (int) memSize * 4;
 				}
 				structMembers = new EffectParameterCollection(memList);
 			}
