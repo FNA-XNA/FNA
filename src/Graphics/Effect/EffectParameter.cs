@@ -71,7 +71,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				if ((mojoType != IntPtr.Zero) && (members == null))
+				if (members == null)
 				{
 					BuildMemberList();
 				}
