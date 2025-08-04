@@ -15,11 +15,9 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Content.ContentTypeReader))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Content.ContentTypeReader<int>))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.FrameworkDispatcher))]
-#if TODO_MEDIASTUB
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.MediaLibrary))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.MediaSourceType))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.MediaSource))]
-#endif
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.VisualizationData))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.TitleContainer))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Audio.MicrophoneState))]
@@ -29,24 +27,20 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Audio.SoundState))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Audio.SoundEffectInstance))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Audio.DynamicSoundEffectInstance))]
-#if TODO_MEDIASTUB
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.Album))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.AlbumCollection))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.Artist))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.ArtistCollection))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.Genre))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.GenreCollection))]
-#endif
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.MediaPlayer))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.MediaQueue))]
-#if TODO_MEDIASTUB
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.Picture))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.PictureAlbum))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.PictureAlbumCollection))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.PictureCollection))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.Playlist))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.PlaylistCollection))]
-#endif
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.Song))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Media.SongCollection))]
 [assembly: TypeForwardedToAttribute(typeof(Microsoft.Xna.Framework.Content.ContentReader))]
