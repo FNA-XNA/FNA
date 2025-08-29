@@ -501,6 +501,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
+				IsDisposed = true;
+
 				if (disposing)
 				{
 					// We're about to dispose, notify the application.
@@ -514,7 +516,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					 */
 					lock (resourcesLock)
 					{
-						foreach (GCHandle resource in resources.ToArray())
+						GCHandle[] resourceArray = resources.ToArray();
+						resources.Clear();
+						foreach (GCHandle resource in resourceArray)
 						{
 							object target = resource.Target;
 							if (target != null)
@@ -522,7 +526,6 @@ namespace Microsoft.Xna.Framework.Graphics
 								(target as IDisposable).Dispose();
 							}
 						}
-						resources.Clear();
 					}
 
 					if (userVertexBuffer != IntPtr.Zero)
@@ -545,8 +548,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					// Dispose of the GL Device/Context
 					FNA3D.FNA3D_DestroyDevice(GLDevice);
 				}
-
-				IsDisposed = true;
 			}
 		}
 
@@ -562,7 +563,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		internal void RemoveResourceReference(GCHandle resourceReference)
+		internal bool RemoveResourceReference(GCHandle resourceReference)
 		{
 			lock (resourcesLock)
 			{
@@ -575,9 +576,11 @@ namespace Microsoft.Xna.Framework.Graphics
 					// Perform an unordered removal, the order of items in this list does not matter
 					resources[i] = resources[resources.Count - 1];
 					resources.RemoveAt(resources.Count - 1);
-					return;
+					return true;
 				}
 			}
+
+			return false;
 		}
 
 		#endregion
