@@ -501,6 +501,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
+				IsDisposed = true;
+
 				if (disposing)
 				{
 					// We're about to dispose, notify the application.
@@ -514,7 +516,15 @@ namespace Microsoft.Xna.Framework.Graphics
 					 */
 					lock (resourcesLock)
 					{
-						foreach (GCHandle resource in resources.ToArray())
+						/* NOTE: It is very important to make a copy of the resource handles and then clear
+						 *  the array. This enables RemoveResourceReference to identify whether the handle
+						 *  has already been disposed or not, to prevent us from freeing a given handle twice.
+						 * Freeing a GCHandle twice is very bad, and GCHandle.IsAllocated is not accurate once
+						 *  you make a copy of the handle.
+						 */
+						GCHandle[] resourceArray = resources.ToArray();
+						resources.Clear();
+						foreach (GCHandle resource in resourceArray)
 						{
 							object target = resource.Target;
 							if (target != null)
@@ -522,7 +532,6 @@ namespace Microsoft.Xna.Framework.Graphics
 								(target as IDisposable).Dispose();
 							}
 						}
-						resources.Clear();
 					}
 
 					if (userVertexBuffer != IntPtr.Zero)
@@ -545,8 +554,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					// Dispose of the GL Device/Context
 					FNA3D.FNA3D_DestroyDevice(GLDevice);
 				}
-
-				IsDisposed = true;
 			}
 		}
 
@@ -562,7 +569,9 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		internal void RemoveResourceReference(GCHandle resourceReference)
+		/// <param name="resourceReference">The GCHandle for your resource</param>
+		/// <returns>true if you should Free your GCHandle</returns>
+		internal bool RemoveResourceReference(GCHandle resourceReference)
 		{
 			lock (resourcesLock)
 			{
@@ -575,9 +584,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					// Perform an unordered removal, the order of items in this list does not matter
 					resources[i] = resources[resources.Count - 1];
 					resources.RemoveAt(resources.Count - 1);
-					return;
+					return true;
 				}
 			}
+
+			// The GCHandle was already freed, most likely by GraphicsDevice.Dispose
+			return false;
 		}
 
 		#endregion
