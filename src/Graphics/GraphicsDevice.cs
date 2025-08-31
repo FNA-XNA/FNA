@@ -516,6 +516,12 @@ namespace Microsoft.Xna.Framework.Graphics
 					 */
 					lock (resourcesLock)
 					{
+						/* NOTE: It is very important to make a copy of the resource handles and then clear
+						 *  the array. This enables RemoveResourceReference to identify whether the handle
+						 *  has already been disposed or not, to prevent us from freeing a given handle twice.
+						 * Freeing a GCHandle twice is very bad, and GCHandle.IsAllocated is not accurate once
+						 *  you make a copy of the handle.
+						 */
 						GCHandle[] resourceArray = resources.ToArray();
 						resources.Clear();
 						foreach (GCHandle resource in resourceArray)
@@ -563,6 +569,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		/// <param name="resourceReference">The GCHandle for your resource</param>
+		/// <returns>true if you should Free your GCHandle</returns>
 		internal bool RemoveResourceReference(GCHandle resourceReference)
 		{
 			lock (resourcesLock)
@@ -580,6 +588,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 
+			// The GCHandle was already freed, most likely by GraphicsDevice.Dispose
 			return false;
 		}
 
