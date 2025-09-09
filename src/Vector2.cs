@@ -462,9 +462,8 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of dividing a vector by a scalar.</returns>
 		public static Vector2 Divide(Vector2 value1, float divider)
 		{
-			float factor = 1 / divider;
-			value1.X *= factor;
-			value1.Y *= factor;
+			value1.X /= divider;
+			value1.Y /= divider;
 			return value1;
 		}
 
@@ -476,9 +475,8 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">The result of dividing a vector by a scalar as an output parameter.</param>
 		public static void Divide(ref Vector2 value1, float divider, out Vector2 result)
 		{
-			float factor = 1 / divider;
-			result.X = value1.X * factor;
-			result.Y = value1.Y * factor;
+			result.X = value1.X / divider;
+			result.Y = value1.Y / divider;
 		}
 
 		/// <summary>
@@ -1170,9 +1168,8 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of dividing a vector by a scalar.</returns>
 		public static Vector2 operator /(Vector2 value1, float divider)
 		{
-			float factor = 1 / divider;
-			value1.X *= factor;
-			value1.Y *= factor;
+			value1.X /= divider;
+			value1.Y /= divider;
 			return value1;
 		}
 

@@ -1513,10 +1513,9 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of dividing a vector by a scalar.</returns>
 		public static Vector3 operator /(Vector3 value, float divider)
 		{
-			float factor = 1 / divider;
-			value.X *= factor;
-			value.Y *= factor;
-			value.Z *= factor;
+			value.X /= divider;
+			value.Y /= divider;
+			value.Z /= divider;
 			return value;
 		}
 
