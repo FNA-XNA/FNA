@@ -17,7 +17,7 @@ namespace Microsoft.Xna.Framework.Media
 	public sealed class MediaLibrary : IDisposable
 	{
 		#region Public Constructors
-		public MediaLibrary() { throw new NotImplementedException(); }
+		public MediaLibrary() { }
 		public MediaLibrary(MediaSource mediaSource) { throw new NotImplementedException(); }
 		#endregion
 
