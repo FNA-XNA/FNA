@@ -24,8 +24,12 @@ namespace Microsoft.Xna.Framework.Media
 		public bool Equals(Playlist other) { throw new NotImplementedException(); }
 		public override bool Equals(Object obj) { throw new NotImplementedException(); }
 		public override int GetHashCode() { throw new NotImplementedException(); }
-		public static bool operator==(Playlist first, Playlist second) { throw new NotImplementedException(); }
-		public static bool operator!=(Playlist first, Playlist second) { throw new NotImplementedException(); }
+		public static bool operator==(Playlist first, Playlist second) {
+			if (object.ReferenceEquals(first, null))
+				return object.ReferenceEquals(first, second);
+			return first.Equals(second);
+		}
+		public static bool operator!=(Playlist first, Playlist second) { return !(first == second); }
 		#endregion
 
 		#region Public Methods
