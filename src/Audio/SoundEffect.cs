@@ -620,7 +620,8 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					FAudio.FAudio_Release(Handle);
 				}
-				Context = null;
+				// FAudio_Release is refcounted, don't erase this yet
+				// Context = null;
 			}
 
 			public unsafe void AttachReverb(IntPtr voice)
@@ -771,7 +772,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					GC.Collect(); // Desperate last bid to collect SoundEffectInstances
 
-					SoundEffect.FAudioContext.Context.Dispose();
+					Context.Dispose();
 				}
 			}
 		}
