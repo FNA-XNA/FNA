@@ -966,7 +966,7 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Multiplies the components of quaternion by a scalar.
 		/// </summary>
-		/// <param name="quaternion1">Source <see cref="Vector3"/> on the left of the mul sign.</param>
+		/// <param name="quaternion1">Source <see cref="Quaternion"/> on the left of the mul sign.</param>
 		/// <param name="scaleFactor">Scalar value on the right of the mul sign.</param>
 		/// <returns>Result of the quaternion multiplication with a scalar.</returns>
 		public static Quaternion operator *(Quaternion quaternion1, float scaleFactor)
@@ -979,8 +979,8 @@ namespace Microsoft.Xna.Framework
 		/// <summary>
 		/// Subtracts a <see cref="Quaternion"/> from a <see cref="Quaternion"/>.
 		/// </summary>
-		/// <param name="quaternion1">Source <see cref="Vector3"/> on the left of the sub sign.</param>
-		/// <param name="quaternion2">Source <see cref="Vector3"/> on the right of the sub sign.</param>
+		/// <param name="quaternion1">Source <see cref="Quaternion"/> on the left of the sub sign.</param>
+		/// <param name="quaternion2">Source <see cref="Quaternion"/> on the right of the sub sign.</param>
 		/// <returns>Result of the quaternion subtraction.</returns>
 		public static Quaternion operator -(Quaternion quaternion1, Quaternion quaternion2)
 		{
