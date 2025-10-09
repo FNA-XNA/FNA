@@ -629,12 +629,8 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
-			Vector3 right;
-			Vector3.Cross(ref cameraUpVector, ref cameraDir, out right);
-			right.Normalize();
-
-			Vector3 up;
-			Vector3.Cross(ref cameraDir, ref right, out up);
+			Vector3 right = Vector3.Normalize(Vector3.Cross(cameraUpVector, cameraDir));
+			Vector3 up = Vector3.Normalize(Vector3.Cross(cameraDir, right));
 			result.M11 = right.X;
 			result.M12 = right.Y;
 			result.M13 = right.Z;
