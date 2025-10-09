@@ -610,10 +610,7 @@ namespace Microsoft.Xna.Framework
 			Vector3? cameraForwardVector,
 			out Matrix result
 		) {
-			Vector3 cameraDir;
-			cameraDir.X = objectPosition.X - cameraPosition.X;
-			cameraDir.Y = objectPosition.Y - cameraPosition.Y;
-			cameraDir.Z = objectPosition.Z - cameraPosition.Z;
+			Vector3 cameraDir = objectPosition - cameraPosition;
 
 			// Normalize cameraDir
 			float num = cameraDir.LengthSquared();
