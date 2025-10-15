@@ -144,6 +144,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Versioning
+
+		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+		public static extern uint FNA3D_LinkedVersion();
+
+		#endregion
+
 		#region Logging
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
