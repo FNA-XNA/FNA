@@ -116,5 +116,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// BC7 block texture format where the R/G/B values are non-linear sRGB.
 		/// </summary>
 		Bc7SrgbEXT,
+		/// <summary>
+		/// Unsigned 8-bit R pixel format.
+		/// </summary>
+		ByteEXT,
+		/// <summary>
+		/// Unsigned 16-bit R pixel format.
+		/// </summary>
+		UShortEXT,
 	}
 }
