@@ -20,7 +20,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <summary>
 		/// Amount of textures
 		/// </summary>
-		public int Count => textures.Length;
+		public int Count
+		{
+			get
+			{
+				return textures.Length;
+			}
+		}
 
 		public Texture this[int index]
 		{
