@@ -17,6 +17,11 @@ namespace Microsoft.Xna.Framework.Graphics
 	{
 		#region Public Array Access Property
 
+		/// <summary>
+		/// Amount of textures
+		/// </summary>
+		public int Count => textures.Length;
+
 		public Texture this[int index]
 		{
 			get
