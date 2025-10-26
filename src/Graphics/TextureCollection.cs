@@ -24,7 +24,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return textures.Length;
+				return Math.Min(textures.Length, modifiedSamplers.Length);
 			}
 		}
 
