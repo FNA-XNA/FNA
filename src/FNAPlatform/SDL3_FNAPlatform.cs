@@ -208,6 +208,23 @@ namespace Microsoft.Xna.Framework
 						OSVersion.Equals("macOS") ||
 						videoDriver.Equals("x11")	);
 
+			/* SDL3 added a helper to try and override constant warping
+			 * with emulation via relative mouse mode; this is nice
+			 * _sometimes_ and platforms without global mouse support need
+			 * this, but FNA has the burden of trying to be honest about app
+			 * requests to manipulate the cursor, so by default we'll gently
+			 * suggest the Old Way. Apps are more than welcome to override
+			 * this though.
+			 * -flibit
+			 */
+			if (SupportsGlobalMouse)
+			{
+				SDL.SDL_SetHint(
+					SDL.SDL_HINT_MOUSE_EMULATE_WARP_WITH_RELATIVE,
+					"0"
+				);
+			}
+
 			// Only iOS and Android care about device orientation.
 			SupportsOrientations = ( OSVersion.Equals("iOS") ||
 						 OSVersion.Equals("Android")	);
