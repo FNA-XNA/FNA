@@ -207,6 +207,11 @@ namespace Microsoft.Xna.Framework
 			SupportsGlobalMouse = (	OSVersion.Equals("Windows") ||
 						OSVersion.Equals("macOS") ||
 						videoDriver.Equals("x11")	);
+			if (Environment.GetEnvironmentVariable("FNA_MOUSE_DISABLE_GLOBAL_ACCESS") == "1")
+			{
+				// Ignore previous instructions
+				SupportsGlobalMouse = false;
+			}
 
 			/* SDL3 added a helper to try and override constant warping
 			 * with emulation via relative mouse mode; this is nice

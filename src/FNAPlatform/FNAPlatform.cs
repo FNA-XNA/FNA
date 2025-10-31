@@ -92,6 +92,13 @@ namespace Microsoft.Xna.Framework
 					"1"
 				);
 			}
+			if (args.TryGetValue("disableglobalmouse", out arg) && arg == "1")
+			{
+				Environment.SetEnvironmentVariable(
+					"FNA_MOUSE_DISABLE_GLOBAL_ACCESS",
+					"1"
+				);
+			}
 			if (args.TryGetValue("nukesteaminput", out arg) && arg == "1")
 			{
 				Environment.SetEnvironmentVariable(
