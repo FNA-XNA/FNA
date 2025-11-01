@@ -257,6 +257,18 @@ namespace Microsoft.Xna.Framework.Input
 			keys7 = 0;
 		}
 
+		void AddPressedKey(int key)
+		{
+			// non-public method used by Nuclex.Input library in Revolver360 Re:Actor
+			InternalSetKey((Keys)key);
+		}
+
+		void RemovePressedKey(int key)
+		{
+			// non-public method used by Nuclex.Input library in Revolver360 Re:Actor
+			InternalClearKey((Keys)key);
+		}
+
 		#endregion
 
 		#region Public Static Operators and Override Methods
