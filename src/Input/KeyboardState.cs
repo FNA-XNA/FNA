@@ -220,7 +220,7 @@ namespace Microsoft.Xna.Framework.Input
 		void AddPressedKey(int key)
 		{
 			uint mask = (uint) 1 << (key & 0x1f);
-			switch (((int) key) >> 5)
+			switch (key >> 5)
 			{
 				case 0: keys0 |= mask; break;
 				case 1: keys1 |= mask; break;
