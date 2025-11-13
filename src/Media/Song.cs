@@ -99,7 +99,7 @@ namespace Microsoft.Xna.Framework.Media
 			IsDisposed = false;
 		}
 
-		internal Song(string fileName, int durationMS) : this(fileName)
+		internal Song(string fileName, string assetName, int durationMS) : this(fileName, assetName)
 		{
 			Duration = TimeSpan.FromMilliseconds(durationMS);
 		}
