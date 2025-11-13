@@ -47,7 +47,7 @@ namespace Microsoft.Xna.Framework.Content
 
 			int durationMs = input.ReadInt32();
 
-			return new Song(path, durationMs);
+			return new Song(path, input.AssetName, durationMs);
 		}
 
 		#endregion
