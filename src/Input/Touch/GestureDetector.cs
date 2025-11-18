@@ -142,7 +142,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				if (IsGestureEnabled(GestureType.DoubleTap))
 				{
 					// Must tap again within 300ms of original tap's release
-					TimeSpan timeSinceRelease = DateTime.Now - eventTimestamp;
+					TimeSpan timeSinceRelease = DateTime.UtcNow - eventTimestamp;
 					if (timeSinceRelease <= TimeSpan.FromMilliseconds(300))
 					{
 						// If the new tap is close to the original tap
@@ -171,7 +171,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 			state = GestureState.HOLDING;
 			pressPosition = touchPosition;
-			eventTimestamp = DateTime.Now;
+			eventTimestamp = DateTime.UtcNow;
 		}
 
 		internal static void OnReleased(int fingerId, Vector2 touchPosition)
@@ -208,7 +208,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				if (tapEnabled || dtapEnabled)
 				{
 					// How long did the user hold the touch?
-					TimeSpan timeHeld = DateTime.Now - eventTimestamp;
+					TimeSpan timeHeld = DateTime.UtcNow - eventTimestamp;
 					if (timeHeld < TimeSpan.FromSeconds(1))
 					{
 						// Don't register a Tap immediately after a Double Tap
@@ -323,7 +323,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				state = GestureState.NONE;
 			}
 
-			eventTimestamp = DateTime.Now;
+			eventTimestamp = DateTime.UtcNow;
 		}
 
 		internal static void OnMoved(int fingerId, Vector2 touchPosition, Vector2 delta)
@@ -501,14 +501,14 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					 * -caleb
 					 */
 
-					float dt = (float)(DateTime.Now - updateTimestamp).TotalSeconds;
+					float dt = (float)(DateTime.UtcNow - updateTimestamp).TotalSeconds;
 					Vector2 delta = activeFingerPosition - lastUpdatePosition;
 					Vector2 instVelocity = delta / (0.001f + dt);
 					velocity += (instVelocity - velocity) * 0.45f;
 				}
 
 				lastUpdatePosition = activeFingerPosition;
-				updateTimestamp = DateTime.Now;
+				updateTimestamp = DateTime.UtcNow;
 			}
 
 			#endregion
@@ -517,7 +517,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 			if (IsGestureEnabled(GestureType.Hold) && state == GestureState.HOLDING)
 			{
-				TimeSpan timeSincePress = DateTime.Now - eventTimestamp;
+				TimeSpan timeSincePress = DateTime.UtcNow - eventTimestamp;
 				if (timeSincePress >= TimeSpan.FromSeconds(1))
 				{
 					// Hold!
