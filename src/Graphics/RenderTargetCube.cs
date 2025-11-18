@@ -224,6 +224,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
+				for (int i = 0; i < GraphicsDevice.renderTargetCount; i += 1)
+				{
+					if (GraphicsDevice.renderTargetBindings[i].RenderTarget == this)
+					{
+						throw new InvalidOperationException("Disposing target that is still bound");
+					}
+				}
+
 				IntPtr toDispose = Interlocked.Exchange(ref glColorBuffer, IntPtr.Zero);
 				if (toDispose != IntPtr.Zero)
 				{
