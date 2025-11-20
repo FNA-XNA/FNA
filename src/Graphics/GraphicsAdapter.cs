@@ -86,7 +86,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				throw new NotImplementedException();
+				return FNAPlatform.GetMonitorHandle(
+					Adapters.IndexOf(this)
+				);
 			}
 		}
 
