@@ -20,6 +20,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
+using System.Globalization;
+using static System.Net.Mime.MediaTypeNames;
+
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -953,6 +956,29 @@ namespace Microsoft.Xna.Framework
 			activeGames.Remove(game);
 		}
 
+
+		private static int UTF8ToUnicode(int utf8)
+		{
+			int
+				byte4 = utf8 & 0xFF,
+				byte3 = (utf8 >> 8) & 0xFF,
+				byte2 = (utf8 >> 16) & 0xFF,
+				byte1 = (utf8 >> 24) & 0xFF;
+
+			if (byte1 < 0x80)
+				return byte1;
+			else if (byte1 < 0xC0)
+				return -1;
+			else if (byte1 < 0xE0 && byte2 >= 0x80 && byte2 < 0xC0)
+				return (byte1 % 0x20) * 0x40 + (byte2 % 0x40);
+			else if (byte1 < 0xF0 && byte2 >= 0x80 && byte2 < 0xC0 && byte3 >= 0x80 && byte3 < 0xC0)
+				return (byte1 % 0x10) * 0x40 * 0x40 + (byte2 % 0x40) * 0x40 + (byte3 % 0x40);
+			else if (byte1 < 0xF8 && byte2 >= 0x80 && byte2 < 0xC0 && byte3 >= 0x80 && byte3 < 0xC0 && byte4 >= 0x80 && byte4 < 0xC0)
+				return (byte1 % 0x8) * 0x40 * 0x40 * 0x40 + (byte2 % 0x40) * 0x40 * 0x40 + (byte3 % 0x40) * 0x40 + (byte4 % 0x40);
+			else
+				return -1;
+		}
+
 		public static unsafe void PollEvents(
 			Game game,
 			ref GraphicsAdapter currentAdapter,
@@ -960,7 +986,6 @@ namespace Microsoft.Xna.Framework
 			ref bool textInputSuppress
 		) {
 			SDL.SDL_Event evt;
-			char* charsBuffer = stackalloc char[32]; // SDL_TEXTINPUTEVENT_TEXT_SIZE
 			while (SDL.SDL_PollEvent(out evt) == 1)
 			{
 				// Keyboard
@@ -1214,46 +1239,71 @@ namespace Microsoft.Xna.Framework
 				// Text Input
 				else if (evt.type == SDL.SDL_EventType.SDL_TEXTINPUT && !textInputSuppress)
 				{
-					// Based on the SDL2# LPUtf8StrMarshaler
-					int bytes = MeasureStringLength(evt.text.text);
-					if (bytes > 0)
+					if((IntPtr) evt.text.text == IntPtr.Zero)
 					{
-						/* UTF8 will never encode more characters
-						 * than bytes in a string, so bytes is a
-						 * suitable upper estimate of size needed
-						 */
-						int chars = Encoding.UTF8.GetChars(
-							evt.text.text,
-							bytes,
-							charsBuffer,
-							bytes
-						);
-
-						for (int i = 0; i < chars; i += 1)
+						continue;
+					}
+					int index = 0;
+					int utf8character = 0; // using an int to encode multibyte characters longer than 2 bytes
+					byte currentByte = 0;
+					int charByteSize = 0; // UTF8 char length to decode
+					int remainingShift = 0;
+					while ((currentByte = Marshal.ReadByte((IntPtr) evt.text.text, index)) != 0)
+					{
+						if (charByteSize == 0)
 						{
-							TextInputEXT.OnTextInput(charsBuffer[i]);
+							if (currentByte < 192)
+								charByteSize = 1;
+							else if (currentByte < 224)
+								charByteSize = 2;
+							else if (currentByte < 240)
+								charByteSize = 3;
+							else
+								charByteSize = 4;
+
+							utf8character = 0;
+							remainingShift = 4;
 						}
+
+						utf8character <<= 8;
+						utf8character |= currentByte;
+
+						charByteSize--;
+						remainingShift--;
+
+						if (charByteSize == 0) // finished decoding the current character
+						{
+							utf8character <<= remainingShift * 8; // shifting it to full UTF8 scope
+							int codePoint = UTF8ToUnicode(utf8character);
+							if (codePoint >= 0)
+							{
+								TextInputEXT.OnTextInput(codePoint);
+							}
+						}
+
+						index++;
 					}
 				}
 
-				else if (evt.type == SDL.SDL_EventType.SDL_TEXTEDITING) 
+				else if (evt.type == SDL.SDL_EventType.SDL_TEXTEDITING)
 				{
-					int bytes = MeasureStringLength(evt.edit.text);
-					if (bytes > 0)
-					{
-						int chars = Encoding.UTF8.GetChars(
-							evt.edit.text,
-							bytes,
-							charsBuffer,
-							bytes
-						);
-						string text = new string(charsBuffer, 0, chars);
+					string text = SDL.UTF8_ToManaged((IntPtr) evt.edit.text);
+					if (text != null && text.Length > 0)
 						TextInputEXT.OnTextEditing(text, evt.edit.start, evt.edit.length);
-					}
 					else
-					{
 						TextInputEXT.OnTextEditing(null, 0, 0);
-					}
+				}
+
+				else if (evt.type == SDL.SDL_EventType.SDL_DROPFILE)
+				{
+					string fileName = SDL.UTF8_ToManaged(evt.drop.file);
+					DropInputEXT.OnFileDrop(fileName);
+				}
+
+				else if (evt.type == SDL.SDL_EventType.SDL_DROPTEXT)
+				{
+					string text = SDL.UTF8_ToManaged(evt.drop.file);
+					DropInputEXT.OnTextDrop(text);
 				}
 
 				// Quit
@@ -1268,7 +1318,7 @@ namespace Microsoft.Xna.Framework
 		private unsafe static int MeasureStringLength(byte* ptr)
 		{
 			int bytes;
-			for (bytes = 0; *ptr != 0; ptr += 1, bytes += 1);
+			for (bytes = 0; *ptr != 0; ptr += 1, bytes += 1) ;
 			return bytes;
 		}
 
