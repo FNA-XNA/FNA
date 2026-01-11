@@ -18,7 +18,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Microsoft.Xna.Framework.Media
 {
-	public sealed class VideoPlayerTheora : IVideoPlayerImpl, IDisposable
+	public sealed class VideoPlayerTheora : IVideoPlayerCodec, IDisposable
 	{
 		#region Hardware-accelerated YUV -> RGBA
 
@@ -936,7 +936,6 @@ namespace Microsoft.Xna.Framework.Media
 		}
 
 		#endregion
-
 
 		#region Video support methods
 

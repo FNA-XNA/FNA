@@ -14,7 +14,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Microsoft.Xna.Framework.Media
 {
-	public interface IVideoPlayerImpl : IDisposable
+	internal interface IVideoPlayerCodec : IDisposable
 	{
 		#region Public Member Data: XNA VideoPlayer Implementation
 
