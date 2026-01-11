@@ -116,7 +116,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		#region Private Member Data: Implementation
 
-		private IVideoPlayerImpl impl;
+		private IVideoPlayerCodec impl;
 
 		internal static Dictionary<string, string> codecExtensions =
 			new Dictionary<string, string>
@@ -130,8 +130,8 @@ namespace Microsoft.Xna.Framework.Media
 				{ "Theora", VideoPlayerTheora.ReadInfo }
 			};
 
-		internal static Dictionary<string, Func<IVideoPlayerImpl>> codecPlayers =
-			new Dictionary<string, Func<IVideoPlayerImpl>>
+		internal static Dictionary<string, Func<IVideoPlayerCodec>> codecPlayers =
+			new Dictionary<string, Func<IVideoPlayerCodec>>
 			{
 				{ "Theora", () => new VideoPlayerTheora() },
 			};
@@ -250,16 +250,9 @@ namespace Microsoft.Xna.Framework.Media
 			}
 		}
 
-		public static void AddCodecEXT(string codecName, List<String> extensions, Func<string, VideoInfo> reader,
-			Func<IVideoPlayerImpl> implementation)
-		{
-			foreach (String extension in extensions)
-			{
-				codecExtensions.Add(extension.ToLower(), codecName);
-			}
-			codecInfoReaders.Add(codecName, reader);
-			codecPlayers.Add(codecName, implementation);
-		}
+		#endregion
+
+		#region Structs for Internal Use
 
 		public struct VideoInfo
 		{

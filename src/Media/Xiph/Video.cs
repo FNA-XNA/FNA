@@ -175,7 +175,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal int audioTrack = -1;
 		internal int videoTrack = -1;
-		internal IVideoPlayerImpl parent;
+		internal IVideoPlayerCodec parent;
 
 		public void SetAudioTrackEXT(int track)
 		{

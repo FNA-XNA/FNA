@@ -327,7 +327,7 @@
 		<Compile Include="src\Media\VideoSoundtrackType.cs" />
 		<Compile Include="src\Media\VisualizationData.cs" />
 		<Compile Include="src\Media\Xiph\BaseYUVPlayer.cs" />
-		<Compile Include="src\Media\Xiph\IVideoPlayerImpl.cs" />
+		<Compile Include="src\Media\Xiph\IVideoPlayerCodec.cs" />
 		<Compile Include="src\Media\Xiph\Video.cs" />
 		<Compile Include="src\Media\Xiph\VideoPlayer.cs" />
 		<Compile Include="src\Media\Xiph\VideoPlayerTheora.cs" />
