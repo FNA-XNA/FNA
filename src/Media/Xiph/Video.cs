@@ -9,8 +9,8 @@
 
 #region Using Statements
 using System;
+using System.Collections.Generic;
 using System.IO;
-
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
@@ -61,6 +61,12 @@ namespace Microsoft.Xna.Framework.Media
 			private set;
 		}
 
+		internal String Codec
+		{
+			get;
+			private set;
+		}
+
 		#endregion
 
 		#region Internal Variables
@@ -86,24 +92,11 @@ namespace Microsoft.Xna.Framework.Media
 				throw new FileNotFoundException(fileName);
 			}
 
-			IntPtr theora;
-			int width;
-			int height;
-			double fps;
-			Theorafile.th_pixel_fmt fmt;
-			Theorafile.tf_fopen(fileName, out theora);
-			Theorafile.tf_videoinfo(
-				theora,
-				out width,
-				out height,
-				out fps,
-				out fmt
-			);
-			Theorafile.tf_close(ref theora);
-
-			Width = width;
-			Height = height;
-			FramesPerSecond = (float) fps;
+			Codec = GuessCodec(fileName);
+			VideoPlayer.VideoInfo info = VideoPlayer.codecInfoReaders[Codec](fileName);
+			Width = info.width;
+			Height = info.height;
+			FramesPerSecond = (float) info.fps;
 
 			// FIXME: This is a part of the Duration hack!
 			Duration = TimeSpan.MaxValue;
@@ -118,6 +111,18 @@ namespace Microsoft.Xna.Framework.Media
 			int height,
 			float framesPerSecond,
 			VideoSoundtrackType soundtrackType
+		) : this(fileName, device, durationMS, width, height, framesPerSecond, soundtrackType, GuessCodec(fileName)) {
+		}
+
+		internal Video(
+			string fileName,
+			GraphicsDevice device,
+			int durationMS,
+			int width,
+			int height,
+			float framesPerSecond,
+			VideoSoundtrackType soundtrackType,
+			string codec
 		) {
 			handle = fileName;
 			GraphicsDevice = device;
@@ -130,6 +135,7 @@ namespace Microsoft.Xna.Framework.Media
 			Width = width;
 			Height = height;
 			FramesPerSecond = framesPerSecond;
+			Codec = codec;
 
 			// FIXME: Oh, hey! I wish we had this info in Theora!
 			Duration = TimeSpan.FromMilliseconds(durationMS);
@@ -141,7 +147,7 @@ namespace Microsoft.Xna.Framework.Media
 		#endregion
 
 		#region Public Extensions
-		
+
 		public static Video FromUriEXT(Uri uri, GraphicsDevice graphicsDevice)
 		{
 			string path;
@@ -169,7 +175,7 @@ namespace Microsoft.Xna.Framework.Media
 
 		internal int audioTrack = -1;
 		internal int videoTrack = -1;
-		internal VideoPlayer parent;
+		internal IVideoPlayerImpl parent;
 
 		public void SetAudioTrackEXT(int track)
 		{
@@ -187,6 +193,25 @@ namespace Microsoft.Xna.Framework.Media
 			{
 				parent.SetVideoTrackEXT(track);
 			}
+		}
+
+		#endregion
+
+		#region Private Static Methods
+
+		private static string GuessCodec(String filename)
+		{
+			filename = filename.ToLower();
+			foreach (KeyValuePair<string, string> kvp in VideoPlayer.codecExtensions)
+			{
+				if (filename.EndsWith(kvp.Key))
+				{
+					return kvp.Value;
+				}
+			}
+
+			// For backwards compatibility
+			return "Theora";
 		}
 
 		#endregion
