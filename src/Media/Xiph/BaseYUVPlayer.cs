@@ -15,7 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Microsoft.Xna.Framework.Media
 {
-	public abstract class BaseYUVPlayer : IDisposable
+	internal abstract class BaseYUVPlayer : IDisposable
 	{
 		#region Hardware-accelerated YUV -> RGBA
 

@@ -18,7 +18,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Microsoft.Xna.Framework.Media
 {
-	public sealed class VideoPlayerTheora : BaseYUVPlayer, IVideoPlayerCodec, IDisposable
+	internal sealed class VideoPlayerTheora : BaseYUVPlayer, IVideoPlayerCodec, IDisposable
 	{
 		#region Public Member Data: XNA VideoPlayer Implementation
 
