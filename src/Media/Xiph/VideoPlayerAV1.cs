@@ -6,7 +6,7 @@ using SDL3;
 
 namespace Microsoft.Xna.Framework.Media
 {
-	public unsafe class VideoPlayerAV1 : BaseYUVPlayer, IVideoPlayerCodec, IDisposable
+	internal unsafe class VideoPlayerAV1 : BaseYUVPlayer, IVideoPlayerCodec, IDisposable
 	{
 		#region Public Member Data: XNA VideoPlayer Implementation
 
@@ -234,7 +234,7 @@ namespace Microsoft.Xna.Framework.Media
 			try
 			{
 				byte hbd;
-				Bindings.df_videoinfo2(context, out yWidth, out yHeight, out layout, out hbd, out fps);
+				Bindings.df_videoinfo2(context, out yWidth, out yHeight, out layout, out hbd);
 				if (hbd == 2)
 				{
 					bitsPerPixel = 12;
@@ -247,10 +247,16 @@ namespace Microsoft.Xna.Framework.Media
 				{
 					bitsPerPixel = 8;
 				}
+
+				if (Bindings.df_guessframerate(context, out fps) == 0)
+				{
+					// If this is not present, I hope someone manually supplied it
+					fps = Video.FramesPerSecond;
+				}
 			} catch {
 				Bindings.df_videoinfo(context, out yWidth, out yHeight, out layout);
 				bitsPerPixel = 8;
-				fps = 0;
+				fps = Video.FramesPerSecond;
 			}
 
 			int uvWidth, uvHeight;
@@ -284,13 +290,10 @@ namespace Microsoft.Xna.Framework.Media
 
 			if (fps == 0)
 			{
-				if (Video.FramesPerSecond == 0)
-				{
-					throw new InvalidOperationException("Framerate not present in header or manually specified");
-				}
-				fps = Video.FramesPerSecond;
+				throw new InvalidOperationException("Framerate not present in header or manually specified");
 			}
-			else if (Math.Abs(Video.FramesPerSecond - fps) >= 1.0f)
+
+			if (Math.Abs(Video.FramesPerSecond - fps) >= 1.0f)
 			{
 				throw new InvalidOperationException(
 					"XNB/OGV framesPerSecond mismatch!" +
@@ -483,7 +486,12 @@ namespace Microsoft.Xna.Framework.Media
 			byte hbd;
 			double fps;
 			Bindings.df_fopen(fileName, out context);
-			Bindings.df_videoinfo2(context, out width, out height, out pixelLayout, out hbd, out fps);
+			Bindings.df_videoinfo2(context, out width, out height, out pixelLayout, out hbd);
+			if (Bindings.df_guessframerate(context, out fps) == 0)
+			{
+				// I hope someone will manually supply this
+				fps = 0;
+			}
 			Bindings.df_close(context);
 
 			return new VideoPlayer.VideoInfo() { fps = fps, width = width, height = height };
