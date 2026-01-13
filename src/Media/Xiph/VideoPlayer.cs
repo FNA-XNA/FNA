@@ -121,18 +121,22 @@ namespace Microsoft.Xna.Framework.Media
 		internal static Dictionary<string, string> codecExtensions =
 			new Dictionary<string, string>
 			{
+				{ "obu", "AV1" },
+				{ "av1", "AV1" },
 				{ "ogv", "Theora" }
 			};
 
 		internal static Dictionary<string, Func<string, VideoInfo>> codecInfoReaders =
 			new Dictionary<string, Func<string, VideoInfo>>
 			{
+				{ "AV1", VideoPlayerAV1.ReadInfo },
 				{ "Theora", VideoPlayerTheora.ReadInfo }
 			};
 
 		internal static Dictionary<string, Func<IVideoPlayerCodec>> codecPlayers =
 			new Dictionary<string, Func<IVideoPlayerCodec>>
 			{
+				{ "AV1", () => new VideoPlayerAV1() },
 				{ "Theora", () => new VideoPlayerTheora() },
 			};
 
