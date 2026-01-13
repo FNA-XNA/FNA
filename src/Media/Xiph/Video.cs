@@ -103,6 +103,12 @@ namespace Microsoft.Xna.Framework.Media
 			needsDurationHack = true;
 		}
 
+		internal Video(string fileName, GraphicsDevice device, float fps)
+			: this(fileName, device)
+		{
+			FramesPerSecond = fps;
+		}
+
 		internal Video(
 			string fileName,
 			GraphicsDevice device,
@@ -150,27 +156,12 @@ namespace Microsoft.Xna.Framework.Media
 
 		public static Video FromUriEXT(Uri uri, GraphicsDevice graphicsDevice)
 		{
-			string path;
-			if (uri.IsAbsoluteUri)
-			{
-				// If it's absolute, be sure we can actually get it...
-				if (!uri.IsFile)
-				{
-					throw new InvalidOperationException(
-						"Only local file URIs are supported for now"
-					);
-				}
-				path = uri.LocalPath;
-			}
-			else
-			{
-				path = Path.Combine(
-					TitleLocation.Path,
-					uri.ToString()
-				);
-			}
+			return new Video(ResolvePath(uri), graphicsDevice);
+		}
 
-			return new Video(path, graphicsDevice);
+		public static Video FromUriEXT(Uri uri, GraphicsDevice graphicsDevice, int fps)
+		{
+			return new Video(ResolvePath(uri), graphicsDevice, fps);
 		}
 
 		internal int audioTrack = -1;
@@ -198,6 +189,29 @@ namespace Microsoft.Xna.Framework.Media
 		#endregion
 
 		#region Private Static Methods
+
+		private static string ResolvePath(Uri uri)
+		{
+			string path;
+			if (uri.IsAbsoluteUri)
+			{
+				// If it's absolute, be sure we can actually get it...
+				if (!uri.IsFile)
+				{
+					throw new InvalidOperationException(
+						"Only local file URIs are supported for now"
+					);
+				}
+				return uri.LocalPath;
+			}
+			else
+			{
+				return Path.Combine(
+					TitleLocation.Path,
+					uri.ToString()
+				);
+			}
+		}
 
 		private static string GuessCodec(String filename)
 		{
