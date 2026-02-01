@@ -72,7 +72,6 @@ namespace Microsoft.Xna.Framework.Media
 		#region Private Member Data: dav1dfile
 
 		private IntPtr context;
-		private Bindings.PixelLayout pixelLayout;
 		private int bitsPerPixel;
 
 		private int currentFrame;
@@ -94,7 +93,7 @@ namespace Microsoft.Xna.Framework.Media
 			timer = new Stopwatch();
 		}
 
-		public void Dispose()
+		public override void Dispose()
 		{
 			if (IsDisposed)
 			{
