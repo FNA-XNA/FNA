@@ -2057,9 +2057,19 @@ namespace Microsoft.Xna.Framework
 
 			// Open the device!
 			INTERNAL_devices[which] = SDL.SDL_OpenGamepad(dev);
+			string error = SDL.SDL_GetError();
+			if (!string.IsNullOrEmpty(error)) {
+				FNALoggerEXT.LogWarn("Failed to OpenGamepad: " + error);
+				return;
+			}
 
 			// We use this when dealing with GUID initialization.
 			IntPtr thisJoystick = SDL.SDL_GetGamepadJoystick(INTERNAL_devices[which]);
+			error = SDL.SDL_GetError();
+			if (!string.IsNullOrEmpty(error)) {
+				FNALoggerEXT.LogWarn("Failed to GetGamepadJoystick: " + error);
+				return;
+			}
 
 			// Pair up the instance ID to the player index.
 			// FIXME: Remove check after 2.0.4? -flibit
@@ -2133,6 +2143,12 @@ namespace Microsoft.Xna.Framework
 			caps.HasAccelerometerEXT = SDL.SDL_GamepadHasSensor(INTERNAL_devices[which], SDL.SDL_SensorType.SDL_SENSOR_ACCEL);
 			INTERNAL_capabilities[which] = caps;
 
+			error = SDL.SDL_GetError();
+			if (!string.IsNullOrEmpty(error)) {
+				FNALoggerEXT.LogWarn("Error(s) while building gamepad caps: " + error);
+				return;
+			}
+
 			/* Store the GUID string for this device
 			 * FIXME: Replace GetGUIDEXT string with 3 short values -flibit
 			 */
@@ -2175,6 +2191,11 @@ namespace Microsoft.Xna.Framework
 			// Print controller information to stdout.
 			string deviceInfo;
 			string mapping = SDL.SDL_GetGamepadMapping(INTERNAL_devices[which]);
+			error = SDL.SDL_GetError();
+			if (!string.IsNullOrEmpty(error)) {
+				FNALoggerEXT.LogWarn("Failed to GetGamepadMapping: " + error);
+				return;
+			}
 			if (string.IsNullOrEmpty(mapping))
 			{
 				deviceInfo = "Mapping not found";
