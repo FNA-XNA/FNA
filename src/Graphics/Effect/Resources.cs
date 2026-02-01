@@ -102,6 +102,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		/* This Effect is used by the AV1 VideoPlayer. */
 		public static byte[] YUVToRGBAEffectR
 		{
 			get
