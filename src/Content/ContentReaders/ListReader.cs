@@ -18,7 +18,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Xna.Framework.Content
 {
-	internal class ListReader<T> : ContentTypeReader<List<T>>
+	public class ListReader<T> : ContentTypeReader<List<T>>
 	{
 		#region Public Properties
 
