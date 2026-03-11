@@ -168,6 +168,8 @@ namespace Microsoft.Xna.Framework
 				SupportsOrientationChanges =	SDL3_FNAPlatform.SupportsOrientationChanges;
 				NeedsPlatformMainLoop = 	SDL3_FNAPlatform.NeedsPlatformMainLoop;
 				RunPlatformMainLoop =		SDL3_FNAPlatform.RunPlatformMainLoop;
+				WrapWindow =			SDL3_FNAPlatform.WrapWindow;
+				UnwrapWindow =			SDL3_FNAPlatform.UnwrapWindow;
 			}
 			else
 			{
@@ -224,6 +226,8 @@ namespace Microsoft.Xna.Framework
 				SupportsOrientationChanges =	SDL2_FNAPlatform.SupportsOrientationChanges;
 				NeedsPlatformMainLoop = 	SDL2_FNAPlatform.NeedsPlatformMainLoop;
 				RunPlatformMainLoop =		SDL2_FNAPlatform.RunPlatformMainLoop;
+				WrapWindow =			SDL3_FNAPlatform.WrapWindow;
+				UnwrapWindow =			SDL3_FNAPlatform.UnwrapWindow;
 			}
 
 			FNALoggerEXT.Initialize();
@@ -482,6 +486,12 @@ namespace Microsoft.Xna.Framework
 
 		public delegate void RunPlatformMainLoopFunc(Game game);
 		public static readonly RunPlatformMainLoopFunc RunPlatformMainLoop;
+
+		public delegate IntPtr WrapWindowFunc(IntPtr handle);
+		public static readonly WrapWindowFunc WrapWindow;
+
+		public delegate IntPtr UnwrapWindowFunc(IntPtr handle);
+		public static readonly UnwrapWindowFunc UnwrapWindow;
 
 		#endregion
 	}

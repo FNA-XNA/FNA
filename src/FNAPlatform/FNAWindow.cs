@@ -60,6 +60,7 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
+				// This does NOT use Wrap/Unwrap, that's done at construction
 				return window;
 			}
 		}

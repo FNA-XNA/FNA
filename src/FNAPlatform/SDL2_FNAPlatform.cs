@@ -868,6 +868,16 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_SetTextInputRect(ref rect);
 		}
 
+		public static IntPtr WrapWindow(IntPtr handle)
+		{
+			return handle;
+		}
+
+		public static IntPtr UnwrapWindow(IntPtr handle)
+		{
+			return handle;
+		}
+
 		#endregion
 
 		#region Display Methods

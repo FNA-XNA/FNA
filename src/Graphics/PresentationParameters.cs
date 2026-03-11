@@ -66,11 +66,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return parameters.deviceWindowHandle;
+				return FNAPlatform.UnwrapWindow(parameters.deviceWindowHandle);
 			}
 			set
 			{
-				parameters.deviceWindowHandle = value;
+				parameters.deviceWindowHandle = FNAPlatform.WrapWindow(value);
 			}
 		}
 
