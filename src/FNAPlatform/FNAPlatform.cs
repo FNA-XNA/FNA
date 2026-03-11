@@ -226,8 +226,8 @@ namespace Microsoft.Xna.Framework
 				SupportsOrientationChanges =	SDL2_FNAPlatform.SupportsOrientationChanges;
 				NeedsPlatformMainLoop = 	SDL2_FNAPlatform.NeedsPlatformMainLoop;
 				RunPlatformMainLoop =		SDL2_FNAPlatform.RunPlatformMainLoop;
-				WrapWindow =			SDL3_FNAPlatform.WrapWindow;
-				UnwrapWindow =			SDL3_FNAPlatform.UnwrapWindow;
+				WrapWindow =			SDL2_FNAPlatform.WrapWindow;
+				UnwrapWindow =			SDL2_FNAPlatform.UnwrapWindow;
 			}
 
 			FNALoggerEXT.Initialize();
