@@ -110,12 +110,8 @@ namespace Microsoft.Xna.Framework.Audio
 					INTERNAL_state == SoundState.Playing	)
 				{
 					FAudio.FAudioVoiceState state;
-					FAudio.FAudioSourceVoice_GetState(
-						handle,
-						out state,
-						FAudio.FAUDIO_VOICE_NOSAMPLESPLAYED
-					);
-					if (state.BuffersQueued == 0)
+					FAudio.FAudioSourceVoice_GetState(handle, out state, 0);
+					if (state.BuffersQueued == 0 && state.SamplesPlayed == 0)
 					{
 						Stop(true);
 					}
