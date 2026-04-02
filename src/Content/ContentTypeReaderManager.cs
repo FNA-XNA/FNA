@@ -290,7 +290,7 @@ namespace Microsoft.Xna.Framework.Content
 		/// <param name='createFunction'>
 		/// Create function.
 		/// </param>
-		internal static void AddTypeCreator(
+		public static void AddTypeCreator(
 			string typeString,
 			Func<ContentTypeReader> createFunction
 		) {
