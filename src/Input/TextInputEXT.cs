@@ -39,21 +39,9 @@ namespace Microsoft.Xna.Framework.Input
 
 		public static IntPtr WindowHandle
 		{
-			get
-			{
-				return FNAPlatform.UnwrapWindow(INTERNAL_WindowHandle);
-			}
-			set
-			{
-				INTERNAL_WindowHandle = FNAPlatform.WrapWindow(value);
-			}
+			get;
+			set;
 		}
-
-		#endregion
-
-		#region Private Static Variables
-
-		private static IntPtr INTERNAL_WindowHandle;
 
 		#endregion
 

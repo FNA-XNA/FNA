@@ -63,14 +63,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public static IntPtr WindowHandle
 		{
-			get
-			{
-				return FNAPlatform.UnwrapWindow(INTERNAL_WindowHandle);
-			}
-			set
-			{
-				INTERNAL_WindowHandle = FNAPlatform.WrapWindow(value);
-			}
+			get;
+			set;
 		}
 
 		#endregion
@@ -87,8 +81,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		private static TouchLocation[] touches = new TouchLocation[MAX_TOUCHES];
 		private static TouchLocation[] prevTouches = new TouchLocation[MAX_TOUCHES];
 		private static List<TouchLocation> validTouches = new List<TouchLocation>();
-
-		private static IntPtr INTERNAL_WindowHandle;
 
 		#endregion
 

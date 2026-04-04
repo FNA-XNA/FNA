@@ -22,14 +22,8 @@ namespace Microsoft.Xna.Framework.Input
 
 		public static IntPtr WindowHandle
 		{
-			get
-			{
-				return FNAPlatform.UnwrapWindow(INTERNAL_WindowHandle);
-			}
-			set
-			{
-				INTERNAL_WindowHandle = FNAPlatform.WrapWindow(value);
-			}
+			get;
+			set;
 		}
 
 		public static bool IsRelativeMouseModeEXT
@@ -54,8 +48,6 @@ namespace Microsoft.Xna.Framework.Input
 		internal static int INTERNAL_BackBufferHeight = GraphicsDeviceManager.DefaultBackBufferHeight;
 
 		internal static int INTERNAL_MouseWheel = 0;
-
-		private static IntPtr INTERNAL_WindowHandle;
 
 		#endregion
 
