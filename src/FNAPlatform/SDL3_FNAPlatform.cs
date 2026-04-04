@@ -98,6 +98,10 @@ namespace Microsoft.Xna.Framework
 				);
 			}
 
+#if DEBUG_WRAP_WINDOW
+			SDL.SDL_SetHint(SDL.SDL_HINT_INVALID_PARAM_CHECKS, "1");
+#endif
+
 			// Are you even surprised this is necessary?
 			if (Environment.GetEnvironmentVariable("FNA_NUKE_STEAM_INPUT") == "1")
 			{
@@ -773,12 +777,30 @@ namespace Microsoft.Xna.Framework
 
 		public static IntPtr WrapWindow(IntPtr handle)
 		{
+#if DEBUG_WRAP_WINDOW
+			if (handle == IntPtr.Zero)
+				return handle;
+			IntPtr wrapped = SDL.SDL_GetWindowFromID((uint)handle);
+			if (wrapped == IntPtr.Zero)
+				throw new ArgumentException(SDL.SDL_GetError());
+			return wrapped;
+#else
 			return handle;
+#endif
 		}
 
 		public static IntPtr UnwrapWindow(IntPtr handle)
 		{
+#if DEBUG_WRAP_WINDOW
+			if (handle == IntPtr.Zero)
+				return handle;
+			uint unwrapped = SDL.SDL_GetWindowID(handle);
+			if (unwrapped == 0)
+				throw new ArgumentException(SDL.SDL_GetError());
+			return (IntPtr)unwrapped;
+#else
 			return handle;
+#endif
 		}
 
 		#endregion
