@@ -200,7 +200,8 @@ namespace Microsoft.Xna.Framework.Audio
 			int loopStart,
 			int loopLength
 		) {
-			Device();
+			FAudio.FAudio_AddRef(Device().Handle);
+
 			Name = name;
 			channels = nChannels;
 			sampleRate = nSamplesPerSec;
@@ -320,6 +321,9 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 				}
 				Instances.Clear();
+
+				FAudio.FAudio_Release(Device().Handle)
+
 				FNAPlatform.Free(formatPtr);
 				FNAPlatform.Free(handle.pAudioData);
 				IsDisposed = true;
@@ -770,7 +774,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 				if (Context != null)
 				{
-					GC.Collect(); // Desperate last bid to collect SoundEffectInstances
+					GC.Collect(); // Desperate last bid to collect SoundEffects
 
 					Context.Dispose();
 				}
