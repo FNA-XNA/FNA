@@ -76,6 +76,8 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) : base() {
+			FAudio.FAudio_AddRef(SoundEffect.Device().Handle);
+
 			this.sampleRate = sampleRate;
 			this.channels = channels;
 			isDynamic = true;
@@ -234,8 +236,14 @@ namespace Microsoft.Xna.Framework.Audio
 
 		protected override void Dispose(bool disposing)
 		{
-			// Not much to see here...
+			bool needsRelease = !IsDisposed;
+
 			base.Dispose(disposing);
+
+			if (needsRelease)
+			{
+				FAudio.FAudio_Release(SoundEffect.Device().Handle);
+			}
 		}
 
 		#endregion
