@@ -48,8 +48,13 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 				}
 #endif
+				Texture prev = textures[index];
 				textures[index] = value;
 				modifiedSamplers[index] = true;
+				if (prev != null && prev.requestedDispose && !IsTextureBound(prev))
+				{
+					prev.Dispose();
+				}
 			}
 		}
 
@@ -87,15 +92,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Functions
 
-		internal void RemoveDisposedTexture(Texture tex)
+		internal bool IsTextureBound(Texture tex)
 		{
 			for (int i = 0; i < textures.Length; i += 1)
 			{
 				if (tex == textures[i])
 				{
-					this[i] = null;
+					return true;
 				}
 			}
+			return false;
 		}
 
 		#endregion

@@ -63,6 +63,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Internal FNA3D Variables
 
 		internal IntPtr texture;
+		internal bool requestedDispose;
 
 		#endregion
 
@@ -72,8 +73,12 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				GraphicsDevice.Textures.RemoveDisposedTexture(this);
-				GraphicsDevice.VertexTextures.RemoveDisposedTexture(this);
+				if (	GraphicsDevice.Textures.IsTextureBound(this) ||
+					GraphicsDevice.VertexTextures.IsTextureBound(this)	)
+				{
+					requestedDispose = true;
+					return;
+				}
 
 				IntPtr toDispose = Interlocked.Exchange(ref texture, IntPtr.Zero);
 				if (toDispose != IntPtr.Zero)

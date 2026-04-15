@@ -1039,6 +1039,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						continue;
 					}
+
 					FNA3D.FNA3D_ResolveTarget(GLDevice, ref nativeTargetBindings[i]);
 				}
 				Array.Clear(renderTargetBindings, 0, renderTargetBindings.Length);

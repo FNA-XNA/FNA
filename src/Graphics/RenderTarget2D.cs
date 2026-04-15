@@ -184,7 +184,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					if (GraphicsDevice.renderTargetBindings[i].RenderTarget == this)
 					{
-						throw new InvalidOperationException("Disposing target that is still bound");
+						requestedDispose = true;
+						return;
 					}
 				}
 
