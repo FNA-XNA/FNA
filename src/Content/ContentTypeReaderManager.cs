@@ -37,7 +37,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		private static readonly Dictionary<Type, ContentTypeReader> contentReadersCache;
 
-		private static readonly string[] nestedMark = { "[[" };
+		private static readonly Regex regex = new Regex(@", (Microsoft.Xna.Framework.Graphics|Microsoft.Xna.Framework.Video|Microsoft.Xna.Framework|MonoGame.Framework), Version=.+?, Culture=.+?, PublicKeyToken=[^\]]+", RegexOptions.Compiled);
 
 		// Trick to prevent the linker removing the code, but not actually execute the code
 		private static bool falseflag = false;
@@ -320,58 +320,7 @@ namespace Microsoft.Xna.Framework.Content
 		/// </returns>
 		internal static string PrepareType(string type)
 		{
-			// Needed to support nested types
-			int count = type.Split(
-				nestedMark,
-				StringSplitOptions.None
-			).Length - 1;
-			string preparedType = type;
-			for (int i = 0; i < count; i += 1)
-			{
-				preparedType = Regex.Replace(
-					preparedType,
-					@"\[(.+?), Version=.+?\]",
-					"[$1]"
-				);
-			}
-			// Handle non generic types
-			if (preparedType.Contains("PublicKeyToken"))
-			{
-				preparedType = Regex.Replace(
-					preparedType,
-					@"(.+?), Version=.+?$",
-					"$1"
-				);
-			}
-			preparedType = preparedType.Replace(
-				", Microsoft.Xna.Framework.Graphics",
-				string.Format(
-					", {0}",
-					assemblyName
-				)
-			);
-			preparedType = preparedType.Replace(
-				", Microsoft.Xna.Framework.Video",
-				string.Format(
-					", {0}",
-					assemblyName
-				)
-			);
-			preparedType = preparedType.Replace(
-				", Microsoft.Xna.Framework",
-				string.Format(
-					", {0}",
-					assemblyName
-				)
-			);
-			preparedType = preparedType.Replace(
-				", MonoGame.Framework",
-				string.Format(
-					", {0}",
-					assemblyName
-				)
-			);
-			return preparedType;
+			return regex.Replace(type, string.Format(", {0}", assemblyName));
 		}
 
 		#endregion
