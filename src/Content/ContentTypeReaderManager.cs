@@ -33,11 +33,10 @@ namespace Microsoft.Xna.Framework.Content
 
 		private static readonly object locker;
 
-		private static readonly string assemblyName;
-
 		private static readonly Dictionary<Type, ContentTypeReader> contentReadersCache;
 
-		private static readonly Regex regex = new Regex(@", (Microsoft.Xna.Framework.Graphics|Microsoft.Xna.Framework.Video|Microsoft.Xna.Framework|MonoGame.Framework), Version=.+?, Culture=.+?, PublicKeyToken=[^\]]+", RegexOptions.Compiled);
+		private static readonly Regex regex;
+		private static readonly string regexReplacement;
 
 		// Trick to prevent the linker removing the code, but not actually execute the code
 		private static bool falseflag = false;
@@ -56,7 +55,9 @@ namespace Microsoft.Xna.Framework.Content
 		{
 			locker = new object();
 			contentReadersCache = new Dictionary<Type, ContentTypeReader>(255);
-			assemblyName = typeof(ContentTypeReaderManager).Assembly.FullName;
+
+			regex = new Regex(@", (Microsoft.Xna.Framework.Graphics|Microsoft.Xna.Framework.Video|Microsoft.Xna.Framework|MonoGame.Framework), Version=.+?, Culture=.+?, PublicKeyToken=[^\]]+", RegexOptions.Compiled);
+			regexReplacement = string.Format(", {0}", typeof(ContentTypeReaderManager).Assembly.FullName);
 		}
 
 		#endregion
@@ -318,9 +319,9 @@ namespace Microsoft.Xna.Framework.Content
 		/// <returns>
 		/// A <see cref="System.String"/>
 		/// </returns>
-		internal static string PrepareType(string type)
+		private static string PrepareType(string type)
 		{
-			return regex.Replace(type, string.Format(", {0}", assemblyName));
+			return regex.Replace(type, regexReplacement);
 		}
 
 		#endregion
