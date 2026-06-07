@@ -2810,10 +2810,7 @@ namespace Microsoft.Xna.Framework
 					if (	game.Window != null &&
 						evt->window.windowID == SDL.SDL_GetWindowID(game.Window.Handle)	)
 					{
-						if (evt->window.data1 == 0)
-						{
-							game.RedrawWindow();
-						}
+						game.RedrawWindow();
 						return false;
 					}
 				}
