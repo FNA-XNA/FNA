@@ -372,15 +372,8 @@ namespace Microsoft.Xna.Framework
 
 		public void ResetElapsedTime()
 		{
-			/* This only matters the next tick, and ONLY when
-			 * IsFixedTimeStep is false!
-			 * For fixed timestep, this is totally ignored.
-			 * -flibit
-			 */
-			if (!IsFixedTimeStep)
-			{
-				forceElapsedTimeToZero = true;
-			}
+			// This only matters the next tick! -flibit
+			forceElapsedTimeToZero = true;
 		}
 
 		public void SuppressDraw()
@@ -464,6 +457,17 @@ namespace Microsoft.Xna.Framework
 				ref textInputSuppress
 			);
 
+			/* Discard accumulated time if Reset was called, but only _after_
+			 * the sleeping for fixed time above, so that we don't end up sleeping
+			 * an extra frame when the step interval > target interval.
+			 * -flibit
+			 */
+			if (forceElapsedTimeToZero)
+			{
+				accumulatedElapsedTime = TimeSpan.Zero;
+				forceElapsedTimeToZero = false;
+			}
+
 			// Do not allow any update to take longer than our maximum.
 			if (accumulatedElapsedTime > MaxElapsedTime)
 			{
@@ -523,22 +527,8 @@ namespace Microsoft.Xna.Framework
 			else
 			{
 				// Perform a single variable length update.
-				if (forceElapsedTimeToZero)
-				{
-					/* When ResetElapsedTime is called,
-					 * Elapsed is forced to zero and
-					 * Total is ignored entirely.
-					 * -flibit
-					 */
-					gameTime.ElapsedGameTime = TimeSpan.Zero;
-					forceElapsedTimeToZero = false;
-				}
-				else
-				{
-					gameTime.ElapsedGameTime = accumulatedElapsedTime;
-					gameTime.TotalGameTime += gameTime.ElapsedGameTime;
-				}
-
+				gameTime.ElapsedGameTime = accumulatedElapsedTime;
+				gameTime.TotalGameTime += gameTime.ElapsedGameTime;
 				accumulatedElapsedTime = TimeSpan.Zero;
 				AssertNotDisposed();
 				Update(gameTime);
