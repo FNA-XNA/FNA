@@ -200,8 +200,7 @@ namespace Microsoft.Xna.Framework.Audio
 			int loopStart,
 			int loopLength
 		) {
-			FAudio.FAudio_AddRef(Device().Handle);
-
+			Device();
 			Name = name;
 			channels = nChannels;
 			sampleRate = nSamplesPerSec;
@@ -290,7 +289,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		~SoundEffect()
 		{
-			if (!FAudioContext.ProgramExiting && Instances.Count > 0)
+			if (Instances.Count > 0)
 			{
 				// STOP LEAKING YOUR INSTANCES, ARGH
 				GC.ReRegisterForFinalize(this);
@@ -321,9 +320,6 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 				}
 				Instances.Clear();
-
-				FAudio.FAudio_Release(Device().Handle);
-
 				FNAPlatform.Free(formatPtr);
 				FNAPlatform.Free(handle.pAudioData);
 				IsDisposed = true;
@@ -538,7 +534,6 @@ namespace Microsoft.Xna.Framework.Audio
 		internal class FAudioContext
 		{
 			public static FAudioContext Context = null;
-			public static bool ProgramExiting = false;
 
 			public readonly IntPtr Handle;
 			public readonly byte[] Handle3D;
@@ -624,8 +619,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					FAudio.FAudio_Release(Handle);
 				}
-				// FAudio_Release is refcounted, don't erase this yet
-				// Context = null;
+				Context = null;
 			}
 
 			public unsafe void AttachReverb(IntPtr voice)
@@ -764,20 +758,6 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 
 				Context = context;
-
-				AppDomain.CurrentDomain.ProcessExit += ProgramExit;
-			}
-
-			private static void ProgramExit(object sender, EventArgs e)
-			{
-				ProgramExiting = true;
-
-				if (Context != null)
-				{
-					GC.Collect(); // Desperate last bid to collect SoundEffects
-
-					Context.Dispose();
-				}
 			}
 		}
 
@@ -814,6 +794,25 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 			}
 			return FAudioContext.Context;
+		}
+
+		/// <summary>
+		/// Tears down the current FAudio engine/device so that the next call to
+		/// <see cref="Device"/> recreates it from scratch. Used to recover after
+		/// the OS default audio device changes (or is removed) and the existing
+		/// engine becomes unusable. All SoundEffectInstances bound to the old
+		/// device must be disposed before calling this, otherwise they will be
+		/// left referencing an engine thats broken.
+		/// </summary>
+		public static void ResetAudioEngine()
+		{
+			lock (createLock)
+			{
+				if (FAudioContext.Context != null)
+				{
+					FAudioContext.Context.Dispose();
+				}
+			}
 		}
 
 		#endregion
