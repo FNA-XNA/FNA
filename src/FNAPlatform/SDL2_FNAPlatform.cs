@@ -550,7 +550,8 @@ namespace Microsoft.Xna.Framework
 			int clientHeight,
 			bool wantsFullscreen,
 			string screenDeviceName,
-			ref string resultDeviceName
+			ref string resultDeviceName,
+			bool userMovedResized
 		) {
 			bool center = false;
 
@@ -582,7 +583,10 @@ namespace Microsoft.Xna.Framework
 				if (resize)
 				{
 					SDL.SDL_SetWindowSize(window, clientWidth, clientHeight);
-					center = true;
+					if (!userMovedResized)
+					{
+						center = true;
+					}
 				}
 			}
 

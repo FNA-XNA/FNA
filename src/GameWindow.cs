@@ -84,6 +84,12 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Internal Variables
+
+		internal bool UserMovedResized = false;
+
+		#endregion
+
 		#region Private Variables
 
 		private string _title;

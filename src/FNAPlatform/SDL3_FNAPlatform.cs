@@ -474,7 +474,8 @@ namespace Microsoft.Xna.Framework
 			int clientHeight,
 			bool wantsFullscreen,
 			string screenDeviceName,
-			ref string resultDeviceName
+			ref string resultDeviceName,
+			bool userMovedResized
 		) {
 			bool center = false;
 
@@ -508,7 +509,10 @@ namespace Microsoft.Xna.Framework
 				if (resize)
 				{
 					SDL.SDL_SetWindowSize(sdlWindow, clientWidth, clientHeight);
-					center = true;
+					if (!userMovedResized)
+					{
+						center = true;
+					}
 				}
 			}
 
@@ -2811,6 +2815,10 @@ namespace Microsoft.Xna.Framework
 						evt->window.windowID == SDL.SDL_GetWindowID(game.Window.Handle)	)
 					{
 						game.RedrawWindow();
+						if (evt->window.data1 == 1)
+						{
+							game.Window.UserMovedResized = true;
+						}
 						return false;
 					}
 				}
