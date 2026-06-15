@@ -217,7 +217,7 @@ namespace Microsoft.Xna.Framework.Input
 		 * Keep this name as it is for XNA4 accuracy!
 		 * -flibit
 		 */
-		void AddPressedKey(int key)
+		internal void AddPressedKey(int key)
 		{
 			uint mask = (uint) 1 << (key & 0x1f);
 			switch (key >> 5)
@@ -237,7 +237,7 @@ namespace Microsoft.Xna.Framework.Input
 		 * Keep this name as it is for XNA4 accuracy!
 		 * -flibit
 		 */
-		void RemovePressedKey(int key)
+		internal void RemovePressedKey(int key)
 		{
 			uint mask = (uint) 1 << (key & 0x1f);
 			switch (key >> 5)
