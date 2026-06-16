@@ -423,15 +423,13 @@ namespace Microsoft.Xna.Framework
 
 			AdvanceElapsedTime();
 
-			int timeout = IsFixedTimeStep && accumulatedElapsedTime.Ticks < TargetElapsedTime.Ticks - 5 * 10000 ? 1 : 0;
-
 			// Now that we are going to perform an update, let's poll events.
 			FNAPlatform.PollEvents(
 				this,
 				ref currentAdapter,
 				textInputControlDown,
 				ref textInputSuppress,
-				timeout
+				IsFixedTimeStep && accumulatedElapsedTime + worstCaseSleepPrecision < TargetElapsedTime ? 1 : 0
 			);
 
 			if (IsFixedTimeStep && accumulatedElapsedTime < TargetElapsedTime)
