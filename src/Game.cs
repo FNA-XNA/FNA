@@ -421,15 +421,23 @@ namespace Microsoft.Xna.Framework
 			 * modes across multiple devices and platforms.
 			 */
 
+			AdvanceElapsedTime();
+
+			int timeout = IsFixedTimeStep && accumulatedElapsedTime.Ticks < TargetElapsedTime.Ticks - 5 * 10000 ? 1 : 0;
+
 			// Now that we are going to perform an update, let's poll events.
 			FNAPlatform.PollEvents(
 				this,
 				ref currentAdapter,
 				textInputControlDown,
-				ref textInputSuppress
+				ref textInputSuppress,
+				timeout
 			);
 
-			AdvanceElapsedTime();
+			if (IsFixedTimeStep && accumulatedElapsedTime < TargetElapsedTime)
+			{
+				return;
+			}
 
 			/* Discard accumulated time if Reset was called, but only _after_
 			 * the sleeping for fixed time above, so that we don't end up sleeping
@@ -452,11 +460,6 @@ namespace Microsoft.Xna.Framework
 			{
 				gameTime.ElapsedGameTime = TargetElapsedTime;
 				int stepCount = 0;
-
-				if (accumulatedElapsedTime < TargetElapsedTime)
-				{
-					return;
-				}
 
 				// Perform as many full fixed length time steps as we can.
 				while (accumulatedElapsedTime >= TargetElapsedTime)

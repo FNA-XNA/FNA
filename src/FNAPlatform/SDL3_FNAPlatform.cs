@@ -892,12 +892,14 @@ namespace Microsoft.Xna.Framework
 			Game game,
 			ref GraphicsAdapter currentAdapter,
 			bool[] textInputControlDown,
-			ref bool textInputSuppress
+			ref bool textInputSuppress,
+			int timeout
 		) {
 			SDL.SDL_Event evt;
 			char* charsBuffer = stackalloc char[32]; // SDL_TEXTINPUTEVENT_TEXT_SIZE
-			while (SDL.SDL_PollEvent(out evt))
+			while (SDL.SDL_WaitEventTimeout(out evt, timeout))
 			{
+				timeout = 0;
 				// Keyboard
 				if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_KEY_DOWN)
 				{
