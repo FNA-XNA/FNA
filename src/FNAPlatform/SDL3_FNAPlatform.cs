@@ -911,7 +911,7 @@ namespace Microsoft.Xna.Framework
 							textInputControlDown[textIndex] = true;
 							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[textIndex]);
 						}
-						else if ((Keyboard.keys.IsKeyDown(Keys.LeftControl) || Keyboard.keys.IsKeyDown(Keys.RightControl))
+						else if ((evt.key.mod == SDL.SDL_Keymod.SDL_KMOD_LCTRL || evt.key.mod == SDL.SDL_Keymod.SDL_KMOD_RCTRL)
 							&& key == Keys.V)
 						{
 							textInputControlDown[6] = true;
@@ -926,7 +926,7 @@ namespace Microsoft.Xna.Framework
 						{
 							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[textIndex]);
 						}
-						else if ((Keyboard.keys.IsKeyDown(Keys.LeftControl) || Keyboard.keys.IsKeyDown(Keys.RightControl))
+						else if ((evt.key.mod == SDL.SDL_Keymod.SDL_KMOD_LCTRL || evt.key.mod == SDL.SDL_Keymod.SDL_KMOD_RCTRL)
 							&& key == Keys.V)
 						{
 							TextInputEXT.OnTextInput(FNAPlatform.TextInputCharacters[6]);
