@@ -86,6 +86,8 @@ namespace Microsoft.Xna.Framework
 
 		#region Internal Variables
 
+		internal bool CurrentlyModalLoop;
+
 		internal bool UserMovedResized = false;
 
 		#endregion

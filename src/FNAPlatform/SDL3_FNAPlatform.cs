@@ -902,6 +902,7 @@ namespace Microsoft.Xna.Framework
 			char* charsBuffer = stackalloc char[32]; // SDL_TEXTINPUTEVENT_TEXT_SIZE
 			while (SDL.SDL_PollEvent(out evt))
 			{
+				game.Window.CurrentlyModalLoop = false;
 				// Keyboard
 				if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_KEY_DOWN)
 				{
@@ -2817,9 +2818,23 @@ namespace Microsoft.Xna.Framework
 						game.RedrawWindow();
 						if (evt->window.data1 == 1)
 						{
-							game.Window.UserMovedResized = true;
+							game.Window.CurrentlyModalLoop = true;
 						}
 						return false;
+					}
+				}
+			}
+			else if (evt->type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_MOVED || evt->type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_RESIZED)
+			{
+				foreach (Game game in activeGames)
+				{
+					if (game.Window != null &&
+						evt->window.windowID == SDL.SDL_GetWindowID(game.Window.Handle))
+					{
+						if (game.Window.CurrentlyModalLoop)
+						{
+							game.Window.UserMovedResized = true;
+						}
 					}
 				}
 			}
