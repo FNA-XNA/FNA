@@ -86,7 +86,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Internal Variables
 
-		internal bool CurrentlyModalLoop;
+		internal bool CurrentlyModalLoop; // Modal loop when mouse resize window, mouse move window.
 
 		internal bool UserMovedResized = false;
 

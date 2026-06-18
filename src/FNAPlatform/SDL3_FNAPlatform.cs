@@ -902,7 +902,7 @@ namespace Microsoft.Xna.Framework
 			char* charsBuffer = stackalloc char[32]; // SDL_TEXTINPUTEVENT_TEXT_SIZE
 			while (SDL.SDL_PollEvent(out evt))
 			{
-				game.Window.CurrentlyModalLoop = false;
+				game.Window.CurrentlyModalLoop = false; // Modal loop blocks SDL_PollEvent. Modal loop end when SDL_PollEvent return.
 				// Keyboard
 				if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_KEY_DOWN)
 				{
@@ -2815,11 +2815,11 @@ namespace Microsoft.Xna.Framework
 					if (	game.Window != null &&
 						evt->window.windowID == SDL.SDL_GetWindowID(game.Window.Handle)	)
 					{
-						game.RedrawWindow();
-						if (evt->window.data1 == 1)
+						if (evt->window.data1 == 1) // Scheduled send during modal loop
 						{
 							game.Window.CurrentlyModalLoop = true;
 						}
+						game.RedrawWindow();
 						return false;
 					}
 				}
