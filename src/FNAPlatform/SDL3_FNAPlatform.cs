@@ -888,7 +888,7 @@ namespace Microsoft.Xna.Framework
 			activeGames.Remove(game);
 		}
 
-		public static unsafe void PollEvents(
+		public static unsafe int PollEvents(
 			Game game,
 			ref GraphicsAdapter currentAdapter,
 			bool[] textInputControlDown,
@@ -1211,6 +1211,7 @@ namespace Microsoft.Xna.Framework
 					break;
 				}
 			}
+			return timeout;
 		}
 
 		private unsafe static int MeasureStringLength(byte* ptr)

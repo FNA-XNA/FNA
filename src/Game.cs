@@ -423,18 +423,47 @@ namespace Microsoft.Xna.Framework
 
 			AdvanceElapsedTime();
 
-			// Now that we are going to perform an update, let's poll events.
-			FNAPlatform.PollEvents(
-				this,
-				ref currentAdapter,
-				textInputControlDown,
-				ref textInputSuppress,
-				IsFixedTimeStep && accumulatedElapsedTime + worstCaseSleepPrecision < TargetElapsedTime ? 1 : 0
-			);
-
-			if (IsFixedTimeStep && accumulatedElapsedTime < TargetElapsedTime)
+			if (IsFixedTimeStep)
 			{
-				return;
+				int timeout = 0;
+				while (accumulatedElapsedTime + worstCaseSleepPrecision < TargetElapsedTime)
+				{
+					timeout = FNAPlatform.PollEvents(
+						this,
+						ref currentAdapter,
+						textInputControlDown,
+						ref textInputSuppress,
+						1
+					);
+					TimeSpan timeAdvancedSinceSleeping = AdvanceElapsedTime();
+					if (timeout == 1)
+					{
+						UpdateEstimatedSleepPrecision(timeAdvancedSinceSleeping);
+					}
+				}
+				while (accumulatedElapsedTime < TargetElapsedTime)
+				{
+					// Now that we are going to perform an update, let's poll events.
+					FNAPlatform.PollEvents(
+						this,
+						ref currentAdapter,
+						textInputControlDown,
+						ref textInputSuppress,
+						0
+					);
+					AdvanceElapsedTime();
+				}
+			}
+			else
+			{
+				// Now that we are going to perform an update, let's poll events.
+				FNAPlatform.PollEvents(
+					this,
+					ref currentAdapter,
+					textInputControlDown,
+					ref textInputSuppress,
+					0
+				);
 			}
 
 			/* Discard accumulated time if Reset was called, but only _after_
