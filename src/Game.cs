@@ -425,10 +425,14 @@ namespace Microsoft.Xna.Framework
 
 			if (IsFixedTimeStep)
 			{
-				int timeout = 0;
+				/* If we are in fixed timestep, we want to wait until the next frame,
+				 * but we don't want to oversleep. Requesting repeated 1ms sleeps and
+				 * seeing how long we actually slept for lets us estimate the worst case
+				 * sleep precision so we don't oversleep the next frame.
+				 */
 				while (accumulatedElapsedTime + worstCaseSleepPrecision < TargetElapsedTime)
 				{
-					timeout = FNAPlatform.PollEvents(
+					int timeout = FNAPlatform.PollEvents(
 						this,
 						ref currentAdapter,
 						textInputControlDown,
@@ -441,6 +445,12 @@ namespace Microsoft.Xna.Framework
 						UpdateEstimatedSleepPrecision(timeAdvancedSinceSleeping);
 					}
 				}
+
+				/* Now that we have slept into the sleep precision threshold, we need to wait
+				 * for just a little bit longer until the target elapsed time has been reached.
+				 * SpinWait(1) works by pausing the thread for very short intervals, so it is
+				 * an efficient and time-accurate way to wait out the rest of the time.
+				 */
 				while (accumulatedElapsedTime < TargetElapsedTime)
 				{
 					// Now that we are going to perform an update, let's poll events.
