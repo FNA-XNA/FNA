@@ -2835,6 +2835,11 @@ namespace Microsoft.Xna.Framework
 						{
 							game.Window.UserMovedResized = true;
 						}
+						int w, h;
+						SDL.SDL_Rect fullscreen;
+						SDL.SDL_GetDisplayBounds(SDL.SDL_GetDisplayForWindow(game.Window.Handle), out fullscreen);
+						SDL.SDL_GetWindowSize(game.Window.Handle, out w, out h);
+						SDL.SDL_SetWindowPosition(game.Window.Handle, fullscreen.x, fullscreen.y);
 					}
 				}
 			}
