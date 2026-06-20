@@ -90,6 +90,8 @@ namespace Microsoft.Xna.Framework
 
 		internal bool UserMovedResized = false;
 
+		internal bool FixBorderlessFullscreen = false;
+
 		#endregion
 
 		#region Private Variables
