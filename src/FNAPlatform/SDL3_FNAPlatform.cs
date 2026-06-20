@@ -2839,7 +2839,10 @@ namespace Microsoft.Xna.Framework
 						SDL.SDL_Rect fullscreen;
 						SDL.SDL_GetDisplayBounds(SDL.SDL_GetDisplayForWindow(game.Window.Handle), out fullscreen);
 						SDL.SDL_GetWindowSize(game.Window.Handle, out w, out h);
-						SDL.SDL_SetWindowPosition(game.Window.Handle, fullscreen.x, fullscreen.y);
+						if (w == fullscreen.w && h == fullscreen.h)
+						{
+							SDL.SDL_SetWindowPosition(game.Window.Handle, fullscreen.x, fullscreen.y);
+						}
 					}
 				}
 			}
