@@ -2835,7 +2835,7 @@ namespace Microsoft.Xna.Framework
 						{
 							game.Window.UserMovedResized = true;
 						}
-						if (evt->type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_RESIZED && !SDL.SDL_GetWindowFlags(game.Window.Handle).HasFlag(SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN))
+						if (evt->type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_RESIZED && (SDL.SDL_GetWindowFlags(game.Window.Handle) & SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN) == 0)
 						{
 							int w, h;
 							SDL.SDL_Rect fullscreen;
@@ -2849,7 +2849,7 @@ namespace Microsoft.Xna.Framework
 							}
 							else if (game.Window.FixBorderlessFullscreen)
 							{
-								SDL.SDL_SetWindowPosition(game.Window.Handle, 0x2FFF0000 | (int) displayID, 0x2FFF0000 | (int) displayID);
+								SDL.SDL_SetWindowPosition(game.Window.Handle, 0x2FFF0000 /*SDL_WINDOWPOS_CENTERED_MASK*/ | (int) displayID, 0x2FFF0000 /*SDL_WINDOWPOS_CENTERED_MASK*/ | (int) displayID);
 								game.Window.FixBorderlessFullscreen = false;
 							}
 						}
