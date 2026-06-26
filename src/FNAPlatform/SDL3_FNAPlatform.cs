@@ -2849,7 +2849,7 @@ namespace Microsoft.Xna.Framework
 							}
 							else if (game.Window.FixBorderlessFullscreen)
 							{
-								SDL.SDL_SetWindowPosition(game.Window.Handle, 0x2FFF0000 /*SDL_WINDOWPOS_CENTERED_MASK*/ | (int) displayID, 0x2FFF0000 /*SDL_WINDOWPOS_CENTERED_MASK*/ | (int) displayID);
+								SDL.SDL_SetWindowPosition(game.Window.Handle, fullscreen.x + (fullscreen.w - w) / 2, fullscreen.y + (fullscreen.h - h) / 2);
 								game.Window.FixBorderlessFullscreen = false;
 							}
 						}
