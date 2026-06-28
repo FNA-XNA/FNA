@@ -2839,8 +2839,7 @@ namespace Microsoft.Xna.Framework
 						{
 							int w, h;
 							SDL.SDL_Rect fullscreen;
-							uint displayID = SDL.SDL_GetDisplayForWindow(game.Window.Handle);
-							SDL.SDL_GetDisplayBounds(displayID, out fullscreen);
+							SDL.SDL_GetDisplayBounds(SDL.SDL_GetDisplayForWindow(game.Window.Handle), out fullscreen);
 							SDL.SDL_GetWindowSize(game.Window.Handle, out w, out h);
 							if (w == fullscreen.w && h == fullscreen.h)
 							{
