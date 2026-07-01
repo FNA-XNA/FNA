@@ -962,16 +962,18 @@ namespace Microsoft.Xna.Framework
 			activeGames.Remove(game);
 		}
 
-		public static unsafe void PollEvents(
+		public static unsafe int PollEvents(
 			Game game,
 			ref GraphicsAdapter currentAdapter,
 			bool[] textInputControlDown,
-			ref bool textInputSuppress
+			ref bool textInputSuppress,
+			int timeout
 		) {
 			SDL.SDL_Event evt;
 			char* charsBuffer = stackalloc char[32]; // SDL_TEXTINPUTEVENT_TEXT_SIZE
-			while (SDL.SDL_PollEvent(out evt) == 1)
+			while (SDL.SDL_WaitEventTimeout(out evt, timeout) == 1)
 			{
+				timeout = 0;
 				// Keyboard
 				if (evt.type == SDL.SDL_EventType.SDL_KEYDOWN)
 				{
@@ -1274,6 +1276,7 @@ namespace Microsoft.Xna.Framework
 					break;
 				}
 			}
+			return timeout;
 		}
 
 		private unsafe static int MeasureStringLength(byte* ptr)

@@ -339,11 +339,12 @@ namespace Microsoft.Xna.Framework
 		public delegate void UnregisterGameFunc(Game game);
 		public static readonly UnregisterGameFunc UnregisterGame;
 
-		public delegate void PollEventsFunc(
+		public delegate int PollEventsFunc(
 			Game game,
 			ref GraphicsAdapter currentAdapter,
 			bool[] textInputControlDown,
-			ref bool textInputSuppress
+			ref bool textInputSuppress,
+			int timeout
 		);
 		public static readonly PollEventsFunc PollEvents;
 

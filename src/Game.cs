@@ -432,9 +432,18 @@ namespace Microsoft.Xna.Framework
 				 */
 				while (accumulatedElapsedTime + worstCaseSleepPrecision < TargetElapsedTime)
 				{
-					System.Threading.Thread.Sleep(1);
+					int timeout = FNAPlatform.PollEvents(
+						this,
+						ref currentAdapter,
+						textInputControlDown,
+						ref textInputSuppress,
+						1
+					);
 					TimeSpan timeAdvancedSinceSleeping = AdvanceElapsedTime();
-					UpdateEstimatedSleepPrecision(timeAdvancedSinceSleeping);
+					if (timeout == 1)
+					{
+						UpdateEstimatedSleepPrecision(timeAdvancedSinceSleeping);
+					}
 				}
 
 				/* Now that we have slept into the sleep precision threshold, we need to wait
@@ -444,18 +453,28 @@ namespace Microsoft.Xna.Framework
 				 */
 				while (accumulatedElapsedTime < TargetElapsedTime)
 				{
-					System.Threading.Thread.SpinWait(1);
+					// Now that we are going to perform an update, let's poll events.
+					FNAPlatform.PollEvents(
+						this,
+						ref currentAdapter,
+						textInputControlDown,
+						ref textInputSuppress,
+						0
+					);
 					AdvanceElapsedTime();
 				}
 			}
-
-			// Now that we are going to perform an update, let's poll events.
-			FNAPlatform.PollEvents(
-				this,
-				ref currentAdapter,
-				textInputControlDown,
-				ref textInputSuppress
-			);
+			else
+			{
+				// Now that we are going to perform an update, let's poll events.
+				FNAPlatform.PollEvents(
+					this,
+					ref currentAdapter,
+					textInputControlDown,
+					ref textInputSuppress,
+					0
+				);
+			}
 
 			/* Discard accumulated time if Reset was called, but only _after_
 			 * the sleeping for fixed time above, so that we don't end up sleeping
