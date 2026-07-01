@@ -474,7 +474,8 @@ namespace Microsoft.Xna.Framework
 			int clientHeight,
 			bool wantsFullscreen,
 			string screenDeviceName,
-			ref string resultDeviceName
+			ref string resultDeviceName,
+			bool userMovedResized
 		) {
 			bool center = false;
 
@@ -508,7 +509,10 @@ namespace Microsoft.Xna.Framework
 				if (resize)
 				{
 					SDL.SDL_SetWindowSize(sdlWindow, clientWidth, clientHeight);
-					center = true;
+					if (!userMovedResized)
+					{
+						center = true;
+					}
 				}
 			}
 
@@ -898,6 +902,7 @@ namespace Microsoft.Xna.Framework
 			char* charsBuffer = stackalloc char[32]; // SDL_TEXTINPUTEVENT_TEXT_SIZE
 			while (SDL.SDL_PollEvent(out evt))
 			{
+				game.Window.CurrentlyModalLoop = false; // Modal loop blocks SDL_PollEvent. Modal loop end when SDL_PollEvent return.
 				// Keyboard
 				if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_KEY_DOWN)
 				{
@@ -2812,8 +2817,43 @@ namespace Microsoft.Xna.Framework
 					if (	game.Window != null &&
 						evt->window.windowID == SDL.SDL_GetWindowID(game.Window.Handle)	)
 					{
+						if (evt->window.data1 == 1) // Scheduled send during modal loop
+						{
+							game.Window.CurrentlyModalLoop = true;
+						}
 						game.RedrawWindow();
 						return false;
+					}
+				}
+			}
+			else if (evt->type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_MOVED || evt->type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_RESIZED)
+			{
+				foreach (Game game in activeGames)
+				{
+					if (game.Window != null &&
+						evt->window.windowID == SDL.SDL_GetWindowID(game.Window.Handle))
+					{
+						if (game.Window.CurrentlyModalLoop)
+						{
+							game.Window.UserMovedResized = true;
+						}
+						if (evt->type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_RESIZED && (SDL.SDL_GetWindowFlags(game.Window.Handle) & SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN) == 0)
+						{
+							int w, h;
+							SDL.SDL_Rect fullscreen;
+							SDL.SDL_GetDisplayBounds(SDL.SDL_GetDisplayForWindow(game.Window.Handle), out fullscreen);
+							SDL.SDL_GetWindowSize(game.Window.Handle, out w, out h);
+							if (w == fullscreen.w && h == fullscreen.h)
+							{
+								SDL.SDL_SetWindowPosition(game.Window.Handle, fullscreen.x, fullscreen.y);
+								game.Window.FixBorderlessFullscreen = true;
+							}
+							else if (game.Window.FixBorderlessFullscreen)
+							{
+								SDL.SDL_SetWindowPosition(game.Window.Handle, fullscreen.x + (fullscreen.w - w) / 2, fullscreen.y + (fullscreen.h - h) / 2);
+								game.Window.FixBorderlessFullscreen = false;
+							}
+						}
 					}
 				}
 			}
