@@ -439,23 +439,27 @@ namespace Microsoft.Xna.Framework
 
 				/* Now that we have slept into the sleep precision threshold, we need to wait
 				 * for just a little bit longer until the target elapsed time has been reached.
-				 * SpinWait(1) works by pausing the thread for very short intervals, so it is
-				 * an efficient and time-accurate way to wait out the rest of the time.
 				 */
 				while (accumulatedElapsedTime < TargetElapsedTime)
 				{
-					System.Threading.Thread.SpinWait(1);
+					// Now that we are going to perform an update, let's poll events.
+					FNAPlatform.PollEvents(
+						this,
+						ref currentAdapter,
+						textInputControlDown,
+						ref textInputSuppress
+					);
 					AdvanceElapsedTime();
 				}
+			} else {
+				// Now that we are going to perform an update, let's poll events.
+				FNAPlatform.PollEvents(
+					this,
+					ref currentAdapter,
+					textInputControlDown,
+					ref textInputSuppress
+				);
 			}
-
-			// Now that we are going to perform an update, let's poll events.
-			FNAPlatform.PollEvents(
-				this,
-				ref currentAdapter,
-				textInputControlDown,
-				ref textInputSuppress
-			);
 
 			/* Discard accumulated time if Reset was called, but only _after_
 			 * the sleeping for fixed time above, so that we don't end up sleeping
