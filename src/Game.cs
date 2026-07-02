@@ -432,7 +432,6 @@ namespace Microsoft.Xna.Framework
 				 */
 				while (accumulatedElapsedTime + worstCaseSleepPrecision < TargetElapsedTime)
 				{
-					System.Threading.Thread.SpinWait(1);
 					System.Threading.Thread.Sleep(1);
 					TimeSpan timeAdvancedSinceSleeping = AdvanceElapsedTime();
 					UpdateEstimatedSleepPrecision(timeAdvancedSinceSleeping);
