@@ -437,18 +437,20 @@ namespace Microsoft.Xna.Framework
 					UpdateEstimatedSleepPrecision(timeAdvancedSinceSleeping);
 				}
 
+				// Now that we are going to perform an update, let's poll events.
+				FNAPlatform.PollEvents(
+					this,
+					ref currentAdapter,
+					textInputControlDown,
+					ref textInputSuppress
+				);
+
 				/* Now that we have slept into the sleep precision threshold, we need to wait
 				 * for just a little bit longer until the target elapsed time has been reached.
 				 */
 				while (accumulatedElapsedTime < TargetElapsedTime)
 				{
-					// Now that we are going to perform an update, let's poll events.
-					FNAPlatform.PollEvents(
-						this,
-						ref currentAdapter,
-						textInputControlDown,
-						ref textInputSuppress
-					);
+					System.Threading.Thread.SpinWait(1);
 					AdvanceElapsedTime();
 				}
 			}
