@@ -1035,8 +1035,7 @@ namespace Microsoft.Xna.Framework
 				}
 				else if (evt.type == SDL.SDL_EventType.SDL_MOUSEWHEEL)
 				{
-					// 120 units per notch. Because reasons.
-					Mouse.INTERNAL_MouseWheel += evt.wheel.y * 120;
+					Mouse.INTERNAL_MouseWheel += evt.wheel.preciseY * 120; // WHEEL_DELTA
 				}
 
 				// Touch Input
