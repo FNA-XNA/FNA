@@ -447,6 +447,8 @@ namespace Microsoft.Xna.Framework
 
 				/* Now that we have slept into the sleep precision threshold, we need to wait
 				 * for just a little bit longer until the target elapsed time has been reached.
+				 * SpinWait(1) works by pausing the thread for very short intervals, so it is
+				 * an efficient and time-accurate way to wait out the rest of the time.
 				 */
 				while (accumulatedElapsedTime < TargetElapsedTime)
 				{
