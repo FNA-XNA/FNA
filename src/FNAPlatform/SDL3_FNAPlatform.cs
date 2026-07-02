@@ -961,9 +961,7 @@ namespace Microsoft.Xna.Framework
 				}
 				else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_MOUSE_WHEEL)
 				{
-					// FIXME SDL3: Should this be rounded?
-					// 120 units per notch. Because reasons.
-					Mouse.INTERNAL_MouseWheel += (int) evt.wheel.y * 120;
+					Mouse.INTERNAL_MouseWheel += evt.wheel.y * 120; // WHEEL_DELTA
 				}
 
 				// Touch Input
