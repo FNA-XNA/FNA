@@ -162,7 +162,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			BackBufferWidth = GraphicsDeviceManager.DefaultBackBufferWidth;
 			BackBufferHeight = GraphicsDeviceManager.DefaultBackBufferHeight;
 			DeviceWindowHandle = IntPtr.Zero;
-			IsFullScreen = false; // FIXME: Is this the default?
+			IsFullScreen = true;
 			DepthStencilFormat = DepthFormat.None;
 			MultiSampleCount = 0;
 			PresentationInterval = PresentInterval.Default;
