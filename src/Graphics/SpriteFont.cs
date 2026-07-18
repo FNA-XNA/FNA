@@ -123,7 +123,9 @@ namespace Microsoft.Xna.Framework.Graphics
 		#endregion
 
 		#region Internal MeasureString Method
-		internal Vector2 MeasureString(ref IReadOnlyCharList text) {
+
+		internal Vector2 MeasureString(ref IReadOnlyCharList text)
+		{
 			// FIXME: change argument to `(in IReadOnlyCharList text)`. that only allow above C# 7.2
 			if (text.Length == 0)
 			{
@@ -209,6 +211,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			return result;
 		}
+
 		#endregion
 
 		#region Public MeasureString Methods
