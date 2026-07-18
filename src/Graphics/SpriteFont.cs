@@ -122,112 +122,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Public MeasureString Methods
-
-		public Vector2 MeasureString(string text)
-		{
-			/* FIXME: This method is a duplicate of MeasureString(StringBuilder)!
-			 * The only difference is how we iterate through the string.
-			 * -flibit
-			 */
-			if (text == null)
-			{
-				throw new ArgumentNullException("text");
-			}
-			if (text.Length == 0)
-			{
-				return Vector2.Zero;
-			}
-
-			// FIXME: This needs an accuracy check! -flibit
-
-			Vector2 result = Vector2.Zero;
-			float curLineWidth = 0.0f;
-			float finalLineHeight = LineSpacing;
-			bool firstInLine = true;
-
-			foreach (char c in text)
-			{
-				// Special characters
-				if (c == '\r')
-				{
-					continue;
-				}
-				if (c == '\n')
-				{
-					result.X = Math.Max(result.X, curLineWidth);
-					result.Y += LineSpacing;
-					curLineWidth = 0.0f;
-					finalLineHeight = LineSpacing;
-					firstInLine = true;
-					continue;
-				}
-
-				/* Get the List index from the character map, defaulting to the
-				 * DefaultCharacter if it's set.
-				 */
-				int index;
-				if (!characterIndexMap.TryGetValue(c, out index))
-				{
-					if (!DefaultCharacter.HasValue)
-					{
-						throw new ArgumentException(
-							"Text contains characters that cannot be" +
-							" resolved by this SpriteFont.",
-							"text"
-						);
-					}
-					index = characterIndexMap[DefaultCharacter.Value];
-				}
-
-				/* For the first character in a line, always push the width
-				 * rightward, even if the kerning pushes the character to the
-				 * left.
-				 */
-				Vector3 cKern = kerning[index];
-				if (firstInLine)
-				{
-					curLineWidth += Math.Abs(cKern.X);
-					firstInLine = false;
-				}
-				else
-				{
-					curLineWidth += Spacing + cKern.X;
-				}
-
-				/* Add the character width and right-side bearing to the line
-				 * width.
-				 */
-				curLineWidth += cKern.Y + cKern.Z;
-
-				/* If a character is taller than the default line height,
-				 * increase the height to that of the line's tallest character.
-				 */
-				int cCropHeight = croppingData[index].Height;
-				if (cCropHeight > finalLineHeight)
-				{
-					finalLineHeight = cCropHeight;
-				}
-			}
-
-			// Calculate the final width/height of the text box
-			result.X = Math.Max(result.X, curLineWidth);
-			result.Y += finalLineHeight;
-
-			return result;
-		}
-
-		public Vector2 MeasureString(StringBuilder text)
-		{
-			/* FIXME: This method is a duplicate of MeasureString(string)!
-			 * The only difference is how we iterate through the StringBuilder.
-			 * We don't use ToString() since it generates garbage.
-			 * -flibit
-			 */
-			if (text == null)
-			{
-				throw new ArgumentNullException("text");
-			}
+		#region Internal MeasureString Method
+		internal Vector2 MeasureString(ref IReadOnlyCharList text) {
+			// FIXME: change argument to `(in IReadOnlyCharList text)`. that only allow above C# 7.2
 			if (text.Length == 0)
 			{
 				return Vector2.Zero;
@@ -312,7 +209,82 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			return result;
 		}
+		#endregion
 
+		#region Public MeasureString Methods
+
+		public Vector2 MeasureString(string text)
+		{
+			if (text == null)
+			{
+				throw new ArgumentNullException("text");
+			}
+			IReadOnlyCharList view = new StringView(text);
+			return MeasureString(ref view);
+		}
+
+		public Vector2 MeasureString(StringBuilder text)
+		{
+			if (text == null)
+			{
+				throw new ArgumentNullException("text");
+			}
+			IReadOnlyCharList view = new StringBuilderView(text);
+			return MeasureString(ref view);
+		}
+
+		#endregion
+
+		#region Internal IReadOnlyCharList Structs
+		internal interface IReadOnlyCharList
+		{
+			int Length { get; }
+			char this[int index] { get; }
+		}
+		internal struct StringView : IReadOnlyCharList
+		{
+			private readonly string view;
+			internal StringView(string view)
+			{
+				this.view = view;
+			}
+			public int Length
+			{
+				get
+				{
+					return view.Length;
+				}
+			}
+			public char this[int index]
+			{
+				get
+				{
+					return view[index];
+				}
+			}
+		}
+		internal struct StringBuilderView : IReadOnlyCharList
+		{
+			private readonly StringBuilder view;
+			internal StringBuilderView(StringBuilder view)
+			{
+				this.view = view;
+			}
+			public int Length
+			{
+				get
+				{
+					return view.Length;
+				}
+			}
+			public char this[int index]
+			{
+				get
+				{
+					return view[index];
+				}
+			}
+		}
 		#endregion
 	}
 }
