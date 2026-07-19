@@ -11,7 +11,9 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Globalization;
+using System.Reflection;
 #endregion
 
 namespace Microsoft.Xna.Framework.Design
@@ -36,7 +38,22 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			// FIXME: This method exists in the spec, but... why?! -flibit
+			if (destinationType == typeof(InstanceDescriptor))
+			{
+				Matrix matrix = (Matrix) value;
+				ConstructorInfo constructor = typeof(Matrix).GetConstructor(new Type[] {
+					typeof(float), typeof(float), typeof(float), typeof(float),
+					typeof(float), typeof(float), typeof(float), typeof(float),
+					typeof(float), typeof(float), typeof(float), typeof(float),
+					typeof(float), typeof(float), typeof(float), typeof(float)
+				});
+				return new InstanceDescriptor(constructor, new object[] {
+					matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+					matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+					matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+					matrix.M41, matrix.M42, matrix.M43, matrix.M44
+				});
+			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
 

@@ -11,7 +11,10 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Globalization;
+using System.Reflection;
+
 #endregion
 
 namespace Microsoft.Xna.Framework.Design
@@ -68,6 +71,16 @@ namespace Microsoft.Xna.Framework.Design
 						src.B.ToString(culture),
 						src.A.ToString(culture)
 					}
+				);
+			}
+			else if (destinationType == typeof(InstanceDescriptor))
+			{
+				Color color = (Color) value;
+				ConstructorInfo constructor = typeof(Color).GetConstructor(
+					new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }
+				);
+				return new InstanceDescriptor(constructor,
+					new object[] { color.R, color.G, color.B, color.A }
 				);
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
