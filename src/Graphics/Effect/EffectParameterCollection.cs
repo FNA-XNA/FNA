@@ -30,7 +30,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return elements[index];
+				return index >= 0 && index < elements.Count ? elements[index] : null;
 			}
 		}
 
@@ -40,12 +40,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				foreach (EffectParameter elem in elements)
 				{
-					if (name.Equals(elem.Name))
+					if (name == elem.Name)
 					{
 						return elem;
 					}
 				}
-				return null; // FIXME: ArrayIndexOutOfBounds? -flibit
+				return null;
 			}
 		}
 
