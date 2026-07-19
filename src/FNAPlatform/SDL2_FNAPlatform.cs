@@ -859,11 +859,13 @@ namespace Microsoft.Xna.Framework
 
 		public static void SetTextInputRectangle(IntPtr window, Rectangle rectangle)
 		{
-			SDL.SDL_Rect rect = new SDL.SDL_Rect();
-			rect.x = rectangle.X;
-			rect.y = rectangle.Y;
-			rect.w = rectangle.Width;
-			rect.h = rectangle.Height;
+			SDL.SDL_Rect rect = new SDL.SDL_Rect
+			{
+				x = rectangle.X,
+				y = rectangle.Y,
+				w = rectangle.Width,
+				h = rectangle.Height
+			};
 			SDL.SDL_SetTextInputRect(ref rect);
 		}
 
@@ -1709,11 +1711,12 @@ namespace Microsoft.Xna.Framework
 
 			// Default input format
 			SDL.SDL_AudioSpec have;
-			SDL.SDL_AudioSpec want = new SDL.SDL_AudioSpec();
-			want.freq = Microphone.SAMPLERATE;
-			want.format = SDL.AUDIO_S16;
-			want.channels = 1;
-			want.samples = 4096; /* FIXME: Anything specific? */
+			SDL.SDL_AudioSpec want = new SDL.SDL_AudioSpec {
+				freq = Microphone.SAMPLERATE,
+				format = SDL.AUDIO_S16,
+				channels = 1,
+				samples = 4096 /* FIXME: Anything specific? */
+			};
 
 			// First mic is always OS default
 			result[0] = new Microphone(
@@ -2134,8 +2137,7 @@ namespace Microsoft.Xna.Framework
 			INTERNAL_instanceList.Add(thisInstance, which);
 
 			// Start with a fresh state.
-			INTERNAL_states[which] = new GamePadState();
-			INTERNAL_states[which].IsConnected = true;
+			INTERNAL_states[which] = new GamePadState { IsConnected = true };
 
 			// Initialize the haptics for the joystick, if applicable.
 			bool hasRumble = SDL.SDL_GameControllerRumble(
