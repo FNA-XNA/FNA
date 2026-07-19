@@ -76,10 +76,10 @@ namespace Microsoft.Xna.Framework.Design
 			else if (destinationType == typeof(InstanceDescriptor))
 			{
 				Color color = (Color) value;
-				ConstructorInfo constructor = typeof(Color).GetConstructor(
-					new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }
-				);
-				return new InstanceDescriptor(constructor,
+				return new InstanceDescriptor(
+					typeof(Color).GetConstructor(
+						new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }
+					),
 					new object[] { color.R, color.G, color.B, color.A }
 				);
 			}

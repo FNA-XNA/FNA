@@ -50,10 +50,10 @@ namespace Microsoft.Xna.Framework.Design
 			if (destinationType == typeof(InstanceDescriptor))
 			{
 				Ray ray = (Ray) value;
-				ConstructorInfo constructor = typeof(Ray).GetConstructor(
-					new Type[] { typeof(Vector3), typeof(Vector3) }
-				);
-				return new InstanceDescriptor(constructor,
+				return new InstanceDescriptor(
+					typeof(Ray).GetConstructor(
+						new Type[] { typeof(Vector3), typeof(Vector3) }
+					),
 					new object[] { ray.Position, ray.Direction }
 				);
 			}

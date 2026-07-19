@@ -50,10 +50,10 @@ namespace Microsoft.Xna.Framework.Design
 			if (destinationType == typeof(InstanceDescriptor))
 			{
 				BoundingBox boundingBox = (BoundingBox) value;
-				ConstructorInfo constructor = typeof(BoundingBox).GetConstructor(
-					new Type[] { typeof(Vector3), typeof(Vector3) }
-				);
-				return new InstanceDescriptor(constructor,
+				return new InstanceDescriptor(
+					typeof(BoundingBox).GetConstructor(
+						new Type[] { typeof(Vector3), typeof(Vector3) }
+					),
 					new object[] { boundingBox.Min, boundingBox.Max }
 				);
 			}

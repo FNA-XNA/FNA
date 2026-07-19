@@ -50,10 +50,10 @@ namespace Microsoft.Xna.Framework.Design
 			if (destinationType == typeof(InstanceDescriptor))
 			{
 				BoundingSphere boundingSphere = (BoundingSphere) value;
-				ConstructorInfo constructor = typeof(BoundingSphere).GetConstructor(
-					new Type[] { typeof(Vector3), typeof(float) }
-				);
-				return new InstanceDescriptor(constructor,
+				return new InstanceDescriptor(
+					typeof(BoundingSphere).GetConstructor(
+						new Type[] { typeof(Vector3), typeof(float) }
+					),
 					new object[] { boundingSphere.Center, boundingSphere.Radius }
 				);
 			}

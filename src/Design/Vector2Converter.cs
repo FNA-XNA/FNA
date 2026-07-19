@@ -71,10 +71,10 @@ namespace Microsoft.Xna.Framework.Design
 			else if (destinationType == typeof(InstanceDescriptor))
 			{
 				Vector2 vector2 = (Vector2) value;
-				ConstructorInfo constructor = typeof(Vector2).GetConstructor(
-					new Type[] { typeof(float), typeof(float) }
-				);
-				return new InstanceDescriptor(constructor,
+				return new InstanceDescriptor(
+					typeof(Vector2).GetConstructor(
+						new Type[] { typeof(float), typeof(float) }
+					),
 					new object[] { vector2.X, vector2.Y }
 				);
 			}

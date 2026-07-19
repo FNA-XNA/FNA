@@ -75,10 +75,10 @@ namespace Microsoft.Xna.Framework.Design
 			else if (destinationType == typeof(InstanceDescriptor))
 			{
 				Quaternion quaternion = (Quaternion) value;
-				ConstructorInfo constructor = typeof(Quaternion).GetConstructor(
-					new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
-				);
-				return new InstanceDescriptor(constructor,
+				return new InstanceDescriptor(
+					typeof(Quaternion).GetConstructor(
+						new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
+					),
 					new object[] { quaternion.X, quaternion.Y, quaternion.Z, quaternion.W }
 				);
 			}

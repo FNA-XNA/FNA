@@ -42,10 +42,10 @@ namespace Microsoft.Xna.Framework.Design
 			if (destinationType == typeof(InstanceDescriptor))
 			{
 				Rectangle rectangle = (Rectangle) value;
-				ConstructorInfo constructor = typeof(Rectangle).GetConstructor(
-					new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }
-				);
-				return new InstanceDescriptor(constructor,
+				return new InstanceDescriptor(
+					typeof(Rectangle).GetConstructor(
+						new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }
+					),
 					new object[] { rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height }
 				);
 			}

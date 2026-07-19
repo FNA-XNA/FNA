@@ -71,10 +71,10 @@ namespace Microsoft.Xna.Framework.Design
 			else if (destinationType == typeof(InstanceDescriptor))
 			{
 				Point point = (Point) value;
-				ConstructorInfo constructor = typeof(Point).GetConstructor(
-					new Type[] { typeof(int), typeof(int) }
-				);
-				return new InstanceDescriptor(constructor,
+				return new InstanceDescriptor(
+					typeof(Point).GetConstructor(
+						new Type[] { typeof(int), typeof(int) }
+					),
 					new object[] { point.X, point.Y }
 				);
 			}
