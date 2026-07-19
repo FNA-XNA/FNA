@@ -712,7 +712,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("text");
 			}
-			SpriteFont.IReadOnlyCharList view = new SpriteFont.StringBuilderView(text);
+			SpriteFont.StringBuilderView view = new SpriteFont.StringBuilderView(text);
 			DrawString(spriteFont, ref view, position, color, rotation, origin, scale, effects, layerDepth);
 		}
 
@@ -774,7 +774,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("text");
 			}
-			SpriteFont.IReadOnlyCharList view = new SpriteFont.StringView(text);
+			SpriteFont.StringView view = new SpriteFont.StringView(text);
 			DrawString(spriteFont, ref view, position, color, rotation, origin, scale, effects, layerDepth);
 		}
 
@@ -782,9 +782,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Methods
 
-		private void DrawString(
+		private void DrawString<T>(
 			SpriteFont spriteFont,
-			ref SpriteFont.IReadOnlyCharList text,
+			ref T text,
 			Vector2 position,
 			Color color,
 			float rotation,
@@ -792,7 +792,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Vector2 scale,
 			SpriteEffects effects,
 			float layerDepth
-		)
+		) where T : SpriteFont.IReadOnlyCharList
 		{
 			CheckBegin("DrawString");
 			if (text.Length == 0)

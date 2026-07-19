@@ -124,9 +124,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal MeasureString Method
 
-		internal Vector2 MeasureString(ref IReadOnlyCharList text)
+		internal Vector2 MeasureString<T>(ref T text) where T : IReadOnlyCharList
 		{
-			// FIXME: change argument to `(in IReadOnlyCharList text)`. that only allow above C# 7.2
 			if (text.Length == 0)
 			{
 				return Vector2.Zero;
@@ -222,7 +221,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("text");
 			}
-			IReadOnlyCharList view = new StringView(text);
+			StringView view = new StringView(text);
 			return MeasureString(ref view);
 		}
 
@@ -232,7 +231,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("text");
 			}
-			IReadOnlyCharList view = new StringBuilderView(text);
+			StringBuilderView view = new StringBuilderView(text);
 			return MeasureString(ref view);
 		}
 
