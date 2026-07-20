@@ -712,8 +712,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("text");
 			}
-			SpriteFont.StringBuilderView view = new SpriteFont.StringBuilderView(text);
-			DrawString(spriteFont, ref view, position, color, rotation, origin, scale, effects, layerDepth);
+			DrawString(spriteFont, new SpriteFont.StringBuilderView(text), position, color, rotation, origin, scale, effects, layerDepth);
 		}
 
 		public void DrawString(
@@ -774,8 +773,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("text");
 			}
-			SpriteFont.StringView view = new SpriteFont.StringView(text);
-			DrawString(spriteFont, ref view, position, color, rotation, origin, scale, effects, layerDepth);
+			DrawString(spriteFont, new SpriteFont.StringView(text), position, color, rotation, origin, scale, effects, layerDepth);
 		}
 
 		#endregion
@@ -784,7 +782,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		private void DrawString<T>(
 			SpriteFont spriteFont,
-			ref T text,
+			T text,
 			Vector2 position,
 			Color color,
 			float rotation,
@@ -792,7 +790,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Vector2 scale,
 			SpriteEffects effects,
 			float layerDepth
-		) where T : SpriteFont.IReadOnlyCharList
+		) where T : struct, SpriteFont.IReadOnlyCharList
 		{
 			CheckBegin("DrawString");
 			if (text.Length == 0)
@@ -822,7 +820,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			float axisDirMirrorY = 0.0f;
 			if (effects != SpriteEffects.None)
 			{
-				Vector2 size = spriteFont.MeasureString(ref text);
+				Vector2 size = spriteFont.MeasureString(text);
 				baseOffset.X -= size.X * axisIsMirroredX[(int) effects];
 				baseOffset.Y -= size.Y * axisIsMirroredY[(int) effects];
 				axisDirMirrorX = axisIsMirroredX[(int) effects];

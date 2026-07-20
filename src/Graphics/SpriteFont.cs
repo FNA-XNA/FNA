@@ -124,7 +124,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal MeasureString Method
 
-		internal Vector2 MeasureString<T>(ref T text) where T : IReadOnlyCharList
+		internal Vector2 MeasureString<T>(T text) where T : struct, IReadOnlyCharList
 		{
 			if (text.Length == 0)
 			{
@@ -221,8 +221,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("text");
 			}
-			StringView view = new StringView(text);
-			return MeasureString(ref view);
+			return MeasureString(new StringView(text));
 		}
 
 		public Vector2 MeasureString(StringBuilder text)
@@ -231,8 +230,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("text");
 			}
-			StringBuilderView view = new StringBuilderView(text);
-			return MeasureString(ref view);
+			return MeasureString(new StringBuilderView(text));
 		}
 
 		#endregion
