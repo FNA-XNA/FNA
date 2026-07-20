@@ -11,6 +11,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 #endregion
 
@@ -45,7 +46,16 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			// FIXME: This method exists in the spec, but... why?! -flibit
+			if (destinationType == typeof(InstanceDescriptor))
+			{
+				BoundingSphere boundingSphere = (BoundingSphere) value;
+				return new InstanceDescriptor(
+					typeof(BoundingSphere).GetConstructor(
+						new Type[] { typeof(Vector3), typeof(float) }
+					),
+					new object[] { boundingSphere.Center, boundingSphere.Radius }
+				);
+			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
 

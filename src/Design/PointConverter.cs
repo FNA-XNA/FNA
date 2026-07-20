@@ -11,6 +11,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 #endregion
 
@@ -64,6 +65,16 @@ namespace Microsoft.Xna.Framework.Design
 						pt.X.ToString(culture),
 						pt.Y.ToString(culture)
 					}
+				);
+			}
+			else if (destinationType == typeof(InstanceDescriptor))
+			{
+				Point point = (Point) value;
+				return new InstanceDescriptor(
+					typeof(Point).GetConstructor(
+						new Type[] { typeof(int), typeof(int) }
+					),
+					new int[] { point.X, point.Y }
 				);
 			}
 			return base.ConvertTo(context, culture, value, destinationType);

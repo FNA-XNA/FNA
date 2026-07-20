@@ -11,6 +11,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 #endregion
 
@@ -36,7 +37,16 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			// FIXME: This method exists in the spec, but... why?! -flibit
+			if (destinationType == typeof(InstanceDescriptor))
+			{
+				Plane plane = (Plane) value;
+				return new InstanceDescriptor(
+					typeof(Plane).GetConstructor(
+						new Type[] { typeof(Vector3), typeof(float) }
+					),
+					new object[] { plane.Normal, plane.D }
+				);
+			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
 

@@ -11,6 +11,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 #endregion
 
@@ -68,6 +69,16 @@ namespace Microsoft.Xna.Framework.Design
 						vec.Z.ToString(culture),
 						vec.W.ToString(culture)
 					}
+				);
+			}
+			else if (destinationType == typeof(InstanceDescriptor))
+			{
+				Vector4 vector4 = (Vector4) value;
+				return new InstanceDescriptor(
+					typeof(Vector4).GetConstructor(
+						new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
+					),
+					new float[] { vector4.X, vector4.Y, vector4.Z, vector4.W }
 				);
 			}
 			return base.ConvertTo(context, culture, value, destinationType);

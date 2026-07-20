@@ -11,6 +11,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 #endregion
 
@@ -68,6 +69,16 @@ namespace Microsoft.Xna.Framework.Design
 						quat.Z.ToString(culture),
 						quat.W.ToString(culture)
 					}
+				);
+			}
+			else if (destinationType == typeof(InstanceDescriptor))
+			{
+				Quaternion quaternion = (Quaternion) value;
+				return new InstanceDescriptor(
+					typeof(Quaternion).GetConstructor(
+						new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
+					),
+					new float[] { quaternion.X, quaternion.Y, quaternion.Z, quaternion.W }
 				);
 			}
 			return base.ConvertTo(context, culture, value, destinationType);

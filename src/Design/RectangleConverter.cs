@@ -11,6 +11,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 #endregion
 
@@ -36,7 +37,16 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			// FIXME: This method exists in the spec, but... why?! -flibit
+			if (destinationType == typeof(InstanceDescriptor))
+			{
+				Rectangle rectangle = (Rectangle) value;
+				return new InstanceDescriptor(
+					typeof(Rectangle).GetConstructor(
+						new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }
+					),
+					new int[] { rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height }
+				);
+			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
 
