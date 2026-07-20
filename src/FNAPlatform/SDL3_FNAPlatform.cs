@@ -1703,33 +1703,34 @@ namespace Microsoft.Xna.Framework
 			want.format = SDL.SDL_AudioFormat.SDL_AUDIO_S16;
 			want.channels = 1;
 
-			// First mic is always OS default
-			result[0] = new Microphone(
-				SDL.SDL_OpenAudioDevice(
-					0xFFFFFFFEu, // FIXME CSHARP: SDL_AUDIO_DEVICE_DEFAULT_RECORDING
-					ref want
-				),
-				"Default Device"
-			);
-			for (int i = 0; i < numDev; i += 1)
+			for (int i = -1; i < numDev; i += 1)
 			{
-				string name = SDL.SDL_GetAudioDeviceName(devices[i]);
-				result[i + 1] = new Microphone(
-					SDL.SDL_OpenAudioDevice(
-						devices[i],
+				string name;
+				uint audioDeviceID;
+				if (i == -1)
+				{
+					// First mic is always OS default
+					audioDeviceID = SDL.SDL_OpenAudioDevice(
+						0xFFFFFFFEu, // FIXME CSHARP: SDL_AUDIO_DEVICE_DEFAULT_RECORDING
 						ref want
-					),
-					name
-				);
+					);
+					name = "Default Device";
+				}
+				else
+				{
+					audioDeviceID = SDL.SDL_OpenAudioDevice(devices[i], ref want);
+					name = SDL.SDL_GetAudioDeviceName(audioDeviceID);
+				}
+				result[i + 1] = new Microphone(audioDeviceID, name);
 
 				IntPtr stream;
 				SDL.SDL_AudioSpec have;
 				int filler;
-				SDL.SDL_GetAudioDeviceFormat(devices[i], out have, out filler);
+				SDL.SDL_GetAudioDeviceFormat(audioDeviceID, out have, out filler);
 				stream = SDL.SDL_CreateAudioStream(ref want, ref have);
 
-				SDL.SDL_BindAudioStream(devices[i], stream);
-				micStreams.Add(devices[i], stream);
+				SDL.SDL_BindAudioStream(audioDeviceID, stream);
+				micStreams.Add(audioDeviceID, stream);
 			}
 			SDL.SDL_free((IntPtr) devices);
 			return result;
