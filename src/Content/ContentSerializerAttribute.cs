@@ -104,14 +104,14 @@ namespace Microsoft.Xna.Framework.Content
 
 		public ContentSerializerAttribute Clone()
 		{
-			ContentSerializerAttribute clone = new ContentSerializerAttribute();
-			clone.AllowNull = AllowNull;
-			clone.collectionItemName = collectionItemName;
-			clone.ElementName = ElementName;
-			clone.FlattenContent = FlattenContent;
-			clone.Optional = Optional;
-			clone.SharedResource = SharedResource;
-			return clone;
+			return new ContentSerializerAttribute() {
+				AllowNull = AllowNull,
+				collectionItemName = collectionItemName,
+				ElementName = ElementName,
+				FlattenContent = FlattenContent,
+				Optional = Optional,
+				SharedResource = SharedResource
+			};
 		}
 
 		#endregion
