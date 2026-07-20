@@ -94,10 +94,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>A copy of this curve.</returns>
 		public Curve Clone()
 		{
-			Curve curve = new Curve(Keys.Clone());
-			curve.PreLoop = PreLoop;
-			curve.PostLoop = PostLoop;
-			return curve;
+			return new Curve(Keys.Clone()) { PreLoop = PreLoop, PostLoop = PostLoop };
 		}
 
 		/// <summary>
