@@ -53,7 +53,7 @@ namespace Microsoft.Xna.Framework.Design
 					typeof(BoundingBox).GetConstructor(
 						new Type[] { typeof(Vector3), typeof(Vector3) }
 					),
-					new object[] { boundingBox.Min, boundingBox.Max }
+					new Vector3[] { boundingBox.Min, boundingBox.Max }
 				);
 			}
 			return base.ConvertTo(context, culture, value, destinationType);

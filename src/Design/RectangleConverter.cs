@@ -44,7 +44,7 @@ namespace Microsoft.Xna.Framework.Design
 					typeof(Rectangle).GetConstructor(
 						new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }
 					),
-					new object[] { rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height }
+					new int[] { rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height }
 				);
 			}
 			return base.ConvertTo(context, culture, value, destinationType);

@@ -78,7 +78,7 @@ namespace Microsoft.Xna.Framework.Design
 					typeof(Color).GetConstructor(
 						new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }
 					),
-					new object[] { color.R, color.G, color.B, color.A }
+					new byte[] { color.R, color.G, color.B, color.A }
 				);
 			}
 			return base.ConvertTo(context, culture, value, destinationType);

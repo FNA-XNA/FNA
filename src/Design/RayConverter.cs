@@ -53,7 +53,7 @@ namespace Microsoft.Xna.Framework.Design
 					typeof(Ray).GetConstructor(
 						new Type[] { typeof(Vector3), typeof(Vector3) }
 					),
-					new object[] { ray.Position, ray.Direction }
+					new Vector3[] { ray.Position, ray.Direction }
 				);
 			}
 			return base.ConvertTo(context, culture, value, destinationType);

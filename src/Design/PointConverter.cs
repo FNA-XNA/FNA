@@ -74,7 +74,7 @@ namespace Microsoft.Xna.Framework.Design
 					typeof(Point).GetConstructor(
 						new Type[] { typeof(int), typeof(int) }
 					),
-					new object[] { point.X, point.Y }
+					new int[] { point.X, point.Y }
 				);
 			}
 			return base.ConvertTo(context, culture, value, destinationType);

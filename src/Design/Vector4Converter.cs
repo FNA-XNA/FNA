@@ -78,7 +78,7 @@ namespace Microsoft.Xna.Framework.Design
 					typeof(Vector4).GetConstructor(
 						new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
 					),
-					new object[] { vector4.X, vector4.Y, vector4.Z, vector4.W }
+					new float[] { vector4.X, vector4.Y, vector4.Z, vector4.W }
 				);
 			}
 			return base.ConvertTo(context, culture, value, destinationType);

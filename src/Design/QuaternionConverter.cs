@@ -78,7 +78,7 @@ namespace Microsoft.Xna.Framework.Design
 					typeof(Quaternion).GetConstructor(
 						new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
 					),
-					new object[] { quaternion.X, quaternion.Y, quaternion.Z, quaternion.W }
+					new float[] { quaternion.X, quaternion.Y, quaternion.Z, quaternion.W }
 				);
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
