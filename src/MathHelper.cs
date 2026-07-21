@@ -149,11 +149,14 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The clamped value.</returns>
 		public static float Clamp(float value, float min, float max)
 		{
-			// First we check to see if we're greater than the max.
-			value = (value > max) ? max : value;
-
-			// Then we check to see if we're less than the min.
-			value = (value < min) ? min : value;
+			if (value > max) // First we check to see if we're greater than the max.
+			{
+				value = max;
+			}
+			else if (value < min) // Then we check to see if we're less than the min.
+			{
+				value = min;
+			}
 
 			// There's no check to see if min > max.
 			return value;
@@ -245,7 +248,15 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The greater value.</returns>
 		public static float Max(float value1, float value2)
 		{
-			return value1 > value2 ? value1 : value2;
+			if (value1 > value2)
+			{
+				return value1;
+			}
+			if (float.IsNaN(value1))
+			{
+				return value1;
+			}
+			return value2;
 		}
 
 		/// <summary>
@@ -256,7 +267,15 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The lesser value.</returns>
 		public static float Min(float value1, float value2)
 		{
-			return value1 < value2 ? value1 : value2;
+			if (value1 < value2)
+			{
+				return value1;
+			}
+			if (float.IsNaN(value1))
+			{
+				return value1;
+			}
+			return value2;
 		}
 
 		/// <summary>
@@ -284,12 +303,11 @@ namespace Microsoft.Xna.Framework
 		/// <param name="radians">The angle in radians.</param>
 		/// <returns>The angle in degrees.</returns>
 		/// <remarks>
-		/// This method uses double precision internally, though it returns single float.
 		/// Factor = 180 / pi
 		/// </remarks>
 		public static float ToDegrees(float radians)
 		{
-			return (float) (radians * 57.295779513082320876798154814105);
+			return radians * 57.2957764f;
 		}
 
 		/// <summary>
@@ -303,7 +321,7 @@ namespace Microsoft.Xna.Framework
 		/// </remarks>
 		public static float ToRadians(float degrees)
 		{
-			return (float) (degrees * 0.017453292519943295769236907684886);
+			return degrees * 0.0174532924f;
 		}
 
 		/// <summary>
