@@ -21,9 +21,27 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public MatrixConverter() : base()
+		public MatrixConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Matrix = typeof(Matrix);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Matrix.GetField("M11")),
+				new FieldPropertyDescriptor(Matrix.GetField("M12")),
+				new FieldPropertyDescriptor(Matrix.GetField("M13")),
+				new FieldPropertyDescriptor(Matrix.GetField("M14")),
+				new FieldPropertyDescriptor(Matrix.GetField("M21")),
+				new FieldPropertyDescriptor(Matrix.GetField("M22")),
+				new FieldPropertyDescriptor(Matrix.GetField("M23")),
+				new FieldPropertyDescriptor(Matrix.GetField("M24")),
+				new FieldPropertyDescriptor(Matrix.GetField("M31")),
+				new FieldPropertyDescriptor(Matrix.GetField("M32")),
+				new FieldPropertyDescriptor(Matrix.GetField("M33")),
+				new FieldPropertyDescriptor(Matrix.GetField("M34")),
+				new FieldPropertyDescriptor(Matrix.GetField("M41")),
+				new FieldPropertyDescriptor(Matrix.GetField("M42")),
+				new FieldPropertyDescriptor(Matrix.GetField("M43")),
+				new FieldPropertyDescriptor(Matrix.GetField("M44"))
+			});
 			supportStringConvert = false;
 		}
 

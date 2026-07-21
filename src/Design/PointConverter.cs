@@ -21,9 +21,13 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public PointConverter() : base()
+		public PointConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Point = typeof(Point);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Point.GetField("X")),
+				new FieldPropertyDescriptor(Point.GetField("Y"))
+			});
 		}
 
 		#endregion

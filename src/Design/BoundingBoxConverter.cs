@@ -23,7 +23,11 @@ namespace Microsoft.Xna.Framework.Design
 
 		public BoundingBoxConverter() : base()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type BoundingBox = typeof(BoundingBox);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(BoundingBox.GetField("Min")),
+				new FieldPropertyDescriptor(BoundingBox.GetField("Max"))
+			});
 			supportStringConvert = false;
 		}
 

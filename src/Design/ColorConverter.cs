@@ -23,7 +23,13 @@ namespace Microsoft.Xna.Framework.Design
 
 		public ColorConverter() : base()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Color = typeof(Color);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new PropertyPropertyDescriptor(Color.GetProperty("R")),
+				new PropertyPropertyDescriptor(Color.GetProperty("G")),
+				new PropertyPropertyDescriptor(Color.GetProperty("B")),
+				new PropertyPropertyDescriptor(Color.GetProperty("A"))
+			});
 		}
 
 		#endregion

@@ -21,9 +21,13 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public RayConverter() : base()
+		public RayConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Ray = typeof(Ray);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Ray.GetField("Position")),
+				new FieldPropertyDescriptor(Ray.GetField("Direction"))
+			});
 			supportStringConvert = false;
 		}
 

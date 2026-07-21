@@ -23,7 +23,11 @@ namespace Microsoft.Xna.Framework.Design
 
 		public BoundingSphereConverter() : base()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type BoundingSphere = typeof(BoundingSphere);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(BoundingSphere.GetField("Center")),
+				new FieldPropertyDescriptor(BoundingSphere.GetField("Radius"))
+			});
 			supportStringConvert = false;
 		}
 

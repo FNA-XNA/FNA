@@ -21,9 +21,13 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public PlaneConverter() : base()
+		public PlaneConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Plane = typeof(Plane);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Plane.GetField("Normal")),
+				new FieldPropertyDescriptor(Plane.GetField("D"))
+			});
 			supportStringConvert = false;
 		}
 

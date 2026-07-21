@@ -21,9 +21,15 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public QuaternionConverter() : base()
+		public QuaternionConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Quaternion = typeof(Quaternion);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Quaternion.GetField("X")),
+				new FieldPropertyDescriptor(Quaternion.GetField("Y")),
+				new FieldPropertyDescriptor(Quaternion.GetField("Z")),
+				new FieldPropertyDescriptor(Quaternion.GetField("W"))
+			});
 		}
 
 		#endregion

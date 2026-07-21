@@ -10,6 +10,8 @@
 #region Using Statements
 using System;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
+
 #endregion
 
 namespace Microsoft.Xna.Framework.Design
@@ -20,16 +22,7 @@ namespace Microsoft.Xna.Framework.Design
 
 		protected PropertyDescriptorCollection propertyDescriptions;
 
-		protected bool supportStringConvert;
-
-		#endregion
-
-		#region Public Constructor
-
-		public MathTypeConverter()
-		{
-			supportStringConvert = true;
-		}
+		protected bool supportStringConvert = true;
 
 		#endregion
 
@@ -39,22 +32,14 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			Type sourceType
 		) {
-			if (supportStringConvert && sourceType == typeof(string))
-			{
-				return true;
-			}
-			return base.CanConvertFrom(context, sourceType);
+			return supportStringConvert && sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
 		}
 
 		public override bool CanConvertTo(
 			ITypeDescriptorContext context,
 			Type destinationType
 		) {
-			if (supportStringConvert && destinationType == typeof(string))
-			{
-				return true;
-			}
-			return base.CanConvertTo(context, destinationType);
+			return destinationType == typeof(InstanceDescriptor) || base.CanConvertTo(context, destinationType);
 		}
 
 		public override bool GetCreateInstanceSupported(

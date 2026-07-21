@@ -21,9 +21,15 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public Vector4Converter() : base()
+		public Vector4Converter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Vector4 = typeof(Vector4);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Vector4.GetField("X")),
+				new FieldPropertyDescriptor(Vector4.GetField("Y")),
+				new FieldPropertyDescriptor(Vector4.GetField("Z")),
+				new FieldPropertyDescriptor(Vector4.GetField("W"))
+			});
 		}
 
 		#endregion

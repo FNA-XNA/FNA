@@ -21,9 +21,15 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public RectangleConverter() : base()
+		public RectangleConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Rectangle = typeof(Rectangle);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Rectangle.GetField("X")),
+				new FieldPropertyDescriptor(Rectangle.GetField("Y")),
+				new FieldPropertyDescriptor(Rectangle.GetField("Width")),
+				new FieldPropertyDescriptor(Rectangle.GetField("Height"))
+			});
 			supportStringConvert = false;
 		}
 
