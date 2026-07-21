@@ -316,7 +316,6 @@ namespace Microsoft.Xna.Framework
 		/// <param name="degrees">The angle in degrees.</param>
 		/// <returns>The angle in radians.</returns>
 		/// <remarks>
-		/// This method uses double precision internally, though it returns single float.
 		/// Factor = pi / 180
 		/// </remarks>
 		public static float ToRadians(float degrees)
