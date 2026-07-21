@@ -60,7 +60,7 @@ namespace Microsoft.Xna.Framework.Audio
 					value.Milliseconds > 1000 ||
 					value.Milliseconds % 10 != 0	)
 				{
-					throw new ArgumentOutOfRangeException();
+					throw new ArgumentOutOfRangeException("value");
 				}
 				bufferDuration = value;
 			}

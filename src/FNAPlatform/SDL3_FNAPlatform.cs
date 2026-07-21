@@ -1721,6 +1721,7 @@ namespace Microsoft.Xna.Framework
 					audioDeviceID = SDL.SDL_OpenAudioDevice(devices[i], ref want);
 					name = SDL.SDL_GetAudioDeviceName(audioDeviceID);
 				}
+				SDL.SDL_AudioDevicePaused(audioDeviceID);
 				result[i + 1] = new Microphone(audioDeviceID, name);
 
 				IntPtr stream;
