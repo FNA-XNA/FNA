@@ -67,6 +67,10 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
+			if (propertyValues == null)
+			{
+				throw new ArgumentNullException("propertyValues");
+			}
 			return (object) new BoundingBox(
 				(Vector3) propertyValues["Min"],
 				(Vector3) propertyValues["Max"]

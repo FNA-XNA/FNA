@@ -67,6 +67,10 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
+			if (propertyValues == null)
+			{
+				throw new ArgumentNullException("propertyValues");
+			}
 			return (object) new BoundingSphere(
 				(Vector3) propertyValues["Center"],
 				(float) propertyValues["Radius"]

@@ -94,6 +94,10 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
+			if (propertyValues == null)
+			{
+				throw new ArgumentNullException("propertyValues");
+			}
 			return (object) new Vector4(
 				(float) propertyValues["X"],
 				(float) propertyValues["Y"],

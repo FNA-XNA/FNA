@@ -88,6 +88,10 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
+			if (propertyValues == null)
+			{
+				throw new ArgumentNullException("propertyValues");
+			}
 			return (object) new Point(
 				(int) propertyValues["X"],
 				(int) propertyValues["Y"]
