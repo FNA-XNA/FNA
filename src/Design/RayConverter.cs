@@ -40,7 +40,6 @@ namespace Microsoft.Xna.Framework.Design
 			CultureInfo culture,
 			object value
 		) {
-			// FIXME: This method exists in the spec, but... why?! -flibit
 			return base.ConvertFrom(context, culture, value);
 		}
 
