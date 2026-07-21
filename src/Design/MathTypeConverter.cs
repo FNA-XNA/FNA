@@ -103,7 +103,7 @@ namespace Microsoft.Xna.Framework.Design
 		}
 	}
 
-	internal class FieldPropertyDescriptor : MemberPropertyDescriptor
+	internal sealed class FieldPropertyDescriptor : MemberPropertyDescriptor
 	{
 		private readonly FieldInfo field;
 
@@ -131,7 +131,7 @@ namespace Microsoft.Xna.Framework.Design
 		}
 	}
 
-	internal class PropertyPropertyDescriptor : MemberPropertyDescriptor
+	internal sealed class PropertyPropertyDescriptor : MemberPropertyDescriptor
 	{
 		private readonly PropertyInfo property;
 
