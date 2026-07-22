@@ -21,7 +21,7 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public BoundingBoxConverter() : base()
+		public BoundingBoxConverter()
 		{
 			Type BoundingBox = typeof(BoundingBox);
 			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {

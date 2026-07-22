@@ -21,7 +21,7 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public BoundingSphereConverter() : base()
+		public BoundingSphereConverter()
 		{
 			Type BoundingSphere = typeof(BoundingSphere);
 			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {

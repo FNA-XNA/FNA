@@ -21,7 +21,7 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public ColorConverter() : base()
+		public ColorConverter()
 		{
 			Type Color = typeof(Color);
 			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
