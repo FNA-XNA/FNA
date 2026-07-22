@@ -71,7 +71,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 			uint mantissa = (uint)(value & 1023);
 			uint exp = 0xfffffff2;
 
-			if ((value & -33792) == 0)
+			if ((value & 0x7C00) == 0)
 			{
 				if (mantissa != 0)
 				{
