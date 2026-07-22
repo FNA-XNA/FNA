@@ -41,15 +41,18 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(InstanceDescriptor))
+			if (value is Plane)
 			{
-				Plane plane = (Plane) value;
-				return new InstanceDescriptor(
-					typeof(Plane).GetConstructor(
-						new Type[] { typeof(Vector3), typeof(float) }
-					),
-					new object[] { plane.Normal, plane.D }
-				);
+				if (destinationType == typeof(InstanceDescriptor))
+				{
+					Plane plane = (Plane) value;
+					return new InstanceDescriptor(
+						typeof(Plane).GetConstructor(
+							new Type[] { typeof(Vector3), typeof(float) }
+						),
+						new object[] { plane.Normal, plane.D }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}

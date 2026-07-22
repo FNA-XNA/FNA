@@ -56,20 +56,23 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(string))
+			if (value is Color)
 			{
-				Color src = (Color) value;
-				return ConvertToString(culture, src.R, src.G, src.B, src.A);
-			}
-			else if (destinationType == typeof(InstanceDescriptor))
-			{
-				Color color = (Color) value;
-				return new InstanceDescriptor(
-					typeof(Color).GetConstructor(
-						new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }
-					),
-					new byte[] { color.R, color.G, color.B, color.A }
-				);
+				if (destinationType == typeof(string))
+				{
+					Color src = (Color) value;
+					return ConvertToString(culture, src.R, src.G, src.B, src.A);
+				}
+				else if (destinationType == typeof(InstanceDescriptor))
+				{
+					Color color = (Color) value;
+					return new InstanceDescriptor(
+						typeof(Color).GetConstructor(
+							new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }
+						),
+						new byte[] { color.R, color.G, color.B, color.A }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}

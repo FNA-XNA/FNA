@@ -49,15 +49,18 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(InstanceDescriptor))
+			if (value is BoundingBox)
 			{
-				BoundingBox boundingBox = (BoundingBox) value;
-				return new InstanceDescriptor(
-					typeof(BoundingBox).GetConstructor(
-						new Type[] { typeof(Vector3), typeof(Vector3) }
-					),
-					new Vector3[] { boundingBox.Min, boundingBox.Max }
-				);
+				if (destinationType == typeof(InstanceDescriptor))
+				{
+					BoundingBox boundingBox = (BoundingBox) value;
+					return new InstanceDescriptor(
+						typeof(BoundingBox).GetConstructor(
+							new Type[] { typeof(Vector3), typeof(Vector3) }
+						),
+						new Vector3[] { boundingBox.Min, boundingBox.Max }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}

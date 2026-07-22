@@ -54,20 +54,23 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(string))
+			if (value is Vector2)
 			{
-				Vector2 vec = (Vector2) value;
-				return ConvertToString(culture, vec.X, vec.Y);
-			}
-			else if (destinationType == typeof(InstanceDescriptor))
-			{
-				Vector2 vector2 = (Vector2) value;
-				return new InstanceDescriptor(
-					typeof(Vector2).GetConstructor(
-						new Type[] { typeof(float), typeof(float) }
-					),
-					new float[] { vector2.X, vector2.Y }
-				);
+				if (destinationType == typeof(string))
+				{
+					Vector2 vec = (Vector2) value;
+					return ConvertToString(culture, vec.X, vec.Y);
+				}
+				else if (destinationType == typeof(InstanceDescriptor))
+				{
+					Vector2 vector2 = (Vector2) value;
+					return new InstanceDescriptor(
+						typeof(Vector2).GetConstructor(
+							new Type[] { typeof(float), typeof(float) }
+						),
+						new float[] { vector2.X, vector2.Y }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}

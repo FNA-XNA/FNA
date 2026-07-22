@@ -55,23 +55,26 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(InstanceDescriptor))
+			if (value is Matrix)
 			{
-				Matrix matrix = (Matrix) value;
-				return new InstanceDescriptor(
-					typeof(Matrix).GetConstructor(new Type[] {
+				if (destinationType == typeof(InstanceDescriptor))
+				{
+					Matrix matrix = (Matrix) value;
+					return new InstanceDescriptor(
+						typeof(Matrix).GetConstructor(new Type[] {
 						typeof(float), typeof(float), typeof(float), typeof(float),
 						typeof(float), typeof(float), typeof(float), typeof(float),
 						typeof(float), typeof(float), typeof(float), typeof(float),
 						typeof(float), typeof(float), typeof(float), typeof(float)
-					}),
-					new float[] {
+						}),
+						new float[] {
 						matrix.M11, matrix.M12, matrix.M13, matrix.M14,
 						matrix.M21, matrix.M22, matrix.M23, matrix.M24,
 						matrix.M31, matrix.M32, matrix.M33, matrix.M34,
 						matrix.M41, matrix.M42, matrix.M43, matrix.M44
-					}
-				);
+						}
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}

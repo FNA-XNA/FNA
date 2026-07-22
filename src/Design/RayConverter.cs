@@ -49,15 +49,18 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(InstanceDescriptor))
+			if (value is Ray)
 			{
-				Ray ray = (Ray) value;
-				return new InstanceDescriptor(
-					typeof(Ray).GetConstructor(
-						new Type[] { typeof(Vector3), typeof(Vector3) }
-					),
-					new Vector3[] { ray.Position, ray.Direction }
-				);
+				if (destinationType == typeof(InstanceDescriptor))
+				{
+					Ray ray = (Ray) value;
+					return new InstanceDescriptor(
+						typeof(Ray).GetConstructor(
+							new Type[] { typeof(Vector3), typeof(Vector3) }
+						),
+						new Vector3[] { ray.Position, ray.Direction }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}

@@ -56,20 +56,23 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(string))
+			if (value is Quaternion)
 			{
-				Quaternion quat = (Quaternion) value;
-				return ConvertToString(culture, quat.X, quat.Y, quat.Z, quat.W);
-			}
-			else if (destinationType == typeof(InstanceDescriptor))
-			{
-				Quaternion quaternion = (Quaternion) value;
-				return new InstanceDescriptor(
-					typeof(Quaternion).GetConstructor(
-						new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
-					),
-					new float[] { quaternion.X, quaternion.Y, quaternion.Z, quaternion.W }
-				);
+				if (destinationType == typeof(string))
+				{
+					Quaternion quat = (Quaternion) value;
+					return ConvertToString(culture, quat.X, quat.Y, quat.Z, quat.W);
+				}
+				else if (destinationType == typeof(InstanceDescriptor))
+				{
+					Quaternion quaternion = (Quaternion) value;
+					return new InstanceDescriptor(
+						typeof(Quaternion).GetConstructor(
+							new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
+						),
+						new float[] { quaternion.X, quaternion.Y, quaternion.Z, quaternion.W }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
