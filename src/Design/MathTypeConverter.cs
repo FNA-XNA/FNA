@@ -11,7 +11,12 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Design.Serialization;
+using System.Globalization;
 using System.Reflection;
+using System.Runtime.Remoting.Contexts;
+using System.Text;
+using System.Text.RegularExpressions;
+
 #endregion
 
 namespace Microsoft.Xna.Framework.Design
@@ -63,6 +68,55 @@ namespace Microsoft.Xna.Framework.Design
 		}
 
 		#endregion
+
+		internal static string ConvertToString<T>(CultureInfo culture, params T[] array) where T : struct
+		{
+			if (culture == null)
+			{
+				culture = CultureInfo.CurrentCulture;
+			}
+			string listSeparator = culture.TextInfo.ListSeparator + " ";
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < array.Length; i++)
+			{
+				builder.Append(array[i].ToString());
+				builder.Append(listSeparator);
+			}
+			builder.Length -= listSeparator.Length;
+			return builder.ToString();
+		}
+	}
+
+	internal struct StringListEnumerator<T> where T : struct
+	{
+		private readonly CultureInfo culture;
+		private readonly string text;
+		private readonly string listSeparator;
+		private readonly TypeConverter converter;
+		private int start;
+		internal StringListEnumerator(CultureInfo culture, string text)
+		{
+			if (culture == null)
+			{
+				culture = CultureInfo.CurrentCulture;
+			}
+			this.culture = culture;
+			listSeparator = culture.TextInfo.ListSeparator;
+			this.text = text.Trim();
+			converter = TypeDescriptor.GetConverter(typeof(T));
+			start = 0;
+		}
+		internal T Next()
+		{
+			int end = text.IndexOf(listSeparator, start);
+			if (end == -1)
+			{
+				end = text.Length;
+			}
+			T result = (T) converter.ConvertFromString(null, culture, text.Substring(start, end - start));
+			start = end + listSeparator.Length;
+			return result;
+		}
 	}
 
 	internal abstract class MemberPropertyDescriptor : PropertyDescriptor

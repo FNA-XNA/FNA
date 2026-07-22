@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.Design.Serialization;
 using System.Globalization;
@@ -42,13 +43,8 @@ namespace Microsoft.Xna.Framework.Design
 			string s = value as string;
 			if (s != null)
 			{
-				string[] v = s.Split(
-					culture.TextInfo.ListSeparator.ToCharArray()
-				);
-				return new Vector2(
-					float.Parse(v[0], culture),
-					float.Parse(v[1], culture)
-				);
+				StringListEnumerator<float> enumerator = new StringListEnumerator<float>(culture, s);
+				return new Vector2(enumerator.Next(), enumerator.Next());
 			}
 			return base.ConvertFrom(context, culture, value);
 		}
@@ -62,14 +58,7 @@ namespace Microsoft.Xna.Framework.Design
 			if (destinationType == typeof(string))
 			{
 				Vector2 vec = (Vector2) value;
-				return string.Join(
-					culture.TextInfo.ListSeparator + " ",
-					new string[]
-					{
-						vec.X.ToString(culture),
-						vec.Y.ToString(culture)
-					}
-				);
+				return ConvertToString(culture, vec.X, vec.Y);
 			}
 			else if (destinationType == typeof(InstanceDescriptor))
 			{

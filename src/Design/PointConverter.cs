@@ -42,13 +42,8 @@ namespace Microsoft.Xna.Framework.Design
 			string s = value as string;
 			if (s != null)
 			{
-				string[] v = s.Split(
-					culture.TextInfo.ListSeparator.ToCharArray()
-				);
-				return new Point(
-					int.Parse(v[0], culture),
-					int.Parse(v[1], culture)
-				);
+				StringListEnumerator<int> enumerator = new StringListEnumerator<int>(culture, s);
+				return new Point(enumerator.Next(), enumerator.Next());
 			}
 			return base.ConvertFrom(context, culture, value);
 		}
@@ -62,14 +57,7 @@ namespace Microsoft.Xna.Framework.Design
 			if (destinationType == typeof(string))
 			{
 				Point pt = (Point) value;
-				return string.Join(
-					culture.TextInfo.ListSeparator + " ",
-					new string[]
-					{
-						pt.X.ToString(culture),
-						pt.Y.ToString(culture)
-					}
-				);
+				return ConvertToString(culture, pt.X, pt.Y);
 			}
 			else if (destinationType == typeof(InstanceDescriptor))
 			{

@@ -43,14 +43,8 @@ namespace Microsoft.Xna.Framework.Design
 			string s = value as string;
 			if (s != null)
 			{
-				string[] v = s.Split(
-					culture.TextInfo.ListSeparator.ToCharArray()
-				);
-				return new Vector3(
-					float.Parse(v[0], culture),
-					float.Parse(v[1], culture),
-					float.Parse(v[2], culture)
-				);
+				StringListEnumerator<float> enumerator = new StringListEnumerator<float>(culture, s);
+				return new Vector3(enumerator.Next(), enumerator.Next(), enumerator.Next());
 			}
 			return base.ConvertFrom(context, culture, value);
 		}
@@ -64,15 +58,7 @@ namespace Microsoft.Xna.Framework.Design
 			if (destinationType == typeof(string))
 			{
 				Vector3 vec = (Vector3) value;
-				return string.Join(
-					culture.TextInfo.ListSeparator + " ",
-					new string[]
-					{
-						vec.X.ToString(culture),
-						vec.Y.ToString(culture),
-						vec.Z.ToString(culture)
-					}
-				);
+				return ConvertToString(culture, vec.X, vec.Y, vec.Z);
 			}
 			else if (destinationType == typeof(InstanceDescriptor))
 			{

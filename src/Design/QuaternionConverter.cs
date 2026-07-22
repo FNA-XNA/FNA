@@ -44,15 +44,8 @@ namespace Microsoft.Xna.Framework.Design
 			string s = value as string;
 			if (s != null)
 			{
-				string[] v = s.Split(
-					culture.TextInfo.ListSeparator.ToCharArray()
-				);
-				return new Quaternion(
-					float.Parse(v[0], culture),
-					float.Parse(v[1], culture),
-					float.Parse(v[2], culture),
-					float.Parse(v[3], culture)
-				);
+				StringListEnumerator<float> enumerator = new StringListEnumerator<float>(culture, s);
+				return new Quaternion(enumerator.Next(), enumerator.Next(), enumerator.Next(), enumerator.Next());
 			}
 			return base.ConvertFrom(context, culture, value);
 		}
@@ -66,16 +59,7 @@ namespace Microsoft.Xna.Framework.Design
 			if (destinationType == typeof(string))
 			{
 				Quaternion quat = (Quaternion) value;
-				return string.Join(
-					culture.TextInfo.ListSeparator + " ",
-					new string[]
-					{
-						quat.X.ToString(culture),
-						quat.Y.ToString(culture),
-						quat.Z.ToString(culture),
-						quat.W.ToString(culture)
-					}
-				);
+				return ConvertToString(culture, quat.X, quat.Y, quat.Z, quat.W);
 			}
 			else if (destinationType == typeof(InstanceDescriptor))
 			{

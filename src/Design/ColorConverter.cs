@@ -44,15 +44,8 @@ namespace Microsoft.Xna.Framework.Design
 			string s = value as string;
 			if (s != null)
 			{
-				string[] v = s.Split(
-					culture.TextInfo.ListSeparator.ToCharArray()
-				);
-				return new Color(
-					int.Parse(v[0], culture),
-					int.Parse(v[1], culture),
-					int.Parse(v[2], culture),
-					int.Parse(v[3], culture)
-				);
+				StringListEnumerator<int> enumerator = new StringListEnumerator<int>(culture, s);
+				return new Color(enumerator.Next(), enumerator.Next(), enumerator.Next(), enumerator.Next());
 			}
 			return base.ConvertFrom(context, culture, value);
 		}
@@ -66,16 +59,7 @@ namespace Microsoft.Xna.Framework.Design
 			if (destinationType == typeof(string))
 			{
 				Color src = (Color) value;
-				return string.Join(
-					culture.TextInfo.ListSeparator + " ",
-					new string[]
-					{
-						src.R.ToString(culture),
-						src.G.ToString(culture),
-						src.B.ToString(culture),
-						src.A.ToString(culture)
-					}
-				);
+				return ConvertToString(culture, src.R, src.G, src.B, src.A);
 			}
 			else if (destinationType == typeof(InstanceDescriptor))
 			{
