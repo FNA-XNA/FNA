@@ -13,10 +13,7 @@ using System.ComponentModel;
 using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 using System.Reflection;
-using System.Runtime.Remoting.Contexts;
 using System.Text;
-using System.Text.RegularExpressions;
-
 #endregion
 
 namespace Microsoft.Xna.Framework.Design
