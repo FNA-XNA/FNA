@@ -58,14 +58,15 @@ namespace Microsoft.Xna.Framework.Design
 		) {
 			if (value is Quaternion)
 			{
+				Quaternion quaternion;
 				if (destinationType == typeof(string))
 				{
-					Quaternion quat = (Quaternion) value;
-					return ConvertToString(culture, quat.X, quat.Y, quat.Z, quat.W);
+					quaternion = (Quaternion) value;
+					return ConvertToString(culture, quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
 				}
 				else if (destinationType == typeof(InstanceDescriptor))
 				{
-					Quaternion quaternion = (Quaternion) value;
+					quaternion = (Quaternion) value;
 					return new InstanceDescriptor(
 						typeof(Quaternion).GetConstructor(
 							new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }

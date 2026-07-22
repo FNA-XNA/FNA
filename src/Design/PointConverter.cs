@@ -56,14 +56,15 @@ namespace Microsoft.Xna.Framework.Design
 		) {
 			if (value is Point)
 			{
+				Point point;
 				if (destinationType == typeof(string))
 				{
-					Point pt = (Point) value;
-					return ConvertToString(culture, pt.X, pt.Y);
+					point = (Point) value;
+					return ConvertToString(culture, point.X, point.Y);
 				}
 				else if (destinationType == typeof(InstanceDescriptor))
 				{
-					Point point = (Point) value;
+					point = (Point) value;
 					return new InstanceDescriptor(
 						typeof(Point).GetConstructor(
 							new Type[] { typeof(int), typeof(int) }

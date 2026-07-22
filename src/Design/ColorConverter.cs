@@ -58,14 +58,15 @@ namespace Microsoft.Xna.Framework.Design
 		) {
 			if (value is Color)
 			{
+				Color color;
 				if (destinationType == typeof(string))
 				{
-					Color src = (Color) value;
-					return ConvertToString(culture, src.R, src.G, src.B, src.A);
+					color = (Color) value;
+					return ConvertToString(culture, color.R, color.G, color.B, color.A);
 				}
 				else if (destinationType == typeof(InstanceDescriptor))
 				{
-					Color color = (Color) value;
+					color = (Color) value;
 					return new InstanceDescriptor(
 						typeof(Color).GetConstructor(
 							new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }

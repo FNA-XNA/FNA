@@ -58,19 +58,20 @@ namespace Microsoft.Xna.Framework.Design
 		) {
 			if (value is Vector4)
 			{
+				Vector4 vector;
 				if (destinationType == typeof(string))
 				{
-					Vector4 vec = (Vector4) value;
-					return ConvertToString(culture, vec.X, vec.Y, vec.Z, vec.W);
+					vector = (Vector4) value;
+					return ConvertToString(culture, vector.X, vector.Y, vector.Z, vector.W);
 				}
 				else if (destinationType == typeof(InstanceDescriptor))
 				{
-					Vector4 vector4 = (Vector4) value;
+					vector = (Vector4) value;
 					return new InstanceDescriptor(
 						typeof(Vector4).GetConstructor(
 							new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
 						),
-						new float[] { vector4.X, vector4.Y, vector4.Z, vector4.W }
+						new float[] { vector.X, vector.Y, vector.Z, vector.W }
 					);
 				}
 			}
