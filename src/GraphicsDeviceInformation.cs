@@ -48,21 +48,64 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public PresentationParameters PresentationParameters
 		{
-			get;
-			set;
+			get { return presentationParameters; }
+			set { presentationParameters = value; }
 		}
+
+		#endregion
+
+		#region Private Variable
+
+		private PresentationParameters presentationParameters = new PresentationParameters();
 
 		#endregion
 
 		#region Public Methods
 
+		public override bool Equals(object obj)
+		{
+			GraphicsDeviceInformation gdi = obj as GraphicsDeviceInformation;
+			return (
+				gdi != null &&
+				gdi.Adapter.Equals(Adapter) &&
+				gdi.GraphicsProfile == GraphicsProfile &&
+				gdi.presentationParameters.BackBufferWidth == presentationParameters.BackBufferWidth &&
+				gdi.presentationParameters.BackBufferHeight == presentationParameters.BackBufferHeight &&
+				gdi.presentationParameters.BackBufferFormat == presentationParameters.BackBufferFormat &&
+				gdi.presentationParameters.DepthStencilFormat == presentationParameters.DepthStencilFormat &&
+				gdi.presentationParameters.MultiSampleCount == presentationParameters.MultiSampleCount &&
+				gdi.presentationParameters.DisplayOrientation == presentationParameters.DisplayOrientation &&
+				gdi.presentationParameters.PresentationInterval == presentationParameters.PresentationInterval &&
+				gdi.presentationParameters.RenderTargetUsage == presentationParameters.RenderTargetUsage &&
+				gdi.presentationParameters.DeviceWindowHandle == presentationParameters.DeviceWindowHandle &&
+				gdi.presentationParameters.IsFullScreen == presentationParameters.IsFullScreen
+			);
+		}
+		public override int GetHashCode()
+		{
+			return (
+				GraphicsProfile.GetHashCode() ^
+				Adapter.GetHashCode() ^
+				presentationParameters.BackBufferWidth.GetHashCode() ^
+				presentationParameters.BackBufferHeight.GetHashCode() ^
+				presentationParameters.BackBufferFormat.GetHashCode() ^
+				presentationParameters.DepthStencilFormat.GetHashCode() ^
+				presentationParameters.MultiSampleCount.GetHashCode() ^
+				presentationParameters.DisplayOrientation.GetHashCode() ^
+				presentationParameters.PresentationInterval.GetHashCode() ^
+				presentationParameters.RenderTargetUsage.GetHashCode() ^
+				presentationParameters.DeviceWindowHandle.GetHashCode() ^
+				presentationParameters.IsFullScreen.GetHashCode()
+			);
+		}
+
 		public GraphicsDeviceInformation Clone()
 		{
 			return new GraphicsDeviceInformation()
 			{
-				Adapter = this.Adapter,
-				GraphicsProfile = this.GraphicsProfile,
-				PresentationParameters = this.PresentationParameters.Clone()
+				Adapter = Adapter,
+				GraphicsProfile = GraphicsProfile,
+				presentationParameters = presentationParameters.Clone()
 			};
 		}
 
