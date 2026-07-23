@@ -433,7 +433,8 @@ namespace Microsoft.Xna.Framework
 				UnwrapWindow(sdlWindow),
 				@"\\.\DISPLAY" + (
 					SDL.SDL_GetDisplayForWindow(sdlWindow)
-				).ToString()
+				).ToString(),
+				title
 			);
 		}
 

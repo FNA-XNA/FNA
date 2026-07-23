@@ -509,7 +509,8 @@ namespace Microsoft.Xna.Framework
 				window,
 				@"\\.\DISPLAY" + (
 					SDL.SDL_GetWindowDisplayIndex(window) + 1
-				).ToString()
+				).ToString(),
+				title
 			);
 		}
 
