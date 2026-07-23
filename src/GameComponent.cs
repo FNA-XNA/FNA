@@ -113,7 +113,8 @@ namespace Microsoft.Xna.Framework
 
 		#region Protected Virtual Methods
 
-		protected virtual void OnUpdateOrderChanged(object sender, EventArgs args) {
+		protected virtual void OnUpdateOrderChanged(object sender, EventArgs args)
+		{
 			if (this.UpdateOrderChanged != null)
 			{
 				this.UpdateOrderChanged(this, EventArgs.Empty);
