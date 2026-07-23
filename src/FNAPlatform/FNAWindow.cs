@@ -10,6 +10,8 @@
 #region Using Statements
 using System;
 using System.ComponentModel;
+using System.Reflection;
+
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -102,6 +104,15 @@ namespace Microsoft.Xna.Framework
 			window = nativeWindow;
 			deviceName = display;
 			wantsFullscreen = false;
+			Assembly assembly = Assembly.GetEntryAssembly();
+			if (assembly != null)
+			{
+				AssemblyTitleAttribute[] array = (AssemblyTitleAttribute[]) assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), true);
+				if (array != null && array.Length != 0)
+				{
+					Title = array[0].Title;
+				}
+			}
 		}
 
 		#endregion
