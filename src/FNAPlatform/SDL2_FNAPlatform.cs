@@ -509,9 +509,9 @@ namespace Microsoft.Xna.Framework
 				window,
 				@"\\.\DISPLAY" + (
 					SDL.SDL_GetWindowDisplayIndex(window) + 1
-				).ToString()
-			)
-			{ _title = title };
+				).ToString(),
+				title
+			);
 		}
 
 		public static void DisposeWindow(GameWindow window)
