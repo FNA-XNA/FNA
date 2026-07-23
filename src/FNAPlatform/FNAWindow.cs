@@ -11,7 +11,6 @@
 using System;
 using System.ComponentModel;
 using System.Reflection;
-
 #endregion
 
 namespace Microsoft.Xna.Framework
