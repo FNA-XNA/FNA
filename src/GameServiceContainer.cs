@@ -22,16 +22,7 @@ namespace Microsoft.Xna.Framework
 	{
 		#region Private Fields
 
-		Dictionary<Type, object> services;
-
-		#endregion
-
-		#region Public Constructors
-
-		public GameServiceContainer()
-		{
-			services = new Dictionary<Type, object>();
-		}
+		readonly Dictionary<Type, object> services = new Dictionary<Type, object>();
 
 		#endregion
 
@@ -41,16 +32,17 @@ namespace Microsoft.Xna.Framework
 		{
 			if (type == null)
 			{
-				throw new ArgumentNullException("type");
+				throw new ArgumentNullException("type", "The service type cannot be null.");
 			}
 			if (provider == null)
 			{
-				throw new ArgumentNullException("provider");
+				throw new ArgumentNullException("provider", "The service provider instance cannot be null.");
 			}
 			if (!type.IsAssignableFrom(provider.GetType()))
 			{
 				throw new ArgumentException(
-					"The provider does not match the specified service type!"
+					"Service provider object of type " + provider.GetType().FullName +
+					" must be assignable to service type " + type.GetType().FullName + "."
 				);
 			}
 
@@ -61,7 +53,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (type == null)
 			{
-				throw new ArgumentNullException("type");
+				throw new ArgumentNullException("type", "The service type cannot be null.");
 			}
 
 			object service;
@@ -77,7 +69,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (type == null)
 			{
-				throw new ArgumentNullException("type");
+				throw new ArgumentNullException("type", "The service type cannot be null.");
 			}
 
 			services.Remove(type);
