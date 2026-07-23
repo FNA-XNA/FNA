@@ -429,14 +429,13 @@ namespace Microsoft.Xna.Framework
 				Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "0");
 			}
 
-			FNAWindow window = new FNAWindow(
+			return new FNAWindow(
 				UnwrapWindow(sdlWindow),
 				@"\\.\DISPLAY" + (
 					SDL.SDL_GetDisplayForWindow(sdlWindow)
 				).ToString()
-			);
-			window._title = title;
-			return window;
+			)
+			{ _title = title };
 		}
 
 		public static void DisposeWindow(GameWindow window)
