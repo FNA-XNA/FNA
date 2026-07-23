@@ -307,7 +307,7 @@ namespace Microsoft.Xna.Framework
 		/// </remarks>
 		public static float ToDegrees(float radians)
 		{
-			return radians * 57.2957764f;
+			return 180f / Pi * radians;
 		}
 
 		/// <summary>
@@ -320,7 +320,7 @@ namespace Microsoft.Xna.Framework
 		/// </remarks>
 		public static float ToRadians(float degrees)
 		{
-			return degrees * 0.0174532924f;
+			return Pi / 180f * degrees;
 		}
 
 		/// <summary>
