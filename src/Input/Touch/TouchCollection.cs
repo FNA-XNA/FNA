@@ -52,12 +52,15 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				if (touches == null)
 					throw new ArgumentOutOfRangeException();
+				if (index < 0 || index >= this.Count)
+				{
+					throw new ArgumentOutOfRangeException("index");
+				}
 				return touches[index];
 			}
 			set
 			{
-				// This will cause a runtime exception
-				touches[index] = value;
+				throw new NotSupportedException();
 			}
 		}
 
@@ -73,6 +76,14 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public TouchCollection(TouchLocation[] touches)
 		{
+			if (touches == null)
+			{
+				throw new ArgumentNullException("touches");
+			}
+			if (touches.Length > 8)
+			{
+				throw new ArgumentOutOfRangeException("touches");
+			}
 			this.touches = new List<TouchLocation>(touches);
 		}
 
@@ -87,12 +98,12 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public void Add(TouchLocation item)
 		{
-			touches.Add(item);
+			throw new NotSupportedException();
 		}
 
 		public void Clear()
 		{
-			touches.Clear();
+			throw new NotSupportedException();
 		}
 
 		public bool Contains(TouchLocation item)
@@ -104,6 +115,14 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public void CopyTo(TouchLocation[] array, int arrayIndex)
 		{
+			if (array == null)
+			{
+				throw new ArgumentNullException("array");
+			}
+			if (arrayIndex < 0 || array.Length - arrayIndex < Count)
+			{
+				throw new ArgumentOutOfRangeException("arrayIndex");
+			}
 			if (touches == null)
 				return;
 			touches.CopyTo(array, arrayIndex);
@@ -144,17 +163,17 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public void Insert(int index, TouchLocation item)
 		{
-			touches.Insert(index, item);
+			throw new NotSupportedException();
 		}
 
 		public bool Remove(TouchLocation item)
 		{
-			return touches.Remove(item);
+			throw new NotSupportedException();
 		}
 
 		public void RemoveAt(int index)
 		{
-			touches.RemoveAt(index);
+			throw new NotSupportedException();
 		}
 
 		#endregion
