@@ -125,7 +125,8 @@ namespace Microsoft.Xna.Framework
 				clientHeight,
 				wantsFullscreen,
 				screenDeviceName,
-				ref deviceName
+				ref deviceName,
+				UserMovedResized
 			);
 			if (deviceName != prevName)
 			{

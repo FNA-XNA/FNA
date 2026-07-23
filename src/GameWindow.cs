@@ -84,6 +84,16 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Internal Variables
+
+		internal bool CurrentlyModalLoop; // Modal loop when mouse resize window, mouse move window.
+
+		internal bool UserMovedResized = false;
+
+		internal bool FixBorderlessFullscreen = false;
+
+		#endregion
+
 		#region Private Variables
 
 		private string _title;
