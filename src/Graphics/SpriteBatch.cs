@@ -708,16 +708,91 @@ namespace Microsoft.Xna.Framework.Graphics
 			SpriteEffects effects,
 			float layerDepth
 		) {
-			/* FIXME: This method is a duplicate of DrawString(string)!
-			 * The only difference is how we iterate through the StringBuilder.
-			 * We don't use ToString() since it generates garbage.
-			 * -flibit
-			 */
-			CheckBegin("DrawString");
 			if (text == null)
 			{
 				throw new ArgumentNullException("text");
 			}
+			DrawString(spriteFont, new SpriteFont.StringBuilderView(text), position, color, rotation, origin, scale, effects, layerDepth);
+		}
+
+		public void DrawString(
+			SpriteFont spriteFont,
+			string text,
+			Vector2 position,
+			Color color
+		) {
+			DrawString(
+				spriteFont,
+				text,
+				position,
+				color,
+				0.0f,
+				Vector2.Zero,
+				Vector2.One,
+				SpriteEffects.None,
+				0.0f
+			);
+		}
+
+		public void DrawString(
+			SpriteFont spriteFont,
+			string text,
+			Vector2 position,
+			Color color,
+			float rotation,
+			Vector2 origin,
+			float scale,
+			SpriteEffects effects,
+			float layerDepth
+		) {
+			DrawString(
+				spriteFont,
+				text,
+				position,
+				color,
+				rotation,
+				origin,
+				new Vector2(scale),
+				effects,
+				layerDepth
+			);
+		}
+
+		public void DrawString(
+			SpriteFont spriteFont,
+			string text,
+			Vector2 position,
+			Color color,
+			float rotation,
+			Vector2 origin,
+			Vector2 scale,
+			SpriteEffects effects,
+			float layerDepth
+		) {
+			if (text == null)
+			{
+				throw new ArgumentNullException("text");
+			}
+			DrawString(spriteFont, new SpriteFont.StringView(text), position, color, rotation, origin, scale, effects, layerDepth);
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private void DrawString<T>(
+			SpriteFont spriteFont,
+			T text,
+			Vector2 position,
+			Color color,
+			float rotation,
+			Vector2 origin,
+			Vector2 scale,
+			SpriteEffects effects,
+			float layerDepth
+		) where T : struct, SpriteFont.IReadOnlyCharList
+		{
+			CheckBegin("DrawString");
 			if (text.Length == 0)
 			{
 				return;
@@ -852,207 +927,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				curOffset.X += cKern.Y + cKern.Z;
 			}
 		}
-
-		public void DrawString(
-			SpriteFont spriteFont,
-			string text,
-			Vector2 position,
-			Color color
-		) {
-			DrawString(
-				spriteFont,
-				text,
-				position,
-				color,
-				0.0f,
-				Vector2.Zero,
-				Vector2.One,
-				SpriteEffects.None,
-				0.0f
-			);
-		}
-
-		public void DrawString(
-			SpriteFont spriteFont,
-			string text,
-			Vector2 position,
-			Color color,
-			float rotation,
-			Vector2 origin,
-			float scale,
-			SpriteEffects effects,
-			float layerDepth
-		) {
-			DrawString(
-				spriteFont,
-				text,
-				position,
-				color,
-				rotation,
-				origin,
-				new Vector2(scale),
-				effects,
-				layerDepth
-			);
-		}
-
-		public void DrawString(
-			SpriteFont spriteFont,
-			string text,
-			Vector2 position,
-			Color color,
-			float rotation,
-			Vector2 origin,
-			Vector2 scale,
-			SpriteEffects effects,
-			float layerDepth
-		) {
-			/* FIXME: This method is a duplicate of DrawString(StringBuilder)!
-			 * The only difference is how we iterate through the string.
-			 * -flibit
-			 */
-			CheckBegin("DrawString");
-			if (text == null)
-			{
-				throw new ArgumentNullException("text");
-			}
-			if (text.Length == 0)
-			{
-				return;
-			}
-			effects &= (SpriteEffects) 0x03;
-
-			/* We pull all these internal variables in at once so
-			 * anyone who wants to use this file to make their own
-			 * SpriteBatch can easily replace these with reflection.
-			 * -flibit
-			 */
-			Texture2D textureValue = spriteFont.textureValue;
-			List<Rectangle> glyphData = spriteFont.glyphData;
-			List<Rectangle> croppingData = spriteFont.croppingData;
-			List<Vector3> kerning = spriteFont.kerning;
-			Dictionary<char, int> characterIndexMap = spriteFont.characterIndexMap;
-
-			// FIXME: This needs an accuracy check! -flibit
-
-			// Calculate offsets/axes, using the string size for flipped text
-			Vector2 baseOffset = origin;
-			float axisDirX = axisDirectionX[(int) effects];
-			float axisDirY = axisDirectionY[(int) effects];
-			float axisDirMirrorX = 0.0f;
-			float axisDirMirrorY = 0.0f;
-			if (effects != SpriteEffects.None)
-			{
-				Vector2 size = spriteFont.MeasureString(text);
-				baseOffset.X -= size.X * axisIsMirroredX[(int) effects];
-				baseOffset.Y -= size.Y * axisIsMirroredY[(int) effects];
-				axisDirMirrorX = axisIsMirroredX[(int) effects];
-				axisDirMirrorY = axisIsMirroredY[(int) effects];
-			}
-
-			Vector2 curOffset = Vector2.Zero;
-			bool firstInLine = true;
-			foreach (char c in text)
-			{
-				// Special characters
-				if (c == '\r')
-				{
-					continue;
-				}
-				if (c == '\n')
-				{
-					curOffset.X = 0.0f;
-					curOffset.Y += spriteFont.LineSpacing;
-					firstInLine = true;
-					continue;
-				}
-
-				/* Get the List index from the character map, defaulting to the
-				 * DefaultCharacter if it's set.
-				 */
-				int index;
-				if (!characterIndexMap.TryGetValue(c, out index))
-				{
-					if (!spriteFont.DefaultCharacter.HasValue)
-					{
-						throw new ArgumentException(
-							"Text contains characters that cannot be" +
-							" resolved by this SpriteFont.",
-							"text"
-						);
-					}
-					index = characterIndexMap[spriteFont.DefaultCharacter.Value];
-				}
-
-				/* For the first character in a line, always push the width
-				 * rightward, even if the kerning pushes the character to the
-				 * left.
-				 */
-				Vector3 cKern = kerning[index];
-				if (firstInLine)
-				{
-					curOffset.X += Math.Abs(cKern.X);
-					firstInLine = false;
-				}
-				else
-				{
-					curOffset.X += spriteFont.Spacing + cKern.X;
-				}
-
-				// Calculate the character origin
-				Rectangle cCrop = croppingData[index];
-				Rectangle cGlyph = glyphData[index];
-				float offsetX = baseOffset.X + (
-					curOffset.X + cCrop.X
-				) * axisDirX;
-				float offsetY = baseOffset.Y + (
-					curOffset.Y + cCrop.Y
-				) * axisDirY;
-				if (effects != SpriteEffects.None)
-				{
-					offsetX += cGlyph.Width * axisDirMirrorX;
-					offsetY += cGlyph.Height * axisDirMirrorY;
-				}
-
-				// Draw!
-				float sourceW = Math.Sign(cGlyph.Width) * Math.Max(
-					Math.Abs(cGlyph.Width),
-					MathHelper.MachineEpsilonFloat
-				) / (float) textureValue.Width;
-				float sourceH = Math.Sign(cGlyph.Height) * Math.Max(
-					Math.Abs(cGlyph.Height),
-					MathHelper.MachineEpsilonFloat
-				) / (float) textureValue.Height;
-				PushSprite(
-					textureValue,
-					cGlyph.X / (float) textureValue.Width,
-					cGlyph.Y / (float) textureValue.Height,
-					sourceW,
-					sourceH,
-					position.X,
-					position.Y,
-					cGlyph.Width * scale.X,
-					cGlyph.Height * scale.Y,
-					color,
-					offsetX / sourceW / (float) textureValue.Width,
-					offsetY / sourceH / (float) textureValue.Height,
-					(float) Math.Sin(rotation),
-					(float) Math.Cos(rotation),
-					layerDepth,
-					(int) effects
-				);
-
-				/* Add the character width and right-side
-				 * bearing to the line width.
-				 */
-				curOffset.X += cKern.Y + cKern.Z;
-			}
-		}
-
-		#endregion
-
-		#region Private Methods
-
 		private unsafe void PushSprite(
 			Texture2D texture,
 			float sourceX,
