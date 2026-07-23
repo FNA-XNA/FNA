@@ -124,6 +124,10 @@ namespace Microsoft.Xna.Framework
 			int i = innerlist.BinarySearch(item);
 			if (i < 0)
 			{
+				/* ... otherwise, a negative number that is the bitwise complement
+				 * of the index of the next element that is larger than item or, if there
+				 * is no larger element, the bitwise complement of Count.
+				 */
 				i = ~i;
 			}
 			this.innerlist.Insert(i, item);
