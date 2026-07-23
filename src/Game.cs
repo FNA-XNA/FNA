@@ -437,6 +437,14 @@ namespace Microsoft.Xna.Framework
 					UpdateEstimatedSleepPrecision(timeAdvancedSinceSleeping);
 				}
 
+				// Now that we are going to perform an update, let's poll events.
+				FNAPlatform.PollEvents(
+					this,
+					ref currentAdapter,
+					textInputControlDown,
+					ref textInputSuppress
+				);
+
 				/* Now that we have slept into the sleep precision threshold, we need to wait
 				 * for just a little bit longer until the target elapsed time has been reached.
 				 * SpinWait(1) works by pausing the thread for very short intervals, so it is
