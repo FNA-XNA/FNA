@@ -44,7 +44,7 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				return this.isReadOnly;
+				return false;
 			}
 		}
 
@@ -63,12 +63,7 @@ namespace Microsoft.Xna.Framework
 			{
 				if (value == null)
 				{
-					throw new ArgumentNullException("value");
-				}
-
-				if (index >= innerlist.Count)
-				{
-					throw new IndexOutOfRangeException();
+					throw new ArgumentNullException();
 				}
 
 				if (MathHelper.WithinEpsilon(innerlist[index].Position, value.Position))
@@ -87,8 +82,16 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Fields
 
-		private bool isReadOnly = false;
-		private List<CurveKey> innerlist;
+		private readonly List<CurveKey> innerlist;
+
+		#endregion
+
+		#region Private Constructors
+
+		private CurveKeyCollection(List<CurveKey> innerlist)
+		{
+			this.innerlist = innerlist;
+		}
 
 		#endregion
 
@@ -116,25 +119,14 @@ namespace Microsoft.Xna.Framework
 		{
 			if (item == null)
 			{
-				throw new ArgumentNullException("item");
+				throw new ArgumentNullException();
 			}
-
-			if (innerlist.Count == 0)
+			int i = innerlist.BinarySearch(item);
+			if (i < 0)
 			{
-				this.innerlist.Add(item);
-				return;
+				i = ~i;
 			}
-
-			for (int i = 0; i < this.innerlist.Count; i += 1)
-			{
-				if (item.Position < this.innerlist[i].Position)
-				{
-					this.innerlist.Insert(i, item);
-					return;
-				}
-			}
-
-			this.innerlist.Add(item);
+			this.innerlist.Insert(i, item);
 		}
 
 		/// <summary>
@@ -151,12 +143,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>A copy of this collection.</returns>
 		public CurveKeyCollection Clone()
 		{
-			CurveKeyCollection ckc = new CurveKeyCollection();
-			foreach (CurveKey key in this.innerlist)
-			{
-				ckc.Add(key);
-			}
-			return ckc;
+			return new CurveKeyCollection(new List<CurveKey>(innerlist));
 		}
 
 		/// <summary>
