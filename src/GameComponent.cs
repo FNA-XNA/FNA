@@ -121,7 +121,8 @@ namespace Microsoft.Xna.Framework
 			}
 		}
 
-		protected virtual void OnEnabledChanged(object sender, EventArgs args) {
+		protected virtual void OnEnabledChanged(object sender, EventArgs args)
+		{
 			if (this.EnabledChanged != null)
 			{
 				this.EnabledChanged(this, EventArgs.Empty);
