@@ -160,7 +160,12 @@ namespace Microsoft.Xna.Framework
 
 		public bool Equals(CurveKey other)
 		{
-			return (this == other);
+			return other != null &&
+				other.Position == Position &&
+				other.Value == Value &&
+				other.TangentIn == TangentIn &&
+				other.TangentOut == TangentOut &&
+				other.Continuity == Continuity;
 		}
 
 		#endregion
@@ -186,35 +191,25 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public static bool operator ==(CurveKey a, CurveKey b)
 		{
-			if (object.Equals(a, null))
+			if (a == null)
 			{
-				return object.Equals(b, null);
+				return b == null;
 			}
-
-			if (object.Equals(b, null))
-			{
-				return object.Equals(a, null);
-			}
-
-			return (	(a.Position == b.Position) &&
-					(a.Value == b.Value) &&
-					(a.TangentIn == b.TangentIn) &&
-					(a.TangentOut == b.TangentOut) &&
-					(a.Continuity == b.Continuity)	);
+			return a.Equals(b);
 		}
 
 		public override bool Equals(object obj)
 		{
-			return (obj as CurveKey) == this;
+			return Equals(obj as CurveKey);
 		}
 
 		public override int GetHashCode()
 		{
 			return (
-				Position.GetHashCode() ^
-				Value.GetHashCode() ^
-				TangentIn.GetHashCode() ^
-				TangentOut.GetHashCode() ^
+				Position.GetHashCode() +
+				Value.GetHashCode() +
+				TangentIn.GetHashCode() +
+				TangentOut.GetHashCode() +
 				Continuity.GetHashCode()
 			);
 		}
