@@ -69,16 +69,16 @@ namespace Microsoft.Xna.Framework
 				gdi != null &&
 				gdi.Adapter.Equals(Adapter) &&
 				gdi.GraphicsProfile == GraphicsProfile &&
-				gdi.PresentationParameters.BackBufferWidth == PresentationParameters.BackBufferWidth &&
-				gdi.PresentationParameters.BackBufferHeight == PresentationParameters.BackBufferHeight &&
-				gdi.PresentationParameters.BackBufferFormat == PresentationParameters.BackBufferFormat &&
-				gdi.PresentationParameters.DepthStencilFormat == PresentationParameters.DepthStencilFormat &&
-				gdi.PresentationParameters.MultiSampleCount == PresentationParameters.MultiSampleCount &&
-				gdi.PresentationParameters.DisplayOrientation == PresentationParameters.DisplayOrientation &&
-				gdi.PresentationParameters.PresentationInterval == PresentationParameters.PresentationInterval &&
-				gdi.PresentationParameters.RenderTargetUsage == PresentationParameters.RenderTargetUsage &&
-				gdi.PresentationParameters.DeviceWindowHandle == PresentationParameters.DeviceWindowHandle &&
-				gdi.PresentationParameters.IsFullScreen == PresentationParameters.IsFullScreen
+				gdi.presentationParameters.BackBufferWidth == presentationParameters.BackBufferWidth &&
+				gdi.presentationParameters.BackBufferHeight == presentationParameters.BackBufferHeight &&
+				gdi.presentationParameters.BackBufferFormat == presentationParameters.BackBufferFormat &&
+				gdi.presentationParameters.DepthStencilFormat == presentationParameters.DepthStencilFormat &&
+				gdi.presentationParameters.MultiSampleCount == presentationParameters.MultiSampleCount &&
+				gdi.presentationParameters.DisplayOrientation == presentationParameters.DisplayOrientation &&
+				gdi.presentationParameters.PresentationInterval == presentationParameters.PresentationInterval &&
+				gdi.presentationParameters.RenderTargetUsage == presentationParameters.RenderTargetUsage &&
+				gdi.presentationParameters.DeviceWindowHandle == presentationParameters.DeviceWindowHandle &&
+				gdi.presentationParameters.IsFullScreen == presentationParameters.IsFullScreen
 			);
 		}
 		public override int GetHashCode()
@@ -86,16 +86,16 @@ namespace Microsoft.Xna.Framework
 			return (
 				GraphicsProfile.GetHashCode() ^
 				Adapter.GetHashCode() ^
-				PresentationParameters.BackBufferWidth.GetHashCode() ^
-				PresentationParameters.BackBufferHeight.GetHashCode() ^
-				PresentationParameters.BackBufferFormat.GetHashCode() ^
-				PresentationParameters.DepthStencilFormat.GetHashCode() ^
-				PresentationParameters.MultiSampleCount.GetHashCode() ^
-				PresentationParameters.DisplayOrientation.GetHashCode() ^
-				PresentationParameters.PresentationInterval.GetHashCode() ^
-				PresentationParameters.RenderTargetUsage.GetHashCode() ^
-				PresentationParameters.DeviceWindowHandle.GetHashCode() ^
-				PresentationParameters.IsFullScreen.GetHashCode()
+				presentationParameters.BackBufferWidth.GetHashCode() ^
+				presentationParameters.BackBufferHeight.GetHashCode() ^
+				presentationParameters.BackBufferFormat.GetHashCode() ^
+				presentationParameters.DepthStencilFormat.GetHashCode() ^
+				presentationParameters.MultiSampleCount.GetHashCode() ^
+				presentationParameters.DisplayOrientation.GetHashCode() ^
+				presentationParameters.PresentationInterval.GetHashCode() ^
+				presentationParameters.RenderTargetUsage.GetHashCode() ^
+				presentationParameters.DeviceWindowHandle.GetHashCode() ^
+				presentationParameters.IsFullScreen.GetHashCode()
 			);
 		}
 
@@ -105,7 +105,7 @@ namespace Microsoft.Xna.Framework
 			{
 				Adapter = Adapter,
 				GraphicsProfile = GraphicsProfile,
-				PresentationParameters = PresentationParameters.Clone()
+				presentationParameters = presentationParameters.Clone()
 			};
 		}
 
