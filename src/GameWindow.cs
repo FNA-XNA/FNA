@@ -84,9 +84,9 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Private Variables
+		#region Internal Variables
 
-		private string _title;
+		internal string _title;
 
 		#endregion
 
