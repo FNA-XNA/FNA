@@ -176,7 +176,13 @@ namespace Microsoft.Xna.Framework.Input
 		/// <returns>Hash code of the object.</returns>
 		public override int GetHashCode()
 		{
-			return base.GetHashCode();
+			return X ^ Y ^
+				LeftButton.GetHashCode() ^
+				RightButton.GetHashCode() ^
+				MiddleButton.GetHashCode() ^
+				XButton1.GetHashCode() ^
+				XButton2.GetHashCode() ^
+				ScrollWheelValue.GetHashCode();
 		}
 
 		/// <summary>
