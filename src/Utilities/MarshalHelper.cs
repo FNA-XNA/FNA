@@ -33,20 +33,25 @@ namespace Microsoft.Xna.Framework
 			return result;
 		}
 
-		internal static unsafe int GetHashCode<T>(T value) where T : struct
+		/* Hope uss generic to avoid boxing. But it need where T:unmanaged. It need C# 7.2
+		 * - 7aGiven */
+		internal static unsafe int GetHashCode(object obj)
 		{
-
 			int hashcode = 0;
-			int* ptr = (int*) &value;
-			for (int i = sizeof(T) / 4 - 1; i >= 0; i--)
+			GCHandle gchandle = GCHandle.Alloc(obj, GCHandleType.Pinned);
+			try
 			{
-				hashcode ^= ptr[i];
+				int* ptr = (int*) gchandle.AddrOfPinnedObject().ToPointer();
+				for (int i = Marshal.SizeOf(obj) / 4 - 1; i >= 0; i--)
+				{
+					hashcode ^= ptr[i];
+				}
 			}
-			if (hashcode == 0)
+			finally
 			{
-				hashcode = int.MaxValue;
+				gchandle.Free();
 			}
-			return hashcode;
+			return hashcode == 0 ? int.MaxValue : hashcode;
 		}
 	}
 }
