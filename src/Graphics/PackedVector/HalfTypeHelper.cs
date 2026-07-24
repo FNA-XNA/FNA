@@ -16,32 +16,11 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 {
 	internal static class HalfTypeHelper
 	{
-		#region Private Struct uif
-
-		[StructLayout(LayoutKind.Explicit)]
-		private struct uif
-		{
-			[FieldOffset(0)]
-			public float f;
-			[FieldOffset(0)]
-			public int i;
-			[FieldOffset(0)]
-			public uint u;
-		}
-
-		#endregion
-
 		#region Internal Static Methods
 
-		internal static ushort Convert(float f)
+		internal static unsafe ushort Convert(float f)
 		{
-			uif uif = new uif();
-			uif.f = f;
-			return Convert(uif.i);
-		}
-
-		internal static ushort Convert(int i)
-		{
+			int i = *(int*) &f;
 			int s = (i >> 16) & 0x00008000;
 			int e = ((i >> 23) & 0x000000ff) - (127 - 15);
 			int m = i & 0x007fffff;
@@ -63,17 +42,9 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 				return (ushort) (s | m);
 			}
-			else if (e == 0xff - (127 - 15))
+			else if (e > 31)
 			{
-				if (m == 0)
-				{
-					return (ushort) (s | 0x7c00);
-				}
-				else
-				{
-					m >>= 13;
-					return (ushort) (s | 0x7c00 | m | ((m == 0) ? 1 : 0));
-				}
+				return (ushort) (s | 0x7FFF);
 			}
 			else
 			{
@@ -85,22 +56,22 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 					e += 1;
 				}
 
-				if (e > 30)
+				if (e > 31)
 				{
-					return (ushort) (s | 0x7c00);
+					return (ushort) (s | 0x7FFF);
 				}
 
 				return (ushort) (s | (e << 10) | (m >> 13));
 			}
 		}
 
-		internal static float Convert(ushort value)
+		internal static unsafe float Convert(ushort value)
 		{
 			uint rst;
 			uint mantissa = (uint)(value & 1023);
 			uint exp = 0xfffffff2;
 
-			if ((value & -33792) == 0)
+			if ((value & 0x7C00) == 0)
 			{
 				if (mantissa != 0)
 				{
@@ -122,9 +93,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 				rst = (uint) (((((uint) value & 0x8000) << 16) | ((((((uint) value >> 10) & 0x1f) - 15) + 127) << 23)) | (mantissa << 13));
 			}
 
-			uif uif = new uif();
-			uif.u = rst;
-			return uif.f;
+			return *(float*) &rst;
 		}
 
 		#endregion
