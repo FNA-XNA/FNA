@@ -1099,11 +1099,9 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentNullException("destinationArray");
 			}
-			if (destinationArray.Length < sourceArray.Length)
+			if (sourceArray.Length > destinationArray.Length)
 			{
-				throw new ArgumentException(
-					"destinationArray is too small to contain the result."
-				);
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
 			}
 			for (int i = 0; i < sourceArray.Length; i += 1)
 			{
@@ -1140,17 +1138,13 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentNullException("destinationArray");
 			}
-			if (destinationIndex + length > destinationArray.Length)
-			{
-				throw new ArgumentException(
-					"destinationArray is too small to contain the result."
-				);
-			}
 			if (sourceIndex + length > sourceArray.Length)
 			{
-				throw new ArgumentException(
-					"The combination of sourceIndex and length was greater than sourceArray.Length."
-				);
+				throw new ArgumentException("Source array must be equal or bigger than requested length.");
+			}
+			if (destinationIndex + length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
 			}
 			for (int i = 0; i < length; i += 1)
 			{
@@ -1334,17 +1328,15 @@ namespace Microsoft.Xna.Framework
 		) {
 			if (sourceArray == null)
 			{
-				throw new ArgumentException("sourceArray");
+				throw new ArgumentNullException("sourceArray");
 			}
 			if (destinationArray == null)
 			{
-				throw new ArgumentException("destinationArray");
+				throw new ArgumentNullException("destinationArray");
 			}
-			if (destinationArray.Length < sourceArray.Length)
+			if (sourceArray.Length > destinationArray.Length)
 			{
-				throw new ArgumentException(
-					"destinationArray is too small to contain the result."
-				);
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
 			}
 			for (int i = 0; i < sourceArray.Length; i += 1)
 			{
@@ -1375,23 +1367,19 @@ namespace Microsoft.Xna.Framework
 		) {
 			if (sourceArray == null)
 			{
-				throw new ArgumentException("sourceArray");
+				throw new ArgumentNullException("sourceArray");
 			}
 			if (destinationArray == null)
 			{
-				throw new ArgumentException("destinationArray");
-			}
-			if (destinationIndex + length > destinationArray.Length)
-			{
-				throw new ArgumentException(
-					"destinationArray is too small to contain the result."
-				);
+				throw new ArgumentNullException("destinationArray");
 			}
 			if (sourceIndex + length > sourceArray.Length)
 			{
-				throw new ArgumentException(
-					"The combination of sourceIndex and length was greater than sourceArray.Length."
-				);
+				throw new ArgumentException("Source array must be equal or bigger than requested length.");
+			}
+			if (destinationIndex + length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
 			}
 			for (int i = 0; i < length; i += 1)
 			{
