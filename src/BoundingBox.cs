@@ -118,6 +118,10 @@ namespace Microsoft.Xna.Framework
 
 		public ContainmentType Contains(BoundingFrustum frustum)
 		{
+			if (frustum == null)
+			{
+				throw new ArgumentNullException("frustum", "This method does not accept null for this parameter.");
+			}
 			/* TODO: bad done here need a fix.
 			 * Because the question is not if frustum contains box but the reverse and
 			 * this is not the same.
@@ -297,9 +301,9 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentNullException("corners");
 			}
-			if (corners.Length < 8)
+			if (corners.Length < CornerCount)
 			{
-				throw new ArgumentOutOfRangeException("corners", "Not Enought Corners");
+				throw new ArgumentOutOfRangeException("corners", "You have to have at least 8 elements to copy corners.");
 			}
 			corners[0].X = this.Min.X;
 			corners[0].Y = this.Max.Y;
@@ -339,6 +343,10 @@ namespace Microsoft.Xna.Framework
 
 		public bool Intersects(BoundingFrustum frustum)
 		{
+			if (frustum == null)
+			{
+				throw new ArgumentNullException("frustum", "This method does not accept null for this parameter.");
+			}
 			return frustum.Intersects(this);
 		}
 
@@ -517,7 +525,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (points == null)
 			{
-				throw new ArgumentNullException("points");
+				throw new ArgumentNullException();
 			}
 
 			bool empty = true;
@@ -537,7 +545,7 @@ namespace Microsoft.Xna.Framework
 			}
 			if (empty)
 			{
-				throw new ArgumentException("Collection is empty", "points");
+				throw new ArgumentException("You should have at least one point in points");
 			}
 
 			return new BoundingBox(minVec, maxVec);

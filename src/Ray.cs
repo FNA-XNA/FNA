@@ -198,6 +198,10 @@ namespace Microsoft.Xna.Framework
 
 		public float? Intersects(BoundingFrustum frustum)
 		{
+			if (frustum == null)
+			{
+				throw new ArgumentNullException("frustum");
+			}
 			float? result;
 			frustum.Intersects(ref this, out result);
 			return result;

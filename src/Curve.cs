@@ -253,6 +253,10 @@ namespace Microsoft.Xna.Framework
 			CurveTangent tangentInType,
 			CurveTangent tangentOutType
 		) {
+			if (keyIndex >= Keys.Count || keyIndex < 0)
+			{
+				throw new ArgumentOutOfRangeException("keyIndex");
+			}
 			// See http://msdn.microsoft.com/en-us/library/microsoft.xna.framework.curvetangent.aspx
 
 			CurveKey key = Keys[keyIndex];

@@ -68,6 +68,10 @@ namespace Microsoft.Xna.Framework
 		/// <param name="radius">The sphere radius.</param>
 		public BoundingSphere(Vector3 center, float radius)
 		{
+			if (radius < 0f)
+			{
+				throw new ArgumentException("Radius must be greater than 0.");
+			}
 			this.Center = center;
 			this.Radius = radius;
 		}
