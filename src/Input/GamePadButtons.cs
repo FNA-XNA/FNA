@@ -202,7 +202,7 @@ namespace Microsoft.Xna.Framework.Input
 
 		public override int GetHashCode()
 		{
-			return (int) this.buttons;
+			return MarshalHelper.GetHashCode(this);
 		}
 
 		#endregion

@@ -32,5 +32,27 @@ namespace Microsoft.Xna.Framework
 				result = string.Intern(result);
 			return result;
 		}
+
+		/* TODO: Hope use generic to avoid boxing. But it need where T:unmanaged. It need C# 7.2
+		 * error CS0208: Cannot take the address of, get the size of, or declare a pointer to a managed type `T'
+		 * - 7aGiven */
+		internal static unsafe int GetHashCode(object obj)
+		{
+			int hashcode = 0;
+			GCHandle gchandle = GCHandle.Alloc(obj, GCHandleType.Pinned);
+			try
+			{
+				int* ptr = (int*) gchandle.AddrOfPinnedObject().ToPointer();
+				for (int i = Marshal.SizeOf(obj) / 4 - 1; i >= 0; i--)
+				{
+					hashcode ^= ptr[i];
+				}
+			}
+			finally
+			{
+				gchandle.Free();
+			}
+			return hashcode == 0 ? int.MaxValue : hashcode;
+		}
 	}
 }

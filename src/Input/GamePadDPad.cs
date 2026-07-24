@@ -135,14 +135,9 @@ namespace Microsoft.Xna.Framework.Input
 			return (obj is GamePadDPad) && (this == (GamePadDPad) obj);
 		}
 
-		public override int GetHashCode ()
+		public override int GetHashCode()
 		{
-			return (
-				(Down	== ButtonState.Pressed ? 1 : 0) +
-				(Left	== ButtonState.Pressed ? 2 : 0) +
-				(Right	== ButtonState.Pressed ? 4 : 0) +
-				(Up	== ButtonState.Pressed ? 8 : 0)
-			);
+			return MarshalHelper.GetHashCode(this);
 		}
 
 		#endregion

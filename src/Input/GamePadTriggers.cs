@@ -134,7 +134,7 @@ namespace Microsoft.Xna.Framework.Input
 
 		public override int GetHashCode ()
 		{
-			return this.Left.GetHashCode() + this.Right.GetHashCode();
+			return MarshalHelper.GetHashCode(this);
 		}
 
 		#endregion
