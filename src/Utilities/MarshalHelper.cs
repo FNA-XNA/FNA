@@ -32,5 +32,23 @@ namespace Microsoft.Xna.Framework
 				result = string.Intern(result);
 			return result;
 		}
+
+		internal static unsafe int GetHashCode<T>(ref T value) where T : struct
+		{
+			int hashcode = 0;
+			fixed (T* tptr = &value)
+			{
+				int* ptr = (int*) tptr;
+				for (int i = sizeof(T) / 4 - 1; i >= 0; i--)
+				{
+					hashcode ^= ptr[i];
+				}
+				if (hashcode == 0)
+				{
+					hashcode = int.MaxValue;
+				}
+				return hashcode;
+			}
+		}
 	}
 }

@@ -92,8 +92,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public override int GetHashCode()
 		{
-			// TODO: Fix hashes
-			return 0;
+			return MarshalHelper.GetHashCode(ref this);
 		}
 
 		public override string ToString()
