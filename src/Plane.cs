@@ -312,7 +312,7 @@ namespace Microsoft.Xna.Framework
 
 		public override int GetHashCode()
 		{
-			return Normal.GetHashCode() ^ D.GetHashCode();
+			return Normal.GetHashCode() + D.GetHashCode();
 		}
 
 		public override string ToString()

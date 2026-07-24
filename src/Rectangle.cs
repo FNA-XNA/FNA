@@ -339,7 +339,7 @@ namespace Microsoft.Xna.Framework
 
 		public override int GetHashCode()
 		{
-			return (this.X ^ this.Y ^ this.Width ^ this.Height);
+			return this.X + this.Y + this.Width + this.Height;
 		}
 
 		/// <summary>

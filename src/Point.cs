@@ -123,7 +123,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Hash code of this <see cref="Point"/>.</returns>
 		public override int GetHashCode()
 		{
-			return X ^ Y;
+			return X + Y;
 		}
 
 		/// <summary>
