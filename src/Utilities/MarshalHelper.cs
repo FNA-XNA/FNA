@@ -33,7 +33,7 @@ namespace Microsoft.Xna.Framework
 			return result;
 		}
 
-		/* Hope uss generic to avoid boxing. But it need where T:unmanaged. It need C# 7.2
+		/* Hope use generic to avoid boxing. But it need where T:unmanaged. It need C# 7.2
 		 * - 7aGiven */
 		internal static unsafe int GetHashCode(object obj)
 		{
