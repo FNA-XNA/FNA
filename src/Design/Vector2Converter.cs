@@ -82,7 +82,7 @@ namespace Microsoft.Xna.Framework.Design
 		) {
 			if (propertyValues == null)
 			{
-				throw new ArgumentNullException("propertyValues");
+				throw new ArgumentNullException("propertyValues", "This method does not accept null for this parameter.");
 			}
 			return (object) new Vector2(
 				(float) propertyValues["X"],
