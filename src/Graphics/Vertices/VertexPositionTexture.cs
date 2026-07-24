@@ -6,8 +6,8 @@
  * See LICENSE for details.
  */
 #endregion
+
 #region Using Statements
-using Microsoft.SqlServer.Server;
 using System;
 using System.Runtime.InteropServices;
 #endregion
