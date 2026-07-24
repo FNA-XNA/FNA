@@ -33,7 +33,7 @@ namespace Microsoft.Xna.Framework
 			return result;
 		}
 
-		/* Hope use generic to avoid boxing. But it need where T:unmanaged. It need C# 7.2
+		/* TODO: Hope use generic to avoid boxing. But it need where T:unmanaged. It need C# 7.2
 		 * error CS0208: Cannot take the address of, get the size of, or declare a pointer to a managed type `T'
 		 * - 7aGiven */
 		internal static unsafe int GetHashCode(object obj)
