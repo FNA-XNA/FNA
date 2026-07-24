@@ -92,8 +92,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public override int GetHashCode()
 		{
-			// TODO: Fix hashes
-			return 0;
+			return offset ^ usageIndex ^
+				vertexElementFormat.GetHashCode() ^
+				vertexElementUsage.GetHashCode();
 		}
 
 		public override string ToString()

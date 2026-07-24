@@ -93,8 +93,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public override int GetHashCode()
 		{
-			// TODO: Fix GetHashCode
-			return 0;
+			return Position.X.GetHashCode() ^
+				Position.Y.GetHashCode() ^
+				Position.Z.GetHashCode() ^
+				Color.GetHashCode() ^
+				TextureCoordinate.X.GetHashCode() ^
+				TextureCoordinate.Y.GetHashCode();
 		}
 
 		public override string ToString()
