@@ -21,9 +21,27 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public MatrixConverter() : base()
+		public MatrixConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Matrix = typeof(Matrix);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Matrix.GetField("M11")),
+				new FieldPropertyDescriptor(Matrix.GetField("M12")),
+				new FieldPropertyDescriptor(Matrix.GetField("M13")),
+				new FieldPropertyDescriptor(Matrix.GetField("M14")),
+				new FieldPropertyDescriptor(Matrix.GetField("M21")),
+				new FieldPropertyDescriptor(Matrix.GetField("M22")),
+				new FieldPropertyDescriptor(Matrix.GetField("M23")),
+				new FieldPropertyDescriptor(Matrix.GetField("M24")),
+				new FieldPropertyDescriptor(Matrix.GetField("M31")),
+				new FieldPropertyDescriptor(Matrix.GetField("M32")),
+				new FieldPropertyDescriptor(Matrix.GetField("M33")),
+				new FieldPropertyDescriptor(Matrix.GetField("M34")),
+				new FieldPropertyDescriptor(Matrix.GetField("M41")),
+				new FieldPropertyDescriptor(Matrix.GetField("M42")),
+				new FieldPropertyDescriptor(Matrix.GetField("M43")),
+				new FieldPropertyDescriptor(Matrix.GetField("M44"))
+			});
 			supportStringConvert = false;
 		}
 
@@ -37,23 +55,26 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(InstanceDescriptor))
+			if (value is Matrix)
 			{
-				Matrix matrix = (Matrix) value;
-				return new InstanceDescriptor(
-					typeof(Matrix).GetConstructor(new Type[] {
-						typeof(float), typeof(float), typeof(float), typeof(float),
-						typeof(float), typeof(float), typeof(float), typeof(float),
-						typeof(float), typeof(float), typeof(float), typeof(float),
-						typeof(float), typeof(float), typeof(float), typeof(float)
-					}),
-					new float[] {
-						matrix.M11, matrix.M12, matrix.M13, matrix.M14,
-						matrix.M21, matrix.M22, matrix.M23, matrix.M24,
-						matrix.M31, matrix.M32, matrix.M33, matrix.M34,
-						matrix.M41, matrix.M42, matrix.M43, matrix.M44
-					}
-				);
+				if (destinationType == typeof(InstanceDescriptor))
+				{
+					Matrix matrix = (Matrix) value;
+					return new InstanceDescriptor(
+						typeof(Matrix).GetConstructor(new Type[] {
+							typeof(float), typeof(float), typeof(float), typeof(float),
+							typeof(float), typeof(float), typeof(float), typeof(float),
+							typeof(float), typeof(float), typeof(float), typeof(float),
+							typeof(float), typeof(float), typeof(float), typeof(float)
+						}),
+						new float[] {
+							matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+							matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+							matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+							matrix.M41, matrix.M42, matrix.M43, matrix.M44
+						}
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
@@ -62,6 +83,10 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
+			if (propertyValues == null)
+			{
+				throw new ArgumentNullException("propertyValues", "This method does not accept null for this parameter.");
+			}
 			return (object) new Matrix(
 				(float) propertyValues["M11"],
 				(float) propertyValues["M12"],

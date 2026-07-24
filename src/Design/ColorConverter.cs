@@ -21,9 +21,15 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public ColorConverter() : base()
+		public ColorConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Color = typeof(Color);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new PropertyPropertyDescriptor(Color.GetProperty("R")),
+				new PropertyPropertyDescriptor(Color.GetProperty("G")),
+				new PropertyPropertyDescriptor(Color.GetProperty("B")),
+				new PropertyPropertyDescriptor(Color.GetProperty("A"))
+			});
 		}
 
 		#endregion
@@ -38,15 +44,8 @@ namespace Microsoft.Xna.Framework.Design
 			string s = value as string;
 			if (s != null)
 			{
-				string[] v = s.Split(
-					culture.TextInfo.ListSeparator.ToCharArray()
-				);
-				return new Color(
-					int.Parse(v[0], culture),
-					int.Parse(v[1], culture),
-					int.Parse(v[2], culture),
-					int.Parse(v[3], culture)
-				);
+				StringListEnumerator<int> enumerator = new StringListEnumerator<int>(culture, s);
+				return new Color(enumerator.Next(), enumerator.Next(), enumerator.Next(), enumerator.Next());
 			}
 			return base.ConvertFrom(context, culture, value);
 		}
@@ -57,29 +56,24 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(string))
+			if (value is Color)
 			{
-				Color src = (Color) value;
-				return string.Join(
-					culture.TextInfo.ListSeparator + " ",
-					new string[]
-					{
-						src.R.ToString(culture),
-						src.G.ToString(culture),
-						src.B.ToString(culture),
-						src.A.ToString(culture)
-					}
-				);
-			}
-			else if (destinationType == typeof(InstanceDescriptor))
-			{
-				Color color = (Color) value;
-				return new InstanceDescriptor(
-					typeof(Color).GetConstructor(
-						new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }
-					),
-					new byte[] { color.R, color.G, color.B, color.A }
-				);
+				Color color;
+				if (destinationType == typeof(string))
+				{
+					color = (Color) value;
+					return ConvertToString(culture, color.R, color.G, color.B, color.A);
+				}
+				else if (destinationType == typeof(InstanceDescriptor))
+				{
+					color = (Color) value;
+					return new InstanceDescriptor(
+						typeof(Color).GetConstructor(
+							new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }
+						),
+						new byte[] { color.R, color.G, color.B, color.A }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
@@ -88,6 +82,10 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
+			if (propertyValues == null)
+			{
+				throw new ArgumentNullException("propertyValues");
+			}
 			return (object) new Color(
 				(int) propertyValues["R"],
 				(int) propertyValues["G"],
