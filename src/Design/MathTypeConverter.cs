@@ -66,7 +66,7 @@ namespace Microsoft.Xna.Framework.Design
 
 		#endregion
 
-		internal static string ConvertToString<T>(CultureInfo culture, params T[] array) where T : struct
+		internal static string ConvertToString<T>(CultureInfo culture, params T[] array) where T : struct, IConvertible
 		{
 			if (culture == null)
 			{
@@ -76,7 +76,7 @@ namespace Microsoft.Xna.Framework.Design
 			StringBuilder builder = new StringBuilder();
 			for (int i = 0; i < array.Length; i++)
 			{
-				builder.Append(array[i].ToString());
+				builder.Append(array[i].ToString(culture));
 				builder.Append(listSeparator);
 			}
 			builder.Length -= listSeparator.Length;
