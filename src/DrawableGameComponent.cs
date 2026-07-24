@@ -38,10 +38,6 @@ namespace Microsoft.Xna.Framework
 				if (_drawOrder != value)
 				{
 					_drawOrder = value;
-					if (DrawOrderChanged != null)
-					{
-						DrawOrderChanged(this, null);
-					}
 					OnDrawOrderChanged(this, null);
 				}
 			}
@@ -58,10 +54,6 @@ namespace Microsoft.Xna.Framework
 				if (_visible != value)
 				{
 					_visible = value;
-					if (VisibleChanged != null)
-					{
-						VisibleChanged(this, EventArgs.Empty);
-					}
 					OnVisibleChanged(this, EventArgs.Empty);
 				}
 			}
@@ -160,10 +152,18 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual void OnVisibleChanged(object sender, EventArgs args)
 		{
+			if (VisibleChanged != null)
+			{
+				VisibleChanged(this, EventArgs.Empty);
+			}
 		}
 
 		protected virtual void OnDrawOrderChanged(object sender, EventArgs args)
 		{
+			if (DrawOrderChanged != null)
+			{
+				DrawOrderChanged(this, null);
+			}
 		}
 
 		#endregion
