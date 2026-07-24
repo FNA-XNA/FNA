@@ -77,7 +77,7 @@ namespace Microsoft.Xna.Framework
 
 		public override int GetHashCode()
 		{
-			return Position.GetHashCode() ^ Direction.GetHashCode();
+			return Position.GetHashCode() + Direction.GetHashCode();
 		}
 
 		// Adapted from http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
