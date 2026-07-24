@@ -885,7 +885,28 @@ namespace Microsoft.Xna.Framework
 			ref Matrix matrix,
 			Vector2[] destinationArray
 		) {
-			Transform(sourceArray, 0, ref matrix, destinationArray, 0, sourceArray.Length);
+			if (sourceArray == null)
+			{
+				throw new ArgumentNullException("sourceArray");
+			}
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException("destinationArray");
+			}
+			if (sourceArray.Length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
+			}
+			for (int x = 0; x < sourceArray.Length; x++)
+			{
+				Vector2 position = sourceArray[x];
+				Vector2 destination = destinationArray[x];
+				destination.X = (position.X * matrix.M11) + (position.Y * matrix.M21)
+						+ matrix.M41;
+				destination.Y = (position.X * matrix.M12) + (position.Y * matrix.M22)
+						+ matrix.M42;
+				destinationArray[x] = destination;
+			}
 		}
 
 		/// <summary>
@@ -905,6 +926,22 @@ namespace Microsoft.Xna.Framework
 			int destinationIndex,
 			int length
 		) {
+			if (sourceArray == null)
+			{
+				throw new ArgumentNullException("sourceArray");
+			}
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException("destinationArray");
+			}
+			if (sourceIndex + length > sourceArray.Length)
+			{
+				throw new ArgumentException("Source array must be equal or bigger than requested length.");
+			}
+			if (destinationIndex + length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
+			}
 			for (int x = 0; x < length; x += 1)
 			{
 				Vector2 position = sourceArray[sourceIndex + x];
@@ -928,14 +965,22 @@ namespace Microsoft.Xna.Framework
 			ref Quaternion rotation,
 			Vector2[] destinationArray
 		) {
-			Transform(
-				sourceArray,
-				0,
-				ref rotation,
-				destinationArray,
-				0,
-				sourceArray.Length
-			);
+			if (sourceArray == null)
+			{
+				throw new ArgumentNullException("sourceArray");
+			}
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException("destinationArray");
+			}
+			if (sourceArray.Length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
+			}
+			for (int i = 0; i < sourceArray.Length; i++)
+			{
+				Transform(ref sourceArray[i], ref rotation, out destinationArray[i]);
+			}
 		}
 
 		/// <summary>
@@ -955,12 +1000,29 @@ namespace Microsoft.Xna.Framework
 			int destinationIndex,
 			int length
 		) {
+			if (sourceArray == null)
+			{
+				throw new ArgumentNullException("sourceArray");
+			}
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException("destinationArray");
+			}
+			if (sourceIndex + length > sourceArray.Length)
+			{
+				throw new ArgumentException("Source array must be equal or bigger than requested length.");
+			}
+			if (destinationIndex + length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
+			}
 			for (int i = 0; i < length; i += 1)
 			{
-				Vector2 position = sourceArray[sourceIndex + i];
-				Vector2 v;
-				Transform(ref position, ref rotation, out v);
-				destinationArray[destinationIndex + i] = v;
+				Transform(
+					ref sourceArray[sourceIndex + i],
+					ref rotation,
+					out destinationArray[destinationIndex + i]
+				);
 			}
 		}
 
@@ -1006,14 +1068,26 @@ namespace Microsoft.Xna.Framework
 			ref Matrix matrix,
 			Vector2[] destinationArray
 		) {
-			TransformNormal(
-				sourceArray,
-				0,
-				ref matrix,
-				destinationArray,
-				0,
-				sourceArray.Length
-			);
+			if (sourceArray == null)
+			{
+				throw new ArgumentNullException("sourceArray");
+			}
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException("destinationArray");
+			}
+			if (sourceArray.Length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
+			}
+			for (int i = 0; i < sourceArray.Length; i++)
+			{
+				Vector2 position = sourceArray[i];
+				Vector2 result;
+				result.X = (position.X * matrix.M11) + (position.Y * matrix.M21);
+				result.Y = (position.X * matrix.M12) + (position.Y * matrix.M22);
+				destinationArray[i] = result;
+			}
 		}
 
 		/// <summary>
@@ -1033,6 +1107,22 @@ namespace Microsoft.Xna.Framework
 			int destinationIndex,
 			int length
 		) {
+			if (sourceArray == null)
+			{
+				throw new ArgumentNullException("sourceArray");
+			}
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException("destinationArray");
+			}
+			if (sourceIndex + length > sourceArray.Length)
+			{
+				throw new ArgumentException("Source array must be equal or bigger than requested length.");
+			}
+			if (destinationIndex + length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
+			}
 			for (int i = 0; i < length; i += 1)
 			{
 				Vector2 position = sourceArray[sourceIndex + i];

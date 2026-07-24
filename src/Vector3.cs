@@ -1078,10 +1078,18 @@ namespace Microsoft.Xna.Framework
 			ref Matrix matrix,
 			Vector3[] destinationArray
 		) {
-			Debug.Assert(
-				destinationArray.Length >= sourceArray.Length,
-				"The destination array is smaller than the source array."
-			);
+			if (sourceArray == null)
+			{
+				throw new ArgumentNullException("sourceArray");
+			}
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException("destinationArray");
+			}
+			if (sourceArray.Length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
+			}
 
 			/* TODO: Are there options on some platforms to implement
 			 * a vectorized version of this?
@@ -1118,15 +1126,22 @@ namespace Microsoft.Xna.Framework
 			int destinationIndex,
 			int length
 		) {
-			Debug.Assert(
-				sourceArray.Length - sourceIndex >= length,
-				"The source array is too small for the given sourceIndex and length."
-			);
-			Debug.Assert(
-				destinationArray.Length - destinationIndex >= length,
-				"The destination array is too small for " +
-				"the given destinationIndex and length."
-			);
+			if (sourceArray == null)
+			{
+				throw new ArgumentNullException("sourceArray");
+			}
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException("destinationArray");
+			}
+			if (sourceIndex + length < sourceArray.Length)
+			{
+				throw new ArgumentException("Source array must be equal or bigger than requested length.");
+			}
+			if (destinationIndex + length < destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
+			}
 
 			/* TODO: Are there options on some platforms to implement a
 			 * vectorized version of this?
@@ -1190,10 +1205,18 @@ namespace Microsoft.Xna.Framework
 			ref Quaternion rotation,
 			Vector3[] destinationArray
 		) {
-			Debug.Assert(
-				destinationArray.Length >= sourceArray.Length,
-				"The destination array is smaller than the source array."
-			);
+			if (sourceArray == null)
+			{
+				throw new ArgumentNullException("sourceArray");
+			}
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException("destinationArray");
+			}
+			if (sourceArray.Length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
+			}
 
 			/* TODO: Are there options on some platforms to implement
 			 * a vectorized version of this?
@@ -1233,15 +1256,22 @@ namespace Microsoft.Xna.Framework
 			int destinationIndex,
 			int length
 		) {
-			Debug.Assert(
-				sourceArray.Length - sourceIndex >= length,
-				"The source array is too small for the given sourceIndex and length."
-			);
-			Debug.Assert(
-				destinationArray.Length - destinationIndex >= length,
-				"The destination array is too small for the " +
-				"given destinationIndex and length."
-			);
+			if (sourceArray == null)
+			{
+				throw new ArgumentNullException("sourceArray");
+			}
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException("destinationArray");
+			}
+			if (sourceIndex + length > sourceArray.Length)
+			{
+				throw new ArgumentException("Source array must be equal or bigger than requested length.");
+			}
+			if (destinationIndex + length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
+			}
 
 			/* TODO: Are there options on some platforms to implement
 			 * a vectorized version of this?
@@ -1305,10 +1335,18 @@ namespace Microsoft.Xna.Framework
 			ref Matrix matrix,
 			Vector3[] destinationArray
 		) {
-			Debug.Assert(
-				destinationArray.Length >= sourceArray.Length,
-				"The destination array is smaller than the source array."
-			);
+			if (sourceArray == null)
+			{
+				throw new ArgumentNullException("sourceArray");
+			}
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException("destinationArray");
+			}
+			if (sourceArray.Length > destinationArray.Length)
+			{
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
+			}
 
 			for (int i = 0; i < sourceArray.Length; i += 1)
 			{
@@ -1344,19 +1382,13 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentNullException("destinationArray");
 			}
-			if ((sourceIndex + length) > sourceArray.Length)
+			if (sourceIndex + length > sourceArray.Length)
 			{
-				throw new ArgumentException(
-					"the combination of sourceIndex and " +
-					"length was greater than sourceArray.Length"
-				);
+				throw new ArgumentException("Source array must be equal or bigger than requested length.");
 			}
-			if ((destinationIndex + length) > destinationArray.Length)
+			if (destinationIndex + length > destinationArray.Length)
 			{
-				throw new ArgumentException(
-					"destinationArray is too small to " +
-					"contain the result"
-				);
+				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
 			}
 
 			for (int i = 0; i < length; i += 1)
