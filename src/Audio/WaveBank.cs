@@ -74,11 +74,11 @@ namespace Microsoft.Xna.Framework.Audio
 		) {
 			if (audioEngine == null)
 			{
-				throw new ArgumentNullException("audioEngine");
+				throw new ArgumentNullException("audioEngine", "You must pass in a valid audio engine.");
 			}
-			if (String.IsNullOrEmpty(nonStreamingWaveBankFilename))
+			if (string.IsNullOrEmpty(nonStreamingWaveBankFilename))
 			{
-				throw new ArgumentNullException("nonStreamingWaveBankFilename");
+				throw new ArgumentNullException("nonStreamingWaveBankFilename", "This method does not accept null for this parameter.");
 			}
 
 			bankData = TitleContainer.ReadToPointer(
@@ -109,11 +109,11 @@ namespace Microsoft.Xna.Framework.Audio
 		) {
 			if (audioEngine == null)
 			{
-				throw new ArgumentNullException("audioEngine");
+				throw new ArgumentNullException("audioEngine", "You must pass in a valid audio engine.");
 			}
-			if (String.IsNullOrEmpty(streamingWaveBankFilename))
+			if (string.IsNullOrEmpty(streamingWaveBankFilename))
 			{
-				throw new ArgumentNullException("streamingWaveBankFilename");
+				throw new ArgumentNullException("streamingWaveBankFilename", "This method does not accept null for this parameter.");
 			}
 
 			string safeName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(

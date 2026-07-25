@@ -24,6 +24,10 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
+				}
 				return queuedBuffers.Count;
 			}
 		}
@@ -32,11 +36,23 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
+				}
 				return false;
 			}
 			set
 			{
-				// No-op, DynamicSoundEffectInstance cannot be looped!
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
+				}
+				// DynamicSoundEffectInstance cannot be looped!
+				if (value)
+				{
+					throw new InvalidOperationException("The method call is invalid.");
+				}
 			}
 		}
 
@@ -76,6 +92,14 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) : base() {
+			if (sampleRate < FAudio.FAUDIO_MIN_SAMPLE_RATE || sampleRate > FAudio.FAUDIO_MAX_SAMPLE_RATE) // XNA: sampleRate < 8000 || sampleRate > 48000
+			{
+				throw new ArgumentOutOfRangeException("sampleRate");
+			}
+			if (channels < AudioChannels.Mono || channels > AudioChannels.Stereo)
+			{
+				throw new ArgumentOutOfRangeException("channels");
+			}
 			FAudio.FAudio_AddRef(SoundEffect.Device().Handle);
 
 			this.sampleRate = sampleRate;
@@ -113,7 +137,15 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public TimeSpan GetSampleDuration(int sizeInBytes)
 		{
-			return SoundEffect.GetSampleDuration(
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
+			}
+			if (sizeInBytes < 0)
+			{
+				throw new ArgumentException("Buffer size cannot be negative.");
+			}
+			return SoundEffect.INTERNAL_GetSampleDuration(
 				sizeInBytes,
 				sampleRate,
 				channels
@@ -122,7 +154,15 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public int GetSampleSizeInBytes(TimeSpan duration)
 		{
-			return SoundEffect.GetSampleSizeInBytes(
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
+			}
+			if (duration.TotalMilliseconds < 0.0 || duration.TotalMilliseconds > int.MaxValue)
+			{
+				throw new ArgumentOutOfRangeException("duration");
+			}
+			return SoundEffect.INTERNAL_GetSampleSizeInBytes(
 				duration,
 				sampleRate,
 				channels
@@ -131,6 +171,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public override void Play()
 		{
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
+			}
 			// Wait! What if we need moar buffers?
 			Update();
 
@@ -152,6 +196,22 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SubmitBuffer(byte[] buffer, int offset, int count)
 		{
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
+			}
+			if (buffer == null || buffer.Length == 0 || buffer.Length % format.nBlockAlign != 0)
+			{
+				throw new ArgumentException("Buffer is invalid. Ensure that the buffer length is non-zero and meets the block alignment requirements for the audio format.");
+			}
+			if (offset < 0 || offset >= buffer.Length || offset % format.nBlockAlign != 0)
+			{
+				throw new ArgumentException("Byte offset is invalid. Ensure that it falls within the buffer and meets the block alignment requirements for the audio format.");
+			}
+			if (count <= 0 || offset + count < 0 || offset + count > buffer.Length || count % format.nBlockAlign != 0)
+			{
+				throw new ArgumentException("Number of samples to play is invalid. Ensure that it meets the block alignment requirements for the audio format.");
+			}
 			IntPtr next = FNAPlatform.Malloc(count);
 			Marshal.Copy(buffer, offset, next, count);
 			lock (queuedBuffers)

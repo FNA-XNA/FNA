@@ -40,8 +40,19 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public string Name
 		{
-			get;
-			set;
+			get { return name; }
+			set
+			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
+				}
+				if (string.IsNullOrEmpty(value))
+				{
+					throw new ArgumentNullException("value");
+				}
+				name = value;
+			}
 		}
 
 		#endregion
@@ -61,6 +72,10 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
+				if (value < -FAudio.FAUDIO_MAX_VOLUME_LEVEL || value > FAudio.FAUDIO_MAX_VOLUME_LEVEL) // XNA: value < 0f || value > 1f
+				{
+					throw new ArgumentOutOfRangeException("value");
+				}
 				FAudio.FAudioVoice_SetVolume(
 					Device().MasterVoice,
 					value,
@@ -77,9 +92,9 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (value <= 0.0f)
+				if (value < 0f)
 				{
-					throw new ArgumentOutOfRangeException("value <= 0.0f");
+					throw new ArgumentOutOfRangeException("value");
 				}
 				Device().CurveDistanceScaler = value;
 			}
@@ -93,9 +108,9 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (value < 0.0f)
+				if (value < 0f)
 				{
-					throw new ArgumentOutOfRangeException("value < 0.0f");
+					throw new ArgumentOutOfRangeException("value");
 				}
 				Device().DopplerScale = value;
 			}
@@ -109,6 +124,10 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
+				if (value <= 0f)
+				{
+					throw new ArgumentOutOfRangeException("value");
+				}
 				FAudioContext dev = Device();
 				dev.SpeedOfSound = value;
 				FAudio.F3DAudioInitialize(
@@ -130,6 +149,12 @@ namespace Microsoft.Xna.Framework.Audio
 		internal uint sampleRate;
 		internal uint loopStart;
 		internal uint loopLength;
+
+		#endregion
+
+		#region Private Variables
+
+		private string name;
 
 		#endregion
 
@@ -337,6 +362,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public bool Play(float volume, float pitch, float pan)
 		{
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
+			}
 			SoundEffectInstance instance = new SoundEffectInstance(this);
 			instance.Volume = volume;
 			instance.Pitch = pitch;
@@ -353,6 +382,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public SoundEffectInstance CreateInstance()
 		{
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
+			}
 			return new SoundEffectInstance(this);
 		}
 
@@ -365,12 +398,19 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) {
-			sizeInBytes /= 2; // 16-bit PCM!
-			int ms = (int) (
-				(sizeInBytes / (int) channels) /
-				(sampleRate / 1000.0f)
-			);
-			return new TimeSpan(0, 0, 0, 0, ms);
+			if (sizeInBytes < 0)
+			{
+				throw new ArgumentException("Buffer size cannot be negative.", "sizeInBytes");
+			}
+			if (sampleRate < FAudio.FAUDIO_MIN_SAMPLE_RATE || sampleRate > FAudio.FAUDIO_MAX_SAMPLE_RATE) // XNA: sampleRate < 8000 || sampleRate > 48000
+			{
+				throw new ArgumentOutOfRangeException("sampleRate");
+			}
+			if (channels < AudioChannels.Mono || channels > AudioChannels.Stereo)
+			{
+				throw new ArgumentOutOfRangeException("channels");
+			}
+			return INTERNAL_GetSampleDuration(sizeInBytes, sampleRate, channels);
 		}
 
 		public static int GetSampleSizeInBytes(
@@ -378,16 +418,27 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) {
-			return (int) (
-				duration.TotalSeconds *
-				sampleRate *
-				(int) channels *
-				2 // 16-bit PCM!
-			);
+			if (duration.TotalMilliseconds < 0.0 || duration.TotalMilliseconds > int.MaxValue)
+			{
+				throw new ArgumentOutOfRangeException("duration");
+			}
+			if (sampleRate < FAudio.FAUDIO_MIN_SAMPLE_RATE || sampleRate > FAudio.FAUDIO_MAX_SAMPLE_RATE) // XNA: sampleRate < 8000 || sampleRate > 48000
+			{
+				throw new ArgumentOutOfRangeException("sampleRate");
+			}
+			if (channels < AudioChannels.Mono || channels > AudioChannels.Stereo)
+			{
+				throw new ArgumentOutOfRangeException("channels");
+			}
+			return INTERNAL_GetSampleSizeInBytes(duration, sampleRate, channels);
 		}
 
 		public static SoundEffect FromStream(Stream stream)
 		{
+			if (stream == null)
+			{
+				throw new ArgumentNullException("stream");
+			}
 			// Sample data
 			byte[] data;
 
@@ -528,6 +579,36 @@ namespace Microsoft.Xna.Framework.Audio
 				wBitsPerSample,
 				samplerLoopStart,
 				samplerLoopEnd - samplerLoopStart
+			);
+		}
+
+		#endregion
+
+		#region Internal Static Methods
+
+		internal static TimeSpan INTERNAL_GetSampleDuration(
+			int sizeInBytes,
+			int sampleRate,
+			AudioChannels channels
+		) {
+			sizeInBytes /= 2; // 16-bit PCM!
+			int ms = (int) (
+				(sizeInBytes / (int) channels) /
+				(sampleRate / 1000.0f)
+			);
+			return new TimeSpan(0, 0, 0, 0, ms);
+		}
+
+		internal static int INTERNAL_GetSampleSizeInBytes(
+			TimeSpan duration,
+			int sampleRate,
+			AudioChannels channels
+		) {
+			return (int) (
+				duration.TotalSeconds *
+				sampleRate *
+				(int) channels *
+				2 // 16-bit PCM!
 			);
 		}
 
