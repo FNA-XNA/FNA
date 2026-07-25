@@ -590,8 +590,7 @@ namespace Microsoft.Xna.Framework.Audio
 			int sizeInBytes,
 			int sampleRate,
 			AudioChannels channels
-		)
-		{
+		) {
 			sizeInBytes /= 2; // 16-bit PCM!
 			int ms = (int) (
 				(sizeInBytes / (int) channels) /
