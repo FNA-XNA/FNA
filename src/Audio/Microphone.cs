@@ -56,11 +56,11 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (	value.Milliseconds < 100 ||
-					value.Milliseconds > 1000 ||
-					value.Milliseconds % 10 != 0	)
+				if (	value.TotalMilliseconds < 100 ||
+					value.TotalMilliseconds > 1000 ||
+					value.TotalMilliseconds % 10 != 0	)
 				{
-					throw new ArgumentOutOfRangeException("value");
+					throw new ArgumentOutOfRangeException("value", "Microphone buffer duration must be between 100ms and 1sec and  10ms aligned.");
 				}
 				bufferDuration = value;
 			}
@@ -100,7 +100,7 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Private Variables
 
 		private TimeSpan bufferDuration;
-		private uint handle;
+		private readonly uint handle;
 
 		#endregion
 
@@ -148,19 +148,19 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public int GetData(byte[] buffer, int offset, int count)
 		{
-			if (buffer == null)
+			// SDL_AUDIO_BYTESIZE(SDL_AUDIO_S16) = 2
+			if (buffer == null || buffer.Length == 0 || buffer.Length % 2 != 0)
 			{
-				throw new ArgumentException("buffer is null!");
+				throw new ArgumentException("Buffer is invalid. Ensure that the buffer length is non-zero and meets the block alignment requirements for the audio format.");
 			}
-			if (offset < 0 || offset > buffer.Length)
+			if (offset < 0 || offset >= buffer.Length || offset % 2 != 0)
 			{
-				throw new ArgumentException("offset");
+				throw new ArgumentException("Byte offset is invalid. Ensure that it falls within the buffer and meets the block alignment requirements for the audio format.");
 			}
-			if (count <= 0 || (offset + count) > buffer.Length)
+			if (count <= 0 || offset + count < 0 || offset + count > buffer.Length || count % 2 != 0)
 			{
-				throw new ArgumentException("count");
+				throw new ArgumentException("Number of samples to play is invalid. Ensure that it meets the block alignment requirements for the audio format.");
 			}
-
 			return FNAPlatform.GetMicrophoneSamples(
 				handle,
 				buffer,
@@ -171,7 +171,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public TimeSpan GetSampleDuration(int sizeInBytes)
 		{
-			return SoundEffect.GetSampleDuration(
+			if (sizeInBytes < 0)
+			{
+				throw new ArgumentException("Buffer size cannot be negative.");
+			}
+			return SoundEffect.INTERNAL_GetSampleDuration(
 				sizeInBytes,
 				SampleRate,
 				AudioChannels.Mono
@@ -180,7 +184,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public int GetSampleSizeInBytes(TimeSpan duration)
 		{
-			return SoundEffect.GetSampleSizeInBytes(
+			if (duration.TotalMilliseconds < 0.0 || duration.TotalMilliseconds > int.MaxValue)
+			{
+				throw new ArgumentOutOfRangeException("duration");
+			}
+			return SoundEffect.INTERNAL_GetSampleSizeInBytes(
 				duration,
 				SampleRate,
 				AudioChannels.Mono
