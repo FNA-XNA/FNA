@@ -108,6 +108,8 @@ namespace Microsoft.Xna.Framework.Audio
 		private IntPtr handle;
 		private SoundBank bank;
 		private WeakReference selfReference;
+		private bool applied3D;
+		private bool played;
 
 		#endregion
 
@@ -173,6 +175,10 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("emitter");
 			}
+			if (!applied3D && played)
+			{
+				throw new InvalidOperationException("You must call Apply3D on a Cue before calling Play to be able to call Apply3D after calling Play.");
+			}
 
 			emitter.emitterData.ChannelCount = bank.dspSettings.SrcChannelCount;
 			emitter.emitterData.CurveDistanceScaler = float.MaxValue;
@@ -183,13 +189,14 @@ namespace Microsoft.Xna.Framework.Audio
 				ref bank.dspSettings
 			);
 			FAudio.FACT3DApply(ref bank.dspSettings, handle);
+			applied3D = true;
 		}
 
 		public float GetVariable(string name)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
-				throw new ArgumentNullException("name");
+				throw new ArgumentNullException("name", "This method does not accept null for this parameter.");
 			}
 
 			ushort variable = FAudio.FACTCue_GetVariableIndex(
@@ -221,6 +228,7 @@ namespace Microsoft.Xna.Framework.Audio
 		public void Play()
 		{
 			FAudio.FACTCue_Play(handle);
+			played = true;
 		}
 
 		public void Resume()
@@ -230,9 +238,9 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SetVariable(string name, float value)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
-				throw new ArgumentNullException("name");
+				throw new ArgumentNullException("name", "This method does not accept null for this parameter.");
 			}
 
 			ushort variable = FAudio.FACTCue_GetVariableIndex(

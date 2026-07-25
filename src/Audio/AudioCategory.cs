@@ -78,6 +78,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SetVolume(float volume)
 		{
+			if (volume < 0f)
+			{
+				throw new ArgumentException("Volume must be a positive float value.");
+			}
 			lock (parent.gcSync)
 			{
 				if (parent.IsDisposed)

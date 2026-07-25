@@ -114,9 +114,9 @@ namespace Microsoft.Xna.Framework.Audio
 			TimeSpan lookAheadTime,
 			string rendererId
 		) {
-			if (String.IsNullOrEmpty(settingsFile))
+			if (string.IsNullOrEmpty(settingsFile))
 			{
-				throw new ArgumentNullException("settingsFile");
+				throw new ArgumentNullException("settingsFile", "This method does not accept null for this parameter.");
 			}
 
 			// Allocate (but don't initialize just yet!)
@@ -258,9 +258,9 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public AudioCategory GetCategory(string name)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
-				throw new ArgumentNullException("name");
+				throw new ArgumentNullException("name", "This method does not accept null for this parameter.");
 			}
 
 			ushort category = FAudio.FACTAudioEngine_GetCategory(
@@ -280,9 +280,9 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public float GetGlobalVariable(string name)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
-				throw new ArgumentNullException("name");
+				throw new ArgumentNullException("name", "This method does not accept null for this parameter.");
 			}
 
 			ushort variable = FAudio.FACTAudioEngine_GetGlobalVariableIndex(
@@ -308,9 +308,9 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SetGlobalVariable(string name, float value)
 		{
-			if (String.IsNullOrEmpty(name))
+			if (string.IsNullOrEmpty(name))
 			{
-				throw new ArgumentNullException("name");
+				throw new ArgumentNullException("name", "This method does not accept null for this parameter.");
 			}
 
 			ushort variable = FAudio.FACTAudioEngine_GetGlobalVariableIndex(
