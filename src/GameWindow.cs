@@ -8,10 +8,9 @@
 #endregion
 
 #region Using Statements
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.ComponentModel;
-
-using Microsoft.Xna.Framework.Input;
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -56,6 +55,10 @@ namespace Microsoft.Xna.Framework
 			}
 			set
 			{
+				if (value == null)
+				{
+					throw new ArgumentNullException("value", "The title name cannot be null.  Use an empty string instead.");
+				}
 				if (_title != value)
 				{
 					SetTitle(value);

@@ -79,15 +79,9 @@ namespace Microsoft.Xna.Framework
 			{
 				if (value < TimeSpan.Zero)
 				{
-					throw new ArgumentOutOfRangeException(
-						"The time must be positive.",
-						default(Exception)
-					);
+					throw new ArgumentOutOfRangeException("value", "The inactive sleep time must be greater than or equal to zero.  Specify zero or a positive value.");
 				}
-				if (INTERNAL_inactiveSleepTime != value)
-				{
-					INTERNAL_inactiveSleepTime = value;
-				}
+				INTERNAL_inactiveSleepTime = value;
 			}
 		}
 
@@ -155,12 +149,8 @@ namespace Microsoft.Xna.Framework
 			{
 				if (value <= TimeSpan.Zero)
 				{
-					throw new ArgumentOutOfRangeException(
-						"The time must be positive and non-zero.",
-						default(Exception)
-					);
+					throw new ArgumentOutOfRangeException("value", "The target elapsed time must be greater than zero.  Specify a non-zero positive value.");
 				}
-
 				INTERNAL_targetElapsedTime = value;
 			}
 		}

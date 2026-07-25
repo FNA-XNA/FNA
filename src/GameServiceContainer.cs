@@ -10,8 +10,8 @@
  * Released under the MIT License. See monoxna.LICENSE for details.
  */
 #endregion
-
 #region Using Statements
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 #endregion
@@ -37,6 +37,10 @@ namespace Microsoft.Xna.Framework
 			if (provider == null)
 			{
 				throw new ArgumentNullException("provider", "The service provider instance cannot be null.");
+			}
+			if (services.ContainsKey(type))
+			{
+				throw new ArgumentException("Container already contains a service of this type.", "type");
 			}
 			if (!type.IsAssignableFrom(provider.GetType()))
 			{
