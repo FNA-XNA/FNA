@@ -80,7 +80,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				throw new ArgumentNullException("touches");
 			}
-			if (touches.Length > 10) // XNA: touches.Length > 8
+			if (touches.Length > 17) // XNA: touches.Length > 8
 			{
 				throw new ArgumentOutOfRangeException("touches");
 			}
