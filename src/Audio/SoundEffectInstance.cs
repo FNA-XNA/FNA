@@ -146,7 +146,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
 				}
-				if (value < 0f || value > 1f)
+				if (value < -FAudio.FAUDIO_MAX_VOLUME_LEVEL || value > FAudio.FAUDIO_MAX_VOLUME_LEVEL) // XNA: value < 0f || value > 1f
 				{
 					throw new ArgumentOutOfRangeException("value");
 				}

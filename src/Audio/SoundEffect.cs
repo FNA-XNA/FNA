@@ -72,7 +72,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (value < 0f || value > 1f)
+				if (value < -FAudio.FAUDIO_MAX_VOLUME_LEVEL || value > FAudio.FAUDIO_MAX_VOLUME_LEVEL) // XNA: value < 0f || value > 1f
 				{
 					throw new ArgumentOutOfRangeException("value");
 				}
@@ -402,7 +402,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentException("Buffer size cannot be negative.", "sizeInBytes");
 			}
-			if (sampleRate < 8000 || sampleRate > 48000)
+			if (sampleRate < 8000 || sampleRate > 384000) // XNA: sampleRate < 8000 || sampleRate > 48000
 			{
 				throw new ArgumentOutOfRangeException("sampleRate");
 			}
@@ -422,7 +422,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentOutOfRangeException("duration");
 			}
-			if (sampleRate < 8000 || sampleRate > 48000)
+			if (sampleRate < 8000 || sampleRate > 384000) // XNA: sampleRate < 8000 || sampleRate > 48000
 			{
 				throw new ArgumentOutOfRangeException("sampleRate");
 			}

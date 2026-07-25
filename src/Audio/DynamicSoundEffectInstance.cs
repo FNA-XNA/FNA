@@ -92,7 +92,7 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) : base() {
-			if (sampleRate < 8000 || sampleRate > 48000)
+			if (sampleRate < 8000 || sampleRate > 384000) // sampleRate < 8000 || sampleRate > 48000
 			{
 				throw new ArgumentOutOfRangeException("sampleRate");
 			}
