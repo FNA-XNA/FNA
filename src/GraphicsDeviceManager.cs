@@ -85,6 +85,10 @@ namespace Microsoft.Xna.Framework
 			}
 			set
 			{
+				if (value <= 0)
+				{
+					throw new ArgumentOutOfRangeException("value", "BackBufferWidth and BackBufferHeight must be greater than zero.");
+				}
 				INTERNAL_preferredBackBufferHeight = value;
 				prefsChanged = true;
 			}
@@ -99,6 +103,10 @@ namespace Microsoft.Xna.Framework
 			}
 			set
 			{
+				if (value <= 0)
+				{
+					throw new ArgumentOutOfRangeException("value", "BackBufferWidth and BackBufferHeight must be greater than zero.");
+				}
 				INTERNAL_preferredBackBufferWidth = value;
 				prefsChanged = true;
 			}
@@ -191,7 +199,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (game == null)
 			{
-				throw new ArgumentNullException("The game cannot be null!");
+				throw new ArgumentNullException("game", "Game cannot be null.");
 			}
 
 			this.game = game;

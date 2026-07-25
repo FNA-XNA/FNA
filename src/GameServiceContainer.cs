@@ -38,6 +38,10 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentNullException("provider", "The service provider instance cannot be null.");
 			}
+			if (services.ContainsKey(type))
+			{
+				throw new ArgumentException("Container already contains a service of this type.", "type");
+			}
 			if (!type.IsAssignableFrom(provider.GetType()))
 			{
 				throw new ArgumentException(

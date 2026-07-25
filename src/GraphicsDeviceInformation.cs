@@ -8,6 +8,8 @@
 #endregion
 
 #region Using Statements
+using System;
+
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
@@ -30,8 +32,15 @@ namespace Microsoft.Xna.Framework
 		/// </remarks>
 		public GraphicsAdapter Adapter
 		{
-			get;
-			set;
+			get { return adapter; }
+			set
+			{
+				if (adapter == null)
+				{
+					throw new ArgumentNullException("value", "Adapter cannot be null.  Try using GraphicsAdapter.DefaultAdapter instead.");
+				}
+				adapter = value;
+			}
 		}
 
 		/// <summary>
@@ -56,6 +65,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Variable
 
+		private GraphicsAdapter adapter;
 		private PresentationParameters presentationParameters = new PresentationParameters();
 
 		#endregion
@@ -67,7 +77,7 @@ namespace Microsoft.Xna.Framework
 			GraphicsDeviceInformation gdi = obj as GraphicsDeviceInformation;
 			return (
 				gdi != null &&
-				gdi.Adapter.Equals(Adapter) &&
+				gdi.adapter.Equals(adapter) &&
 				gdi.GraphicsProfile == GraphicsProfile &&
 				gdi.presentationParameters.BackBufferWidth == presentationParameters.BackBufferWidth &&
 				gdi.presentationParameters.BackBufferHeight == presentationParameters.BackBufferHeight &&
@@ -85,7 +95,7 @@ namespace Microsoft.Xna.Framework
 		{
 			return (
 				GraphicsProfile.GetHashCode() ^
-				Adapter.GetHashCode() ^
+				adapter.GetHashCode() ^
 				presentationParameters.BackBufferWidth.GetHashCode() ^
 				presentationParameters.BackBufferHeight.GetHashCode() ^
 				presentationParameters.BackBufferFormat.GetHashCode() ^
