@@ -21,9 +21,15 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public QuaternionConverter() : base()
+		public QuaternionConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Quaternion = typeof(Quaternion);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Quaternion.GetField("X")),
+				new FieldPropertyDescriptor(Quaternion.GetField("Y")),
+				new FieldPropertyDescriptor(Quaternion.GetField("Z")),
+				new FieldPropertyDescriptor(Quaternion.GetField("W"))
+			});
 		}
 
 		#endregion
@@ -38,15 +44,8 @@ namespace Microsoft.Xna.Framework.Design
 			string s = value as string;
 			if (s != null)
 			{
-				string[] v = s.Split(
-					culture.TextInfo.ListSeparator.ToCharArray()
-				);
-				return new Quaternion(
-					float.Parse(v[0], culture),
-					float.Parse(v[1], culture),
-					float.Parse(v[2], culture),
-					float.Parse(v[3], culture)
-				);
+				StringListEnumerator<float> enumerator = new StringListEnumerator<float>(culture, s);
+				return new Quaternion(enumerator.Next(), enumerator.Next(), enumerator.Next(), enumerator.Next());
 			}
 			return base.ConvertFrom(context, culture, value);
 		}
@@ -57,29 +56,24 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(string))
+			if (value is Quaternion)
 			{
-				Quaternion quat = (Quaternion) value;
-				return string.Join(
-					culture.TextInfo.ListSeparator + " ",
-					new string[]
-					{
-						quat.X.ToString(culture),
-						quat.Y.ToString(culture),
-						quat.Z.ToString(culture),
-						quat.W.ToString(culture)
-					}
-				);
-			}
-			else if (destinationType == typeof(InstanceDescriptor))
-			{
-				Quaternion quaternion = (Quaternion) value;
-				return new InstanceDescriptor(
-					typeof(Quaternion).GetConstructor(
-						new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
-					),
-					new float[] { quaternion.X, quaternion.Y, quaternion.Z, quaternion.W }
-				);
+				Quaternion quaternion;
+				if (destinationType == typeof(string))
+				{
+					quaternion = (Quaternion) value;
+					return ConvertToString(culture, quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
+				}
+				else if (destinationType == typeof(InstanceDescriptor))
+				{
+					quaternion = (Quaternion) value;
+					return new InstanceDescriptor(
+						typeof(Quaternion).GetConstructor(
+							new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
+						),
+						new float[] { quaternion.X, quaternion.Y, quaternion.Z, quaternion.W }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
@@ -88,6 +82,10 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
+			if (propertyValues == null)
+			{
+				throw new ArgumentNullException("propertyValues", "This method does not accept null for this parameter.");
+			}
 			return (object) new Quaternion(
 				(float) propertyValues["X"],
 				(float) propertyValues["Y"],

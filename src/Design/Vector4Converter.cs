@@ -21,9 +21,15 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public Vector4Converter() : base()
+		public Vector4Converter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Vector4 = typeof(Vector4);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Vector4.GetField("X")),
+				new FieldPropertyDescriptor(Vector4.GetField("Y")),
+				new FieldPropertyDescriptor(Vector4.GetField("Z")),
+				new FieldPropertyDescriptor(Vector4.GetField("W"))
+			});
 		}
 
 		#endregion
@@ -38,15 +44,8 @@ namespace Microsoft.Xna.Framework.Design
 			string s = value as string;
 			if (s != null)
 			{
-				string[] v = s.Split(
-					culture.TextInfo.ListSeparator.ToCharArray()
-				);
-				return new Vector4(
-					float.Parse(v[0], culture),
-					float.Parse(v[1], culture),
-					float.Parse(v[2], culture),
-					float.Parse(v[3], culture)
-				);
+				StringListEnumerator<float> enumerator = new StringListEnumerator<float>(culture, s);
+				return new Vector4(enumerator.Next(), enumerator.Next(), enumerator.Next(), enumerator.Next());
 			}
 			return base.ConvertFrom(context, culture, value);
 		}
@@ -57,29 +56,24 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(string))
+			if (value is Vector4)
 			{
-				Vector4 vec = (Vector4) value;
-				return string.Join(
-					culture.TextInfo.ListSeparator + " ",
-					new string[]
-					{
-						vec.X.ToString(culture),
-						vec.Y.ToString(culture),
-						vec.Z.ToString(culture),
-						vec.W.ToString(culture)
-					}
-				);
-			}
-			else if (destinationType == typeof(InstanceDescriptor))
-			{
-				Vector4 vector4 = (Vector4) value;
-				return new InstanceDescriptor(
-					typeof(Vector4).GetConstructor(
-						new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
-					),
-					new float[] { vector4.X, vector4.Y, vector4.Z, vector4.W }
-				);
+				Vector4 vector;
+				if (destinationType == typeof(string))
+				{
+					vector = (Vector4) value;
+					return ConvertToString(culture, vector.X, vector.Y, vector.Z, vector.W);
+				}
+				else if (destinationType == typeof(InstanceDescriptor))
+				{
+					vector = (Vector4) value;
+					return new InstanceDescriptor(
+						typeof(Vector4).GetConstructor(
+							new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }
+						),
+						new float[] { vector.X, vector.Y, vector.Z, vector.W }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
@@ -88,6 +82,10 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
+			if (propertyValues == null)
+			{
+				throw new ArgumentNullException("propertyValues", "This method does not accept null for this parameter.");
+			}
 			return (object) new Vector4(
 				(float) propertyValues["X"],
 				(float) propertyValues["Y"],

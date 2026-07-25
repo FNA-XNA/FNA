@@ -21,9 +21,13 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public PointConverter() : base()
+		public PointConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Point = typeof(Point);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Point.GetField("X")),
+				new FieldPropertyDescriptor(Point.GetField("Y"))
+			});
 		}
 
 		#endregion
@@ -38,13 +42,8 @@ namespace Microsoft.Xna.Framework.Design
 			string s = value as string;
 			if (s != null)
 			{
-				string[] v = s.Split(
-					culture.TextInfo.ListSeparator.ToCharArray()
-				);
-				return new Point(
-					int.Parse(v[0], culture),
-					int.Parse(v[1], culture)
-				);
+				StringListEnumerator<int> enumerator = new StringListEnumerator<int>(culture, s);
+				return new Point(enumerator.Next(), enumerator.Next());
 			}
 			return base.ConvertFrom(context, culture, value);
 		}
@@ -55,27 +54,24 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(string))
+			if (value is Point)
 			{
-				Point pt = (Point) value;
-				return string.Join(
-					culture.TextInfo.ListSeparator + " ",
-					new string[]
-					{
-						pt.X.ToString(culture),
-						pt.Y.ToString(culture)
-					}
-				);
-			}
-			else if (destinationType == typeof(InstanceDescriptor))
-			{
-				Point point = (Point) value;
-				return new InstanceDescriptor(
-					typeof(Point).GetConstructor(
-						new Type[] { typeof(int), typeof(int) }
-					),
-					new int[] { point.X, point.Y }
-				);
+				Point point;
+				if (destinationType == typeof(string))
+				{
+					point = (Point) value;
+					return ConvertToString(culture, point.X, point.Y);
+				}
+				else if (destinationType == typeof(InstanceDescriptor))
+				{
+					point = (Point) value;
+					return new InstanceDescriptor(
+						typeof(Point).GetConstructor(
+							new Type[] { typeof(int), typeof(int) }
+						),
+						new int[] { point.X, point.Y }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
@@ -84,6 +80,10 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
+			if (propertyValues == null)
+			{
+				throw new ArgumentNullException("propertyValues", "This method does not accept null for this parameter.");
+			}
 			return (object) new Point(
 				(int) propertyValues["X"],
 				(int) propertyValues["Y"]

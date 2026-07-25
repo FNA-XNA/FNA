@@ -21,9 +21,15 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public RectangleConverter() : base()
+		public RectangleConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type Rectangle = typeof(Rectangle);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(Rectangle.GetField("X")),
+				new FieldPropertyDescriptor(Rectangle.GetField("Y")),
+				new FieldPropertyDescriptor(Rectangle.GetField("Width")),
+				new FieldPropertyDescriptor(Rectangle.GetField("Height"))
+			});
 			supportStringConvert = false;
 		}
 
@@ -37,15 +43,18 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(InstanceDescriptor))
+			if (value is Rectangle)
 			{
-				Rectangle rectangle = (Rectangle) value;
-				return new InstanceDescriptor(
-					typeof(Rectangle).GetConstructor(
-						new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }
-					),
-					new int[] { rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height }
-				);
+				if (destinationType == typeof(InstanceDescriptor))
+				{
+					Rectangle rectangle = (Rectangle) value;
+					return new InstanceDescriptor(
+						typeof(Rectangle).GetConstructor(
+							new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }
+						),
+						new int[] { rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
@@ -54,6 +63,10 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
+			if (propertyValues == null)
+			{
+				throw new ArgumentNullException("propertyValues", "This method does not accept null for this parameter.");
+			}
 			return (object) new Rectangle(
 				(int) propertyValues["X"],
 				(int) propertyValues["Y"],

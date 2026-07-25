@@ -21,9 +21,13 @@ namespace Microsoft.Xna.Framework.Design
 	{
 		#region Public Constructor
 
-		public BoundingBoxConverter() : base()
+		public BoundingBoxConverter()
 		{
-			// FIXME: Initialize propertyDescriptions... how? -flibit
+			Type BoundingBox = typeof(BoundingBox);
+			propertyDescriptions = new PropertyDescriptorCollection(new PropertyDescriptor[] {
+				new FieldPropertyDescriptor(BoundingBox.GetField("Min")),
+				new FieldPropertyDescriptor(BoundingBox.GetField("Max"))
+			});
 			supportStringConvert = false;
 		}
 
@@ -36,7 +40,6 @@ namespace Microsoft.Xna.Framework.Design
 			CultureInfo culture,
 			object value
 		) {
-			// FIXME: This method exists in the spec, but... why?! -flibit
 			return base.ConvertFrom(context, culture, value);
 		}
 
@@ -46,15 +49,18 @@ namespace Microsoft.Xna.Framework.Design
 			object value,
 			Type destinationType
 		) {
-			if (destinationType == typeof(InstanceDescriptor))
+			if (value is BoundingBox)
 			{
-				BoundingBox boundingBox = (BoundingBox) value;
-				return new InstanceDescriptor(
-					typeof(BoundingBox).GetConstructor(
-						new Type[] { typeof(Vector3), typeof(Vector3) }
-					),
-					new Vector3[] { boundingBox.Min, boundingBox.Max }
-				);
+				if (destinationType == typeof(InstanceDescriptor))
+				{
+					BoundingBox boundingBox = (BoundingBox) value;
+					return new InstanceDescriptor(
+						typeof(BoundingBox).GetConstructor(
+							new Type[] { typeof(Vector3), typeof(Vector3) }
+						),
+						new Vector3[] { boundingBox.Min, boundingBox.Max }
+					);
+				}
 			}
 			return base.ConvertTo(context, culture, value, destinationType);
 		}
@@ -63,6 +69,10 @@ namespace Microsoft.Xna.Framework.Design
 			ITypeDescriptorContext context,
 			IDictionary propertyValues
 		) {
+			if (propertyValues == null)
+			{
+				throw new ArgumentNullException("propertyValues", "This method does not accept null for this parameter.");
+			}
 			return (object) new BoundingBox(
 				(Vector3) propertyValues["Min"],
 				(Vector3) propertyValues["Max"]
