@@ -310,19 +310,12 @@ namespace Microsoft.Xna.Framework
 				if (disposing)
 				{
 					// Dispose loaded game components.
-					for (int i = 0; i < Components.Count; i += 1)
+					for (int i = Components.Count; i > 0 ; i--)
 					{
-						IDisposable disposable = Components[i] as IDisposable;
+						IDisposable disposable = Components[0] as IDisposable;
 						if (disposable != null)
 						{
-							IGameComponent component = Components[i];
 							disposable.Dispose();
-
-							// If the component removed itself on disposal, adjust accordingly
-							if (!Components.Contains(component))
-							{
-								 i -= 1;
-							}
 						}
 					}
 
