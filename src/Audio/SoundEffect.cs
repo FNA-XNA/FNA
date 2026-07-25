@@ -402,7 +402,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentException("Buffer size cannot be negative.", "sizeInBytes");
 			}
-			if (sampleRate < 8000 || sampleRate > 384000) // XNA: sampleRate < 8000 || sampleRate > 48000
+			if (sampleRate < FAudio.FAUDIO_MIN_SAMPLE_RATE || sampleRate > FAudio.FAUDIO_MAX_SAMPLE_RATE) // XNA: sampleRate < 8000 || sampleRate > 48000
 			{
 				throw new ArgumentOutOfRangeException("sampleRate");
 			}
@@ -422,7 +422,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentOutOfRangeException("duration");
 			}
-			if (sampleRate < 8000 || sampleRate > 384000) // XNA: sampleRate < 8000 || sampleRate > 48000
+			if (sampleRate < FAudio.FAUDIO_MIN_SAMPLE_RATE || sampleRate > FAudio.FAUDIO_MAX_SAMPLE_RATE) // XNA: sampleRate < 8000 || sampleRate > 48000
 			{
 				throw new ArgumentOutOfRangeException("sampleRate");
 			}
