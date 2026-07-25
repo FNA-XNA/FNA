@@ -603,8 +603,7 @@ namespace Microsoft.Xna.Framework.Audio
 			TimeSpan duration,
 			int sampleRate,
 			AudioChannels channels
-		)
-		{
+		) {
 			return (int) (
 				duration.TotalSeconds *
 				sampleRate *
