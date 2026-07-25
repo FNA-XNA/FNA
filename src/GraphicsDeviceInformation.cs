@@ -8,9 +8,9 @@
 #endregion
 
 #region Using Statements
-using Microsoft.Xna.Framework.Graphics;
 using System;
 
+using Microsoft.Xna.Framework.Graphics;
 #endregion
 
 namespace Microsoft.Xna.Framework

@@ -10,8 +10,8 @@
  * Released under the MIT License. See monoxna.LICENSE for details.
  */
 #endregion
+
 #region Using Statements
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 #endregion

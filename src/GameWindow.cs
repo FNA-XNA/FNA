@@ -8,7 +8,6 @@
 #endregion
 
 #region Using Statements
-using Microsoft.Xna.Framework.Input;
 using System;
 using System.ComponentModel;
 #endregion
