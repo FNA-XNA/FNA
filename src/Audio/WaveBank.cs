@@ -130,11 +130,15 @@ namespace Microsoft.Xna.Framework.Audio
 
 			FAudio.FACTStreamingParameters settings = new FAudio.FACTStreamingParameters();
 			settings.file = bankData;
-			FAudio.FACTAudioEngine_CreateStreamingWaveBank(
+			uint ret = FAudio.FACTAudioEngine_CreateStreamingWaveBank(
 				audioEngine.handle,
 				ref settings,
 				out handle
 			);
+			if (ret == 0x8ac70007) // FACTENGINE_E_INVALIDDATA
+			{
+				throw new ArgumentException("XACT could not load the data provided. Make sure you are using the correct version of the XACT tool.");
+			}
 
 			engine = audioEngine;
 			selfReference = new WeakReference(this, true);

@@ -73,7 +73,7 @@ namespace Microsoft.Xna.Framework.Audio
 			IntPtr bufferLen;
 			IntPtr buffer = TitleContainer.ReadToPointer(filename, out bufferLen);
 
-			FAudio.FACTAudioEngine_CreateSoundBank(
+			uint ret = FAudio.FACTAudioEngine_CreateSoundBank(
 				audioEngine.handle,
 				buffer,
 				(uint) bufferLen,
@@ -81,6 +81,10 @@ namespace Microsoft.Xna.Framework.Audio
 				0,
 				out handle
 			);
+			if (ret == 0x8ac70007) // FACTENGINE_E_INVALIDDATA
+			{
+				throw new ArgumentException("XACT could not load the data provided. Make sure you are using the correct version of the XACT tool.");
+			}
 
 			FNAPlatform.FreeFilePointer(buffer);
 
