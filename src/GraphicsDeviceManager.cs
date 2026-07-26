@@ -531,7 +531,6 @@ namespace Microsoft.Xna.Framework
 
 			// Set the default device information
 			GraphicsDeviceInformation gdi = new GraphicsDeviceInformation();
-			gdi.Adapter = GraphicsAdapter.DefaultAdapter;
 			gdi.PresentationParameters.DeviceWindowHandle = game.Window.Handle;
 			INTERNAL_CreateGraphicsDeviceInformation(gdi);
 
