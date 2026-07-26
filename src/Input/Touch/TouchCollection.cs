@@ -24,8 +24,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			get
 			{
-				if (touches == null)
-					return 0;
 				return touches.Count;
 			}
 		}
@@ -50,9 +48,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			get
 			{
-				if (touches == null)
-					throw new ArgumentOutOfRangeException();
-				if (index < 0 || index >= this.Count)
+				if (index < 0 || index >= Count)
 				{
 					throw new ArgumentOutOfRangeException("index");
 				}
@@ -80,10 +76,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				throw new ArgumentNullException("touches");
 			}
-			if (touches.Length > 17) // XNA: touches.Length > 8
-			{
-				throw new ArgumentOutOfRangeException("touches");
-			}
+			//if (touches.Length > 8) // XNA check length. FNA comment check code for support more multi-touch.
+			//{
+			//	throw new ArgumentOutOfRangeException("touches");
+			//}
 			this.touches = new List<TouchLocation>(touches);
 		}
 
@@ -108,8 +104,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public bool Contains(TouchLocation item)
 		{
-			if (touches == null)
-				return false;
 			return touches.Contains(item);
 		}
 
@@ -123,8 +117,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				throw new ArgumentOutOfRangeException("arrayIndex");
 			}
-			if (touches == null)
-				return;
 			touches.CopyTo(array, arrayIndex);
 		}
 
@@ -156,8 +148,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public int IndexOf(TouchLocation item)
 		{
-			if (touches == null)
-				return -1;
 			return touches.IndexOf(item);
 		}
 
