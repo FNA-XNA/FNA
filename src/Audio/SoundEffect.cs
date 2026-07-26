@@ -227,7 +227,7 @@ namespace Microsoft.Xna.Framework.Audio
 		) {
 			FAudio.FAudio_AddRef(Device().Handle);
 
-			Name = name;
+			this.name = name;
 			channels = nChannels;
 			sampleRate = nSamplesPerSec;
 			this.loopStart = (uint) loopStart;
