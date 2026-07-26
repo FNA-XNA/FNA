@@ -78,10 +78,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			{
 				throw new ArgumentNullException("touches");
 			}
-			//if (touches.Length > 8) // XNA check length. FNA comment check code for support more multi-touch.
-			//{
-			//	throw new ArgumentOutOfRangeException("touches");
-			//}
+			if (touches.Length > TouchPanel.MAX_TOUCHES)
+			{
+				throw new ArgumentOutOfRangeException("touches");
+			}
 			IsConnected = true;
 			this.touches = new TouchLocation[touches.Length];
 			touches.CopyTo(this.touches, 0);
