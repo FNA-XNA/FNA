@@ -117,7 +117,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				hashcode ^= parent.GetHashCode();
 			}
-			return index;
+			return hashcode;
 		}
 
 		public bool Equals(AudioCategory other)
