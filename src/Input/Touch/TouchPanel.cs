@@ -101,7 +101,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					validTouches.Add(touches[i]);
 				}
 			}
-			return new TouchCollection(validTouches.ToArray());
+			return new TouchCollection(new List<TouchLocation>(validTouches), TouchDeviceExists);
 		}
 
 		public static GestureSample ReadGesture()

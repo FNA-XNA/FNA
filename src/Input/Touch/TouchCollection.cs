@@ -30,10 +30,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public bool IsConnected
 		{
-			get
-			{
-				return TouchPanel.TouchDeviceExists;
-			}
+			get;
+			internal set;
 		}
 
 		public bool IsReadOnly
@@ -64,7 +62,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Variables
 
-		private readonly List<TouchLocation> touches;
+		internal readonly List<TouchLocation> touches;
 
 		#endregion
 
@@ -80,7 +78,19 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			//{
 			//	throw new ArgumentOutOfRangeException("touches");
 			//}
+			IsConnected = true;
 			this.touches = new List<TouchLocation>(touches);
+		}
+
+		#endregion
+
+		#region Internal Constructor
+
+		internal TouchCollection(List<TouchLocation> touches, bool isConnected)
+		{
+			this.touches = touches;
+			IsConnected = isConnected;
+
 		}
 
 		#endregion
