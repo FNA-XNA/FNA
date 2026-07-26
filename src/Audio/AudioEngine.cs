@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Runtime.InteropServices;
 #endregion
 
@@ -117,6 +118,14 @@ namespace Microsoft.Xna.Framework.Audio
 			if (string.IsNullOrEmpty(settingsFile))
 			{
 				throw new ArgumentNullException("settingsFile", "This method does not accept null for this parameter.");
+			}
+			using (FileStream stream = File.OpenRead(settingsFile))
+			{
+				byte[] array = new byte[4];
+				if (!(stream.Read(array, 0, 4) == 4 && array[0] == 'X' && array[1] == 'G' && array[2] == 'S' && array[3] == 'F'))
+				{
+					throw new ArgumentException("XACT could not load the data provided. Make sure you are using the correct version of the XACT tool.");
+				}
 			}
 
 			// Allocate (but don't initialize just yet!)
@@ -270,9 +279,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (category == FAudio.FACTCATEGORY_INVALID)
 			{
-				throw new InvalidOperationException(
-					"Invalid category name!"
-				);
+				throw new InvalidOperationException("This resource could not be created.");
 			}
 
 			return new AudioCategory(this, category, name);
