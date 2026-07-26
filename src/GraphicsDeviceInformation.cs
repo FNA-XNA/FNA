@@ -35,7 +35,7 @@ namespace Microsoft.Xna.Framework
 			get { return adapter; }
 			set
 			{
-				if (adapter == null)
+				if (value == null)
 				{
 					throw new ArgumentNullException("value", "Adapter cannot be null.  Try using GraphicsAdapter.DefaultAdapter instead.");
 				}
