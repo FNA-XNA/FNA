@@ -31,7 +31,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		public bool IsConnected
 		{
 			get;
-			internal set;
+			private set;
 		}
 
 		public bool IsReadOnly
@@ -62,7 +62,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Variables
 
-		internal readonly List<TouchLocation> touches;
+		private readonly List<TouchLocation> touches;
 
 		#endregion
 
@@ -90,7 +90,6 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			this.touches = touches;
 			IsConnected = isConnected;
-
 		}
 
 		#endregion
