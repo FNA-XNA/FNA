@@ -78,7 +78,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void SetVolume(float volume)
 		{
-			if (volume < 0f)
+			if (volume < FAudio.FACTVOLUME_MIN)
 			{
 				throw new ArgumentException("Volume must be a positive float value.");
 			}
@@ -112,21 +112,17 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public override int GetHashCode()
 		{
-			return Name.GetHashCode();
+			return index ^ parent.GetHashCode();
 		}
 
 		public bool Equals(AudioCategory other)
 		{
-			return (GetHashCode() == other.GetHashCode());
+			return other.parent == parent && other.index == index;
 		}
 
 		public override bool Equals(Object obj)
 		{
-			if (obj is AudioCategory)
-			{
-				return Equals((AudioCategory) obj);
-			}
-			return false;
+			return obj is AudioCategory && Equals((AudioCategory) obj);
 		}
 
 		public static bool operator ==(
