@@ -34,7 +34,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Internal Constructor
 
-		internal RendererDetail(string name, string id) : this()
+		internal RendererDetail(string name, string id)
 		{
 			FriendlyName = name;
 			RendererId = id;
@@ -46,18 +46,18 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public override bool Equals(object obj)
 		{
-			return (	(obj is RendererDetail) &&
-					RendererId.Equals(((RendererDetail) obj).RendererId)	);
+			return obj is RendererDetail && this == (RendererDetail) obj;
 		}
 
 		public override int GetHashCode()
 		{
-			return RendererId.GetHashCode();
+			return (string.IsNullOrEmpty(RendererId) ? 0 : RendererId.GetHashCode()) ^
+				(string.IsNullOrEmpty(FriendlyName) ? 0 : FriendlyName.GetHashCode());
 		}
 
 		public override string ToString()
 		{
-			return FriendlyName;
+			return base.ToString();
 		}
 		
 		#endregion
@@ -66,12 +66,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public static bool operator==(RendererDetail left, RendererDetail right)
 		{
-			return left.RendererId.Equals(right.RendererId);
+			return left.FriendlyName == right.FriendlyName && left.RendererId == right.RendererId;
 		}
 
 		public static bool operator!=(RendererDetail left, RendererDetail right)
 		{
-			return !left.RendererId.Equals(right.RendererId);
+			return !(left == right);
 		}
 
 		#endregion
