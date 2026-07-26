@@ -11,7 +11,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Runtime.InteropServices;
 #endregion
 
@@ -119,14 +118,6 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("settingsFile", "This method does not accept null for this parameter.");
 			}
-			using (FileStream stream = File.OpenRead(settingsFile))
-			{
-				byte[] array = new byte[4];
-				if (!(stream.Read(array, 0, 4) == 4 && array[0] == 'X' && array[1] == 'G' && array[2] == 'S' && array[3] == 'F'))
-				{
-					throw new ArgumentException("XACT could not load the data provided. Make sure you are using the correct version of the XACT tool.");
-				}
-			}
 
 			// Allocate (but don't initialize just yet!)
 			FAudio.FACTCreateEngine(0, out handle);
@@ -185,7 +176,12 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 
 			// Init engine, finally
-			if (FAudio.FACTAudioEngine_Initialize(handle, ref settings) != 0)
+			uint ret = FAudio.FACTAudioEngine_Initialize(handle, ref settings);
+			if (ret == 0x8ac70007) // FACTENGINE_E_INVALIDDATA
+			{
+				throw new ArgumentException("XACT could not load the data provided. Make sure you are using the correct version of the XACT tool.");
+			}
+			else if (ret != 0)
 			{
 				throw new InvalidOperationException(
 					"Engine initialization failed!"
