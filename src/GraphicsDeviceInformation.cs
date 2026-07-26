@@ -35,7 +35,7 @@ namespace Microsoft.Xna.Framework
 			get { return adapter; }
 			set
 			{
-				if (value == null)
+				if (adapter == null) // The same behavior as XNA
 				{
 					throw new ArgumentNullException("value", "Adapter cannot be null.  Try using GraphicsAdapter.DefaultAdapter instead.");
 				}
@@ -65,7 +65,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Variable
 
-		private GraphicsAdapter adapter;
+		private GraphicsAdapter adapter = GraphicsAdapter.DefaultAdapter;
 		private PresentationParameters presentationParameters = new PresentationParameters();
 
 		#endregion
