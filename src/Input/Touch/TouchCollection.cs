@@ -24,7 +24,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			get
 			{
-				return touches.Count;
+				if (touches == null)
+				{
+					return 0;
+				}
+				return touches.Length;
 			}
 		}
 
@@ -62,7 +66,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Variables
 
-		private readonly List<TouchLocation> touches;
+		private readonly TouchLocation[] touches;
 
 		#endregion
 
@@ -79,7 +83,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			//	throw new ArgumentOutOfRangeException("touches");
 			//}
 			IsConnected = true;
-			this.touches = new List<TouchLocation>(touches);
+			this.touches = new TouchLocation[touches.Length];
+			touches.CopyTo(this.touches, 0);
 		}
 
 		#endregion
@@ -88,7 +93,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		internal TouchCollection(List<TouchLocation> touches, bool isConnected)
 		{
-			this.touches = touches;
+			this.touches = touches.ToArray();
 			IsConnected = isConnected;
 		}
 
@@ -113,7 +118,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public bool Contains(TouchLocation item)
 		{
-			return touches.Contains(item);
+			if (touches == null)
+			{
+				return false;
+			}
+			return Array.IndexOf(touches, item) != -1;
 		}
 
 		public void CopyTo(TouchLocation[] array, int arrayIndex)
@@ -125,6 +134,10 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			if (arrayIndex < 0 || array.Length - arrayIndex < Count)
 			{
 				throw new ArgumentOutOfRangeException("arrayIndex");
+			}
+			if (touches == null)
+			{
+				return;
 			}
 			touches.CopyTo(array, arrayIndex);
 		}
@@ -142,11 +155,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					}
 				}
 			}
-			touchLocation = new TouchLocation(
-				-1,
-				TouchLocationState.Invalid,
-				Vector2.Zero
-			);
+			touchLocation = new TouchLocation();
 			return false;
 		}
 
@@ -157,7 +166,11 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public int IndexOf(TouchLocation item)
 		{
-			return touches.IndexOf(item);
+			if (touches == null)
+			{
+				return -1;
+			}
+			return Array.IndexOf(touches, item);
 		}
 
 		public void Insert(int index, TouchLocation item)
