@@ -112,7 +112,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public override int GetHashCode()
 		{
-			return index ^ parent.GetHashCode();
+			int hashcode = index;
+			if (parent != null)
+			{
+				hashcode ^= parent.GetHashCode();
+			}
+			return index;
 		}
 
 		public bool Equals(AudioCategory other)
