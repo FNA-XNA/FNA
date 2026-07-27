@@ -160,7 +160,7 @@ namespace Microsoft.Xna.Framework
 
 		public bool Equals(CurveKey other)
 		{
-			return ReferenceEquals(other, null) &&
+			return !ReferenceEquals(other, null) &&
 				other.Position == Position &&
 				other.Value == Value &&
 				other.TangentIn == TangentIn &&
