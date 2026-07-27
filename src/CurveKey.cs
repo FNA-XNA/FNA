@@ -160,7 +160,7 @@ namespace Microsoft.Xna.Framework
 
 		public bool Equals(CurveKey other)
 		{
-			return !(other is null) &&
+			return ReferenceEquals(other, null) &&
 				other.Position == Position &&
 				other.Value == Value &&
 				other.TangentIn == TangentIn &&
@@ -191,9 +191,9 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public static bool operator ==(CurveKey a, CurveKey b)
 		{
-			if (a is null)
+			if (ReferenceEquals（a, null))
 			{
-				return b is null;
+				return ReferenceEquals（b, null);
 			}
 			return a.Equals(b);
 		}
