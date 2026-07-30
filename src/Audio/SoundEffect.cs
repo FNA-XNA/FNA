@@ -38,7 +38,6 @@ namespace Microsoft.Xna.Framework.Audio
 			private set;
 		}
 
-		private string name;
 		public string Name
 		{
 			get { return name; }
@@ -150,6 +149,12 @@ namespace Microsoft.Xna.Framework.Audio
 		internal uint sampleRate;
 		internal uint loopStart;
 		internal uint loopLength;
+
+		#endregion
+
+		#region Private Variables
+
+		private string name;
 
 		#endregion
 
