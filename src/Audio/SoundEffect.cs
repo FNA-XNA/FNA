@@ -165,7 +165,7 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) : this(
-			null,
+			string.Empty,
 			buffer,
 			0,
 			buffer.Length,
@@ -190,7 +190,7 @@ namespace Microsoft.Xna.Framework.Audio
 			int loopStart,
 			int loopLength
 		) : this(
-			null,
+			string.Empty,
 			buffer,
 			offset,
 			count,
