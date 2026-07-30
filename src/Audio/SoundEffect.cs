@@ -38,6 +38,7 @@ namespace Microsoft.Xna.Framework.Audio
 			private set;
 		}
 
+		private string name;
 		public string Name
 		{
 			get { return name; }
@@ -152,12 +153,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Private Variables
-
-		private string name;
-
-		#endregion
-
 		#region Public Constructors
 
 		public SoundEffect(
@@ -165,7 +160,7 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) : this(
-			null,
+			string.Empty,
 			buffer,
 			0,
 			buffer.Length,
@@ -190,7 +185,7 @@ namespace Microsoft.Xna.Framework.Audio
 			int loopStart,
 			int loopLength
 		) : this(
-			null,
+			string.Empty,
 			buffer,
 			offset,
 			count,
