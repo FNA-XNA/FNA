@@ -13,7 +13,6 @@
 
 #region Using Statements
 using System;
-using System.Globalization;
 #endregion
 
 namespace Microsoft.Xna.Framework.Graphics
@@ -27,6 +26,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				if (Height == 0)
+				{
+					return 0f;
+				}
 				return (float) Width / (float) Height;
 			}
 		}
