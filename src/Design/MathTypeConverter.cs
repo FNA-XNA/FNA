@@ -116,6 +116,8 @@ namespace Microsoft.Xna.Framework.Design
 		}
 	}
 
+	#region PropertyDescriptor
+
 	internal abstract class MemberPropertyDescriptor : PropertyDescriptor
 	{
 		private readonly MemberInfo member;
@@ -135,10 +137,7 @@ namespace Microsoft.Xna.Framework.Design
 
 		public override bool IsReadOnly
 		{
-			get
-			{
-				return false;
-			}
+			get { return false; }
 		}
 
 		public override bool CanResetValue(object component)
@@ -151,6 +150,17 @@ namespace Microsoft.Xna.Framework.Design
 		public override bool ShouldSerializeValue(object component)
 		{
 			return true;
+		}
+
+		public override int GetHashCode()
+		{
+			return member.GetHashCode();
+		}
+
+		public override bool Equals(object obj)
+		{
+			MemberPropertyDescriptor memberPropertyDescriptor = obj as MemberPropertyDescriptor;
+			return memberPropertyDescriptor != null && ReferenceEquals(member, memberPropertyDescriptor.member);
 		}
 	}
 
@@ -209,4 +219,5 @@ namespace Microsoft.Xna.Framework.Design
 			property.SetValue(component, value, null);
 		}
 	}
+	#endregion
 }
