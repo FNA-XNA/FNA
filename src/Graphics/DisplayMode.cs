@@ -75,36 +75,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Static Operators and Override Methods
 
-		public static bool operator !=(DisplayMode left, DisplayMode right)
-		{
-			return !(left == right);
-		}
-
-		public static bool operator ==(DisplayMode left, DisplayMode right)
-		{
-			if (ReferenceEquals(left, right)) // Same object or both are null
-			{
-				return true;
-			}
-			if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
-			{
-				return false;
-			}
-			return (	(left.Format == right.Format) &&
-					(left.Height == right.Height) &&
-					(left.Width == right.Width)	);
-		}
-
-		public override bool Equals(object obj)
-		{
-			return (obj as DisplayMode) == this;
-		}
-
-		public override int GetHashCode()
-		{
-			return (Width.GetHashCode() ^ Height.GetHashCode() ^ Format.GetHashCode());
-		}
-
 		public override string ToString()
 		{
 			return (
