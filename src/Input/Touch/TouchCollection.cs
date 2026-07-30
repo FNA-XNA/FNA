@@ -91,9 +91,9 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Internal Constructor
 
-		internal TouchCollection(List<TouchLocation> touches, bool isConnected)
+		internal TouchCollection(TouchLocation[] touches, bool isConnected)
 		{
-			this.touches = touches.ToArray();
+			this.touches = touches;
 			IsConnected = isConnected;
 		}
 
