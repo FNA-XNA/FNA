@@ -186,17 +186,17 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (!IsDisposed)
 				{
-					if (Disposing != null)
-					{
-						Disposing.Invoke(this, null);
-					}
-
 					// If this is disposed, stop leaking memory!
 					if (!engine.IsDisposed)
 					{
 						FAudio.FACTWaveBank_Destroy(handle);
 					}
 					OnWaveBankDestroyed();
+
+					if (disposing && Disposing != null)
+					{
+						Disposing(this, EventArgs.Empty);
+					}
 				}
 			}
 		}

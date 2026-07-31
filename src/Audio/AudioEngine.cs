@@ -350,16 +350,15 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (!IsDisposed)
 				{
-					if (Disposing != null)
-					{
-						Disposing.Invoke(this, null);
-					}
-
 					FAudio.FACTAudioEngine_ShutDown(handle);
 					FAudio.FACTAudioEngine_Release(handle);
 					rendererDetails = null;
 
 					IsDisposed = true;
+					if (disposing && Disposing != null)
+					{
+						Disposing(this, EventArgs.Empty);
+					}
 				}
 			}
 		}
