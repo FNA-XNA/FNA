@@ -27,20 +27,11 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 			if (e <= 0)
 			{
-				if (e < -10)
-				{
-					return (ushort) s;
-				}
+				m = (m | 0x00800000) >> (1 - e);
 
-				m = m | 0x00800000;
+				m = m + 0x00000FFF + ((m >> 13) & 1);
 
-				int t = 14 - e;
-				int a = (1 << (t - 1)) - 1;
-				int b = (m >> t) & 1;
-
-				m = (m + a + b) >> t;
-
-				return (ushort) (s | m);
+				return (ushort) (s | (m >> 13));
 			}
 			else if (e > 31)
 			{
@@ -69,7 +60,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		{
 			uint rst;
 			uint mantissa = (uint)(value & 1023);
-			uint exp = 0xfffffff2;
+			uint exp = 0xfffffff2; // -14
 
 			if ((value & 0x7C00) == 0)
 			{
