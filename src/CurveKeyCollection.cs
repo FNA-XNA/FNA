@@ -66,7 +66,7 @@ namespace Microsoft.Xna.Framework
 					throw new ArgumentNullException();
 				}
 
-				if (innerlist[index].Position == value.Position)
+				if (MathHelper.WithinEpsilon(innerlist[index].Position, value.Position))
 				{
 					innerlist[index] = value;
 				}
