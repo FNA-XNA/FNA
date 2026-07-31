@@ -31,6 +31,10 @@ namespace Microsoft.Xna.Framework
 
 		public static Stream OpenStream(string name)
 		{
+			if (string.IsNullOrEmpty(name))
+			{
+				throw new ArgumentNullException("name");
+			}
 			string safeName = MonoGame.Utilities.FileHelpers.NormalizeFilePathSeparators(name);
 
 #if CASE_SENSITIVITY_HACK
