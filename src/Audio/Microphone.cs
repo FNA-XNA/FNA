@@ -56,9 +56,9 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (	value.TotalMilliseconds < 100.0 ||
-					value.TotalMilliseconds > 1000.0 ||
-					value.TotalMilliseconds % 10.0 != 0	)
+				if (	value.TotalMilliseconds < 100 ||
+					value.TotalMilliseconds > 1000 ||
+					value.TotalMilliseconds % 10 != 0	)
 				{
 					throw new ArgumentOutOfRangeException("value", "Microphone buffer duration must be between 100ms and 1sec and  10ms aligned.");
 				}
