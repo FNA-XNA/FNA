@@ -66,14 +66,14 @@ namespace Microsoft.Xna.Framework
 					throw new ArgumentNullException();
 				}
 
-				if (MathHelper.WithinEpsilon(innerlist[index].Position, value.Position))
+				if (innerlist[index].Position == value.Position)
 				{
 					innerlist[index] = value;
 				}
 				else
 				{
 					innerlist.RemoveAt(index);
-					innerlist.Add(value);
+					INTERNAL_Add(value);
 				}
 			}
 		}
@@ -121,16 +121,7 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentNullException();
 			}
-			int i = innerlist.BinarySearch(item);
-			if (i < 0)
-			{
-				/* ... otherwise, a negative number that is the bitwise complement
-				 * of the index of the next element that is larger than item or, if there
-				 * is no larger element, the bitwise complement of Count.
-				 */
-				i = ~i;
-			}
-			this.innerlist.Insert(i, item);
+			INTERNAL_Add(item);
 		}
 
 		/// <summary>
@@ -211,6 +202,24 @@ namespace Microsoft.Xna.Framework
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return innerlist.GetEnumerator();
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private void INTERNAL_Add(CurveKey item)
+		{
+			int i = innerlist.BinarySearch(item);
+			if (i < 0)
+			{
+				/* ... otherwise, a negative number that is the bitwise complement
+				 * of the index of the next element that is larger than item or, if there
+				 * is no larger element, the bitwise complement of Count.
+				 */
+				i = ~i;
+			}
+			this.innerlist.Insert(i, item);
 		}
 
 		#endregion
