@@ -123,16 +123,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Destructor
-
-		~DynamicSoundEffectInstance()
-		{
-			// FIXME: ReRegisterForFinalize? -flibit
-			Dispose();
-		}
-
-		#endregion
-
 		#region Public Methods
 
 		public TimeSpan GetSampleDuration(int sizeInBytes)
