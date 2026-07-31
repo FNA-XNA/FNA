@@ -127,11 +127,14 @@ namespace Microsoft.Xna.Framework.Storage
 		/// </summary>
 		public void Dispose()
 		{
-			if (Disposing != null)
+			if (!IsDisposed)
 			{
-				Disposing(this, null);
+				IsDisposed = true;
+				if (Disposing != null)
+				{
+					Disposing(this, EventArgs.Empty);
+				}
 			}
-			IsDisposed = true;
 		}
 
 		#endregion
