@@ -68,11 +68,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public bool IsHeadset
 		{
-			get
-			{
-				// FIXME: I think this is just for Windows Phone? -flibit
-				return false;
-			}
+			get { return true; }
 		}
 
 		public int SampleRate
