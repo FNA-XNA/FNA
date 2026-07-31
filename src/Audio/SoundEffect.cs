@@ -566,7 +566,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 
 			return new SoundEffect(
-				null,
+				string.Empty,
 				data,
 				0,
 				data.Length,
