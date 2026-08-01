@@ -266,8 +266,8 @@ namespace Microsoft.Xna.Framework
 
 			FrameworkDispatcher.Update();
 
-			// Ready to run the loop!
-			RunApplication = true;
+			Components.ComponentAdded += OnComponentAdded;
+			Components.ComponentRemoved += OnComponentRemoved;
 		}
 
 		#endregion
@@ -394,6 +394,9 @@ namespace Microsoft.Xna.Framework
 				DoInitialize();
 				hasInitialized = true;
 			}
+
+			// Ready to run the loop!
+			RunApplication = true;
 
 			BeginRun();
 			BeforeLoop();
@@ -770,8 +773,6 @@ namespace Microsoft.Xna.Framework
 			{
 				CategorizeComponent(Components[i]);
 			}
-			Components.ComponentAdded += OnComponentAdded;
-			Components.ComponentRemoved += OnComponentRemoved;
 		}
 
 		private void CategorizeComponent(IGameComponent component)
@@ -922,7 +923,10 @@ namespace Microsoft.Xna.Framework
 			/* Since we only subscribe to ComponentAdded after the graphics
 			 * devices are set up, it is safe to just blindly call Initialize.
 			 */
-			e.GameComponent.Initialize();
+			if (RunApplication)
+			{
+				e.GameComponent.Initialize();
+			}
 			CategorizeComponent(e.GameComponent);
 		}
 
