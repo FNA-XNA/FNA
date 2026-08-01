@@ -246,5 +246,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		#endregion
+
+		#region Protected Methods
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+		}
+
+		#endregion
 	}
 }

@@ -71,20 +71,24 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Destructor
-
-		~VertexDeclaration()
-		{
-			handle.Free();
-		}
-
-		#endregion
-
 		#region Public Methods
 
 		public VertexElement[] GetVertexElements()
 		{
 			return (VertexElement[]) elements.Clone();
+		}
+
+		#endregion
+
+		#region Protected Methods
+
+		protected override void Dispose(bool disposing)
+		{
+			if (handle.IsAllocated)
+			{
+				handle.Free();
+			}
+			base.Dispose(disposing);
 		}
 
 		#endregion
