@@ -21,6 +21,7 @@ namespace Microsoft.Xna.Framework
 	{
 		#region Internal Variables
 
+		internal static bool IsUpdated = false;
 		internal static bool ActiveSongChanged = false;
 		internal static bool MediaStateChanged = false;
 		internal static List<DynamicSoundEffectInstance> Streams = new List<DynamicSoundEffectInstance>();
@@ -31,6 +32,7 @@ namespace Microsoft.Xna.Framework
 
 		public static void Update()
 		{
+			IsUpdated = true;
 			/* Updates the status of various framework components
 			 * (such as power state and media), and raises related events.
 			 */

@@ -362,6 +362,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public bool Play(float volume, float pitch, float pan)
 		{
+			if (!FrameworkDispatcher.IsUpdated)
+			{
+				throw new InvalidOperationException("FrameworkDispatcher.Update has not been called. Regular FrameworkDispatcher.Update calls are necessary for fire and forget sound effects and framework events to function correctly. See http://go.microsoft.com/fwlink/?LinkId=193853 for details.");
+			}
 			if (IsDisposed)
 			{
 				throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
