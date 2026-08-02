@@ -51,7 +51,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (base.IndexOf(item) != -1)
 			{
-				throw new ArgumentException("Cannot Add Same Component Multiple Times");
+				throw new ArgumentException("Cannot add the same game component to a game component collection multiple times.");
 			}
 			base.InsertItem(index, item);
 			if (item != null)
@@ -74,7 +74,7 @@ namespace Microsoft.Xna.Framework
 
 		protected override void SetItem(int index, IGameComponent item)
 		{
-			throw new NotSupportedException();
+			throw new NotSupportedException("Cannot set a value using operator[] on GameComponentCollection.  Use Add/Remove instead.");
 		}
 
 		#endregion
