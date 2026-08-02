@@ -439,6 +439,10 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("stream");
 			}
+			if (stream.Length == 0)
+			{
+				throw new ArgumentNullException("source");
+			}
 			// Sample data
 			byte[] data;
 
