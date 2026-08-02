@@ -7,6 +7,8 @@
  */
 #endregion
 
+using System;
+
 namespace Microsoft.Xna.Framework.Graphics
 {
 	public class BlendState : GraphicsResource
@@ -21,6 +23,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.alphaBlendFunction = value;
 			}
 		}
@@ -33,6 +36,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.alphaDestinationBlend = value;
 			}
 		}
@@ -45,6 +49,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.alphaSourceBlend = value;
 			}
 		}
@@ -57,6 +62,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.colorBlendFunction = value;
 			}
 		}
@@ -69,6 +75,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.colorDestinationBlend = value;
 			}
 		}
@@ -81,6 +88,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.colorSourceBlend = value;
 			}
 		}
@@ -93,6 +101,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.colorWriteEnable = value;
 			}
 		}
@@ -105,6 +114,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.colorWriteEnable1 = value;
 			}
 		}
@@ -117,6 +127,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.colorWriteEnable2 = value;
 			}
 		}
@@ -129,6 +140,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.colorWriteEnable3 = value;
 			}
 		}
@@ -141,6 +153,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.blendFactor = value;
 			}
 		}
@@ -153,6 +166,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				ThrowReadonly(typeof(BlendState));
 				state.multiSampleMask = value;
 			}
 		}
@@ -195,7 +209,9 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Internal FNA3D Variables
+		#region Internal Variables
+
+		internal bool IsReadonly;
 
 		internal FNA3D.FNA3D_BlendState state;
 
@@ -243,6 +259,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			AlphaSourceBlend = alphaSourceBlend;
 			ColorDestinationBlend = colorDestBlend;
 			AlphaDestinationBlend = alphaDestBlend;
+			IsReadonly = true;
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private void ThrowReadonly(Type type)
+		{
+			if (IsReadonly)
+			{
+				string name = type.Name;
+				throw new InvalidOperationException("Cannot change read-only " + name + ". State objects become read-only the first time they are bound to a GraphicsDevice. To change property values, create a new " + name + " instance.");
+			}
 		}
 
 		#endregion

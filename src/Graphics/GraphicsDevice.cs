@@ -121,6 +121,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				value.IsReadonly = true;
 				nextBlend = value;
 			}
 		}
