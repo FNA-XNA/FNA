@@ -94,16 +94,17 @@ namespace Microsoft.Xna.Framework
 
 				IGraphicsDeviceService graphicsDeviceService = (IGraphicsDeviceService)
 					Game.Services.GetService(typeof(IGraphicsDeviceService));
-				if (graphicsDeviceService != null)
+				if (graphicsDeviceService == null)
 				{
-					if (graphicsDeviceService.GraphicsDevice != null)
-					{
-						LoadContent();
-					}
-					else
-					{
-						graphicsDeviceService.DeviceCreated += OnDeviceCreated;
-					}
+					throw new InvalidOperationException("Drawable components require a graphics device service in the game service container.");
+				}
+				if (graphicsDeviceService.GraphicsDevice != null)
+				{
+					LoadContent();
+				}
+				else
+				{
+					graphicsDeviceService.DeviceCreated += OnDeviceCreated;
 				}
 			}
 		}
