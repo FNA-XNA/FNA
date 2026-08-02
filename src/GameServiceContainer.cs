@@ -46,7 +46,8 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentException(
 					"Service provider object of type " + provider.GetType().FullName +
-					" must be assignable to service type " + type.GetType().FullName + "."
+					" must be assignable to service type " +
+					type.FullName + "." // type.GetType().FullName in XNA. It is wrong so fixed it.
 				);
 			}
 
