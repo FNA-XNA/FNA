@@ -52,8 +52,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public OcclusionQuery(GraphicsDevice graphicsDevice)
 		{
+			if (graphicsDevice == null)
+			{
+				throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
+			}
 			GraphicsDevice = graphicsDevice;
 			query = FNA3D.FNA3D_CreateQuery(GraphicsDevice.GLDevice);
+			Name = string.Empty;
+			graphicsDevice.OnResourceCreated(this);
 		}
 
 		#endregion
@@ -69,6 +75,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					FNA3D.FNA3D_AddDisposeQuery(GraphicsDevice.GLDevice, toDispose);
 				}
+				GraphicsDevice.OnResourceDestroyed(Name, Tag);
 			}
 			base.Dispose(disposing);
 		}
