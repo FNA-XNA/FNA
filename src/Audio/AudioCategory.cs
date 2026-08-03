@@ -144,6 +144,11 @@ namespace Microsoft.Xna.Framework.Audio
 			return !(value1.Equals(value2));
 		}
 
+		public override string ToString()
+		{
+			return INTERNAL_name ?? string.Empty;
+		}
+
 		#endregion
 	}
 }
