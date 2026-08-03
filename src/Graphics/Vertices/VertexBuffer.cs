@@ -108,6 +108,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				bufferUsage,
 				VertexCount * VertexDeclaration.VertexStride
 			);
+			graphicsDevice.OnResourceCreated(this);
 		}
 
 		#endregion
@@ -126,6 +127,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						toDispose
 					);
 				}
+				GraphicsDevice.OnResourceDestroyed(Name, Tag);
 			}
 			base.Dispose(disposing);
 		}

@@ -54,6 +54,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			GraphicsDevice = graphicsDevice;
 			query = FNA3D.FNA3D_CreateQuery(GraphicsDevice.GLDevice);
+			graphicsDevice.OnResourceCreated(this);
 		}
 
 		#endregion
@@ -69,6 +70,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					FNA3D.FNA3D_AddDisposeQuery(GraphicsDevice.GLDevice, toDispose);
 				}
+				GraphicsDevice.OnResourceDestroyed(Name, Tag);
 			}
 			base.Dispose(disposing);
 		}
