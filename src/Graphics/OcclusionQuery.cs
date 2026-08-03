@@ -52,6 +52,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public OcclusionQuery(GraphicsDevice graphicsDevice)
 		{
+			if (graphicsDevice == null)
+			{
+				throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
+			}
 			GraphicsDevice = graphicsDevice;
 			query = FNA3D.FNA3D_CreateQuery(GraphicsDevice.GLDevice);
 			graphicsDevice.OnResourceCreated(this);
