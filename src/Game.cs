@@ -299,12 +299,14 @@ namespace Microsoft.Xna.Framework
 			{
 				if (disposing)
 				{
+					IDisposable disposable;
+
 					// Dispose loaded game components.
 					IGameComponent[] finalComponents = new IGameComponent[Components.Count];
 					Components.CopyTo(finalComponents, 0);
 					for (int i = 0; i < finalComponents.Length; i++)
 					{
-						IDisposable disposable = finalComponents[i] as IDisposable;
+						disposable = finalComponents[i] as IDisposable;
 						if (disposable != null)
 						{
 							disposable.Dispose();
@@ -316,10 +318,10 @@ namespace Microsoft.Xna.Framework
 						Content.Dispose();
 					}
 
-					if (graphicsDeviceService != null)
+					disposable = graphicsDeviceManager as IDisposable;
+					if (disposable != null)
 					{
-						// FIXME: Does XNA4 require the GDM to be disposable? -flibit
-						(graphicsDeviceService as IDisposable).Dispose();
+						disposable.Dispose();
 					}
 
 					if (Window != null)
