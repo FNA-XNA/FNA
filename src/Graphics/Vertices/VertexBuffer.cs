@@ -108,6 +108,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				bufferUsage,
 				VertexCount * VertexDeclaration.VertexStride
 			);
+			Name = string.Empty;
 			graphicsDevice.OnResourceCreated(this);
 		}
 

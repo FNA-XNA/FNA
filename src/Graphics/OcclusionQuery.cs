@@ -58,6 +58,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			GraphicsDevice = graphicsDevice;
 			query = FNA3D.FNA3D_CreateQuery(GraphicsDevice.GLDevice);
+			Name = string.Empty;
 			graphicsDevice.OnResourceCreated(this);
 		}
 
