@@ -170,7 +170,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>String that represents the object.</returns>
 		public override string ToString()
 		{
-			return packedValue.ToString("X");
+			return packedValue.ToString("X8");
 		}
 
 		#endregion

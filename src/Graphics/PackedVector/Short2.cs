@@ -107,7 +107,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		public override string ToString()
 		{
-			return packedValue.ToString("X");
+			return packedValue.ToString("X8");
 		}
 
 		#endregion
