@@ -7,6 +7,8 @@
  */
 #endregion
 
+using System.Text;
+
 namespace Microsoft.Xna.Framework.Input
 {
 	public struct GamePadButtons
@@ -203,6 +205,61 @@ namespace Microsoft.Xna.Framework.Input
 		public override int GetHashCode()
 		{
 			return (int) this.buttons;
+		}
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder("{Buttons:");
+			if ((buttons & Buttons.A) == Buttons.A)
+			{
+				sb.Append("A ");
+			}
+			if ((buttons & Buttons.B) == Buttons.B)
+			{
+				sb.Append("B ");
+			}
+			if ((buttons & Buttons.X) == Buttons.X)
+			{
+				sb.Append("X ");
+			}
+			if ((buttons & Buttons.Y) == Buttons.Y)
+			{
+				sb.Append("Y ");
+			}
+			if ((buttons & Buttons.LeftShoulder) == Buttons.LeftShoulder)
+			{
+				sb.Append("LeftShoulder ");
+			}
+			if ((buttons & Buttons.RightShoulder) == Buttons.RightShoulder)
+			{
+				sb.Append("RightShoulder ");
+			}
+			if ((buttons & Buttons.LeftStick) == Buttons.LeftStick)
+			{
+				sb.Append("LeftStick ");
+			}
+			if ((buttons & Buttons.RightStick) == Buttons.RightStick)
+			{
+				sb.Append("RightStick ");
+			}
+			if ((buttons & Buttons.Start) == Buttons.Start)
+			{
+				sb.Append("Start ");
+			}
+			if ((buttons & Buttons.Back) == Buttons.Back)
+			{
+				sb.Append("Back ");
+			}
+			if ((buttons & Buttons.BigButton) == Buttons.BigButton)
+			{
+				sb.Append("BigButton ");
+			}
+			if (sb.Length == 9)
+			{
+				sb.Append("None ");
+			}
+			sb[sb.Length - 1] = '}';
+			return sb.ToString();
 		}
 
 		#endregion

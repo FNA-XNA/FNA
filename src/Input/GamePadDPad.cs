@@ -7,6 +7,8 @@
  */
 #endregion
 
+using System.Text;
+
 namespace Microsoft.Xna.Framework.Input
 {
 	public struct GamePadDPad
@@ -143,6 +145,33 @@ namespace Microsoft.Xna.Framework.Input
 				(Right	== ButtonState.Pressed ? 4 : 0) +
 				(Up	== ButtonState.Pressed ? 8 : 0)
 			);
+		}
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder("{DPad:");
+			if (Up == ButtonState.Pressed)
+			{
+				sb.Append("Up ");
+			}
+			if (Down == ButtonState.Pressed)
+			{
+				sb.Append("Down ");
+			}
+			if (Left == ButtonState.Pressed)
+			{
+				sb.Append("Left ");
+			}
+			if (Right == ButtonState.Pressed)
+			{
+				sb.Append("Right ");
+			}
+			if (sb.Length == 6)
+			{
+				sb.Append("None ");
+			}
+			sb[sb.Length - 1] = '}';
+			return sb.ToString();
 		}
 
 		#endregion
