@@ -7,7 +7,9 @@
  */
 #endregion
 
+#region Using Statements
 using System.Text;
+#endregion
 
 namespace Microsoft.Xna.Framework.Input
 {
