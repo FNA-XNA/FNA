@@ -277,7 +277,7 @@ namespace Microsoft.Xna.Framework.Input
 		/// </summary>
 		public override string ToString()
 		{
-			return base.ToString();
+			return "{IsConnected:" + IsConnected + '}';
 		}
 
 		#endregion
