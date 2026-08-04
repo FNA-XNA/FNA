@@ -82,7 +82,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		public override string ToString()
 		{
-			return packedValue.ToString("X");
+			return ToVector2().ToString();
 		}
 
 		public override int GetHashCode()
