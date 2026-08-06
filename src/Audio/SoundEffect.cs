@@ -10,6 +10,7 @@
 #region Using Statements
 using System;
 using System.IO;
+using System.Text;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 #endregion
@@ -435,13 +436,9 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public static SoundEffect FromStream(Stream stream)
 		{
-			if (stream == null)
+			if (stream == null || stream.Length == 0)
 			{
 				throw new ArgumentNullException("stream");
-			}
-			if (stream.Length == 0)
-			{
-				throw new ArgumentNullException("source");
 			}
 			// Sample data
 			byte[] data;
@@ -458,115 +455,153 @@ namespace Microsoft.Xna.Framework.Audio
 			int samplerLoopStart = 0;
 			int samplerLoopEnd = 0;
 
-			using (BinaryReader reader = new BinaryReader(stream))
+			using (PositionBinaryReader reader = new PositionBinaryReader(stream))
 			{
-				// RIFF Signature
-				string signature = new string(reader.ReadChars(4));
-				if (signature != "RIFF")
+				try
 				{
-					throw new NotSupportedException("Specified stream is not a wave file.");
-				}
-
-				reader.ReadUInt32(); // Riff Chunk Size
-
-				string wformat = new string(reader.ReadChars(4));
-				if (wformat != "WAVE")
-				{
-					throw new NotSupportedException("Specified stream is not a wave file.");
-				}
-
-				// WAVE Header
-				string format_signature = new string(reader.ReadChars(4));
-				while (format_signature != "fmt ")
-				{
-					reader.ReadBytes(reader.ReadInt32());
-					format_signature = new string(reader.ReadChars(4));
-				}
-
-				int format_chunk_size = reader.ReadInt32();
-
-				wFormatTag = reader.ReadUInt16();
-				nChannels = reader.ReadUInt16();
-				nSamplesPerSec = reader.ReadUInt32();
-				nAvgBytesPerSec = reader.ReadUInt32();
-				nBlockAlign = reader.ReadUInt16();
-				wBitsPerSample = reader.ReadUInt16();
-
-				// Reads residual bytes
-				if (format_chunk_size > 16)
-				{
-					reader.ReadBytes(format_chunk_size - 16);
-				}
-
-				// data Signature
-				string data_signature = new string(reader.ReadChars(4));
-				while (data_signature.ToLowerInvariant() != "data")
-				{
-					reader.ReadBytes(reader.ReadInt32());
-					data_signature = new string(reader.ReadChars(4));
-				}
-				if (data_signature != "data")
-				{
-					throw new NotSupportedException("Specified wave file is not supported.");
-				}
-
-				int waveDataLength = reader.ReadInt32();
-				data = reader.ReadBytes(waveDataLength);
-
-				// Scan for other chunks
-				while (reader.PeekChar() != -1)
-				{
-					char[] chunkIDChars = reader.ReadChars(4);
-					if (chunkIDChars.Length < 4)
+					// RIFF Signature
+					if (reader.ReadASCIIString(4) != "RIFF")
 					{
-						break; // EOL!
+						throw new ArgumentException("Specified stream is not a wave file.");
 					}
-					byte[] chunkSizeBytes = reader.ReadBytes(4);
-					if (chunkSizeBytes.Length < 4)
-					{
-						break; // EOL!
-					}
-					string chunk_signature = new string(chunkIDChars);
-					int chunkDataSize = BitConverter.ToInt32(chunkSizeBytes, 0);
-					if (chunk_signature == "smpl") // "smpl", Sampler Chunk Found
-					{
-						reader.ReadUInt32(); // Manufacturer
-						reader.ReadUInt32(); // Product
-						reader.ReadUInt32(); // Sample Period
-						reader.ReadUInt32(); // MIDI Unity Note
-						reader.ReadUInt32(); // MIDI Pitch Fraction
-						reader.ReadUInt32(); // SMPTE Format
-						reader.ReadUInt32(); // SMPTE Offset
-						uint numSampleLoops = reader.ReadUInt32();
-						int samplerData = reader.ReadInt32();
 
-						for (int i = 0; i < numSampleLoops; i += 1)
+					uint riff_chunk_size = reader.ReadUInt32(); // Riff Chunk Size
+					reader.Position = 0;
+
+					if (reader.ReadASCIIString(4) != "WAVE")
+					{
+						throw new ArgumentException("Specified stream is not a wave file.");
+					}
+
+					// WAVE Header
+					while (reader.ReadASCIIString(4) != "fmt ")
+					{
+						reader.StrictReadBytes(reader.ReadInt32());
+					}
+
+					int format_chunk_size = reader.ReadInt32();
+
+					wFormatTag = reader.ReadUInt16();
+					nChannels = reader.ReadUInt16();
+					nSamplesPerSec = reader.ReadUInt32();
+					nAvgBytesPerSec = reader.ReadUInt32();
+					nBlockAlign = reader.ReadUInt16();
+					wBitsPerSample = reader.ReadUInt16();
+
+					int formatReaded = 16;
+					bool formatError = (
+						nChannels == 0 ||
+						nChannels > FAudio.FAUDIO_MAX_AUDIO_CHANNELS ||
+						nSamplesPerSec < FAudio.FAUDIO_MIN_SAMPLE_RATE ||
+						nSamplesPerSec > FAudio.FAUDIO_MAX_SAMPLE_RATE
+					);
+					ushort formatTagEx = wFormatTag;
+					if (!formatError && formatTagEx == 0xFFFE)
+					{
+						reader.ReadUInt16();
+						reader.ReadUInt32();
+						formatTagEx = reader.ReadUInt16();
+						formatError = !System.Linq.Enumerable.SequenceEqual(
+							reader.StrictReadBytes(14),
+							new byte[] { 0, 0, 0, 0, 0x10, 0, 0x80, 0, 0, 0xAA, 0, 0x38, 0x9B, 0x71 }
+						);
+						formatReaded += 22;
+					}
+					if (!formatError) {
+						if (formatTagEx == 1 || formatTagEx == 3)
 						{
-							reader.ReadUInt32(); // Cue Point ID
-							reader.ReadUInt32(); // Type
-							int start = reader.ReadInt32();
-							int end = reader.ReadInt32();
-							reader.ReadUInt32(); // Fraction
-							reader.ReadUInt32(); // Play Count
+							formatError = nBlockAlign != wBitsPerSample / 8 * nChannels;
+						}
+						else if (formatTagEx == 2)
+						{
+							formatError = nChannels > 2 || wBitsPerSample != 4 || (nBlockAlign & nBlockAlign - 1) != 0;
+						}
+						else if (formatTagEx == 0x161)
+						{
+							formatError = nChannels > 2;
+						}
+						else if (formatTagEx == 0x162 || formatTagEx == 0x163)
+						{
+							formatError = nChannels > 8;
+						}
+						else
+						{
+							formatError = true;
+						}
+					}
+					if (formatError)
+					{
+						throw new ArgumentException("WaveFormat in specified wave stream is not supported.");
+					}
 
-							if (i == 0) // Grab loopStart and loopEnd from first sample loop
+					// Reads residual bytes
+					if (format_chunk_size > formatReaded)
+					{
+						reader.StrictReadBytes(format_chunk_size - formatReaded);
+					}
+
+					// data Signature
+					while (reader.ReadASCIIString(4) != "data")
+					{
+						reader.StrictReadBytes(reader.ReadInt32());
+					}
+
+					int waveDataLength = reader.ReadInt32();
+					data = reader.StrictReadBytes(waveDataLength);
+
+					// Scan for other chunks
+					while (reader.Position < riff_chunk_size)
+					{
+						string chunk_signature = reader.ReadASCIIString(4);
+						int chunkDataSize = reader.ReadInt32();
+						int chunkStart = reader.Position;
+						
+						if (chunk_signature == "smpl") // "smpl", Sampler Chunk Found
+						{
+							reader.ReadUInt32(); // Manufacturer
+							reader.ReadUInt32(); // Product
+							reader.ReadUInt32(); // Sample Period
+							reader.ReadUInt32(); // MIDI Unity Note
+							reader.ReadUInt32(); // MIDI Pitch Fraction
+							reader.ReadUInt32(); // SMPTE Format
+							reader.ReadUInt32(); // SMPTE Offset
+							uint numSampleLoops = reader.ReadUInt32();
+							int samplerData = reader.ReadInt32();
+
+							for (int i = 0; i < numSampleLoops; i += 1)
 							{
-								samplerLoopStart = start;
-								samplerLoopEnd = end;
+								reader.ReadUInt32(); // Cue Point ID
+								reader.ReadUInt32(); // Type
+								int start = reader.ReadInt32();
+								int end = reader.ReadInt32();
+								reader.ReadUInt32(); // Fraction
+								reader.ReadUInt32(); // Play Count
+
+								if (i == 0) // Grab loopStart and loopEnd from first sample loop
+								{
+									samplerLoopStart = start;
+									samplerLoopEnd = end;
+								}
+							}
+
+							if (samplerData != 0) // Read Sampler Data if it exists
+							{
+								reader.StrictReadBytes(samplerData);
 							}
 						}
-
-						if (samplerData != 0) // Read Sampler Data if it exists
-						{
-							reader.ReadBytes(samplerData);
-						}
+						// Read unwanted chunk data and try again
+						reader.StrictReadBytes(chunkStart + chunkDataSize - reader.Position);
 					}
-					else // Read unwanted chunk data and try again
-					{
-						reader.ReadBytes(chunkDataSize);
-					}
+					// End scan
 				}
-				// End scan
+				catch (EndOfStreamException)
+				{
+					throw new ArgumentException("Ensure that the specified stream contains valid wave data.");
+				}
+				catch (ArgumentOutOfRangeException)
+				{
+					throw new ArgumentException("Ensure that the specified stream contains valid wave data.");
+				}
 			}
 
 			return new SoundEffect(
@@ -903,4 +938,77 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 	}
+
+	#region BinaryReaderExtension
+
+	class PositionBinaryReader : BinaryReader
+	{
+		internal int Position = 0;
+		public PositionBinaryReader(Stream input) : base(input, Encoding.ASCII) { }
+
+		public override short ReadInt16()
+		{
+			Position += 2;
+			return base.ReadInt16();
+		}
+
+		public override int ReadInt32()
+		{
+			Position += 4;
+			return base.ReadInt32();
+		}
+
+		public override ushort ReadUInt16()
+		{
+			Position += 2;
+			return base.ReadUInt16();
+		}
+
+		public override uint ReadUInt32()
+		{
+			Position += 4;
+			return base.ReadUInt32();
+		}
+
+		internal byte[] StrictReadBytes(int count)
+		{
+			byte[] bytes = INTERNAL_ReadBytes(count);
+			if (bytes == null)
+			{
+				throw new EndOfStreamException();
+			}
+			return bytes;
+		}
+
+		internal string ReadASCIIString(int count)
+		{
+			byte[] bytes = INTERNAL_ReadBytes(count);
+			return bytes == null ? null : Encoding.ASCII.GetString(bytes);
+		}
+
+		private byte[] INTERNAL_ReadBytes(int count)
+		{
+			if (count < 0)
+			{
+				throw new ArgumentOutOfRangeException("count");
+			}
+			byte[] bytes = new byte[count];
+			int pos = 0;
+			do
+			{
+				int readed = BaseStream.Read(bytes, pos, count);
+				if (readed == 0)
+				{
+					return null;
+				}
+				pos += readed;
+				count -= readed;
+			}
+			while (count > 0);
+			Position += bytes.Length;
+			return bytes;
+		}
+	}
+
+	#endregion
 }
