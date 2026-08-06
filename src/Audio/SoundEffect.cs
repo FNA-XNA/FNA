@@ -229,75 +229,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal SoundEffect() { }
 
-		internal unsafe SoundEffect FromBuffer(
-			string name,
-			IntPtr formatPtr,
-			byte[] data,
-			int offset,
-			int count,
-			int loopStart,
-			int loopLength
-		) {
-			FAudio.FAudio_AddRef(Device().Handle);
-
-			FAudio.FAudioWaveFormatEx* wfx = (FAudio.FAudioWaveFormatEx*) formatPtr;
-			this.name = name;
-			channels = wfx->nChannels;
-			sampleRate = wfx->nSamplesPerSec;
-			this.loopStart = (uint) loopStart;
-			this.loopLength = (uint) loopLength;
-
-			/* Buffer format */
-			this.formatPtr = formatPtr;
-
-			/* Easy stuff */
-			handle = new FAudio.FAudioBuffer();
-			handle.Flags = FAudio.FAUDIO_END_OF_STREAM;
-			handle.pContext = IntPtr.Zero;
-
-			/* Buffer data */
-			handle.AudioBytes = (uint) count;
-			handle.pAudioData = FNAPlatform.Malloc(count);
-			Marshal.Copy(
-				data,
-				offset,
-				handle.pAudioData,
-				count
-			);
-
-			/* Play regions */
-			handle.PlayBegin = 0;
-			if (wfx->wFormatTag == 1)
-			{
-				handle.PlayLength = (uint) (
-					count /
-					wfx->nChannels /
-					(wfx->wBitsPerSample / 8)
-				);
-			}
-			else if (wfx->wFormatTag == 2)
-			{
-				handle.PlayLength = (uint) (
-					count /
-					wfx->nBlockAlign *
-					(((wfx->nBlockAlign / wfx->nChannels) - 6) * 2)
-				);
-			}
-			else if (wfx->wFormatTag == 0x166)
-			{
-				FAudio.FAudioXMA2WaveFormatEx* xma2 = (FAudio.FAudioXMA2WaveFormatEx*) formatPtr;
-				// dwSamplesEncoded / nChannels / (wBitsPerSample / 8) doesn't always (if ever?) match up.
-				handle.PlayLength = xma2->dwPlayLength;
-			}
-
-			/* Set by Instances! */
-			handle.LoopBegin = 0;
-			handle.LoopLength = 0;
-			handle.LoopCount = 0;
-
-			return this;
-		}
-
 		#endregion
 
 		#region Destructor
@@ -547,6 +478,79 @@ namespace Microsoft.Xna.Framework.Audio
 				samplerLoopStart,
 				samplerLoopEnd - samplerLoopStart
 			);
+		}
+
+		#endregion
+
+		#region Internal Methods
+
+		internal unsafe SoundEffect FromBuffer(
+			string name,
+			IntPtr formatPtr,
+			byte[] data,
+			int offset,
+			int count,
+			int loopStart,
+			int loopLength
+		) {
+			FAudio.FAudio_AddRef(Device().Handle);
+
+			FAudio.FAudioWaveFormatEx* wfx = (FAudio.FAudioWaveFormatEx*) formatPtr;
+			this.name = name;
+			channels = wfx->nChannels;
+			sampleRate = wfx->nSamplesPerSec;
+			this.loopStart = (uint) loopStart;
+			this.loopLength = (uint) loopLength;
+
+			/* Buffer format */
+			this.formatPtr = formatPtr;
+
+			/* Easy stuff */
+			handle = new FAudio.FAudioBuffer();
+			handle.Flags = FAudio.FAUDIO_END_OF_STREAM;
+			handle.pContext = IntPtr.Zero;
+
+			/* Buffer data */
+			handle.AudioBytes = (uint) count;
+			handle.pAudioData = FNAPlatform.Malloc(count);
+			Marshal.Copy(
+				data,
+				offset,
+				handle.pAudioData,
+				count
+			);
+
+			/* Play regions */
+			handle.PlayBegin = 0;
+			if (wfx->wFormatTag == 1)
+			{
+				handle.PlayLength = (uint) (
+					count /
+					wfx->nChannels /
+					(wfx->wBitsPerSample / 8)
+				);
+			}
+			else if (wfx->wFormatTag == 2)
+			{
+				handle.PlayLength = (uint) (
+					count /
+					wfx->nBlockAlign *
+					(((wfx->nBlockAlign / wfx->nChannels) - 6) * 2)
+				);
+			}
+			else if (wfx->wFormatTag == 0x166)
+			{
+				FAudio.FAudioXMA2WaveFormatEx* xma2 = (FAudio.FAudioXMA2WaveFormatEx*) formatPtr;
+				// dwSamplesEncoded / nChannels / (wBitsPerSample / 8) doesn't always (if ever?) match up.
+				handle.PlayLength = xma2->dwPlayLength;
+			}
+
+			/* Set by Instances! */
+			handle.LoopBegin = 0;
+			handle.LoopLength = 0;
+			handle.LoopCount = 0;
+
+			return this;
 		}
 
 		#endregion
