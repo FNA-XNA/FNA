@@ -441,15 +441,15 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ArgumentNullException("stream");
 			}
 			// Sample data
-			byte[] data;
+			byte[] data = null;
 
 			// WaveFormatEx data
-			ushort wFormatTag;
-			ushort nChannels;
-			uint nSamplesPerSec;
-			uint nAvgBytesPerSec;
-			ushort nBlockAlign;
-			ushort wBitsPerSample;
+			ushort wFormatTag = 0;
+			ushort nChannels = 0;
+			uint nSamplesPerSec = 0;
+			uint nAvgBytesPerSec = 0;
+			ushort nBlockAlign = 0;
+			ushort wBitsPerSample = 0;
 			// ushort cbSize;
 
 			int samplerLoopStart = 0;
@@ -473,90 +473,72 @@ namespace Microsoft.Xna.Framework.Audio
 						throw new ArgumentException("Specified stream is not a wave file.");
 					}
 
-					// WAVE Header
-					while (reader.ReadASCIIString(4) != "fmt ")
-					{
-						reader.StrictReadBytes(reader.ReadInt32());
-					}
-
-					int format_chunk_size = reader.ReadInt32();
-
-					wFormatTag = reader.ReadUInt16();
-					nChannels = reader.ReadUInt16();
-					nSamplesPerSec = reader.ReadUInt32();
-					nAvgBytesPerSec = reader.ReadUInt32();
-					nBlockAlign = reader.ReadUInt16();
-					wBitsPerSample = reader.ReadUInt16();
-
-					int formatReaded = 16;
-					bool formatError = (
-						nChannels == 0 ||
-						nChannels > FAudio.FAUDIO_MAX_AUDIO_CHANNELS ||
-						nSamplesPerSec < FAudio.FAUDIO_MIN_SAMPLE_RATE ||
-						nSamplesPerSec > FAudio.FAUDIO_MAX_SAMPLE_RATE
-					);
-					ushort formatTagEx = wFormatTag;
-					if (!formatError && formatTagEx == 0xFFFE)
-					{
-						reader.ReadUInt16();
-						reader.ReadUInt32();
-						formatTagEx = reader.ReadUInt16();
-						formatError = !System.Linq.Enumerable.SequenceEqual(
-							reader.StrictReadBytes(14),
-							new byte[] { 0, 0, 0, 0, 0x10, 0, 0x80, 0, 0, 0xAA, 0, 0x38, 0x9B, 0x71 }
-						);
-						formatReaded += 22;
-					}
-					if (!formatError) {
-						if (formatTagEx == 1 || formatTagEx == 3)
-						{
-							formatError = nBlockAlign != wBitsPerSample / 8 * nChannels;
-						}
-						else if (formatTagEx == 2)
-						{
-							formatError = nChannels > 2 || wBitsPerSample != 4 || (nBlockAlign & nBlockAlign - 1) != 0;
-						}
-						else if (formatTagEx == 0x161)
-						{
-							formatError = nChannels > 2;
-						}
-						else if (formatTagEx == 0x162 || formatTagEx == 0x163)
-						{
-							formatError = nChannels > 8;
-						}
-						else
-						{
-							formatError = true;
-						}
-					}
-					if (formatError)
-					{
-						throw new ArgumentException("WaveFormat in specified wave stream is not supported.");
-					}
-
-					// Reads residual bytes
-					if (format_chunk_size > formatReaded)
-					{
-						reader.StrictReadBytes(format_chunk_size - formatReaded);
-					}
-
-					// data Signature
-					while (reader.ReadASCIIString(4) != "data")
-					{
-						reader.StrictReadBytes(reader.ReadInt32());
-					}
-
-					int waveDataLength = reader.ReadInt32();
-					data = reader.StrictReadBytes(waveDataLength);
-
 					// Scan for other chunks
 					while (reader.Position < riff_chunk_size)
 					{
 						string chunk_signature = reader.ReadASCIIString(4);
-						int chunkDataSize = reader.ReadInt32();
+						int chunkDataSize = reader.ReadInt32() + 1 & ~1;
 						int chunkStart = reader.Position;
-						
-						if (chunk_signature == "smpl") // "smpl", Sampler Chunk Found
+
+						if (chunk_signature == "fmt ") // WAVE Header
+						{
+							wFormatTag = reader.ReadUInt16();
+							nChannels = reader.ReadUInt16();
+							nSamplesPerSec = reader.ReadUInt32();
+							nAvgBytesPerSec = reader.ReadUInt32();
+							nBlockAlign = reader.ReadUInt16();
+							wBitsPerSample = reader.ReadUInt16();
+
+							bool formatError = (
+								nChannels == 0 ||
+								nChannels > FAudio.FAUDIO_MAX_AUDIO_CHANNELS ||
+								nSamplesPerSec < FAudio.FAUDIO_MIN_SAMPLE_RATE ||
+								nSamplesPerSec > FAudio.FAUDIO_MAX_SAMPLE_RATE
+							);
+							ushort formatTagEx = wFormatTag;
+							if (!formatError && formatTagEx == 0xFFFE)
+							{
+								reader.ReadUInt16();
+								reader.ReadUInt32();
+								formatTagEx = reader.ReadUInt16();
+								formatError = !System.Linq.Enumerable.SequenceEqual(
+									reader.StrictReadBytes(14),
+									new byte[] { 0, 0, 0, 0, 0x10, 0, 0x80, 0, 0, 0xAA, 0, 0x38, 0x9B, 0x71 }
+								);
+							}
+							if (!formatError)
+							{
+								if (formatTagEx == 1 || formatTagEx == 3)
+								{
+									formatError = nBlockAlign != wBitsPerSample / 8 * nChannels;
+								}
+								else if (formatTagEx == 2)
+								{
+									formatError = nChannels > 2 || wBitsPerSample != 4 || (nBlockAlign & nBlockAlign - 1) != 0;
+								}
+								else if (formatTagEx == 0x161)
+								{
+									formatError = nChannels > 2;
+								}
+								else if (formatTagEx == 0x162 || formatTagEx == 0x163)
+								{
+									formatError = nChannels > 8;
+								}
+								else
+								{
+									formatError = true;
+								}
+							}
+							if (formatError)
+							{
+								throw new ArgumentException("WaveFormat in specified wave stream is not supported.");
+							}
+						}
+						else if (chunk_signature == "data")
+						{
+							data = reader.StrictReadBytes(reader.ReadInt32());
+						}
+						else if (chunk_signature == "smpl") // "smpl", Sampler Chunk Found
 						{
 							reader.ReadUInt32(); // Manufacturer
 							reader.ReadUInt32(); // Product
@@ -589,7 +571,7 @@ namespace Microsoft.Xna.Framework.Audio
 								reader.StrictReadBytes(samplerData);
 							}
 						}
-						// Read unwanted chunk data and try again
+						// Reads residual bytes
 						reader.StrictReadBytes(chunkStart + chunkDataSize - reader.Position);
 					}
 					// End scan
@@ -602,6 +584,11 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					throw new ArgumentException("Ensure that the specified stream contains valid wave data.");
 				}
+			}
+
+			if (wFormatTag == 0 || data == null)
+			{
+				throw new ArgumentException("Ensure that the specified stream contains valid wave data.");
 			}
 
 			return new SoundEffect(
@@ -994,7 +981,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			byte[] bytes = new byte[count];
 			int pos = 0;
-			do
+			while (count > 0)
 			{
 				int readed = BaseStream.Read(bytes, pos, count);
 				if (readed == 0)
@@ -1004,7 +991,6 @@ namespace Microsoft.Xna.Framework.Audio
 				pos += readed;
 				count -= readed;
 			}
-			while (count > 0);
 			Position += bytes.Length;
 			return bytes;
 		}
