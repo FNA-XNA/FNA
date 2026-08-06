@@ -34,7 +34,7 @@ namespace Microsoft.Xna.Framework
 				if (_enabled != value)
 				{
 					_enabled = value;
-					OnEnabledChanged(this, null);
+					OnEnabledChanged(this, EventArgs.Empty);
 				}
 			}
 		}
@@ -50,7 +50,7 @@ namespace Microsoft.Xna.Framework
 				if (_updateOrder != value)
 				{
 					_updateOrder = value;
-					OnUpdateOrderChanged(this, null);
+					OnUpdateOrderChanged(this, EventArgs.Empty);
 				}
 			}
 		}
@@ -117,7 +117,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (this.UpdateOrderChanged != null)
 			{
-				this.UpdateOrderChanged(this, EventArgs.Empty);
+				this.UpdateOrderChanged(this, args);
 			}
 		}
 
@@ -125,7 +125,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (this.EnabledChanged != null)
 			{
-				this.EnabledChanged(this, EventArgs.Empty);
+				this.EnabledChanged(this, args);
 			}
 		}
 

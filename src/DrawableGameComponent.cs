@@ -38,7 +38,7 @@ namespace Microsoft.Xna.Framework
 				if (_drawOrder != value)
 				{
 					_drawOrder = value;
-					OnDrawOrderChanged(this, null);
+					OnDrawOrderChanged(this, EventArgs.Empty);
 				}
 			}
 		}
@@ -154,7 +154,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (VisibleChanged != null)
 			{
-				VisibleChanged(this, EventArgs.Empty);
+				VisibleChanged(this, args);
 			}
 		}
 
@@ -162,7 +162,7 @@ namespace Microsoft.Xna.Framework
 		{
 			if (DrawOrderChanged != null)
 			{
-				DrawOrderChanged(this, null);
+				DrawOrderChanged(this, args);
 			}
 		}
 
