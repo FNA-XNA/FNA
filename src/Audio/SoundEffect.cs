@@ -165,23 +165,17 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) : this(
-			string.Empty,
 			buffer,
 			0,
-			buffer.Length,
-			null,
-			1,
-			(ushort) channels,
-			(uint) sampleRate,
-			(uint) (sampleRate * ((ushort) channels * 2)),
-			(ushort) ((ushort) channels * 2),
-			16,
+			buffer == null ? 0 : buffer.Length,
+			sampleRate,
+			channels,
 			0,
 			0
 		) {
 		}
 
-		public SoundEffect(
+		public unsafe SoundEffect(
 			byte[] buffer,
 			int offset,
 			int count,
@@ -189,79 +183,72 @@ namespace Microsoft.Xna.Framework.Audio
 			AudioChannels channels,
 			int loopStart,
 			int loopLength
-		) : this(
-			string.Empty,
-			buffer,
-			offset,
-			count,
-			null,
-			1,
-			(ushort) channels,
-			(uint) sampleRate,
-			(uint) (sampleRate * ((ushort) channels * 2)),
-			(ushort) ((ushort) channels * 2),
-			16,
-			loopStart,
-			loopLength
 		) {
+			if (sampleRate < FAudio.FAUDIO_MIN_SAMPLE_RATE || sampleRate > FAudio.FAUDIO_MAX_SAMPLE_RATE) // XNA: sampleRate < 8000 || sampleRate > 48000
+			{
+				throw new ArgumentOutOfRangeException("sampleRate");
+			}
+			if (channels != AudioChannels.Mono && channels != AudioChannels.Stereo)
+			{
+				throw new ArgumentOutOfRangeException("channels");
+			}
+			int blockAlign = (int) channels * 2 /* SDL_AUDIO_BYTESIZE(SDL_AUDIO_S16) */;
+			if (buffer == null || buffer.Length == 0 || buffer.Length % blockAlign != 0)
+			{
+				throw new ArgumentException("Ensure that the buffer length is non-zero and meets the block alignment requirements for the audio format.");
+			}
+			if (unchecked((uint) offset >= (uint) buffer.Length) || offset % blockAlign != 0)
+			{
+				throw new ArgumentException("Offset must be within the buffer boundaries and meet the block alignment requirements for the audio format.");
+			}
+			if (count <= 0 || unchecked((uint) (offset + count) > (uint) buffer.Length) || count % blockAlign != 0)
+			{
+				throw new ArgumentException("Ensure that count is valid and meets the block alignment requirements for the audio format. Offset and count must define a valid region within the buffer boundaries.");
+			}
+			if (loopStart < 0 || loopLength < 0 || unchecked((uint) (loopStart + loopLength) > (uint) (count / blockAlign)))
+			{
+				throw new ArgumentException("Ensure that the loop region is defined in samples and within the buffer boundaries.");
+			}
+			IntPtr formatPtr = FNAPlatform.Malloc(sizeof(FAudio.FAudioWaveFormatEx));
+			FAudio.FAudioWaveFormatEx* wfx = (FAudio.FAudioWaveFormatEx*) formatPtr;
+
+			wfx->wFormatTag = 1;
+			wfx->nChannels = (ushort) channels;
+			wfx->nSamplesPerSec = (uint) sampleRate;
+			wfx->nAvgBytesPerSec = (uint) (blockAlign * sampleRate);
+			wfx->nBlockAlign = (ushort) blockAlign;
+			wfx->wBitsPerSample = 16;
+			wfx->cbSize = 0;
+
+			FromBuffer(string.Empty, formatPtr, buffer, offset, count, loopStart, loopLength);
 		}
 
 		#endregion
 
 		#region Internal Constructor
 
-		internal unsafe SoundEffect(
+		internal SoundEffect() { }
+
+		internal unsafe SoundEffect FromBuffer(
 			string name,
-			byte[] buffer,
+			IntPtr formatPtr,
+			byte[] data,
 			int offset,
 			int count,
-			byte[] extraData,
-			ushort wFormatTag,
-			ushort nChannels,
-			uint nSamplesPerSec,
-			uint nAvgBytesPerSec,
-			ushort nBlockAlign,
-			ushort wBitsPerSample,
 			int loopStart,
 			int loopLength
 		) {
 			FAudio.FAudio_AddRef(Device().Handle);
 
+			FAudio.FAudioWaveFormatEx* wfx = (FAudio.FAudioWaveFormatEx*) formatPtr;
 			this.name = name;
-			channels = nChannels;
-			sampleRate = nSamplesPerSec;
+			channels = wfx->nChannels;
+			sampleRate = wfx->nSamplesPerSec;
 			this.loopStart = (uint) loopStart;
 			this.loopLength = (uint) loopLength;
 
 			/* Buffer format */
-			if (extraData == null)
-			{
-				formatPtr = FNAPlatform.Malloc(
-					MarshalHelper.SizeOf<FAudio.FAudioWaveFormatEx>()
-				);
-			}
-			else
-			{
-				formatPtr = FNAPlatform.Malloc(
-					MarshalHelper.SizeOf<FAudio.FAudioWaveFormatEx>() +
-					extraData.Length
-				);
-				Marshal.Copy(
-					extraData,
-					0,
-					formatPtr + MarshalHelper.SizeOf<FAudio.FAudioWaveFormatEx>(),
-					extraData.Length
-				);
-			}
-
-			FAudio.FAudioWaveFormatEx* pcm = (FAudio.FAudioWaveFormatEx*) formatPtr;
-			pcm->wFormatTag = wFormatTag;
-			pcm->nChannels = nChannels;
-			pcm->nSamplesPerSec = nSamplesPerSec;
-			pcm->nAvgBytesPerSec = nAvgBytesPerSec;
-			pcm->nBlockAlign = nBlockAlign;
-			pcm->wBitsPerSample = wBitsPerSample;
-			pcm->cbSize = (ushort) ((extraData == null) ? 0 : extraData.Length);
+			this.formatPtr = formatPtr;
 
 			/* Easy stuff */
 			handle = new FAudio.FAudioBuffer();
@@ -272,7 +259,7 @@ namespace Microsoft.Xna.Framework.Audio
 			handle.AudioBytes = (uint) count;
 			handle.pAudioData = FNAPlatform.Malloc(count);
 			Marshal.Copy(
-				buffer,
+				data,
 				offset,
 				handle.pAudioData,
 				count
@@ -280,23 +267,23 @@ namespace Microsoft.Xna.Framework.Audio
 
 			/* Play regions */
 			handle.PlayBegin = 0;
-			if (wFormatTag == 1)
+			if (wfx->wFormatTag == 1)
 			{
 				handle.PlayLength = (uint) (
 					count /
-					nChannels /
-					(wBitsPerSample / 8)
+					wfx->nChannels /
+					(wfx->wBitsPerSample / 8)
 				);
 			}
-			else if (wFormatTag == 2)
+			else if (wfx->wFormatTag == 2)
 			{
 				handle.PlayLength = (uint) (
 					count /
-					nBlockAlign *
-					(((nBlockAlign / nChannels) - 6) * 2)
+					wfx->nBlockAlign *
+					(((wfx->nBlockAlign / wfx->nChannels) - 6) * 2)
 				);
 			}
-			else if (wFormatTag == 0x166)
+			else if (wfx->wFormatTag == 0x166)
 			{
 				FAudio.FAudioXMA2WaveFormatEx* xma2 = (FAudio.FAudioXMA2WaveFormatEx*) formatPtr;
 				// dwSamplesEncoded / nChannels / (wBitsPerSample / 8) doesn't always (if ever?) match up.
@@ -307,6 +294,8 @@ namespace Microsoft.Xna.Framework.Audio
 			handle.LoopBegin = 0;
 			handle.LoopLength = 0;
 			handle.LoopCount = 0;
+
+			return this;
 		}
 
 		#endregion
@@ -443,13 +432,7 @@ namespace Microsoft.Xna.Framework.Audio
 			byte[] data;
 
 			// WaveFormatEx data
-			ushort wFormatTag;
-			ushort nChannels;
-			uint nSamplesPerSec;
-			uint nAvgBytesPerSec;
-			ushort nBlockAlign;
-			ushort wBitsPerSample;
-			// ushort cbSize;
+			byte[] formatBytes;
 
 			int samplerLoopStart = 0;
 			int samplerLoopEnd = 0;
@@ -479,20 +462,7 @@ namespace Microsoft.Xna.Framework.Audio
 					format_signature = new string(reader.ReadChars(4));
 				}
 
-				int format_chunk_size = reader.ReadInt32();
-
-				wFormatTag = reader.ReadUInt16();
-				nChannels = reader.ReadUInt16();
-				nSamplesPerSec = reader.ReadUInt32();
-				nAvgBytesPerSec = reader.ReadUInt32();
-				nBlockAlign = reader.ReadUInt16();
-				wBitsPerSample = reader.ReadUInt16();
-
-				// Reads residual bytes
-				if (format_chunk_size > 16)
-				{
-					reader.ReadBytes(format_chunk_size - 16);
-				}
+				formatBytes = reader.ReadBytes(reader.ReadInt32());
 
 				// data Signature
 				string data_signature = new string(reader.ReadChars(4));
@@ -565,18 +535,15 @@ namespace Microsoft.Xna.Framework.Audio
 				// End scan
 			}
 
-			return new SoundEffect(
+			IntPtr formatPtr = FNAPlatform.Malloc(formatBytes.Length);
+			Marshal.Copy(formatBytes, 0, formatPtr, formatBytes.Length);
+
+			return new SoundEffect().FromBuffer(
 				string.Empty,
+				formatPtr,
 				data,
 				0,
 				data.Length,
-				null,
-				wFormatTag,
-				nChannels,
-				nSamplesPerSec,
-				nAvgBytesPerSec,
-				nBlockAlign,
-				wBitsPerSample,
 				samplerLoopStart,
 				samplerLoopEnd - samplerLoopStart
 			);
