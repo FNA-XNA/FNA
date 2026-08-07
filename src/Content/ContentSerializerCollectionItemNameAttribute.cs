@@ -40,6 +40,10 @@ namespace Microsoft.Xna.Framework.Content
 		/// <param name="collectionItemName">The XML element name to use for each item in the collection.</param>
 		public ContentSerializerCollectionItemNameAttribute(string collectionItemName)
 		{
+			if (string.IsNullOrEmpty(collectionItemName))
+			{
+				throw new ArgumentNullException("collectionItemName");
+			}
 			CollectionItemName = collectionItemName;
 		}
 
