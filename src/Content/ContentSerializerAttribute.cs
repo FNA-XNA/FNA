@@ -32,15 +32,14 @@ namespace Microsoft.Xna.Framework.Content
 			get
 			{
 				// Return the default if unset.
-				if (string.IsNullOrEmpty(collectionItemName))
-				{
-					return "Item";
-				}
-
-				return collectionItemName;
+				return collectionItemName ?? "Item";
 			}
 			set
 			{
+				if (string.IsNullOrEmpty(value))
+				{
+					throw new ArgumentNullException("value");
+				}
 				collectionItemName = value;
 			}
 		}
@@ -64,7 +63,7 @@ namespace Microsoft.Xna.Framework.Content
 		{
 			get
 			{
-				return !string.IsNullOrEmpty(collectionItemName);
+				return collectionItemName != null;
 			}
 		}
 
