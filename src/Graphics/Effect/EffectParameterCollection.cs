@@ -30,7 +30,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return index >= 0 && index < elements.Count ? elements[index] : null;
+				return unchecked((uint) index < (uint) elements.Count) ? elements[index] : null;
 			}
 		}
 
