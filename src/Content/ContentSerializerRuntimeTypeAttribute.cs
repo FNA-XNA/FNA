@@ -40,6 +40,10 @@ namespace Microsoft.Xna.Framework.Content
 		/// <param name="runtimeType">The name of the type to use at runtime.</param>
 		public ContentSerializerRuntimeTypeAttribute(string runtimeType)
 		{
+			if (string.IsNullOrEmpty(runtimeType))
+			{
+				throw new ArgumentNullException("runtimeType");
+			}
 			RuntimeType = runtimeType;
 		}
 
