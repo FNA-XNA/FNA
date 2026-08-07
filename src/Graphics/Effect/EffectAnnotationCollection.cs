@@ -37,7 +37,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return elements[index];
+				return unchecked((uint) index < (uint) elements.Count) ? elements[index] : null;
 			}
 		}
 
@@ -47,12 +47,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				foreach (EffectAnnotation elem in elements)
 				{
-					if (name.Equals(elem.Name))
+					if (name == elem.Name)
 					{
 						return elem;
 					}
 				}
-				return null; // FIXME: ArrayIndexOutOfBounds? -flibit
+				return null;
 			}
 		}
 
