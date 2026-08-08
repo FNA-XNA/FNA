@@ -49,22 +49,19 @@ namespace Microsoft.Xna.Framework.Graphics
 		static VertexPositionColor()
 		{
 			VertexDeclaration = new VertexDeclaration(
-				new VertexElement[]
-				{
-					new VertexElement(
-						0,
-						VertexElementFormat.Vector3,
-						VertexElementUsage.Position,
-						0
-					),
-					new VertexElement(
-						12,
-						VertexElementFormat.Color,
-						VertexElementUsage.Color,
-						0
-					)
-				}
-			);
+				new VertexElement(
+					0,
+					VertexElementFormat.Vector3,
+					VertexElementUsage.Position,
+					0
+				),
+				new VertexElement(
+					12,
+					VertexElementFormat.Color,
+					VertexElementUsage.Color,
+					0
+				)
+			) { Name = "VertexPositionColor.VertexDeclaration" };
 		}
 
 		#endregion
