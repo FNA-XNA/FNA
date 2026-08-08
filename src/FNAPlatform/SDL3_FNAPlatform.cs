@@ -1725,11 +1725,7 @@ namespace Microsoft.Xna.Framework
 				SDL.SDL_AudioDevicePaused(audioDeviceID);
 				result[i + 1] = new Microphone(audioDeviceID, name);
 
-				IntPtr stream;
-				SDL.SDL_AudioSpec have;
-				int filler;
-				SDL.SDL_GetAudioDeviceFormat(audioDeviceID, out have, out filler);
-				stream = SDL.SDL_CreateAudioStream(ref want, ref have);
+				IntPtr stream = SDL.SDL_CreateAudioStream(ref want, ref want);
 
 				SDL.SDL_BindAudioStream(audioDeviceID, stream);
 				micStreams.Add(audioDeviceID, stream);
