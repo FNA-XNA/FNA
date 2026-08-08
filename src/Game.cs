@@ -717,7 +717,7 @@ namespace Microsoft.Xna.Framework
 			if (exception is NoAudioHardwareException)
 			{
 				FNAPlatform.ShowRuntimeError(
-					Window.Title,
+					Window,
 					"Could not find a suitable audio device. " +
 					" Verify that a sound card is\ninstalled," +
 					" and check the driver properties to make" +
@@ -728,7 +728,7 @@ namespace Microsoft.Xna.Framework
 			if (exception is NoSuitableGraphicsDeviceException)
 			{
 				FNAPlatform.ShowRuntimeError(
-					Window.Title,
+					Window,
 					"Could not find a suitable graphics device." +
 					" More information:\n\n" + exception.Message
 				);
