@@ -446,7 +446,7 @@ namespace Microsoft.Xna.Framework
 		public delegate void FreeFilePointerFunc(IntPtr file);
 		public static readonly FreeFilePointerFunc FreeFilePointer;
 
-		public delegate void ShowRuntimeErrorFunc(string title, string message);
+		public delegate void ShowRuntimeErrorFunc(GameWindow gameWindow, string message);
 		public static readonly ShowRuntimeErrorFunc ShowRuntimeError;
 
 		public delegate Microphone[] GetMicrophonesFunc();
