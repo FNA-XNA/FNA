@@ -37,14 +37,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				if (elements != null)
 				{
-					return elements[index];
+					return unchecked((uint) index < (uint) elements.Count) ? elements[index] : null;
 				}
 
-				if (index != 0)
-				{
-					throw new ArgumentOutOfRangeException("index");
-				}
-				return singleItem;
+				return index == 0 ? singleItem : null;
 			}
 		}
 
@@ -54,21 +50,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				if (elements == null)
 				{
-					if (singleItem.Name.Equals(name))
-					{
-						return singleItem;
-					}
-					return null;
+					return singleItem.Name == name ? singleItem : null;
 				}
 
 				foreach (EffectPass elem in elements)
 				{
-					if (name.Equals(elem.Name))
+					if (name == elem.Name)
 					{
 						return elem;
 					}
 				}
-				return null; // FIXME: ArrayIndexOutOfBounds? -flibit
+				return null;
 			}
 		}
 
