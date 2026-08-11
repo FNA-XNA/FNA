@@ -9,6 +9,8 @@
 
 #region Using Statements
 using System;
+using System.IO;
+using System.Text;
 using System.Collections.Generic;
 
 using Microsoft.Xna.Framework.Graphics;
@@ -228,6 +230,26 @@ namespace Microsoft.Xna.Framework
 			useResizedBackBuffer = false;
 			supportsOrientations = FNAPlatform.SupportsOrientationChanges();
 			game.Window.ClientSizeChanged += INTERNAL_OnClientSizeChanged;
+
+			Stream resourceStream = game.GetType().Assembly.GetManifestResourceStream("Microsoft.Xna.Framework.RuntimeProfile");
+			if (resourceStream != null)
+			{
+				using (StreamReader streamReader = new StreamReader(resourceStream, Encoding.ASCII, false))
+				{
+					string text = streamReader.ReadLine();
+					if (text != null)
+					{
+						if (text.EndsWith("Reach"))
+						{
+							GraphicsProfile = GraphicsProfile.Reach;
+						}
+						else if (text.EndsWith("HiDef"))
+						{
+							GraphicsProfile = GraphicsProfile.HiDef;
+						}
+					}
+				}
+			}
 		}
 
 		#endregion
