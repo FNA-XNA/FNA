@@ -1654,13 +1654,13 @@ namespace Microsoft.Xna.Framework
 
 		#region Logging/Messaging Methods
 
-		public static void ShowRuntimeError(string title, string message)
+		public static void ShowRuntimeError(GameWindow gameWindow, string message)
 		{
 			SDL.SDL_ShowSimpleMessageBox(
 				SDL.SDL_MessageBoxFlags.SDL_MESSAGEBOX_ERROR,
-				title ?? "",
-				message ?? "",
-				IntPtr.Zero
+				gameWindow.Title,
+				message,
+				gameWindow.Handle
 			);
 		}
 
