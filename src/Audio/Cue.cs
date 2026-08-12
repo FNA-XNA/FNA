@@ -278,9 +278,8 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal void OnCueDestroyed()
 		{
-			IsDisposed = true;
 			handle = IntPtr.Zero;
-			selfReference = null;
+			Dispose();
 		}
 
 		#endregion
@@ -293,12 +292,11 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (!IsDisposed)
 				{
-					// If this is Disposed, stop leaking memory!
-					if (!bank.engine.IsDisposed)
-					{
-						FAudio.FACTCue_Destroy(handle);
-					}
-					OnCueDestroyed();
+					IsDisposed = true;
+
+					FAudio.FACTCue_Destroy(handle);
+					handle = IntPtr.Zero;
+					selfReference = null;
 
 					if (disposing && Disposing != null)
 					{
