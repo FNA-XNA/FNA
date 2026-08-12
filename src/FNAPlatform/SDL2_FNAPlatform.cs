@@ -1719,26 +1719,26 @@ namespace Microsoft.Xna.Framework
 
 			// First mic is always OS default
 			result[0] = new Microphone(
-				SDL.SDL_OpenAudioDevice(
+				(IntPtr) unchecked((int) SDL.SDL_OpenAudioDevice(
 					null,
 					1,
 					ref want,
 					out have,
 					0
-				),
+				)),
 				"Default Device"
 			);
 			for (int i = 0; i < numDev; i += 1)
 			{
 				string name = SDL.SDL_GetAudioDeviceName(i, 1);
 				result[i + 1] = new Microphone(
-					SDL.SDL_OpenAudioDevice(
+					(IntPtr) unchecked((int) SDL.SDL_OpenAudioDevice(
 						name,
 						1,
 						ref want,
 						out have,
 						0
-					),
+					)),
 					name
 				);
 			}
@@ -1746,7 +1746,7 @@ namespace Microsoft.Xna.Framework
 		}
 
 		public static unsafe int GetMicrophoneSamples(
-			uint handle,
+			IntPtr handle,
 			byte[] buffer,
 			int offset,
 			int count
@@ -1754,26 +1754,26 @@ namespace Microsoft.Xna.Framework
 			fixed (byte* ptr = &buffer[offset])
 			{
 				return (int) SDL.SDL_DequeueAudio(
-					handle,
+					unchecked((uint) handle),
 					(IntPtr) ptr,
 					(uint) count
 				);
 			}
 		}
 
-		public static int GetMicrophoneQueuedBytes(uint handle)
+		public static int GetMicrophoneQueuedBytes(IntPtr handle)
 		{
-			return (int) SDL.SDL_GetQueuedAudioSize(handle);
+			return (int) SDL.SDL_GetQueuedAudioSize(unchecked((uint) handle));
 		}
 
-		public static void StartMicrophone(uint handle)
+		public static void StartMicrophone(IntPtr handle)
 		{
-			SDL.SDL_PauseAudioDevice(handle, 0);
+			SDL.SDL_PauseAudioDevice(unchecked((uint) handle), 0);
 		}
 
-		public static void StopMicrophone(uint handle)
+		public static void StopMicrophone(IntPtr handle)
 		{
-			SDL.SDL_PauseAudioDevice(handle, 1);
+			SDL.SDL_PauseAudioDevice(unchecked((uint) handle), 1);
 		}
 
 		#endregion

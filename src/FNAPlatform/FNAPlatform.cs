@@ -453,20 +453,20 @@ namespace Microsoft.Xna.Framework
 		public static readonly GetMicrophonesFunc GetMicrophones;
 
 		public delegate int GetMicrophoneSamplesFunc(
-			uint handle,
+			IntPtr handle,
 			byte[] buffer,
 			int offset,
 			int count
 		);
 		public static readonly GetMicrophoneSamplesFunc GetMicrophoneSamples;
 
-		public delegate int GetMicrophoneQueuedBytesFunc(uint handle);
+		public delegate int GetMicrophoneQueuedBytesFunc(IntPtr handle);
 		public static readonly GetMicrophoneQueuedBytesFunc GetMicrophoneQueuedBytes;
 
-		public delegate void StartMicrophoneFunc(uint handle);
+		public delegate void StartMicrophoneFunc(IntPtr handle);
 		public static readonly StartMicrophoneFunc StartMicrophone;
 
-		public delegate void StopMicrophoneFunc(uint handle);
+		public delegate void StopMicrophoneFunc(IntPtr handle);
 		public static readonly StopMicrophoneFunc StopMicrophone;
 
 		public delegate TouchPanelCapabilities GetTouchCapabilitiesFunc();
