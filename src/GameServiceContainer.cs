@@ -61,9 +61,7 @@ namespace Microsoft.Xna.Framework
 				throw new ArgumentNullException("type", "The service type cannot be null.");
 			}
 
-			object service;
-			services.TryGetValue(type, out service);
-			return service;
+			return INTERNAL_GetService(type);
 		}
 
 		public void RemoveService(Type type)
@@ -74,6 +72,31 @@ namespace Microsoft.Xna.Framework
 			}
 
 			services.Remove(type);
+		}
+
+		#endregion
+
+		#region Internal Methods
+
+		internal void INTERNAL_AddService(Type type, object provider)
+		{
+			if (services.ContainsKey(type))
+			{
+				throw new ArgumentException("Container already contains a service of this type.", "type");
+			}
+			services.Add(type, provider);
+		}
+
+		internal void INTERNAL_RemoveService(Type type)
+		{
+			services.Remove(type);
+		}
+
+		internal object INTERNAL_GetService(Type type)
+		{
+			object service;
+			services.TryGetValue(type, out service);
+			return service;
 		}
 
 		#endregion

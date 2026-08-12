@@ -218,13 +218,13 @@ namespace Microsoft.Xna.Framework
 
 			INTERNAL_preferMultiSampling = false;
 
-			if (game.Services.GetService(typeof(IGraphicsDeviceManager)) != null)
+			if (game.Services.INTERNAL_GetService(typeof(IGraphicsDeviceManager)) != null)
 			{
 				throw new ArgumentException("Graphics Device Manager Already Present");
 			}
 
-			game.Services.AddService(typeof(IGraphicsDeviceManager), this);
-			game.Services.AddService(typeof(IGraphicsDeviceService), this);
+			game.Services.INTERNAL_AddService(typeof(IGraphicsDeviceManager), this);
+			game.Services.INTERNAL_AddService(typeof(IGraphicsDeviceService), this);
 
 			prefsChanged = true;
 			useResizedBackBuffer = false;
@@ -269,8 +269,8 @@ namespace Microsoft.Xna.Framework
 		{
 			if (!disposed)
 			{
-				game.Services.RemoveService(typeof(IGraphicsDeviceManager));
-				game.Services.RemoveService(typeof(IGraphicsDeviceService));
+				game.Services.INTERNAL_RemoveService(typeof(IGraphicsDeviceManager));
+				game.Services.INTERNAL_RemoveService(typeof(IGraphicsDeviceService));
 				if (disposing)
 				{
 					if (graphicsDevice != null)

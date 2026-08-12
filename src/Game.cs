@@ -55,7 +55,7 @@ namespace Microsoft.Xna.Framework
 				if (graphicsDeviceService == null)
 				{
 					graphicsDeviceService = (IGraphicsDeviceService)
-						Services.GetService(typeof(IGraphicsDeviceService));
+						Services.INTERNAL_GetService(typeof(IGraphicsDeviceService));
 
 					if (graphicsDeviceService == null)
 					{
@@ -631,7 +631,7 @@ namespace Microsoft.Xna.Framework
 			 * (IService doesn't seem to matter anywhere else).
 			 */
 			graphicsDeviceService = (IGraphicsDeviceService)
-				Services.GetService(typeof(IGraphicsDeviceService));
+				Services.INTERNAL_GetService(typeof(IGraphicsDeviceService));
 			if (graphicsDeviceService != null)
 			{
 				graphicsDeviceService.DeviceDisposing += (o, e) => UnloadContent();
@@ -752,7 +752,7 @@ namespace Microsoft.Xna.Framework
 			 * before calling Run().
 			 */
 			graphicsDeviceManager = (IGraphicsDeviceManager)
-				Services.GetService(typeof(IGraphicsDeviceManager));
+				Services.INTERNAL_GetService(typeof(IGraphicsDeviceManager));
 			if (graphicsDeviceManager != null)
 			{
 				graphicsDeviceManager.CreateDevice();
