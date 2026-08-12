@@ -1710,12 +1710,11 @@ namespace Microsoft.Xna.Framework
 
 			// Default input format
 			SDL.SDL_AudioSpec have;
-			SDL.SDL_AudioSpec want = new SDL.SDL_AudioSpec {
-				freq = Microphone.SAMPLERATE,
-				format = SDL.AUDIO_S16,
-				channels = 1,
-				samples = 4096 /* FIXME: Anything specific? */
-			};
+			SDL.SDL_AudioSpec want = new SDL.SDL_AudioSpec();
+			want.freq = Microphone.SAMPLERATE;
+			want.format = SDL.AUDIO_S16;
+			want.channels = 1;
+			want.samples = 4096; // FIXME: Anything specific?
 
 			// First mic is always OS default
 			result[0] = new Microphone(
