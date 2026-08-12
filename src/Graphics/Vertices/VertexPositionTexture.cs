@@ -108,15 +108,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public override bool Equals(object obj)
 		{
-			if (obj == null)
-			{
-				return false;
-			}
-			if (obj.GetType() != base.GetType())
-			{
-				return false;
-			}
-			return (this == ((VertexPositionTexture) obj));
+			return obj is VertexPositionTexture && this == (VertexPositionTexture) obj;
 		}
 
 		#endregion

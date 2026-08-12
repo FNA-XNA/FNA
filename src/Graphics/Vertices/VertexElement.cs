@@ -110,15 +110,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public override bool Equals(object obj)
 		{
-			if (obj == null)
-			{
-				return false;
-			}
-			if (obj.GetType() != base.GetType())
-			{
-				return false;
-			}
-			return (this == ((VertexElement) obj));
+			return obj is VertexElement && this == (VertexElement) obj;
 		}
 
 		public static bool operator ==(VertexElement left, VertexElement right)
