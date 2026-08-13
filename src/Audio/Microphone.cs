@@ -96,7 +96,7 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Private Variables
 
 		private TimeSpan bufferDuration;
-		private readonly uint handle;
+		private readonly IntPtr handle;
 
 		#endregion
 
@@ -125,7 +125,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Internal Constructor
 
-		internal Microphone(uint id, string name)
+		internal Microphone(IntPtr id, string name)
 		{
 			handle = id;
 			Name = name;

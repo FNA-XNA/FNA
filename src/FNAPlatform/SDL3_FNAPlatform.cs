@@ -1675,16 +1675,12 @@ namespace Microsoft.Xna.Framework
 		 */
 		private static bool micInit = false;
 
-		// FIXME SDL3: This is really sloppy -flibit
-		private static Dictionary<uint, IntPtr> micStreams;
-
 		public static Microphone[] GetMicrophones()
 		{
 			// Init subsystem if needed
 			if (!micInit)
 			{
 				SDL.SDL_InitSubSystem(SDL.SDL_InitFlags.SDL_INIT_AUDIO);
-				micStreams = new Dictionary<uint, IntPtr>();
 				micInit = true;
 			}
 
@@ -1704,69 +1700,54 @@ namespace Microsoft.Xna.Framework
 			want.format = SDL.SDL_AudioFormat.SDL_AUDIO_S16;
 			want.channels = 1;
 
-			for (int i = -1; i < numDev; i += 1)
+			result[0] = new Microphone(
+				SDL.SDL_OpenAudioDeviceStream(
+					0xFFFFFFFEu, // FIXME CSHARP: SDL_AUDIO_DEVICE_DEFAULT_RECORDING
+					ref want, null, IntPtr.Zero
+				),
+				"Default Device"
+			);
+			for (int i = 0; i < numDev; i++)
 			{
-				string name;
-				uint audioDeviceID;
-				if (i == -1)
-				{
-					// First mic is always OS default
-					audioDeviceID = SDL.SDL_OpenAudioDevice(
-						0xFFFFFFFEu, // FIXME CSHARP: SDL_AUDIO_DEVICE_DEFAULT_RECORDING
-						ref want
-					);
-					name = "Default Device";
-				}
-				else
-				{
-					audioDeviceID = SDL.SDL_OpenAudioDevice(devices[i], ref want);
-					name = SDL.SDL_GetAudioDeviceName(audioDeviceID);
-				}
-				SDL.SDL_AudioDevicePaused(audioDeviceID);
-				result[i + 1] = new Microphone(audioDeviceID, name);
-
-				IntPtr stream;
-				SDL.SDL_AudioSpec have;
-				int filler;
-				SDL.SDL_GetAudioDeviceFormat(audioDeviceID, out have, out filler);
-				stream = SDL.SDL_CreateAudioStream(ref want, ref have);
-
-				SDL.SDL_BindAudioStream(audioDeviceID, stream);
-				micStreams.Add(audioDeviceID, stream);
+				IntPtr stream = SDL.SDL_OpenAudioDeviceStream(devices[i], ref want, null, IntPtr.Zero);
+				result[i + 1] = new Microphone(
+					stream,
+					SDL.SDL_GetAudioDeviceName(SDL.SDL_GetAudioStreamDevice(stream))
+				);
 			}
 			SDL.SDL_free((IntPtr) devices);
 			return result;
 		}
 
 		public static unsafe int GetMicrophoneSamples(
-			uint handle,
+			IntPtr handle,
 			byte[] buffer,
 			int offset,
 			int count
 		) {
 			fixed (byte* ptr = &buffer[offset])
 			{
-				return (int) SDL.SDL_GetAudioStreamData(
-					micStreams[handle],
+				return SDL.SDL_GetAudioStreamData(
+					handle,
 					(IntPtr) ptr,
 					count
 				);
 			}
 		}
 
-		public static int GetMicrophoneQueuedBytes(uint handle)
+		public static int GetMicrophoneQueuedBytes(IntPtr handle)
 		{
-			return SDL.SDL_GetAudioStreamQueued(micStreams[handle]);
+			return SDL.SDL_GetAudioStreamQueued(handle);
 		}
 
-		public static void StartMicrophone(uint handle)
+		public static void StartMicrophone(IntPtr handle)
 		{
-			SDL.SDL_ResumeAudioDevice(handle);
+			SDL.SDL_ResumeAudioStreamDevice(handle);
 		}
 
-		public static void StopMicrophone(uint handle)
+		public static void StopMicrophone(IntPtr handle)
 		{
-			SDL.SDL_PauseAudioDevice(handle);
+			SDL.SDL_PauseAudioStreamDevice(handle);
 		}
 
 		#endregion
