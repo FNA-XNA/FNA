@@ -279,6 +279,8 @@ namespace Microsoft.Xna.Framework.Audio
 		internal void OnCueDestroyed()
 		{
 			handle = IntPtr.Zero;
+			selfReference = null;
+
 			Dispose();
 		}
 
@@ -295,8 +297,6 @@ namespace Microsoft.Xna.Framework.Audio
 					IsDisposed = true;
 
 					FAudio.FACTCue_Destroy(handle);
-					handle = IntPtr.Zero;
-					selfReference = null;
 
 					if (disposing && Disposing != null)
 					{
