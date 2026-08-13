@@ -1099,18 +1099,18 @@ namespace Microsoft.Xna.Framework
 					// Full screen
 					else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_ENTER_FULLSCREEN)
 					{
-						Object manager = game.Services.INTERNAL_GetService(typeof(IGraphicsDeviceManager));
-						if (manager != null && manager is GraphicsDeviceManager)
+						GraphicsDeviceManager manager = game.Services.INTERNAL_GetService(typeof(IGraphicsDeviceManager)) as GraphicsDeviceManager;
+						if (manager != null)
 						{
-							((GraphicsDeviceManager) manager).IsFullScreen = true;
+							manager.IsFullScreen = true;
 						}
 					}
 					else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_LEAVE_FULLSCREEN)
 					{
-						Object manager = game.Services.INTERNAL_GetService(typeof(IGraphicsDeviceManager));
-						if (manager != null && manager is GraphicsDeviceManager)
+						GraphicsDeviceManager manager = game.Services.INTERNAL_GetService(typeof(IGraphicsDeviceManager)) as GraphicsDeviceManager;
+						if (manager != null)
 						{
-							((GraphicsDeviceManager) manager).IsFullScreen = false;
+							manager.IsFullScreen = false;
 						}
 					}
 				}
