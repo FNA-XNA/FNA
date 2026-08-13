@@ -220,7 +220,7 @@ namespace Microsoft.Xna.Framework
 
 			if (game.Services.INTERNAL_GetService(typeof(IGraphicsDeviceManager)) != null)
 			{
-				throw new ArgumentException("Graphics Device Manager Already Present");
+				throw new ArgumentException("A graphics device manager is already registered.  The graphics device manager cannot be changed once it is set.");
 			}
 
 			game.Services.INTERNAL_AddService(typeof(IGraphicsDeviceManager), this);
