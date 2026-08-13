@@ -10,14 +10,15 @@
 #region Using Statements
 using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 using SDL3;
 
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 #endregion
@@ -671,6 +672,22 @@ namespace Microsoft.Xna.Framework
 
 		private static void INTERNAL_SetIcon(IntPtr window, string title)
 		{
+			IntPtr icon;
+			Assembly entryAssembly = Assembly.GetEntryAssembly();
+			if (entryAssembly != null)
+			{
+				int pos = IconExtractor.ExtractIcon(entryAssembly.Location);
+				if (pos != 0)
+				{
+					IntPtr fileIO = SDL.SDL_IOFromFile(entryAssembly.Location, "r");
+					SDL.SDL_SeekIO(fileIO, pos, SDL.SDL_IOWhence.SDL_IO_SEEK_SET);
+					icon = SDL.SDL_LoadSurface_IO(fileIO, true);
+					SDL.SDL_SetWindowIcon(window, icon);
+					SDL.SDL_DestroySurface(icon);
+					return;
+				}
+			}
+			
 			string fileIn = String.Empty;
 			try
 			{
@@ -678,7 +695,8 @@ namespace Microsoft.Xna.Framework
 				if (!String.IsNullOrEmpty(fileIn))
 				{
 					int w, h, len;
-					IntPtr pixels, icon;
+					IntPtr pixels;
+					icon = IntPtr.Zero;
 					using (Stream stream = TitleContainer.OpenStream(fileIn))
 					{
 						pixels = FNA3D.ReadImageStream(
@@ -709,7 +727,7 @@ namespace Microsoft.Xna.Framework
 			fileIn = INTERNAL_GetIconName(title + ".bmp");
 			if (!String.IsNullOrEmpty(fileIn))
 			{
-				IntPtr icon = SDL.SDL_LoadBMP(fileIn);
+				icon = SDL.SDL_LoadBMP(fileIn);
 				SDL.SDL_SetWindowIcon(window, icon);
 				SDL.SDL_DestroySurface(icon);
 			}
