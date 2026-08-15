@@ -284,7 +284,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Result of testing for containment between this <see cref="BoundingFrustum"/> and specified <see cref="Vector3"/>.</returns>
 		public ContainmentType Contains(Vector3 point)
 		{
-			ContainmentType result = default(ContainmentType);
+			ContainmentType result;
 			this.Contains(ref point, out result);
 			return result;
 		}
@@ -296,7 +296,6 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">Result of testing for containment between this <see cref="BoundingFrustum"/> and specified <see cref="Vector3"/> as an output parameter.</param>
 		public void Contains(ref Vector3 point, out ContainmentType result)
 		{
-			bool intersects = false;
 			for (int i = 0; i < PlaneCount; i += 1)
 			{
 				float classifyPoint = (
@@ -305,18 +304,13 @@ namespace Microsoft.Xna.Framework
 					(point.Z * planes[i].Normal.Z) +
 					planes[i].D
 				);
-				if (classifyPoint > 0)
+				if (classifyPoint > 1E-5f)
 				{
 					result = ContainmentType.Disjoint;
 					return;
 				}
-				else if (classifyPoint == 0)
-				{
-					intersects = true;
-					break;
-				}
 			}
-			result = intersects ? ContainmentType.Intersects : ContainmentType.Contains;
+			result = ContainmentType.Contains;
 		}
 
 		/// <summary>
