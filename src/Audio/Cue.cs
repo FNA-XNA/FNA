@@ -23,9 +23,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				uint state;
-				FAudio.FACTCue_GetState(handle, out state);
-				return (state & FAudio.FACT_STATE_CREATED) != 0;
+				return (GetState() & FAudio.FACT_STATE_CREATED) != 0;
 			}
 		}
 
@@ -39,9 +37,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				uint state;
-				FAudio.FACTCue_GetState(handle, out state);
-				return (state & FAudio.FACT_STATE_PAUSED) != 0;
+				return (GetState() & FAudio.FACT_STATE_PAUSED) != 0;
 			}
 		}
 
@@ -49,9 +45,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				uint state;
-				FAudio.FACTCue_GetState(handle, out state);
-				return (state & FAudio.FACT_STATE_PLAYING) != 0;
+				return (GetState() & FAudio.FACT_STATE_PLAYING) != 0;
 			}
 		}
 
@@ -59,9 +53,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				uint state;
-				FAudio.FACTCue_GetState(handle, out state);
-				return (state & FAudio.FACT_STATE_PREPARED) != 0;
+				return (GetState() & FAudio.FACT_STATE_PREPARED) != 0;
 			}
 		}
 
@@ -69,9 +61,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				uint state;
-				FAudio.FACTCue_GetState(handle, out state);
-				return (state & FAudio.FACT_STATE_PREPARING) != 0;
+				return (GetState() & FAudio.FACT_STATE_PREPARING) != 0;
 			}
 		}
 
@@ -79,9 +69,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				uint state;
-				FAudio.FACTCue_GetState(handle, out state);
-				return (state & FAudio.FACT_STATE_STOPPED) != 0;
+				return (GetState() & FAudio.FACT_STATE_STOPPED) != 0;
 			}
 		}
 
@@ -89,9 +77,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				uint state;
-				FAudio.FACTCue_GetState(handle, out state);
-				return (state & FAudio.FACT_STATE_STOPPING) != 0;
+				return (GetState() & FAudio.FACT_STATE_STOPPING) != 0;
 			}
 		}
 
@@ -179,17 +165,19 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new InvalidOperationException("You must call Apply3D on a Cue before calling Play to be able to call Apply3D after calling Play.");
 			}
-
-			emitter.emitterData.ChannelCount = bank.dspSettings.SrcChannelCount;
-			emitter.emitterData.CurveDistanceScaler = float.MaxValue;
-			FAudio.FACT3DCalculate(
-				bank.engine.handle3D,
-				ref listener.listenerData,
-				ref emitter.emitterData,
-				ref bank.dspSettings
-			);
-			FAudio.FACT3DApply(ref bank.dspSettings, handle);
-			applied3D = true;
+			lock (bank.engine.gcSync)
+			{
+				emitter.emitterData.ChannelCount = bank.dspSettings.SrcChannelCount;
+				emitter.emitterData.CurveDistanceScaler = float.MaxValue;
+				FAudio.FACT3DCalculate(
+					bank.engine.handle3D,
+					ref listener.listenerData,
+					ref emitter.emitterData,
+					ref bank.dspSettings
+				);
+				FAudio.FACT3DApply(ref bank.dspSettings, handle);
+				applied3D = true;
+			}
 		}
 
 		public float GetVariable(string name)
@@ -198,42 +186,53 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("name", "This method does not accept null for this parameter.");
 			}
-
-			ushort variable = FAudio.FACTCue_GetVariableIndex(
-				handle,
-				name
-			);
-
-			if (variable == FAudio.FACTVARIABLEINDEX_INVALID)
+			float result;
+			lock (bank.engine.gcSync)
 			{
-				throw new InvalidOperationException(
-					"Invalid variable name!"
+				ushort variable = FAudio.FACTCue_GetVariableIndex(
+					handle,
+					name
+				);
+
+				if (variable == FAudio.FACTVARIABLEINDEX_INVALID)
+				{
+					throw new InvalidOperationException(
+						"Invalid variable name!"
+					);
+				}
+
+				FAudio.FACTCue_GetVariable(
+					handle,
+					variable,
+					out result
 				);
 			}
-
-			float result;
-			FAudio.FACTCue_GetVariable(
-				handle,
-				variable,
-				out result
-			);
 			return result;
 		}
 
 		public void Pause()
 		{
-			FAudio.FACTCue_Pause(handle, 1);
+			lock (bank.engine.gcSync)
+			{
+				FAudio.FACTCue_Pause(handle, 1);
+			}
 		}
 
 		public void Play()
 		{
-			FAudio.FACTCue_Play(handle);
-			played = true;
+			lock (bank.engine.gcSync)
+			{
+				FAudio.FACTCue_Play(handle);
+				played = true;
+			}
 		}
 
 		public void Resume()
 		{
-			FAudio.FACTCue_Pause(handle, 0);
+			lock (bank.engine.gcSync)
+			{
+				FAudio.FACTCue_Pause(handle, 0);
+			}
 		}
 
 		public void SetVariable(string name, float value)
@@ -242,34 +241,39 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("name", "This method does not accept null for this parameter.");
 			}
-
-			ushort variable = FAudio.FACTCue_GetVariableIndex(
-				handle,
-				name
-			);
-
-			if (variable == FAudio.FACTVARIABLEINDEX_INVALID)
+			lock (bank.engine.gcSync)
 			{
-				throw new InvalidOperationException(
-					"Invalid variable name!"
+				ushort variable = FAudio.FACTCue_GetVariableIndex(
+					handle,
+					name
+				);
+
+				if (variable == FAudio.FACTVARIABLEINDEX_INVALID)
+				{
+					throw new InvalidOperationException(
+						"Invalid variable name!"
+					);
+				}
+
+				FAudio.FACTCue_SetVariable(
+					handle,
+					variable,
+					value
 				);
 			}
-
-			FAudio.FACTCue_SetVariable(
-				handle,
-				variable,
-				value
-			);
 		}
 
 		public void Stop(AudioStopOptions options)
 		{
-			FAudio.FACTCue_Stop(
-				handle,
-				(options == AudioStopOptions.Immediate) ?
-					FAudio.FACT_FLAG_STOP_IMMEDIATE :
-					FAudio.FACT_FLAG_STOP_RELEASE
-			);
+			lock (bank.engine.gcSync)
+			{
+				FAudio.FACTCue_Stop(
+					handle,
+					(options == AudioStopOptions.Immediate) ?
+						FAudio.FACT_FLAG_STOP_IMMEDIATE :
+						FAudio.FACT_FLAG_STOP_RELEASE
+				);
+			}
 		}
 
 		#endregion
@@ -306,6 +310,16 @@ namespace Microsoft.Xna.Framework.Audio
 					}
 				}
 			}
+		}
+
+		private uint GetState()
+		{
+			uint state;
+			lock (bank.engine.gcSync)
+			{
+				FAudio.FACTCue_GetState(handle, out state);
+			}
+			return state;
 		}
 
 		#endregion

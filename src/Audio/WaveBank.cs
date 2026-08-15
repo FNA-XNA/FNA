@@ -31,7 +31,10 @@ namespace Microsoft.Xna.Framework.Audio
 			get
 			{
 				uint state;
-				FAudio.FACTWaveBank_GetState(handle, out state);
+				lock (engine.gcSync)
+				{
+					FAudio.FACTWaveBank_GetState(handle, out state);
+				}
 				return (state & FAudio.FACT_STATE_PREPARED) != 0;
 			}
 		}
@@ -41,7 +44,10 @@ namespace Microsoft.Xna.Framework.Audio
 			get
 			{
 				uint state;
-				FAudio.FACTWaveBank_GetState(handle, out state);
+				lock (engine.gcSync)
+				{
+					FAudio.FACTWaveBank_GetState(handle, out state);
+				}
 				return (state & FAudio.FACT_STATE_INUSE) != 0;
 			}
 		}
