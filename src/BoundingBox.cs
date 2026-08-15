@@ -54,7 +54,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Static Variables
 
-		// These are NOT readonly, for weird performance reasons -flibit
+		// These are NOT readonly, for avoiding defensive copy -flibit
 		private static Vector3 MaxVector3 = new Vector3(float.MaxValue);
 		private static Vector3 MinVector3 = new Vector3(float.MinValue);
 
