@@ -397,41 +397,31 @@ namespace Microsoft.Xna.Framework
 			ref Rectangle value2,
 			out Rectangle result
 		) {
-			if (value1.Intersects(value2))
+			int right1 = value1.X + value1.Width;
+			int right2 = value2.X + value2.Width;
+			int bottom1 = value1.Y + value1.Height;
+			int bottom2 = value2.Y + value2.Height;
+			if (value1.X < right2 && value2.X < right1 && value1.Y < bottom2 && value2.Y < bottom1)
 			{
-				int right_side = Math.Min(
-					value1.X + value1.Width,
-					value2.X + value2.Width
-				);
-				int left_side = Math.Max(value1.X, value2.X);
-				int top_side = Math.Max(value1.Y, value2.Y);
-				int bottom_side = Math.Min(
-					value1.Y + value1.Height,
-					value2.Y + value2.Height
-				);
-				result = new Rectangle(
-					left_side,
-					top_side,
-					right_side - left_side,
-					bottom_side - top_side
-				);
+				result.X = Math.Max(value1.X, value1.Y);
+				result.Y = Math.Max(value1.Y, value2.Y);
+				result.Width = Math.Min(right1, right2) - result.X;
+				result.Height = Math.Min(bottom1, bottom2) - result.Y;
 			}
 			else
 			{
-				result = new Rectangle(0, 0, 0, 0);
+				result = new Rectangle();
 			}
 		}
 
 		public static Rectangle Union(Rectangle value1, Rectangle value2)
 		{
-			int x = Math.Min(value1.X, value2.X);
-			int y = Math.Min(value1.Y, value2.Y);
-			return new Rectangle(
-				x,
-				y,
-				Math.Max(value1.Right, value2.Right) - x,
-				Math.Max(value1.Bottom, value2.Bottom) - y
-			);
+			Rectangle result;
+			result.X = Math.Min(value1.X, value2.X);
+			result.Y = Math.Min(value1.Y, value2.Y);
+			result.Width = Math.Max(value1.Right, value2.Right) - result.X;
+			result.Height = Math.Max(value1.Bottom, value2.Bottom) - result.Y;
+			return result;
 		}
 
 		public static void Union(ref Rectangle value1, ref Rectangle value2, out Rectangle result)
