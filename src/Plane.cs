@@ -169,7 +169,7 @@ namespace Microsoft.Xna.Framework
 
 		public PlaneIntersectionType Intersects(BoundingFrustum frustum)
 		{
-			if (frustum == null)
+			if (ReferenceEquals(frustum, null))
 			{
 				throw new ArgumentNullException("frustum", "This method does not accept null for this parameter.");
 			}
