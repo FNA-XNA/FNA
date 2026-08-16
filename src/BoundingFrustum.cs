@@ -649,17 +649,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public static bool operator ==(BoundingFrustum a, BoundingFrustum b)
 		{
-			if (object.Equals(a, null))
-			{
-				return (object.Equals(b, null));
-			}
-
-			if (object.Equals(b, null))
-			{
-				return (object.Equals(a, null));
-			}
-
-			return a.matrix == (b.matrix);
+			return ReferenceEquals(a, null) ? ReferenceEquals(b, null) : a.Equals(b);
 		}
 
 		/// <summary>
@@ -680,7 +670,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(BoundingFrustum other)
 		{
-			return (this == other);
+			return ReferenceEquals(this, other) || !ReferenceEquals(other, null) && other.matrix == matrix;
 		}
 
 		/// <summary>
@@ -690,7 +680,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public override bool Equals(object obj)
 		{
-			return (obj is BoundingFrustum) && Equals((BoundingFrustum) obj);
+			return Equals(obj as BoundingFrustum);
 		}
 
 		/// <summary>
