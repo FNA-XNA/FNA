@@ -198,7 +198,7 @@ namespace Microsoft.Xna.Framework
 
 		public float? Intersects(BoundingFrustum frustum)
 		{
-			if (frustum == null)
+			if (ReferenceEquals(frustum, null))
 			{
 				throw new ArgumentNullException("frustum");
 			}
