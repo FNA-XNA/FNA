@@ -61,7 +61,7 @@ namespace Microsoft.Xna.Framework
 			}
 			set
 			{
-				if (value == null)
+				if (ReferenceEquals(value, null))
 				{
 					throw new ArgumentNullException();
 				}
@@ -117,7 +117,7 @@ namespace Microsoft.Xna.Framework
 		/// <remarks>The new key would be added respectively to a position of that key and the position of other keys.</remarks>
 		public void Add(CurveKey item)
 		{
-			if (item == null)
+			if (ReferenceEquals(item, null))
 			{
 				throw new ArgumentNullException();
 			}

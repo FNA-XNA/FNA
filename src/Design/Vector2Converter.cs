@@ -40,7 +40,7 @@ namespace Microsoft.Xna.Framework.Design
 			object value
 		) {
 			string s = value as string;
-			if (s != null)
+			if (!ReferenceEquals(s, null))
 			{
 				StringListEnumerator<float> enumerator = new StringListEnumerator<float>(culture, s);
 				return new Vector2(enumerator.Next(), enumerator.Next());

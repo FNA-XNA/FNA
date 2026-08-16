@@ -30,7 +30,7 @@ namespace Microsoft.Xna.Framework
 
 		public void AddService(Type type, object provider)
 		{
-			if (type == null)
+			if (ReferenceEquals(type, null))
 			{
 				throw new ArgumentNullException("type", "The service type cannot be null.");
 			}
@@ -56,7 +56,7 @@ namespace Microsoft.Xna.Framework
 
 		public object GetService(Type type)
 		{
-			if (type == null)
+			if (ReferenceEquals(type, null))
 			{
 				throw new ArgumentNullException("type", "The service type cannot be null.");
 			}
@@ -66,7 +66,7 @@ namespace Microsoft.Xna.Framework
 
 		public void RemoveService(Type type)
 		{
-			if (type == null)
+			if (ReferenceEquals(type, null))
 			{
 				throw new ArgumentNullException("type", "The service type cannot be null.");
 			}

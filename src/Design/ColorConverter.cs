@@ -42,7 +42,7 @@ namespace Microsoft.Xna.Framework.Design
 			object value
 		) {
 			string s = value as string;
-			if (s != null)
+			if (!ReferenceEquals(s, null))
 			{
 				StringListEnumerator<int> enumerator = new StringListEnumerator<int>(culture, s);
 				return new Color(enumerator.Next(), enumerator.Next(), enumerator.Next(), enumerator.Next());

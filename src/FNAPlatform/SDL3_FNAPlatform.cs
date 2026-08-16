@@ -350,7 +350,7 @@ namespace Microsoft.Xna.Framework
 				string cachePath = SDL.SDL_GetHint(
 					"FNA3D_VULKAN_PIPELINE_CACHE_FILE_NAME"
 				);
-				if (cachePath == null) // Empty is a valid value
+				if (ReferenceEquals(cachePath, null)) // Empty is a valid value
 				{
 					if (	OSVersion.Equals("Windows") ||
 						OSVersion.Equals("macOS") ||
@@ -1583,7 +1583,7 @@ namespace Microsoft.Xna.Framework
 			}
 
 			// This is stolen from Mono's Path.cs
-			if (storageRoot == null)
+			if (ReferenceEquals(storageRoot, null))
 			{
 				return null;
 			}

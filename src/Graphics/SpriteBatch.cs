@@ -912,7 +912,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * -flibit
 			 */
 			CheckBegin("DrawString");
-			if (text == null)
+			if (ReferenceEquals(text, null))
 			{
 				throw new ArgumentNullException("text");
 			}

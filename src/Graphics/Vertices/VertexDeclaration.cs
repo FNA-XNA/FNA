@@ -102,7 +102,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// </remarks>
 		internal static VertexDeclaration FromType(Type vertexType)
 		{
-			if (vertexType == null)
+			if (ReferenceEquals(vertexType, null))
 			{
 				throw new ArgumentNullException("vertexType", "Cannot be null");
 			}
