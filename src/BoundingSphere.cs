@@ -356,7 +356,7 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentNullException("frustum");
 			}
-			return CreateFromPoints(frustum.GetCorners());
+			return CreateFromPoints(frustum.corners);
 		}
 
 		/// <summary>
