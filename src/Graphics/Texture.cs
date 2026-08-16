@@ -40,7 +40,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			set
 			{
 				// Avoid calling SetTextureName when the value hasn't changed.
-				if (value == base.Name)
+				if (ReferenceEquals(value, base.Name))
 				{
 					return;
 				}

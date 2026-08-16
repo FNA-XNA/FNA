@@ -90,7 +90,7 @@ namespace Microsoft.Xna.Framework.Content
 			 * -flibit
 			 */
 			Type fixType = Type.GetType(PrepareType(targetType.FullName), false);
-			if (fixType != null && contentReaders.TryGetValue(fixType, out reader))
+			if (!ReferenceEquals(fixType, null) && contentReaders.TryGetValue(fixType, out reader))
 			{
 				return reader;
 			}
@@ -197,7 +197,7 @@ namespace Microsoft.Xna.Framework.Content
 						readerTypeString = PrepareType(readerTypeString);
 
 						Type l_readerType = Type.GetType(readerTypeString);
-						if (l_readerType != null)
+						if (!ReferenceEquals(l_readerType, null))
 						{
 							ContentTypeReader typeReader;
 							if (!contentReadersCache.TryGetValue(l_readerType, out typeReader))
@@ -254,7 +254,7 @@ namespace Microsoft.Xna.Framework.Content
 						}
 					}
 
-					if (newReaders[i].TargetType != null)
+					if (!ReferenceEquals(newReaders[i].TargetType, null))
 					{
 						contentReaders.Add(newReaders[i].TargetType, newReaders[i]);
 					}

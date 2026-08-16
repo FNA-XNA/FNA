@@ -60,7 +60,7 @@ namespace Microsoft.Xna.Framework.Content
 			base.Initialize(manager);
 
 			Type baseType = TargetType.BaseType;
-			if (baseType != null && baseType != typeof(object))
+			if (!ReferenceEquals(baseType, null) && baseType != typeof(object))
 			{
 				baseTypeReader = manager.GetTypeReader(baseType);
 			}
@@ -88,7 +88,7 @@ namespace Microsoft.Xna.Framework.Content
 			foreach (PropertyInfo property in properties)
 			{
 				MethodInfo pm = property.GetGetMethod(true);
-				if (pm == null || pm != pm.GetBaseDefinition())
+				if (ReferenceEquals(pm, null) || pm != pm.GetBaseDefinition())
 				{
 					continue;
 				}
@@ -120,7 +120,7 @@ namespace Microsoft.Xna.Framework.Content
 			}
 			else
 			{
-				if (constructor == null)
+				if (ReferenceEquals(constructor, null))
 				{
 					obj = (T) Activator.CreateInstance(typeof(T));
 				}
@@ -160,7 +160,7 @@ namespace Microsoft.Xna.Framework.Content
 			PropertyInfo property = member as PropertyInfo;
 			FieldInfo field = member as FieldInfo;
 
-			if (property != null)
+			if (!ReferenceEquals(property, null))
 			{
 				// Properties must have at least a getter.
 				if (property.CanRead == false)
@@ -191,18 +191,18 @@ namespace Microsoft.Xna.Framework.Content
 			) as ContentSerializerAttribute;
 			if (contentSerializerAttribute == null)
 			{
-				if (property != null)
+				if (!ReferenceEquals(property, null))
 				{
 					/* There is no ContentSerializerAttribute, so non-public
 					 * properties cannot be deserialized.
 					 */
 					MethodInfo getMethod = property.GetGetMethod(true);
-					if (getMethod != null && !getMethod.IsPublic)
+					if (!ReferenceEquals(getMethod, null) && !getMethod.IsPublic)
 					{
 						return null;
 					}
 					MethodInfo setMethod = property.GetSetMethod(true);
-					if (setMethod != null && !setMethod.IsPublic)
+					if (!ReferenceEquals(setMethod, null) && !setMethod.IsPublic)
 					{
 						return null;
 					}
@@ -240,7 +240,7 @@ namespace Microsoft.Xna.Framework.Content
 
 			Action<object, object> setter;
 			Type elementType;
-			if (property != null)
+			if (!ReferenceEquals(property, null))
 			{
 				elementType = property.PropertyType;
 				if (property.CanWrite)
@@ -282,7 +282,7 @@ namespace Microsoft.Xna.Framework.Content
 			 * object to be the target of deserialization.
 			 */
 			Func<object, object> construct = parent => null;
-			if (property != null && !property.CanWrite)
+			if (!ReferenceEquals(property, null) && !property.CanWrite)
 			{
 				construct = parent => property.GetValue(parent, null);
 			}
