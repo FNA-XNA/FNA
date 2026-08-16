@@ -261,9 +261,9 @@ namespace Microsoft.Xna.Framework.Graphics
 					" but " + elementCount.ToString() + " pixels have been requested."
 				);
 			}
-			if (	(left < 0 || left >= right) ||
-				(top < 0 || top >= bottom) ||
-				(front < 0 || front >= back)	)
+			if (	unchecked((uint) left >= (uint) right) ||
+				unchecked((uint) top >= (uint) bottom) ||
+				unchecked((uint) front >= (uint) back)	)
 			{
 				throw new ArgumentException("Neither box size nor box position can be negative");
 			}
