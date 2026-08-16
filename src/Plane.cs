@@ -180,19 +180,14 @@ namespace Microsoft.Xna.Framework
 
 		#region Internal Methods
 
-		internal PlaneIntersectionType Intersects(ref Vector3 point)
+		internal float DotCoordinate(ref Vector3 value)
 		{
-			float distance;
-			DotCoordinate(ref point, out distance);
-			if (distance > 0)
-			{
-				return PlaneIntersectionType.Front;
-			}
-			if (distance < 0)
-			{
-				return PlaneIntersectionType.Back;
-			}
-			return PlaneIntersectionType.Intersecting;
+			return (
+				this.Normal.X * value.X +
+				this.Normal.Y * value.Y +
+				this.Normal.Z * value.Z +
+				this.D
+			);
 		}
 
 		#endregion
