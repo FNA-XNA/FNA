@@ -143,10 +143,15 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Internal Fields
+
+		internal readonly Vector3[] corners = new Vector3[CornerCount];
+
+		#endregion
+
 		#region Private Fields
 
 		private Matrix matrix;
-		private readonly Vector3[] corners = new Vector3[CornerCount];
 		private readonly Plane[] planes = new Plane[PlaneCount];
 
 		/// <summary>

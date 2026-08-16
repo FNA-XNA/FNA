@@ -348,7 +348,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The new <see cref="BoundingSphere"/>.</returns>
 		public static BoundingSphere CreateFromFrustum(BoundingFrustum frustum)
 		{
-			return CreateFromPoints(frustum.GetCorners());
+			return CreateFromPoints(frustum.corners);
 		}
 
 		/// <summary>
