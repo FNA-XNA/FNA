@@ -1293,7 +1293,7 @@ namespace Microsoft.Xna.Framework
 				}
 			}
 
-			if (index < 0 || index > GraphicsAdapter.Adapters.Count)
+			if (unchecked((uint) index > (uint) GraphicsAdapter.Adapters.Count))
 			{
 				FNALoggerEXT.LogWarn("SDL3 Window ID and Display ID desync'd");
 				if (retry)

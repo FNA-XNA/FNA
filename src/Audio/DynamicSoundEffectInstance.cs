@@ -194,11 +194,11 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentException("Buffer is invalid. Ensure that the buffer length is non-zero and meets the block alignment requirements for the audio format.");
 			}
-			if (offset < 0 || offset >= buffer.Length || offset % format.nBlockAlign != 0)
+			if (unchecked((uint) offset >= (uint) buffer.Length) || offset % format.nBlockAlign != 0)
 			{
 				throw new ArgumentException("Byte offset is invalid. Ensure that it falls within the buffer and meets the block alignment requirements for the audio format.");
 			}
-			if (count <= 0 || offset + count < 0 || offset + count > buffer.Length || count % format.nBlockAlign != 0)
+			if (count <= 0 || unchecked((uint) (offset + count) > (uint) buffer.Length) || count % format.nBlockAlign != 0)
 			{
 				throw new ArgumentException("Number of samples to play is invalid. Ensure that it meets the block alignment requirements for the audio format.");
 			}
