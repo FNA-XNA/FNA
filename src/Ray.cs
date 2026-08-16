@@ -244,7 +244,7 @@ namespace Microsoft.Xna.Framework
 			 * the radius of the sphere, it means we've intersected. Checking the
 			 * LengthSquared is faster.
 			 */
-			if (differenceLengthSquared < sphereRadiusSquared)
+			if (differenceLengthSquared <= sphereRadiusSquared)
 			{
 				result = 0.0f;
 				return;
