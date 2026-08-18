@@ -253,7 +253,7 @@ namespace Microsoft.Xna.Framework
 			CurveTangent tangentInType,
 			CurveTangent tangentOutType
 		) {
-			if (keyIndex >= Keys.Count || keyIndex < 0)
+			if (unchecked((uint) keyIndex >= (uint) Keys.Count))
 			{
 				throw new ArgumentOutOfRangeException("keyIndex");
 			}
@@ -281,43 +281,43 @@ namespace Microsoft.Xna.Framework
 
 			switch (tangentInType)
 			{
-				case CurveTangent.Flat:
-					key.TangentIn = 0;
-					break;
 				case CurveTangent.Linear:
 					key.TangentIn = v - v0;
 					break;
 				case CurveTangent.Smooth:
-					float pn = p1 - p0;
-					if (MathHelper.WithinEpsilon(pn, 0.0f))
+					float vn = v1 - v0;
+					if (Math.Abs(vn) < 1f / (1 << 23))
 					{
 						key.TangentIn = 0;
 					}
 					else
 					{
-						key.TangentIn = (v1 - v0) * ((p - p0) / pn);
+						key.TangentIn = vn * ((p - p0) / (p1 - p0));
 					}
+					break;
+				default:
+					key.TangentIn = 0;
 					break;
 			}
 
 			switch (tangentOutType)
 			{
-				case CurveTangent.Flat:
-					key.TangentOut = 0;
-					break;
 				case CurveTangent.Linear:
 					key.TangentOut = v1 - v;
 					break;
 				case CurveTangent.Smooth:
-					float pn = p1 - p0;
-					if (Math.Abs(pn) < float.Epsilon)
+					float vn = v1 - v0;
+					if (Math.Abs(vn) < 1f / (1 << 23))
 					{
 						key.TangentOut = 0;
 					}
 					else
 					{
-						key.TangentOut = (v1 - v0) * ((p1 - p) / pn);
+						key.TangentOut = vn * ((p1 - p) / (p1 - p0));
 					}
+					break;
+				default:
+					key.TangentOut = 0;
 					break;
 			}
 		}
