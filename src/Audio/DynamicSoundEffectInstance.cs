@@ -66,9 +66,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Private Variables
 
-		private int sampleRate;
-		private AudioChannels channels;
-
 		private List<IntPtr> queuedBuffers;
 		private List<uint> queuedSizes;
 
@@ -102,11 +99,8 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			FAudio.FAudio_AddRef(SoundEffect.Device().Handle);
 
-			this.sampleRate = sampleRate;
-			this.channels = channels;
 			isDynamic = true;
 
-			format = new FAudio.FAudioWaveFormatEx();
 			format.wFormatTag = 1;
 			format.nChannels = (ushort) channels;
 			format.nSamplesPerSec = (uint) sampleRate;
@@ -137,8 +131,8 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			return SoundEffect.INTERNAL_GetSampleDuration(
 				sizeInBytes,
-				sampleRate,
-				channels
+				(int) format.nSamplesPerSec,
+				(AudioChannels) format.nChannels
 			);
 		}
 
@@ -154,8 +148,8 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			return SoundEffect.INTERNAL_GetSampleSizeInBytes(
 				duration,
-				sampleRate,
-				channels
+				(int) format.nSamplesPerSec,
+				(AudioChannels) format.nChannels
 			);
 		}
 
@@ -212,11 +206,7 @@ namespace Microsoft.Xna.Framework.Audio
 					FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
 					buf.AudioBytes = (uint) count;
 					buf.pAudioData = next;
-					buf.PlayLength = (
-						buf.AudioBytes /
-						(uint) channels /
-						(uint) (format.wBitsPerSample / 8)
-					);
+					buf.PlayLength = buf.AudioBytes / format.nBlockAlign;
 					FAudio.FAudioSourceVoice_SubmitSourceBuffer(
 						handle,
 						ref buf,
@@ -262,11 +252,7 @@ namespace Microsoft.Xna.Framework.Audio
 					FAudio.FAudioBuffer buf = new FAudio.FAudioBuffer();
 					buf.AudioBytes = (uint) count * sizeof(float);
 					buf.pAudioData = next;
-					buf.PlayLength = (
-						buf.AudioBytes /
-						(uint) channels /
-						(uint) (format.wBitsPerSample / 8)
-					);
+					buf.PlayLength = buf.AudioBytes / format.nBlockAlign;
 					FAudio.FAudioSourceVoice_SubmitSourceBuffer(
 						handle,
 						ref buf,
@@ -309,11 +295,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					buffer.AudioBytes = queuedSizes[i];
 					buffer.pAudioData = queuedBuffers[i];
-					buffer.PlayLength = (
-						buffer.AudioBytes /
-						(uint) channels /
-						(uint) (format.wBitsPerSample / 8)
-					);
+					buffer.PlayLength = buffer.AudioBytes / format.nBlockAlign;
 					FAudio.FAudioSourceVoice_SubmitSourceBuffer(
 						handle,
 						ref buffer,

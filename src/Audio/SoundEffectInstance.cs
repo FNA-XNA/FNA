@@ -198,7 +198,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 			selfReference = new WeakReference(this, true);
 			parentEffect = parent;
-			isDynamic = this is DynamicSoundEffectInstance;
 			hasStarted = false;
 			is3D = false;
 			usingReverb = false;
