@@ -184,12 +184,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				// Do not trigger the event if called from the finalizer
-				if (disposing && Disposing != null)
-				{
-					Disposing(this, EventArgs.Empty);
-				}
-
+				IsDisposed = true;
 				// Remove from the list of graphics resources
 				if (graphicsDevice != null && selfReference.IsAllocated)
 				{
@@ -198,8 +193,12 @@ namespace Microsoft.Xna.Framework.Graphics
 						selfReference.Free();
 					}
 				}
-
-				IsDisposed = true;
+				
+				// Do not trigger the event if called from the finalizer
+				if (disposing && Disposing != null)
+				{
+					Disposing(this, EventArgs.Empty);
+				}
 			}
 		}
 
