@@ -1681,7 +1681,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(Color other)
 		{
-			return this.PackedValue == other.PackedValue;
+			return this.packedValue == other.packedValue;
 		}
 
 		/// <summary>
@@ -1771,10 +1771,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>True</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public static bool operator ==(Color a, Color b)
 		{
-			return (	a.A == b.A &&
-					a.R == b.R &&
-					a.G == b.G &&
-					a.B == b.B	);
+			return a.packedValue == b .packedValue;
 		}
 
 		/// <summary>
@@ -1791,7 +1788,7 @@ namespace Microsoft.Xna.Framework
 		/// </returns>
 		public static bool operator !=(Color a, Color b)
 		{
-			return !(a == b);
+			return a.packedValue != b.packedValue;
 		}
 
 		/// <summary>
