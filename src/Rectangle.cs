@@ -397,10 +397,10 @@ namespace Microsoft.Xna.Framework
 			ref Rectangle value2,
 			out Rectangle result
 		) {
-			int right1 = value1.X + value1.Width;
-			int right2 = value2.X + value2.Width;
-			int bottom1 = value1.Y + value1.Height;
-			int bottom2 = value2.Y + value2.Height;
+			int right1 = value1.X + value1.Width;	// inline value1.Right
+			int right2 = value2.X + value2.Width;	// inline value2.Right
+			int bottom1 = value1.Y + value1.Height;	// inline value1.Bottom
+			int bottom2 = value2.Y + value2.Height;	// inline value2.Bottom
 			if (value1.X < right2 && value2.X < right1 && value1.Y < bottom2 && value2.Y < bottom1)
 			{
 				result.X = Math.Max(value1.X, value1.Y);
