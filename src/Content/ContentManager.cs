@@ -37,8 +37,19 @@ namespace Microsoft.Xna.Framework.Content
 
 		public string RootDirectory
 		{
-			get;
-			set;
+			get { return rootDirectory; }
+			set
+			{
+				if (value == null)
+				{
+					throw new ArgumentNullException("value");
+				}
+				if (loadedAssets.Count > 0)
+				{
+					throw new InvalidOperationException("This property cannot be changed after content has been loaded into the ContentManager.");
+				}
+				rootDirectory = value;
+			}
 		}
 
 		#endregion
@@ -61,6 +72,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		#region Private Variables
 
+		private string rootDirectory;
 		private GraphicsDevice graphicsDevice;
 		private Dictionary<string, object> loadedAssets = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 		private List<IDisposable> disposableAssets = new List<IDisposable>();
@@ -189,13 +201,13 @@ namespace Microsoft.Xna.Framework.Content
 
 		public virtual T Load<T>(string assetName)
 		{
+			if (disposed)
+			{
+				throw new ObjectDisposedException(ToString());
+			}
 			if (string.IsNullOrEmpty(assetName))
 			{
 				throw new ArgumentNullException("assetName");
-			}
-			if (disposed)
-			{
-				throw new ObjectDisposedException("ContentManager");
 			}
 			T result = default(T);
 
@@ -210,13 +222,14 @@ namespace Microsoft.Xna.Framework.Content
 			string key = assetName.Replace('\\', '/');
 
 			// Check for a previously loaded asset first
-			object asset = null;
+			object asset;
 			if (loadedAssets.TryGetValue(key, out asset))
 			{
-				if (asset is T)
+				if (!(asset is T))
 				{
-					return (T) asset;
+					throw new ContentLoadException("Error loading \"" + assetName + "\". File contains " + asset.GetType() + " but trying to load as " + typeof(T) + ".");
 				}
+				return (T) asset;
 			}
 			// Load the asset.
 			result = ReadAsset<T>(assetName, null);
@@ -253,32 +266,32 @@ namespace Microsoft.Xna.Framework.Content
 			}
 			catch (FileNotFoundException fileNotFound)
 			{
-				throw new ContentLoadException("The content file was not found.", fileNotFound);
+				throw new ContentLoadException("Error loading \"" + assetName + "\". File not found.", fileNotFound);
 			}
 			catch (DirectoryNotFoundException directoryNotFound)
 			{
-				throw new ContentLoadException("The directory was not found.", directoryNotFound);
+				throw new ContentLoadException("Error loading \"" + assetName + "\". Directory not found.", directoryNotFound);
 			}
 			catch (Exception exception)
 			{
-				throw new ContentLoadException("Opening stream error.", exception);
+				throw new ContentLoadException("Error loading \"" + assetName + "\". Cannot open file.", exception);
 			}
 			return stream;
 		}
 
 		protected T ReadAsset<T>(string assetName, Action<IDisposable> recordDisposableObject)
 		{
+			if (disposed)
+			{
+				throw new ObjectDisposedException(ToString());
+			}
 			if (string.IsNullOrEmpty(assetName))
 			{
 				throw new ArgumentNullException("assetName");
 			}
-			if (disposed)
-			{
-				throw new ObjectDisposedException("ContentManager");
-			}
 
 			object result = null;
-			Stream stream = null;
+			Stream stream;
 			try
 			{
 				stream = OpenStream(assetName);
