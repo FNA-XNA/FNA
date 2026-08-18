@@ -200,11 +200,19 @@ namespace Microsoft.Xna.Framework.Content
 
 		public T ReadRawObject<T>(ContentTypeReader typeReader, T existingInstance)
 		{
+			if (typeReader == null)
+			{
+				throw new ArgumentNullException("typeReader");
+			}
 			return (T) typeReader.Read(this, existingInstance);
 		}
 
 		public void ReadSharedResource<T>(Action<T> fixup)
 		{
+			if (fixup == null)
+			{
+				throw new ArgumentNullException("fixup");
+			}
 			int index = Read7BitEncodedInt();
 			if (index > 0)
 			{
