@@ -75,7 +75,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Static Variables
 
-		// This is NOT readonly, for weird performance reasons -flibit
+		// This is NOT readonly, for avoiding defensive copy -flibit
 		private static Point zeroPoint = new Point();
 
 		#endregion

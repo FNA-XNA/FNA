@@ -142,7 +142,7 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Static Fields
 
-		// These are NOT readonly, for weird performance reasons -flibit
+		// These are NOT readonly, for avoiding defensive copy -flibit
 		private static Vector4 zero = new Vector4();
 		private static Vector4 unit = new Vector4(1f, 1f, 1f, 1f);
 		private static Vector4 unitX = new Vector4(1f, 0f, 0f, 0f);
