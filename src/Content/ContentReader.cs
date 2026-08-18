@@ -167,7 +167,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		public Quaternion ReadQuaternion()
 		{
-			Quaternion result = new Quaternion();
+			Quaternion result;
 			result.X = ReadSingle();
 			result.Y = ReadSingle();
 			result.Z = ReadSingle();
