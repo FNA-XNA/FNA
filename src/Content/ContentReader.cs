@@ -117,7 +117,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		public Matrix ReadMatrix()
 		{
-			Matrix result = new Matrix();
+			Matrix result;
 			result.M11 = ReadSingle();
 			result.M12 = ReadSingle();
 			result.M13 = ReadSingle();
@@ -228,7 +228,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		public Vector2 ReadVector2()
 		{
-			Vector2 result = new Vector2();
+			Vector2 result;
 			result.X = ReadSingle();
 			result.Y = ReadSingle();
 			return result;
@@ -236,7 +236,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		public Vector3 ReadVector3()
 		{
-			Vector3 result = new Vector3();
+			Vector3 result;
 			result.X = ReadSingle();
 			result.Y = ReadSingle();
 			result.Z = ReadSingle();
@@ -245,7 +245,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		public Vector4 ReadVector4()
 		{
-			Vector4 result = new Vector4();
+			Vector4 result;
 			result.X = ReadSingle();
 			result.Y = ReadSingle();
 			result.Z = ReadSingle();
@@ -255,11 +255,8 @@ namespace Microsoft.Xna.Framework.Content
 
 		public Color ReadColor()
 		{
-			Color result = new Color();
-			result.R = ReadByte();
-			result.G = ReadByte();
-			result.B = ReadByte();
-			result.A = ReadByte();
+			Color result;
+			result.packedValue = ReadUInt32();
 			return result;
 		}
 
