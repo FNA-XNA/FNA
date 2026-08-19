@@ -174,7 +174,7 @@ namespace Microsoft.Xna.Framework.Audio
 			return SoundEffect.INTERNAL_GetSampleDuration(
 				sizeInBytes,
 				SampleRate,
-				AudioChannels.Mono
+				2 // 16-bit PCM!
 			);
 		}
 
@@ -187,7 +187,7 @@ namespace Microsoft.Xna.Framework.Audio
 			return SoundEffect.INTERNAL_GetSampleSizeInBytes(
 				duration,
 				SampleRate,
-				AudioChannels.Mono
+				2 // 16-bit PCM!
 			);
 		}
 

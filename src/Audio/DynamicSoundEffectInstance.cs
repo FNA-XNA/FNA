@@ -132,7 +132,7 @@ namespace Microsoft.Xna.Framework.Audio
 			return SoundEffect.INTERNAL_GetSampleDuration(
 				sizeInBytes,
 				(int) format.nSamplesPerSec,
-				(AudioChannels) format.nChannels
+				format.nBlockAlign
 			);
 		}
 
@@ -149,7 +149,7 @@ namespace Microsoft.Xna.Framework.Audio
 			return SoundEffect.INTERNAL_GetSampleSizeInBytes(
 				duration,
 				(int) format.nSamplesPerSec,
-				(AudioChannels) format.nChannels
+				format.nBlockAlign
 			);
 		}
 
