@@ -134,7 +134,6 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new NoAudioHardwareException();
 			}
 			rendererDetails = new RendererDetail[rendererCount];
-			byte[] converted = new byte[0xFF * sizeof(short)];
 			for (ushort i = 0; i < rendererCount; i += 1)
 			{
 				FAudio.FACTRendererDetails details;
@@ -145,11 +144,8 @@ namespace Microsoft.Xna.Framework.Audio
 				);
 				unsafe
 				{
-					Marshal.Copy((IntPtr) details.displayName, converted, 0, converted.Length);
-					string name = System.Text.Encoding.Unicode.GetString(converted).TrimEnd('\0');
-					Marshal.Copy((IntPtr) details.rendererID, converted, 0, converted.Length);
-					string id = System.Text.Encoding.Unicode.GetString(converted).TrimEnd('\0');
-					rendererDetails[i] = new RendererDetail(name, id);
+					rendererDetails[i].FriendlyName = new string((char*) details.displayName);
+					rendererDetails[i].RendererId = new string((char*) details.rendererID);
 				}
 			}
 
