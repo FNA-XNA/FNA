@@ -900,7 +900,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public static extern void FNA3D_Image_Free(IntPtr mem);
 
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D_Image_ReadFunc))]
-		private static int INTERNAL_Read(
+		private static unsafe int INTERNAL_Read(
 			IntPtr context,
 			IntPtr data,
 			int size
@@ -910,10 +910,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				stream = readStreams[context];
 			}
+#if NETCOREAPP2_1_OR_GREATER
+			return stream.Read(new Span<byte>(data.ToPointer(), size));
+#else
 			byte[] buf = new byte[size]; // FIXME: Preallocate!
 			int result = stream.Read(buf, 0, size);
 			Marshal.Copy(buf, 0, data, result);
 			return result;
+#endif
 		}
 
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D_Image_SkipFunc))]
@@ -1015,7 +1019,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		);
 
 		[ObjCRuntime.MonoPInvokeCallback(typeof(FNA3D_Image_WriteFunc))]
-		private static void INTERNAL_Write(
+		private static unsafe void INTERNAL_Write(
 			IntPtr context,
 			IntPtr data,
 			int size
@@ -1025,9 +1029,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				stream = writeStreams[context];
 			}
+#if NETCOREAPP2_1_OR_GREATER
+			stream.Write(new ReadOnlySpan<byte>(data.ToPointer(), size));
+#else
 			byte[] buf = new byte[size]; // FIXME: Preallocate!
 			Marshal.Copy(data, buf, 0, size);
 			stream.Write(buf, 0, size);
+#endif
 		}
 
 		private static FNA3D_Image_WriteFunc writeFunc = INTERNAL_Write;
