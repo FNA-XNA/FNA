@@ -34,6 +34,7 @@ namespace Microsoft.Xna.Framework.Media
 			}
 			set
 			{
+				checkDisposed();
 				backing_islooped = value;
 				if (impl != null)
 				{
@@ -51,6 +52,7 @@ namespace Microsoft.Xna.Framework.Media
 			}
 			set
 			{
+				checkDisposed();
 				backing_ismuted = value;
 				if (impl != null)
 				{
@@ -63,6 +65,7 @@ namespace Microsoft.Xna.Framework.Media
 		{
 			get
 			{
+				checkDisposed();
 				return impl != null ? impl.PlayPosition : TimeSpan.Zero;
 			}
 		}
@@ -71,6 +74,7 @@ namespace Microsoft.Xna.Framework.Media
 		{
 			get
 			{
+				checkDisposed();
 				return impl != null ? impl.State : MediaState.Stopped;
 			}
 		}
@@ -92,18 +96,12 @@ namespace Microsoft.Xna.Framework.Media
 			}
 			set
 			{
-				if (value > 1.0f)
+				checkDisposed();
+				if (value < 0f || value > 1f)
 				{
-					backing_volume = 1.0f;
+					throw new ArgumentOutOfRangeException("value");
 				}
-				else if (value < 0.0f)
-				{
-					backing_volume = 0.0f;
-				}
-				else
-				{
-					backing_volume = value;
-				}
+				backing_volume = value;
 
 				if (impl != null)
 				{
@@ -148,7 +146,7 @@ namespace Microsoft.Xna.Framework.Media
 		{
 			if (IsDisposed)
 			{
-				throw new ObjectDisposedException("VideoPlayer");
+				throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
 			}
 		}
 
@@ -167,15 +165,16 @@ namespace Microsoft.Xna.Framework.Media
 
 		public void Dispose()
 		{
-			checkDisposed();
-
-			if (impl != null)
+			if (!IsDisposed)
 			{
-				impl.Dispose();
-			}
+				if (impl != null)
+				{
+					impl.Dispose();
+				}
 
-			impl = null;
-			IsDisposed = true;
+				impl = null;
+				IsDisposed = true;
+			}
 		}
 
 		public Texture2D GetTexture()
@@ -188,6 +187,10 @@ namespace Microsoft.Xna.Framework.Media
 		public void Play(Video video)
 		{
 			checkDisposed();
+			if (video == null)
+			{
+				throw new ArgumentNullException("video");
+			}
 
 			if (impl != null)
 			{
