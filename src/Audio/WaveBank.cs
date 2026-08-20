@@ -86,7 +86,7 @@ namespace Microsoft.Xna.Framework.Audio
 				out bankDataLen
 			);
 
-			FAudio.FACTAudioEngine_CreateInMemoryWaveBank(
+			uint ret = FAudio.FACTAudioEngine_CreateInMemoryWaveBank(
 				audioEngine.handle,
 				bankData,
 				(uint) bankDataLen,
@@ -94,6 +94,11 @@ namespace Microsoft.Xna.Framework.Audio
 				0,
 				out handle
 			);
+			if (ret == 0x8ac70007) // FACTENGINE_E_INVALIDDATA
+			{
+				FNAPlatform.FreeFilePointer(bankData);
+				throw new ArgumentException("XACT could not load the data provided. Make sure you are using the correct version of the XACT tool.");
+			}
 
 			engine = audioEngine;
 			selfReference = new WeakReference(this, true);
@@ -137,6 +142,7 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 			if (ret == 0x8ac70007) // FACTENGINE_E_INVALIDDATA
 			{
+				FAudio.FAudio_close(bankData);
 				throw new ArgumentException("XACT could not load the data provided. Make sure you are using the correct version of the XACT tool.");
 			}
 

@@ -179,10 +179,12 @@ namespace Microsoft.Xna.Framework.Audio
 			uint ret = FAudio.FACTAudioEngine_Initialize(handle, ref settings);
 			if (ret == 0x8ac70007) // FACTENGINE_E_INVALIDDATA
 			{
+				FAudio.FACTAudioEngine_Release(handle);
 				throw new ArgumentException("XACT could not load the data provided. Make sure you are using the correct version of the XACT tool.");
 			}
 			else if (ret != 0)
 			{
+				FAudio.FACTAudioEngine_Release(handle);
 				throw new InvalidOperationException(
 					"Engine initialization failed!"
 				);
