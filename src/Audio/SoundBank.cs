@@ -30,7 +30,10 @@ namespace Microsoft.Xna.Framework.Audio
 			get
 			{
 				uint state;
-				FAudio.FACTSoundBank_GetState(handle, out state);
+				lock (engine.gcSync)
+				{
+					FAudio.FACTSoundBank_GetState(handle, out state);
+				}
 				return (state & FAudio.FACT_STATE_INUSE) != 0;
 			}
 		}
@@ -167,27 +170,30 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("name", "This method does not accept null for this parameter.");
 			}
-
-			ushort cue = FAudio.FACTSoundBank_GetCueIndex(
-				handle,
-				name
-			);
-
-			if (cue == FAudio.FACTINDEX_INVALID)
+			IntPtr result;
+			lock (engine.gcSync)
 			{
-				throw new InvalidOperationException(
-					"Invalid cue name!"
+				ushort cue = FAudio.FACTSoundBank_GetCueIndex(
+					handle,
+					name
+				);
+
+				if (cue == FAudio.FACTINDEX_INVALID)
+				{
+					throw new InvalidOperationException(
+						"Invalid cue name!"
+					);
+				}
+
+			
+				FAudio.FACTSoundBank_Prepare(
+					handle,
+					cue,
+					0,
+					0,
+					out result
 				);
 			}
-
-			IntPtr result;
-			FAudio.FACTSoundBank_Prepare(
-				handle,
-				cue,
-				0,
-				0,
-				out result
-			);
 			return new Cue(result, name, this);
 		}
 
@@ -197,26 +203,28 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("name", "This method does not accept null for this parameter.");
 			}
-
-			ushort cue = FAudio.FACTSoundBank_GetCueIndex(
-				handle,
-				name
-			);
-
-			if (cue == FAudio.FACTINDEX_INVALID)
+			lock (engine.gcSync)
 			{
-				throw new InvalidOperationException(
-					"Invalid cue name!"
+				ushort cue = FAudio.FACTSoundBank_GetCueIndex(
+					handle,
+					name
+				);
+
+				if (cue == FAudio.FACTINDEX_INVALID)
+				{
+					throw new InvalidOperationException(
+						"Invalid cue name!"
+					);
+				}
+
+				FAudio.FACTSoundBank_Play(
+					handle,
+					cue,
+					0,
+					0,
+					IntPtr.Zero
 				);
 			}
-
-			FAudio.FACTSoundBank_Play(
-				handle,
-				cue,
-				0,
-				0,
-				IntPtr.Zero
-			);
 		}
 
 		public void PlayCue(
@@ -236,35 +244,37 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("emitter");
 			}
-
-			ushort cue = FAudio.FACTSoundBank_GetCueIndex(
-				handle,
-				name
-			);
-
-			if (cue == FAudio.FACTINDEX_INVALID)
+			lock (engine.gcSync)
 			{
-				throw new InvalidOperationException(
-					"Invalid cue name!"
+				ushort cue = FAudio.FACTSoundBank_GetCueIndex(
+					handle,
+					name
+				);
+
+				if (cue == FAudio.FACTINDEX_INVALID)
+				{
+					throw new InvalidOperationException(
+						"Invalid cue name!"
+					);
+				}
+
+				emitter.emitterData.ChannelCount = dspSettings.SrcChannelCount;
+				emitter.emitterData.CurveDistanceScaler = float.MaxValue;
+				FAudio.FACT3DCalculate(
+					engine.handle3D,
+					ref listener.listenerData,
+					ref emitter.emitterData,
+					ref dspSettings
+				);
+				FAudio.FACTSoundBank_Play3D(
+					handle,
+					cue,
+					0,
+					0,
+					ref dspSettings,
+					IntPtr.Zero
 				);
 			}
-
-			emitter.emitterData.ChannelCount = dspSettings.SrcChannelCount;
-			emitter.emitterData.CurveDistanceScaler = float.MaxValue;
-			FAudio.FACT3DCalculate(
-				engine.handle3D,
-				ref listener.listenerData,
-				ref emitter.emitterData,
-				ref dspSettings
-			);
-			FAudio.FACTSoundBank_Play3D(
-				handle,
-				cue,
-				0,
-				0,
-				ref dspSettings,
-				IntPtr.Zero
-			);
 		}
 
 		#endregion
