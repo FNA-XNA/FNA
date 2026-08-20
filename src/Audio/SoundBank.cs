@@ -81,12 +81,11 @@ namespace Microsoft.Xna.Framework.Audio
 				0,
 				out handle
 			);
+			FNAPlatform.FreeFilePointer(buffer);
 			if (ret == 0x8ac70007) // FACTENGINE_E_INVALIDDATA
 			{
 				throw new ArgumentException("XACT could not load the data provided. Make sure you are using the correct version of the XACT tool.");
 			}
-
-			FNAPlatform.FreeFilePointer(buffer);
 
 			engine = audioEngine;
 			selfReference = new WeakReference(this, true);
