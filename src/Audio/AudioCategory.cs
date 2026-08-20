@@ -94,6 +94,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Stop(AudioStopOptions options)
 		{
+			if (unchecked((uint) options) > 1)
+			{
+				throw new ArgumentException();
+			}
 			lock (parent.gcSync)
 			{
 				if (parent.IsDisposed)
@@ -103,9 +107,7 @@ namespace Microsoft.Xna.Framework.Audio
 				FAudio.FACTAudioEngine_Stop(
 					parent.handle,
 					index,
-					(options == AudioStopOptions.Immediate) ?
-						FAudio.FACT_FLAG_STOP_IMMEDIATE :
-						FAudio.FACT_FLAG_STOP_RELEASE
+					(uint) options
 				);
 			}
 		}

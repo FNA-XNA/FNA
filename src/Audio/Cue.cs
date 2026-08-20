@@ -264,11 +264,13 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Stop(AudioStopOptions options)
 		{
+			if (unchecked((uint) options) > 1)
+			{
+				throw new ArgumentException();
+			}
 			FAudio.FACTCue_Stop(
 				handle,
-				(options == AudioStopOptions.Immediate) ?
-					FAudio.FACT_FLAG_STOP_IMMEDIATE :
-					FAudio.FACT_FLAG_STOP_RELEASE
+				(uint) options
 			);
 		}
 
