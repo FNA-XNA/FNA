@@ -167,12 +167,18 @@ namespace Microsoft.Xna.Framework.Audio
 			settings.lookAheadTime = (uint) lookAheadTime.Milliseconds;
 			if (!string.IsNullOrEmpty(rendererId))
 			{
-				// FIXME: wchar_t? -flibit
-				settings.pRendererID = Marshal.StringToHGlobalAuto(rendererId);
+				settings.pRendererID = Marshal.StringToHGlobalUni(rendererId);
 			}
 
 			// Init engine, finally
 			uint ret = FAudio.FACTAudioEngine_Initialize(handle, ref settings);
+
+			// Free the settings strings
+			if (settings.pRendererID != IntPtr.Zero)
+			{
+				Marshal.FreeHGlobal(settings.pRendererID);
+			}
+
 			if (ret == 0x8ac70007) // FACTENGINE_E_INVALIDDATA
 			{
 				FAudio.FACTAudioEngine_Release(handle);
@@ -184,12 +190,6 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new InvalidOperationException(
 					"Engine initialization failed!"
 				);
-			}
-
-			// Free the settings strings
-			if (settings.pRendererID != IntPtr.Zero)
-			{
-				Marshal.FreeHGlobal(settings.pRendererID);
 			}
 
 			// Init 3D audio
