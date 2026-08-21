@@ -55,6 +55,10 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
+				if (value < -1f || value > 1f)
+				{
+					throw new ArgumentOutOfRangeException("value");
+				}
 				if (IsDisposed)
 				{
 					throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
@@ -63,10 +67,7 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					throw new InvalidOperationException("Pan cannot be set on a 3D sound. To ensure a 2D sound avoid calling Apply3D and ensure Pan is set before the first Play call.");
 				}
-				if (value < -1f || value > 1f)
-				{
-					throw new ArgumentOutOfRangeException("value");
-				}
+				is3D = false;
 				INTERNAL_pan = value;
 
 				SetPanMatrixCoefficients();
@@ -253,6 +254,10 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ObjectDisposedException(
 					"SoundEffectInstance"
 				);
+			}
+			if (hasStarted && !is3D)
+			{
+				throw new InvalidOperationException("The sound is not a 3D sound. Call Apply3D before the first Play call to configure it to be a 3D sound.");
 			}
 
 			is3D = true;
