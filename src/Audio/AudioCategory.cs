@@ -58,7 +58,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (parent.IsDisposed)
 				{
-					return;
+					throw new ArgumentException();
 				}
 				FAudio.FACTAudioEngine_Pause(parent.handle, index, 1);
 			}
@@ -70,7 +70,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (parent.IsDisposed)
 				{
-					return;
+					throw new ArgumentException();
 				}
 				FAudio.FACTAudioEngine_Pause(parent.handle, index, 0);
 			}
@@ -90,7 +90,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (parent.IsDisposed)
 				{
-					return;
+					throw new ArgumentException();
 				}
 				FAudio.FACTAudioEngine_SetVolume(parent.handle, index, volume);
 			}
@@ -106,7 +106,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (parent.IsDisposed)
 				{
-					return;
+					throw new ArgumentException();
 				}
 				FAudio.FACTAudioEngine_Stop(
 					parent.handle,
