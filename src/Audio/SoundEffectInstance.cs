@@ -40,7 +40,7 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 				if (hasStarted)
 				{
-					throw new InvalidOperationException();
+					throw new InvalidOperationException("Loop must be set before the first Play call.");
 				}
 				INTERNAL_looped = value;
 			}
@@ -142,13 +142,13 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (IsDisposed)
-				{
-					throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
-				}
 				if (value < -FAudio.FAUDIO_MAX_VOLUME_LEVEL || value > FAudio.FAUDIO_MAX_VOLUME_LEVEL) // XNA: value < 0f || value > 1f
 				{
 					throw new ArgumentOutOfRangeException("value");
+				}
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
 				}
 				INTERNAL_volume = value;
 				if (handle != IntPtr.Zero)
