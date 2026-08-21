@@ -180,13 +180,15 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 
 			IntPtr result;
-			FAudio.FACTSoundBank_Prepare(
+			if (FAudio.FACTSoundBank_Prepare(
 				handle,
 				cue,
 				0,
 				0,
 				out result
-			);
+			) == 0x8AC70013) {
+				throw new InvalidOperationException("No wavebank exists for the requested operation.");
+			}
 			return new Cue(result, name, this);
 		}
 
