@@ -206,9 +206,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (variable == FAudio.FACTVARIABLEINDEX_INVALID)
 			{
-				throw new InvalidOperationException(
-					"Invalid variable name!"
-				);
+				throw new IndexOutOfRangeException("The specified variable index is invalid.");
 			}
 
 			float result;
@@ -222,6 +220,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Pause()
 		{
+			if (IsStopped)
+			{
+				throw new InvalidOperationException("The method or function that was called cannot be used in the manner requested.");
+			}
 			FAudio.FACTCue_Pause(handle, 1);
 		}
 
@@ -233,6 +235,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Resume()
 		{
+			if (IsStopped)
+			{
+				throw new InvalidOperationException("The method or function that was called cannot be used in the manner requested.");
+			}
 			FAudio.FACTCue_Pause(handle, 0);
 		}
 
@@ -250,9 +256,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (variable == FAudio.FACTVARIABLEINDEX_INVALID)
 			{
-				throw new InvalidOperationException(
-					"Invalid variable name!"
-				);
+				throw new IndexOutOfRangeException("The specified variable index is invalid.");
 			}
 
 			FAudio.FACTCue_SetVariable(

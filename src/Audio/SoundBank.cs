@@ -174,9 +174,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (cue == FAudio.FACTINDEX_INVALID)
 			{
-				throw new InvalidOperationException(
-					"Invalid cue name!"
-				);
+				throw new ArgumentException("An error occurred trying to play the cue named \"" + name + "\". Is the cue name correct?");
 			}
 
 			IntPtr result;
@@ -206,9 +204,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (cue == FAudio.FACTINDEX_INVALID)
 			{
-				throw new InvalidOperationException(
-					"Invalid cue name!"
-				);
+				throw new InvalidOperationException("An error occurred trying to play the cue named \"" + name + "\". Is the cue name correct?");
 			}
 
 			FAudio.FACTSoundBank_Play(
@@ -245,9 +241,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (cue == FAudio.FACTINDEX_INVALID)
 			{
-				throw new InvalidOperationException(
-					"Invalid cue name!"
-				);
+				throw new InvalidOperationException("An error occurred trying to play the cue named \"" + name + "\". Is the cue name correct?");
 			}
 
 			emitter.emitterData.ChannelCount = dspSettings.SrcChannelCount;
