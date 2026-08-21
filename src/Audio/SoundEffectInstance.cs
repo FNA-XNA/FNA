@@ -59,9 +59,9 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
 				}
-				if (is3D)
+				if (hasStarted && is3D)
 				{
-					throw new InvalidOperationException("The method call is invalid.");
+					throw new InvalidOperationException("Pan cannot be set on a 3D sound. To ensure a 2D sound avoid calling Apply3D and ensure Pan is set before the first Play call.");
 				}
 				if (value < -1f || value > 1f)
 				{
