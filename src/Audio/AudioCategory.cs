@@ -82,6 +82,10 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentException("Volume must be a positive float value.");
 			}
+			if (volume > FAudio.FACTVOLUME_MAX)
+			{
+				throw new ArgumentException();
+			}
 			lock (parent.gcSync)
 			{
 				if (parent.IsDisposed)
