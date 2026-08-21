@@ -44,11 +44,6 @@ namespace Microsoft.Xna.Framework.Audio
 			return (string.IsNullOrEmpty(RendererId) ? 0 : RendererId.GetHashCode()) ^
 				(string.IsNullOrEmpty(FriendlyName) ? 0 : FriendlyName.GetHashCode());
 		}
-
-		public override string ToString()
-		{
-			return base.ToString();
-		}
 		
 		#endregion
 
