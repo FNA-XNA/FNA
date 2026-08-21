@@ -88,7 +88,7 @@ namespace Microsoft.Xna.Framework.Audio
 		public DynamicSoundEffectInstance(
 			int sampleRate,
 			AudioChannels channels
-		) : base() {
+		) : base(null) {
 			if (sampleRate < FAudio.FAUDIO_MIN_SAMPLE_RATE || sampleRate > FAudio.FAUDIO_MAX_SAMPLE_RATE) // XNA: sampleRate < 8000 || sampleRate > 48000
 			{
 				throw new ArgumentOutOfRangeException("sampleRate");
@@ -98,8 +98,6 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ArgumentOutOfRangeException("channels");
 			}
 			FAudio.FAudio_AddRef(SoundEffect.Device().Handle);
-
-			isDynamic = true;
 
 			format.wFormatTag = 1;
 			format.nChannels = (ushort) channels;

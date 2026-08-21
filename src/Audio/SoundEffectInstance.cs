@@ -168,7 +168,6 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Internal Variables
 
 		internal IntPtr handle;
-		internal bool isDynamic;
 
 		#endregion
 
@@ -176,6 +175,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private SoundEffect parentEffect;
 		private WeakReference selfReference;
+		private bool isDynamic;
 		private bool hasStarted;
 		private bool is3D;
 		private bool usingReverb;
@@ -193,25 +193,26 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Internal Constructor
 
-		internal SoundEffectInstance(SoundEffect parent = null)
+		internal SoundEffectInstance(SoundEffect parent)
 		{
 			SoundEffect.Device();
 
 			selfReference = new WeakReference(this, true);
 			parentEffect = parent;
-			isDynamic = this is DynamicSoundEffectInstance;
 			hasStarted = false;
 			is3D = false;
 			usingReverb = false;
 			INTERNAL_state = SoundState.Stopped;
 
-			if (!isDynamic)
-			{
-				InitDSPSettings(parentEffect.channels);
-			}
 			if (parentEffect != null)
 			{
+				InitDSPSettings(parentEffect.channels);
 				parentEffect.Instances.Add(selfReference);
+			}
+			else
+			{
+				// Only DynamicSoundEffectInstance can avoid sending a SoundEffect base
+				isDynamic = true;
 			}
 		}
 
