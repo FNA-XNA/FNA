@@ -18,35 +18,21 @@ namespace Microsoft.Xna.Framework.Audio
 	{
 		#region Public Properties
 
-		private string INTERNAL_name;
 		public string Name
 		{
 			get
 			{
-				return INTERNAL_name;
+				return name;
 			}
 		}
 
 		#endregion
 
-		#region Private Variables
+		#region Internal Variables
 
-		private AudioEngine parent;
-		private ushort index;
-
-		#endregion
-
-		#region Internal Constructor
-
-		internal AudioCategory(
-			AudioEngine engine,
-			ushort category,
-			string name
-		) {
-			parent = engine;
-			index = category;
-			INTERNAL_name = name;
-		}
+		internal AudioEngine parent;
+		internal ushort index;
+		internal string name;
 
 		#endregion
 
@@ -131,7 +117,7 @@ namespace Microsoft.Xna.Framework.Audio
 			return other.parent == parent && other.index == index;
 		}
 
-		public override bool Equals(Object obj)
+		public override bool Equals(object obj)
 		{
 			return obj is AudioCategory && Equals((AudioCategory) obj);
 		}
@@ -152,7 +138,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public override string ToString()
 		{
-			return INTERNAL_name ?? string.Empty;
+			return name ?? string.Empty;
 		}
 
 		#endregion
