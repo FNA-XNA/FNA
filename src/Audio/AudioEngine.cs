@@ -296,9 +296,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (variable == FAudio.FACTVARIABLEINDEX_INVALID)
 			{
-				throw new InvalidOperationException(
-					"Invalid variable name!"
-				);
+				throw new IndexOutOfRangeException("The specified variable index is invalid.");
 			}
 
 			float result;
@@ -324,9 +322,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (variable == FAudio.FACTVARIABLEINDEX_INVALID)
 			{
-				throw new InvalidOperationException(
-					"Invalid variable name!"
-				);
+				throw new IndexOutOfRangeException("The specified variable index is invalid.");
 			}
 
 			FAudio.FACTAudioEngine_SetGlobalVariable(
