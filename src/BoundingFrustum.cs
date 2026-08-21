@@ -422,14 +422,16 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">A plane intersection type as an output parameter.</param>
 		public void Intersects(ref Plane plane, out PlaneIntersectionType result)
 		{
-			result = plane.Intersects(ref corners[0]);
-			for (int i = 1; i < corners.Length; i += 1)
+			bool flag = plane.DotCoordinate(ref corners[0]) > 0f;
+			for (int i = 1; i < CornerCount; i++)
 			{
-				if (plane.Intersects(ref corners[i]) != result)
+				if (plane.DotCoordinate(ref corners[i]) > 0f != flag)
 				{
 					result = PlaneIntersectionType.Intersecting;
+					return;
 				}
 			}
+			result = flag ? PlaneIntersectionType.Front : PlaneIntersectionType.Back;
 		}
 
 		/// <summary>
