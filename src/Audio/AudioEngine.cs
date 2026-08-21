@@ -266,17 +266,20 @@ namespace Microsoft.Xna.Framework.Audio
 				throw new ArgumentNullException("name", "This method does not accept null for this parameter.");
 			}
 
-			ushort category = FAudio.FACTAudioEngine_GetCategory(
+			AudioCategory category;
+			category.index = FAudio.FACTAudioEngine_GetCategory(
 				handle,
 				name
 			);
 
-			if (category == FAudio.FACTCATEGORY_INVALID)
+			if (category.index == FAudio.FACTCATEGORY_INVALID)
 			{
 				throw new InvalidOperationException("This resource could not be created.");
 			}
 
-			return new AudioCategory(this, category, name);
+			category.parent = this;
+			category.name = name;
+			return category;
 		}
 
 		public float GetGlobalVariable(string name)
