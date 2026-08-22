@@ -27,7 +27,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (value < 0f)
+				if (!(value >= 0f))
 				{
 					throw new ArgumentOutOfRangeException("value", "The doppler scale of an audio emitter must be greater than or equal to zero.");
 				}
