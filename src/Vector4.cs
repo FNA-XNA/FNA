@@ -15,6 +15,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 using Microsoft.Xna.Framework.Design;
 #endregion
@@ -596,12 +597,19 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The dot product of two vectors.</returns>
 		public static float Dot(Vector4 vector1, Vector4 vector2)
 		{
+#if NETCOREAPP3_0_OR_GREATER
+			return System.Numerics.Vector4.Dot(
+				Unsafe.As<Vector4, System.Numerics.Vector4>(ref vector1),
+				Unsafe.As<Vector4, System.Numerics.Vector4>(ref vector2)
+			);
+#else
 			return (
 				vector1.X * vector2.X +
 				vector1.Y * vector2.Y +
 				vector1.Z * vector2.Z +
 				vector1.W * vector2.W
 			);
+#endif
 		}
 
 		/// <summary>
