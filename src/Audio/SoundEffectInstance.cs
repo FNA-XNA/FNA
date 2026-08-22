@@ -241,15 +241,24 @@ namespace Microsoft.Xna.Framework.Audio
 			GC.SuppressFinalize(this);
 		}
 
-		public void Apply3D(AudioListener listener, AudioEmitter emitter)
+		public void Apply3D(AudioListener[] listeners, AudioEmitter emitter)
 		{
-			if (listener == null)
+			if (listeners == null)
 			{
-				throw new ArgumentNullException("listener");
+				throw new ArgumentNullException("listeners");
 			}
 			if (emitter == null)
 			{
 				throw new ArgumentNullException("emitter");
+			}
+			if (listeners.Length != 1)
+			{
+				throw new NotSupportedException("Only one listener is supported.");
+			}
+			AudioListener listener = listeners[0];
+			if (listener == null)
+			{
+				throw new ArgumentNullException("listener");
 			}
 			if (IsDisposed)
 			{
@@ -290,18 +299,9 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 		}
 
-		public void Apply3D(AudioListener[] listeners, AudioEmitter emitter)
+		public void Apply3D(AudioListener listener, AudioEmitter emitter)
 		{
-			if (listeners == null)
-			{
-				throw new ArgumentNullException("listeners");
-			}
-			if (listeners.Length == 1)
-			{
-				Apply3D(listeners[0], emitter);
-				return;
-			}
-			throw new NotSupportedException("Only one listener is supported.");
+			Apply3D(new AudioListener[1] { listener }, emitter);
 		}
 
 		public virtual void Play()
