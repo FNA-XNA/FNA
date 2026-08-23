@@ -435,17 +435,25 @@ namespace Microsoft.Xna.Framework
 #if !NETCOREAPP2_0_OR_GREATER
 	static class MathF
 	{
-		internal static float Sqrt(float x)
+		internal static float Acos(float x)
 		{
-			return (float) Math.Sqrt(x);
+			return (float) Math.Acos(x);
+		}
+		internal static float Cos(float x)
+		{
+			return (float) Math.Cos(x);
 		}
 		internal static float Sin(float x)
 		{
 			return (float) Math.Sin(x);
 		}
-		internal static float Cos(float x)
+		internal static float Sqrt(float x)
 		{
-			return (float) Math.Cos(x);
+			return (float) Math.Sqrt(x);
+		}
+		internal static float Tan(float x)
+		{
+			return (float) Math.Tan(x);
 		}
 	}
 #endif

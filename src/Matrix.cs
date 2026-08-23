@@ -1200,7 +1200,7 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentException("nearPlaneDistance >= farPlaneDistance");
 			}
-			float num = 1f / ((float) Math.Tan((double) (fieldOfView * 0.5f)));
+			float num = 1f / MathF.Tan(fieldOfView * 0.5f);
 			float num9 = num / aspectRatio;
 			result.M11 = num9;
 			result.M12 = result.M13 = result.M14 = 0;

@@ -726,7 +726,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else
 			{
-				float num5 = (float) Math.Acos((double) num4);
+				float num5 = MathF.Acos(num4);
 				float num6 = 1f / MathF.Sin(num5);
 				num3 = MathF.Sin((1f - num) * num5) * num6;
 				num2 = flag * (MathF.Sin(num * num5) * num6);
