@@ -356,9 +356,9 @@ namespace Microsoft.Xna.Framework
 			float ys = (Math.Sign(M21 * M22 * M23 * M24) < 0) ? -1 : 1;
 			float zs = (Math.Sign(M31 * M32 * M33 * M34) < 0) ? -1 : 1;
 
-			scale.X = xs * (float) Math.Sqrt(M11 * M11 + M12 * M12 + M13 * M13);
-			scale.Y = ys * (float) Math.Sqrt(M21 * M21 + M22 * M22 + M23 * M23);
-			scale.Z = zs * (float) Math.Sqrt(M31 * M31 + M32 * M32 + M33 * M33);
+			scale.X = xs * MathF.Sqrt(M11 * M11 + M12 * M12 + M13 * M13);
+			scale.Y = ys * MathF.Sqrt(M21 * M21 + M22 * M22 + M23 * M23);
+			scale.Z = zs * MathF.Sqrt(M31 * M31 + M32 * M32 + M33 * M33);
 
 			if (	MathHelper.WithinEpsilon(scale.X, 0.0f) ||
 				MathHelper.WithinEpsilon(scale.Y, 0.0f) ||
@@ -624,7 +624,7 @@ namespace Microsoft.Xna.Framework
 			{
 				Vector3.Multiply(
 					ref cameraDir,
-					(float) (1f / ((float) Math.Sqrt((double) num))),
+					1f / MathF.Sqrt(num),
 					out cameraDir
 				);
 			}
@@ -712,7 +712,7 @@ namespace Microsoft.Xna.Framework
 			{
 				Vector3.Multiply(
 					ref vector2,
-					(float) (1f / ((float) Math.Sqrt((double) num2))),
+					1f / MathF.Sqrt(num2),
 					out vector2
 				);
 			}
