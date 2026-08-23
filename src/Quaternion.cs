@@ -379,7 +379,7 @@ namespace Microsoft.Xna.Framework
 		) {
 			float half = angle * 0.5f;
 			float sin = MathF.Sin(half);
-			float cos = (float) Math.Cos((double) half);
+			float cos = MathF.Cos(half);
 			result.X = axis.X * sin;
 			result.Y = axis.Y * sin;
 			result.Z = axis.Z * sin;
@@ -480,13 +480,13 @@ namespace Microsoft.Xna.Framework
 		{
 			float halfRoll = roll * 0.5f;
 			float sinRoll = MathF.Sin(halfRoll);
-			float cosRoll = (float) Math.Cos(halfRoll);
+			float cosRoll = MathF.Cos(halfRoll);
 			float halfPitch = pitch * 0.5f;
 			float sinPitch = MathF.Sin(halfPitch);
-			float cosPitch = (float) Math.Cos(halfPitch);
+			float cosPitch = MathF.Cos(halfPitch);
 			float halfYaw = yaw * 0.5f;
 			float sinYaw = MathF.Sin(halfYaw);
-			float cosYaw = (float) Math.Cos(halfYaw);
+			float cosYaw = MathF.Cos(halfYaw);
 			result.X = ((cosYaw * sinPitch) * cosRoll) + ((sinYaw * cosPitch) * sinRoll);
 			result.Y = ((sinYaw * cosPitch) * cosRoll) - ((cosYaw * sinPitch) * sinRoll);
 			result.Z = ((cosYaw * cosPitch) * sinRoll) - ((sinYaw * sinPitch) * cosRoll);

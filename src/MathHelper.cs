@@ -443,6 +443,10 @@ namespace Microsoft.Xna.Framework
 		{
 			return (float) Math.Sin(x);
 		}
+		internal static float Cos(float x)
+		{
+			return (float) Math.Cos(x);
+		}
 	}
 #endif
 	#endregion
