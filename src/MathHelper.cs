@@ -430,6 +430,7 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 	}
+
 	#region MathF
 #if !NETCOREAPP2_0_OR_GREATER
 	static class MathF
@@ -438,7 +439,12 @@ namespace Microsoft.Xna.Framework
 		{
 			return (float) Math.Sqrt(x);
 		}
+		internal static float Sin(float x)
+		{
+			return (float) Math.Sin(x);
+		}
 	}
 #endif
 	#endregion
+
 }

@@ -803,7 +803,7 @@ namespace Microsoft.Xna.Framework
 			float x = axis.X;
 			float y = axis.Y;
 			float z = axis.Z;
-			float num2 = (float) Math.Sin((double) angle);
+			float num2 = MathF.Sin(angle);
 			float num = (float) Math.Cos((double) angle);
 			float num11 = x * x;
 			float num10 = y * y;
@@ -1315,7 +1315,7 @@ namespace Microsoft.Xna.Framework
 			result = Matrix.Identity;
 
 			float val1 = (float) Math.Cos(radians);
-			float val2 = (float) Math.Sin(radians);
+			float val2 = MathF.Sin(radians);
 
 			result.M22 = val1;
 			result.M23 = val2;
@@ -1345,7 +1345,7 @@ namespace Microsoft.Xna.Framework
 			result = Matrix.Identity;
 
 			float val1 = (float) Math.Cos(radians);
-			float val2 = (float) Math.Sin(radians);
+			float val2 = MathF.Sin(radians);
 
 			result.M11 = val1;
 			result.M13 = -val2;
@@ -1375,7 +1375,7 @@ namespace Microsoft.Xna.Framework
 			result = Matrix.Identity;
 
 			float val1 = (float) Math.Cos(radians);
-			float val2 = (float) Math.Sin(radians);
+			float val2 = MathF.Sin(radians);
 
 			result.M11 = val1;
 			result.M12 = val2;

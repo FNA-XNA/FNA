@@ -378,7 +378,7 @@ namespace Microsoft.Xna.Framework
 			out Quaternion result
 		) {
 			float half = angle * 0.5f;
-			float sin = (float) Math.Sin((double) half);
+			float sin = MathF.Sin(half);
 			float cos = (float) Math.Cos((double) half);
 			result.X = axis.X * sin;
 			result.Y = axis.Y * sin;
@@ -479,13 +479,13 @@ namespace Microsoft.Xna.Framework
 			out Quaternion result)
 		{
 			float halfRoll = roll * 0.5f;
-			float sinRoll = (float) Math.Sin(halfRoll);
+			float sinRoll = MathF.Sin(halfRoll);
 			float cosRoll = (float) Math.Cos(halfRoll);
 			float halfPitch = pitch * 0.5f;
-			float sinPitch = (float) Math.Sin(halfPitch);
+			float sinPitch = MathF.Sin(halfPitch);
 			float cosPitch = (float) Math.Cos(halfPitch);
 			float halfYaw = yaw * 0.5f;
-			float sinYaw = (float) Math.Sin(halfYaw);
+			float sinYaw = MathF.Sin(halfYaw);
 			float cosYaw = (float) Math.Cos(halfYaw);
 			result.X = ((cosYaw * sinPitch) * cosRoll) + ((sinYaw * cosPitch) * sinRoll);
 			result.Y = ((sinYaw * cosPitch) * cosRoll) - ((cosYaw * sinPitch) * sinRoll);
@@ -727,9 +727,9 @@ namespace Microsoft.Xna.Framework
 			else
 			{
 				float num5 = (float) Math.Acos((double) num4);
-				float num6 = (float) (1.0 / Math.Sin((double) num5));
-				num3 = ((float) Math.Sin((double) ((1f - num) * num5))) * num6;
-				num2 = flag * (((float) Math.Sin((double) (num * num5))) * num6);
+				float num6 = 1f / MathF.Sin(num5);
+				num3 = MathF.Sin((1f - num) * num5) * num6;
+				num2 = flag * (MathF.Sin(num * num5) * num6);
 			}
 			result.X = (num3 * quaternion1.X) + (num2 * quaternion2.X);
 			result.Y = (num3 * quaternion1.Y) + (num2 * quaternion2.Y);
