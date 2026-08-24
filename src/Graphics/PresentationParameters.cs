@@ -159,8 +159,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		public PresentationParameters()
 		{
 			BackBufferFormat = SurfaceFormat.Color;
-			BackBufferWidth = GraphicsDeviceManager.DefaultBackBufferWidth;
-			BackBufferHeight = GraphicsDeviceManager.DefaultBackBufferHeight;
+			BackBufferWidth = 0;
+			BackBufferHeight = 0;
 			DeviceWindowHandle = IntPtr.Zero;
 			IsFullScreen = true;
 			DepthStencilFormat = DepthFormat.None;

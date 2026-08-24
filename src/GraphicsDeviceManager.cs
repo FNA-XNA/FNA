@@ -327,6 +327,8 @@ namespace Microsoft.Xna.Framework
 
 			// Recreate device information before resetting
 			GraphicsDeviceInformation gdi = new GraphicsDeviceInformation();
+			gdi.PresentationParameters.BackBufferWidth = DefaultBackBufferWidth;
+			gdi.PresentationParameters.BackBufferHeight = DefaultBackBufferHeight;
 			gdi.Adapter = graphicsDevice.Adapter;
 			gdi.PresentationParameters = graphicsDevice.PresentationParameters.Clone();
 			INTERNAL_CreateGraphicsDeviceInformation(gdi);
@@ -553,6 +555,8 @@ namespace Microsoft.Xna.Framework
 
 			// Set the default device information
 			GraphicsDeviceInformation gdi = new GraphicsDeviceInformation();
+			gdi.PresentationParameters.BackBufferWidth = DefaultBackBufferWidth;
+			gdi.PresentationParameters.BackBufferHeight = DefaultBackBufferHeight;
 			gdi.PresentationParameters.DeviceWindowHandle = game.Window.Handle;
 			INTERNAL_CreateGraphicsDeviceInformation(gdi);
 
