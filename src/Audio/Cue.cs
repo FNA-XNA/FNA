@@ -220,11 +220,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Pause()
 		{
-			if (IsStopped)
+			if (FAudio.FACTCue_Pause(handle, 1) != 0)
 			{
 				throw new InvalidOperationException("The method or function that was called cannot be used in the manner requested.");
 			}
-			FAudio.FACTCue_Pause(handle, 1);
 		}
 
 		public void Play()
@@ -235,11 +234,10 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Resume()
 		{
-			if (IsStopped)
+			if (FAudio.FACTCue_Pause(handle, 0) != 0)
 			{
 				throw new InvalidOperationException("The method or function that was called cannot be used in the manner requested.");
 			}
-			FAudio.FACTCue_Pause(handle, 0);
 		}
 
 		public void SetVariable(string name, float value)
