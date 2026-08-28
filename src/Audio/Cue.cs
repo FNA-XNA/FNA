@@ -220,7 +220,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Pause()
 		{
-			if (FAudio.FACTCue_Pause(handle, 1) != 0)
+			if (FAudio.FACTCue_Pause(handle, 1) == 0x8AC70006) // FACTENGINE_E_INVALIDUSAGE
 			{
 				throw new InvalidOperationException("The method or function that was called cannot be used in the manner requested.");
 			}
@@ -234,7 +234,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public void Resume()
 		{
-			if (FAudio.FACTCue_Pause(handle, 0) != 0)
+			if (FAudio.FACTCue_Pause(handle, 0) == 0x8AC70006) // FACTENGINE_E_INVALIDUSAGE
 			{
 				throw new InvalidOperationException("The method or function that was called cannot be used in the manner requested.");
 			}
