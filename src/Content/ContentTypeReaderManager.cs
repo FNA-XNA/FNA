@@ -105,13 +105,11 @@ namespace Microsoft.Xna.Framework.Content
 		internal ContentTypeReader[] LoadAssetReaders(ContentReader reader)
 		{
 #pragma warning disable 0219, 0649
-			/* Trick to prevent the linker removing the code, but not actually execute the code
-			 * FIXME: Do we really need this in FNA?
-			 */
+			/* Trick to prevent the linker removing the code, but not actually execute the code */
 			if (falseflag)
 			{
 				/* Dummy variables required for it to work on iDevices ** DO NOT DELETE **
-				 * This forces the classes not to be optimized out when deploying to iDevices
+				 * This forces the classes not to be optimized out when PublishTrimmed:true
 				 */
 				ByteReader hByteReader = new ByteReader();
 				SByteReader hSByteReader = new SByteReader();
