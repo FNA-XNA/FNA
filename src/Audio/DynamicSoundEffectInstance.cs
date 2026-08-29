@@ -58,6 +58,18 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
+		#region
+
+		internal override uint Channels
+		{
+			get
+			{
+				return format.nChannels;
+			}
+		}
+
+		#endregion
+
 		#region Internal Variables
 
 		internal FAudio.FAudioWaveFormatEx format;
@@ -110,7 +122,7 @@ namespace Microsoft.Xna.Framework.Audio
 			queuedBuffers = new List<IntPtr>();
 			queuedSizes = new List<uint>();
 
-			InitDSPSettings(format.nChannels);
+			InitDSPSettings();
 		}
 
 		#endregion
