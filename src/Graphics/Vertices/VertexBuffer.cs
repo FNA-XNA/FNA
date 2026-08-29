@@ -88,7 +88,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			if (graphicsDevice == null)
 			{
-				throw new ArgumentNullException("graphicsDevice");
+				throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
 			}
 
 			GraphicsDevice = graphicsDevice;
@@ -108,6 +108,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				bufferUsage,
 				VertexCount * VertexDeclaration.VertexStride
 			);
+			Name = string.Empty;
+			graphicsDevice.OnResourceCreated(this);
 		}
 
 		#endregion
@@ -126,6 +128,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						toDispose
 					);
 				}
+				GraphicsDevice.OnResourceDestroyed(Name, Tag);
 			}
 			base.Dispose(disposing);
 		}
