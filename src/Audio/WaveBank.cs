@@ -192,12 +192,9 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (!IsDisposed)
 				{
-					// If this is disposed, stop leaking memory!
-					if (!engine.IsDisposed)
-					{
-						FAudio.FACTWaveBank_Destroy(handle);
-					}
-					OnWaveBankDestroyed();
+					IsDisposed = true;
+
+					FAudio.FACTWaveBank_Destroy(handle);
 
 					if (disposing && Disposing != null)
 					{
@@ -213,7 +210,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal void OnWaveBankDestroyed()
 		{
-			IsDisposed = true;
 			if (bankData != IntPtr.Zero)
 			{
 				if (bankDataLen != IntPtr.Zero)
@@ -229,6 +225,8 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			handle = IntPtr.Zero;
 			selfReference = null;
+
+			Dispose();
 		}
 
 		#endregion
