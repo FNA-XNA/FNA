@@ -502,7 +502,48 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (!IsDisposed)
 			{
 				IsDisposed = true;
+				/* Dispose of all remaining graphics resources before
+				 * disposing of the GraphicsDevice.
+				 */
+				lock (resourcesLock)
+				{
+					/* NOTE: It is very important to make a copy of the resource handles and then clear
+					 *  the array. This enables RemoveResourceReference to identify whether the handle
+					 *  has already been disposed or not, to prevent us from freeing a given handle twice.
+					 * Freeing a GCHandle twice is very bad, and GCHandle.IsAllocated is not accurate once
+					 *  you make a copy of the handle.
+					 */
+					GCHandle[] resourceArray = resources.ToArray();
+					resources.Clear();
+					foreach (GCHandle resource in resourceArray)
+					{
+						object target = resource.Target;
+						if (target != null)
+						{
+							(target as IDisposable).Dispose();
+						}
+					}
+				}
 
+				if (userVertexBuffer != IntPtr.Zero)
+				{
+					FNA3D.FNA3D_AddDisposeVertexBuffer(
+						GLDevice,
+						userVertexBuffer
+					);
+				}
+				if (userIndexBuffer != IntPtr.Zero)
+				{
+					FNA3D.FNA3D_AddDisposeIndexBuffer(
+						GLDevice,
+						userIndexBuffer
+					);
+				}
+
+				FNAPlatform.Free(effectStateChangesPtr);
+
+				// Dispose of the GL Device/Context
+				FNA3D.FNA3D_DestroyDevice(GLDevice);
 				if (disposing)
 				{
 					// We're about to dispose, notify the application.
@@ -510,49 +551,6 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						Disposing(this, EventArgs.Empty);
 					}
-
-					/* Dispose of all remaining graphics resources before
-					 * disposing of the GraphicsDevice.
-					 */
-					lock (resourcesLock)
-					{
-						/* NOTE: It is very important to make a copy of the resource handles and then clear
-						 *  the array. This enables RemoveResourceReference to identify whether the handle
-						 *  has already been disposed or not, to prevent us from freeing a given handle twice.
-						 * Freeing a GCHandle twice is very bad, and GCHandle.IsAllocated is not accurate once
-						 *  you make a copy of the handle.
-						 */
-						GCHandle[] resourceArray = resources.ToArray();
-						resources.Clear();
-						foreach (GCHandle resource in resourceArray)
-						{
-							object target = resource.Target;
-							if (target != null)
-							{
-								(target as IDisposable).Dispose();
-							}
-						}
-					}
-
-					if (userVertexBuffer != IntPtr.Zero)
-					{
-						FNA3D.FNA3D_AddDisposeVertexBuffer(
-							GLDevice,
-							userVertexBuffer
-						);
-					}
-					if (userIndexBuffer != IntPtr.Zero)
-					{
-						FNA3D.FNA3D_AddDisposeIndexBuffer(
-							GLDevice,
-							userIndexBuffer
-						);
-					}
-
-					FNAPlatform.Free(effectStateChangesPtr);
-
-					// Dispose of the GL Device/Context
-					FNA3D.FNA3D_DestroyDevice(GLDevice);
 				}
 			}
 		}
