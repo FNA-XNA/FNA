@@ -27,10 +27,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
+		private char? defaultCharacter;
 		public char? DefaultCharacter
 		{
-			get;
-			set;
+			get
+			{
+				return defaultCharacter;
+			}
+			set
+			{
+				if (value.HasValue && characterMap.BinarySearch(value.Value) < 0)
+				{
+					throw new ArgumentException("The character '" + value.Value + "' (0x" + ((uint) value.Value).ToString("x4") + ") is not available in this SpriteFont. If applicable, adjust the font's start and end CharacterRegions to include this character.");
+				}
+				defaultCharacter = value;
+			}
 		}
 
 		public int LineSpacing
@@ -103,7 +114,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			char? defaultCharacter
 		) {
 			Characters = new ReadOnlyCollection<char>(characters.ToArray());
-			DefaultCharacter = defaultCharacter;
+			this.defaultCharacter = defaultCharacter;
 			LineSpacing = lineSpacing;
 			Spacing = spacing;
 
