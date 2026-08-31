@@ -104,7 +104,6 @@ namespace Microsoft.Xna.Framework.Content
 
 		internal ContentTypeReader[] LoadAssetReaders(ContentReader reader)
 		{
-#pragma warning disable 0219, 0649
 			/* Trick to prevent the linker removing the code, but not actually execute the code */
 			if (falseflag)
 			{
@@ -153,7 +152,6 @@ namespace Microsoft.Xna.Framework.Content
 				typeof(ModelReader).GetMembers();
 				typeof(Int32Reader).GetMembers();
 			}
-#pragma warning restore 0219, 0649
 
 			/* The first content byte i read tells me the number of
 			 * content readers in this XNB file.
