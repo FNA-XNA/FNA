@@ -779,11 +779,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					if (!spriteFont.DefaultCharacter.HasValue)
 					{
-						throw new ArgumentException(
-							"Text contains characters that cannot be" +
-							" resolved by this SpriteFont.",
-							"text"
-						);
+						throw new ArgumentException("The character '" + c + "' (0x" + ((uint) c).ToString("x4") + ") is not available in this SpriteFont. If applicable, adjust the font's start and end CharacterRegions to include this character.", "character");
 					}
 					index = characterIndexMap[spriteFont.DefaultCharacter.Value];
 				}
@@ -975,11 +971,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					if (!spriteFont.DefaultCharacter.HasValue)
 					{
-						throw new ArgumentException(
-							"Text contains characters that cannot be" +
-							" resolved by this SpriteFont.",
-							"text"
-						);
+						throw new ArgumentException("The character '" + c + "' (0x" + ((uint) c).ToString("x4") + ") is not available in this SpriteFont. If applicable, adjust the font's start and end CharacterRegions to include this character.", "character");
 					}
 					index = characterIndexMap[spriteFont.DefaultCharacter.Value];
 				}

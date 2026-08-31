@@ -36,7 +36,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
-				if (value.HasValue && characterMap.BinarySearch(value.Value) < 0)
+				if (value.HasValue && !characterIndexMap.ContainsKey(value.Value))
 				{
 					throw new ArgumentException("The character '" + value.Value + "' (0x" + ((uint) value.Value).ToString("x4") + ") is not available in this SpriteFont. If applicable, adjust the font's start and end CharacterRegions to include this character.");
 				}
@@ -95,7 +95,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* This is not a part of the spec as far as we know, but we
 		 * added this because it's WAY faster than going to characterMap
-		 * and calling IndexOf on each character.
+		 * and calling IndexOf on each character. We also tried BinarySearch
+		 * with characterMap, but it didn't perform as well.
 		 */
 		internal Dictionary<char, int> characterIndexMap;
 
@@ -113,7 +114,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			List<Vector3> kerningData,
 			char? defaultCharacter
 		) {
-			Characters = new ReadOnlyCollection<char>(characters.ToArray());
+			Characters = new ReadOnlyCollection<char>(characters);
 			this.defaultCharacter = defaultCharacter;
 			LineSpacing = lineSpacing;
 			Spacing = spacing;
@@ -182,11 +183,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					if (!DefaultCharacter.HasValue)
 					{
-						throw new ArgumentException(
-							"Text contains characters that cannot be" +
-							" resolved by this SpriteFont.",
-							"text"
-						);
+						throw new ArgumentException("The character '" + c + "' (0x" + ((uint) c).ToString("x4") + ") is not available in this SpriteFont. If applicable, adjust the font's start and end CharacterRegions to include this character.", "character");
 					}
 					index = characterIndexMap[DefaultCharacter.Value];
 				}
@@ -278,11 +275,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					if (!DefaultCharacter.HasValue)
 					{
-						throw new ArgumentException(
-							"Text contains characters that cannot be" +
-							" resolved by this SpriteFont.",
-							"text"
-						);
+						throw new ArgumentException("The character '" + c + "' (0x" + ((uint) c).ToString("x4") + ") is not available in this SpriteFont. If applicable, adjust the font's start and end CharacterRegions to include this character.", "character");
 					}
 					index = characterIndexMap[DefaultCharacter.Value];
 				}
