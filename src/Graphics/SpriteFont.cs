@@ -36,7 +36,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
-				if (value.HasValue && characterMap.BinarySearch(value.Value) < 0)
+				if (value.HasValue && !characterIndexMap.ContainsKey(value.Value))
 				{
 					throw new ArgumentException("The character '" + value.Value + "' (0x" + ((uint) value.Value).ToString("x4") + ") is not available in this SpriteFont. If applicable, adjust the font's start and end CharacterRegions to include this character.");
 				}
