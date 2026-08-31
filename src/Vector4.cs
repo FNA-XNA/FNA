@@ -15,6 +15,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 using Microsoft.Xna.Framework.Design;
 #endregion
@@ -229,10 +230,16 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
 		public bool Equals(Vector4 other)
 		{
+#if NETCOREAPP3_0_OR_GREATER
+			return Unsafe.As<Vector4, System.Numerics.Vector4>(ref this).Equals(
+				Unsafe.As<Vector4, System.Numerics.Vector4>(ref other)
+			);
+#else
 			return (	X == other.X &&
 					Y == other.Y &&
 					Z == other.Z &&
 					W == other.W	);
+#endif
 		}
 
 		/// <summary>
@@ -596,12 +603,19 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The dot product of two vectors.</returns>
 		public static float Dot(Vector4 vector1, Vector4 vector2)
 		{
+#if NETCOREAPP3_0_OR_GREATER
+			return System.Numerics.Vector4.Dot(
+				Unsafe.As<Vector4, System.Numerics.Vector4>(ref vector1),
+				Unsafe.As<Vector4, System.Numerics.Vector4>(ref vector2)
+			);
+#else
 			return (
 				vector1.X * vector2.X +
 				vector1.Y * vector2.Y +
 				vector1.Z * vector2.Z +
 				vector1.W * vector2.W
 			);
+#endif
 		}
 
 		/// <summary>
@@ -612,12 +626,19 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">The dot product of two vectors as an output parameter.</param>
 		public static void Dot(ref Vector4 vector1, ref Vector4 vector2, out float result)
 		{
+#if NETCOREAPP3_0_OR_GREATER
+			result = System.Numerics.Vector4.Dot(
+				Unsafe.As<Vector4, System.Numerics.Vector4>(ref vector1),
+				Unsafe.As<Vector4, System.Numerics.Vector4>(ref vector2)
+			);
+#else
 			result = (
 				(vector1.X * vector2.X) +
 				(vector1.Y * vector2.Y) +
 				(vector1.Z * vector2.Z) +
 				(vector1.W * vector2.W)
 			);
+#endif
 		}
 
 		/// <summary>
@@ -1402,15 +1423,25 @@ namespace Microsoft.Xna.Framework
 
 		public static bool operator ==(Vector4 value1, Vector4 value2)
 		{
+#if NETCOREAPP3_0_OR_GREATER
+			return Unsafe.As<Vector4, System.Numerics.Vector4>(ref value1)
+				== Unsafe.As<Vector4, System.Numerics.Vector4>(ref value2);
+#else
 			return (	value1.X == value2.X &&
 					value1.Y == value2.Y &&
 					value1.Z == value2.Z &&
 					value1.W == value2.W	);
+#endif
 		}
 
 		public static bool operator !=(Vector4 value1, Vector4 value2)
 		{
+#if NETCOREAPP3_0_OR_GREATER
+			return Unsafe.As<Vector4, System.Numerics.Vector4>(ref value1)
+				!= Unsafe.As<Vector4, System.Numerics.Vector4>(ref value2);
+#else
 			return !(value1 == value2);
+#endif
 		}
 
 		public static Vector4 operator +(Vector4 value1, Vector4 value2)
