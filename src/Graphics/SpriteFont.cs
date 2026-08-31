@@ -95,7 +95,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		/* This is not a part of the spec as far as we know, but we
 		 * added this because it's WAY faster than going to characterMap
-		 * and calling BinarySearch for characterMap.
+		 * and calling IndexOf on each character. We also tried BinarySearch
+		 * with characterMap, but it didn't perform as well.
 		 */
 		internal Dictionary<char, int> characterIndexMap;
 
