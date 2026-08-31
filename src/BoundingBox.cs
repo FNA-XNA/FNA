@@ -266,18 +266,18 @@ namespace Microsoft.Xna.Framework
 		public void Contains(ref Vector3 point, out ContainmentType result)
 		{
 			// Determine if point is outside of this box.
-			if (	point.X < this.Min.X ||
-				point.X > this.Max.X ||
-				point.Y < this.Min.Y ||
-				point.Y > this.Max.Y ||
-				point.Z < this.Min.Z ||
-				point.Z > this.Max.Z	)
+			if (	point.X >= this.Min.X &&
+				point.X <= this.Max.X &&
+				point.Y >= this.Min.Y &&
+				point.Y <= this.Max.Y &&
+				point.Z >= this.Min.Z &&
+				point.Z <= this.Max.Z	)
 			{
-				result = ContainmentType.Disjoint;
+				result = ContainmentType.Contains;
 			}
 			else
 			{
-				result = ContainmentType.Contains;
+				result = ContainmentType.Disjoint;
 			}
 		}
 
