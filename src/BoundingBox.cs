@@ -371,20 +371,11 @@ namespace Microsoft.Xna.Framework
 
 		public void Intersects(ref BoundingBox box, out bool result)
 		{
-			if ((this.Max.X >= box.Min.X) && (this.Min.X <= box.Max.X))
-			{
-				if ((this.Max.Y < box.Min.Y) || (this.Min.Y > box.Max.Y))
-				{
-					result = false;
-					return;
-				}
-
-				result = (this.Max.Z >= box.Min.Z) && (this.Min.Z <= box.Max.Z);
-				return;
-			}
-
-			result = false;
-			return;
+			result = !(
+				this.Max.X < box.Min.X || this.Min.X > box.Max.X ||
+				this.Max.Y < box.Min.Y || this.Min.Y > box.Max.Y ||
+				this.Max.Z < box.Min.Z || this.Min.Z > box.Max.Z
+			);
 		}
 
 		public bool Intersects(BoundingSphere sphere)
