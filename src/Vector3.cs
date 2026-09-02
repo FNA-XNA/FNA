@@ -286,7 +286,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The length of this <see cref="Vector3"/>.</returns>
 		public float Length()
 		{
-			return (float) Math.Sqrt((X * X) + (Y * Y) + (Z * Z));
+			return MathF.Sqrt((X * X) + (Y * Y) + (Z * Z));
 		}
 
 		/// <summary>
@@ -303,7 +303,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public void Normalize()
 		{
-			float factor = 1.0f / (float) Math.Sqrt(
+			float factor = 1.0f / MathF.Sqrt(
 				(X * X) +
 				(Y * Y) +
 				(Z * Z)
@@ -541,7 +541,7 @@ namespace Microsoft.Xna.Framework
 		{
 			float result;
 			DistanceSquared(ref vector1, ref vector2, out result);
-			return (float) Math.Sqrt(result);
+			return MathF.Sqrt(result);
 		}
 
 		/// <summary>
@@ -553,7 +553,7 @@ namespace Microsoft.Xna.Framework
 		public static void Distance(ref Vector3 value1, ref Vector3 value2, out float result)
 		{
 			DistanceSquared(ref value1, ref value2, out result);
-			result = (float) Math.Sqrt(result);
+			result = MathF.Sqrt(result);
 		}
 
 		/// <summary>
@@ -886,7 +886,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Unit vector.</returns>
 		public static Vector3 Normalize(Vector3 value)
 		{
-			float factor = 1.0f / (float) Math.Sqrt(
+			float factor = 1.0f / MathF.Sqrt(
 				(value.X * value.X) +
 				(value.Y * value.Y) +
 				(value.Z * value.Z)
@@ -905,7 +905,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">Unit vector as an output parameter.</param>
 		public static void Normalize(ref Vector3 value, out Vector3 result)
 		{
-			float factor = 1.0f / (float) Math.Sqrt(
+			float factor = 1.0f / MathF.Sqrt(
 				(value.X * value.X) +
 				(value.Y * value.Y) +
 				(value.Z * value.Z)
