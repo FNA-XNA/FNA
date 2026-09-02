@@ -373,19 +373,22 @@ namespace Microsoft.Xna.Framework
 
 			// From "Real-Time Collision Detection" (Page 89)
 
-			Vector3 minx = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-			Vector3 maxx = -minx;
+			IEnumerator<Vector3> enumerator = points.GetEnumerator();
+			if (!enumerator.MoveNext())
+			{
+				throw new ArgumentException("You should have at least one point in points.");
+			}
+			Vector3 minx = enumerator.Current;
+			Vector3 maxx = minx;
 			Vector3 miny = minx;
-			Vector3 maxy = -minx;
+			Vector3 maxy = minx;
 			Vector3 minz = minx;
-			Vector3 maxz = -minx;
+			Vector3 maxz = minx;
 
 			// Find the most extreme points along the principle axis.
-			int numPoints = 0;
-			foreach (Vector3 pt in points)
+			while (enumerator.MoveNext())
 			{
-				numPoints += 1;
-
+				Vector3 pt = enumerator.Current;
 				if (pt.X < minx.X)
 				{
 					minx = pt;
@@ -410,13 +413,6 @@ namespace Microsoft.Xna.Framework
 				{
 					maxz = pt;
 				}
-			}
-
-			if (numPoints == 0)
-			{
-				throw new ArgumentException(
-					"You should have at least one point in points."
-				);
 			}
 
 			float sqDistX = Vector3.DistanceSquared(maxx, minx);
