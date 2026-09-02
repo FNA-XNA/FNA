@@ -52,14 +52,6 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Private Static Variables
-
-		// These are NOT readonly, for avoiding defensive copy -flibit
-		private static Vector3 MaxVector3 = new Vector3(float.MaxValue);
-		private static Vector3 MinVector3 = new Vector3(float.MinValue);
-
-		#endregion
-
 		#region Public Constructors
 
 		public BoundingBox(Vector3 min, Vector3 max)
@@ -527,12 +519,16 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentNullException();
 			}
-
-			bool empty = true;
-			Vector3 minVec = MaxVector3;
-			Vector3 maxVec = MinVector3;
-			foreach (Vector3 ptVector in points)
+			IEnumerator<Vector3> enumerator = points.GetEnumerator();
+			if (!enumerator.MoveNext())
 			{
+				throw new ArgumentException("You should have at least one point in points");
+			}
+			Vector3 minVec = enumerator.Current;
+			Vector3 maxVec = minVec;
+			while (enumerator.MoveNext())
+			{
+				Vector3 ptVector = enumerator.Current;
 				minVec.X = (minVec.X < ptVector.X) ? minVec.X : ptVector.X;
 				minVec.Y = (minVec.Y < ptVector.Y) ? minVec.Y : ptVector.Y;
 				minVec.Z = (minVec.Z < ptVector.Z) ? minVec.Z : ptVector.Z;
@@ -540,12 +536,6 @@ namespace Microsoft.Xna.Framework
 				maxVec.X = (maxVec.X > ptVector.X) ? maxVec.X : ptVector.X;
 				maxVec.Y = (maxVec.Y > ptVector.Y) ? maxVec.Y : ptVector.Y;
 				maxVec.Z = (maxVec.Z > ptVector.Z) ? maxVec.Z : ptVector.Z;
-
-				empty = false;
-			}
-			if (empty)
-			{
-				throw new ArgumentException("You should have at least one point in points");
 			}
 
 			return new BoundingBox(minVec, maxVec);
