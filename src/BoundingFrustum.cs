@@ -213,7 +213,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Result of testing for containment between this <see cref="BoundingFrustum"/> and specified <see cref="BoundingBox"/>.</returns>
 		public ContainmentType Contains(BoundingBox box)
 		{
-			ContainmentType result = default(ContainmentType);
+			ContainmentType result;
 			this.Contains(ref box, out result);
 			return result;
 		}
@@ -228,7 +228,7 @@ namespace Microsoft.Xna.Framework
 			bool intersects = false;
 			for (int i = 0; i < PlaneCount; i += 1)
 			{
-				PlaneIntersectionType planeIntersectionType = default(PlaneIntersectionType);
+				PlaneIntersectionType planeIntersectionType;
 				box.Intersects(ref this.planes[i], out planeIntersectionType);
 				switch (planeIntersectionType)
 				{
@@ -250,7 +250,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Result of testing for containment between this <see cref="BoundingFrustum"/> and specified <see cref="BoundingSphere"/>.</returns>
 		public ContainmentType Contains(BoundingSphere sphere)
 		{
-			ContainmentType result = default(ContainmentType);
+			ContainmentType result;
 			this.Contains(ref sphere, out result);
 			return result;
 		}
@@ -265,7 +265,7 @@ namespace Microsoft.Xna.Framework
 			bool intersects = false;
 			for (int i = 0; i < PlaneCount; i += 1)
 			{
-				PlaneIntersectionType planeIntersectionType = default(PlaneIntersectionType);
+				PlaneIntersectionType planeIntersectionType;
 
 				// TODO: We might want to inline this for performance reasons.
 				sphere.Intersects(ref this.planes[i], out planeIntersectionType);
@@ -362,7 +362,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if specified <see cref="BoundingBox"/> intersects with this <see cref="BoundingFrustum"/>; <c>false</c> otherwise.</returns>
 		public bool Intersects(BoundingBox box)
 		{
-			bool result = false;
+			bool result;
 			this.Intersects(ref box, out result);
 			return result;
 		}
@@ -374,7 +374,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result"><c>true</c> if specified <see cref="BoundingBox"/> intersects with this <see cref="BoundingFrustum"/>; <c>false</c> otherwise as an output parameter.</param>
 		public void Intersects(ref BoundingBox box, out bool result)
 		{
-			ContainmentType containment = default(ContainmentType);
+			ContainmentType containment;
 			this.Contains(ref box, out containment);
 			result = containment != ContainmentType.Disjoint;
 		}
@@ -386,7 +386,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns><c>true</c> if specified <see cref="BoundingSphere"/> intersects with this <see cref="BoundingFrustum"/>; <c>false</c> otherwise.</returns>
 		public bool Intersects(BoundingSphere sphere)
 		{
-			bool result = default(bool);
+			bool result;
 			this.Intersects(ref sphere, out result);
 			return result;
 		}
@@ -398,7 +398,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result"><c>true</c> if specified <see cref="BoundingSphere"/> intersects with this <see cref="BoundingFrustum"/>; <c>false</c> otherwise as an output parameter.</param>
 		public void Intersects(ref BoundingSphere sphere, out bool result)
 		{
-			ContainmentType containment = default(ContainmentType);
+			ContainmentType containment;
 			this.Contains(ref sphere, out containment);
 			result = containment != ContainmentType.Disjoint;
 		}
