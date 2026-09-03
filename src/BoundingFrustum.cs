@@ -396,11 +396,49 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		/// <param name="sphere">A <see cref="BoundingSphere"/> for intersection test.</param>
 		/// <param name="result"><c>true</c> if specified <see cref="BoundingSphere"/> intersects with this <see cref="BoundingFrustum"/>; <c>false</c> otherwise as an output parameter.</param>
-		public void Intersects(ref BoundingSphere sphere, out bool result)
+		public unsafe void Intersects(ref BoundingSphere sphere, out bool result)
 		{
-			ContainmentType containment;
-			this.Contains(ref sphere, out containment);
-			result = containment != ContainmentType.Disjoint;
+			int outsideLength = 0;
+			int* outsides = stackalloc int[3];
+			for (int i = 0; i < 6; i++)
+			{
+				float distance;
+				planes[i].DotCoordinate(ref sphere.Center, out distance);
+				if (distance > sphere.Radius)
+				{
+					result = false;
+					return;
+				}
+				if (distance > 0)
+				{
+					outsides[outsideLength] = i;
+					outsideLength++;
+				}
+			}
+			switch (outsideLength)
+			{
+				case 0:
+				case 1:
+					result = true;
+					return;
+				case 2:
+					int[] cornerMap = new int[] { 0, 4, 1, 5, 3, 7, 2, 6 };
+					int free = 3 - outsides[0] / 2 - outsides[1] / 2;
+					Vector3 corner1 = corners[cornerMap[outsides[0] % 2 << outsides[0] / 2 | outsides[1] % 2 << outsides[1] / 2]];
+					Vector3 corner2 = corners[cornerMap[outsides[0] % 2 << outsides[0] / 2 | outsides[1] % 2 << outsides[1] / 2 | 1 << free]];
+					Vector3 direction = corner2 - corner1;
+					Vector3 lineToPoint = sphere.Center - corner1;
+					float t = MathHelper.Clamp(Vector3.Dot(lineToPoint, direction) / direction.LengthSquared(), 0f, 1f);
+					result = Vector3.DistanceSquared(sphere.Center, corner1 + t * direction) <= sphere.Radius * sphere.Radius;
+					return;
+				case 3:
+					cornerMap = new int[] { 0, 4, 1, 5, 3, 7, 2, 6 };
+					Vector3 corner = corners[cornerMap[outsides[0] % 2 | outsides[1] % 2 << 1 | outsides[2] % 2 << 2]];
+					result = Vector3.DistanceSquared(corner, sphere.Center) <= sphere.Radius * sphere.Radius;
+					return;
+				default:
+					throw new Exception("Never Reach Code");
+			}
 		}
 
 		/// <summary>
