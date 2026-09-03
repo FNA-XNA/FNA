@@ -265,18 +265,18 @@ namespace Microsoft.Xna.Framework
 			bool intersects = false;
 			for (int i = 0; i < PlaneCount; i += 1)
 			{
-				PlaneIntersectionType planeIntersectionType;
+				float distance;
 
 				// TODO: We might want to inline this for performance reasons.
-				sphere.Intersects(ref this.planes[i], out planeIntersectionType);
-				switch (planeIntersectionType)
+				this.planes[i].DotCoordinate(ref sphere.Center, out distance);
+				if (distance > sphere.Radius)
 				{
-				case PlaneIntersectionType.Front:
 					result = ContainmentType.Disjoint;
 					return;
-				case PlaneIntersectionType.Intersecting:
+				}
+				if (!(distance < -sphere.Radius))
+				{
 					intersects = true;
-					break;
 				}
 			}
 			result = intersects ? ContainmentType.Intersects : ContainmentType.Contains;
