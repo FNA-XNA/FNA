@@ -396,11 +396,101 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		/// <param name="sphere">A <see cref="BoundingSphere"/> for intersection test.</param>
 		/// <param name="result"><c>true</c> if specified <see cref="BoundingSphere"/> intersects with this <see cref="BoundingFrustum"/>; <c>false</c> otherwise as an output parameter.</param>
-		public void Intersects(ref BoundingSphere sphere, out bool result)
+		public unsafe void Intersects(ref BoundingSphere sphere, out bool result)
 		{
-			ContainmentType containment;
-			this.Contains(ref sphere, out containment);
-			result = containment != ContainmentType.Disjoint;
+			int outsideLength = 0;
+			int* outsides = stackalloc int[3];
+			for (int i = 0; i < 6; i++)
+			{
+				float distance;
+				planes[i].DotCoordinate(ref sphere.Center, out distance);
+				if (distance > sphere.Radius)
+				{
+					result = false;
+					return;
+				}
+				if (distance > 0)
+				{
+					outsides[outsideLength] = i;
+					outsideLength++;
+				}
+			}
+			switch (outsideLength)
+			{
+				case 0:
+					result = true;
+					return;
+				case 1:
+					int[] cornerMap = new int[] { 0, 4, 1, 5, 3, 7, 2, 6 };
+					int free1, free2;
+					switch (outsides[0] / 2)
+					{
+						case 0:
+							free1 = 1; free2 = 2; break;
+						case 1:
+							free1 = 0; free2 = 2; break;
+						case 2:
+							free1 = 0; free2 = 1; break;
+						default:
+							throw new Exception("Never Reach Code");
+					}
+					Vector3 corner1 = corners[cornerMap[outsides[0] % 2 << outsides[0] / 2]];
+					Vector3 corner2 = corners[cornerMap[outsides[0] % 2 << outsides[0] / 2 | 1 << free1]];
+					Vector3 corner3 = corners[cornerMap[outsides[0] % 2 << outsides[0] / 2 | 1 << free1 | 1 << free2]];
+					Vector3 corner4 = corners[cornerMap[outsides[0] % 2 << outsides[0] / 2 | 1 << free2]];
+					Vector3 normal = planes[outsides[0]].Normal;
+					float d1 = Vector3.Dot(Vector3.Cross(corner2 - corner1, sphere.Center - corner1), normal);
+					float d2 = Vector3.Dot(Vector3.Cross(corner3 - corner2, sphere.Center - corner2), normal);
+					float d3 = Vector3.Dot(Vector3.Cross(corner4 - corner3, sphere.Center - corner3), normal);
+					float d4 = Vector3.Dot(Vector3.Cross(corner1 - corner4, sphere.Center - corner4), normal);
+					if (d1 >= 0f && d2 >= 0f && d3 >= 0f && d4 >= 0f)
+					{
+						result = true;
+						return;
+					}
+					if (d1 <= 0f && d2 <= 0f && d3 <= 0f && d4 <= 0f)
+					{
+						result = true;
+						return;
+					}
+					float radiusSquare = sphere.Radius * sphere.Radius;
+					if (DistanceSquarePointToSegment(sphere.Center, corner1, corner2) <= radiusSquare)
+					{
+						result = true;
+						return;
+					}
+					if (DistanceSquarePointToSegment(sphere.Center, corner2, corner3) <= radiusSquare)
+					{
+						result = true;
+						return;
+					}
+					if (DistanceSquarePointToSegment(sphere.Center, corner3, corner4) <= radiusSquare)
+					{
+						result = true;
+						return;
+					}
+					if (DistanceSquarePointToSegment(sphere.Center, corner4, corner1) <= radiusSquare)
+					{
+						result = true;
+						return;
+					}
+					result = false;
+					return;
+				case 2:
+					cornerMap = new int[] { 0, 4, 1, 5, 3, 7, 2, 6 };
+					int free = 3 - outsides[0] / 2 - outsides[1] / 2;
+					corner1 = corners[cornerMap[outsides[0] % 2 << outsides[0] / 2 | outsides[1] % 2 << outsides[1] / 2]];
+					corner2 = corners[cornerMap[outsides[0] % 2 << outsides[0] / 2 | outsides[1] % 2 << outsides[1] / 2 | 1 << free]];
+					result = DistanceSquarePointToSegment(sphere.Center, corner1, corner2) <= sphere.Radius * sphere.Radius;
+					return;
+				case 3:
+					cornerMap = new int[] { 0, 4, 1, 5, 3, 7, 2, 6 };
+					Vector3 corner = corners[cornerMap[outsides[0] % 2 | outsides[1] % 2 << 1 | outsides[2] % 2 << 2]];
+					result = Vector3.DistanceSquared(corner, sphere.Center) <= sphere.Radius * sphere.Radius;
+					return;
+				default:
+					throw new Exception("Never Reach Code");
+			}
 		}
 
 		/// <summary>
@@ -629,6 +719,13 @@ namespace Microsoft.Xna.Framework
 			result.X = (v1.X + v2.X + v3.X) / f;
 			result.Y = (v1.Y + v2.Y + v3.Y) / f;
 			result.Z = (v1.Z + v2.Z + v3.Z) / f;
+		}
+
+		private static float DistanceSquarePointToSegment(Vector3 point, Vector3 lineStart, Vector3 lineEnd)
+		{
+			Vector3 direction = lineEnd - lineStart;
+			float t = Vector3.Dot(point - lineStart, direction) / direction.LengthSquared();
+			return Vector3.DistanceSquared(point, lineStart + MathHelper.Clamp(t, 0f, 1f) * direction);
 		}
 
 		#endregion
