@@ -451,25 +451,57 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">Distance at which ray intersects with this <see cref="BoundingFrustum"/> or null if no intersection happens as an output parameter.</param>
 		public void Intersects(ref Ray ray, out float? result)
 		{
-			ContainmentType ctype;
-			Contains(ref ray.Position, out ctype);
-
-			if (ctype == ContainmentType.Disjoint)
+			float tEnter = float.MinValue;
+			float tLeave = float.MaxValue;
+			float velocity;
+			float distance;
+			result = null;
+			for (int i = 0; i < 6; i++)
 			{
-				result = null;
+				planes[i].DotNormal(ref ray.Direction, out velocity);
+				planes[i].DotCoordinate(ref ray.Position, out distance);
+				if (Math.Abs(velocity) < 1e-5f)
+				{
+					if (distance > 0f)
+					{
+						return;
+					}
+					continue;
+				}
+				float t = -distance / velocity;
+				if (velocity < 0f)
+				{
+					if (t > tLeave)
+					{
+						return;
+					}
+					if (t > tEnter)
+					{
+						tEnter = t;
+					}
+				}
+				else
+				{
+					if (t < tEnter)
+					{
+						return;
+					}
+					if (t < tLeave)
+					{
+						tLeave = t;
+					}
+				}
+			}
+			if (tEnter >= 0f)
+			{
+				result = tEnter;
 				return;
 			}
-			if (ctype == ContainmentType.Contains)
+			if (tLeave >= 0f)
 			{
-				result = 0.0f;
+				result = tLeave;
 				return;
 			}
-			if (ctype != ContainmentType.Intersects)
-			{
-				throw new ArgumentOutOfRangeException("ctype");
-			}
-
-			throw new NotImplementedException();
 		}
 
 		#endregion
