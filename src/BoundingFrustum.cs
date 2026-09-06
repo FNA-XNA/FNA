@@ -424,17 +424,22 @@ namespace Microsoft.Xna.Framework
 		{
 			float distance;
 			plane.DotCoordinate(ref corners[0], out distance);
-			bool flag = distance > 0f;
+			bool isInFront = (distance > 0f);
 			for (int i = 1; i < corners.Length; i++)
 			{
 				plane.DotCoordinate(ref corners[i], out distance);
-				if (distance > 0f != flag)
+				// If one corner is in front and another behind, we're intersecting no matter what
+				bool anotherInFront = (distance > 0f);
+				if (anotherInFront != isInFront)
 				{
 					result = PlaneIntersectionType.Intersecting;
 					return;
 				}
 			}
-			result = flag ? PlaneIntersectionType.Front : PlaneIntersectionType.Back;
+
+			// If we made it here, all corners are on the same side as the first corner we checked.
+			// Note that all corners having a distance of exactly 0 also counts as Back, not Intersecting
+			result = isInFront ? PlaneIntersectionType.Front : PlaneIntersectionType.Back;
 		}
 
 		/// <summary>
