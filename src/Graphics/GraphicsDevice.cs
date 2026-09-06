@@ -183,7 +183,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					throw new ObjectDisposedException(GetType().Name);
 				}
-				if (!(value.X >= 0 && value.Y >= 0 && value.Width >= 0 && value.Height >= 0))
+				if (value.X < 0 || value.Y < 0 || value.Width < 0 || value.Height < 0)
 				{
 					throw new ArgumentException("The scissor rectangle is invalid. The scissor rectangle cannot be larger than or outside of the current render target bounds.", "value");
 				}
@@ -213,10 +213,10 @@ namespace Microsoft.Xna.Framework.Graphics
 					throw new ObjectDisposedException(GetType().Name);
 				}
 				if (
-					!(value.X >= 0 && value.Y >= 0 && value.Width > 0 && value.Height > 0)
-					|| value.MinDepth < 0f || value.MinDepth > 1f
-					|| value.MaxDepth < 0f || value.MaxDepth > 1f
-					|| value.MaxDepth < value.MinDepth
+					value.X < 0 || value.Y < 0 || value.Width <= 0 || value.Height <= 0 ||
+					value.MinDepth < 0f || value.MinDepth > 1f ||
+					value.MaxDepth < 0f || value.MaxDepth > 1f ||
+					value.MaxDepth < value.MinDepth
 				)
 				{
 					throw new ArgumentException("The viewport is invalid. The viewport cannot be larger than or outside of the current render target bounds. The MinDepth and MaxDepth must be between 0 and 1.", "value");
