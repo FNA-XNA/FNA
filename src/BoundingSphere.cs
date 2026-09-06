@@ -414,6 +414,7 @@ namespace Microsoft.Xna.Framework
 					maxz = pt;
 				}
 			}
+			enumerator.Dispose();
 
 			float sqDistX = Vector3.DistanceSquared(maxx, minx);
 			float sqDistY = Vector3.DistanceSquared(maxy, miny);

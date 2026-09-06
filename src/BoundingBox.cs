@@ -537,7 +537,7 @@ namespace Microsoft.Xna.Framework
 				maxVec.Y = (maxVec.Y > ptVector.Y) ? maxVec.Y : ptVector.Y;
 				maxVec.Z = (maxVec.Z > ptVector.Z) ? maxVec.Z : ptVector.Z;
 			}
-
+			enumerator.Dispose();
 			return new BoundingBox(minVec, maxVec);
 		}
 
