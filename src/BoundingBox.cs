@@ -128,7 +128,7 @@ namespace Microsoft.Xna.Framework
 			 */
 			int i;
 			ContainmentType contained;
-			Vector3[] corners = frustum.GetCorners();
+			Vector3[] corners = frustum.corners;
 
 			// First we check if frustum is in box.
 			for (i = 0; i < corners.Length; i += 1)
