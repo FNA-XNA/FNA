@@ -175,6 +175,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
 				return INTERNAL_scissorRectangle;
 			}
 			set
@@ -204,6 +208,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
 				return INTERNAL_viewport;
 			}
 			set
