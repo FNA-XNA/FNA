@@ -121,6 +121,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				if (value == null)
+				{
+					throw new ArgumentNullException("value", "This method does not accept null for this parameter.");
+				}
 				nextBlend = value;
 			}
 		}
@@ -133,14 +137,33 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				if (value == null)
+				{
+					throw new ArgumentNullException("value", "This method does not accept null for this parameter.");
+				}
 				nextDepthStencil = value;
 			}
 		}
 
+		private RasterizerState cachedRasterizerState;
 		public RasterizerState RasterizerState
 		{
-			get;
-			set;
+			get
+			{
+				return cachedRasterizerState;
+			}
+			set
+			{
+				if (value == null)
+				{
+					throw new ArgumentNullException("value", "This method does not accept null for this parameter.");
+				}
+				if (value.IsDisposed)
+				{
+					throw new ObjectDisposedException(typeof(RasterizerState).Name);
+				}
+				cachedRasterizerState = value;
+			}
 		}
 
 		/* We have to store this internally because we flip the Rectangle for
@@ -152,10 +175,22 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
 				return INTERNAL_scissorRectangle;
 			}
 			set
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
+				if (value.X < 0 || value.Y < 0 || value.Width < 0 || value.Height < 0)
+				{
+					throw new ArgumentException("The scissor rectangle is invalid. The scissor rectangle cannot be larger than or outside of the current render target bounds.", "value");
+				}
 				INTERNAL_scissorRectangle = value;
 				FNA3D.FNA3D_SetScissorRect(
 					GLDevice,
@@ -173,10 +208,27 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
 				return INTERNAL_viewport;
 			}
 			set
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
+				if (
+					value.X < 0 || value.Y < 0 || value.Width <= 0 || value.Height <= 0 ||
+					value.MinDepth < 0f || value.MinDepth > 1f ||
+					value.MaxDepth < 0f || value.MaxDepth > 1f ||
+					value.MaxDepth < value.MinDepth
+				)
+				{
+					throw new ArgumentException("The viewport is invalid. The viewport cannot be larger than or outside of the current render target bounds. The MinDepth and MaxDepth must be between 0 and 1.", "value");
+				}
 				INTERNAL_viewport = value;
 				FNA3D.FNA3D_SetViewport(
 					GLDevice,
@@ -195,6 +247,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
 				/* FIXME: Does this affect the value found in
 				 * BlendState?
 				 * -flibit
@@ -211,6 +267,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
 				/* FIXME: Does this affect the value found in
 				 * BlendState?
 				 * -flibit
@@ -227,6 +287,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
 				/* FIXME: Does this affect the value found in
 				 * DepthStencilState?
 				 * -flibit
