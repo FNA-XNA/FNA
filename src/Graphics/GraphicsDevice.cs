@@ -183,6 +183,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					throw new ObjectDisposedException(GetType().Name);
 				}
+				if (!(value.X >= 0 && value.Y >= 0 && value.Width >= 0 && value.Height >= 0))
+				{
+					throw new ArgumentException("The scissor rectangle is invalid. The scissor rectangle cannot be larger than or outside of the current render target bounds.", "value");
+				}
 				INTERNAL_scissorRectangle = value;
 				FNA3D.FNA3D_SetScissorRect(
 					GLDevice,
