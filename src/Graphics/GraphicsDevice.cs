@@ -398,7 +398,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			if (presentationParameters == null)
 			{
-				throw new ArgumentNullException("presentationParameters");
+				throw new ArgumentNullException("presentationParameters", "This method does not accept null for this parameter.");
+			}
+			if (adapter == null)
+			{
+				throw new ArgumentNullException("adapter", "This method does not accept null for this parameter.");
 			}
 
 			// Set the properties from the constructor parameters.
@@ -707,9 +711,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			PresentationParameters presentationParameters,
 			GraphicsAdapter graphicsAdapter
 		) {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
 			if (presentationParameters == null)
 			{
-				throw new ArgumentNullException("presentationParameters");
+				throw new ArgumentNullException("presentationParameters", "This method does not accept null for this parameter.");
+			}
+			if (graphicsAdapter == null)
+			{
+				throw new ArgumentNullException("graphicsAdapter", "This method does not accept null for this parameter.");
 			}
 			PresentationParameters = presentationParameters;
 			Adapter = graphicsAdapter;
@@ -863,6 +875,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount
 		) where T : struct {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (data == null)
+			{
+				throw new ArgumentNullException("data", "This method does not accept null for this parameter.");
+			}
 			int x, y, w, h;
 			if (rect == null)
 			{
@@ -1237,6 +1257,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int primitiveCount
 		) {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (numVertices <= 0)
+			{
+				throw new ArgumentOutOfRangeException("numVertices", "When drawing indexed primitives, the number of vertices passed in must be greater than zero.");
+			}
+			if (primitiveCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "When drawing, at least one primitive must be drawn.");
+			}
 			ApplyState();
 
 			PrepareVertexBindingArray(baseVertex);
@@ -1263,6 +1295,22 @@ namespace Microsoft.Xna.Framework.Graphics
 			int primitiveCount,
 			int instanceCount
 		) {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (numVertices <= 0)
+			{
+				throw new ArgumentOutOfRangeException("numVertices", "When drawing indexed primitives, the number of vertices passed in must be greater than zero.");
+			}
+			if (primitiveCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "When drawing, at least one primitive must be drawn.");
+			}
+			if (instanceCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("instanceCount", "When drawing, at least one primitive must be drawn.");
+			}
 			// If this device doesn't have the support, just explode now before it's too late.
 			if (FNA3D.FNA3D_SupportsHardwareInstancing(GLDevice) == 0)
 			{
@@ -1296,6 +1344,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexStart,
 			int primitiveCount
 		) {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (primitiveCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "When drawing, at least one primitive must be drawn.");
+			}
 			ApplyState();
 
 			PrepareVertexBindingArray(0);
@@ -1534,6 +1590,26 @@ namespace Microsoft.Xna.Framework.Graphics
 			int primitiveCount,
 			VertexDeclaration vertexDeclaration
 		) where T : struct {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (vertexData == null)
+			{
+				throw new ArgumentNullException("vertexData", "This method does not accept null for this parameter.");
+			}
+			if (vertexDeclaration == null)
+			{
+				throw new ArgumentNullException("vertexDeclaration", "This method does not accept null for this parameter.");
+			}
+			if (primitiveCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "When drawing, at least one primitive must be drawn.");
+			}
+			if (vertexOffset < 0)
+			{
+				throw new ArgumentOutOfRangeException("vertexOffset", "The offset must be within the valid range for this resource.");
+			}
 			ApplyState();
 
 			// Pin the buffers.
