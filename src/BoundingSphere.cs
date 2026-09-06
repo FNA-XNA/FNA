@@ -228,7 +228,7 @@ namespace Microsoft.Xna.Framework
 			// Check if all corners are in sphere.
 			bool inside = true;
 
-			Vector3[] corners = frustum.GetCorners();
+			Vector3[] corners = frustum.corners;
 			foreach (Vector3 corner in corners)
 			{
 				if (this.Contains(corner) == ContainmentType.Disjoint)
