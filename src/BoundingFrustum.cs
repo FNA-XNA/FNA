@@ -267,7 +267,7 @@ namespace Microsoft.Xna.Framework
 			{
 				float distance;
 
-				// TODO: We might want to inline this for performance reasons.
+				// Inlined BoundingSphere.Intersects(Plane)
 				this.planes[i].DotCoordinate(ref sphere.Center, out distance);
 				if (distance > sphere.Radius)
 				{
