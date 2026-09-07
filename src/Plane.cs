@@ -177,25 +177,6 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
-		#region Internal Methods
-
-		internal PlaneIntersectionType Intersects(ref Vector3 point)
-		{
-			float distance;
-			DotCoordinate(ref point, out distance);
-			if (distance > 0)
-			{
-				return PlaneIntersectionType.Front;
-			}
-			if (distance < 0)
-			{
-				return PlaneIntersectionType.Back;
-			}
-			return PlaneIntersectionType.Intersecting;
-		}
-
-		#endregion
-
 		#region Public Static Methods
 
 		public static Plane Normalize(Plane value)
