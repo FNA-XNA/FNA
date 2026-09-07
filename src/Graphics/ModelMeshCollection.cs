@@ -72,7 +72,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			foreach (ModelMesh mesh in this)
 			{
-				if (string.Compare(mesh.Name, meshName, StringComparison.Ordinal) == 0)
+				if (mesh.Name == meshName)
 				{
 					value = mesh;
 					return true;
