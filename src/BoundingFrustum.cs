@@ -374,6 +374,25 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result"><c>true</c> if specified <see cref="BoundingBox"/> intersects with this <see cref="BoundingFrustum"/>; <c>false</c> otherwise as an output parameter.</param>
 		public void Intersects(ref BoundingBox box, out bool result)
 		{
+			BoundingBox wrapBox;
+			wrapBox.Min = corners[0];
+			wrapBox.Max = wrapBox.Min;
+			for (int i = 1; i < CornerCount; i++)
+			{
+				wrapBox.Min = Vector3.Min(wrapBox.Min, corners[i]);
+				wrapBox.Max = Vector3.Max(wrapBox.Max, corners[i]);
+			}
+			ContainmentType containmentType;
+			box.Contains(ref wrapBox, out containmentType);
+			switch (containmentType)
+			{
+				case ContainmentType.Disjoint:
+					result = false;
+					return;
+				case ContainmentType.Contains:
+					result = true;
+					return;
+			}
 			ContainmentType containment;
 			this.Contains(ref box, out containment);
 			result = containment != ContainmentType.Disjoint;
