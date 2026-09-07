@@ -1872,10 +1872,6 @@ namespace Microsoft.Xna.Framework
 			{
 				gc_buttonState |= Buttons.Back;
 			}
-			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE) != 0)
-			{
-				gc_buttonState |= Buttons.BigButton;
-			}
 			if (SDL.SDL_GameControllerGetButton(device, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_START) != 0)
 			{
 				gc_buttonState |= Buttons.Start;
@@ -2175,10 +2171,6 @@ namespace Microsoft.Xna.Framework
 			caps.HasBackButton = SDL.SDL_GameControllerGetBindForButton(
 				INTERNAL_devices[which],
 				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_BACK
-			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
-			caps.HasBigButton = SDL.SDL_GameControllerGetBindForButton(
-				INTERNAL_devices[which],
-				SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE
 			).bindType != SDL.SDL_GameControllerBindType.SDL_CONTROLLER_BINDTYPE_NONE;
 			caps.HasStartButton = SDL.SDL_GameControllerGetBindForButton(
 				INTERNAL_devices[which],

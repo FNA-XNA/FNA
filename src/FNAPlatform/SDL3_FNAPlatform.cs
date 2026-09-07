@@ -1830,7 +1830,7 @@ namespace Microsoft.Xna.Framework
 			{
 				gc_buttonState |= Buttons.Back;
 			}
-			if (SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_GUIDE))
+			if (INTERNAL_capabilities[index].HasBigButton && SDL.SDL_GetGamepadButton(device, SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_MISC1))
 			{
 				gc_buttonState |= Buttons.BigButton;
 			}
@@ -2122,7 +2122,7 @@ namespace Microsoft.Xna.Framework
 			caps.HasXButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_WEST);
 			caps.HasYButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_NORTH);
 			caps.HasBackButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_BACK);
-			caps.HasBigButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_GUIDE);
+			caps.HasBigButton = (caps.GamePadType == GamePadType.BigButtonPad);
 			caps.HasStartButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_START);
 			caps.HasLeftStickButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_STICK);
 			caps.HasRightStickButton = SDL.SDL_GamepadHasButton(INTERNAL_devices[which], SDL.SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_STICK);
@@ -2190,6 +2190,11 @@ namespace Microsoft.Xna.Framework
 				{
 					INTERNAL_guids[which] = "4c05e60c";
 				}
+			}
+			else if (vendor == 0x045e && product == 0x02a0)
+			{
+				INTERNAL_capabilities[which].GamePadType = GamePadType.BigButtonPad;
+				INTERNAL_capabilities[which].HasBigButton = true;
 			}
 
 			// Print controller information to stdout.
