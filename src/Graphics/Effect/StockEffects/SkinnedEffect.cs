@@ -54,14 +54,14 @@ namespace Microsoft.Xna.Framework.Graphics
         Vector3 emissiveColor = Vector3.Zero;
         Vector3 ambientLightColor = Vector3.Zero;
 
-        float alpha = 1;
+        float alpha = 1f;
 
         DirectionalLight light0;
         DirectionalLight light1;
         DirectionalLight light2;
 
-        float fogStart = 0;
-        float fogEnd = 1;
+        float fogStart = 0f;
+        float fogEnd = 1f;
 
         int weightsPerVertex = 4;
 
@@ -310,12 +310,8 @@ namespace Microsoft.Xna.Framework.Graphics
             
             set
             {
-                if ((value != 1) &&
-                    (value != 2) &&
-                    (value != 4))
-                {
-                    throw new ArgumentOutOfRangeException("value");
-                }
+                if (value != 1 && value != 2 && value != 4)
+					throw new ArgumentOutOfRangeException("value", "SkinnedEffect.WeightsPerVertex must be 1, 2, or 4.");
 
                 weightsPerVertex = value;
                 dirtyFlags |= EffectDirtyFlags.ShaderIndex;
@@ -328,13 +324,13 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public void SetBoneTransforms(Matrix[] boneTransforms)
         {
-            if ((boneTransforms == null) || (boneTransforms.Length == 0))
-                throw new ArgumentNullException("boneTransforms");
+            if (boneTransforms == null || boneTransforms.Length == 0)
+				throw new ArgumentNullException("boneTransforms", "This method does not accept null for this parameter.");
 
-            if (boneTransforms.Length > MaxBones)
-                throw new ArgumentException();
+			if (boneTransforms.Length > MaxBones)
+				throw new ArgumentException("SkinnedEffect supports a maximum of 72 bones.");
 
-            bonesParam.SetValue(boneTransforms);
+			bonesParam.SetValue(boneTransforms);
         }
 
 
@@ -343,15 +339,17 @@ namespace Microsoft.Xna.Framework.Graphics
         /// </summary>
         public Matrix[] GetBoneTransforms(int count)
         {
-            if (count <= 0 || count > MaxBones)
-                throw new ArgumentOutOfRangeException("count");
+			if (count <= 0)
+				throw new ArgumentOutOfRangeException("count");
+			if (count > MaxBones)
+				throw new ArgumentOutOfRangeException("count", "SkinnedEffect supports a maximum of 72 bones.");
 
-            Matrix[] bones = bonesParam.GetValueMatrixArray(count);
+			Matrix[] bones = bonesParam.GetValueMatrixArray(count);
             
             // Convert matrices from 43 to 44 format.
             for (int i = 0; i < bones.Length; i++)
             {
-                bones[i].M44 = 1;
+                bones[i].M44 = 1f;
             }
             
             return bones;
