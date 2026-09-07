@@ -8,6 +8,7 @@
 #endregion
 
 #region Using Statements
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -64,7 +65,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// </param>
 		public bool TryGetValue(string boneName, out ModelBone value)
 		{
-			foreach (ModelBone bone in base.Items)
+			if (string.IsNullOrEmpty(boneName))
+			{
+				throw new ArgumentNullException("boneName");
+			}
+			foreach (ModelBone bone in this)
 			{
 				if (bone.Name == boneName)
 				{
