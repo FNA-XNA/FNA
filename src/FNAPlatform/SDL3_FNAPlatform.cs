@@ -1773,7 +1773,8 @@ namespace Microsoft.Xna.Framework
 			GamePadType.DancePad,
 			GamePadType.Guitar,
 			GamePadType.DrumKit,
-			GamePadType.BigButtonPad
+			GamePadType.Unknown, // SDL_JOYSTICK_TYPE_ARCADE_PAD
+			GamePadType.Unknown, // SDL_JOYSTICK_TYPE_THROTTLE
 		};
 
 		public static GamePadCapabilities GetGamePadCapabilities(int index)
