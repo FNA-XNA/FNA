@@ -7,6 +7,10 @@
  */
 #endregion
 
+#region Using Statements
+using System;
+#endregion
+
 namespace Microsoft.Xna.Framework.Graphics
 {
 	public sealed class SamplerStateCollection
@@ -17,10 +21,22 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				if (unchecked((uint) index >= (uint) samplers.Length))
+				{
+					throw new ArgumentOutOfRangeException("index");
+				}
 				return samplers[index];
 			}
 			set
 			{
+				if (unchecked((uint) index >= (uint) samplers.Length))
+				{
+					throw new ArgumentOutOfRangeException("index");
+				}
+				if (value == null)
+				{
+					throw new ArgumentNullException("value", "This method does not accept null for this parameter.");
+				}
 				samplers[index] = value;
 				modifiedSamplers[index] = true;
 			}
