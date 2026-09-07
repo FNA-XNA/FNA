@@ -458,8 +458,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				color,
 				origin.X / sourceW / (float) texture.Width,
 				origin.Y / sourceH / (float) texture.Height,
-				(float) Math.Sin(rotation),
-				(float) Math.Cos(rotation),
+				MathF.Sin(rotation),
+				MathF.Cos(rotation),
 				layerDepth,
 				(int) (effects & (SpriteEffects) 0x03)
 			);
@@ -515,8 +515,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				color,
 				origin.X / sourceW / (float) texture.Width,
 				origin.Y / sourceH / (float) texture.Height,
-				(float) Math.Sin(rotation),
-				(float) Math.Cos(rotation),
+				MathF.Sin(rotation),
+				MathF.Cos(rotation),
 				layerDepth,
 				(int) (effects & (SpriteEffects) 0x03)
 			);
@@ -635,8 +635,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				color,
 				origin.X / sourceW / (float) texture.Width,
 				origin.Y / sourceH / (float) texture.Height,
-				(float) Math.Sin(rotation),
-				(float) Math.Cos(rotation),
+				MathF.Sin(rotation),
+				MathF.Cos(rotation),
 				layerDepth,
 				(int) (effects & (SpriteEffects) 0x03)
 			);
@@ -836,8 +836,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					color,
 					offsetX / sourceW / (float) textureValue.Width,
 					offsetY / sourceH / (float) textureValue.Height,
-					(float) Math.Sin(rotation),
-					(float) Math.Cos(rotation),
+					MathF.Sin(rotation),
+					MathF.Cos(rotation),
 					layerDepth,
 					(int) effects
 				);
@@ -1028,8 +1028,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					color,
 					offsetX / sourceW / (float) textureValue.Width,
 					offsetY / sourceH / (float) textureValue.Height,
-					(float) Math.Sin(rotation),
-					(float) Math.Cos(rotation),
+					MathF.Sin(rotation),
+					MathF.Cos(rotation),
 					layerDepth,
 					(int) effects
 				);

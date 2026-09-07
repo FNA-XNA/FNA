@@ -271,7 +271,7 @@ namespace Microsoft.Xna.Framework
 				differenceLengthSquared
 			);
 
-			result = (dist < 0) ? null : distanceAlongRay - (float?) Math.Sqrt(dist);
+			result = (dist < 0) ? null : distanceAlongRay - (float?) MathF.Sqrt(dist);
 		}
 
 		#endregion
