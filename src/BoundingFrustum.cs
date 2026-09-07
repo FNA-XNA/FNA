@@ -146,13 +146,13 @@ namespace Microsoft.Xna.Framework
 		#region Internal Fields
 
 		internal readonly Vector3[] corners = new Vector3[CornerCount];
+		internal readonly Plane[] planes = new Plane[PlaneCount];
 
 		#endregion
 
 		#region Private Fields
 
 		private Matrix matrix;
-		private readonly Plane[] planes = new Plane[PlaneCount];
 
 		/// <summary>
 		/// The number of planes in the frustum.
