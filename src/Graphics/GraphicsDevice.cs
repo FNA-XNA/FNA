@@ -125,6 +125,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					throw new ArgumentNullException("value", "This method does not accept null for this parameter.");
 				}
+				if (value.IsDisposed)
+				{
+					throw new ObjectDisposedException(typeof(BlendState).Name);
+				}
+				value.graphicsDevice = this;
 				nextBlend = value;
 			}
 		}
@@ -141,6 +146,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					throw new ArgumentNullException("value", "This method does not accept null for this parameter.");
 				}
+				if (value.IsDisposed)
+				{
+					throw new ObjectDisposedException(typeof(DepthStencilState).Name);
+				}
+				value.graphicsDevice = this;
 				nextDepthStencil = value;
 			}
 		}
@@ -162,6 +172,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					throw new ObjectDisposedException(typeof(RasterizerState).Name);
 				}
+				value.graphicsDevice = this;
 				cachedRasterizerState = value;
 			}
 		}
