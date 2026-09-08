@@ -690,7 +690,7 @@ namespace Microsoft.Xna.Framework
 					updateable.Update(gameTime);
 				}
 			}
-
+			Array.Clear(currentlyUpdatingComponents, 0, capacity);
 			FrameworkDispatcher.Update();
 		}
 
