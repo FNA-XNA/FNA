@@ -187,7 +187,7 @@ namespace Microsoft.Xna.Framework
 		private List<IUpdateable> updateableComponents;
 		private IUpdateable[] currentlyUpdatingComponents;
 		private List<IDrawable> drawableComponents;
-		private List<IDrawable> currentlyDrawingComponents;
+		private IDrawable[] currentlyDrawingComponents;
 
 		private IGraphicsDeviceService graphicsDeviceService;
 		private IGraphicsDeviceManager graphicsDeviceManager;
@@ -240,7 +240,7 @@ namespace Microsoft.Xna.Framework
 			updateableComponents = new List<IUpdateable>();
 			currentlyUpdatingComponents = new IUpdateable[4];
 			drawableComponents = new List<IDrawable>();
-			currentlyDrawingComponents = new List<IDrawable>();
+			currentlyDrawingComponents = new IDrawable[4];
 
 			IsMouseVisible = false;
 			IsFixedTimeStep = true;
@@ -648,21 +648,30 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual void Draw(GameTime gameTime)
 		{
+			int capacity = currentlyDrawingComponents.Length;
 			lock (drawableComponents)
 			{
-				for (int i = 0; i < drawableComponents.Count; i += 1)
+				if (capacity < drawableComponents.Count)
 				{
-					currentlyDrawingComponents.Add(drawableComponents[i]);
+					capacity *= 2;
+					if (capacity < drawableComponents.Count)
+					{
+						capacity = drawableComponents.Count;
+					}
+					currentlyDrawingComponents = new IDrawable[capacity];
 				}
+				capacity = drawableComponents.Count;
+				drawableComponents.CopyTo(currentlyDrawingComponents);
 			}
-			foreach (IDrawable drawable in currentlyDrawingComponents)
+			for (int i = 0; i < capacity; i++)
 			{
+				IDrawable drawable = currentlyDrawingComponents[i];
 				if (drawable.Visible)
 				{
 					drawable.Draw(gameTime);
 				}
 			}
-			currentlyDrawingComponents.Clear();
+			Array.Clear(currentlyDrawingComponents, 0, capacity);
 		}
 
 		protected virtual void Update(GameTime gameTime)
