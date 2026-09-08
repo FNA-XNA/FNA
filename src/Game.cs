@@ -185,7 +185,7 @@ namespace Microsoft.Xna.Framework
 		 * -flibit
 		 */
 		private List<IUpdateable> updateableComponents;
-		private List<IUpdateable> currentlyUpdatingComponents;
+		private IUpdateable[] currentlyUpdatingComponents;
 		private List<IDrawable> drawableComponents;
 		private List<IDrawable> currentlyDrawingComponents;
 
@@ -238,7 +238,7 @@ namespace Microsoft.Xna.Framework
 			Content = new ContentManager(Services);
 
 			updateableComponents = new List<IUpdateable>();
-			currentlyUpdatingComponents = new List<IUpdateable>();
+			currentlyUpdatingComponents = new IUpdateable[4];
 			drawableComponents = new List<IDrawable>();
 			currentlyDrawingComponents = new List<IDrawable>();
 
@@ -667,21 +667,29 @@ namespace Microsoft.Xna.Framework
 
 		protected virtual void Update(GameTime gameTime)
 		{
+			int capacity = currentlyUpdatingComponents.Length;
 			lock (updateableComponents)
 			{
-				for (int i = 0; i < updateableComponents.Count; i += 1)
+				if (capacity < updateableComponents.Count)
 				{
-					currentlyUpdatingComponents.Add(updateableComponents[i]);
+					capacity *= 2;
+					if (capacity < updateableComponents.Count)
+					{
+						capacity = updateableComponents.Count;
+					}
+					currentlyUpdatingComponents = new IUpdateable[capacity];
 				}
+				capacity = updateableComponents.Count;
+				updateableComponents.CopyTo(currentlyUpdatingComponents);
 			}
-			foreach (IUpdateable updateable in currentlyUpdatingComponents)
+			for (int i = 0; i < capacity; i++)
 			{
+				IUpdateable updateable = currentlyUpdatingComponents[i];
 				if (updateable.Enabled)
 				{
 					updateable.Update(gameTime);
 				}
 			}
-			currentlyUpdatingComponents.Clear();
 
 			FrameworkDispatcher.Update();
 		}
