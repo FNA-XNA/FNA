@@ -1028,6 +1028,29 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetRenderTargets(params RenderTargetBinding[] renderTargets)
 		{
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (renderTargets != null)
+			{
+				for (int i = 0; i < renderTargets.Length; i++)
+				{
+					Texture renderTarget = renderTargets[i].RenderTarget;
+					if (renderTarget == null)
+					{
+						throw new ArgumentException("This method does not accept null for this parameter.");
+					}
+					if (renderTarget.IsDisposed)
+					{
+						throw new ObjectDisposedException(renderTarget.GetType().Name);
+					}
+					if (renderTarget.GraphicsDevice != this)
+					{
+						throw new InvalidOperationException("Resources can only be used on the GraphicsDevice that they were created on. This resource was not created on this GraphicsDevice.");
+					}
+				}
+			}
 			// Flush scissor state - using a rect outside of the viewport has been observed
 			// causing errors in Metal on iOS (via SDLGPU), for example when scissoring was just
 			// disabled and we're changing viewport size.
