@@ -417,19 +417,23 @@ namespace Microsoft.Xna.Framework
 		public static Rectangle Union(Rectangle value1, Rectangle value2)
 		{
 			Rectangle result;
-			result.X = Math.Min(value1.X, value2.X);
-			result.Y = Math.Min(value1.Y, value2.Y);
-			result.Width = Math.Max(value1.Right, value2.Right) - result.X;
-			result.Height = Math.Max(value1.Bottom, value2.Bottom) - result.Y;
+			int x = Math.Min(value1.X, value2.X);
+			int y = Math.Min(value1.Y, value2.Y);
+			result.X = x;
+			result.Y = y;
+			result.Width = Math.Max(value1.Right, value2.Right) - x;
+			result.Height = Math.Max(value1.Bottom, value2.Bottom) - y;
 			return result;
 		}
 
 		public static void Union(ref Rectangle value1, ref Rectangle value2, out Rectangle result)
 		{
-			result.X = Math.Min(value1.X, value2.X);
-			result.Y = Math.Min(value1.Y, value2.Y);
-			result.Width = Math.Max(value1.Right, value2.Right) - result.X;
-			result.Height = Math.Max(value1.Bottom, value2.Bottom) - result.Y;
+			int x = Math.Min(value1.X, value2.X);
+			int y = Math.Min(value1.Y, value2.Y);
+			result.X = x;
+			result.Y = y;
+			result.Width = Math.Max(value1.Right, value2.Right) - x;
+			result.Height = Math.Max(value1.Bottom, value2.Bottom) - y;
 		}
 
 		#endregion
