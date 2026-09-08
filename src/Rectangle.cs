@@ -403,7 +403,7 @@ namespace Microsoft.Xna.Framework
 			int bottom2 = value2.Y + value2.Height;	// inline value2.Bottom
 			if (value1.X < right2 && value2.X < right1 && value1.Y < bottom2 && value2.Y < bottom1)
 			{
-				result.X = Math.Max(value1.X, value1.Y);
+				result.X = Math.Max(value1.X, value2.X);
 				result.Y = Math.Max(value1.Y, value2.Y);
 				result.Width = Math.Min(right1, right2) - result.X;
 				result.Height = Math.Min(bottom1, bottom2) - result.Y;
