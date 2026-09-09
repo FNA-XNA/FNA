@@ -49,6 +49,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 				selfReference = GCHandle.Alloc(this, GCHandleType.Weak);
 				graphicsDevice.AddResourceReference(selfReference);
+				graphicsDevice.OnResourceCreated(this);
 			}
 		}
 
