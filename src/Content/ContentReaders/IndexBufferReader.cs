@@ -32,7 +32,7 @@ namespace Microsoft.Xna.Framework.Content
 					indexBuffer = new IndexBuffer(
 						input.ContentManager.GetGraphicsDevice(),
 						IndexElementSize.SixteenBits,
-						dataSize / 2,
+						dataSize >> 1,
 						BufferUsage.None
 					);
 				}
@@ -41,7 +41,7 @@ namespace Microsoft.Xna.Framework.Content
 					indexBuffer = new IndexBuffer(
 						input.ContentManager.GetGraphicsDevice(),
 						IndexElementSize.ThirtyTwoBits,
-						dataSize / 4,
+						dataSize >> 2,
 						BufferUsage.None
 					);
 				}
