@@ -152,7 +152,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("graphicsDevice");
 			}
-			GraphicsDevice = graphicsDevice;
+			base.graphicsDevice = graphicsDevice;
 
 			vertexInfo = new VertexPositionColorTexture4[MAX_SPRITES];
 			textureInfo = new Texture2D[MAX_SPRITES];
