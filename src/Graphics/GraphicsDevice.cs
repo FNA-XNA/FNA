@@ -532,6 +532,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				modifiedSamplers
 			);
 			SamplerStates = new SamplerStateCollection(
+				this,
 				maxTextures,
 				modifiedSamplers
 			);
@@ -540,6 +541,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				modifiedVertexSamplers
 			);
 			VertexSamplerStates = new SamplerStateCollection(
+				this,
 				maxVertexTextures,
 				modifiedVertexSamplers
 			);
