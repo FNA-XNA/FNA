@@ -37,6 +37,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					throw new ArgumentNullException("value", "This method does not accept null for this parameter.");
 				}
+				value.graphicsDevice = pDevice;
 				samplers[index] = value;
 				modifiedSamplers[index] = true;
 			}
@@ -46,6 +47,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Variables
 
+		private readonly GraphicsDevice pDevice;
 		private readonly SamplerState[] samplers;
 		private readonly bool[] modifiedSamplers;
 
@@ -54,9 +56,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		#region Internal Constructor
 
 		internal SamplerStateCollection(
+			GraphicsDevice pParent,
 			int slots,
 			bool[] modSamplers
 		) {
+			pDevice = pParent;
 			samplers = new SamplerState[slots];
 			modifiedSamplers = modSamplers;
 			for (int i = 0; i < samplers.Length; i += 1)
