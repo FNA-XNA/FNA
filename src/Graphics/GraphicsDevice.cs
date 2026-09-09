@@ -435,7 +435,6 @@ namespace Microsoft.Xna.Framework.Graphics
 		public event EventHandler<ResourceDestroyedEventArgs> ResourceDestroyed;
 		public event EventHandler<EventArgs> Disposing;
 
-		// TODO: Hook this up to GraphicsResource
 		internal void OnResourceCreated(object resource)
 		{
 			if (ResourceCreated != null)
