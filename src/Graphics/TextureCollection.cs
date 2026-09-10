@@ -21,20 +21,22 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				if (unchecked((uint) index >= (uint) textures.Length))
+				{
+					throw new ArgumentOutOfRangeException("index");
+				}
 				return textures[index];
 			}
 			set
 			{
-#if DEBUG
 				// XNA checks for disposed textures here! -flibit
 				if (value != null)
 				{
-					if (value.IsDisposed)
+					if (value.texture == IntPtr.Zero)
 					{
-						throw new ObjectDisposedException(
-							value.GetType().ToString()
-						);
+						throw new ObjectDisposedException(value.GetType().Name);
 					}
+#if DEBUG
 					if (!ignoreTargets)
 					for (int i = 0; i < value.GraphicsDevice.renderTargetCount; i += 1)
 					{
@@ -46,8 +48,12 @@ namespace Microsoft.Xna.Framework.Graphics
 							);
 						}
 					}
-				}
 #endif
+				}
+				if (unchecked((uint) index >= (uint) textures.Length))
+				{
+					throw new ArgumentOutOfRangeException("index");
+				}
 				textures[index] = value;
 				modifiedSamplers[index] = true;
 			}

@@ -296,7 +296,7 @@ namespace Microsoft.Xna.Framework.Media
 				 * ago, only to not unset after disposing. We
 				 * have to avoid an ObjectDisposedException!
 				 */
-				if (oldTextures[i] == null || !oldTextures[i].IsDisposed)
+				if (oldTextures[i] == null || oldTextures[i].texture != IntPtr.Zero)
 				{
 					currentDevice.Textures[i] = oldTextures[i];
 				}
