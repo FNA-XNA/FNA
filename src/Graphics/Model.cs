@@ -79,7 +79,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <param name="graphicsDevice">A valid reference to <see cref="GraphicsDevice"/>.</param>
 		/// <param name="bones">The collection of bones.</param>
 		/// <param name="meshes">The collection of meshes.</param>
-		internal Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
+		internal Model(GraphicsDevice graphicsDevice, ModelBone[] bones, List<ModelMesh> meshes)
 		{
 			Bones = new ModelBoneCollection(bones);
 			Meshes = new ModelMeshCollection(meshes);
