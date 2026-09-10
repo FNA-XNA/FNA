@@ -55,17 +55,16 @@ namespace Microsoft.Xna.Framework.Content
 		{
 			// Read the bone names and transforms.
 			uint boneCount = reader.ReadUInt32();
-			List<ModelBone> bones = new List<ModelBone>((int) boneCount);
+			ModelBone[] bones = new ModelBone[boneCount];
 			for (uint i = 0; i < boneCount; i += 1)
 			{
 				string name = reader.ReadObject<string>();
 				Matrix matrix = reader.ReadMatrix();
-				ModelBone bone = new ModelBone {
+				bones[i] = new ModelBone {
 					Transform = matrix,
 					Index = (int) i,
 					Name = name
 				};
-				bones.Add(bone);
 			}
 			// Read the bone hierarchy.
 			for (int i = 0; i < boneCount; i += 1)
