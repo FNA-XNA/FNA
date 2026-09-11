@@ -72,7 +72,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			LevelCount = mipMap ? CalculateMipLevels(width, height) : 1;
 			Format = format;
 
-			texture = FNA3D.FNA3D_CreateTexture3D(
+			texture = new TextureHandle(GraphicsDevice.GLDevice);
+			texture.handle = FNA3D.FNA3D_CreateTexture3D(
 				GraphicsDevice.GLDevice,
 				Format,
 				Width,
@@ -135,7 +136,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetTextureData3D(
 				GraphicsDevice.GLDevice,
-				texture,
+				texture.handle,
 				left,
 				top,
 				front,
@@ -167,7 +168,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			FNA3D.FNA3D_SetTextureData3D(
 				GraphicsDevice.GLDevice,
-				texture,
+				texture.handle,
 				left,
 				top,
 				front,
@@ -274,7 +275,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_GetTextureData3D(
 				GraphicsDevice.GLDevice,
-				texture,
+				texture.handle,
 				left,
 				top,
 				front,

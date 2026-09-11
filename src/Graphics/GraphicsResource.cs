@@ -9,7 +9,8 @@
 
 #region Using Statements
 using System;
-using System.Collections.Generic;
+using System.Threading;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 #endregion
 
@@ -210,4 +211,121 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 	}
+
+	#region GraphicsResourceHandle
+
+	abstract class GraphicsResourceHandle : CriticalFinalizerObject
+	{
+		protected readonly IntPtr GLDevice;
+		internal IntPtr handle;
+		protected GraphicsResourceHandle(IntPtr GLDevice)
+		{
+			this.GLDevice = GLDevice;
+		}
+		~GraphicsResourceHandle()
+		{
+			DisposeNative();
+		}
+		internal void Dispose()
+		{
+			DisposeNative();
+			GC.SuppressFinalize(this);
+		}
+		protected abstract void DisposeNative();
+	}
+
+	internal class TextureHandle : GraphicsResourceHandle
+	{
+		internal TextureHandle(IntPtr GLDevice) : base(GLDevice) { }
+		protected override void DisposeNative()
+		{
+			IntPtr toDispose = Interlocked.Exchange(ref handle, IntPtr.Zero);
+			if (toDispose != IntPtr.Zero)
+			{
+				FNA3D.FNA3D_AddDisposeTexture(
+					GLDevice,
+					toDispose
+				);
+			}
+		}
+	}
+
+	class RenderBufferHandle : GraphicsResourceHandle
+	{
+		internal RenderBufferHandle(IntPtr GLDevice) : base(GLDevice) { }
+		protected override void DisposeNative()
+		{
+			IntPtr toDispose = Interlocked.Exchange(ref handle, IntPtr.Zero);
+			if (toDispose != IntPtr.Zero)
+			{
+				FNA3D.FNA3D_AddDisposeRenderbuffer(
+					GLDevice,
+					toDispose
+				);
+			}
+		}
+	}
+
+	class VertexBufferHandle : GraphicsResourceHandle
+	{
+		internal VertexBufferHandle(IntPtr GLDevice) : base(GLDevice) { }
+		protected override void DisposeNative()
+		{
+			IntPtr toDispose = Interlocked.Exchange(ref handle, IntPtr.Zero);
+			if (toDispose != IntPtr.Zero)
+			{
+				FNA3D.FNA3D_AddDisposeVertexBuffer(
+					GLDevice,
+					toDispose
+				);
+			}
+		}
+	}
+
+	class IndexBufferHandle : GraphicsResourceHandle
+	{
+		internal IndexBufferHandle(IntPtr GLDevice) : base(GLDevice) { }
+		protected override void DisposeNative()
+		{
+			IntPtr toDispose = Interlocked.Exchange(ref handle, IntPtr.Zero);
+			if (toDispose != IntPtr.Zero)
+			{
+				FNA3D.FNA3D_AddDisposeIndexBuffer(
+					GLDevice,
+					toDispose
+				);
+			}
+		}
+	}
+
+	class EffectHandle : GraphicsResourceHandle
+	{
+		internal EffectHandle(IntPtr GLDevice) : base(GLDevice) { }
+		protected override void DisposeNative()
+		{
+			IntPtr toDispose = Interlocked.Exchange(ref handle, IntPtr.Zero);
+			if (toDispose != IntPtr.Zero)
+			{
+				FNA3D.FNA3D_AddDisposeEffect(
+					GLDevice,
+					toDispose
+				);
+			}
+		}
+	}
+
+	class QueryHandle : GraphicsResourceHandle
+	{
+		internal QueryHandle(IntPtr GLDevice) : base(GLDevice) { }
+		protected override void DisposeNative()
+		{
+			IntPtr toDispose = Interlocked.Exchange(ref handle, IntPtr.Zero);
+			if (toDispose != IntPtr.Zero)
+			{
+				FNA3D.FNA3D_AddDisposeQuery(GLDevice, toDispose);
+			}
+		}
+	}
+
+	#endregion
 }

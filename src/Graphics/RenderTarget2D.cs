@@ -53,7 +53,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return glDepthStencilBuffer;
+				return glDepthStencilBuffer == null ? IntPtr.Zero : glDepthStencilBuffer.handle;
 			}
 		}
 
@@ -62,7 +62,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return glColorBuffer;
+				return glColorBuffer == null ? IntPtr.Zero : glColorBuffer.handle;
 			}
 		}
 
@@ -70,8 +70,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private FNA3D Variables
 
-		private IntPtr glDepthStencilBuffer;
-		private IntPtr glColorBuffer;
+		private RenderBufferHandle glDepthStencilBuffer;
+		private RenderBufferHandle glColorBuffer;
 
 		#endregion
 
@@ -147,13 +147,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (MultiSampleCount > 0)
 			{
-				glColorBuffer = FNA3D.FNA3D_GenColorRenderbuffer(
+				glColorBuffer = new RenderBufferHandle(GraphicsDevice.GLDevice);
+				glColorBuffer.handle = FNA3D.FNA3D_GenColorRenderbuffer(
 					graphicsDevice.GLDevice,
 					Width,
 					Height,
 					Format,
 					MultiSampleCount,
-					texture
+					texture.handle
 				);
 			}
 
@@ -163,7 +164,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				return;
 			}
 
-			glDepthStencilBuffer = FNA3D.FNA3D_GenDepthStencilRenderbuffer(
+			glDepthStencilBuffer = new RenderBufferHandle(GraphicsDevice.GLDevice);
+			glDepthStencilBuffer.handle = FNA3D.FNA3D_GenDepthStencilRenderbuffer(
 				graphicsDevice.GLDevice,
 				Width,
 				Height,
@@ -187,24 +189,14 @@ namespace Microsoft.Xna.Framework.Graphics
 						throw new InvalidOperationException("Disposing target that is still bound");
 					}
 				}
-
-				IntPtr toDispose = Interlocked.Exchange(ref glColorBuffer, IntPtr.Zero);
-				if (toDispose != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeRenderbuffer(
-						GraphicsDevice.GLDevice,
-						toDispose
-					);
-				}
-
-				toDispose = Interlocked.Exchange(ref glDepthStencilBuffer, IntPtr.Zero);
-				if (toDispose != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeRenderbuffer(
-						GraphicsDevice.GLDevice,
-						toDispose
-					);
-				}
+			}
+			if (glColorBuffer != null)
+			{
+				glColorBuffer.Dispose();
+			}
+			if (glDepthStencilBuffer != null)
+			{
+				glDepthStencilBuffer.Dispose();
 			}
 			base.Dispose(disposing);
 		}
