@@ -19,7 +19,7 @@ namespace Microsoft.Xna.Framework.Graphics
 	/// <summary>
 	/// Represents a set of bones associated with a model.
 	/// </summary>
-	public class ModelBoneCollection : ReadOnlyCollection<ModelBone>
+	public sealed class ModelBoneCollection : ReadOnlyCollection<ModelBone>
 	{
 		#region Public Properties
 
