@@ -14,7 +14,7 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.Xna.Framework.Audio
 {
-	public class Microphone
+	public sealed class Microphone
 	{
 		#region Public Static Properties
 

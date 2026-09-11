@@ -17,7 +17,7 @@ namespace Microsoft.Xna.Framework.Graphics
 	/// <summary>
 	/// A basic 3D model with per mesh parent bones.
 	/// </summary>
-	public class Model
+	public sealed class Model
 	{
 		#region Public Properties
 
