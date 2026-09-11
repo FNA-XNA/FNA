@@ -13,6 +13,7 @@ using System;
 
 namespace Microsoft.Xna.Framework.Content
 {
+	[Serializable]
 	public class ContentLoadException : Exception
 	{
 		#region Public Constructors

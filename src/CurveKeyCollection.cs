@@ -22,6 +22,7 @@ namespace Microsoft.Xna.Framework
 	/// <summary>
 	/// The collection of the <see cref="CurveKey"/> elements and a part of the <see cref="Curve"/> class.
 	/// </summary>
+	[Serializable]
 	public class CurveKeyCollection : ICollection<CurveKey>, IEnumerable<CurveKey>, IEnumerable
 	{
 		#region Public Properties
