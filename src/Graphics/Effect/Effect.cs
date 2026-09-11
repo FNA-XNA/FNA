@@ -29,6 +29,18 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			set
 			{
+				if (glEffect == IntPtr.Zero)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
+				if (value == null)
+				{
+					throw new ArgumentNullException("value", "This method does not accept null for this parameter.");
+				}
+				if (value._parent != this)
+				{
+					throw new InvalidOperationException();
+				}
 				FNA3D.FNA3D_SetEffectTechnique(
 					GraphicsDevice.GLDevice,
 					glEffect,
@@ -952,6 +964,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				techniques.Add(new EffectTechnique(
+					this,
 					MarshalHelper.PtrToInternedStringAnsi(techPtr->name),
 					(IntPtr) techPtr,
 					passes,
