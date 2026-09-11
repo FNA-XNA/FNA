@@ -47,14 +47,22 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Internal Fields
+
+		internal Effect _parent;
+
+		#endregion
+
 		#region Internal Constructor
 
 		internal EffectTechnique(
+			Effect effect,
 			string name,
 			IntPtr pointer,
 			EffectPassCollection passes,
 			EffectAnnotationCollection annotations
 		) {
+			_parent = effect;
 			Name = name;
 			Passes = passes;
 			Annotations = annotations;
