@@ -17,7 +17,6 @@ using System;
 
 namespace Microsoft.Xna.Framework.Graphics
 {
-	[Serializable]
 	public class DisplayMode
 	{
 		#region Public Properties
