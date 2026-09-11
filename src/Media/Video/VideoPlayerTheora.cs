@@ -554,9 +554,9 @@ namespace Microsoft.Xna.Framework.Media
 			// Prepare YUV GL textures with our current frame data
 			FNA3D.FNA3D_SetTextureDataYUV(
 				currentDevice.GLDevice,
-				yuvTextures[0].texture,
-				yuvTextures[1].texture,
-				yuvTextures[2].texture,
+				yuvTextures[0].texture.handle,
+				yuvTextures[1].texture.handle,
+				yuvTextures[2].texture.handle,
 				yuvTextures[0].Width,
 				yuvTextures[0].Height,
 				yuvTextures[1].Width,

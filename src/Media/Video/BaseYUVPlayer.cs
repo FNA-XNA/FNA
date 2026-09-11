@@ -166,7 +166,7 @@ namespace Microsoft.Xna.Framework.Media
 			// Begin the effect, flagging to restore previous state on end
 			FNA3D.FNA3D_BeginPassRestore(
 				currentDevice.GLDevice,
-				shaderProgram.glEffect,
+				shaderProgram.glEffect.handle,
 				stateChangesPtr
 			);
 
@@ -228,7 +228,7 @@ namespace Microsoft.Xna.Framework.Media
 			// End the effect, restoring the previous shader state
 			FNA3D.FNA3D_EndPassRestore(
 				currentDevice.GLDevice,
-				shaderProgram.glEffect
+				shaderProgram.glEffect.handle
 			);
 
 			// Restore GL state

@@ -24,7 +24,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				return FNA3D.FNA3D_QueryComplete(
 					GraphicsDevice.GLDevice,
-					query
+					query.handle
 				) == 1;
 			}
 		}
@@ -35,7 +35,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				return FNA3D.FNA3D_QueryPixelCount(
 					GraphicsDevice.GLDevice,
-					query
+					query.handle
 				);
 			}
 		}
@@ -44,7 +44,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private FNA3D Variables
 
-		private IntPtr query;
+		private QueryHandle query;
 
 		#endregion
 
@@ -53,7 +53,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		public OcclusionQuery(GraphicsDevice graphicsDevice)
 		{
 			GraphicsDevice = graphicsDevice;
-			query = FNA3D.FNA3D_CreateQuery(GraphicsDevice.GLDevice);
+			query = new QueryHandle(GraphicsDevice.GLDevice);
+			query.handle = FNA3D.FNA3D_CreateQuery(GraphicsDevice.GLDevice);
 		}
 
 		#endregion
@@ -64,7 +65,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				IntPtr toDispose = Interlocked.Exchange(ref query, IntPtr.Zero);
+				IntPtr toDispose = Interlocked.Exchange(ref query.handle, IntPtr.Zero);
 				if (toDispose != IntPtr.Zero)
 				{
 					FNA3D.FNA3D_AddDisposeQuery(GraphicsDevice.GLDevice, toDispose);
@@ -79,12 +80,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void Begin()
 		{
-			FNA3D.FNA3D_QueryBegin(GraphicsDevice.GLDevice, query);
+			FNA3D.FNA3D_QueryBegin(GraphicsDevice.GLDevice, query.handle);
 		}
 
 		public void End()
 		{
-			FNA3D.FNA3D_QueryEnd(GraphicsDevice.GLDevice, query);
+			FNA3D.FNA3D_QueryEnd(GraphicsDevice.GLDevice, query.handle);
 		}
 
 		#endregion

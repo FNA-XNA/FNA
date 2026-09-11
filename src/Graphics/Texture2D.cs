@@ -115,7 +115,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				Format = format;
 			}
 
-			texture = FNA3D.FNA3D_CreateTexture2D(
+			texture = new TextureHandle(GraphicsDevice.GLDevice);
+			texture.handle = FNA3D.FNA3D_CreateTexture2D(
 				GraphicsDevice.GLDevice,
 				Format,
 				Width,
@@ -200,7 +201,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetTextureData2D(
 				GraphicsDevice.GLDevice,
-				texture,
+				texture.handle,
 				x,
 				y,
 				w,
@@ -241,7 +242,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			FNA3D.FNA3D_SetTextureData2D(
 				GraphicsDevice.GLDevice,
-				texture,
+				texture.handle,
 				x,
 				y,
 				w,
@@ -336,7 +337,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			FNA3D.FNA3D_GetTextureData2D(
 				GraphicsDevice.GLDevice,
-				texture,
+				texture.handle,
 				subX,
 				subY,
 				subW,
@@ -364,7 +365,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data = FNAPlatform.Malloc(len);
 			FNA3D.FNA3D_GetTextureData2D(
 				GraphicsDevice.GLDevice,
-				texture,
+				texture.handle,
 				0,
 				0,
 				Width,
@@ -393,7 +394,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			IntPtr data = FNAPlatform.Malloc(len);
 			FNA3D.FNA3D_GetTextureData2D(
 				GraphicsDevice.GLDevice,
-				texture,
+				texture.handle,
 				0,
 				0,
 				Width,

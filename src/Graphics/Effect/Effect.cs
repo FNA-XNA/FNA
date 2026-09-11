@@ -31,7 +31,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				FNA3D.FNA3D_SetEffectTechnique(
 					GraphicsDevice.GLDevice,
-					glEffect,
+					glEffect.handle,
 					value.TechniquePointer
 				);
 				INTERNAL_currentTechnique = value;
@@ -54,7 +54,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal FNA3D Variables
 
-		internal IntPtr glEffect;
+		internal EffectHandle glEffect;
 
 		#endregion
 
@@ -220,11 +220,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Send the blob to the GLDevice to be parsed/compiled
 			IntPtr effectData;
+			glEffect = new EffectHandle(GraphicsDevice.GLDevice);
 			FNA3D.FNA3D_CreateEffect(
 				graphicsDevice.GLDevice,
 				effectCode,
 				effectCode.Length,
-				out glEffect,
+				out glEffect.handle,
 				out effectData
 			);
 
@@ -247,10 +248,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Send the parsed data to be cloned and recompiled by MojoShader
 			IntPtr effectData;
+			glEffect = new EffectHandle(GraphicsDevice.GLDevice);
 			FNA3D.FNA3D_CloneEffect(
 				GraphicsDevice.GLDevice,
-				cloneSource.glEffect,
-				out glEffect,
+				cloneSource.glEffect.handle,
+				out glEffect.handle,
 				out effectData
 			);
 
@@ -290,17 +292,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!IsDisposed)
-			{
-				IntPtr toDispose = Interlocked.Exchange(ref glEffect, IntPtr.Zero);
-				if (toDispose != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeEffect(
-						GraphicsDevice.GLDevice,
-						toDispose
-					);
-				}
-			}
+			glEffect.Dispose();
 			base.Dispose(disposing);
 		}
 
@@ -316,7 +308,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			FNA3D.FNA3D_ApplyEffect(
 				GraphicsDevice.GLDevice,
-				glEffect,
+				glEffect.handle,
 				pass,
 				GraphicsDevice.effectStateChangesPtr
 			);

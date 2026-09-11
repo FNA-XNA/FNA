@@ -54,7 +54,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					value = string.Empty;
 				}
-				FNA3D.FNA3D_SetTextureName(GraphicsDevice.GLDevice, texture, value);
+				FNA3D.FNA3D_SetTextureName(GraphicsDevice.GLDevice, texture.handle, value);
 			}
 		}
 
@@ -62,7 +62,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal FNA3D Variables
 
-		internal IntPtr texture;
+		internal TextureHandle texture;
 
 		#endregion
 
@@ -74,16 +74,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				GraphicsDevice.Textures.RemoveDisposedTexture(this);
 				GraphicsDevice.VertexTextures.RemoveDisposedTexture(this);
-
-				IntPtr toDispose = Interlocked.Exchange(ref texture, IntPtr.Zero);
-				if (toDispose != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeTexture(
-						GraphicsDevice.GLDevice,
-						toDispose
-					);
-				}
 			}
+			texture.Dispose();
 			base.Dispose(disposing);
 		}
 

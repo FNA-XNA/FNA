@@ -1377,7 +1377,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				numVertices,
 				startIndex,
 				primitiveCount,
-				Indices.buffer,
+				Indices.buffer.handle,
 				Indices.IndexElementSize
 			);
 		}
@@ -1426,7 +1426,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				startIndex,
 				primitiveCount,
 				instanceCount,
-				Indices.buffer,
+				Indices.buffer.handle,
 				Indices.IndexElementSize
 			);
 		}
@@ -1786,7 +1786,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					GLDevice,
 					sampler,
 					(Textures[sampler] != null) ?
-						Textures[sampler].texture :
+						Textures[sampler].texture.handle :
 						IntPtr.Zero,
 					ref SamplerStates[sampler].state
 				);
@@ -1811,7 +1811,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					GLDevice,
 					sampler,
 					(VertexTextures[sampler] != null) ?
-						VertexTextures[sampler].texture :
+						VertexTextures[sampler].texture.handle :
 						IntPtr.Zero,
 					ref VertexSamplerStates[sampler].state
 				);
@@ -1825,7 +1825,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				for (int i = 0; i < vertexBufferCount; i += 1)
 				{
 					VertexBuffer buffer = vertexBufferBindings[i].VertexBuffer;
-					b[i].vertexBuffer = buffer.buffer;
+					b[i].vertexBuffer = buffer.buffer.handle;
 					b[i].vertexDeclaration.vertexStride = buffer.VertexDeclaration.VertexStride;
 					b[i].vertexDeclaration.elementCount = buffer.VertexDeclaration.elements.Length;
 					b[i].vertexDeclaration.elements = buffer.VertexDeclaration.elementsPin;
@@ -1955,7 +1955,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				b->levelCount = rt.LevelCount;
 				b->multiSampleCount = rt.MultiSampleCount;
-				b->texture = texture.texture;
+				b->texture = texture.texture.handle;
 				b->colorBuffer = rt.ColorBuffer;
 			}
 		}
