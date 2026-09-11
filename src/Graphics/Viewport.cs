@@ -16,7 +16,6 @@ namespace Microsoft.Xna.Framework.Graphics
 	/// <summary>
 	/// Describes the view bounds for render-target surface.
 	/// </summary>
-	[Serializable]
 	public struct Viewport
 	{
 		#region Public Properties
