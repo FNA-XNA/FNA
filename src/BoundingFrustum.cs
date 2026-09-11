@@ -23,6 +23,7 @@ namespace Microsoft.Xna.Framework
 	/// Defines a viewing frustum for intersection operations.
 	/// </summary>
 	[DebuggerDisplay("{DebugDisplayString,nq}")]
+	[Serializable]
 	public class BoundingFrustum : IEquatable<BoundingFrustum>
 	{
 		#region Public Properties
