@@ -17,78 +17,6 @@ namespace Microsoft.Xna.Framework.Graphics
 	{
 		#region Public Static Properties
 
-		public static byte[] AlphaTestEffect
-		{
-			get
-			{
-				if (alphaTestEffect == null)
-				{
-					alphaTestEffect = GetResource("AlphaTestEffect");
-				}
-				return alphaTestEffect;
-			}
-		}
-
-		public static byte[] BasicEffect
-		{
-			get
-			{
-				if (basicEffect == null)
-				{
-					basicEffect = GetResource("BasicEffect");
-				}
-				return basicEffect;
-			}
-		}
-
-		public static byte[] DualTextureEffect
-		{
-			get
-			{
-				if (dualTextureEffect == null)
-				{
-					dualTextureEffect = GetResource("DualTextureEffect");
-				}
-				return dualTextureEffect;
-			}
-		}
-
-		public static byte[] EnvironmentMapEffect
-		{
-			get
-			{
-				if (environmentMapEffect == null)
-				{
-					environmentMapEffect = GetResource("EnvironmentMapEffect");
-				}
-				return environmentMapEffect;
-			}
-		}
-
-		public static byte[] SkinnedEffect
-		{
-			get
-			{
-				if (skinnedEffect == null)
-				{
-					skinnedEffect = GetResource("SkinnedEffect");
-				}
-				return skinnedEffect;
-			}
-		}
-
-		public static byte[] SpriteEffect
-		{
-			get
-			{
-				if (spriteEffect == null)
-				{
-					spriteEffect = GetResource("SpriteEffect");
-				}
-				return spriteEffect;
-			}
-		}
-
 		/* This Effect is used by the Xiph VideoPlayer. */
 		public static byte[] YUVToRGBAEffect
 		{
@@ -119,12 +47,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Static Variables
 
-		private static byte[] alphaTestEffect;
-		private static byte[] basicEffect;
-		private static byte[] dualTextureEffect;
-		private static byte[] environmentMapEffect;
-		private static byte[] skinnedEffect;
-		private static byte[] spriteEffect;
 		private static byte[] yuvToRGBAEffect;
 		private static byte[] yuvToRGBAEffectR;
 
@@ -132,7 +54,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Private Static Methods
 
-		private static byte[] GetResource(string name)
+		internal static byte[] GetResource(string name)
 		{
 			Stream stream = typeof(Resources).Assembly.GetManifestResourceStream(
 				"Microsoft.Xna.Framework.Graphics.Effect.Resources." + name + ".fxb"
@@ -146,4 +68,38 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 	}
+
+	#region Internal Static EffectCode Classes
+
+	internal static class AlphaTestEffectCode
+	{
+		internal static byte[] Code = Resources.GetResource("AlphaTestEffect");
+	}
+
+	internal static class BasicEffectCode
+	{
+		internal static byte[] Code = Resources.GetResource("BasicEffect");
+	}
+
+	internal static class DualTextureEffectCode
+	{
+		internal static byte[] Code = Resources.GetResource("DualTextureEffect");
+	}
+
+	internal static class EnvironmentMapEffectCode
+	{
+		internal static byte[] Code = Resources.GetResource("EnvironmentMapEffect");
+	}
+
+	internal static class SkinnedEffectCode
+	{
+		internal static byte[] Code = Resources.GetResource("SkinnedEffect");
+	}
+
+	internal static class SpriteEffectCode
+	{
+		internal static byte[] Code = Resources.GetResource("SpriteEffect");
+	}
+
+	#endregion
 }
