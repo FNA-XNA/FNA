@@ -13,7 +13,7 @@ using System.IO;
 
 namespace Microsoft.Xna.Framework.Graphics
 {
-	internal class Resources
+	internal static class Resources
 	{
 		#region Public Static Properties
 
