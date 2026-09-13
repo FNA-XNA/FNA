@@ -216,6 +216,22 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public Effect(GraphicsDevice graphicsDevice, byte[] effectCode)
 		{
+			if (effectCode == null || effectCode.Length == 0)
+			{
+				throw new ArgumentNullException("effectCode", "This method does not accept null for this parameter.");
+			}
+			if (effectCode.Length % 4 != 0)
+			{
+				throw new ArgumentException("The array effectCode must have a length that is a multiple of four.");
+			}
+			if (graphicsDevice == null)
+			{
+				throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
+			}
+			if (effectCode.Length < 8)
+			{
+				throw new InvalidOperationException("You can only construct Effect with data that was already compiled. This data is not a compiled effect.");
+			}
 			GraphicsDevice = graphicsDevice;
 
 			// Send the blob to the GLDevice to be parsed/compiled
@@ -243,6 +259,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		protected Effect(Effect cloneSource)
 		{
+			if (cloneSource == null)
+			{
+				throw new ArgumentNullException("cloneSource", "This method does not accept null for this parameter.");
+			}
+			if (cloneSource.glEffect == IntPtr.Zero)
+			{
+				throw new ObjectDisposedException(cloneSource.GetType().Name);
+			}
+			if (graphicsDevice == null)
+			{
+				throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
+			}
 			GraphicsDevice = cloneSource.GraphicsDevice;
 
 			// Send the parsed data to be cloned and recompiled by MojoShader
