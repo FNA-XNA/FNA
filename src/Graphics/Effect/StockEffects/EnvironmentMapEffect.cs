@@ -359,7 +359,7 @@ namespace Microsoft.Xna.Framework.Graphics
         /// Creates a new EnvironmentMapEffect with default parameter settings.
         /// </summary>
         public EnvironmentMapEffect(GraphicsDevice device)
-            : base(device, Resources.EnvironmentMapEffect)
+            : base(device, EnvironmentMapEffectCode.Code)
         {
             CacheEffectParameters(null);
 

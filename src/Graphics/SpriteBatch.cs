@@ -136,7 +136,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		 * src/Graphics/Effect/StockEffects/, the HLSL and FXB folders!
 		 * -flibit
 		 */
-		private static readonly byte[] spriteEffectCode = Resources.SpriteEffect;
+		private static readonly byte[] spriteEffectCode = SpriteEffectCode.Code;
 		private static readonly short[] indexData = GenerateIndexArray();
 		private static readonly TextureComparer TextureCompare = new TextureComparer();
 		private static readonly BackToFrontComparer BackToFrontCompare = new BackToFrontComparer();
