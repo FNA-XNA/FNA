@@ -315,12 +315,12 @@ namespace Microsoft.Xna.Framework.Media
 			);
 			if (fmt == Theorafile.th_pixel_fmt.TH_PF_420)
 			{
-				uvWidth = yWidth / 2;
-				uvHeight = yHeight / 2;
+				uvWidth = yWidth >> 1;
+				uvHeight = yHeight >> 1;
 			}
 			else if (fmt == Theorafile.th_pixel_fmt.TH_PF_422)
 			{
-				uvWidth = yWidth / 2;
+				uvWidth = yWidth >> 1;
 				uvHeight = yHeight;
 			}
 			else if (fmt == Theorafile.th_pixel_fmt.TH_PF_444)

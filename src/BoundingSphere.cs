@@ -334,9 +334,9 @@ namespace Microsoft.Xna.Framework
 		{
 			// Find the center of the box.
 			result.Center = new Vector3(
-				(box.Min.X + box.Max.X) / 2.0f,
-				(box.Min.Y + box.Max.Y) / 2.0f,
-				(box.Min.Z + box.Max.Z) / 2.0f
+				(box.Min.X + box.Max.X) * 0.5f,
+				(box.Min.Y + box.Max.Y) * 0.5f,
+				(box.Min.Z + box.Max.Z) * 0.5f
 			);
 
 			// Find the distance between the center and one of the corners of the box.
@@ -452,7 +452,7 @@ namespace Microsoft.Xna.Framework
 					float distance = (float) Math.Sqrt(sqDist); // equal to diff.Length();
 					Vector3 direction = diff / distance;
 					Vector3 G = center - radius * direction;
-					center = (G + pt) / 2;
+					center = (G + pt) * 0.5f;
 					radius = Vector3.Distance(pt, center);
 					sqRadius = radius * radius;
 				}
@@ -518,7 +518,7 @@ namespace Microsoft.Xna.Framework
 				);
 
 			result.Center = original.Center + ocenterToaCenter;
-			result.Radius = (leftRadius + Rightradius) / 2;
+			result.Radius = (leftRadius + Rightradius) * 0.5f;
 		}
 
 		/// <summary>

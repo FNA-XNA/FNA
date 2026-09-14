@@ -103,8 +103,8 @@ namespace Microsoft.Xna.Framework
 			get
 			{
 				return new Point(
-					X + (Width / 2),
-					Y + (Height / 2)
+					X + (Width >> 1),
+					Y + (Height >> 1)
 				);
 			}
 		}

@@ -262,11 +262,11 @@ namespace Microsoft.Xna.Framework.Media
 
 			switch (layout) {
 				case Bindings.PixelLayout.I420:
-					uvWidth = yWidth / 2;
-					uvHeight = yHeight / 2;
+					uvWidth = yWidth >> 1;
+					uvHeight = yHeight >> 1;
 					break;
 				case Bindings.PixelLayout.I422:
-					uvWidth = yWidth / 2;
+					uvWidth = yWidth >> 1;
 					uvHeight = yHeight;
 					break;
 				case Bindings.PixelLayout.I444:
