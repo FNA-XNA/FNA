@@ -373,7 +373,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			string qualityString = Environment.GetEnvironmentVariable("FNA_GRAPHICS_JPEG_SAVE_QUALITY");
 			if (string.IsNullOrEmpty(qualityString) || !int.TryParse(qualityString, out quality))
 			{
-				quality = 100; // FIXME: What does XNA pick for quality? -flibit
+				quality = 90; // https://learn.microsoft.com/en-us/windows/win32/wic/jpeg-format-overview
 			}
 
 			int len = Width * Height * GetFormatSizeEXT(Format);
