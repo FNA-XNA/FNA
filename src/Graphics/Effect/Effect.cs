@@ -341,7 +341,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					);
 				}
 			}
-			base.Dispose(disposing);
+			base.Dispose(false);
 		}
 
 		protected internal virtual void OnApply()

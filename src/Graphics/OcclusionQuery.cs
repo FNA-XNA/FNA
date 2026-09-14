@@ -74,7 +74,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					FNA3D.FNA3D_AddDisposeQuery(GraphicsDevice.GLDevice, toDispose);
 				}
 			}
-			base.Dispose(disposing);
+			base.Dispose(false);
 		}
 
 		#endregion
