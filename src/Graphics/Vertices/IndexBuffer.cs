@@ -174,6 +174,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			int startIndex,
 			int elementCount
 		) where T : struct {
+			if (buffer == IntPtr.Zero)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
 			if (data == null)
 			{
 				throw new ArgumentNullException("data");
@@ -283,12 +287,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Methods
 
-		[System.Diagnostics.Conditional("DEBUG")]
 		internal void ErrorCheck<T>(
 			T[] data,
 			int startIndex,
 			int elementCount
 		) where T : struct {
+			if (buffer == IntPtr.Zero)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
 			if (data == null)
 			{
 				throw new ArgumentNullException("data");

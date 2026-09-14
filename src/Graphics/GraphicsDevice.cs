@@ -71,6 +71,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
 				if (PresentationParameters.IsFullScreen)
 				{
 					int w, h;
@@ -326,10 +330,28 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Buffer Object Properties
 
+		private IndexBuffer _currentIB;
 		public IndexBuffer Indices
 		{
-			get;
-			set;
+			get
+			{
+				return _currentIB;
+			}
+			set
+			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
+				if (value != null)
+				{
+					if (value.buffer == IntPtr.Zero)
+					{
+						throw new ObjectDisposedException(value.GetType().Name);
+					}
+				}
+				_currentIB = value;
+			}
 		}
 
 		#endregion
@@ -910,6 +932,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void Clear(ClearOptions options, Vector4 color, float depth, int stencil)
 		{
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
 			DepthFormat dsFormat;
 			if (renderTargetCount == 0)
 			{
