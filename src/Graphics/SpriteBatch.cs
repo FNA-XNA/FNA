@@ -281,12 +281,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			if (beginCalled)
 			{
-				throw new InvalidOperationException(
-					"Begin has been called before calling End" +
-					" after the last call to Begin." +
-					" Begin cannot be called again until" +
-					" End has been successfully called."
-				);
+				throw new InvalidOperationException("Begin cannot be called again until End has been successfully called.");
 			}
 			beginCalled = true;
 
@@ -302,8 +297,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			if (sortMode == SpriteSortMode.Immediate)
 			{
+				if (graphicsDevice.spriteBeginCount > 0)
+				{
+					throw new InvalidOperationException("Nesting more than one SpriteBatch.Begin when using a SpriteBatch with SpriteSortMode.Immediate is not allowed.");
+				}
 				PrepRenderState();
+				graphicsDevice.spriteImmediateBegin = true;
 			}
+			else if (graphicsDevice.spriteImmediateBegin)
+			{
+				throw new InvalidOperationException("Nesting more than one SpriteBatch.Begin when using a SpriteBatch with SpriteSortMode.Immediate is not allowed.");
+			}
+			graphicsDevice.spriteBeginCount++;
 		}
 
 		#endregion
@@ -314,11 +319,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!beginCalled)
 			{
-				throw new InvalidOperationException(
-					"End was called, but Begin has not yet" +
-					" been called. You must call Begin " +
-					" successfully before you can call End."
-				);
+				throw new InvalidOperationException("Begin must be called successfully before End can be called.");
 			}
 			beginCalled = false;
 
@@ -326,7 +327,12 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				FlushBatch();
 			}
+			else
+			{
+				graphicsDevice.spriteImmediateBegin = false;
+			}
 			customEffect = null;
+			graphicsDevice.spriteBeginCount--;
 		}
 
 		#endregion
@@ -338,7 +344,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			Vector2 position,
 			Color color
 		) {
-			CheckBegin("Draw");
+			if (texture == null)
+			{
+				throw new ArgumentNullException("texture", "This method does not accept null for this parameter.");
+			}
+			CheckBegin();
 			PushSprite(
 				texture,
 				0.0f,
@@ -365,6 +375,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			Rectangle? sourceRectangle,
 			Color color
 		) {
+			if (texture == null)
+			{
+				throw new ArgumentNullException("texture", "This method does not accept null for this parameter.");
+			}
+			CheckBegin();
 			float sourceX, sourceY, sourceW, sourceH;
 			float destW, destH;
 			if (sourceRectangle.HasValue)
@@ -385,7 +400,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				destW = texture.Width;
 				destH = texture.Height;
 			}
-			CheckBegin("Draw");
 			PushSprite(
 				texture,
 				sourceX,
@@ -417,7 +431,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			SpriteEffects effects,
 			float layerDepth
 		) {
-			CheckBegin("Draw");
+			if (texture == null)
+			{
+				throw new ArgumentNullException("texture", "This method does not accept null for this parameter.");
+			}
+			CheckBegin();
 			float sourceX, sourceY, sourceW, sourceH;
 			float destW = scale;
 			float destH = scale;
@@ -476,7 +494,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			SpriteEffects effects,
 			float layerDepth
 		) {
-			CheckBegin("Draw");
+			if (texture == null)
+			{
+				throw new ArgumentNullException("texture", "This method does not accept null for this parameter.");
+			}
+			CheckBegin();
 			float sourceX, sourceY, sourceW, sourceH;
 			if (sourceRectangle.HasValue)
 			{
@@ -527,7 +549,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			Rectangle destinationRectangle,
 			Color color
 		) {
-			CheckBegin("Draw");
+			if (texture == null)
+			{
+				throw new ArgumentNullException("texture", "This method does not accept null for this parameter.");
+			}
+			CheckBegin();
 			PushSprite(
 				texture,
 				0.0f,
@@ -554,7 +580,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			Rectangle? sourceRectangle,
 			Color color
 		) {
-			CheckBegin("Draw");
+			if (texture == null)
+			{
+				throw new ArgumentNullException("texture", "This method does not accept null for this parameter.");
+			}
+			CheckBegin();
 			float sourceX, sourceY, sourceW, sourceH;
 			if (sourceRectangle.HasValue)
 			{
@@ -600,7 +630,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			SpriteEffects effects,
 			float layerDepth
 		) {
-			CheckBegin("Draw");
+			if (texture == null)
+			{
+				throw new ArgumentNullException("texture", "This method does not accept null for this parameter.");
+			}
+			CheckBegin();
 			float sourceX, sourceY, sourceW, sourceH;
 			if (sourceRectangle.HasValue)
 			{
@@ -713,11 +747,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * We don't use ToString() since it generates garbage.
 			 * -flibit
 			 */
-			CheckBegin("DrawString");
+			if (spriteFont == null)
+			{
+				throw new ArgumentNullException("spriteFont");
+			}
 			if (text == null)
 			{
 				throw new ArgumentNullException("text");
 			}
+			CheckBegin();
 			if (text.Length == 0)
 			{
 				return;
@@ -907,11 +945,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * The only difference is how we iterate through the string.
 			 * -flibit
 			 */
-			CheckBegin("DrawString");
+			if (spriteFont == null)
+			{
+				throw new ArgumentNullException("spriteFont");
+			}
 			if (ReferenceEquals(text, null))
 			{
 				throw new ArgumentNullException("text");
 			}
+			CheckBegin();
 			if (text.Length == 0)
 			{
 				return;
@@ -1485,16 +1527,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		private void CheckBegin(string method)
+		private void CheckBegin()
 		{
 			if (!beginCalled)
 			{
-				throw new InvalidOperationException(
-					method + " was called, but Begin has" +
-					" not yet been called. Begin must be" +
-					" called successfully before you can" +
-					" call " + method + "."
-				);
+				throw new InvalidOperationException("Begin must be called successfully before a Draw can be called.");
 			}
 		}
 
