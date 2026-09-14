@@ -368,6 +368,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Internal SpriteBatch Variables
+
+		internal ushort spriteBeginCount = 0;
+		internal bool spriteImmediateBegin = false;
+
+		#endregion
+
 		#region Private Disposal Variables
 
 		/* 
