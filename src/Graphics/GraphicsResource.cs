@@ -124,8 +124,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					FNALoggerEXT.LogWarn(string.Format("A resource of type {0} with tag {1} and name {2} was not Disposed.", GetType().Name, Tag, Name));
 				}
 #endif
-				Dispose(false);
 			}
+			Dispose(false);
 		}
 
 		#endregion
