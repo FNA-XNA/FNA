@@ -249,8 +249,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				if (
 					value.X < 0 || value.Y < 0 || value.Width <= 0 || value.Height <= 0 ||
-					value.MinDepth < 0f || value.MinDepth > 1f ||
-					value.MaxDepth < 0f || value.MaxDepth > 1f ||
+					value.MinDepth < 0f || value.MaxDepth > 1f ||
 					value.MaxDepth < value.MinDepth
 				)
 				{
@@ -590,7 +589,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Set the default viewport and scissor rect.
-			Viewport = new Viewport(PresentationParameters.Bounds);
+			INTERNAL_viewport = new Viewport(PresentationParameters.Bounds);
 			ScissorRectangle = Viewport.Bounds;
 
 			// Allocate the pipeline cache to be used by Effects
@@ -894,7 +893,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Input.Touch.TouchPanel.DisplayHeight = PresentationParameters.BackBufferHeight;
 
 			// Now, update the viewport
-			Viewport = new Viewport(
+			INTERNAL_viewport = new Viewport(
 				0,
 				0,
 				PresentationParameters.BackBufferWidth,
