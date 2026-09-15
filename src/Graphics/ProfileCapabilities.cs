@@ -324,21 +324,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			throw new NotSupportedException(message);
 		}
 
-		internal void ThrowNotSupportedException(string message, object obj)
+		internal void ThrowNotSupportedException(string message, object arg1)
 		{
-			throw new NotSupportedException(
-				message +
-				" " + obj.ToString() // FIXME: WTF?
-			);
+			throw new NotSupportedException(string.Format(message, Profile, arg1));
 		}
 
-		internal void ThrowNotSupportedException(string message, object obj1, object obj2)
+		internal void ThrowNotSupportedException(string message, object arg1, object arg2)
 		{
-			throw new NotSupportedException(
-				message +
-				" " + obj1.ToString() + // FIXME: WTF?
-				" " + obj2.ToString() // FIXME: WTF?
-			);
+			throw new NotSupportedException(string.Format(message, Profile, arg1, arg2));
 		}
 		
 		#endregion
@@ -355,7 +348,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				return HiDef;
 			}
-			throw new ArgumentException("profile");
+			throw new ArgumentOutOfRangeException("profile");
 		}
 
 		#endregion

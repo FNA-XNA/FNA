@@ -369,6 +369,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SaveAsJpeg(Stream stream, int width, int height)
 		{
+			if (stream == null)
+			{
+				throw new ArgumentNullException("stream", "The stream is required to be seekable.");
+			}
+			if (!stream.CanWrite)
+			{
+				throw new ArgumentException("stream");
+			}
 			int quality;
 			string qualityString = Environment.GetEnvironmentVariable("FNA_GRAPHICS_JPEG_SAVE_QUALITY");
 			if (string.IsNullOrEmpty(qualityString) || !int.TryParse(qualityString, out quality))
@@ -405,6 +413,14 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SaveAsPng(Stream stream, int width, int height)
 		{
+			if (stream == null)
+			{
+				throw new ArgumentNullException("stream", "The stream is required to be seekable.");
+			}
+			if (!stream.CanWrite)
+			{
+				throw new ArgumentException("stream");
+			}
 			int len = Width * Height * GetFormatSizeEXT(Format);
 			IntPtr data = FNAPlatform.Malloc(len);
 			FNA3D.FNA3D_GetTextureData2D(
@@ -438,7 +454,19 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public static Texture2D FromStream(GraphicsDevice graphicsDevice, Stream stream)
 		{
-			if (stream.CanSeek && stream.Position == stream.Length)
+			if (graphicsDevice == null)
+			{
+				throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
+			}
+			if (stream == null)
+			{
+				throw new ArgumentNullException("stream", "This method does not accept null for this parameter.");
+			}
+			if (!stream.CanSeek)
+			{
+				throw new ArgumentException("The stream is required to be seekable.", "stream");
+			}
+			if (stream.Position == stream.Length)
 			{
 				stream.Seek(0, SeekOrigin.Begin);
 			}
@@ -476,7 +504,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			int height,
 			bool zoom
 		) {
-			if (stream.CanSeek && stream.Position == stream.Length)
+			if (graphicsDevice == null)
+			{
+				throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
+			}
+			if (stream == null)
+			{
+				throw new ArgumentNullException("stream", "This method does not accept null for this parameter.");
+			}
+			if (!stream.CanSeek)
+			{
+				throw new ArgumentException("The stream is required to be seekable.", "stream");
+			}
+			if (stream.Position == stream.Length)
 			{
 				stream.Seek(0, SeekOrigin.Begin);
 			}

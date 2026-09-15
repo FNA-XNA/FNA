@@ -519,6 +519,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("adapter", "This method does not accept null for this parameter.");
 			}
+			if (graphicsProfile != GraphicsProfile.Reach && graphicsProfile != GraphicsProfile.HiDef)
+			{
+				throw new ArgumentOutOfRangeException("graphicsProfile");
+			}
 
 			// Set the properties from the constructor parameters.
 			Adapter = adapter;
