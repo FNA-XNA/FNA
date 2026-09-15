@@ -1900,7 +1900,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			int len = numVertices * vertexDeclaration.VertexStride;
 			int offset = vertexOffset * vertexDeclaration.VertexStride;
-			vertexDeclaration.GraphicsDevice = this;
+			vertexDeclaration.graphicsDevice = this;
 
 			if (len > userVertexBufferSize)
 			{

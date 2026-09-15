@@ -97,10 +97,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			BufferUsage = bufferUsage;
 
 			// Make sure the graphics device is assigned in the vertex declaration.
-			if (vertexDeclaration.GraphicsDevice != graphicsDevice)
-			{
-				vertexDeclaration.GraphicsDevice = graphicsDevice;
-			}
+			vertexDeclaration.graphicsDevice = graphicsDevice;
 
 			buffer = FNA3D.FNA3D_GenVertexBuffer(
 				GraphicsDevice.GLDevice,
