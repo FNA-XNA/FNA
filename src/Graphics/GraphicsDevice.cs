@@ -525,17 +525,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			// Set the properties from the constructor parameters.
 			Adapter = adapter;
-			PresentationParameters = presentationParameters;
 			GraphicsProfile = graphicsProfile;
-			PresentationParameters.MultiSampleCount = MathHelper.ClosestMSAAPower(
-				PresentationParameters.MultiSampleCount
+			presentationParameters.MultiSampleCount = MathHelper.ClosestMSAAPower(
+				presentationParameters.MultiSampleCount
 			);
 
 			// Set up the FNA3D Device
 			try
 			{
 				GLDevice = FNA3D.FNA3D_CreateDevice(
-					ref PresentationParameters.parameters,
+					ref presentationParameters.parameters,
 #if DEBUG
 					1
 #else
@@ -549,6 +548,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					e.Message
 				);
 			}
+			PresentationParameters = presentationParameters.Clone();
 
 			// The mouse needs to know this for faux-backbuffer mouse scaling.
 			Input.Mouse.INTERNAL_BackBufferWidth = PresentationParameters.BackBufferWidth;
