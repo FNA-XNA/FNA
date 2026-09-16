@@ -40,7 +40,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
-				return false;
+				return GraphicsDevice.IsDisposed;
 			}
 		}
 
