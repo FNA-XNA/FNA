@@ -196,11 +196,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 
 				// Remove from the list of graphics resources
-				if (graphicsDevice != null && selfReference.IsAllocated)
+				if (selfReference.IsAllocated)
 				{
 					if (graphicsDevice.RemoveResourceReference(selfReference))
 					{
 						selfReference.Free();
+						GraphicsDevice.OnResourceDestroyed(Name, Tag);
 					}
 				}
 

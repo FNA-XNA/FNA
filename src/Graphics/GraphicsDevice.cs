@@ -484,7 +484,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		// TODO: Hook this up to GraphicsResource
 		internal void OnResourceDestroyed(string name, object tag)
 		{
 			if (ResourceDestroyed != null)
