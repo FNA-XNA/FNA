@@ -7,6 +7,10 @@
  */
 #endregion
 
+#region Using Statements
+using System;
+#endregion
+
 namespace Microsoft.Xna.Framework.Graphics
 {
 	public struct VertexBufferBinding
@@ -73,6 +77,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <param name="vertexBuffer">The vertex buffer to bind.</param>
 		public VertexBufferBinding(VertexBuffer vertexBuffer)
 		{
+			if (vertexBuffer == null)
+			{
+				throw new ArgumentNullException("vertexBuffer", "This method does not accept null for this parameter.");
+			}
 			this.vertexBuffer = vertexBuffer;
 			vertexOffset = 0;
 			instanceFrequency = 0;
@@ -85,6 +93,14 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <param name="vertexOffset">The offset in bytes to the first vertex to use.</param>
 		public VertexBufferBinding(VertexBuffer vertexBuffer, int vertexOffset)
 		{
+			if (vertexBuffer == null)
+			{
+				throw new ArgumentNullException("vertexBuffer", "This method does not accept null for this parameter.");
+			}
+			if (unchecked((uint) vertexOffset >= (uint) vertexBuffer.VertexCount))
+			{
+				throw new ArgumentOutOfRangeException("vertexOffset");
+			}
 			this.vertexBuffer = vertexBuffer;
 			this.vertexOffset = vertexOffset;
 			instanceFrequency = 0;
@@ -98,6 +114,18 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <param name="instanceFrequency">Number of instances to draw for each draw call. Use 0 if not using instanced drawing.</param>
 		public VertexBufferBinding(VertexBuffer vertexBuffer, int vertexOffset, int instanceFrequency)
 		{
+			if (vertexBuffer == null)
+			{
+				throw new ArgumentNullException("vertexBuffer", "This method does not accept null for this parameter.");
+			}
+			if (unchecked((uint) vertexOffset >= (uint) vertexBuffer.VertexCount))
+			{
+				throw new ArgumentOutOfRangeException("vertexOffset");
+			}
+			if (instanceFrequency < 0)
+			{
+				throw new ArgumentOutOfRangeException("instanceFrequency");
+			}
 			this.vertexBuffer = vertexBuffer;
 			this.vertexOffset = vertexOffset;
 			this.instanceFrequency = instanceFrequency;
