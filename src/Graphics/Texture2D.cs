@@ -456,7 +456,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (graphicsDevice == null)
 			{
-				throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
+				throw new NullReferenceException();
 			}
 			if (stream == null)
 			{
@@ -515,6 +515,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (!stream.CanSeek)
 			{
 				throw new ArgumentException("The stream is required to be seekable.", "stream");
+			}
+			if (width <= 0)
+			{
+				throw new ArgumentOutOfRangeException("width", "Resource size must be greater than zero.");
+			}
+			if (height <= 0)
+			{
+				throw new ArgumentOutOfRangeException("height", "Resource size must be greater than zero.");
 			}
 			if (stream.Position == stream.Length)
 			{
