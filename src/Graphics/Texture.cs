@@ -66,6 +66,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Internal Variables
+
+		internal bool isActiveRenderTarget = false;
+
+		#endregion
+
 		#region Protected Dispose Method
 
 		protected override void Dispose(bool disposing)

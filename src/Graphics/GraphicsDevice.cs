@@ -1204,6 +1204,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						continue;
 					}
 					FNA3D.FNA3D_ResolveTarget(GLDevice, ref nativeTargetBindings[i]);
+					renderTargetBindings[i].RenderTarget.isActiveRenderTarget = false;
 				}
 				Array.Clear(renderTargetBindings, 0, renderTargetBindings.Length);
 				Array.Copy(renderTargets, renderTargetBindings, renderTargets.Length);
@@ -1988,6 +1989,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			for (int i = 0; i < bindings.Length; i += 1, b += 1)
 			{
 				Texture texture = bindings[i].RenderTarget;
+				texture.isActiveRenderTarget = true;
 				IRenderTarget rt = texture as IRenderTarget;
 				if (texture is RenderTargetCube)
 				{
