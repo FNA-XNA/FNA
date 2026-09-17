@@ -653,10 +653,13 @@ namespace Microsoft.Xna.Framework.Graphics
 							object target = resource.Target;
 							if (target != null)
 							{
-								(target as IDisposable).Dispose();
+								resource.Free();
+								((GraphicsResource) target).DisposeNative();
 							}
 						}
 					}
+					Textures.ClearDisposedTextures();
+					VertexTextures.ClearDisposedTextures();
 
 					if (userVertexBuffer != IntPtr.Zero)
 					{

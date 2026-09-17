@@ -113,17 +113,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!IsDisposed)
-			{
-				IntPtr toDispose = Interlocked.Exchange(ref buffer, IntPtr.Zero);
-				if (toDispose != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeVertexBuffer(
-						GraphicsDevice.GLDevice,
-						toDispose
-					);
-				}
-			}
 			base.Dispose(disposing);
 		}
 
@@ -292,6 +281,18 @@ namespace Microsoft.Xna.Framework.Graphics
 		#endregion
 
 		#region Internal Methods
+
+		internal override void DisposeNative()
+		{
+			IntPtr toDispose = Interlocked.Exchange(ref buffer, IntPtr.Zero);
+			if (toDispose != IntPtr.Zero)
+			{
+				FNA3D.FNA3D_AddDisposeVertexBuffer(
+					GraphicsDevice.GLDevice,
+					toDispose
+				);
+			}
+		}
 
 		[System.Diagnostics.Conditional("DEBUG")]
 		internal void ErrorCheck<T>(
