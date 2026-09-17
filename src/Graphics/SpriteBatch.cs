@@ -160,7 +160,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			sortedSpriteInfos = new IntPtr[MAX_SPRITES];
 			vertexBuffer = new DynamicVertexBuffer(
 				graphicsDevice,
-				typeof(VertexPositionColorTexture),
+				VertexPositionColorTexture.VertexDeclaration,
 				MAX_VERTICES,
 				BufferUsage.WriteOnly
 			);
