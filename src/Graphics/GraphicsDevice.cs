@@ -1003,7 +1003,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ObjectDisposedException(GetType().Name);
 			}
-			if (data == null)
+			if (data == null || data.Length == 0)
 			{
 				throw new ArgumentNullException("data", "This method does not accept null for this parameter.");
 			}
