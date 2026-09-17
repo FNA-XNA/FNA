@@ -171,13 +171,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("data", "This method does not accept null for this parameter.");
 			}
-			if (data.Length < (startIndex + elementCount))
-			{
-				throw new ArgumentOutOfRangeException(
-					"elementCount",
-					"This parameter must be a valid index within the array."
-				);
-			}
+			ValidateCopyParameters(data.Length, startIndex, elementCount);
 			if (BufferUsage == BufferUsage.WriteOnly)
 			{
 				throw new NotSupportedException("Calling GetData on a resource that was created with BufferUsage.WriteOnly is not supported.");
@@ -308,14 +302,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("data", "This method does not accept null for this parameter.");
 			}
-			if ((startIndex + elementCount > data.Length) || elementCount <= 0)
-			{
-				throw new InvalidOperationException(
-					"The array specified in the data parameter" +
-					" is not the correct size for the amount of" +
-					" data requested."
-				);
-			}
+			ValidateCopyParameters(data.Length, startIndex, elementCount);
 			if (	elementCount > 1 &&
 				(elementCount * vertexStride) > (VertexCount * VertexDeclaration.VertexStride)	)
 			{

@@ -1006,6 +1006,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("data", "This method does not accept null for this parameter.");
 			}
+			GraphicsResource.ValidateCopyParameters(data.Length, startIndex, elementCount);
 			int x, y, w, h;
 			if (rect == null)
 			{

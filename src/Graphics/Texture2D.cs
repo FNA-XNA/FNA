@@ -181,14 +181,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
-			if (startIndex < 0)
-			{
-				throw new ArgumentOutOfRangeException("startIndex");
-			}
-			if (data.Length < (elementCount + startIndex))
-			{
-				throw new ArgumentOutOfRangeException("elementCount");
-			}
+			ValidateCopyParameters(data.Length, startIndex, elementCount);
 
 			int x, y, w, h;
 			if (rect.HasValue)
@@ -316,13 +309,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
-			if (data.Length < startIndex + elementCount)
-			{
-				throw new ArgumentException(
-					"The data passed has a length of " + data.Length.ToString() +
-					" but " + elementCount.ToString() + " pixels have been requested."
-				);
-			}
+			ValidateCopyParameters(data.Length, startIndex, elementCount);
 
 			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
 			ValidateGetDataFormat(Format, elementSizeInBytes);

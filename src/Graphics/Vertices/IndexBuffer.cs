@@ -182,10 +182,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("data", "This method does not accept null for this parameter.");
 			}
-			if (data.Length < (startIndex + elementCount))
-			{
-				throw new InvalidOperationException("The array specified in the data parameter is not the correct size for the amount of data requested.");
-			}
+			ValidateCopyParameters(data.Length, startIndex, elementCount);
 			if (BufferUsage == BufferUsage.WriteOnly)
 			{
 				throw new NotSupportedException(
@@ -300,10 +297,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("data", "This method does not accept null for this parameter.");
 			}
-			if (data.Length < (startIndex + elementCount))
-			{
-				throw new InvalidOperationException("The array specified in the data parameter is not the correct size for the amount of data requested.");
-			}
+			ValidateCopyParameters(data.Length, startIndex, elementCount);
 		}
 
 		#endregion
