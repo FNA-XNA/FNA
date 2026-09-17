@@ -151,6 +151,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("data");
 			}
+			if (unchecked((uint) level >= (uint) LevelCount))
+			{
+				throw new InvalidOperationException("An unexpected error has occurred.");
+			}
 
 			int xOffset, yOffset, width, height;
 			if (rect.HasValue)
@@ -275,6 +279,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (data == null || data.Length == 0)
 			{
 				throw new ArgumentException("data cannot be null");
+			}
+			if (unchecked((uint) level >= (uint) LevelCount))
+			{
+				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
 			if (data.Length < startIndex + elementCount)
 			{
