@@ -140,6 +140,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 
 			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
+			ValidateGetDataFormat(Format, elementSizeInBytes);
+			if (unchecked(
+				(uint) left >= (uint) right || (uint) right > (uint) Width >> level ||
+				(uint) top >= (uint) bottom || (uint) bottom > (uint) Height >> level ||
+				(uint) front >= (uint) back || (uint) back > (uint) Depth >> level
+			)) {
+				throw new ArgumentException("The rectangle is too large or too small for this resource.", "box");
+			}
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetTextureData3D(
 				GraphicsDevice.GLDevice,
@@ -277,15 +285,16 @@ namespace Microsoft.Xna.Framework.Graphics
 					" but " + elementCount.ToString() + " pixels have been requested."
 				);
 			}
-			if (	unchecked((uint) left >= (uint) right) ||
-				unchecked((uint) top >= (uint) bottom) ||
-				unchecked((uint) front >= (uint) back)	)
-			{
-				throw new ArgumentException("Neither box size nor box position can be negative");
-			}
 
 			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
 			ValidateGetDataFormat(Format, elementSizeInBytes);
+			if (unchecked(
+				(uint) left >= (uint) right || (uint) right > (uint) Width >> level ||
+				(uint) top >= (uint) bottom || (uint) bottom > (uint) Height >> level ||
+				(uint) front >= (uint) back || (uint) back > (uint) Depth >> level
+			)) {
+				throw new ArgumentException("The rectangle is too large or too small for this resource.", "box");
+			}
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_GetTextureData3D(

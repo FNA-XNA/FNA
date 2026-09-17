@@ -200,7 +200,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentException(
 					"The type you are using for T in this" +
 					" method is an invalid size for this" +
-					" resource"
+					" resource."
 				);
 			}
 		}
