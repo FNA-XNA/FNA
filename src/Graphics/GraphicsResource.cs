@@ -210,5 +210,21 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		#endregion
+
+		#region Internal Static Methods
+
+		internal static void ValidateCopyParameters(int dataLength, int dataIndex, int elementCount)
+		{
+			if (unchecked((uint) dataIndex >= (uint) dataLength))
+			{
+				throw new ArgumentOutOfRangeException("dataIndex", "This parameter must be a valid index within the array.");
+			}
+			if (elementCount <= 0 || elementCount + dataIndex > dataLength)
+			{
+				throw new ArgumentOutOfRangeException("elementCount", "This parameter must be a valid index within the array.");
+			}
+		}
+
+		#endregion
 	}
 }
