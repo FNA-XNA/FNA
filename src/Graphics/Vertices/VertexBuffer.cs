@@ -86,9 +86,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			BufferUsage bufferUsage,
 			bool dynamic
 		) {
+			if (vertexDeclaration == null)
+			{
+				throw new ArgumentNullException("vertexDeclaration", "This method does not accept null for this parameter.");
+			}
+			if (vertexCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("vertexCount", "Resource size must be greater than zero.");
+			}
+			if (vertexDeclaration.IsDisposed)
+			{
+				throw new ObjectDisposedException(typeof(VertexDeclaration).Name);
+			}
 			if (graphicsDevice == null)
 			{
-				throw new ArgumentNullException("graphicsDevice");
+				throw new NullReferenceException();
 			}
 
 			GraphicsDevice = graphicsDevice;
