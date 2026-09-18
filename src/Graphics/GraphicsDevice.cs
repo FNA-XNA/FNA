@@ -865,15 +865,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("graphicsAdapter", "This method does not accept null for this parameter.");
 			}
-			PresentationParameters = presentationParameters;
 			Adapter = graphicsAdapter;
 
 			// Verify MSAA before we really start...
-			PresentationParameters.MultiSampleCount = FNA3D.FNA3D_GetMaxMultiSampleCount(
+			presentationParameters.MultiSampleCount = FNA3D.FNA3D_GetMaxMultiSampleCount(
 				GLDevice,
-				PresentationParameters.BackBufferFormat,
-				MathHelper.ClosestMSAAPower(PresentationParameters.MultiSampleCount)
+				presentationParameters.BackBufferFormat,
+				MathHelper.ClosestMSAAPower(presentationParameters.MultiSampleCount)
 			);
+			PresentationParameters = presentationParameters.Clone();
 
 			// We're about to reset, let the application know.
 			if (DeviceResetting != null)
