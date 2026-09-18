@@ -65,7 +65,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <summary>
 		/// A null vertex buffer binding for unused vertex buffer slots.
 		/// </summary>
-		internal static readonly VertexBufferBinding None = new VertexBufferBinding(null);
+		internal static readonly VertexBufferBinding None = new VertexBufferBinding();
 
 		#endregion
 
@@ -137,7 +137,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public static implicit operator VertexBufferBinding(VertexBuffer buffer)
 		{
-			return new VertexBufferBinding(buffer);
+			/* Unlike the constructors, we have to be ready for buffer to be null
+			 * due to weird left-hand assignment shenanigans. The one that tripped
+			 * me was SetVertexBuffer calling this for some odd reason.
+			 * -flibit
+			 */
+			VertexBufferBinding result;
+			result.vertexBuffer = buffer;
+			result.vertexOffset = 0;
+			result.instanceFrequency = 0;
+			return result;
 		}
 
 		#endregion
