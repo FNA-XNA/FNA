@@ -981,7 +981,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void GetBackBufferData<T>(T[] data) where T : struct
 		{
-			GetBackBufferData(null, data, 0, data.Length);
+			GetBackBufferData(null, data, 0, data == null ? 0 : data.Length);
 		}
 
 		public void GetBackBufferData<T>(
