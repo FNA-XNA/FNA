@@ -77,18 +77,19 @@ namespace Microsoft.Xna.Framework.Content
 					bone.Parent = bones[parentIndex];
 				}
 				// Read the child bone references.
-				uint childCount = reader.ReadUInt32();
-				if (childCount != 0)
+				ModelBone[] children = new ModelBone[reader.ReadUInt32()];
+				if (children.Length != 0)
 				{
-					for (uint j = 0; j < childCount; j += 1)
+					for (uint j = 0; j < children.Length; j += 1)
 					{
 						int childIndex = ReadBoneReference(reader, boneCount);
 						if (childIndex != -1)
 						{
-							bone.AddChild(bones[childIndex]);
+							children[j] = bones[childIndex];
 						}
 					}
 				}
+				bone.Children = new ModelBoneCollection(children);
 			}
 
 			List<ModelMesh> meshes = new List<ModelMesh>();
