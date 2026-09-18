@@ -279,7 +279,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ObjectDisposedException(cloneSource.GetType().Name);
 			}
-			if (graphicsDevice == null)
+			if (cloneSource.graphicsDevice == null)
 			{
 				throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
 			}
