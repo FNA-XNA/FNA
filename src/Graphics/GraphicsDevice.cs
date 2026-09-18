@@ -525,6 +525,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			// Set the properties from the constructor parameters.
 			Adapter = adapter;
 			GraphicsProfile = graphicsProfile;
+			if (presentationParameters.BackBufferWidth <= 0 || presentationParameters.BackBufferHeight <= 0)
+			{
+				if (presentationParameters.IsFullScreen)
+				{
+					presentationParameters.BackBufferWidth = adapter.CurrentDisplayMode.Width;
+					presentationParameters.BackBufferHeight = adapter.CurrentDisplayMode.Height;
+				}
+				else
+				{
+					Rectangle windowBound = FNAPlatform.GetWindowBounds(presentationParameters.DeviceWindowHandle);
+					presentationParameters.BackBufferWidth = windowBound.Width;
+					presentationParameters.BackBufferHeight = windowBound.Height;
+				}
+			}
 			presentationParameters.MultiSampleCount = MathHelper.ClosestMSAAPower(
 				presentationParameters.MultiSampleCount
 			);
