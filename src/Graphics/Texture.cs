@@ -191,20 +191,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			return Math.Min(8, GetFormatSizeEXT(format));
 		}
 
-		internal static void ValidateGetDataFormat(
-			SurfaceFormat format,
-			int elementSizeInBytes
-		) {
-			if (GetFormatSizeEXT(format) % elementSizeInBytes != 0)
-			{
-				throw new ArgumentException(
-					"The type you are using for T in this" +
-					" method is an invalid size for this" +
-					" resource."
-				);
-			}
-		}
-
 		#endregion
 
 		#region Static Mipmap Level Calculator

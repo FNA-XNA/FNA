@@ -1049,11 +1049,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				h = rect.Value.Height;
 			}
 
+			int formatSize = Texture.GetFormatSizeEXT(FNA3D.FNA3D_GetBackbufferSurfaceFormat(GLDevice));
 			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
-			Texture.ValidateGetDataFormat(
-				FNA3D.FNA3D_GetBackbufferSurfaceFormat(GLDevice),
-				elementSizeInBytes
-			);
+			if (formatSize % elementSizeInBytes != 0)
+			{
+				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
+			}
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_ReadBackbuffer(

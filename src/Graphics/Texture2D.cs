@@ -182,7 +182,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
 			ValidateCopyParameters(data.Length, startIndex, elementCount);
-
+			int formatSize = GetFormatSizeEXT(Format);
+			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
+			if (formatSize % elementSizeInBytes != 0)
+			{
+				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
+			}
 			int x, y, w, h;
 			if (rect.HasValue)
 			{
@@ -198,9 +203,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				w = Math.Max(Width >> level, 1);
 				h = Math.Max(Height >> level, 1);
 			}
-			int elementSize = MarshalHelper.SizeOf<T>();
-			int requiredBytes = (w * h * GetFormatSizeEXT(Format)) / GetBlockSizeSquaredEXT(Format);
-			int availableBytes = elementCount * elementSize;
+			int requiredBytes = (w * h * formatSize) / GetBlockSizeSquaredEXT(Format);
+			int availableBytes = elementCount * elementSizeInBytes;
 			if (requiredBytes > availableBytes)
 			{
 				throw new ArgumentOutOfRangeException("rect", "The region you are trying to upload is larger than the amount of data you provided.");
@@ -215,8 +219,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				w,
 				h,
 				level,
-				handle.AddrOfPinnedObject() + startIndex * elementSize,
-				elementCount * elementSize
+				handle.AddrOfPinnedObject() + startIndex * elementSizeInBytes,
+				elementCount * elementSizeInBytes
 			);
 			handle.Free();
 		}
@@ -310,9 +314,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
 			ValidateCopyParameters(data.Length, startIndex, elementCount);
-
+			int formatSize = GetFormatSizeEXT(Format);
 			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
-			ValidateGetDataFormat(Format, elementSizeInBytes);
+			if (formatSize % elementSizeInBytes != 0)
+			{
+				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
+			}
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			GetDataPointerEXT(

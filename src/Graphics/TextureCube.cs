@@ -156,6 +156,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
 			ValidateCopyParameters(data.Length, startIndex, elementCount);
+			int formatSize = GetFormatSizeEXT(Format);
+			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
+			if (formatSize % elementSizeInBytes != 0)
+			{
+				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
+			}
 
 			int xOffset, yOffset, width, height;
 			if (rect.HasValue)
@@ -173,7 +179,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				height = Math.Max(1, Size >> level);
 			}
 
-			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetTextureDataCube(
 				GraphicsDevice.GLDevice,
@@ -286,6 +291,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
 			ValidateCopyParameters(data.Length, startIndex, elementCount);
+			int formatSize = GetFormatSizeEXT(Format);
+			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
+			if (formatSize % elementSizeInBytes != 0)
+			{
+				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
+			}
 
 			int subX, subY, subW, subH;
 			if (rect == null)
@@ -302,9 +313,6 @@ namespace Microsoft.Xna.Framework.Graphics
 				subW = rect.Value.Width;
 				subH = rect.Value.Height;
 			}
-
-			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
-			ValidateGetDataFormat(Format, elementSizeInBytes);
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_GetTextureDataCube(

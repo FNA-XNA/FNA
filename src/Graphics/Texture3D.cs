@@ -139,9 +139,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
 			ValidateCopyParameters(data.Length, startIndex, elementCount);
-
+			int formatSize = GetFormatSizeEXT(Format);
 			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
-			ValidateGetDataFormat(Format, elementSizeInBytes);
+			if (formatSize % elementSizeInBytes != 0)
+			{
+				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
+			}
 			if (unchecked(
 				(uint) left >= (uint) right || (uint) right > (uint) Width >> level ||
 				(uint) top >= (uint) bottom || (uint) bottom > (uint) Height >> level ||
@@ -280,9 +283,12 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
 			ValidateCopyParameters(data.Length, startIndex, elementCount);
-
+			int formatSize = GetFormatSizeEXT(Format);
 			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
-			ValidateGetDataFormat(Format, elementSizeInBytes);
+			if (formatSize % elementSizeInBytes != 0)
+			{
+				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
+			}
 			if (unchecked(
 				(uint) left >= (uint) right || (uint) right > (uint) Width >> level ||
 				(uint) top >= (uint) bottom || (uint) bottom > (uint) Height >> level ||
