@@ -603,7 +603,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			);
 
 			// Set the default viewport and scissor rect.
-			INTERNAL_viewport = new Viewport(PresentationParameters.Bounds);
+			Viewport = new Viewport(PresentationParameters.Bounds);
 			ScissorRectangle = Viewport.Bounds;
 
 			// Allocate the pipeline cache to be used by Effects
