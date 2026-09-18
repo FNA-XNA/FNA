@@ -1290,6 +1290,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetVertexBuffer(VertexBuffer vertexBuffer, int vertexOffset)
 		{
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
 			if (vertexBuffer == null)
 			{
 				if (vertexBufferCount == 0)
@@ -1305,6 +1309,14 @@ namespace Microsoft.Xna.Framework.Graphics
 				return;
 			}
 
+			if (vertexBuffer.buffer == IntPtr.Zero)
+			{
+				throw new ObjectDisposedException(vertexBuffer.GetType().Name);
+			}
+			if (vertexBuffer.GraphicsDevice != this)
+			{
+				throw new InvalidOperationException("Resources can only be used on the GraphicsDevice that they were created on. This resource was not created on this GraphicsDevice.");
+			}
 			if (	!ReferenceEquals(vertexBufferBindings[0].VertexBuffer, vertexBuffer) ||
 				vertexBufferBindings[0].VertexOffset != vertexOffset	)
 			{
@@ -1329,6 +1341,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetVertexBuffers(params VertexBufferBinding[] vertexBuffers)
 		{
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
 			if (vertexBuffers == null)
 			{
 				if (vertexBufferCount == 0)
@@ -1358,6 +1374,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			int i = 0;
 			while (i < vertexBuffers.Length)
 			{
+				VertexBuffer vertexBuffer = vertexBufferBindings[i].VertexBuffer;
+				if (vertexBuffer == null)
+				{
+					throw new ArgumentException("This method does not accept null for this parameter.");
+				}
+				if (vertexBuffer.buffer == IntPtr.Zero)
+				{
+					throw new ObjectDisposedException(vertexBuffer.GetType().Name);
+				}
+				if (vertexBuffer.GraphicsDevice != this)
+				{
+					throw new InvalidOperationException("Resources can only be used on the GraphicsDevice that they were created on. This resource was not created on this GraphicsDevice.");
+				}
 				if (	!ReferenceEquals(vertexBufferBindings[i].VertexBuffer, vertexBuffers[i].VertexBuffer) ||
 					vertexBufferBindings[i].VertexOffset != vertexBuffers[i].VertexOffset ||
 					vertexBufferBindings[i].InstanceFrequency != vertexBuffers[i].InstanceFrequency	)
