@@ -521,6 +521,15 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentOutOfRangeException("graphicsProfile");
 			}
+			if (presentationParameters.DeviceWindowHandle == IntPtr.Zero)
+			{
+				throw new ArgumentException("PresentationParameters.DeviceWindowHandle must not be null.");
+			}
+			DisplayOrientation orientation = presentationParameters.DisplayOrientation;
+			if (orientation != DisplayOrientation.Default && orientation != DisplayOrientation.LandscapeLeft && orientation != DisplayOrientation.LandscapeRight && orientation != DisplayOrientation.Portrait)
+			{
+				throw new ArgumentException("The specified DisplayOrientation is invalid.");
+			}
 
 			// Set the properties from the constructor parameters.
 			Adapter = adapter;
