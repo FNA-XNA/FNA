@@ -155,6 +155,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
+			if (isActiveRenderTarget)
+			{
+				throw new InvalidOperationException("The render target must not be set on the device when it is used as a texture.");
+			}
 
 			int xOffset, yOffset, width, height;
 			if (rect.HasValue)
@@ -283,6 +287,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (unchecked((uint) level >= (uint) LevelCount))
 			{
 				throw new InvalidOperationException("An unexpected error has occurred.");
+			}
+			if (isActiveRenderTarget)
+			{
+				throw new InvalidOperationException("The render target must not be set on the device when it is used as a texture.");
 			}
 			if (data.Length < startIndex + elementCount)
 			{
