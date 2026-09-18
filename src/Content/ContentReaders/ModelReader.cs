@@ -111,7 +111,7 @@ namespace Microsoft.Xna.Framework.Content
 				// Read the mesh part data.
 				int partCount = reader.ReadInt32();
 
-				List<ModelMeshPart> parts = new List<ModelMeshPart>(partCount);
+				ModelMeshPart[] parts = new ModelMeshPart[partCount];
 
 				for (uint j = 0; j < partCount; j += 1)
 				{
@@ -133,7 +133,7 @@ namespace Microsoft.Xna.Framework.Content
 					// Tag
 					part.Tag = reader.ReadObject<object>();
 
-					parts.Add(part);
+					parts[j] = part;
 
 					int jj = (int) j;
 					reader.ReadSharedResource<VertexBuffer>(
