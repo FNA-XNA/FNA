@@ -91,7 +91,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// <returns></returns>
 		public new Enumerator GetEnumerator()
 		{
-			return new Enumerator(this);
+			return new Enumerator((ModelBone[]) Items);
 		}
 
 		/// <summary>
@@ -99,10 +99,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// </summary>
 		public struct Enumerator : IEnumerator<ModelBone>
 		{
-			private readonly ModelBoneCollection collection;
+			private readonly ModelBone[] collection;
 			private int position;
 
-			internal Enumerator(ModelBoneCollection collection)
+			internal Enumerator(ModelBone[] collection)
 			{
 				this.collection = collection;
 				position = -1;
@@ -126,7 +126,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			public bool MoveNext()
 			{
 				position += 1;
-				return (position < collection.Count);
+				return (position < collection.Length);
 			}
 
 			/// <summary>
