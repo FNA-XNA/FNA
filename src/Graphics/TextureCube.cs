@@ -155,6 +155,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
+			ValidateCopyParameters(data.Length, startIndex, elementCount);
 
 			int xOffset, yOffset, width, height;
 			if (rect.HasValue)
@@ -284,13 +285,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
-			if (data.Length < startIndex + elementCount)
-			{
-				throw new ArgumentException(
-					"The data passed has a length of " + data.Length.ToString() +
-					" but " + elementCount.ToString() + " pixels have been requested."
-				);
-			}
+			ValidateCopyParameters(data.Length, startIndex, elementCount);
 
 			int subX, subY, subW, subH;
 			if (rect == null)
