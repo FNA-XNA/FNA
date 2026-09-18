@@ -87,7 +87,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Internal Constructor
 
-		internal ModelMesh(GraphicsDevice graphicsDevice, List<ModelMeshPart> parts)
+		internal ModelMesh(GraphicsDevice graphicsDevice, ModelMeshPart[] parts)
 		{
 			// TODO: Complete member initialization
 			this.graphicsDevice = graphicsDevice;

@@ -19,7 +19,7 @@ namespace Microsoft.Xna.Framework.Graphics
 	{
 		#region Internal Constructor
 
-		internal ModelMeshPartCollection(IList<ModelMeshPart> list) : base(list)
+		internal ModelMeshPartCollection(ModelMeshPart[] list) : base(list)
 		{
 		}
 
@@ -29,15 +29,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public new Enumerator GetEnumerator()
 		{
-			return new Enumerator(this);
+			return new Enumerator((ModelMeshPart[]) Items);
 		}
 
 		public struct Enumerator : IEnumerator<ModelMeshPart>
 		{
-			private readonly ModelMeshPartCollection collection;
+			private readonly ModelMeshPart[] collection;
 			private int position;
 
-			internal Enumerator(ModelMeshPartCollection collection)
+			internal Enumerator(ModelMeshPart[] collection)
 			{
 				this.collection = collection;
 				position = -1;
@@ -61,7 +61,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			public bool MoveNext()
 			{
 				position += 1;
-				return (position < collection.Count);
+				return (position < collection.Length);
 			}
 
 			/// <summary>
