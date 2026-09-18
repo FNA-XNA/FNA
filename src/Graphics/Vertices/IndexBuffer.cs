@@ -101,9 +101,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			BufferUsage usage,
 			bool dynamic
 		) {
+			if (indexCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("indexCount", "Resource size must be greater than zero.");
+			}
 			if (graphicsDevice == null)
 			{
-				throw new ArgumentNullException("graphicsDevice");
+				throw new NullReferenceException();
 			}
 
 			GraphicsDevice = graphicsDevice;
@@ -343,11 +347,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				return IndexElementSize.ThirtyTwoBits;
 			}
 
-			throw new ArgumentOutOfRangeException(
-				"type",
-				"Index buffers can only be created for types" +
-				" that are sixteen or thirty two bits in length"
-			);
+			throw new ArgumentException("IndexBuffers may be created only with types that are 16 bit or 32 bit in size.");
 		}
 
 		#endregion
