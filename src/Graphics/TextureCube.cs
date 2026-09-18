@@ -115,7 +115,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				null,
 				data,
 				0,
-				data.Length
+				data == null ? 0 : data.Length
 			);
 		}
 
@@ -244,7 +244,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				null,
 				data,
 				0,
-				data.Length
+				data == null ? 0 : data.Length
 			);
 		}
 

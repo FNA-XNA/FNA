@@ -137,7 +137,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				0,
 				data,
 				0,
-				data.Length,
+				data == null ? 0 : data.Length,
 				MarshalHelper.SizeOf<T>()
 			);
 		}
@@ -224,7 +224,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				0,
 				data,
 				0,
-				data.Length,
+				data == null ? 0 : data.Length,
 				MarshalHelper.SizeOf<T>()
 			);
 		}

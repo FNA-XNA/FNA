@@ -151,7 +151,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				0,
 				data,
 				0,
-				data.Length
+				data == null ? 0 : data.Length
 			);
 		}
 
@@ -212,6 +212,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetData<T>(T[] data) where T : struct
 		{
+			ErrorCheck(data, 0, data == null ? 0 : data.Length);
+
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetIndexBufferData(
 				GraphicsDevice.GLDevice,
