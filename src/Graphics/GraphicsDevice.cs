@@ -1703,6 +1703,27 @@ namespace Microsoft.Xna.Framework.Graphics
 			int vertexOffset,
 			int primitiveCount
 		) where T : struct, IVertexType {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (vertexData == null)
+			{
+				throw new ArgumentNullException("vertexData", "This method does not accept null for this parameter.");
+			}
+			if (primitiveCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "When drawing, at least one primitive must be drawn.");
+			}
+			if (unchecked((uint) vertexOffset >= (uint) vertexData.Length))
+			{
+				throw new ArgumentOutOfRangeException("vertexOffset", "The offset must be within the valid range for this resource.");
+			}
+			int primitiveVerts = PrimitiveVerts(primitiveType, primitiveCount);
+			if (primitiveVerts + vertexOffset > vertexData.Length)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "This parameter must be a valid index within the array.");
+			}
 			ApplyState();
 
 			// Pin the buffers.
@@ -1710,7 +1731,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			PrepareUserVertexBuffer(
 				vbHandle.AddrOfPinnedObject(),
-				PrimitiveVerts(primitiveType, primitiveCount),
+				primitiveVerts,
 				vertexOffset,
 				VertexDeclarationCache<T>.VertexDeclaration
 			);
@@ -1749,9 +1770,14 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentOutOfRangeException("primitiveCount", "When drawing, at least one primitive must be drawn.");
 			}
-			if (vertexOffset < 0)
+			if (unchecked((uint) vertexOffset >= (uint) vertexData.Length))
 			{
 				throw new ArgumentOutOfRangeException("vertexOffset", "The offset must be within the valid range for this resource.");
+			}
+			int primitiveVerts = PrimitiveVerts(primitiveType, primitiveCount);
+			if (primitiveVerts + vertexOffset > vertexData.Length)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "This parameter must be a valid index within the array.");
 			}
 			ApplyState();
 
@@ -1760,7 +1786,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 			PrepareUserVertexBuffer(
 				vbHandle.AddrOfPinnedObject(),
-				PrimitiveVerts(primitiveType, primitiveCount),
+				primitiveVerts,
 				vertexOffset,
 				vertexDeclaration
 			);
