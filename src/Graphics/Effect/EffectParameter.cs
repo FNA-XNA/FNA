@@ -1111,6 +1111,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Texture value)
 		{
+			if (value != null)
+			{
+				if (value.texture == IntPtr.Zero)
+				{
+					throw new ObjectDisposedException(value.GetType().Name);
+				}
+			}
 			texture = value;
 		}
 
