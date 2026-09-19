@@ -1031,24 +1031,29 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			GraphicsResource.ValidateCopyParameters(data.Length, startIndex, elementCount);
 			int x, y, w, h;
-			if (rect == null)
+			FNA3D.FNA3D_GetBackbufferSize(
+				GLDevice,
+				out w,
+				out h
+			);
+			if (rect.HasValue)
 			{
-				x = 0;
-				y = 0;
-				FNA3D.FNA3D_GetBackbufferSize(
-					GLDevice,
-					out w,
-					out h
-				);
-			}
-			else
-			{
+				if (
+					rect.Value.X < 0 || rect.Value.Width <= 0 || rect.Value.Right < w ||
+					rect.Value.Y < 0 || rect.Value.Height <= 0 || rect.Value.Bottom < h
+				) {
+					throw new ArgumentException("The rectangle is too large or too small for this resource.", "rect");
+				}
 				x = rect.Value.X;
 				y = rect.Value.Y;
 				w = rect.Value.Width;
 				h = rect.Value.Height;
 			}
-
+			else
+			{
+				x = 0;
+				y = 0;
+			}
 			int formatSize = Texture.GetFormatSizeEXT(FNA3D.FNA3D_GetBackbufferSurfaceFormat(GLDevice));
 			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
 			if (formatSize % elementSizeInBytes != 0)
