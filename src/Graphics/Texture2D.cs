@@ -188,9 +188,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
 			}
-			int x, y, w, h;
+			int x, y;
+			int w = Width >> level;
+			int h = Height >> level;
 			if (rect.HasValue)
 			{
+				if (
+					rect.Value.X < 0 || rect.Value.Width <= 0 || rect.Value.Right < w ||
+					rect.Value.Y < 0 || rect.Value.Height <= 0 || rect.Value.Bottom < h
+				) {
+					throw new ArgumentException("The rectangle is too large or too small for this resource.", "rect");
+				}
 				x = rect.Value.X;
 				y = rect.Value.Y;
 				w = rect.Value.Width;
@@ -200,8 +208,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				x = 0;
 				y = 0;
-				w = Math.Max(Width >> level, 1);
-				h = Math.Max(Height >> level, 1);
 			}
 			int requiredBytes = (w * h * formatSize) / GetBlockSizeSquaredEXT(Format);
 			int availableBytes = elementCount * elementSizeInBytes;
@@ -319,6 +325,19 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (formatSize % elementSizeInBytes != 0)
 			{
 				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
+			}
+			int w = Width >> level;
+			int h = Height >> level;
+			if (rect.HasValue)
+			{
+				if (
+					rect.Value.X < 0 || rect.Value.Width <= 0 || rect.Value.Right < w ||
+					rect.Value.Y < 0 || rect.Value.Height <= 0 || rect.Value.Bottom < h
+				) {
+					throw new ArgumentException("The rectangle is too large or too small for this resource.", "rect");
+				}
+				w = rect.Value.Width;
+				h = rect.Value.Height;
 			}
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
