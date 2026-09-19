@@ -75,6 +75,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentOutOfRangeException("height", "Resource size must be greater than zero.");
 			}
+			if (	(format == SurfaceFormat.Dxt1 || format == SurfaceFormat.Dxt3 || format == SurfaceFormat.Dxt5)
+				&& ((width & 3) != 0 || (height & 3) != 0)
+			) {
+				throw new ArgumentException("DXT compressed texture sizes must be multiples of four.");
+			}
 
 			GraphicsDevice = graphicsDevice;
 			Width = width;
