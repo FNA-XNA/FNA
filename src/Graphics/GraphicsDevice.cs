@@ -41,6 +41,10 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			get
 			{
+				if (IsDisposed)
+				{
+					throw new ObjectDisposedException(GetType().Name);
+				}
 				return GraphicsDeviceStatus.Normal;
 			}
 		}
