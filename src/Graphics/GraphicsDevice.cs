@@ -1578,6 +1578,42 @@ namespace Microsoft.Xna.Framework.Graphics
 			int indexOffset,
 			int primitiveCount
 		) where T : struct, IVertexType {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (vertexData == null || vertexData.Length == 0)
+			{
+				throw new ArgumentNullException("vertexData", "This method does not accept null for this parameter.");
+			}
+			if (indexData == null || indexData.Length == 0)
+			{
+				throw new ArgumentNullException("indexData", "This method does not accept null for this parameter.");
+			}
+			if (numVertices <= 0)
+			{
+				throw new ArgumentOutOfRangeException("numVertices", "When drawing indexed primitives, the number of vertices passed in must be greater than zero.");
+			}
+			if (primitiveCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "When drawing, at least one primitive must be drawn.");
+			}
+			if (unchecked((uint) vertexOffset >= (uint) vertexData.Length))
+			{
+				throw new ArgumentOutOfRangeException("vertexOffset", "The offset must be within the valid range for this resource.");
+			}
+			if (unchecked((uint) indexOffset >= (uint) indexData.Length))
+			{
+				throw new ArgumentOutOfRangeException("indexOffset", "The offset must be within the valid range for this resource.");
+			}
+			if (indexOffset + PrimitiveVerts(primitiveType, primitiveCount) > indexData.Length)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "This parameter must be a valid index within the array.");
+			}
+			if (vertexOffset + numVertices > vertexData.Length)
+			{
+				throw new ArgumentOutOfRangeException("vertexData", "This parameter must be a valid index within the array.");
+			}
 			ApplyState();
 
 			// Pin the buffers.
@@ -1624,6 +1660,46 @@ namespace Microsoft.Xna.Framework.Graphics
 			int primitiveCount,
 			VertexDeclaration vertexDeclaration
 		) where T : struct {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (vertexData == null || vertexData.Length == 0)
+			{
+				throw new ArgumentNullException("vertexData", "This method does not accept null for this parameter.");
+			}
+			if (indexData == null || indexData.Length == 0)
+			{
+				throw new ArgumentNullException("indexData", "This method does not accept null for this parameter.");
+			}
+			if (vertexDeclaration == null)
+			{
+				throw new ArgumentNullException("vertexDeclaration", "This method does not accept null for this parameter.");
+			}
+			if (numVertices <= 0)
+			{
+				throw new ArgumentOutOfRangeException("numVertices", "When drawing indexed primitives, the number of vertices passed in must be greater than zero.");
+			}
+			if (primitiveCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "When drawing, at least one primitive must be drawn.");
+			}
+			if (unchecked((uint) vertexOffset >= (uint) vertexData.Length))
+			{
+				throw new ArgumentOutOfRangeException("vertexOffset", "The offset must be within the valid range for this resource.");
+			}
+			if (unchecked((uint) indexOffset >= (uint) indexData.Length))
+			{
+				throw new ArgumentOutOfRangeException("indexOffset", "The offset must be within the valid range for this resource.");
+			}
+			if (indexOffset + PrimitiveVerts(primitiveType, primitiveCount) > indexData.Length)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "This parameter must be a valid index within the array.");
+			}
+			if (vertexOffset + numVertices > vertexData.Length)
+			{
+				throw new ArgumentOutOfRangeException("vertexData", "This parameter must be a valid index within the array.");
+			}
 			ApplyState();
 
 			// Pin the buffers.
@@ -1669,6 +1745,42 @@ namespace Microsoft.Xna.Framework.Graphics
 			int indexOffset,
 			int primitiveCount
 		) where T : struct, IVertexType {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (vertexData == null || vertexData.Length == 0)
+			{
+				throw new ArgumentNullException("vertexData", "This method does not accept null for this parameter.");
+			}
+			if (indexData == null || indexData.Length == 0)
+			{
+				throw new ArgumentNullException("indexData", "This method does not accept null for this parameter.");
+			}
+			if (numVertices <= 0)
+			{
+				throw new ArgumentOutOfRangeException("numVertices", "When drawing indexed primitives, the number of vertices passed in must be greater than zero.");
+			}
+			if (primitiveCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "When drawing, at least one primitive must be drawn.");
+			}
+			if (unchecked((uint) vertexOffset >= (uint) vertexData.Length))
+			{
+				throw new ArgumentOutOfRangeException("vertexOffset", "The offset must be within the valid range for this resource.");
+			}
+			if (unchecked((uint) indexOffset >= (uint) indexData.Length))
+			{
+				throw new ArgumentOutOfRangeException("indexOffset", "The offset must be within the valid range for this resource.");
+			}
+			if (indexOffset + PrimitiveVerts(primitiveType, primitiveCount) > indexData.Length)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "This parameter must be a valid index within the array.");
+			}
+			if (vertexOffset + numVertices > vertexData.Length)
+			{
+				throw new ArgumentOutOfRangeException("vertexData", "This parameter must be a valid index within the array.");
+			}
 			ApplyState();
 
 			// Pin the buffers.
@@ -1715,6 +1827,46 @@ namespace Microsoft.Xna.Framework.Graphics
 			int primitiveCount,
 			VertexDeclaration vertexDeclaration
 		) where T : struct {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
+			if (vertexData == null || vertexData.Length == 0)
+			{
+				throw new ArgumentNullException("vertexData", "This method does not accept null for this parameter.");
+			}
+			if (indexData == null || indexData.Length == 0)
+			{
+				throw new ArgumentNullException("indexData", "This method does not accept null for this parameter.");
+			}
+			if (vertexDeclaration == null)
+			{
+				throw new ArgumentNullException("vertexDeclaration", "This method does not accept null for this parameter.");
+			}
+			if (numVertices <= 0)
+			{
+				throw new ArgumentOutOfRangeException("numVertices", "When drawing indexed primitives, the number of vertices passed in must be greater than zero.");
+			}
+			if (primitiveCount <= 0)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "When drawing, at least one primitive must be drawn.");
+			}
+			if (unchecked((uint) vertexOffset >= (uint) vertexData.Length))
+			{
+				throw new ArgumentOutOfRangeException("vertexOffset", "The offset must be within the valid range for this resource.");
+			}
+			if (unchecked((uint) indexOffset >= (uint) indexData.Length))
+			{
+				throw new ArgumentOutOfRangeException("indexOffset", "The offset must be within the valid range for this resource.");
+			}
+			if (indexOffset + PrimitiveVerts(primitiveType, primitiveCount) > indexData.Length)
+			{
+				throw new ArgumentOutOfRangeException("primitiveCount", "This parameter must be a valid index within the array.");
+			}
+			if (vertexOffset + numVertices > vertexData.Length)
+			{
+				throw new ArgumentOutOfRangeException("vertexData", "This parameter must be a valid index within the array.");
+			}
 			ApplyState();
 
 			// Pin the buffers.
