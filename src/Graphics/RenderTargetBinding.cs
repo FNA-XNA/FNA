@@ -49,7 +49,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (renderTarget == null)
 			{
-				throw new ArgumentNullException("renderTarget");
+				throw new ArgumentNullException("renderTarget", "This method does not accept null for this parameter.");
 			}
 
 			this.renderTarget = renderTarget;
@@ -60,11 +60,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (renderTarget == null)
 			{
-				throw new ArgumentNullException("renderTarget");
-			}
-			if (cubeMapFace < CubeMapFace.PositiveX || cubeMapFace > CubeMapFace.NegativeZ)
-			{
-				throw new ArgumentOutOfRangeException("cubeMapFace");
+				throw new ArgumentNullException("renderTarget", "This method does not accept null for this parameter.");
 			}
 
 			this.renderTarget = renderTarget;
