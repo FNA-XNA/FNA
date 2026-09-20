@@ -92,10 +92,9 @@ namespace Microsoft.Xna.Framework.Content
 				bone.Children = new ModelBoneCollection(children);
 			}
 
-			List<ModelMesh> meshes = new List<ModelMesh>();
-
 			// Read the mesh data.
 			int meshCount = reader.ReadInt32();
+			ModelMesh[] meshes = existingInstance == null ? new ModelMesh[meshCount] : null;
 
 			GraphicsDevice device = reader.ContentManager.GetGraphicsDevice();
 
@@ -165,7 +164,7 @@ namespace Microsoft.Xna.Framework.Content
 				mesh.ParentBone = bones[parentBoneIndex];
 				mesh.ParentBone.AddMesh(mesh);
 				mesh.BoundingSphere = boundingSphere;
-				meshes.Add(mesh);
+				meshes[i] = mesh;
 			}
 			if (existingInstance != null)
 			{
