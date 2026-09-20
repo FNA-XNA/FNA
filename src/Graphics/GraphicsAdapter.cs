@@ -108,13 +108,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
-		public bool UseNullDevice
+		public static bool UseNullDevice
 		{
 			get;
 			set;
 		}
 
-		public bool UseReferenceDevice
+		public static bool UseReferenceDevice
 		{
 			get;
 			set;
