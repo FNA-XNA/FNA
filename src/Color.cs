@@ -130,8 +130,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Transparent
 		{
-			get;
-			private set;
+			get { return new Color(0x0); }
 		}
 
 		/// <summary>
@@ -139,8 +138,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color AliceBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFFF8F0); }
 		}
 
 		/// <summary>
@@ -148,8 +146,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color AntiqueWhite
 		{
-			get;
-			private set;
+			get { return new Color(0xFFD7EBFA); }
 		}
 
 		/// <summary>
@@ -157,8 +154,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Aqua
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFFFF00); }
 		}
 
 		/// <summary>
@@ -166,8 +162,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Aquamarine
 		{
-			get;
-			private set;
+			get { return new Color(0xFFD4FF7F); }
 		}
 
 		/// <summary>
@@ -175,8 +170,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Azure
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFFFFF0); }
 		}
 
 		/// <summary>
@@ -184,8 +178,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Beige
 		{
-			get;
-			private set;
+			get { return new Color(0xFFDCF5F5); }
 		}
 
 		/// <summary>
@@ -193,8 +186,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Bisque
 		{
-			get;
-			private set;
+			get { return new Color(0xFFC4E4FF); }
 		}
 
 		/// <summary>
@@ -202,8 +194,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Black
 		{
-			get;
-			private set;
+			get { return new Color(0xFF000000); }
 		}
 
 		/// <summary>
@@ -211,8 +202,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color BlanchedAlmond
 		{
-			get;
-			private set;
+			get { return new Color(0xFFCDEBFF); }
 		}
 
 		/// <summary>
@@ -220,8 +210,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Blue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFF0000); }
 		}
 
 		/// <summary>
@@ -229,8 +218,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color BlueViolet
 		{
-			get;
-			private set;
+			get { return new Color(0xFFE22B8A); }
 		}
 
 		/// <summary>
@@ -238,8 +226,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Brown
 		{
-			get;
-			private set;
+			get { return new Color(0xFF2A2AA5); }
 		}
 
 		/// <summary>
@@ -247,8 +234,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color BurlyWood
 		{
-			get;
-			private set;
+			get { return new Color(0xFF87B8DE); }
 		}
 
 		/// <summary>
@@ -256,8 +242,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color CadetBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFA09E5F); }
 		}
 
 		/// <summary>
@@ -265,8 +250,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Chartreuse
 		{
-			get;
-			private set;
+			get { return new Color(0xFF00FF7F); }
 		}
 
 		/// <summary>
@@ -274,8 +258,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Chocolate
 		{
-			get;
-			private set;
+			get { return new Color(0xFF1E69D2); }
 		}
 
 		/// <summary>
@@ -283,8 +266,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Coral
 		{
-			get;
-			private set;
+			get { return new Color(0xFF507FFF); }
 		}
 
 		/// <summary>
@@ -292,8 +274,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color CornflowerBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFED9564); }
 		}
 
 		/// <summary>
@@ -301,8 +282,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Cornsilk
 		{
-			get;
-			private set;
+			get { return new Color(0xFFDCF8FF); }
 		}
 
 		/// <summary>
@@ -310,8 +290,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Crimson
 		{
-			get;
-			private set;
+			get { return new Color(0xFF3C14DC); }
 		}
 
 		/// <summary>
@@ -319,8 +298,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Cyan
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFFFF00); }
 		}
 
 		/// <summary>
@@ -328,8 +306,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFF8B0000); }
 		}
 
 		/// <summary>
@@ -337,8 +314,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkCyan
 		{
-			get;
-			private set;
+			get { return new Color(0xFF8B8B00); }
 		}
 
 		/// <summary>
@@ -346,8 +322,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkGoldenrod
 		{
-			get;
-			private set;
+			get { return new Color(0xFF0B86B8); }
 		}
 
 		/// <summary>
@@ -355,8 +330,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkGray
 		{
-			get;
-			private set;
+			get { return new Color(0xFFA9A9A9); }
 		}
 
 		/// <summary>
@@ -364,8 +338,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF006400); }
 		}
 
 		/// <summary>
@@ -373,8 +346,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkKhaki
 		{
-			get;
-			private set;
+			get { return new Color(0xFF6BB7BD); }
 		}
 
 		/// <summary>
@@ -382,8 +354,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkMagenta
 		{
-			get;
-			private set;
+			get { return new Color(0xFF8B008B); }
 		}
 
 		/// <summary>
@@ -391,8 +362,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkOliveGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF2F6B55); }
 		}
 
 		/// <summary>
@@ -400,8 +370,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkOrange
 		{
-			get;
-			private set;
+			get { return new Color(0xFF008CFF); }
 		}
 
 		/// <summary>
@@ -409,8 +378,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkOrchid
 		{
-			get;
-			private set;
+			get { return new Color(0xFFCC3299); }
 		}
 
 		/// <summary>
@@ -418,8 +386,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkRed
 		{
-			get;
-			private set;
+			get { return new Color(0xFF00008B); }
 		}
 
 		/// <summary>
@@ -427,8 +394,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkSalmon
 		{
-			get;
-			private set;
+			get { return new Color(0xFF7A96E9); }
 		}
 
 		/// <summary>
@@ -436,8 +402,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkSeaGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF8BBC8F); }
 		}
 
 		/// <summary>
@@ -445,8 +410,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkSlateBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFF8B3D48); }
 		}
 
 		/// <summary>
@@ -454,8 +418,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkSlateGray
 		{
-			get;
-			private set;
+			get { return new Color(0xFF4F4F2F); }
 		}
 
 		/// <summary>
@@ -463,8 +426,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkTurquoise
 		{
-			get;
-			private set;
+			get { return new Color(0xFFD1CE00); }
 		}
 
 		/// <summary>
@@ -472,8 +434,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DarkViolet
 		{
-			get;
-			private set;
+			get { return new Color(0xFFD30094); }
 		}
 
 		/// <summary>
@@ -481,8 +442,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DeepPink
 		{
-			get;
-			private set;
+			get { return new Color(0xFF9314FF); }
 		}
 
 		/// <summary>
@@ -490,8 +450,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DeepSkyBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFFBF00); }
 		}
 
 		/// <summary>
@@ -499,8 +458,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DimGray
 		{
-			get;
-			private set;
+			get { return new Color(0xFF696969); }
 		}
 
 		/// <summary>
@@ -508,8 +466,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color DodgerBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFF901E); }
 		}
 
 		/// <summary>
@@ -517,8 +474,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Firebrick
 		{
-			get;
-			private set;
+			get { return new Color(0xFF2222B2); }
 		}
 
 		/// <summary>
@@ -526,8 +482,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color FloralWhite
 		{
-			get;
-			private set;
+			get { return new Color(0xFFF0FAFF); }
 		}
 
 		/// <summary>
@@ -535,8 +490,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color ForestGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF228B22); }
 		}
 
 		/// <summary>
@@ -544,8 +498,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Fuchsia
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFF00FF); }
 		}
 
 		/// <summary>
@@ -553,8 +506,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Gainsboro
 		{
-			get;
-			private set;
+			get { return new Color(0xFFDCDCDC); }
 		}
 
 		/// <summary>
@@ -562,16 +514,15 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color GhostWhite
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFFF8F8); }
 		}
+
 		/// <summary>
 		/// Gold color (R:255,G:215,B:0,A:255).
 		/// </summary>
 		public static Color Gold
 		{
-			get;
-			private set;
+			get { return new Color(0xFF00D7FF); }
 		}
 
 		/// <summary>
@@ -579,8 +530,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Goldenrod
 		{
-			get;
-			private set;
+			get { return new Color(0xFF20A5DA); }
 		}
 
 		/// <summary>
@@ -588,8 +538,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Gray
 		{
-			get;
-			private set;
+			get { return new Color(0xFF808080); }
 		}
 
 		/// <summary>
@@ -597,8 +546,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Green
 		{
-			get;
-			private set;
+			get { return new Color(0xFF008000); }
 		}
 
 		/// <summary>
@@ -606,8 +554,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color GreenYellow
 		{
-			get;
-			private set;
+			get { return new Color(0xFF2FFFAD); }
 		}
 
 		/// <summary>
@@ -615,8 +562,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Honeydew
 		{
-			get;
-			private set;
+			get { return new Color(0xFFF0FFF0); }
 		}
 
 		/// <summary>
@@ -624,8 +570,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color HotPink
 		{
-			get;
-			private set;
+			get { return new Color(0xFFB469FF); }
 		}
 
 		/// <summary>
@@ -633,8 +578,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color IndianRed
 		{
-			get;
-			private set;
+			get { return new Color(0xFF5C5CCD); }
 		}
 
 		/// <summary>
@@ -642,8 +586,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Indigo
 		{
-			get;
-			private set;
+			get { return new Color(0xFF82004B); }
 		}
 
 		/// <summary>
@@ -651,8 +594,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Ivory
 		{
-			get;
-			private set;
+			get { return new Color(0xFFF0FFFF); }
 		}
 
 		/// <summary>
@@ -660,8 +602,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Khaki
 		{
-			get;
-			private set;
+			get { return new Color(0xFF8CE6F0); }
 		}
 
 		/// <summary>
@@ -669,8 +610,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Lavender
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFAE6E6); }
 		}
 
 		/// <summary>
@@ -678,8 +618,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LavenderBlush
 		{
-			get;
-			private set;
+			get { return new Color(0xFFF5F0FF); }
 		}
 
 		/// <summary>
@@ -687,8 +626,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LawnGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF00FC7C); }
 		}
 
 		/// <summary>
@@ -696,8 +634,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LemonChiffon
 		{
-			get;
-			private set;
+			get { return new Color(0xFFCDFAFF); }
 		}
 
 		/// <summary>
@@ -705,8 +642,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFE6D8AD); }
 		}
 
 		/// <summary>
@@ -714,8 +650,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightCoral
 		{
-			get;
-			private set;
+			get { return new Color(0xFF8080F0); }
 		}
 
 		/// <summary>
@@ -723,8 +658,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightCyan
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFFFFE0); }
 		}
 
 		/// <summary>
@@ -732,17 +666,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightGoldenrodYellow
 		{
-			get;
-			private set;
-		}
-
-		/// <summary>
-		/// LightGray color (R:211,G:211,B:211,A:255).
-		/// </summary>
-		public static Color LightGray
-		{
-			get;
-			private set;
+			get { return new Color(0xFFD2FAFA); }
 		}
 
 		/// <summary>
@@ -750,8 +674,15 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF90EE90); }
+		}
+
+		/// <summary>
+		/// LightGray color (R:211,G:211,B:211,A:255).
+		/// </summary>
+		public static Color LightGray
+		{
+			get { return new Color(0xFFD3D3D3); }
 		}
 
 		/// <summary>
@@ -759,8 +690,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightPink
 		{
-			get;
-			private set;
+			get { return new Color(0xFFC1B6FF); }
 		}
 
 		/// <summary>
@@ -768,8 +698,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightSalmon
 		{
-			get;
-			private set;
+			get { return new Color(0xFF7AA0FF); }
 		}
 
 		/// <summary>
@@ -777,8 +706,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightSeaGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFFAAB220); }
 		}
 
 		/// <summary>
@@ -786,8 +714,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightSkyBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFACE87); }
 		}
 
 		/// <summary>
@@ -795,8 +722,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightSlateGray
 		{
-			get;
-			private set;
+			get { return new Color(0xFF998877); }
 		}
 
 		/// <summary>
@@ -804,8 +730,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightSteelBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFDEC4B0); }
 		}
 
 		/// <summary>
@@ -813,8 +738,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LightYellow
 		{
-			get;
-			private set;
+			get { return new Color(0xFFE0FFFF); }
 		}
 
 		/// <summary>
@@ -822,8 +746,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Lime
 		{
-			get;
-			private set;
+			get { return new Color(0xFF00FF00); }
 		}
 
 		/// <summary>
@@ -831,8 +754,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color LimeGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF32CD32); }
 		}
 
 		/// <summary>
@@ -840,8 +762,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Linen
 		{
-			get;
-			private set;
+			get { return new Color(0xFFE6F0FA); }
 		}
 
 		/// <summary>
@@ -849,8 +770,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Magenta
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFF00FF); }
 		}
 
 		/// <summary>
@@ -858,8 +778,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Maroon
 		{
-			get;
-			private set;
+			get { return new Color(0xFF000080); }
 		}
 
 		/// <summary>
@@ -867,8 +786,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MediumAquamarine
 		{
-			get;
-			private set;
+			get { return new Color(0xFFAACD66); }
 		}
 
 		/// <summary>
@@ -876,8 +794,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MediumBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFCD0000); }
 		}
 
 		/// <summary>
@@ -885,8 +802,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MediumOrchid
 		{
-			get;
-			private set;
+			get { return new Color(0xFFD355BA); }
 		}
 
 		/// <summary>
@@ -894,8 +810,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MediumPurple
 		{
-			get;
-			private set;
+			get { return new Color(0xFFDB7093); }
 		}
 
 		/// <summary>
@@ -903,8 +818,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MediumSeaGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF71B33C); }
 		}
 
 		/// <summary>
@@ -912,8 +826,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MediumSlateBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFEE687B); }
 		}
 
 		/// <summary>
@@ -921,8 +834,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MediumSpringGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF9AFA00); }
 		}
 
 		/// <summary>
@@ -930,8 +842,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MediumTurquoise
 		{
-			get;
-			private set;
+			get { return new Color(0xFFCCD148); }
 		}
 
 		/// <summary>
@@ -939,8 +850,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MediumVioletRed
 		{
-			get;
-			private set;
+			get { return new Color(0xFF8515C7); }
 		}
 
 		/// <summary>
@@ -948,8 +858,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MidnightBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFF701919); }
 		}
 
 		/// <summary>
@@ -957,8 +866,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MintCream
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFAFFF5); }
 		}
 
 		/// <summary>
@@ -966,8 +874,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color MistyRose
 		{
-			get;
-			private set;
+			get { return new Color(0xFFE1E4FF); }
 		}
 
 		/// <summary>
@@ -975,8 +882,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Moccasin
 		{
-			get;
-			private set;
+			get { return new Color(0xFFB5E4FF); }
 		}
 
 		/// <summary>
@@ -984,8 +890,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color NavajoWhite
 		{
-			get;
-			private set;
+			get { return new Color(0xFFADDEFF); }
 		}
 
 		/// <summary>
@@ -993,8 +898,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Navy
 		{
-			get;
-			private set;
+			get { return new Color(0xFF800000); }
 		}
 
 		/// <summary>
@@ -1002,8 +906,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color OldLace
 		{
-			get;
-			private set;
+			get { return new Color(0xFFE6F5FD); }
 		}
 
 		/// <summary>
@@ -1011,8 +914,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Olive
 		{
-			get;
-			private set;
+			get { return new Color(0xFF008080); }
 		}
 
 		/// <summary>
@@ -1020,8 +922,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color OliveDrab
 		{
-			get;
-			private set;
+			get { return new Color(0xFF238E6B); }
 		}
 
 		/// <summary>
@@ -1029,8 +930,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Orange
 		{
-			get;
-			private set;
+			get { return new Color(0xFF00A5FF); }
 		}
 
 		/// <summary>
@@ -1038,8 +938,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color OrangeRed
 		{
-			get;
-			private set;
+			get { return new Color(0xFF0045FF); }
 		}
 
 		/// <summary>
@@ -1047,8 +946,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Orchid
 		{
-			get;
-			private set;
+			get { return new Color(0xFFD670DA); }
 		}
 
 		/// <summary>
@@ -1056,8 +954,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color PaleGoldenrod
 		{
-			get;
-			private set;
+			get { return new Color(0xFFAAE8EE); }
 		}
 
 		/// <summary>
@@ -1065,8 +962,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color PaleGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF98FB98); }
 		}
 
 		/// <summary>
@@ -1074,16 +970,15 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color PaleTurquoise
 		{
-			get;
-			private set;
+			get { return new Color(0xFFEEEEAF); }
 		}
+
 		/// <summary>
 		/// PaleVioletRed color (R:219,G:112,B:147,A:255).
 		/// </summary>
 		public static Color PaleVioletRed
 		{
-			get;
-			private set;
+			get { return new Color(0xFF9370DB); }
 		}
 
 		/// <summary>
@@ -1091,8 +986,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color PapayaWhip
 		{
-			get;
-			private set;
+			get { return new Color(0xFFD5EFFF); }
 		}
 
 		/// <summary>
@@ -1100,8 +994,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color PeachPuff
 		{
-			get;
-			private set;
+			get { return new Color(0xFFB9DAFF); }
 		}
 
 		/// <summary>
@@ -1109,8 +1002,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Peru
 		{
-			get;
-			private set;
+			get { return new Color(0xFF3F85CD); }
 		}
 
 		/// <summary>
@@ -1118,8 +1010,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Pink
 		{
-			get;
-			private set;
+			get { return new Color(0xFFCBC0FF); }
 		}
 
 		/// <summary>
@@ -1127,8 +1018,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Plum
 		{
-			get;
-			private set;
+			get { return new Color(0xFFDDA0DD); }
 		}
 
 		/// <summary>
@@ -1136,8 +1026,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color PowderBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFE6E0B0); }
 		}
 
 		/// <summary>
@@ -1145,8 +1034,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Purple
 		{
-			get;
-			private set;
+			get { return new Color(0xFF800080); }
 		}
 
 		/// <summary>
@@ -1154,8 +1042,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Red
 		{
-			get;
-			private set;
+			get { return new Color(0xFF0000FF); }
 		}
 
 		/// <summary>
@@ -1163,8 +1050,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color RosyBrown
 		{
-			get;
-			private set;
+			get { return new Color(0xFF8F8FBC); }
 		}
 
 		/// <summary>
@@ -1172,8 +1058,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color RoyalBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFE16941); }
 		}
 
 		/// <summary>
@@ -1181,8 +1066,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color SaddleBrown
 		{
-			get;
-			private set;
+			get { return new Color(0xFF13458B); }
 		}
 
 		/// <summary>
@@ -1190,8 +1074,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Salmon
 		{
-			get;
-			private set;
+			get { return new Color(0xFF7280FA); }
 		}
 
 		/// <summary>
@@ -1199,8 +1082,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color SandyBrown
 		{
-			get;
-			private set;
+			get { return new Color(0xFF60A4F4); }
 		}
 
 		/// <summary>
@@ -1208,8 +1090,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color SeaGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF578B2E); }
 		}
 
 		/// <summary>
@@ -1217,8 +1098,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color SeaShell
 		{
-			get;
-			private set;
+			get { return new Color(0xFFEEF5FF); }
 		}
 
 		/// <summary>
@@ -1226,8 +1106,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Sienna
 		{
-			get;
-			private set;
+			get { return new Color(0xFF2D52A0); }
 		}
 
 		/// <summary>
@@ -1235,8 +1114,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Silver
 		{
-			get;
-			private set;
+			get { return new Color(0xFFC0C0C0); }
 		}
 
 		/// <summary>
@@ -1244,8 +1122,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color SkyBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFEBCE87); }
 		}
 
 		/// <summary>
@@ -1253,8 +1130,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color SlateBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFCD5A6A); }
 		}
 
 		/// <summary>
@@ -1262,8 +1138,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color SlateGray
 		{
-			get;
-			private set;
+			get { return new Color(0xFF908070); }
 		}
 
 		/// <summary>
@@ -1271,8 +1146,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Snow
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFAFAFF); }
 		}
 
 		/// <summary>
@@ -1280,8 +1154,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color SpringGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF7FFF00); }
 		}
 
 		/// <summary>
@@ -1289,8 +1162,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color SteelBlue
 		{
-			get;
-			private set;
+			get { return new Color(0xFFB48246); }
 		}
 
 		/// <summary>
@@ -1298,8 +1170,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Tan
 		{
-			get;
-			private set;
+			get { return new Color(0xFF8CB4D2); }
 		}
 
 		/// <summary>
@@ -1307,8 +1178,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Teal
 		{
-			get;
-			private set;
+			get { return new Color(0xFF808000); }
 		}
 
 		/// <summary>
@@ -1316,8 +1186,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Thistle
 		{
-			get;
-			private set;
+			get { return new Color(0xFFD8BFD8); }
 		}
 
 		/// <summary>
@@ -1325,8 +1194,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Tomato
 		{
-			get;
-			private set;
+			get { return new Color(0xFF4763FF); }
 		}
 
 		/// <summary>
@@ -1334,8 +1202,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Turquoise
 		{
-			get;
-			private set;
+			get { return new Color(0xFFD0E040); }
 		}
 
 		/// <summary>
@@ -1343,8 +1210,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Violet
 		{
-			get;
-			private set;
+			get { return new Color(0xFFEE82EE); }
 		}
 
 		/// <summary>
@@ -1352,8 +1218,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Wheat
 		{
-			get;
-			private set;
+			get { return new Color(0xFFB3DEF5); }
 		}
 
 		/// <summary>
@@ -1361,8 +1226,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color White
 		{
-			get;
-			private set;
+			get { return new Color(0xFFFFFFFF); }
 		}
 
 		/// <summary>
@@ -1370,8 +1234,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color WhiteSmoke
 		{
-			get;
-			private set;
+			get { return new Color(0xFFF5F5F5); }
 		}
 
 		/// <summary>
@@ -1379,8 +1242,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color Yellow
 		{
-			get;
-			private set;
+			get { return new Color(0xFF00FFFF); }
 		}
 
 		/// <summary>
@@ -1388,8 +1250,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public static Color YellowGreen
 		{
-			get;
-			private set;
+			get { return new Color(0xFF32CD9A); }
 		}
 
 		#endregion
@@ -1415,155 +1276,6 @@ namespace Microsoft.Xna.Framework
 
 		// ARGB. Keep this name as it is used by XNA games in reflection!
 		internal uint packedValue;
-
-		#endregion
-
-		#region Private Static Constructors
-
-		static Color()
-		{
-			Transparent = new Color(0);
-			AliceBlue = new Color(0xfffff8f0);
-			AntiqueWhite = new Color(0xffd7ebfa);
-			Aqua = new Color(0xffffff00);
-			Aquamarine = new Color(0xffd4ff7f);
-			Azure = new Color(0xfffffff0);
-			Beige = new Color(0xffdcf5f5);
-			Bisque = new Color(0xffc4e4ff);
-			Black = new Color(0xff000000);
-			BlanchedAlmond = new Color(0xffcdebff);
-			Blue = new Color(0xffff0000);
-			BlueViolet = new Color(0xffe22b8a);
-			Brown = new Color(0xff2a2aa5);
-			BurlyWood = new Color(0xff87b8de);
-			CadetBlue = new Color(0xffa09e5f);
-			Chartreuse = new Color(0xff00ff7f);
-			Chocolate = new Color(0xff1e69d2);
-			Coral = new Color(0xff507fff);
-			CornflowerBlue = new Color(0xffed9564);
-			Cornsilk = new Color(0xffdcf8ff);
-			Crimson = new Color(0xff3c14dc);
-			Cyan = new Color(0xffffff00);
-			DarkBlue = new Color(0xff8b0000);
-			DarkCyan = new Color(0xff8b8b00);
-			DarkGoldenrod = new Color(0xff0b86b8);
-			DarkGray = new Color(0xffa9a9a9);
-			DarkGreen = new Color(0xff006400);
-			DarkKhaki = new Color(0xff6bb7bd);
-			DarkMagenta = new Color(0xff8b008b);
-			DarkOliveGreen = new Color(0xff2f6b55);
-			DarkOrange = new Color(0xff008cff);
-			DarkOrchid = new Color(0xffcc3299);
-			DarkRed = new Color(0xff00008b);
-			DarkSalmon = new Color(0xff7a96e9);
-			DarkSeaGreen = new Color(0xff8bbc8f);
-			DarkSlateBlue = new Color(0xff8b3d48);
-			DarkSlateGray = new Color(0xff4f4f2f);
-			DarkTurquoise = new Color(0xffd1ce00);
-			DarkViolet = new Color(0xffd30094);
-			DeepPink = new Color(0xff9314ff);
-			DeepSkyBlue = new Color(0xffffbf00);
-			DimGray = new Color(0xff696969);
-			DodgerBlue = new Color(0xffff901e);
-			Firebrick = new Color(0xff2222b2);
-			FloralWhite = new Color(0xfff0faff);
-			ForestGreen = new Color(0xff228b22);
-			Fuchsia = new Color(0xffff00ff);
-			Gainsboro = new Color(0xffdcdcdc);
-			GhostWhite = new Color(0xfffff8f8);
-			Gold = new Color(0xff00d7ff);
-			Goldenrod = new Color(0xff20a5da);
-			Gray = new Color(0xff808080);
-			Green = new Color(0xff008000);
-			GreenYellow = new Color(0xff2fffad);
-			Honeydew = new Color(0xfff0fff0);
-			HotPink = new Color(0xffb469ff);
-			IndianRed = new Color(0xff5c5ccd);
-			Indigo = new Color(0xff82004b);
-			Ivory = new Color(0xfff0ffff);
-			Khaki = new Color(0xff8ce6f0);
-			Lavender = new Color(0xfffae6e6);
-			LavenderBlush = new Color(0xfff5f0ff);
-			LawnGreen = new Color(0xff00fc7c);
-			LemonChiffon = new Color(0xffcdfaff);
-			LightBlue = new Color(0xffe6d8ad);
-			LightCoral = new Color(0xff8080f0);
-			LightCyan = new Color(0xffffffe0);
-			LightGoldenrodYellow = new Color(0xffd2fafa);
-			LightGray = new Color(0xffd3d3d3);
-			LightGreen = new Color(0xff90ee90);
-			LightPink = new Color(0xffc1b6ff);
-			LightSalmon = new Color(0xff7aa0ff);
-			LightSeaGreen = new Color(0xffaab220);
-			LightSkyBlue = new Color(0xffface87);
-			LightSlateGray = new Color(0xff998877);
-			LightSteelBlue = new Color(0xffdec4b0);
-			LightYellow = new Color(0xffe0ffff);
-			Lime = new Color(0xff00ff00);
-			LimeGreen = new Color(0xff32cd32);
-			Linen = new Color(0xffe6f0fa);
-			Magenta = new Color(0xffff00ff);
-			Maroon = new Color(0xff000080);
-			MediumAquamarine = new Color(0xffaacd66);
-			MediumBlue = new Color(0xffcd0000);
-			MediumOrchid = new Color(0xffd355ba);
-			MediumPurple = new Color(0xffdb7093);
-			MediumSeaGreen = new Color(0xff71b33c);
-			MediumSlateBlue = new Color(0xffee687b);
-			MediumSpringGreen = new Color(0xff9afa00);
-			MediumTurquoise = new Color(0xffccd148);
-			MediumVioletRed = new Color(0xff8515c7);
-			MidnightBlue = new Color(0xff701919);
-			MintCream = new Color(0xfffafff5);
-			MistyRose = new Color(0xffe1e4ff);
-			Moccasin = new Color(0xffb5e4ff);
-			NavajoWhite = new Color(0xffaddeff);
-			Navy = new Color(0xff800000);
-			OldLace = new Color(0xffe6f5fd);
-			Olive = new Color(0xff008080);
-			OliveDrab = new Color(0xff238e6b);
-			Orange = new Color(0xff00a5ff);
-			OrangeRed = new Color(0xff0045ff);
-			Orchid = new Color(0xffd670da);
-			PaleGoldenrod = new Color(0xffaae8ee);
-			PaleGreen = new Color(0xff98fb98);
-			PaleTurquoise = new Color(0xffeeeeaf);
-			PaleVioletRed = new Color(0xff9370db);
-			PapayaWhip = new Color(0xffd5efff);
-			PeachPuff = new Color(0xffb9daff);
-			Peru = new Color(0xff3f85cd);
-			Pink = new Color(0xffcbc0ff);
-			Plum = new Color(0xffdda0dd);
-			PowderBlue = new Color(0xffe6e0b0);
-			Purple = new Color(0xff800080);
-			Red = new Color(0xff0000ff);
-			RosyBrown = new Color(0xff8f8fbc);
-			RoyalBlue = new Color(0xffe16941);
-			SaddleBrown = new Color(0xff13458b);
-			Salmon= new Color(0xff7280fa);
-			SandyBrown = new Color(0xff60a4f4);
-			SeaGreen = new Color(0xff578b2e);
-			SeaShell = new Color(0xffeef5ff);
-			Sienna = new Color(0xff2d52a0);
-			Silver = new Color(0xffc0c0c0);
-			SkyBlue = new Color(0xffebce87);
-			SlateBlue= new Color(0xffcd5a6a);
-			SlateGray= new Color(0xff908070);
-			Snow= new Color(0xfffafaff);
-			SpringGreen= new Color(0xff7fff00);
-			SteelBlue= new Color(0xffb48246);
-			Tan= new Color(0xff8cb4d2);
-			Teal= new Color(0xff808000);
-			Thistle= new Color(0xffd8bfd8);
-			Tomato= new Color(0xff4763ff);
-			Turquoise= new Color(0xffd0e040);
-			Violet= new Color(0xffee82ee);
-			Wheat= new Color(0xffb3def5);
-			White= new Color(uint.MaxValue);
-			WhiteSmoke= new Color(0xfff5f5f5);
-			Yellow = new Color(0xff00ffff);
-			YellowGreen = new Color(0xff32cd9a);
-		}
 
 		#endregion
 
