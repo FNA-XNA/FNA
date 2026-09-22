@@ -11,6 +11,14 @@
  */
 #endregion
 
+#region Using Statements
+#if NETCOREAPP3_0_OR_GREATER
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+#endif
+#endregion
+
 namespace Microsoft.Xna.Framework.Content
 {
 	internal class RectangleReader : ContentTypeReader<Rectangle>
@@ -29,11 +37,18 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader input,
 			Rectangle existingInstance
 		) {
-			int left = input.ReadInt32();
-			int top = input.ReadInt32();
-			int width = input.ReadInt32();
-			int height = input.ReadInt32();
-			return new Rectangle(left, top, width, height);
+#if NETCOREAPP3_0_OR_GREATER
+			if (input.Read(MemoryMarshal.CreateSpan(ref Unsafe.As<Rectangle, byte>(ref existingInstance), 16)) != 16)
+			{
+				throw new EndOfStreamException("Unable to read beyond the end of the stream.");
+			}
+#else
+			existingInstance.X = input.ReadInt32();
+			existingInstance.Y = input.ReadInt32();
+			existingInstance.Width = input.ReadInt32();
+			existingInstance.Height = input.ReadInt32();
+#endif
+			return existingInstance;
 		}
 
 		#endregion

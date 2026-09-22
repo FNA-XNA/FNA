@@ -7,6 +7,14 @@
  */
 #endregion
 
+#region Using Statements
+#if NETCOREAPP3_0_OR_GREATER
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+#endif
+#endregion
+
 namespace Microsoft.Xna.Framework.Content
 {
 	internal class RayReader : ContentTypeReader<Ray>
@@ -25,9 +33,16 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader input,
 			Ray existingInstance
 		) {
-			Vector3 position = input.ReadVector3();
-			Vector3 direction = input.ReadVector3();
-			return new Ray(position, direction);
+#if NETCOREAPP3_0_OR_GREATER
+			if (input.Read(MemoryMarshal.CreateSpan(ref Unsafe.As<Ray, byte>(ref existingInstance), 24)) != 24)
+			{
+				throw new EndOfStreamException("Unable to read beyond the end of the stream.");
+			}
+#else
+			existingInstance.Position = input.ReadVector3();
+			existingInstance.Direction = input.ReadVector3();
+#endif
+			return existingInstance;
 		}
 
 		#endregion

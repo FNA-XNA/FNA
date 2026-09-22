@@ -13,8 +13,12 @@
 
 #region Using Statements
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Collections.Generic;
+#if NET5_0_OR_GREATER
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+#endif
 #endregion
 
 namespace Microsoft.Xna.Framework.Content
@@ -118,6 +122,13 @@ namespace Microsoft.Xna.Framework.Content
 		public Matrix ReadMatrix()
 		{
 			Matrix result;
+#if NET5_0_OR_GREATER
+			Unsafe.SkipInit(out result);
+			if (Read(MemoryMarshal.CreateSpan(ref Unsafe.As<Matrix, byte>(ref result), 64)) != 64)
+			{
+				throw new EndOfStreamException("Unable to read beyond the end of the stream.");
+			}
+#else
 			result.M11 = ReadSingle();
 			result.M12 = ReadSingle();
 			result.M13 = ReadSingle();
@@ -134,6 +145,7 @@ namespace Microsoft.Xna.Framework.Content
 			result.M42 = ReadSingle();
 			result.M43 = ReadSingle();
 			result.M44 = ReadSingle();
+#endif
 			return result;
 		}
 
@@ -168,10 +180,18 @@ namespace Microsoft.Xna.Framework.Content
 		public Quaternion ReadQuaternion()
 		{
 			Quaternion result;
+#if NET5_0_OR_GREATER
+			Unsafe.SkipInit(out result);
+			if (Read(MemoryMarshal.CreateSpan(ref Unsafe.As<Quaternion, byte>(ref result), 16)) != 16)
+			{
+				throw new EndOfStreamException("Unable to read beyond the end of the stream.");
+			}
+#else
 			result.X = ReadSingle();
 			result.Y = ReadSingle();
 			result.Z = ReadSingle();
 			result.W = ReadSingle();
+#endif
 			return result;
 		}
 
@@ -237,27 +257,51 @@ namespace Microsoft.Xna.Framework.Content
 		public Vector2 ReadVector2()
 		{
 			Vector2 result;
+#if NET5_0_OR_GREATER
+			Unsafe.SkipInit(out result);
+			if (Read(MemoryMarshal.CreateSpan(ref Unsafe.As<Vector2, byte>(ref result), 8)) != 8)
+			{
+				throw new EndOfStreamException("Unable to read beyond the end of the stream.");
+			}
+#else
 			result.X = ReadSingle();
 			result.Y = ReadSingle();
+#endif
 			return result;
 		}
 
 		public Vector3 ReadVector3()
 		{
 			Vector3 result;
+#if NET5_0_OR_GREATER
+			Unsafe.SkipInit(out result);
+			if (Read(MemoryMarshal.CreateSpan(ref Unsafe.As<Vector3, byte>(ref result), 12)) != 12)
+			{
+				throw new EndOfStreamException("Unable to read beyond the end of the stream.");
+			}
+#else
 			result.X = ReadSingle();
 			result.Y = ReadSingle();
 			result.Z = ReadSingle();
+#endif
 			return result;
 		}
 
 		public Vector4 ReadVector4()
 		{
 			Vector4 result;
+#if NET5_0_OR_GREATER
+			Unsafe.SkipInit(out result);
+			if (Read(MemoryMarshal.CreateSpan(ref Unsafe.As<Vector4, byte>(ref result), 16)) != 16)
+			{
+				throw new EndOfStreamException("Unable to read beyond the end of the stream.");
+			}
+#else
 			result.X = ReadSingle();
 			result.Y = ReadSingle();
 			result.Z = ReadSingle();
 			result.W = ReadSingle();
+#endif
 			return result;
 		}
 
@@ -321,9 +365,18 @@ namespace Microsoft.Xna.Framework.Content
 
 		internal BoundingSphere ReadBoundingSphere()
 		{
-			Vector3 position = ReadVector3();
-			float radius = ReadSingle();
-			return new BoundingSphere(position, radius);
+			BoundingSphere result;
+#if NET5_0_OR_GREATER
+			Unsafe.SkipInit(out result);
+			if (Read(MemoryMarshal.CreateSpan(ref Unsafe.As<BoundingSphere, byte>(ref result), 16)) != 16)
+			{
+				throw new EndOfStreamException("Unable to read beyond the end of the stream.");
+			}
+#else
+			result.Center = ReadVector3();
+			result.Radius = ReadSingle();
+#endif
+			return result;
 		}
 
 		#endregion

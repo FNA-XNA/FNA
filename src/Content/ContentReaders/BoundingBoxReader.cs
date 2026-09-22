@@ -7,6 +7,14 @@
  */
 #endregion
 
+#region Using Statements
+#if NETCOREAPP3_0_OR_GREATER
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+#endif
+#endregion
+
 namespace Microsoft.Xna.Framework.Content
 {
 	class BoundingBoxReader : ContentTypeReader<BoundingBox>
@@ -17,11 +25,16 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader input,
 			BoundingBox existingInstance
 		) {
-			BoundingBox result = new BoundingBox(
-				input.ReadVector3(),
-				input.ReadVector3()
-			);
-			return result;
+#if NETCOREAPP3_0_OR_GREATER
+			if (input.Read(MemoryMarshal.CreateSpan(ref Unsafe.As<BoundingBox, byte>(ref existingInstance), 24)) != 24)
+			{
+				throw new EndOfStreamException("Unable to read beyond the end of the stream.");
+			}
+#else
+			existingInstance.Min = input.ReadVector3();
+			existingInstance.Max = input.ReadVector3();
+#endif
+			return existingInstance;
 		}
 
 		#endregion

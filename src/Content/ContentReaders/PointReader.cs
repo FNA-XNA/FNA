@@ -11,6 +11,14 @@
  */
 #endregion
 
+#region Using Statements
+#if NETCOREAPP3_0_OR_GREATER
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+#endif
+#endregion
+
 namespace Microsoft.Xna.Framework.Content
 {
 	internal class PointReader : ContentTypeReader<Point>
@@ -29,9 +37,16 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader input,
 			Point existingInstance
 		) {
-			int X = input.ReadInt32();
-			int Y = input.ReadInt32();
-			return new Point(X, Y);
+#if NETCOREAPP3_0_OR_GREATER
+			if (input.Read(MemoryMarshal.CreateSpan(ref Unsafe.As<Point, byte>(ref existingInstance), 8)) != 8)
+			{
+				throw new EndOfStreamException("Unable to read beyond the end of the stream.");
+			}
+#else
+			existingInstance.X = input.ReadInt32();
+			existingInstance.Y = input.ReadInt32();
+#endif
+			return existingInstance;
 		}
 
 		#endregion
