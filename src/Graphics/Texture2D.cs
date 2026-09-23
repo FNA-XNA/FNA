@@ -384,6 +384,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentException("stream");
 			}
+			if (Format != SurfaceFormat.Color)
+			{
+				throw new NotImplementedException("FNA only implements SurfaceFormat.Color for SaveAsJpeg");
+			}
 			int quality;
 			string qualityString = Environment.GetEnvironmentVariable("FNA_GRAPHICS_JPEG_SAVE_QUALITY");
 			if (string.IsNullOrEmpty(qualityString) || !int.TryParse(qualityString, out quality))
@@ -427,6 +431,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (!stream.CanWrite)
 			{
 				throw new ArgumentException("stream");
+			}
+			if (Format != SurfaceFormat.Color)
+			{
+				throw new NotImplementedException("FNA only implements SurfaceFormat.Color for SaveAsPng");
 			}
 			int len = Width * Height * GetFormatSizeEXT(Format);
 			IntPtr data = FNAPlatform.Malloc(len);
