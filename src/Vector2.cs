@@ -39,7 +39,7 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				return zeroVector;
+				return new Vector2();
 			}
 		}
 
@@ -110,7 +110,6 @@ namespace Microsoft.Xna.Framework
 		#region Private Static Fields
 
 		// These are NOT readonly, for avoiding defensive copy -flibit
-		private static Vector2 zeroVector = new Vector2(0f, 0f);
 		private static Vector2 unitVector = new Vector2(1f, 1f);
 		private static Vector2 unitXVector = new Vector2(1f, 0f);
 		private static Vector2 unitYVector = new Vector2(0f, 1f);

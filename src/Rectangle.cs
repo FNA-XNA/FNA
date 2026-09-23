@@ -135,7 +135,7 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				return emptyRectangle;
+				return new Rectangle();
 			}
 		}
 
@@ -179,12 +179,6 @@ namespace Microsoft.Xna.Framework
 		/// The height of this <see cref="Rectangle"/>.
 		/// </summary>
 		public int Height;
-
-		#endregion
-
-		#region Private Static Fields
-
-		private static Rectangle emptyRectangle = new Rectangle();
 
 		#endregion
 
