@@ -116,19 +116,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
-		#region Private Static Variables
-
-		private static readonly float[] stereoAzimuth = new float[]
-		{
-			0.0f, 0.0f
-		};
-		private static readonly GCHandle stereoAzimuthHandle = GCHandle.Alloc(
-			stereoAzimuth,
-			GCHandleType.Pinned
-		);
-
-		#endregion
-
 		#region Public Constructor
 
 		public AudioEmitter()
@@ -144,7 +131,7 @@ namespace Microsoft.Xna.Framework.Audio
 			emitterData.pCone = IntPtr.Zero;
 			emitterData.ChannelCount = 1;
 			emitterData.ChannelRadius = 1.0f;
-			emitterData.pChannelAzimuths = stereoAzimuthHandle.AddrOfPinnedObject();
+			emitterData.pChannelAzimuths = IntPtr.Zero;
 			emitterData.pVolumeCurve = IntPtr.Zero;
 			emitterData.pLFECurve = IntPtr.Zero;
 			emitterData.pLPFDirectCurve = IntPtr.Zero;
