@@ -38,7 +38,7 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				return zeroPoint;
+				return new Point();
 			}
 		}
 
@@ -70,13 +70,6 @@ namespace Microsoft.Xna.Framework
 		/// The y coordinate of this <see cref="Point"/>.
 		/// </summary>
 		public int Y;
-
-		#endregion
-
-		#region Private Static Variables
-
-		// This is NOT readonly, for avoiding defensive copy -flibit
-		private static Point zeroPoint = new Point();
 
 		#endregion
 
