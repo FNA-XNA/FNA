@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.IO;
 
 using Microsoft.Xna.Framework.Graphics;
 #endregion
@@ -50,7 +51,21 @@ namespace Microsoft.Xna.Framework.Content
 			for (int i = 0; i < levelCount; i += 1)
 			{
 				int dataSize = reader.ReadInt32();
-				byte[] data = reader.ReadBytes(dataSize);
+				byte[] data;
+				int offset;
+				MemoryStream memoryStream = reader.BaseStream as MemoryStream;
+				if (memoryStream == null)
+				{
+					data = SharedBuffer.Rent(dataSize);
+					reader.Read(data, 0, dataSize);
+					offset = 0;
+				}
+				else
+				{
+					data = memoryStream.GetBuffer();
+					offset = (int) memoryStream.Position;
+					memoryStream.Position = offset + dataSize;
+				}
 				texture.SetData(
 					i,
 					0,
@@ -60,7 +75,7 @@ namespace Microsoft.Xna.Framework.Content
 					0,
 					depth,
 					data,
-					0,
+					offset,
 					dataSize
 				);
 

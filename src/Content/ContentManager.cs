@@ -374,7 +374,7 @@ namespace Microsoft.Xna.Framework.Content
 				}
 				else if (typeof(T) == typeof(Effect))
 				{
-					byte[] data = new byte[stream.Length];
+					byte[] data = SharedBuffer.Rent((int) stream.Length);
 					stream.Read(data, 0, (int) stream.Length);
 					result = new Effect(GetGraphicsDevice(), data) { Name = assetName };
 				}
@@ -490,9 +490,11 @@ namespace Microsoft.Xna.Framework.Content
 				int compressedSize = xnbLength - 14;
 				int decompressedSize = xnbReader.ReadInt32();
 
+				byte[] buffer = SharedBuffer.Rent(compressedSize + decompressedSize);
+
 				// This will replace the XNB stream at the end
 				MemoryStream decompressedStream = new MemoryStream(
-					new byte[decompressedSize],
+					buffer,
 					0,
 					decompressedSize,
 					true,
@@ -504,8 +506,8 @@ namespace Microsoft.Xna.Framework.Content
 				 * performance improvement from not constantly fread()ing!
 				 */
 				MemoryStream compressedStream = new MemoryStream(
-					new byte[compressedSize],
-					0,
+					buffer,
+					decompressedSize,
 					compressedSize,
 					true,
 					true

@@ -8,6 +8,8 @@
 #endregion
 
 #region Using Statements
+using System.IO;
+
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
@@ -46,13 +48,27 @@ namespace Microsoft.Xna.Framework.Content
 				for (int i = 0; i < levels; i += 1)
 				{
 					int faceSize = reader.ReadInt32();
-					byte[] faceData = reader.ReadBytes(faceSize);
+					byte[] faceData;
+					int offset;
+					MemoryStream memoryStream = reader.BaseStream as MemoryStream;
+					if (memoryStream == null)
+					{
+						faceData = SharedBuffer.Rent(faceSize);
+						reader.Read(faceData, 0, faceSize);
+						offset = 0;
+					}
+					else
+					{
+						faceData = memoryStream.GetBuffer();
+						offset = (int) memoryStream.Position;
+						memoryStream.Position = offset + faceSize;
+					}
 					textureCube.SetData<byte>(
 						(CubeMapFace) face,
 						i,
 						null,
 						faceData,
-						0,
+						offset,
 						faceSize
 					);
 				}

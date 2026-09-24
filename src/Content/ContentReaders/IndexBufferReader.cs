@@ -8,6 +8,8 @@
 #endregion
 
 #region Using Statements
+using System.IO;
+
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
@@ -24,7 +26,21 @@ namespace Microsoft.Xna.Framework.Content
 			IndexBuffer indexBuffer = existingInstance;
 			bool sixteenBits = input.ReadBoolean();
 			int dataSize = input.ReadInt32();
-			byte[] data = input.ReadBytes(dataSize);
+			byte[] data;
+			int offset;
+			MemoryStream memoryStream = input.BaseStream as MemoryStream;
+			if (memoryStream == null)
+			{
+				data = SharedBuffer.Rent(dataSize);
+				input.Read(data, 0, dataSize);
+				offset = 0;
+			}
+			else
+			{
+				data = memoryStream.GetBuffer();
+				offset = (int) memoryStream.Position;
+				memoryStream.Position = offset + dataSize;
+			}
 			if (indexBuffer == null)
 			{
 				if (sixteenBits)
@@ -47,7 +63,7 @@ namespace Microsoft.Xna.Framework.Content
 				}
 			}
 
-			indexBuffer.SetData(data);
+			indexBuffer.SetData(data, offset, dataSize);
 			return indexBuffer;
 		}
 

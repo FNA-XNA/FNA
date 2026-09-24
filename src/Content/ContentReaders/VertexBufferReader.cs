@@ -12,6 +12,8 @@
 #endregion
 
 #region Using Statements
+using System.IO;
+
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
@@ -27,7 +29,22 @@ namespace Microsoft.Xna.Framework.Content
 		) {
 			VertexDeclaration declaration = input.ReadRawObject<VertexDeclaration>();
 			int vertexCount = (int) input.ReadUInt32();
-			byte[] data = input.ReadBytes(vertexCount * declaration.VertexStride);
+			int bufferSize = vertexCount * declaration.VertexStride;
+			byte[] data;
+			int offset;
+			MemoryStream memoryStream = input.BaseStream as MemoryStream;
+			if (memoryStream == null)
+			{
+				data = SharedBuffer.Rent(bufferSize);
+				input.Read(data, 0, bufferSize);
+				offset = 0;
+			}
+			else
+			{
+				data = memoryStream.GetBuffer();
+				offset = (int) memoryStream.Position;
+				memoryStream.Position = offset + bufferSize;
+			}
 
 			VertexBuffer buffer = new VertexBuffer(
 				input.ContentManager.GetGraphicsDevice(),
@@ -35,7 +52,7 @@ namespace Microsoft.Xna.Framework.Content
 				vertexCount,
 				BufferUsage.None
 			);
-			buffer.SetData(data);
+			buffer.SetData(data, offset, bufferSize);
 			return buffer;
 		}
 
