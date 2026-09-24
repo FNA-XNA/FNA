@@ -768,9 +768,13 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void Present()
 		{
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
 			if (renderTargetCount > 0)
 			{
-				throw new InvalidOperationException("Cannot present while render targets are bound");
+				throw new InvalidOperationException("Cannot call Present when a render target is active.");
 			}
 			FNA3D.FNA3D_SwapBuffers(
 				GLDevice,
@@ -785,9 +789,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			Rectangle? destinationRectangle,
 			IntPtr overrideWindowHandle
 		) {
+			if (IsDisposed)
+			{
+				throw new ObjectDisposedException(GetType().Name);
+			}
 			if (renderTargetCount > 0)
 			{
-				throw new InvalidOperationException("Cannot present while render targets are bound");
+				throw new InvalidOperationException("Cannot call Present when a render target is active.");
 			}
 			if (overrideWindowHandle == IntPtr.Zero)
 			{
