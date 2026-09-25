@@ -122,57 +122,103 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentNullException("frustum", "This method does not accept null for this parameter.");
 			}
-			/* TODO: bad done here need a fix.
-			 * Because the question is not if frustum contains box but the reverse and
-			 * this is not the same.
-			 */
-			int i;
+			/* TODO: bad done here need a fix. */
 			ContainmentType contained;
 			Vector3[] corners = frustum.corners;
 
-			// First we check if frustum is in box.
-			for (i = 0; i < corners.Length; i += 1)
+			// Wrap Frustum with Box
+			BoundingBox wrapBox;
+			wrapBox.Min = corners[0];
+			wrapBox.Max = wrapBox.Min;
+			for (int i = 1; i < corners.Length; i++)
 			{
-				this.Contains(ref corners[i], out contained);
-				if (contained == ContainmentType.Disjoint)
+				Vector3.Min(ref wrapBox.Min, ref corners[i], out wrapBox.Min);
+				Vector3.Max(ref wrapBox.Max, ref corners[i], out wrapBox.Max);
+			}
+			this.Contains(ref wrapBox, out contained);
+			if (contained != ContainmentType.Intersects)
+			{
+				return contained;
+			}
+
+			bool outside = false;
+			Vector3 center = (this.Min + this.Max) * 0.5f;
+			Vector3 extent = (this.Max - this.Min) * 0.5f;
+			for (int i = 0; i < frustum.planes.Length; i++)
+			{
+				float radius, distance;
+				Vector3 normal;
+				normal.X = Math.Abs(frustum.planes[i].Normal.X);
+				normal.Y = Math.Abs(frustum.planes[i].Normal.Y);
+				normal.Z = Math.Abs(frustum.planes[i].Normal.Z);
+				Vector3.Dot(ref normal, ref extent, out radius);
+				frustum.planes[i].DotCoordinate(ref center, out distance);
+				if (distance > radius)
 				{
-					break;
+					return ContainmentType.Disjoint;
+				}
+				if (distance > 0)
+				{
+					outside = true;
 				}
 			}
-
-			// This means we checked all the corners and they were all contain or instersect
-			if (i == corners.Length)
-			{
-				return ContainmentType.Contains;
-			}
-
-			// If i is not equal to zero, we can fastpath and say that this box intersects
-			if (i != 0)
+			// BoundingBox is inside all planes in frustum
+			if (!outside)
 			{
 				return ContainmentType.Intersects;
 			}
 
-
-			/* If we get here, it means the first (and only) point we checked was
-			 * actually contained in the frustum. So we assume that all other points
-			 * will also be contained. If one of the points is disjoint, we can
-			 * exit immediately saying that the result is Intersects
-			 */
-			i += 1;
-			for (; i < corners.Length; i += 1)
+			int[] frustumEdges = new int[] {
+				0, 4,
+				1, 5,
+				2, 6,
+				3, 7,
+				0, 1,
+				1, 2,
+				2, 3,
+				4, 5,
+				5, 6,
+				6, 7,
+				0, 3,
+				4, 7
+			};
+			Vector3[] boxEdges = new Vector3[] { Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ };
+			for (int i = 0; i < frustumEdges.Length; i += 2)
 			{
-				this.Contains(ref corners[i], out contained);
-				if (contained != ContainmentType.Contains)
+				for (int j = 0; j < boxEdges.Length; j++)
 				{
-					return ContainmentType.Intersects;
+					Vector3 edge = frustum.corners[frustumEdges[i + 1]];
+					Vector3.Subtract(ref edge, ref frustum.corners[frustumEdges[i]], out edge);
+					Vector3 axes = Vector3.Cross(edge, boxEdges[j]);
+
+					float minFrustum = float.MaxValue, maxFrustum = float.MinValue;
+					for (int k = 0; i < frustum.corners.Length; j++)
+					{
+						float projection;
+						Vector3.Dot(ref frustum.corners[k], ref axes, out projection);
+						if (projection > maxFrustum)
+						{
+							maxFrustum = projection;
+						}
+						if (projection < minFrustum)
+						{
+							minFrustum = projection;
+						}
+					}
+					float centerProjection, radius;
+					Vector3 normal;
+					normal.X = Math.Abs(axes.X);
+					normal.Y = Math.Abs(axes.Y);
+					normal.Z = Math.Abs(axes.Z);
+					Vector3.Dot(ref normal, ref extent, out radius);
+					Vector3.Dot(ref center, ref axes, out centerProjection);
+					if (maxFrustum < centerProjection - radius || minFrustum > centerProjection + radius)
+					{
+						return ContainmentType.Disjoint;
+					}
 				}
-
 			}
-
-			/* If we get here, then we know all the points were actually contained,
-			 * therefore result is Contains.
-			 */
-			return ContainmentType.Contains;
+			return ContainmentType.Intersects;
 		}
 
 		public ContainmentType Contains(BoundingSphere sphere)
