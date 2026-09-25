@@ -34,3 +34,25 @@ namespace Microsoft.Xna.Framework
 		}
 	}
 }
+
+internal static class SharedBuffer
+{
+	[ThreadStatic]
+	private static byte[] shared;
+
+	internal static byte[] Rent(int minimumLength)
+	{
+		byte[] buffer = shared;
+		if (buffer == null)
+		{
+			buffer = new byte[minimumLength];
+			shared = buffer;
+		}
+		else if (minimumLength > buffer.Length)
+		{
+			buffer = new byte[minimumLength];
+			shared = buffer;
+		}
+		return buffer;
+	}
+}
