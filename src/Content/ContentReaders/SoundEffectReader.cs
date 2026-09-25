@@ -8,7 +8,8 @@
 #endregion
 
 #region Using Statements
-using System.IO;
+using System;
+using System.Runtime.InteropServices;
 
 using Microsoft.Xna.Framework.Audio;
 #endregion
@@ -19,7 +20,7 @@ namespace Microsoft.Xna.Framework.Content
 	{
 		#region Protected Read Method
 
-		protected internal override SoundEffect Read(
+		protected internal override unsafe SoundEffect Read(
 			ContentReader input,
 			SoundEffect existingInstance
 		) {
@@ -29,50 +30,9 @@ namespace Microsoft.Xna.Framework.Content
 			bool se = input.platform == 'x';
 
 			// Format block length
-			uint formatLength = input.ReadUInt32();
+			int formatLength = input.ReadInt32();
 
-			// WaveFormatEx data
-			ushort wFormatTag = Swap(se, input.ReadUInt16());
-			ushort nChannels = Swap(se, input.ReadUInt16());
-			uint nSamplesPerSec = Swap(se, input.ReadUInt32());
-			uint nAvgBytesPerSec = Swap(se, input.ReadUInt32());
-			ushort nBlockAlign = Swap(se, input.ReadUInt16());
-			ushort wBitsPerSample = Swap(se, input.ReadUInt16());
-
-			byte[] extra = null;
-			if (formatLength > 16)
-			{
-				ushort cbSize = Swap(se, input.ReadUInt16());
-
-				if (wFormatTag == 0x166 && cbSize == 34)
-				{
-					// XMA2 has got some nice extra crap.
-					extra = new byte[34];
-					using (MemoryStream extraStream = new MemoryStream(extra))
-					using (BinaryWriter extraWriter = new BinaryWriter(extraStream))
-					{
-						// See FAudio.FAudioXMA2WaveFormatEx for the layout.
-						extraWriter.Write(Swap(se, input.ReadUInt16()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(input.ReadByte());
-						extraWriter.Write(input.ReadByte());
-						extraWriter.Write(Swap(se, input.ReadUInt16()));
-					}
-					// Is there any crap that needs skipping? Eh whatever.
-					input.ReadBytes((int) (formatLength - 18 - 34));
-				}
-				else
-				{
-					// Seek past the rest of this crap (cannot seek though!)
-					input.ReadBytes((int) (formatLength - 18));
-				}
-			}
+			byte[] format = input.ReadBytes(formatLength);
 
 			// Wavedata
 			byte[] data = input.ReadBytes(input.ReadInt32());
@@ -84,18 +44,43 @@ namespace Microsoft.Xna.Framework.Content
 			// Sound duration in milliseconds, unused
 			input.ReadUInt32();
 
-			return new SoundEffect(
+			IntPtr formatPtr = FNAPlatform.Malloc(format.Length);
+			Marshal.Copy(format, 0, formatPtr, format.Length);
+
+			if (format.Length >= 16)
+			{
+				FAudio.FAudioWaveFormatEx* wfx = (FAudio.FAudioWaveFormatEx*) formatPtr;
+				wfx->wFormatTag = Swap(se, wfx->wFormatTag);
+				wfx->nChannels = Swap(se, wfx->nChannels);
+				wfx->nSamplesPerSec = Swap(se, wfx->nSamplesPerSec);
+				wfx->nAvgBytesPerSec = Swap(se, wfx->nAvgBytesPerSec);
+				wfx->nBlockAlign = Swap(se, wfx->nBlockAlign);
+				wfx->wBitsPerSample = Swap(se, wfx->wBitsPerSample);
+				if (format.Length >= 18)
+				{
+					wfx->cbSize = Swap(se, wfx->cbSize);
+					if (format.Length >= 18 + 34 && wfx->wFormatTag == 0x166 && wfx->cbSize == 34)
+					{
+						FAudio.FAudioXMA2WaveFormatEx* xma2format = (FAudio.FAudioXMA2WaveFormatEx*) formatPtr;
+						xma2format->wNumStreams = Swap(se, xma2format->wNumStreams);
+						xma2format->dwChannelMask = Swap(se, xma2format->dwChannelMask);
+						xma2format->dwSamplesEncoded = Swap(se, xma2format->dwSamplesEncoded);
+						xma2format->dwBytesPerBlock = Swap(se, xma2format->dwBytesPerBlock);
+						xma2format->dwPlayBegin = Swap(se, xma2format->dwPlayBegin);
+						xma2format->dwPlayLength = Swap(se, xma2format->dwPlayLength);
+						xma2format->dwLoopBegin = Swap(se, xma2format->dwLoopBegin);
+						xma2format->dwLoopLength = Swap(se, xma2format->dwLoopLength);
+						xma2format->wBlockCount = Swap(se, xma2format->wBlockCount);
+					}
+				}
+			}
+
+			return new SoundEffect().FromBuffer(
 				input.AssetName,
 				data,
 				0,
 				data.Length,
-				extra,
-				wFormatTag,
-				nChannels,
-				nSamplesPerSec,
-				nAvgBytesPerSec,
-				nBlockAlign,
-				wBitsPerSample,
+				formatPtr,
 				loopStart,
 				loopLength
 			);
