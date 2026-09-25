@@ -187,9 +187,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new InvalidOperationException("An unexpected error has occurred.");
 			}
 			ValidateCopyParameters(data.Length, startIndex, elementCount);
-			int formatSize = GetFormatSizeEXT(Format);
+			SurfaceFormatInfo formatInfo = SurfaceFormatInfo.GetInstance(Format);
 			int elementSizeInBytes = MarshalHelper.SizeOf<T>();
-			if (formatSize % elementSizeInBytes != 0)
+			if (formatInfo.Align % elementSizeInBytes != 0)
 			{
 				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
 			}
@@ -214,9 +214,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				x = 0;
 				y = 0;
 			}
-			int requiredBytes = (w * h * formatSize) / GetBlockSizeSquaredEXT(Format);
+			int requiredBytes = formatInfo.GetSize(w, h);
 			int availableBytes = elementCount * elementSizeInBytes;
-			if (requiredBytes > availableBytes)
+			if (requiredBytes != availableBytes)
 			{
 				throw new ArgumentOutOfRangeException("rect", "The region you are trying to upload is larger than the amount of data you provided.");
 			}
