@@ -11,6 +11,14 @@
  */
 #endregion
 
+#region Using Statements
+#if NETCOREAPP3_0_OR_GREATER
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+#endif
+#endregion
+
 namespace Microsoft.Xna.Framework.Content
 {
 	internal class PlaneReader : ContentTypeReader<Plane>
@@ -29,8 +37,15 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader input,
 			Plane existingInstance
 		) {
+#if NETCOREAPP3_0_OR_GREATER
+			if (input.Read(MemoryMarshal.CreateSpan(ref Unsafe.As<Plane, byte>(ref existingInstance), 16)) != 16)
+			{
+				throw new EndOfStreamException("Unable to read beyond the end of the stream.");
+			}
+#else
 			existingInstance.Normal = input.ReadVector3();
 			existingInstance.D = input.ReadSingle();
+#endif
 			return existingInstance;
 		}
 

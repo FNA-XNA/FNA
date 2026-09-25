@@ -25,9 +25,7 @@ namespace Microsoft.Xna.Framework.Content
 			ContentReader input,
 			BoundingSphere existingInstance
 		) {
-			Vector3 center = input.ReadVector3();
-			float radius = input.ReadSingle();
-			return new BoundingSphere(center, radius);
+			return input.ReadBoundingSphere();
 		}
 
 		#endregion

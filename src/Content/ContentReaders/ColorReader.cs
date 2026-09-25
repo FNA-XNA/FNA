@@ -28,11 +28,7 @@ namespace Microsoft.Xna.Framework.Content
 			/* Read RGBA as four separate bytes to make sure we
 			 * comply with XNB format document
 			 */
-			byte r = input.ReadByte();
-			byte g = input.ReadByte();
-			byte b = input.ReadByte();
-			byte a = input.ReadByte();
-			return new Color(r, g, b, a);
+			return input.ReadColor();
 		}
 
 		#endregion
