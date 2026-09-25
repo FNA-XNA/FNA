@@ -281,43 +281,43 @@ namespace Microsoft.Xna.Framework
 
 			switch (tangentInType)
 			{
-				case CurveTangent.Flat:
-					key.TangentIn = 0;
-					break;
 				case CurveTangent.Linear:
 					key.TangentIn = v - v0;
 					break;
 				case CurveTangent.Smooth:
-					float pn = p1 - p0;
-					if (Math.Abs(pn) < MathHelper.FloatEpsilon)
+					float vn = v1 - v0;
+					if (Math.Abs(vn) < MathHelper.FloatEpsilon)
 					{
 						key.TangentIn = 0;
 					}
 					else
 					{
-						key.TangentIn = (v1 - v0) * ((p - p0) / pn);
+						key.TangentIn = vn * ((p - p0) / (p1 - p0));
 					}
+					break;
+				default:
+					key.TangentIn = 0;
 					break;
 			}
 
 			switch (tangentOutType)
 			{
-				case CurveTangent.Flat:
-					key.TangentOut = 0;
-					break;
 				case CurveTangent.Linear:
 					key.TangentOut = v1 - v;
 					break;
 				case CurveTangent.Smooth:
-					float pn = p1 - p0;
-					if (Math.Abs(pn) < MathHelper.FloatEpsilon)
+					float vn = v1 - v0;
+					if (Math.Abs(vn) < MathHelper.FloatEpsilon)
 					{
 						key.TangentOut = 0;
 					}
 					else
 					{
-						key.TangentOut = (v1 - v0) * ((p1 - p) / pn);
+						key.TangentOut = vn * ((p1 - p) / (p1 - p0));
 					}
+					break;
+				default:
+					key.TangentOut = 0;
 					break;
 			}
 		}
