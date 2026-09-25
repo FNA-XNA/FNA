@@ -88,7 +88,7 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			get
 			{
-				return Device().CurveDistanceScaler;
+				return distanceScale;
 			}
 			set
 			{
@@ -96,6 +96,10 @@ namespace Microsoft.Xna.Framework.Audio
 				{
 					throw new ArgumentOutOfRangeException("value");
 				}
+				if (value == 0f) value = float.Epsilon;
+				distanceScale = value;
+				if (!(value > MathHelper.FloatEpsilon)) value = MathHelper.FloatEpsilon;
+				if (value == float.PositiveInfinity) value = float.MaxValue;
 				Device().CurveDistanceScaler = value;
 			}
 		}
@@ -155,6 +159,7 @@ namespace Microsoft.Xna.Framework.Audio
 		#region Private Variables
 
 		private string name;
+		private static float distanceScale = 1f;
 
 		#endregion
 
