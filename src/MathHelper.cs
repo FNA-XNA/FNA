@@ -61,6 +61,12 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 
+		#region Internal Constants
+
+		internal const float FloatEpsilon = 1f / (1 << 23);
+
+		#endregion
+
 		#region Internal Static Readonly Fields
 
 		internal static readonly float MachineEpsilonFloat = GetMachineEpsilonFloat();
