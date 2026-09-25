@@ -249,7 +249,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The length of this <see cref="Vector4"/>.</returns>
 		public float Length()
 		{
-			return (float) Math.Sqrt((X * X) + (Y * Y) + (Z * Z) + (W * W));
+			return MathF.Sqrt((X * X) + (Y * Y) + (Z * Z) + (W * W));
 		}
 
 		/// <summary>
@@ -266,7 +266,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public void Normalize()
 		{
-			float factor = 1.0f / (float) Math.Sqrt(
+			float factor = 1.0f / MathF.Sqrt(
 				(X * X) +
 				(Y * Y) +
 				(Z * Z) +
@@ -477,7 +477,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The distance between two vectors.</returns>
 		public static float Distance(Vector4 value1, Vector4 value2)
 		{
-			return (float) Math.Sqrt(DistanceSquared(value1, value2));
+			return MathF.Sqrt(DistanceSquared(value1, value2));
 		}
 
 		/// <summary>
@@ -488,7 +488,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">The distance between two vectors as an output parameter.</param>
 		public static void Distance(ref Vector4 value1, ref Vector4 value2, out float result)
 		{
-			result = (float) Math.Sqrt(DistanceSquared(value1, value2));
+			result = MathF.Sqrt(DistanceSquared(value1, value2));
 		}
 
 		/// <summary>
@@ -851,7 +851,7 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Unit vector.</returns>
 		public static Vector4 Normalize(Vector4 vector)
 		{
-			float factor = 1.0f / (float) Math.Sqrt(
+			float factor = 1.0f / MathF.Sqrt(
 				(vector.X * vector.X) +
 				(vector.Y * vector.Y) +
 				(vector.Z * vector.Z) +
@@ -872,7 +872,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">Unit vector as an output parameter.</param>
 		public static void Normalize(ref Vector4 vector, out Vector4 result)
 		{
-			float factor = 1.0f / (float) Math.Sqrt(
+			float factor = 1.0f / MathF.Sqrt(
 				(vector.X * vector.X) +
 				(vector.Y * vector.Y) +
 				(vector.Z * vector.Z) +

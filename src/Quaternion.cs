@@ -190,7 +190,7 @@ namespace Microsoft.Xna.Framework
 				(this.Z * this.Z) +
 				(this.W * this.W)
 			);
-			return (float) Math.Sqrt((double) num);
+			return MathF.Sqrt(num);
 		}
 
 		/// <summary>
@@ -212,12 +212,12 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		public void Normalize()
 		{
-			float num = 1.0f / ((float) Math.Sqrt(
+			float num = 1.0f / MathF.Sqrt(
 				(X * X) +
 				(Y * Y) +
 				(Z * Z) +
 				(W * W)
-			));
+			);
 			this.X *= num;
 			this.Y *= num;
 			this.Z *= num;
@@ -378,8 +378,8 @@ namespace Microsoft.Xna.Framework
 			out Quaternion result
 		) {
 			float half = angle * 0.5f;
-			float sin = (float) Math.Sin((double) half);
-			float cos = (float) Math.Cos((double) half);
+			float sin = MathF.Sin(half);
+			float cos = MathF.Cos(half);
 			result.X = axis.X * sin;
 			result.Y = axis.Y * sin;
 			result.Z = axis.Z * sin;
@@ -411,7 +411,7 @@ namespace Microsoft.Xna.Framework
 
 			if (scale > 0.0f)
 			{
-				sqrt = (float) Math.Sqrt(scale + 1.0f);
+				sqrt = MathF.Sqrt(scale + 1.0f);
 				result.W = sqrt * 0.5f;
 				sqrt = 0.5f / sqrt;
 
@@ -421,7 +421,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else if ((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
 			{
-				sqrt = (float) Math.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
+				sqrt = MathF.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
 				half = 0.5f / sqrt;
 
 				result.X = 0.5f * sqrt;
@@ -431,7 +431,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else if (matrix.M22 > matrix.M33)
 			{
-				sqrt = (float) Math.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
+				sqrt = MathF.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
 				half = 0.5f/sqrt;
 
 				result.X = (matrix.M21 + matrix.M12)*half;
@@ -441,7 +441,7 @@ namespace Microsoft.Xna.Framework
 			}
 			else
 			{
-				sqrt = (float) Math.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
+				sqrt = MathF.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
 				half = 0.5f / sqrt;
 
 				result.X = (matrix.M31 + matrix.M13) * half;
@@ -479,14 +479,14 @@ namespace Microsoft.Xna.Framework
 			out Quaternion result)
 		{
 			float halfRoll = roll * 0.5f;
-			float sinRoll = (float) Math.Sin(halfRoll);
-			float cosRoll = (float) Math.Cos(halfRoll);
+			float sinRoll = MathF.Sin(halfRoll);
+			float cosRoll = MathF.Cos(halfRoll);
 			float halfPitch = pitch * 0.5f;
-			float sinPitch = (float) Math.Sin(halfPitch);
-			float cosPitch = (float) Math.Cos(halfPitch);
+			float sinPitch = MathF.Sin(halfPitch);
+			float cosPitch = MathF.Cos(halfPitch);
 			float halfYaw = yaw * 0.5f;
-			float sinYaw = (float) Math.Sin(halfYaw);
-			float cosYaw = (float) Math.Cos(halfYaw);
+			float sinYaw = MathF.Sin(halfYaw);
+			float cosYaw = MathF.Cos(halfYaw);
 			result.X = ((cosYaw * sinPitch) * cosRoll) + ((sinYaw * cosPitch) * sinRoll);
 			result.Y = ((sinYaw * cosPitch) * cosRoll) - ((cosYaw * sinPitch) * sinRoll);
 			result.Z = ((cosYaw * cosPitch) * sinRoll) - ((sinYaw * sinPitch) * cosRoll);
@@ -667,7 +667,7 @@ namespace Microsoft.Xna.Framework
 				(result.Z * result.Z) +
 				(result.W * result.W)
 			);
-			float num3 = 1f / ((float) Math.Sqrt((double) num4));
+			float num3 = 1f / MathF.Sqrt(num4);
 			result.X *= num3;
 			result.Y *= num3;
 			result.Z *= num3;
@@ -726,10 +726,10 @@ namespace Microsoft.Xna.Framework
 			}
 			else
 			{
-				float num5 = (float) Math.Acos((double) num4);
-				float num6 = (float) (1.0 / Math.Sin((double) num5));
-				num3 = ((float) Math.Sin((double) ((1f - num) * num5))) * num6;
-				num2 = flag * (((float) Math.Sin((double) (num * num5))) * num6);
+				float num5 = MathF.Acos(num4);
+				float num6 = 1f / MathF.Sin(num5);
+				num3 = MathF.Sin((1f - num) * num5) * num6;
+				num2 = flag * (MathF.Sin(num * num5) * num6);
 			}
 			result.X = (num3 * quaternion1.X) + (num2 * quaternion2.X);
 			result.Y = (num3 * quaternion1.Y) + (num2 * quaternion2.Y);
@@ -886,12 +886,12 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">The unit length quaternion an output parameter.</param>
 		public static void Normalize(ref Quaternion quaternion, out Quaternion result)
 		{
-			float num = 1.0f / ((float) Math.Sqrt(
+			float num = 1.0f / MathF.Sqrt(
 				(quaternion.X * quaternion.X) +
 				(quaternion.Y * quaternion.Y) +
 				(quaternion.Z * quaternion.Z) +
 				(quaternion.W * quaternion.W)
-			));
+			);
 			result.X = quaternion.X * num;
 			result.Y = quaternion.Y * num;
 			result.Z = quaternion.Z * num;
