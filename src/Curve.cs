@@ -253,7 +253,7 @@ namespace Microsoft.Xna.Framework
 			CurveTangent tangentInType,
 			CurveTangent tangentOutType
 		) {
-			if (keyIndex >= Keys.Count || keyIndex < 0)
+			if (unchecked((uint) keyIndex >= (uint) Keys.Count))
 			{
 				throw new ArgumentOutOfRangeException("keyIndex");
 			}
