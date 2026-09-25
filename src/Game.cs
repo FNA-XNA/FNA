@@ -801,28 +801,22 @@ namespace Microsoft.Xna.Framework
 
 		private void SortUpdateable(IUpdateable updateable)
 		{
-			for (int i = 0; i < updateableComponents.Count; i += 1)
+			int index = updateableComponents.BinarySearch(updateable, UpdateOrderComparer.Default);
+			if (index < 0)
 			{
-				if (updateable.UpdateOrder < updateableComponents[i].UpdateOrder)
-				{
-					updateableComponents.Insert(i, updateable);
-					return;
-				}
+				index = ~index;
 			}
-			updateableComponents.Add(updateable);
+			updateableComponents.Insert(index, updateable);
 		}
 
 		private void SortDrawable(IDrawable drawable)
 		{
-			for (int i = 0; i < drawableComponents.Count; i += 1)
+			int index = drawableComponents.BinarySearch(drawable, DrawOrderComparer.Default);
+			if (index < 0)
 			{
-				if (drawable.DrawOrder < drawableComponents[i].DrawOrder)
-				{
-					drawableComponents.Insert(i, drawable);
-					return;
-				}
+				index = ~index;
 			}
-			drawableComponents.Add(drawable);
+			drawableComponents.Insert(index, drawable);
 		}
 
 		private void BeforeLoop()
@@ -980,6 +974,28 @@ namespace Microsoft.Xna.Framework
 			UnhandledExceptionEventArgs args
 		) {
 			ShowMissingRequirementMessage(args.ExceptionObject as Exception);
+		}
+
+		#endregion
+
+		#region OrderComparer
+
+		private class UpdateOrderComparer : IComparer<IUpdateable>
+		{
+			internal static readonly UpdateOrderComparer Default = new UpdateOrderComparer();
+			int IComparer<IUpdateable>.Compare(IUpdateable x, IUpdateable y)
+			{
+				return x.UpdateOrder.CompareTo(y.UpdateOrder);
+			}
+		}
+
+		private class DrawOrderComparer : IComparer<IDrawable>
+		{
+			internal static readonly DrawOrderComparer Default = new DrawOrderComparer();
+			int IComparer<IDrawable>.Compare(IDrawable x, IDrawable y)
+			{
+				return x.DrawOrder.CompareTo(y.DrawOrder);
+			}
 		}
 
 		#endregion
