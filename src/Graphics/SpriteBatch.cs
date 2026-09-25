@@ -445,11 +445,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				sourceY = sourceRectangle.Value.Y / (float) texture.Height;
 				sourceW = Math.Sign(sourceRectangle.Value.Width) * Math.Max(
 					Math.Abs(sourceRectangle.Value.Width),
-					MathHelper.MachineEpsilonFloat
+					MathHelper.FloatEpsilon
 				) / (float) texture.Width;
 				sourceH = Math.Sign(sourceRectangle.Value.Height) * Math.Max(
 					Math.Abs(sourceRectangle.Value.Height),
-					MathHelper.MachineEpsilonFloat
+					MathHelper.FloatEpsilon
 				) / (float) texture.Height;
 				destW *= sourceRectangle.Value.Width;
 				destH *= sourceRectangle.Value.Height;
@@ -506,11 +506,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				sourceY = sourceRectangle.Value.Y / (float) texture.Height;
 				sourceW = Math.Sign(sourceRectangle.Value.Width) * Math.Max(
 					Math.Abs(sourceRectangle.Value.Width),
-					MathHelper.MachineEpsilonFloat
+					MathHelper.FloatEpsilon
 				) / (float) texture.Width;
 				sourceH = Math.Sign(sourceRectangle.Value.Height) * Math.Max(
 					Math.Abs(sourceRectangle.Value.Height),
-					MathHelper.MachineEpsilonFloat
+					MathHelper.FloatEpsilon
 				) / (float) texture.Height;
 				scale.X *= sourceRectangle.Value.Width;
 				scale.Y *= sourceRectangle.Value.Height;
@@ -642,11 +642,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				sourceY = sourceRectangle.Value.Y / (float) texture.Height;
 				sourceW = Math.Sign(sourceRectangle.Value.Width) * Math.Max(
 					Math.Abs(sourceRectangle.Value.Width),
-					MathHelper.MachineEpsilonFloat
+					MathHelper.FloatEpsilon
 				) / (float) texture.Width;
 				sourceH = Math.Sign(sourceRectangle.Value.Height) * Math.Max(
 					Math.Abs(sourceRectangle.Value.Height),
-					MathHelper.MachineEpsilonFloat
+					MathHelper.FloatEpsilon
 				) / (float) texture.Height;
 			}
 			else
@@ -855,11 +855,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Draw!
 				float sourceW = Math.Sign(cGlyph.Width) * Math.Max(
 					Math.Abs(cGlyph.Width),
-					MathHelper.MachineEpsilonFloat
+					MathHelper.FloatEpsilon
 				) / (float) textureValue.Width;
 				float sourceH = Math.Sign(cGlyph.Height) * Math.Max(
 					Math.Abs(cGlyph.Height),
-					MathHelper.MachineEpsilonFloat
+					MathHelper.FloatEpsilon
 				) / (float) textureValue.Height;
 				PushSprite(
 					textureValue,
@@ -1051,11 +1051,11 @@ namespace Microsoft.Xna.Framework.Graphics
 				// Draw!
 				float sourceW = Math.Sign(cGlyph.Width) * Math.Max(
 					Math.Abs(cGlyph.Width),
-					MathHelper.MachineEpsilonFloat
+					MathHelper.FloatEpsilon
 				) / (float) textureValue.Width;
 				float sourceH = Math.Sign(cGlyph.Height) * Math.Max(
 					Math.Abs(cGlyph.Height),
-					MathHelper.MachineEpsilonFloat
+					MathHelper.FloatEpsilon
 				) / (float) textureValue.Height;
 				PushSprite(
 					textureValue,
