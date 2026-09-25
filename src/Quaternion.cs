@@ -92,8 +92,8 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Static Variables
 
-		// This is NOT readonly, for avoiding defensive copy -flibit
-		private static Quaternion identity = new Quaternion(0, 0, 0, 1);
+		// Avoid reference these readonly field elsewhere, for avoiding defensive copy -flibit
+		private static readonly Quaternion identity = new Quaternion(0, 0, 0, 1);
 
 		#endregion
 
