@@ -278,7 +278,8 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Static Variables
 
-		private static Matrix identity = new Matrix(
+		// Avoid reference these readonly field elsewhere, for avoiding defensive copy -flibit
+		private static readonly Matrix identity = new Matrix(
 			1f, 0f, 0f, 0f,
 			0f, 1f, 0f, 0f,
 			0f, 0f, 1f, 0f,
