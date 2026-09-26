@@ -1392,7 +1392,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			int i = 0;
 			while (i < vertexBuffers.Length)
 			{
-				VertexBuffer vertexBuffer = vertexBufferBindings[i].VertexBuffer;
+				VertexBuffer vertexBuffer = vertexBuffers[i].VertexBuffer;
 				if (vertexBuffer == null)
 				{
 					throw new ArgumentException("This method does not accept null for this parameter.");
