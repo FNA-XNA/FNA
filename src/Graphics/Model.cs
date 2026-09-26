@@ -177,7 +177,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentOutOfRangeException("sourceBoneTransforms");
 			}
-			for (int i = 0; i < sourceBoneTransforms.Length; i += 1)
+			for (int i = 0; i < Bones.Count; i += 1)
 			{
 				Bones[i].Transform = sourceBoneTransforms[i];
 			}
@@ -197,7 +197,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentOutOfRangeException("destinationBoneTransforms");
 			}
-			for (int i = 0; i < destinationBoneTransforms.Length; i += 1)
+			for (int i = 0; i < Bones.Count; i += 1)
 			{
 				destinationBoneTransforms[i] = Bones[i].Transform;
 			}
