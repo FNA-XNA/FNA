@@ -282,6 +282,7 @@ namespace Microsoft.Xna.Framework
 			switch (tangentInType)
 			{
 				case CurveTangent.Flat:
+				default:
 					key.TangentIn = 0;
 					break;
 				case CurveTangent.Linear:
@@ -303,6 +304,7 @@ namespace Microsoft.Xna.Framework
 			switch (tangentOutType)
 			{
 				case CurveTangent.Flat:
+				default:
 					key.TangentOut = 0;
 					break;
 				case CurveTangent.Linear:
