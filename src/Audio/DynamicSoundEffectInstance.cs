@@ -49,10 +49,11 @@ namespace Microsoft.Xna.Framework.Audio
 					throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
 				}
 				// DynamicSoundEffectInstance cannot be looped!
-				if (value)
-				{
-					throw new InvalidOperationException("The method call is invalid.");
-				}
+				//if (value)
+				//{
+				//	throw new InvalidOperationException("The method call is invalid.");
+				//}
+				// flibit disabled this, it breaks games and is harmless to ignore
 			}
 		}
 
