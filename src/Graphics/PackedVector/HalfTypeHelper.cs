@@ -7,41 +7,19 @@
  */
 #endregion
 
-#region Using Statements
-using System;
-using System.Runtime.InteropServices;
-#endregion
-
 namespace Microsoft.Xna.Framework.Graphics.PackedVector
 {
 	internal static class HalfTypeHelper
 	{
-		#region Private Struct uif
-
-		[StructLayout(LayoutKind.Explicit)]
-		private struct uif
-		{
-			[FieldOffset(0)]
-			public float f;
-			[FieldOffset(0)]
-			public int i;
-			[FieldOffset(0)]
-			public uint u;
-		}
-
-		#endregion
-
 		#region Internal Static Methods
 
 		internal static ushort Convert(float f)
 		{
-			uif uif = new uif();
-			uif.f = f;
-			return Convert(uif.i);
-		}
-
-		internal static ushort Convert(int i)
-		{
+			int i;
+			unsafe
+			{
+				i = *(int*) &f;
+			}
 			int s = (i >> 16) & 0x00008000;
 			int e = ((i >> 23) & 0x000000ff) - (127 - 15);
 			int m = i & 0x007fffff;
@@ -122,9 +100,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 				rst = (uint) (((((uint) value & 0x8000) << 16) | ((((((uint) value >> 10) & 0x1f) - 15) + 127) << 23)) | (mantissa << 13));
 			}
 
-			uif uif = new uif();
-			uif.u = rst;
-			return uif.f;
+			unsafe
+			{
+				return *(float*) &rst;
+			}
 		}
 
 		#endregion
