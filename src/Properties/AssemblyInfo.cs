@@ -40,3 +40,7 @@ using System.Resources;
 //      Revision
 //
 [assembly: AssemblyVersion("26.09.0.0")]
+
+#if NET5_0_OR_GREATER
+[module: SkipLocalsInit]
+#endif
