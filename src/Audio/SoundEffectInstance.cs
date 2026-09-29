@@ -264,16 +264,23 @@ namespace Microsoft.Xna.Framework.Audio
 
 			is3D = true;
 			SoundEffect.FAudioContext dev = SoundEffect.Device();
-			emitter.emitterData.CurveDistanceScaler = dev.CurveDistanceScaler;
-			emitter.emitterData.ChannelCount = dspSettings.SrcChannelCount;
+			FAudio.F3DAUDIO_EMITTER emitterData = emitter.emitterData;
+			emitterData.InnerRadius = dev.CurveDistanceScaler;
+			emitterData.InnerRadiusAngle = FAudio.F3DAUDIO_PI / 6f;
+			emitterData.ChannelCount = 1;
+			emitterData.CurveDistanceScaler = dev.CurveDistanceScaler;
+			emitterData.DopplerScaler *= dev.DopplerScale;
+
+			uint flags = FAudio.F3DAUDIO_CALCULATE_MATRIX | FAudio.F3DAUDIO_CALCULATE_ZEROCENTER;
+			if (emitterData.DopplerScaler != 0f)
+			{
+				flags |= FAudio.F3DAUDIO_CALCULATE_DOPPLER;
+			}
 			FAudio.F3DAudioCalculate(
 				dev.Handle3D,
 				ref listener.listenerData,
-				ref emitter.emitterData,
-				(
-					FAudio.F3DAUDIO_CALCULATE_MATRIX |
-					FAudio.F3DAUDIO_CALCULATE_DOPPLER
-				),
+				ref emitterData,
+				flags,
 				ref dspSettings
 			);
 			if (handle != IntPtr.Zero)
