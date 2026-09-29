@@ -302,26 +302,21 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
 			}
-			int subX, subY;
-			int subW = Size >> level;
-			int subH = subW;
-			if (rect.HasValue)
+
+			int subX, subY, subW, subH;
+			if (rect == null)
 			{
-				if (
-					rect.Value.X < 0 || rect.Value.Width <= 0 || rect.Value.Right < subW ||
-					rect.Value.Y < 0 || rect.Value.Height <= 0 || rect.Value.Bottom < subH
-				) {
-					throw new ArgumentException("The rectangle is too large or too small for this resource.", "rect");
-				}
+				subX = 0;
+				subY = 0;
+				subW = Size >> level;
+				subH = Size >> level;
+			}
+			else
+			{
 				subX = rect.Value.X;
 				subY = rect.Value.Y;
 				subW = rect.Value.Width;
 				subH = rect.Value.Height;
-			}
-			else
-			{
-				subX = 0;
-				subY = 0;
 			}
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
