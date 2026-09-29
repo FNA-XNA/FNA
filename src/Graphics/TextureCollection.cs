@@ -36,19 +36,11 @@ namespace Microsoft.Xna.Framework.Graphics
 					{
 						throw new ObjectDisposedException(value.GetType().Name);
 					}
-#if DEBUG
 					if (!ignoreTargets)
-					for (int i = 0; i < value.GraphicsDevice.renderTargetCount; i += 1)
-					{
-						if (value == value.GraphicsDevice.renderTargetBindings[i].RenderTarget)
+						if (value.isActiveRenderTarget)
 						{
-							throw new InvalidOperationException(
-								"The render target must not be set on the" +
-								" device when it is used as a texture."
-							);
+							throw new InvalidOperationException("The render target must not be set on the device when it is used as a texture.");
 						}
-					}
-#endif
 				}
 				if (unchecked((uint) index >= (uint) textures.Length))
 				{
