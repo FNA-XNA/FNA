@@ -79,14 +79,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!IsDisposed)
-			{
-				IntPtr toDispose = Interlocked.Exchange(ref query, IntPtr.Zero);
-				if (toDispose != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeQuery(GraphicsDevice.GLDevice, toDispose);
-				}
-			}
 			base.Dispose(false);
 		}
 
@@ -117,6 +109,20 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 			FNA3D.FNA3D_QueryEnd(GraphicsDevice.GLDevice, query);
 			_isInBeginEndPair = false;
+		}
+
+		#endregion
+
+
+		#region Internal Methods
+
+		internal override void DisposeNative()
+		{
+			IntPtr toDispose = Interlocked.Exchange(ref query, IntPtr.Zero);
+			if (toDispose != IntPtr.Zero)
+			{
+				FNA3D.FNA3D_AddDisposeQuery(GraphicsDevice.GLDevice, toDispose);
+			}
 		}
 
 		#endregion

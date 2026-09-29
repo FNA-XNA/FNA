@@ -187,26 +187,34 @@ namespace Microsoft.Xna.Framework.Graphics
 						throw new InvalidOperationException("Disposing target that is still bound");
 					}
 				}
-
-				IntPtr toDispose = Interlocked.Exchange(ref glColorBuffer, IntPtr.Zero);
-				if (toDispose != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeRenderbuffer(
-						GraphicsDevice.GLDevice,
-						toDispose
-					);
-				}
-
-				toDispose = Interlocked.Exchange(ref glDepthStencilBuffer, IntPtr.Zero);
-				if (toDispose != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeRenderbuffer(
-						GraphicsDevice.GLDevice,
-						toDispose
-					);
-				}
 			}
 			base.Dispose(disposing);
+		}
+
+		#endregion
+
+		#region Internal Methods
+
+		internal override void DisposeNative()
+		{
+			IntPtr toDispose = Interlocked.Exchange(ref glColorBuffer, IntPtr.Zero);
+			if (toDispose != IntPtr.Zero)
+			{
+				FNA3D.FNA3D_AddDisposeRenderbuffer(
+					GraphicsDevice.GLDevice,
+					toDispose
+				);
+			}
+
+			toDispose = Interlocked.Exchange(ref glDepthStencilBuffer, IntPtr.Zero);
+			if (toDispose != IntPtr.Zero)
+			{
+				FNA3D.FNA3D_AddDisposeRenderbuffer(
+					GraphicsDevice.GLDevice,
+					toDispose
+				);
+			}
+			base.DisposeNative();
 		}
 
 		#endregion

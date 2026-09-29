@@ -172,6 +172,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		internal virtual void DisposeNative() { }
+
 		#endregion
 
 		#region Protected Dispose Method
@@ -201,6 +203,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					if (graphicsDevice.RemoveResourceReference(selfReference))
 					{
 						selfReference.Free();
+						DisposeNative();
 						GraphicsDevice.OnResourceDestroyed(Name, Tag);
 					}
 				}
