@@ -75,7 +75,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		protected override void Dispose(bool disposing)
 		{
-			handle.Free();
+			if (handle.IsAllocated)
+			{
+				handle.Free();
+			}
 			base.Dispose(disposing);
 		}
 
