@@ -41,17 +41,9 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 				return (ushort) (s | m);
 			}
-			else if (e == 0xff - (127 - 15))
+			else if (e > 31)
 			{
-				if (m == 0)
-				{
-					return (ushort) (s | 0x7c00);
-				}
-				else
-				{
-					m >>= 13;
-					return (ushort) (s | 0x7c00 | m | ((m == 0) ? 1 : 0));
-				}
+				return (ushort) (s | 0x7FFF);
 			}
 			else
 			{
