@@ -15,6 +15,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 using Microsoft.Xna.Framework.Design;
 #endregion
@@ -1394,11 +1395,13 @@ namespace Microsoft.Xna.Framework
 
 		#region Public Static Operators
 
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector4 operator -(Vector4 value)
 		{
 			return new Vector4(-value.X, -value.Y, -value.Z, -value.W);
 		}
 
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static bool operator ==(Vector4 value1, Vector4 value2)
 		{
 			return (	value1.X == value2.X &&
@@ -1407,11 +1410,13 @@ namespace Microsoft.Xna.Framework
 					value1.W == value2.W	);
 		}
 
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static bool operator !=(Vector4 value1, Vector4 value2)
 		{
 			return !(value1 == value2);
 		}
 
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector4 operator +(Vector4 value1, Vector4 value2)
 		{
 			value1.W += value2.W;
@@ -1421,6 +1426,7 @@ namespace Microsoft.Xna.Framework
 			return value1;
 		}
 
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector4 operator -(Vector4 value1, Vector4 value2)
 		{
 			value1.W -= value2.W;
@@ -1430,6 +1436,7 @@ namespace Microsoft.Xna.Framework
 			return value1;
 		}
 
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector4 operator *(Vector4 value1, Vector4 value2)
 		{
 			value1.W *= value2.W;
@@ -1439,6 +1446,7 @@ namespace Microsoft.Xna.Framework
 			return value1;
 		}
 
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector4 operator *(Vector4 value1, float scaleFactor)
 		{
 			value1.W *= scaleFactor;
@@ -1448,6 +1456,7 @@ namespace Microsoft.Xna.Framework
 			return value1;
 		}
 
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector4 operator *(float scaleFactor, Vector4 value1)
 		{
 			value1.W *= scaleFactor;
@@ -1457,6 +1466,7 @@ namespace Microsoft.Xna.Framework
 			return value1;
 		}
 
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector4 operator /(Vector4 value1, Vector4 value2)
 		{
 			value1.W /= value2.W;
@@ -1466,6 +1476,7 @@ namespace Microsoft.Xna.Framework
 			return value1;
 		}
 
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector4 operator /(Vector4 value1, float divider)
 		{
 			value1.W /= divider;
