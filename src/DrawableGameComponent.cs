@@ -23,11 +23,13 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				if (!_initialized)
+				IGraphicsDeviceService graphicsDeviceService = (IGraphicsDeviceService)
+					Game.Services.INTERNAL_GetService(typeof(IGraphicsDeviceService));
+				if (graphicsDeviceService == null)
 				{
 					throw new InvalidOperationException("The GraphicsDevice property cannot be used before Initialize has been called.");
 				}
-				return this.Game.GraphicsDevice;
+				return graphicsDeviceService.GraphicsDevice;
 			}
 		}
 
