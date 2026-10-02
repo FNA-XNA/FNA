@@ -71,15 +71,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
-		#region Protected Dispose Method
+		#region Destructor
 
-		protected override void Dispose(bool disposing)
+		~VertexDeclaration()
 		{
-			if (handle.IsAllocated)
-			{
-				handle.Free();
-			}
-			base.Dispose(disposing);
+			handle.Free();
 		}
 
 		#endregion
