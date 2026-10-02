@@ -928,7 +928,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Input.Touch.TouchPanel.DisplayHeight = PresentationParameters.BackBufferHeight;
 
 			// Now, update the viewport
-			INTERNAL_viewport = new Viewport(
+			Viewport = new Viewport(
 				0,
 				0,
 				PresentationParameters.BackBufferWidth,
