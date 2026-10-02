@@ -1134,11 +1134,23 @@ namespace Microsoft.Xna.Framework
 			{
 				throw new ArgumentNullException("destinationArray");
 			}
-			if (sourceIndex + length < sourceArray.Length)
+			if (sourceIndex < 0)
+			{
+				throw new ArgumentOutOfRangeException("sourceIndex");
+			}
+			if (destinationIndex < 0)
+			{
+				throw new ArgumentOutOfRangeException("destinationIndex");
+			}
+			if (length < 0)
+			{
+				throw new ArgumentOutOfRangeException("length");
+			}
+			if (length > sourceArray.Length - sourceIndex)
 			{
 				throw new ArgumentException("Source array must be equal or bigger than requested length.");
 			}
-			if (destinationIndex + length < destinationArray.Length)
+			if (length > destinationArray.Length - destinationIndex)
 			{
 				throw new ArgumentException("Target array size must be equal or bigger than source array size.");
 			}
