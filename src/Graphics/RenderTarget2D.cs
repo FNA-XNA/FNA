@@ -180,11 +180,15 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			if (!IsDisposed)
 			{
-				for (int i = 0; i < GraphicsDevice.renderTargetCount; i += 1)
+				// If we're disposing the device we don't care about render target state anymore -flibit
+				if (!GraphicsDevice.IsDisposed)
 				{
-					if (GraphicsDevice.renderTargetBindings[i].RenderTarget == this)
+					for (int i = 0; i < GraphicsDevice.renderTargetCount; i += 1)
 					{
-						throw new InvalidOperationException("Disposing target that is still bound");
+						if (GraphicsDevice.renderTargetBindings[i].RenderTarget == this)
+						{
+							throw new InvalidOperationException("Disposing target that is still bound");
+						}
 					}
 				}
 
