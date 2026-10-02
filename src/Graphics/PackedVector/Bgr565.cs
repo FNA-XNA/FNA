@@ -96,7 +96,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <param name="vector">Vector containing the components.</param>
 		void IPackedVector.PackFromVector4(Vector4 vector)
 		{
-			Pack(vector.X, vector.Y, vector.Z);
+			packedValue = Pack(vector.X, vector.Y, vector.Z);
 		}
 
 		/// <summary>
