@@ -65,6 +65,11 @@ namespace Microsoft.Xna.Framework
 
 		// C FLT_EPSILON is different from float.Epsilon, try to use this one first -flibit
 		internal const float FloatEpsilon = 1f / (1 << 23);
+#if NETCOREAPP || NETSTANDARD || NETSDKSTYLE
+		internal const short AggressiveInlining = 256;
+#else
+		internal const short AggressiveInlining = 0;
+#endif
 
 		#endregion
 
