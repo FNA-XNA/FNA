@@ -669,7 +669,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					dstPtr[9] = value.M32;
 					dstPtr[10] = value.M33;
 				}
-				else if (ColumnCount == 4 && RowCount == 3)
+				else if (ColumnCount == 3 && RowCount == 4)
 				{
 					dstPtr[0] = value.M11;
 					dstPtr[1] = value.M12;
@@ -684,7 +684,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					dstPtr[13] = value.M42;
 					dstPtr[14] = value.M43;
 				}
-				else if (ColumnCount == 3 && RowCount == 4)
+				else if (ColumnCount == 4 && RowCount == 3)
 				{
 					dstPtr[0] = value.M11;
 					dstPtr[1] = value.M12;
@@ -766,7 +766,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						dstPtr[10] = value[i].M33;
 					}
 				}
-				else if (ColumnCount == 4 && RowCount == 3)
+				else if (ColumnCount == 3 && RowCount == 4)
 				{
 					for (int i = 0; i < value.Length; i += 1, dstPtr += 16)
 					{
@@ -787,7 +787,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						dstPtr[14] = value[i].M43;
 					}
 				}
-				else if (ColumnCount == 3 && RowCount == 4)
+				else if (ColumnCount == 4 && RowCount == 3)
 				{
 					for (int i = 0; i < value.Length; i += 1, dstPtr += 12)
 					{
