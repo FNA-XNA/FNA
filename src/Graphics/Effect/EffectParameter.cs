@@ -303,25 +303,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* resPtr = (float*) values;
-				return new Matrix(
-					resPtr[0],
-					resPtr[1],
-					resPtr[2],
-					resPtr[3],
-					resPtr[4],
-					resPtr[5],
-					resPtr[6],
-					resPtr[7],
-					resPtr[8],
-					resPtr[9],
-					resPtr[10],
-					resPtr[11],
-					resPtr[12],
-					resPtr[13],
-					resPtr[14],
-					resPtr[15]
-				);
+				return ReadMatrixTranspose((float*) values);
 			}
 		}
 
@@ -331,26 +313,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				float* resPtr = (float*) values;
-				for (int i = 0; i < count; i += 1, resPtr += 16)
+				int stride = RowCount * 4;
+				for (int i = 0; i < count; i += 1, resPtr += stride)
 				{
-					result[i] = new Matrix(
-						resPtr[0],
-						resPtr[1],
-						resPtr[2],
-						resPtr[3],
-						resPtr[4],
-						resPtr[5],
-						resPtr[6],
-						resPtr[7],
-						resPtr[8],
-						resPtr[9],
-						resPtr[10],
-						resPtr[11],
-						resPtr[12],
-						resPtr[13],
-						resPtr[14],
-						resPtr[15]
-					);
+					result[i] = ReadMatrixTranspose(resPtr);
 				}
 			}
 			return result;
@@ -360,24 +326,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
 			unsafe
 			{
-				float* resPtr = (float*) values;
-				return new Matrix(
-					resPtr[0],
-					resPtr[4],
-					resPtr[8],
-					resPtr[12],
-					resPtr[1],
-					resPtr[5],
-					resPtr[9],
-					resPtr[13],
-					resPtr[2],
-					resPtr[6],
-					resPtr[10],
-					resPtr[14],
-					resPtr[3],
-					resPtr[7],
-					resPtr[11],
-					resPtr[15]
+				return Matrix.Transpose(
+					ReadMatrixTranspose((float*) values)
 				);
 			}
 		}
@@ -388,25 +338,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				float* resPtr = (float*) values;
-				for (int i = 0; i < count; i += 1, resPtr += 16)
+				int stride = RowCount * 4;
+				for (int i = 0; i < count; i += 1, resPtr += stride)
 				{
-					result[i] = new Matrix(
-						resPtr[0],
-						resPtr[4],
-						resPtr[8],
-						resPtr[12],
-						resPtr[1],
-						resPtr[5],
-						resPtr[9],
-						resPtr[13],
-						resPtr[2],
-						resPtr[6],
-						resPtr[10],
-						resPtr[14],
-						resPtr[3],
-						resPtr[7],
-						resPtr[11],
-						resPtr[15]
+					result[i] = Matrix.Transpose(
+						ReadMatrixTranspose(resPtr)
 					);
 				}
 			}
@@ -1212,6 +1148,70 @@ namespace Microsoft.Xna.Framework.Graphics
 					dstPtr[3] = value[i].W;
 				}
 			}
+		}
+
+		#endregion
+
+		#region Private Matrix Read Method
+
+		private unsafe Matrix ReadMatrixTranspose(float* resPtr)
+		{
+			if (ColumnCount == 4 && RowCount == 4)
+			{
+				return new Matrix(
+					resPtr[0],
+					resPtr[1],
+					resPtr[2],
+					resPtr[3],
+					resPtr[4],
+					resPtr[5],
+					resPtr[6],
+					resPtr[7],
+					resPtr[8],
+					resPtr[9],
+					resPtr[10],
+					resPtr[11],
+					resPtr[12],
+					resPtr[13],
+					resPtr[14],
+					resPtr[15]
+				);
+			}
+
+			/* Each element is stored as RowCount rows of 4 floats, so
+			 * smaller matrices must not read a full 4x4. Anything
+			 * outside of the parameter's rows/columns is left at zero.
+			 */
+			float* m = stackalloc float[16];
+			for (int i = 0; i < 16; i += 1)
+			{
+				m[i] = 0.0f;
+			}
+			for (int r = 0; r < RowCount; r += 1)
+			{
+				for (int c = 0; c < ColumnCount; c += 1)
+				{
+					m[(r * 4) + c] = resPtr[(r * 4) + c];
+				}
+			}
+			return new Matrix(
+				m[0],
+				m[1],
+				m[2],
+				m[3],
+				m[4],
+				m[5],
+				m[6],
+				m[7],
+				m[8],
+				m[9],
+				m[10],
+				m[11],
+				m[12],
+				m[13],
+				m[14],
+				m[15]
+			);
 		}
 
 		#endregion
