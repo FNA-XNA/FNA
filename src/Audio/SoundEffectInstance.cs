@@ -105,7 +105,7 @@ namespace Microsoft.Xna.Framework.Audio
 				INTERNAL_pitch = value;
 				if (handle != IntPtr.Zero)
 				{
-					UpdatePitch();
+					UpdatePitch(1f);
 				}
 			}
 		}
@@ -278,7 +278,10 @@ namespace Microsoft.Xna.Framework.Audio
 			);
 			if (handle != IntPtr.Zero)
 			{
-				UpdatePitch();
+				if (emitter.emitterData.DopplerScaler != 0)
+				{
+					UpdatePitch(dspSettings.DopplerFactor);
+				}
 				FAudio.FAudioVoice_SetOutputMatrix(
 					handle,
 					SoundEffect.Device().MasterVoice,
@@ -358,7 +361,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			/* Apply current properties */
 			FAudio.FAudioVoice_SetVolume(handle, INTERNAL_volume, 0);
-			UpdatePitch();
+			UpdatePitch(1f);
 			if (is3D || Pan != 0.0f)
 			{
 				FAudio.FAudioVoice_SetOutputMatrix(
@@ -616,22 +619,11 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Private Methods
 
-		private void UpdatePitch()
+		private void UpdatePitch(float dopplerFactor)
 		{
-			float doppler;
-			float dopplerScale = SoundEffect.Device().DopplerScale;
-			if (!is3D || dopplerScale == 0.0f)
-			{
-				doppler = 1.0f;
-			}
-			else
-			{
-				doppler = dspSettings.DopplerFactor * dopplerScale;
-			}
-
 			FAudio.FAudioSourceVoice_SetFrequencyRatio(
 				handle,
-				(float) Math.Pow(2.0, INTERNAL_pitch) * doppler,
+				(float) Math.Pow(2.0, INTERNAL_pitch) * dopplerFactor,
 				0
 			);
 		}
