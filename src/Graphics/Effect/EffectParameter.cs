@@ -1117,6 +1117,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				{
 					throw new ObjectDisposedException(value.GetType().Name);
 				}
+				if (value.isActiveRenderTarget)
+				{
+					throw new InvalidOperationException("The render target must not be set on the device when it is used as a texture.");
+				}
 			}
 			texture = value;
 		}
