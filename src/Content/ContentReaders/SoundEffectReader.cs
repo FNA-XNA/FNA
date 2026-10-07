@@ -8,8 +8,8 @@
 #endregion
 
 #region Using Statements
-using System.IO;
-
+using System;
+using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Audio;
 #endregion
 
@@ -19,58 +19,44 @@ namespace Microsoft.Xna.Framework.Content
 	{
 		#region Protected Read Method
 
-		protected internal override SoundEffect Read(
+		protected internal override unsafe SoundEffect Read(
 			ContentReader input,
 			SoundEffect existingInstance
 		) {
+			// Format block
+			byte[] formatBytes = input.ReadBytes(input.ReadInt32());
+
 			/* Swap endian - this is one of the very few places requiring this!
 			 * Note: This only affects the fmt chunk that's glued into the file.
 			 */
-			bool se = input.platform == 'x';
-
-			// Format block length
-			uint formatLength = input.ReadUInt32();
-
-			// WaveFormatEx data
-			ushort wFormatTag = Swap(se, input.ReadUInt16());
-			ushort nChannels = Swap(se, input.ReadUInt16());
-			uint nSamplesPerSec = Swap(se, input.ReadUInt32());
-			uint nAvgBytesPerSec = Swap(se, input.ReadUInt32());
-			ushort nBlockAlign = Swap(se, input.ReadUInt16());
-			ushort wBitsPerSample = Swap(se, input.ReadUInt16());
-
-			byte[] extra = null;
-			if (formatLength > 16)
+			if (input.platform == 'x')
 			{
-				ushort cbSize = Swap(se, input.ReadUInt16());
-
-				if (wFormatTag == 0x166 && cbSize == 34)
+				fixed (byte* ptr = formatBytes)
 				{
-					// XMA2 has got some nice extra crap.
-					extra = new byte[34];
-					using (MemoryStream extraStream = new MemoryStream(extra))
-					using (BinaryWriter extraWriter = new BinaryWriter(extraStream))
+					FAudio.FAudioWaveFormatEx* wfx = (FAudio.FAudioWaveFormatEx*) ptr;
+					wfx->wFormatTag = Swap(wfx->wFormatTag);
+					wfx->nChannels = Swap(wfx->nChannels);
+					wfx->nSamplesPerSec = Swap(wfx->nSamplesPerSec);
+					wfx->nAvgBytesPerSec = Swap(wfx->nAvgBytesPerSec);
+					wfx->nBlockAlign = Swap(wfx->nBlockAlign);
+					wfx->wBitsPerSample = Swap(wfx->wBitsPerSample);
+					if (formatBytes.Length > 16)
 					{
-						// See FAudio.FAudioXMA2WaveFormatEx for the layout.
-						extraWriter.Write(Swap(se, input.ReadUInt16()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(Swap(se, input.ReadUInt32()));
-						extraWriter.Write(input.ReadByte());
-						extraWriter.Write(input.ReadByte());
-						extraWriter.Write(Swap(se, input.ReadUInt16()));
+						wfx->cbSize = Swap(wfx->cbSize);
+						if (wfx->wFormatTag == 0x166 && wfx->cbSize == 34)
+						{
+							FAudio.FAudioXMA2WaveFormatEx* xma2format = (FAudio.FAudioXMA2WaveFormatEx*) ptr;
+							xma2format->wNumStreams = Swap(xma2format->wNumStreams);
+							xma2format->dwChannelMask = Swap(xma2format->dwChannelMask);
+							xma2format->dwSamplesEncoded = Swap(xma2format->dwSamplesEncoded);
+							xma2format->dwBytesPerBlock = Swap(xma2format->dwBytesPerBlock);
+							xma2format->dwPlayBegin = Swap(xma2format->dwPlayBegin);
+							xma2format->dwPlayLength = Swap(xma2format->dwPlayLength);
+							xma2format->dwLoopBegin = Swap(xma2format->dwLoopBegin);
+							xma2format->dwLoopLength = Swap(xma2format->dwLoopLength);
+							xma2format->wBlockCount = Swap(xma2format->wBlockCount);
+						}
 					}
-					// Is there any crap that needs skipping? Eh whatever.
-					input.ReadBytes((int) (formatLength - 18 - 34));
-				}
-				else
-				{
-					// Seek past the rest of this crap (cannot seek though!)
-					input.ReadBytes((int) (formatLength - 18));
 				}
 			}
 
@@ -84,18 +70,15 @@ namespace Microsoft.Xna.Framework.Content
 			// Sound duration in milliseconds, unused
 			input.ReadUInt32();
 
-			return new SoundEffect(
+			IntPtr formatPtr = FNAPlatform.Malloc(formatBytes.Length);
+			Marshal.Copy(formatBytes, 0, formatPtr, formatBytes.Length);
+
+			return new SoundEffect().FromBuffer(
 				input.AssetName,
+				formatPtr,
 				data,
 				0,
 				data.Length,
-				extra,
-				wFormatTag,
-				nChannels,
-				nSamplesPerSec,
-				nAvgBytesPerSec,
-				nBlockAlign,
-				wBitsPerSample,
 				loopStart,
 				loopLength
 			);
@@ -105,17 +88,17 @@ namespace Microsoft.Xna.Framework.Content
 
 		#region Internal Static Swapping Methods
 
-		internal static ushort Swap(bool swap, ushort x)
+		internal static ushort Swap(ushort x)
 		{
-			return !swap ? x : (ushort) (
+			return (ushort) (
 				((x >> 8)	& 0x00FF) |
 				((x << 8)	& 0xFF00)
 			);
 		}
 
-		internal static uint Swap(bool swap, uint x)
+		internal static uint Swap(uint x)
 		{
-			return !swap ? x : (
+			return (
 				((x >> 24)	& 0x000000FF) |
 				((x >> 8)	& 0x0000FF00) |
 				((x << 8)	& 0x00FF0000) |
@@ -124,6 +107,5 @@ namespace Microsoft.Xna.Framework.Content
 		}
 
 		#endregion
-
 	}
 }
