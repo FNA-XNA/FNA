@@ -166,7 +166,7 @@ namespace Microsoft.Xna.Framework
 			/* Having a positive tMin and a negative tMax means the ray is inside the
 			 * box we expect the intesection distance to be 0 in that case.
 			 */
-			if ((tMin.HasValue && tMin < 0) && tMax > 0) return 0;
+			if ((tMin.HasValue && tMin < 0) && tMax >= 0) return 0;
 
 			/* A negative tMin means that the intersection point is behind the ray's
 			 * origin. We discard these as not hitting the AABB.
