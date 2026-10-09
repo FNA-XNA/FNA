@@ -7,69 +7,32 @@
  */
 #endregion
 
+#region Using Statements
+using System;
+#endregion
+
 namespace Microsoft.Xna.Framework.Graphics.PackedVector
 {
 	internal static class HalfTypeHelper
 	{
 		#region Internal Static Methods
 
-		internal static ushort Convert(float f)
+		internal static ushort Convert(float value)
 		{
-			int i;
-			unsafe
-			{
-				i = *(int*) &f;
-			}
-			int s = (i >> 16) & 0x00008000;
-			int e = ((i >> 23) & 0x000000ff) - (127 - 15);
-			int m = i & 0x007fffff;
-
-			if (e <= 0)
-			{
-				if (e < -10)
-				{
-					return (ushort) s;
-				}
-
-				m = m | 0x00800000;
-
-				int t = 14 - e;
-				int a = (1 << (t - 1)) - 1;
-				int b = (m >> t) & 1;
-
-				m = (m + a + b) >> t;
-
-				return (ushort) (s | m);
-			}
-			else if (e == 0xff - (127 - 15))
-			{
-				if (m == 0)
-				{
-					return (ushort) (s | 0x7c00);
-				}
-				else
-				{
-					m >>= 13;
-					return (ushort) (s | 0x7c00 | m | ((m == 0) ? 1 : 0));
-				}
-			}
-			else
-			{
-				m = m + 0x00000fff + ((m >> 13) & 1);
-
-				if ((m & 0x00800000) != 0)
-				{
-					m = 0;
-					e += 1;
-				}
-
-				if (e > 30)
-				{
-					return (ushort) (s | 0x7c00);
-				}
-
-				return (ushort) (s | (e << 10) | (m >> 13));
-			}
+			const uint MinExp = 0x38800000u;
+			const uint Exponent126 = 0x3f000000;
+			const uint SingleBiasedExponentMask = 0x7F800000;
+			const uint Exponent13 = 0x06800000u;
+			uint bitValue = SingleToUInt32Bits(value);
+			uint sign = bitValue >> 16 & 1u << 15;
+			bitValue &= 0x7FFFFFFF;
+			bitValue = Math.Min(bitValue, 0x47FFEFFF);
+			value = UInt32BitsToSingle(bitValue);
+			bitValue = Math.Max(bitValue, MinExp);
+			value += UInt32BitsToSingle(bitValue + Exponent13 & SingleBiasedExponentMask);
+			bitValue = SingleToUInt32Bits(value);
+			bitValue -= Exponent126;
+			return (ushort) (bitValue + (bitValue >> 13) | sign);
 		}
 
 		internal static float Convert(ushort value)
@@ -104,6 +67,20 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 			{
 				return *(float*) &rst;
 			}
+		}
+
+		#endregion
+
+		#region Private Static Methods
+
+		static unsafe uint SingleToUInt32Bits(float value)
+		{
+			return *(uint*) &value;
+		}
+
+		static unsafe float UInt32BitsToSingle(uint value)
+		{
+			return *(float*) &value;
 		}
 
 		#endregion
