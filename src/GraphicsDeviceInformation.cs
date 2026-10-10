@@ -65,15 +65,24 @@ namespace Microsoft.Xna.Framework
 
 		#region Private Variable
 
-		private GraphicsAdapter adapter = GraphicsAdapter.DefaultAdapter;
+		private GraphicsAdapter adapter;
 
 		#endregion
 
 		#region Public Constructor
 
-		public GraphicsDeviceInformation()
+		public GraphicsDeviceInformation() : this(GraphicsAdapter.DefaultAdapter)
 		{
 			PresentationParameters = new PresentationParameters();
+		}
+
+		#endregion
+
+		#region Private Constructor
+
+		private GraphicsDeviceInformation(GraphicsAdapter graphicsAdapter)
+		{
+			adapter = graphicsAdapter;
 		}
 
 		#endregion
@@ -119,9 +128,8 @@ namespace Microsoft.Xna.Framework
 
 		public GraphicsDeviceInformation Clone()
 		{
-			return new GraphicsDeviceInformation()
+			return new GraphicsDeviceInformation(Adapter)
 			{
-				Adapter = Adapter,
 				GraphicsProfile = GraphicsProfile,
 				PresentationParameters = PresentationParameters.Clone()
 			};
