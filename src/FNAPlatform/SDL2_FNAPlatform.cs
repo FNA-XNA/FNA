@@ -2401,8 +2401,8 @@ namespace Microsoft.Xna.Framework
 					i,
 					(int) finger->id,
 					new Vector2(
-						(float) Math.Round(finger->x * TouchPanel.DisplayWidth),
-						(float) Math.Round(finger->y * TouchPanel.DisplayHeight)
+						MathF.Round(finger->x * TouchPanel.DisplayWidth),
+						MathF.Round(finger->y * TouchPanel.DisplayHeight)
 					)
 				);
 			}

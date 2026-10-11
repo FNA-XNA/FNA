@@ -134,8 +134,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			// Calculate the scaled touch position
 			Vector2 touchPos = new Vector2(
-				(float) Math.Round(x * DisplayWidth),
-				(float) Math.Round(y * DisplayHeight)
+				MathF.Round(x * DisplayWidth),
+				MathF.Round(y * DisplayHeight)
 			);
 
 			// Notify the Gesture Detector about the event
@@ -148,8 +148,8 @@ namespace Microsoft.Xna.Framework.Input.Touch
 				case TouchLocationState.Moved:
 
 					Vector2 delta = new Vector2(
-						(float) Math.Round(dx * DisplayWidth),
-						(float) Math.Round(dy * DisplayHeight)
+						MathF.Round(dx * DisplayWidth),
+						MathF.Round(dy * DisplayHeight)
 					);
 
 					GestureDetector.OnMoved(fingerId, touchPos, delta);
