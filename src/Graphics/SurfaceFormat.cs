@@ -125,4 +125,94 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// </summary>
 		UShortEXT,
 	}
+
+	internal abstract class SurfaceFormatInfo
+	{
+		static readonly SurfaceFormatInfoAlign align1 = new SurfaceFormatInfoAlign(1);
+		static readonly SurfaceFormatInfoAlign align2 = new SurfaceFormatInfoAlign(2);
+		static readonly SurfaceFormatInfoAlign align4 = new SurfaceFormatInfoAlign(4);
+		static readonly SurfaceFormatInfoAlign align8 = new SurfaceFormatInfoAlign(8);
+		static readonly SurfaceFormatInfoAlign align16 = new SurfaceFormatInfoAlign(16);
+		static readonly SurfaceFormatInfoBC8 bc8 = new SurfaceFormatInfoBC8();
+		static readonly SurfaceFormatInfoBC16 bc16 = new SurfaceFormatInfoBC16();
+
+		sealed class SurfaceFormatInfoAlign : SurfaceFormatInfo
+		{
+			internal SurfaceFormatInfoAlign(int align) : base(align) { }
+			internal override int GetSize(int width, int height)
+			{
+				return width * height * Align;
+			}
+		}
+
+		sealed class SurfaceFormatInfoBC8 : SurfaceFormatInfo
+		{
+			internal SurfaceFormatInfoBC8() : base(1) { }
+			internal override int GetSize(int width, int height)
+			{
+				return (width + 3 >> 2) * (height + 3 >> 2) * 8;
+			}
+		}
+
+		sealed class SurfaceFormatInfoBC16 : SurfaceFormatInfo
+		{
+			internal SurfaceFormatInfoBC16() : base(1) { }
+			internal override int GetSize(int width, int height)
+			{
+				return (width + 3 >> 2) * (height + 3 >> 2) * 16;
+			}
+		}
+
+		internal readonly int Align;
+
+		SurfaceFormatInfo(int align)
+		{
+			Align = align;
+		}
+
+		internal abstract int GetSize(int width, int height);
+
+		internal static SurfaceFormatInfo GetInstance(SurfaceFormat format)
+		{
+			switch (format)
+			{
+				case SurfaceFormat.Dxt1:
+					return bc8;
+				case SurfaceFormat.Dxt3:
+				case SurfaceFormat.Dxt5:
+				case SurfaceFormat.Dxt5SrgbEXT:
+				case SurfaceFormat.Bc7EXT:
+				case SurfaceFormat.Bc7SrgbEXT:
+					return bc16;
+				case SurfaceFormat.Alpha8:
+				case SurfaceFormat.ByteEXT:
+					return align1;
+				case SurfaceFormat.Bgr565:
+				case SurfaceFormat.Bgra4444:
+				case SurfaceFormat.Bgra5551:
+				case SurfaceFormat.HalfSingle:
+				case SurfaceFormat.NormalizedByte2:
+				case SurfaceFormat.UShortEXT:
+					return align2;
+				case SurfaceFormat.Color:
+				case SurfaceFormat.Single:
+				case SurfaceFormat.Rg32:
+				case SurfaceFormat.HalfVector2:
+				case SurfaceFormat.NormalizedByte4:
+				case SurfaceFormat.Rgba1010102:
+				case SurfaceFormat.ColorBgraEXT:
+				case SurfaceFormat.ColorSrgbEXT:
+					return align4;
+				case SurfaceFormat.HalfVector4:
+				case SurfaceFormat.Rgba64:
+				case SurfaceFormat.Vector2:
+				case SurfaceFormat.HdrBlendable:
+					return align8;
+				case SurfaceFormat.Vector4:
+					return align16;
+				default:
+					return null;
+			}
+		}
+	}
 }
