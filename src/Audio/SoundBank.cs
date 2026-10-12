@@ -141,12 +141,9 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (!IsDisposed)
 				{
-					// If this is disposed, stop leaking memory!
-					if (!engine.IsDisposed)
-					{
-						FAudio.FACTSoundBank_Destroy(handle);
-					}
-					OnSoundBankDestroyed();
+					IsDisposed = true;
+
+					FAudio.FACTSoundBank_Destroy(handle);
 
 					if (disposing && Disposing != null)
 					{
@@ -268,7 +265,6 @@ namespace Microsoft.Xna.Framework.Audio
 
 		internal void OnSoundBankDestroyed()
 		{
-			IsDisposed = true;
 			handle = IntPtr.Zero;
 			selfReference = null;
 			if (dspSettings.pMatrixCoefficients != IntPtr.Zero)
@@ -276,6 +272,8 @@ namespace Microsoft.Xna.Framework.Audio
 				FNAPlatform.Free(dspSettings.pMatrixCoefficients);
 				dspSettings.pMatrixCoefficients = IntPtr.Zero;
 			}
+
+			Dispose();
 		}
 
 		#endregion
