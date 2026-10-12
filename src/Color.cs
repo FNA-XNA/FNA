@@ -1621,11 +1621,12 @@ namespace Microsoft.Xna.Framework
 		/// <param name="b">Blue component value from 0 to 255.</param>
 		public Color(int r, int g, int b)
 		{
-			packedValue = 0;
-			R = (byte) MathHelper.Clamp(r, Byte.MinValue, Byte.MaxValue);
-			G = (byte) MathHelper.Clamp(g, Byte.MinValue, Byte.MaxValue);
-			B = (byte) MathHelper.Clamp(b, Byte.MinValue, Byte.MaxValue);
-			A = (byte)255;
+			packedValue = (
+				(uint) MathHelper.Clamp(r, Byte.MinValue, Byte.MaxValue) |
+				(uint) MathHelper.Clamp(g, Byte.MinValue, Byte.MaxValue) << 8 |
+				(uint) MathHelper.Clamp(b, Byte.MinValue, Byte.MaxValue) << 16 |
+				0xFF000000u
+			);
 		}
 
 		/// <summary>
@@ -1637,11 +1638,12 @@ namespace Microsoft.Xna.Framework
 		/// <param name="alpha">Alpha component value from 0 to 255.</param>
 		public Color(int r, int g, int b, int alpha)
 		{
-			packedValue = 0;
-			R = (byte) MathHelper.Clamp(r, Byte.MinValue, Byte.MaxValue);
-			G = (byte) MathHelper.Clamp(g, Byte.MinValue, Byte.MaxValue);
-			B = (byte) MathHelper.Clamp(b, Byte.MinValue, Byte.MaxValue);
-			A = (byte) MathHelper.Clamp(alpha, Byte.MinValue, Byte.MaxValue);
+			packedValue = (
+				(uint) MathHelper.Clamp(r, Byte.MinValue, Byte.MaxValue) |
+				(uint) MathHelper.Clamp(g, Byte.MinValue, Byte.MaxValue) << 8 |
+				(uint) MathHelper.Clamp(b, Byte.MinValue, Byte.MaxValue) << 16 |
+				(uint) MathHelper.Clamp(alpha, Byte.MinValue, Byte.MaxValue) << 24
+			);
 		}
 
 		/// <summary>
