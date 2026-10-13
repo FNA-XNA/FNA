@@ -969,6 +969,7 @@ namespace Microsoft.Xna.Framework
 			bool[] textInputControlDown,
 			ref bool textInputSuppress
 		) {
+			uint windowID = SDL.SDL_GetWindowID(game.Window.Handle);
 			SDL.SDL_Event evt;
 			char* charsBuffer = stackalloc char[32]; // SDL_TEXTINPUTEVENT_TEXT_SIZE
 			while (SDL.SDL_PollEvent(out evt) == 1)
@@ -1080,6 +1081,10 @@ namespace Microsoft.Xna.Framework
 				// Various Window Events...
 				else if (evt.type == SDL.SDL_EventType.SDL_WINDOWEVENT)
 				{
+					if (evt.window.windowID != windowID)
+					{
+						continue;
+					}
 					// Window Focus
 					if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_FOCUS_GAINED)
 					{
