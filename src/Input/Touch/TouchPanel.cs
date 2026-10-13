@@ -43,8 +43,18 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public static DisplayOrientation DisplayOrientation
 		{
-			get;
-			set;
+			get
+			{
+				return displayOrientation;
+			}
+			set
+			{
+				if (value != DisplayOrientation.Default && value != DisplayOrientation.LandscapeLeft && value != DisplayOrientation.LandscapeRight && value != DisplayOrientation.Portrait)
+				{
+					throw new ArgumentException("The specified DisplayOrientation is invalid.");
+				}
+				displayOrientation = value;
+			}
 		}
 
 		public static GestureType EnabledGestures
@@ -77,6 +87,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Static Variables
 
+		private static DisplayOrientation displayOrientation;
 		private static Queue<GestureSample> gestures = new Queue<GestureSample>();
 		private static TouchLocation[] touches = new TouchLocation[MAX_TOUCHES];
 		private static TouchLocation[] prevTouches = new TouchLocation[MAX_TOUCHES];
