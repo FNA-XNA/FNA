@@ -177,16 +177,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		public PresentationParameters Clone()
 		{
 			return new PresentationParameters() {
-				BackBufferFormat = BackBufferFormat,
-				BackBufferHeight = BackBufferHeight,
-				BackBufferWidth = BackBufferWidth,
-				DeviceWindowHandle = DeviceWindowHandle,
-				IsFullScreen = IsFullScreen,
-				DepthStencilFormat = DepthStencilFormat,
-				MultiSampleCount = MultiSampleCount,
-				PresentationInterval = PresentationInterval,
-				DisplayOrientation = DisplayOrientation,
-				RenderTargetUsage = RenderTargetUsage
+				parameters = parameters
 			};
 		}
 
