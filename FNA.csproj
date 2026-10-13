@@ -85,6 +85,16 @@
     <Message Importance="High" Text="No property overrides found at '$(FNASettingsPropsFilePath)'" Condition="!Exists('$(FNASettingsPropsFilePath)')" />
     <Message Importance="High" Text="Loaded property overrides from '$(FNASettingsPropsFilePath)'" Condition="Exists('$(FNASettingsPropsFilePath)')" />
   </Target>
+  <Target Name="MSBuildVersion" AfterTargets="PrepareForBuild" Condition="$(MSBuildToolsVersion) == 4.0">
+    <Exec Command='"$(MSBuildBinPath)/msbuild" /nologo /version > $(IntermediateOutputPath)MSBuildVersion.tmp' />
+    <ReadLinesFromFile File="$(IntermediateOutputPath)MSBuildVersion.tmp">
+      <Output TaskParameter="Lines" PropertyName="_MSBuildVersion"/>
+    </ReadLinesFromFile>
+    <PropertyGroup Condition="$(_MSBuildVersion) == '4.0.30319.1'">
+      <DefineConstants>$(DefineConstants);MSBUILD40</DefineConstants>
+    </PropertyGroup>
+    <Warning Condition="$(_MSBuildVersion) == '4.0.30319.1'" Text="Not apply MethodImplOptions.AggressiveInlining when .NET Framework Runtime version not above or equals v4.5" />
+  </Target>
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
