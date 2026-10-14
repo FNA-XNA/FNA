@@ -1118,6 +1118,10 @@ namespace Microsoft.Xna.Framework
 							manager.IsFullScreen = false;
 						}
 					}
+					else if (evt.type == (uint) SDL.SDL_EventType.SDL_EVENT_WINDOW_CLOSE_REQUESTED)
+					{
+						game.IsActive = false;
+					}
 				}
 
 				// Display Events
