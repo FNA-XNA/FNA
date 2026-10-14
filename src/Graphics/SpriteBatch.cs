@@ -949,7 +949,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("spriteFont");
 			}
-			if (ReferenceEquals(text, null))
+			if (text == null)
 			{
 				throw new ArgumentNullException("text");
 			}

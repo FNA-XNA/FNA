@@ -136,7 +136,7 @@ namespace Microsoft.Xna.Framework.Content
 			{
 				throw new ArgumentNullException("serviceProvider");
 			}
-			if (ReferenceEquals(rootDirectory, null))
+			if (rootDirectory == null)
 			{
 				throw new ArgumentNullException("rootDirectory");
 			}
