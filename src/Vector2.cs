@@ -15,7 +15,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
+using System.Runtime.CompilerServices;
 
 using Microsoft.Xna.Framework.Design;
 #endregion
@@ -1142,6 +1142,7 @@ namespace Microsoft.Xna.Framework
 		/// </summary>
 		/// <param name="value">Source <see cref="Vector2"/> on the right of the sub sign.</param>
 		/// <returns>Result of the inversion.</returns>
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector2 operator -(Vector2 value)
 		{
 			value.X = -value.X;
@@ -1155,6 +1156,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="value1"><see cref="Vector2"/> instance on the left of the equal sign.</param>
 		/// <param name="value2"><see cref="Vector2"/> instance on the right of the equal sign.</param>
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static bool operator ==(Vector2 value1, Vector2 value2)
 		{
 			return (	value1.X == value2.X &&
@@ -1167,6 +1169,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="value1"><see cref="Vector2"/> instance on the left of the equal sign.</param>
 		/// <param name="value2"><see cref="Vector2"/> instance on the right of the equal sign.</param>
 		/// <returns><c>true</c> if the instances are equal; <c>false</c> otherwise.</returns>
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static bool operator !=(Vector2 value1, Vector2 value2)
 		{
 			return !(value1 == value2);
@@ -1178,6 +1181,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="value1">Source <see cref="Vector2"/> on the left of the add sign.</param>
 		/// <param name="value2">Source <see cref="Vector2"/> on the right of the add sign.</param>
 		/// <returns>Sum of the vectors.</returns>
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector2 operator +(Vector2 value1, Vector2 value2)
 		{
 			value1.X += value2.X;
@@ -1191,6 +1195,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="value1">Source <see cref="Vector2"/> on the left of the sub sign.</param>
 		/// <param name="value2">Source <see cref="Vector2"/> on the right of the sub sign.</param>
 		/// <returns>Result of the vector subtraction.</returns>
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector2 operator -(Vector2 value1, Vector2 value2)
 		{
 			value1.X -= value2.X;
@@ -1204,6 +1209,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="value1">Source <see cref="Vector2"/> on the left of the mul sign.</param>
 		/// <param name="value2">Source <see cref="Vector2"/> on the right of the mul sign.</param>
 		/// <returns>Result of the vector multiplication.</returns>
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector2 operator *(Vector2 value1, Vector2 value2)
 		{
 			value1.X *= value2.X;
@@ -1217,6 +1223,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="value">Source <see cref="Vector2"/> on the left of the mul sign.</param>
 		/// <param name="scaleFactor">Scalar value on the right of the mul sign.</param>
 		/// <returns>Result of the vector multiplication with a scalar.</returns>
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector2 operator *(Vector2 value, float scaleFactor)
 		{
 			value.X *= scaleFactor;
@@ -1230,6 +1237,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="scaleFactor">Scalar value on the left of the mul sign.</param>
 		/// <param name="value">Source <see cref="Vector2"/> on the right of the mul sign.</param>
 		/// <returns>Result of the vector multiplication with a scalar.</returns>
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector2 operator *(float scaleFactor, Vector2 value)
 		{
 			value.X *= scaleFactor;
@@ -1243,6 +1251,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="value1">Source <see cref="Vector2"/> on the left of the div sign.</param>
 		/// <param name="value2">Divisor <see cref="Vector2"/> on the right of the div sign.</param>
 		/// <returns>The result of dividing the vectors.</returns>
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector2 operator /(Vector2 value1, Vector2 value2)
 		{
 			value1.X /= value2.X;
@@ -1256,6 +1265,7 @@ namespace Microsoft.Xna.Framework
 		/// <param name="value1">Source <see cref="Vector2"/> on the left of the div sign.</param>
 		/// <param name="divider">Divisor scalar on the right of the div sign.</param>
 		/// <returns>The result of dividing a vector by a scalar.</returns>
+		[MethodImpl(MathHelper.AggressiveInlining)]
 		public static Vector2 operator /(Vector2 value1, float divider)
 		{
 			value1.X /= divider;
