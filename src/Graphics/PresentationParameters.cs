@@ -172,13 +172,20 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Private Constructors
+
+		private PresentationParameters(PresentationParameters presentationParameters)
+		{
+			parameters = presentationParameters.parameters;
+		}
+
+		#endregion
+
 		#region Public Methods
 
 		public PresentationParameters Clone()
 		{
-			return new PresentationParameters() {
-				parameters = parameters
-			};
+			return new PresentationParameters(this);
 		}
 
 		#endregion
