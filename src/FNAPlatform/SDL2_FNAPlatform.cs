@@ -1179,6 +1179,10 @@ namespace Microsoft.Xna.Framework
 					{
 						SDL.SDL_EnableScreenSaver();
 					}
+					else if (evt.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_CLOSE)
+					{
+						game.IsActive = false;
+					}
 				}
 
 				// Display Events
