@@ -92,9 +92,17 @@ namespace Microsoft.Xna.Framework.Content
 		/// <summary>
 		/// Creates an instance of the attribute.
 		/// </summary>
-		public ContentSerializerAttribute()
+		public ContentSerializerAttribute() : this(true)
 		{
-			AllowNull = true;
+		}
+
+		#endregion
+
+		#region Private Constructor
+
+		private ContentSerializerAttribute(bool allowNull)
+		{
+			AllowNull = allowNull;
 		}
 
 		#endregion
@@ -103,8 +111,7 @@ namespace Microsoft.Xna.Framework.Content
 
 		public ContentSerializerAttribute Clone()
 		{
-			return new ContentSerializerAttribute() {
-				AllowNull = AllowNull,
+			return new ContentSerializerAttribute(AllowNull) {
 				collectionItemName = collectionItemName,
 				ElementName = ElementName,
 				FlattenContent = FlattenContent,
