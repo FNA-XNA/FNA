@@ -45,7 +45,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 				}
 
-				Name = string.Empty;
+				_Name = string.Empty;
 
 				graphicsDevice = value;
 
