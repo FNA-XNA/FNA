@@ -69,7 +69,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			Width = width;
 			Height = height;
 			Depth = depth;
-			LevelCount = mipMap ? CalculateMipLevels(width, height) : 1;
+			LevelCount = mipMap ? CalculateMipLevels(width, height, depth) : 1;
 			Format = format;
 
 			texture = FNA3D.FNA3D_CreateTexture3D(
