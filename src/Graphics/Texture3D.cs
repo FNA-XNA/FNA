@@ -146,9 +146,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
 			}
 			if (unchecked(
-				(uint) left >= (uint) right || (uint) right > (uint) Width >> level ||
-				(uint) top >= (uint) bottom || (uint) bottom > (uint) Height >> level ||
-				(uint) front >= (uint) back || (uint) back > (uint) Depth >> level
+				(uint) left >= (uint) right || (uint) right > Math.Max((uint) Width >> level, 1u) ||
+				(uint) top >= (uint) bottom || (uint) bottom > Math.Max((uint) Height >> level, 1u) ||
+				(uint) front >= (uint) back || (uint) back > Math.Max((uint) Depth >> level, 1u)
 			)) {
 				throw new ArgumentException("The rectangle is too large or too small for this resource.", "box");
 			}
@@ -290,9 +290,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
 			}
 			if (unchecked(
-				(uint) left >= (uint) right || (uint) right > (uint) Width >> level ||
-				(uint) top >= (uint) bottom || (uint) bottom > (uint) Height >> level ||
-				(uint) front >= (uint) back || (uint) back > (uint) Depth >> level
+				(uint) left >= (uint) right || (uint) right > Math.Max((uint) Width >> level, 1u) ||
+				(uint) top >= (uint) bottom || (uint) bottom > Math.Max((uint) Height >> level, 1u) ||
+				(uint) front >= (uint) back || (uint) back > Math.Max((uint) Depth >> level, 1u)
 			)) {
 				throw new ArgumentException("The rectangle is too large or too small for this resource.", "box");
 			}
