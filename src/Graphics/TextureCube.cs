@@ -180,8 +180,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				xOffset = 0;
 				yOffset = 0;
-				width = Math.Max(1, Size >> level);
-				height = Math.Max(1, Size >> level);
+				width = height = Size >> level;
 			}
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
@@ -224,8 +223,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				xOffset = 0;
 				yOffset = 0;
-				width = Math.Max(1, Size >> level);
-				height = Math.Max(1, Size >> level);
+				width = height = Size >> level;
 			}
 
 			FNA3D.FNA3D_SetTextureDataCube(
@@ -308,8 +306,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				subX = 0;
 				subY = 0;
-				subW = Size >> level;
-				subH = Size >> level;
+				subW = subH = Size >> level;
 			}
 			else
 			{

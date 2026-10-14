@@ -347,8 +347,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				subX = 0;
 				subY = 0;
-				subW = Width >> level;
-				subH = Height >> level;
+				subW = Math.Max(Width >> level, 1);
+				subH = Math.Max(Height >> level, 1);
 			}
 			else
 			{
