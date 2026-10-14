@@ -45,6 +45,8 @@ namespace Microsoft.Xna.Framework.Graphics
 					}
 				}
 
+				Name = string.Empty;
+
 				graphicsDevice = value;
 
 				selfReference = GCHandle.Alloc(this, GCHandleType.Weak);
