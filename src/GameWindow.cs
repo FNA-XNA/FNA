@@ -54,7 +54,7 @@ namespace Microsoft.Xna.Framework
 			}
 			set
 			{
-				if (ReferenceEquals(value, null))
+				if (value == null)
 				{
 					throw new ArgumentNullException("value", "The title name cannot be null.  Use an empty string instead.");
 				}

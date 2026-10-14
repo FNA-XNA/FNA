@@ -142,7 +142,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			 * The only difference is how we iterate through the string.
 			 * -flibit
 			 */
-			if (ReferenceEquals(text, null))
+			if (text == null)
 			{
 				throw new ArgumentNullException("text");
 			}
