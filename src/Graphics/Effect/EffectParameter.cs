@@ -575,6 +575,16 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Set Methods
 
+		private int GetScalarCount()
+		{
+			return RowCount * ColumnCount * (elementCount == 0 ? 1 : elementCount);
+		}
+
+		private int GetVectorCount()
+		{
+			return RowCount * (elementCount == 0 ? 1 : elementCount);
+		}
+
 		public void SetValue(bool value)
 		{
 			unsafe
@@ -590,7 +600,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				int* dstPtr = (int*) values;
-				for (int i = 0; i < value.Length; dstPtr += 4)
+				for (int i = 0; i < value.Length && i < GetScalarCount(); dstPtr += 4)
 				{
 					for (int j = 0; j < ColumnCount; j += 1, i += 1)
 					{
@@ -623,7 +633,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(int[] value)
 		{
-			for (int i = 0, j = 0; i < value.Length; i += ColumnCount, j += 16)
+			for (int i = 0, j = 0; i < value.Length && i < GetScalarCount(); i += ColumnCount, j += 16)
 			{
 				Marshal.Copy(value, i, values + j, ColumnCount);
 			}
@@ -719,13 +729,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValueTranspose(Matrix[] value)
 		{
+			int count = Math.Min(value.Length, elementCount == 0 ? 1 : elementCount);
+
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
 			{
 				float* dstPtr = (float*) values;
 				if (ColumnCount == 4 && RowCount == 4)
 				{
-					for (int i = 0; i < value.Length; i += 1, dstPtr += 16)
+					for (int i = 0; i < count; i += 1, dstPtr += 16)
 					{
 #if DEBUG
 						value[i].CheckForNaNs();
@@ -750,7 +762,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				else if (ColumnCount == 3 && RowCount == 3)
 				{
-					for (int i = 0; i < value.Length; i += 1, dstPtr += 12)
+					for (int i = 0; i < count; i += 1, dstPtr += 12)
 					{
 #if DEBUG
 						value[i].CheckForNaNs();
@@ -768,7 +780,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				else if (ColumnCount == 4 && RowCount == 3)
 				{
-					for (int i = 0; i < value.Length; i += 1, dstPtr += 16)
+					for (int i = 0; i < count; i += 1, dstPtr += 16)
 					{
 #if DEBUG
 						value[i].CheckForNaNs();
@@ -789,7 +801,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				else if (ColumnCount == 3 && RowCount == 4)
 				{
-					for (int i = 0; i < value.Length; i += 1, dstPtr += 12)
+					for (int i = 0; i < count; i += 1, dstPtr += 12)
 					{
 #if DEBUG
 						value[i].CheckForNaNs();
@@ -810,7 +822,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				else if (ColumnCount == 2 && RowCount == 2)
 				{
-					for (int i = 0; i < value.Length; i += 1, dstPtr += 8)
+					for (int i = 0; i < count; i += 1, dstPtr += 8)
 					{
 #if DEBUG
 						value[i].CheckForNaNs();
@@ -922,13 +934,15 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Matrix[] value)
 		{
+			int count = Math.Min(value.Length, elementCount == 0 ? 1 : elementCount);
+
 			// FIXME: All Matrix sizes... this will get ugly. -flibit
 			unsafe
 			{
 				float* dstPtr = (float*) values;
 				if (ColumnCount == 4 && RowCount == 4)
 				{
-					for (int i = 0; i < value.Length; i += 1, dstPtr += 16)
+					for (int i = 0; i < count; i += 1, dstPtr += 16)
 					{
 #if DEBUG
 						value[i].CheckForNaNs();
@@ -953,7 +967,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				else if (ColumnCount == 3 && RowCount == 3)
 				{
-					for (int i = 0; i < value.Length; i += 1, dstPtr += 12)
+					for (int i = 0; i < count; i += 1, dstPtr += 12)
 					{
 #if DEBUG
 						value[i].CheckForNaNs();
@@ -971,7 +985,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				else if (ColumnCount == 4 && RowCount == 3)
 				{
-					for (int i = 0; i < value.Length; i += 1, dstPtr += 12)
+					for (int i = 0; i < count; i += 1, dstPtr += 12)
 					{
 #if DEBUG
 						value[i].CheckForNaNs();
@@ -992,7 +1006,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				else if (ColumnCount == 3 && RowCount == 4)
 				{
-					for (int i = 0; i < value.Length; i += 1, dstPtr += 16)
+					for (int i = 0; i < count; i += 1, dstPtr += 16)
 					{
 #if DEBUG
 						value[i].CheckForNaNs();
@@ -1013,7 +1027,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 				else if (ColumnCount == 2 && RowCount == 2)
 				{
-					for (int i = 0; i < value.Length; i += 1, dstPtr += 8)
+					for (int i = 0; i < count; i += 1, dstPtr += 8)
 					{
 #if DEBUG
 						value[i].CheckForNaNs();
@@ -1055,7 +1069,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				float* dstPtr = (float*) values;
-				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
+				for (int i = 0; i < value.Length && i < GetVectorCount(); i += 1, dstPtr += 4)
 				{
 #if DEBUG
 					value[i].CheckForNaNs();
@@ -1094,7 +1108,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 #endif
-			for (int i = 0, j = 0; i < value.Length; i += ColumnCount, j += 16)
+			for (int i = 0, j = 0; i < value.Length && i < GetScalarCount(); i += ColumnCount, j += 16)
 			{
 				Marshal.Copy(value, i, values + j, ColumnCount);
 			}
@@ -1139,7 +1153,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				float* dstPtr = (float*) values;
-				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
+				for (int i = 0; i < value.Length && i < GetVectorCount(); i += 1, dstPtr += 4)
 				{
 #if DEBUG
 					value[i].CheckForNaNs();
@@ -1169,7 +1183,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				float* dstPtr = (float*) values;
-				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
+				for (int i = 0; i < value.Length && i < GetVectorCount(); i += 1, dstPtr += 4)
 				{
 #if DEBUG
 					value[i].CheckForNaNs();
@@ -1201,7 +1215,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			unsafe
 			{
 				float* dstPtr = (float*) values;
-				for (int i = 0; i < value.Length; i += 1, dstPtr += 4)
+				for (int i = 0; i < value.Length && i < GetVectorCount(); i += 1, dstPtr += 4)
 				{
 #if DEBUG
 					value[i].CheckForNaNs();
