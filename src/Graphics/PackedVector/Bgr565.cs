@@ -167,9 +167,9 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		private static ushort Pack(float x, float y, float z)
 		{
 			return (ushort) (
-				(((ushort) Math.Round(MathHelper.Clamp(x, 0, 1) * 31.0f)) << 11) |
-				(((ushort) Math.Round(MathHelper.Clamp(y, 0, 1) * 63.0f)) << 5) |
-				((ushort) Math.Round(MathHelper.Clamp(z, 0, 1) * 31.0f))
+				(((int) Math.Round(MathHelper.Clamp(x, 0, 1) * 31.0f)) << 11) |
+				(((int) Math.Round(MathHelper.Clamp(y, 0, 1) * 63.0f)) << 5) |
+				((int) Math.Round(MathHelper.Clamp(z, 0, 1) * 31.0f))
 			);
 		}
 
