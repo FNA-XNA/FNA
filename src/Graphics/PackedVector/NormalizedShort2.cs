@@ -123,14 +123,14 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 			uint word2 = (uint) (
 				(int) MathHelper.Clamp(
-					(float) Math.Round(x * max),
+					MathF.Round(x * max),
 					min,
 					max
 				) & 0xFFFF
 			);
 			uint word1 = (uint) ((
 				(int) MathHelper.Clamp(
-					(float) Math.Round(y * max),
+					MathF.Round(y * max),
 					min,
 					max
 				) & 0xFFFF

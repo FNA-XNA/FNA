@@ -120,28 +120,28 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 			ulong word4 = (
 				(ulong) MathHelper.Clamp(
-					(float) Math.Round(x * max),
+					MathF.Round(x * max),
 					min,
 					max
 				) & 0xFFFF
 			);
 			ulong word3 = (
 				(ulong) MathHelper.Clamp(
-					(float) Math.Round(y * max),
+					MathF.Round(y * max),
 					min,
 					max
 				) & 0xFFFF
 			) << 0x10;
 			ulong word2 = (
 				(ulong) MathHelper.Clamp(
-					(float) Math.Round(z * max),
+					MathF.Round(z * max),
 					min,
 					max
 				) & 0xFFFF
 			) << 0x20;
 			ulong word1 = (
 				(ulong) MathHelper.Clamp(
-					(float) Math.Round(w * max),
+					MathF.Round(w * max),
 					min,
 					max
 				) & 0xFFFF

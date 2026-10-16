@@ -405,4 +405,16 @@ namespace Microsoft.Xna.Framework
 
 		#endregion
 	}
+
+	#region MathF
+#if !NETCOREAPP2_0_OR_GREATER
+	static class MathF
+	{
+		internal static float Round(float x)
+		{
+			return (float) Math.Round(x);
+		}
+	}
+#endif
+	#endregion
 }
