@@ -575,16 +575,6 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#region Public Set Methods
 
-		private int GetScalarCount()
-		{
-			return RowCount * ColumnCount * (elementCount == 0 ? 1 : elementCount);
-		}
-
-		private int GetVectorCount()
-		{
-			return RowCount * (elementCount == 0 ? 1 : elementCount);
-		}
-
 		public void SetValue(bool value)
 		{
 			unsafe
@@ -597,10 +587,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(bool[] value)
 		{
+			int count = Math.Min(value.Length, GetScalarCount());
 			unsafe
 			{
 				int* dstPtr = (int*) values;
-				for (int i = 0; i < value.Length && i < GetScalarCount(); dstPtr += 4)
+				for (int i = 0; i < count; dstPtr += 4)
 				{
 					for (int j = 0; j < ColumnCount; j += 1, i += 1)
 					{
@@ -633,7 +624,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(int[] value)
 		{
-			for (int i = 0, j = 0; i < value.Length && i < GetScalarCount(); i += ColumnCount, j += 16)
+			int count = Math.Min(value.Length, GetScalarCount());
+			for (int i = 0, j = 0; i < count; i += ColumnCount, j += 16)
 			{
 				Marshal.Copy(value, i, values + j, ColumnCount);
 			}
@@ -1066,10 +1058,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Quaternion[] value)
 		{
+			int count = Math.Min(value.Length, GetVectorCount());
 			unsafe
 			{
 				float* dstPtr = (float*) values;
-				for (int i = 0; i < value.Length && i < GetVectorCount(); i += 1, dstPtr += 4)
+				for (int i = 0; i < count; i += 1, dstPtr += 4)
 				{
 #if DEBUG
 					value[i].CheckForNaNs();
@@ -1108,7 +1101,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				}
 			}
 #endif
-			for (int i = 0, j = 0; i < value.Length && i < GetScalarCount(); i += ColumnCount, j += 16)
+			int count = Math.Min(value.Length, GetScalarCount());
+			for (int i = 0, j = 0; i < count; i += ColumnCount, j += 16)
 			{
 				Marshal.Copy(value, i, values + j, ColumnCount);
 			}
@@ -1150,10 +1144,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Vector2[] value)
 		{
+			int count = Math.Min(value.Length, GetVectorCount());
 			unsafe
 			{
 				float* dstPtr = (float*) values;
-				for (int i = 0; i < value.Length && i < GetVectorCount(); i += 1, dstPtr += 4)
+				for (int i = 0; i < count; i += 1, dstPtr += 4)
 				{
 #if DEBUG
 					value[i].CheckForNaNs();
@@ -1180,10 +1175,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Vector3[] value)
 		{
+			int count = Math.Min(value.Length, GetVectorCount());
 			unsafe
 			{
 				float* dstPtr = (float*) values;
-				for (int i = 0; i < value.Length && i < GetVectorCount(); i += 1, dstPtr += 4)
+				for (int i = 0; i < count; i += 1, dstPtr += 4)
 				{
 #if DEBUG
 					value[i].CheckForNaNs();
@@ -1212,10 +1208,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public void SetValue(Vector4[] value)
 		{
+			int count = Math.Min(value.Length, GetVectorCount());
 			unsafe
 			{
 				float* dstPtr = (float*) values;
-				for (int i = 0; i < value.Length && i < GetVectorCount(); i += 1, dstPtr += 4)
+				for (int i = 0; i < count; i += 1, dstPtr += 4)
 				{
 #if DEBUG
 					value[i].CheckForNaNs();
@@ -1226,6 +1223,20 @@ namespace Microsoft.Xna.Framework.Graphics
 					dstPtr[3] = value[i].W;
 				}
 			}
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private int GetScalarCount()
+		{
+			return RowCount * ColumnCount * (elementCount == 0 ? 1 : elementCount);
+		}
+
+		private int GetVectorCount()
+		{
+			return RowCount * (elementCount == 0 ? 1 : elementCount);
 		}
 
 		#endregion
