@@ -58,10 +58,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		{
 			const float maxVal = 0x7FFF;
 
-			return new Vector2(
-				(short) (packedValue & 0xFFFF) / maxVal,
+			return unchecked(new Vector2(
+				(short) (packedValue) / maxVal,
 				(short) (packedValue >> 0x10) / maxVal
-			);
+			));
 		}
 
 		#endregion
