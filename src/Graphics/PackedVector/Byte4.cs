@@ -81,10 +81,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector4 ToVector4()
 		{
 			return new Vector4(
-				(packedValue & 0xFF),
-				((packedValue >> 8) & 0xFF),
-				((packedValue >> 16) & 0xFF),
-				(packedValue >> 24)
+				(byte) (packedValue & 0xFF),
+				(byte) (packedValue >> 8 & 0xFF),
+				(byte) (packedValue >> 16 & 0xFF),
+				(byte) (packedValue >> 24)
 			);
 		}
 
