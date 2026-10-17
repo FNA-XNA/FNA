@@ -79,8 +79,8 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector2 ToVector2()
 		{
 			return new Vector2(
-				(packedValue & 0xFFFF) / 65535.0f,
-				(packedValue >> 16) / 65535.0f
+				(ushort) (packedValue & 0xFFFF) / 65535.0f,
+				(ushort) (packedValue >> 16) / 65535.0f
 			);
 		}
 
