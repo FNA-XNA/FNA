@@ -372,6 +372,11 @@ namespace Microsoft.Xna.Framework
 			return value;
 		}
 
+		internal static float UnsafeMin(float value1, float value2)
+		{
+			return value1 > value2 ? value2 : value1;
+		}
+
 		internal static bool WithinEpsilon(float floatA, float floatB)
 		{
 			return Math.Abs(floatA - floatB) < FloatEpsilon;
