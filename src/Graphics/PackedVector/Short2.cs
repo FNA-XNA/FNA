@@ -56,10 +56,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		public Vector2 ToVector2()
 		{
-			return new Vector2(
-				(short) (packedValue & 0xFFFF),
+			return unchecked(new Vector2(
+				(short) (packedValue),
 				(short) (packedValue >> 16)
-			);
+			));
 		}
 
 		#endregion

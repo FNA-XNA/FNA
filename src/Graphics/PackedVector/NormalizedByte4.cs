@@ -56,12 +56,12 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		public Vector4 ToVector4()
 		{
-			return new Vector4(
-				((sbyte) (packedValue & 0xFF)) / 127.0f,
-				((sbyte) ((packedValue >> 8) & 0xFF)) / 127.0f,
-				((sbyte) ((packedValue >> 16) & 0xFF)) / 127.0f,
-				((sbyte) ((packedValue >> 24) & 0xFF)) / 127.0f
-			);
+			return unchecked(new Vector4(
+				(sbyte) (packedValue) / 127.0f,
+				(sbyte) (packedValue >> 8) / 127.0f,
+				(sbyte) (packedValue >> 16) / 127.0f,
+				(sbyte) (packedValue >> 24) / 127.0f
+			));
 		}
 
 		#endregion
