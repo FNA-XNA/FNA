@@ -1563,11 +1563,11 @@ namespace Microsoft.Xna.Framework
 		/// <param name="color">A <see cref="Vector4"/> representing a color.</param>
 		public Color(Vector4 color)
 		{
-			packedValue = (
-				(uint) Math.Round(MathHelper.Clamp(color.X, 0f, 1f) * byte.MaxValue) |
-				(uint) Math.Round(MathHelper.Clamp(color.Y, 0f, 1f) * byte.MaxValue) << 8 |
-				(uint) Math.Round(MathHelper.Clamp(color.Z, 0f, 1f) * byte.MaxValue) << 16 |
-				(uint) Math.Round(MathHelper.Clamp(color.W, 0f, 1f) * byte.MaxValue) << 24
+			packedValue = (uint) (
+				(byte) Math.Round(MathHelper.Clamp(color.X, 0f, 1f) * byte.MaxValue) |
+				(byte) Math.Round(MathHelper.Clamp(color.Y, 0f, 1f) * byte.MaxValue) << 8 |
+				(byte) Math.Round(MathHelper.Clamp(color.Z, 0f, 1f) * byte.MaxValue) << 16 |
+				(byte) Math.Round(MathHelper.Clamp(color.W, 0f, 1f) * byte.MaxValue) << 24
 			);
 		}
 
@@ -1577,11 +1577,11 @@ namespace Microsoft.Xna.Framework
 		/// <param name="color">A <see cref="Vector3"/> representing a color.</param>
 		public Color(Vector3 color)
 		{
-			packedValue = (
-				(uint) Math.Round(MathHelper.Clamp(color.X, 0f, 1f) * byte.MaxValue) |
-				(uint) Math.Round(MathHelper.Clamp(color.Y, 0f, 1f) * byte.MaxValue) << 8 |
-				(uint) Math.Round(MathHelper.Clamp(color.Z, 0f, 1f) * byte.MaxValue) << 16 |
-				0xFF000000u
+			packedValue = (uint) (
+				(byte) Math.Round(MathHelper.Clamp(color.X, 0f, 1f) * byte.MaxValue) |
+				(byte) Math.Round(MathHelper.Clamp(color.Y, 0f, 1f) * byte.MaxValue) << 8 |
+				(byte) Math.Round(MathHelper.Clamp(color.Z, 0f, 1f) * byte.MaxValue) << 16 |
+				0xFF << 24
 			);
 		}
 
@@ -1593,11 +1593,11 @@ namespace Microsoft.Xna.Framework
 		/// <param name="b">Blue component value from 0.0f to 1.0f.</param>
 		public Color(float r, float g, float b)
 		{
-			packedValue = (
-				(uint) Math.Round(MathHelper.Clamp(r, 0f, 1f) * byte.MaxValue) |
-				(uint) Math.Round(MathHelper.Clamp(g, 0f, 1f) * byte.MaxValue) << 8 |
-				(uint) Math.Round(MathHelper.Clamp(b, 0f, 1f) * byte.MaxValue) << 16 |
-				0xFF000000u
+			packedValue = (uint) (
+				(byte) Math.Round(MathHelper.Clamp(r, 0f, 1f) * byte.MaxValue) |
+				(byte) Math.Round(MathHelper.Clamp(g, 0f, 1f) * byte.MaxValue) << 8 |
+				(byte) Math.Round(MathHelper.Clamp(b, 0f, 1f) * byte.MaxValue) << 16 |
+				0xFF << 24
 			);
 		}
 
@@ -1643,11 +1643,11 @@ namespace Microsoft.Xna.Framework
 		/// <param name="alpha">Alpha component value from 0.0f to 1.0f.</param>
 		public Color(float r, float g, float b, float alpha)
 		{
-			packedValue = (
-				(uint) Math.Round(MathHelper.Clamp(r, 0f, 1f) * byte.MaxValue) |
-				(uint) Math.Round(MathHelper.Clamp(g, 0f, 1f) * byte.MaxValue) << 8 |
-				(uint) Math.Round(MathHelper.Clamp(b, 0f, 1f) * byte.MaxValue) << 16 |
-				(uint) Math.Round(MathHelper.Clamp(alpha, 0f, 1f) * byte.MaxValue) << 24
+			packedValue = (uint) (
+				(byte) Math.Round(MathHelper.Clamp(r, 0f, 1f) * byte.MaxValue) |
+				(byte) Math.Round(MathHelper.Clamp(g, 0f, 1f) * byte.MaxValue) << 8 |
+				(byte) Math.Round(MathHelper.Clamp(b, 0f, 1f) * byte.MaxValue) << 16 |
+				(byte) Math.Round(MathHelper.Clamp(alpha, 0f, 1f) * byte.MaxValue) << 24
 			);
 		}
 
@@ -1862,11 +1862,11 @@ namespace Microsoft.Xna.Framework
 		/// <param name="vector">A four-component color.</param>
 		void IPackedVector.PackFromVector4(Vector4 vector)
 		{
-			packedValue = (
-				(uint) Math.Round(MathHelper.Clamp(vector.X, 0f, 1f) * byte.MaxValue) |
-				(uint) Math.Round(MathHelper.Clamp(vector.Y, 0f, 1f) * byte.MaxValue) << 8 |
-				(uint) Math.Round(MathHelper.Clamp(vector.Z, 0f, 1f) * byte.MaxValue) << 16 |
-				(uint) Math.Round(MathHelper.Clamp(vector.W, 0f, 1f) * byte.MaxValue) << 24
+			packedValue = (uint) (
+				(byte) Math.Round(MathHelper.Clamp(vector.X, 0f, 1f) * byte.MaxValue) |
+				(byte) Math.Round(MathHelper.Clamp(vector.Y, 0f, 1f) * byte.MaxValue) << 8 |
+				(byte) Math.Round(MathHelper.Clamp(vector.Z, 0f, 1f) * byte.MaxValue) << 16 |
+				(byte) Math.Round(MathHelper.Clamp(vector.W, 0f, 1f) * byte.MaxValue) << 24
 			);
 		}
 
