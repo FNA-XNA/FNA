@@ -78,10 +78,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>The packed vector in Vector2 format</returns>
 		public Vector2 ToVector2()
 		{
-			return new Vector2(
-				(packedValue & 0xFFFF) / 65535.0f,
-				(packedValue >> 16) / 65535.0f
-			);
+			return unchecked(new Vector2(
+				(ushort) (packedValue) / 65535.0f,
+				(ushort) (packedValue >> 16) / 65535.0f
+			));
 		}
 
 		#endregion

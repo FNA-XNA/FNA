@@ -80,12 +80,12 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		/// <returns>The expanded vector.</returns>
 		public Vector4 ToVector4()
 		{
-			return new Vector4(
-				(packedValue & 0xFF),
-				((packedValue >> 8) & 0xFF),
-				((packedValue >> 16) & 0xFF),
-				(packedValue >> 24)
-			);
+			return unchecked(new Vector4(
+				(byte) (packedValue),
+				(byte) (packedValue >> 8),
+				(byte) (packedValue >> 16),
+				(byte) (packedValue >> 24)
+			));
 		}
 
 		#endregion
