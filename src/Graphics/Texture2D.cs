@@ -199,8 +199,8 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (rect.HasValue)
 			{
 				if (
-					rect.Value.X < 0 || rect.Value.Width <= 0 || rect.Value.Right < w ||
-					rect.Value.Y < 0 || rect.Value.Height <= 0 || rect.Value.Bottom < h
+					rect.Value.X < 0 || rect.Value.Width <= 0 || rect.Value.Right > w ||
+					rect.Value.Y < 0 || rect.Value.Height <= 0 || rect.Value.Bottom > h
 				) {
 					throw new ArgumentException("The rectangle is too large or too small for this resource.", "rect");
 				}
