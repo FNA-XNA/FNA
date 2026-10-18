@@ -40,10 +40,7 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				unchecked
-				{
-					return (byte) (this.packedValue >> 16);
-				}
+				return unchecked((byte) (this.packedValue >> 16));
 			}
 			set
 			{
@@ -58,10 +55,7 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				unchecked
-				{
-					return (byte) (this.packedValue >> 8);
-				}
+				return unchecked((byte) (this.packedValue >> 8));
 			}
 			set
 			{
@@ -76,10 +70,7 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				unchecked
-				{
-					return (byte) (this.packedValue);
-				}
+				return unchecked((byte) (this.packedValue));
 			}
 			set
 			{
@@ -94,10 +85,7 @@ namespace Microsoft.Xna.Framework
 		{
 			get
 			{
-				unchecked
-				{
-					return (byte) (this.packedValue >> 24);
-				}
+				return unchecked((byte) (this.packedValue >> 24));
 			}
 			set
 			{
