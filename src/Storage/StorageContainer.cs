@@ -86,7 +86,7 @@ namespace Microsoft.Xna.Framework.Storage
 			StorageDevice device,
 			string name,
 			string rootPath,
-			PlayerIndex? playerIndex
+			PlayerIndex playerIndex
 		) {
 			if (string.IsNullOrEmpty(name))
 			{
@@ -106,9 +106,9 @@ namespace Microsoft.Xna.Framework.Storage
 			storagePath = Path.Combine(
 				rootPath,		// Title folder (EXE name)...
 				name,			// Container folder...
-				playerIndex.HasValue ?	// Player folder...
-					("Player" + ((int) playerIndex.Value + 1).ToString()) :
-					"AllPlayers"
+				playerIndex == StorageDevice.AllPlayers ?  // Player folder...
+					"AllPlayers":
+					("Player" + ((int) playerIndex + 1).ToString())
 			);
 
 			// Create the folders, if needed.
