@@ -121,7 +121,6 @@ namespace Microsoft.Xna.Framework.Storage
 
 		#region Internal Const
 
-		// 255 mean AllPlayers in XNA
 		internal const PlayerIndex AllPlayers = (PlayerIndex) 255;
 
 		#endregion
