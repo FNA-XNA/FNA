@@ -108,7 +108,7 @@ namespace Microsoft.Xna.Framework.Storage
 
 		#region Private Variables
 
-		private PlayerIndex? devicePlayer;
+		private PlayerIndex devicePlayer;
 
 		#endregion
 
@@ -177,9 +177,9 @@ namespace Microsoft.Xna.Framework.Storage
 
 		private class ShowSelectorLie : NotAsyncLie
 		{
-			public readonly PlayerIndex? PlayerIndex;
+			public readonly PlayerIndex PlayerIndex;
 
-			public ShowSelectorLie(object state, PlayerIndex? playerIndex) : base(state)
+			public ShowSelectorLie(object state, PlayerIndex playerIndex) : base(state)
 			{
 				PlayerIndex = playerIndex;
 			}
@@ -199,7 +199,7 @@ namespace Microsoft.Xna.Framework.Storage
 
 		#region Internal Constructors
 
-		internal StorageDevice(PlayerIndex? player)
+		internal StorageDevice(PlayerIndex player)
 		{
 			devicePlayer = player;
 		}
@@ -300,7 +300,7 @@ namespace Microsoft.Xna.Framework.Storage
 			AsyncCallback callback,
 			object state
 		) {
-			IAsyncResult result = new ShowSelectorLie(state, null);
+			IAsyncResult result = new ShowSelectorLie(state, (PlayerIndex) 255);
 			if (callback != null)
 			{
 				callback(result);
@@ -324,6 +324,10 @@ namespace Microsoft.Xna.Framework.Storage
 			AsyncCallback callback,
 			object state
 		) {
+			if (unchecked((uint) player) > 3 && player != (PlayerIndex) 255)
+			{
+				throw new ArgumentOutOfRangeException("player");
+			}
 			IAsyncResult result = new ShowSelectorLie(state, player);
 			if (callback != null)
 			{
