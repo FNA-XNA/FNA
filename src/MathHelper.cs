@@ -154,7 +154,8 @@ namespace Microsoft.Xna.Framework
 			{
 				value = max;
 			}
-			else if (value < min) // Then we check to see if we're less than the min.
+
+			if (value < min) // Then we check to see if we're less than the min.
 			{
 				value = min;
 			}
