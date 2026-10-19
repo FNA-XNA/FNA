@@ -119,6 +119,13 @@ namespace Microsoft.Xna.Framework.Storage
 
 		#endregion
 
+		#region Internal Const
+
+		// 255 mean AllPlayers in XNA
+		internal const PlayerIndex AllPlayers = (PlayerIndex) 255;
+
+		#endregion
+
 		#region Events
 
 		/// <summary>
@@ -300,7 +307,7 @@ namespace Microsoft.Xna.Framework.Storage
 			AsyncCallback callback,
 			object state
 		) {
-			IAsyncResult result = new ShowSelectorLie(state, (PlayerIndex) 255);
+			IAsyncResult result = new ShowSelectorLie(state, AllPlayers);
 			if (callback != null)
 			{
 				callback(result);
@@ -324,7 +331,7 @@ namespace Microsoft.Xna.Framework.Storage
 			AsyncCallback callback,
 			object state
 		) {
-			if (unchecked((uint) player) > 3 && player != (PlayerIndex) 255)
+			if (unchecked((uint) player) > 3 && player != AllPlayers)
 			{
 				throw new ArgumentOutOfRangeException("player");
 			}
