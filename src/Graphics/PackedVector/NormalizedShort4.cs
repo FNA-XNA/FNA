@@ -118,29 +118,29 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 			const float max = 0x7FFF;
 			const float min = -max;
 
-			ulong word4 = (
-				(ulong) MathHelper.Clamp(
+			ulong word4 = (ulong) (
+				(int) MathHelper.Clamp(
 					(float) Math.Round(x * max),
 					min,
 					max
 				) & 0xFFFF
 			);
-			ulong word3 = (
-				(ulong) MathHelper.Clamp(
+			ulong word3 = (ulong) (
+				(int) MathHelper.Clamp(
 					(float) Math.Round(y * max),
 					min,
 					max
 				) & 0xFFFF
 			) << 0x10;
-			ulong word2 = (
-				(ulong) MathHelper.Clamp(
+			ulong word2 = (ulong) (
+				(int) MathHelper.Clamp(
 					(float) Math.Round(z * max),
 					min,
 					max
 				) & 0xFFFF
 			) << 0x20;
-			ulong word1 = (
-				(ulong) MathHelper.Clamp(
+			ulong word1 = (ulong) (
+				(int) MathHelper.Clamp(
 					(float) Math.Round(w * max),
 					min,
 					max

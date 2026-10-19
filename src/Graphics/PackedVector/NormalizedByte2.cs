@@ -117,15 +117,15 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		private static ushort Pack(float x, float y)
 		{
 			int byte2 = (
-				((ushort)
-					Math.Round(MathHelper.Clamp(x, -1.0f, 1.0f) * 127.0f)
+				((int)
+					Math.Round(MathHelper.Clamp(x, -1.0f, 1.0f) * 127.0f) & 0xFF
 				)
-			) & 0x00FF;
+			);
 			int byte1 = (
-				((ushort)
-					Math.Round(MathHelper.Clamp(y, -1.0f, 1.0f) * 127.0f)
+				((int)
+					Math.Round(MathHelper.Clamp(y, -1.0f, 1.0f) * 127.0f) & 0xFF
 				) << 8
-			) & 0xFF00;
+			);
 
 			return (ushort) (byte2 | byte1);
 		}

@@ -113,26 +113,26 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 
 		private static uint Pack(float x, float y, float z, float w)
 		{
-			uint byte4 = (
-				(uint) Math.Round(MathHelper.Clamp(x, -1.0f, 1.0f) * 127.0f)
-			) & 0x000000FF;
-			uint byte3 = (
+			int byte4 = (
+				(int) Math.Round(MathHelper.Clamp(x, -1.0f, 1.0f) * 127.0f) & 0xFF
+			);
+			int byte3 = (
 				(
-					(uint) Math.Round(MathHelper.Clamp(y, -1.0f, 1.0f) * 127.0f)
+					(int) Math.Round(MathHelper.Clamp(y, -1.0f, 1.0f) * 127.0f) & 0xFF
 				) << 8
-			) & 0x0000FF00;
-			uint byte2 = (
+			);
+			int byte2 = (
 				(
-					(uint) Math.Round(MathHelper.Clamp(z, -1.0f, 1.0f) * 127.0f)
+					(int) Math.Round(MathHelper.Clamp(z, -1.0f, 1.0f) * 127.0f) & 0xFF
 				) << 16
-			) & 0x00FF0000;
-			uint byte1 = (
+			);
+			int byte1 = (
 				(
-					(uint) Math.Round(MathHelper.Clamp(w, -1.0f, 1.0f) * 127.0f)
+					(int) Math.Round(MathHelper.Clamp(w, -1.0f, 1.0f) * 127.0f)
 				) << 24
-			) & 0xFF000000;
+			);
 
-			return byte4 | byte3 | byte2 | byte1;
+			return (uint) (byte4 | byte3 | byte2 | byte1);
 		}
 
 		#endregion
