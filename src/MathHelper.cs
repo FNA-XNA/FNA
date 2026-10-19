@@ -13,6 +13,10 @@
 
 #region Using Statements
 using System;
+#if NETCOREAPP3_0_OR_GREATER
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
+#endif
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -150,11 +154,20 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The clamped value.</returns>
 		public static float Clamp(float value, float min, float max)
 		{
+#if NETCOREAPP3_0_OR_GREATER
+			if (Sse.IsSupported)
+			{
+				return Sse.MaxScalar(
+					Vector128.CreateScalarUnsafe(min),
+					Sse.MinScalar(Vector128.CreateScalarUnsafe(max), Vector128.CreateScalarUnsafe(value))
+				).ToScalar();
+			}
+#endif
 			if (value > max) // First we check to see if we're greater than the max.
 			{
 				value = max;
 			}
-			else if (value < min) // Then we check to see if we're less than the min.
+			if (value < min) // Then we check to see if we're less than the min.
 			{
 				value = min;
 			}
@@ -249,6 +262,17 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The greater value.</returns>
 		public static float Max(float value1, float value2)
 		{
+#if NETCOREAPP3_0_OR_GREATER
+			if (Sse41.IsSupported)
+			{
+				Vector128<float> v1 = Vector128.CreateScalarUnsafe(value1);
+				return Sse41.BlendVariable(
+					Sse41.MaxScalar(v1, Vector128.CreateScalarUnsafe(value2)),
+					v1,
+					Sse41.CompareScalarUnordered(v1, v1)
+				).ToScalar();
+			}
+#endif
 			if (value1 > value2)
 			{
 				return value1;
@@ -268,6 +292,17 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The lesser value.</returns>
 		public static float Min(float value1, float value2)
 		{
+#if NETCOREAPP3_0_OR_GREATER
+			if (Sse41.IsSupported)
+			{
+				Vector128<float> v1 = Vector128.CreateScalarUnsafe(value1);
+				return Sse41.BlendVariable(
+					Sse41.MinScalar(v1, Vector128.CreateScalarUnsafe(value2)),
+					v1,
+					Sse41.CompareScalarUnordered(v1, v1)
+				).ToScalar();
+			}
+#endif
 			if (value1 < value2)
 			{
 				return value1;
