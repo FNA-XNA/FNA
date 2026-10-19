@@ -331,7 +331,7 @@ namespace Microsoft.Xna.Framework.Storage
 			AsyncCallback callback,
 			object state
 		) {
-			if (unchecked((uint) player) > 3 && player != AllPlayers)
+			if (player < PlayerIndex.One)
 			{
 				throw new ArgumentOutOfRangeException("player");
 			}
