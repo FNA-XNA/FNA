@@ -9,7 +9,6 @@
 
 #region Using Statements
 using System;
-using System.Runtime.InteropServices;
 #endregion
 
 namespace Microsoft.Xna.Framework.Audio
@@ -76,7 +75,7 @@ namespace Microsoft.Xna.Framework.Audio
 					FAudio.FAudioVoice_SetOutputMatrix(
 						handle,
 						SoundEffect.Device().MasterVoice,
-						dspSettings.SrcChannelCount,
+						Channels,
 						dspSettings.DstChannelCount,
 						dspSettings.pMatrixCoefficients,
 						0
@@ -165,6 +164,18 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#endregion
 
+		#region Internal Property
+
+		internal virtual uint Channels
+		{
+			get
+			{
+				return parentEffect.channels;
+			}
+		}
+
+		#endregion
+
 		#region Internal Variables
 
 		internal IntPtr handle;
@@ -206,7 +217,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (parentEffect != null)
 			{
-				InitDSPSettings(parentEffect.channels);
+				InitDSPSettings();
 				parentEffect.Instances.Add(selfReference);
 			}
 			else
@@ -241,15 +252,20 @@ namespace Microsoft.Xna.Framework.Audio
 			GC.SuppressFinalize(this);
 		}
 
-		public void Apply3D(AudioListener listener, AudioEmitter emitter)
+		public unsafe void Apply3D(AudioListener[] listeners, AudioEmitter emitter)
 		{
-			if (listener == null)
+			if (listeners == null || listeners.Length == 0)
 			{
-				throw new ArgumentNullException("listener");
+				throw new ArgumentNullException("listeners");
 			}
 			if (emitter == null)
 			{
 				throw new ArgumentNullException("emitter");
+			}
+			AudioListener listener = listeners[0];
+			if (listener == null)
+			{
+				throw new ArgumentNullException("listener");
 			}
 			if (IsDisposed)
 			{
@@ -261,28 +277,83 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new InvalidOperationException("The sound is not a 3D sound. Call Apply3D before the first Play call to configure it to be a 3D sound.");
 			}
+			if (Channels > 2)
+			{
+				throw new InvalidOperationException("An unexpected error has occurred.");
+			}
 
 			is3D = true;
 			SoundEffect.FAudioContext dev = SoundEffect.Device();
-			emitter.emitterData.CurveDistanceScaler = dev.CurveDistanceScaler;
-			emitter.emitterData.ChannelCount = dspSettings.SrcChannelCount;
+
+			FAudio.F3DAUDIO_EMITTER emitterData = emitter.emitterData;
+			emitterData.InnerRadius = dev.CurveDistanceScaler;
+			emitterData.InnerRadiusAngle = (float) Math.PI / 6f;
+			emitterData.ChannelCount = 1;
+			emitterData.CurveDistanceScaler = dev.CurveDistanceScaler;
+			emitterData.DopplerScaler *= dev.DopplerScale;
+
+			uint flags = FAudio.F3DAUDIO_CALCULATE_MATRIX | FAudio.F3DAUDIO_CALCULATE_ZEROCENTER;
+			if (emitterData.DopplerScaler != 0)
+			{
+				flags |= FAudio.F3DAUDIO_CALCULATE_DOPPLER;
+			}
+
 			FAudio.F3DAudioCalculate(
 				dev.Handle3D,
 				ref listener.listenerData,
-				ref emitter.emitterData,
-				(
-					FAudio.F3DAUDIO_CALCULATE_MATRIX |
-					FAudio.F3DAUDIO_CALCULATE_DOPPLER
-				),
+				ref emitterData,
+				flags,
 				ref dspSettings
 			);
+			if (listeners.Length > 1)
+			{
+				float* pMatrixCoefficients1 = (float*) dspSettings.pMatrixCoefficients;
+				dspSettings.pMatrixCoefficients = FNAPlatform.Malloc((int) (4 * Channels * dspSettings.DstChannelCount));
+				float* pMatrixCoefficients2 = (float*) dspSettings.pMatrixCoefficients;
+
+				float DopplerFactor = dspSettings.DopplerFactor;
+
+				for (int num = 1; num < listeners.Length; num++)
+				{
+					FAudio.F3DAudioCalculate(
+						dev.Handle3D,
+						ref listeners[num].listenerData,
+						ref emitterData,
+						flags,
+						ref dspSettings
+					);
+					for (int dstChannelIndex = 0; dstChannelIndex < dspSettings.DstChannelCount; dstChannelIndex++)
+					{
+						pMatrixCoefficients1[dstChannelIndex] = (pMatrixCoefficients1[dstChannelIndex] * num + pMatrixCoefficients2[dstChannelIndex]) / (num + 1);
+					}
+					DopplerFactor = (num * DopplerFactor + dspSettings.DopplerFactor) / (num + 1);
+				}
+				FNAPlatform.Free(dspSettings.pMatrixCoefficients);
+				dspSettings.pMatrixCoefficients = (IntPtr) pMatrixCoefficients1;
+				dspSettings.DopplerFactor = DopplerFactor;
+			}
+			if (Channels == 2)
+			{
+				for (uint i = dspSettings.DstChannelCount - 1; i > 0; i--)
+				{
+					((float*) dspSettings.pMatrixCoefficients)[2*i+1] = ((float*) dspSettings.pMatrixCoefficients)[i] * 0.70710677f;
+					((float*) dspSettings.pMatrixCoefficients)[2*i] = ((float*) dspSettings.pMatrixCoefficients)[i] * 0.70710677f;
+				}
+			}
 			if (handle != IntPtr.Zero)
 			{
-				UpdatePitch();
+				if (emitterData.DopplerScaler != 0)
+				{
+					FAudio.FAudioSourceVoice_SetFrequencyRatio(
+						handle,
+						dspSettings.DopplerFactor,
+						0
+					);
+				}
 				FAudio.FAudioVoice_SetOutputMatrix(
 					handle,
 					SoundEffect.Device().MasterVoice,
-					dspSettings.SrcChannelCount,
+					Channels,
 					dspSettings.DstChannelCount,
 					dspSettings.pMatrixCoefficients,
 					0
@@ -290,18 +361,9 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 		}
 
-		public void Apply3D(AudioListener[] listeners, AudioEmitter emitter)
+		public void Apply3D(AudioListener listener, AudioEmitter emitter)
 		{
-			if (listeners == null)
-			{
-				throw new ArgumentNullException("listeners");
-			}
-			if (listeners.Length == 1)
-			{
-				Apply3D(listeners[0], emitter);
-				return;
-			}
-			throw new NotSupportedException("Only one listener is supported.");
+			Apply3D(new AudioListener[1] { listener }, emitter);
 		}
 
 		public virtual void Play()
@@ -364,7 +426,7 @@ namespace Microsoft.Xna.Framework.Audio
 				FAudio.FAudioVoice_SetOutputMatrix(
 					handle,
 					SoundEffect.Device().MasterVoice,
-					dspSettings.SrcChannelCount,
+					Channels,
 					dspSettings.DstChannelCount,
 					dspSettings.pMatrixCoefficients,
 					0
@@ -504,16 +566,16 @@ namespace Microsoft.Xna.Framework.Audio
 
 		#region Internal Methods
 
-		internal void InitDSPSettings(uint srcChannels)
+		internal void InitDSPSettings()
 		{
 			dspSettings = new FAudio.F3DAUDIO_DSP_SETTINGS();
 			dspSettings.DopplerFactor = 1.0f;
-			dspSettings.SrcChannelCount = srcChannels;
+			dspSettings.SrcChannelCount = 1;
 			dspSettings.DstChannelCount = SoundEffect.Device().DeviceDetails.OutputFormat.Format.nChannels;
 
 			int memsize = (
 				4 *
-				(int) dspSettings.SrcChannelCount *
+				(int) Channels *
 				(int) dspSettings.DstChannelCount
 			);
 			dspSettings.pMatrixCoefficients = FNAPlatform.Malloc(memsize);
@@ -544,14 +606,14 @@ namespace Microsoft.Xna.Framework.Audio
 			// Re-using this float array...
 			float* outputMatrix = (float*) dspSettings.pMatrixCoefficients;
 			outputMatrix[0] = rvGain;
-			if (dspSettings.SrcChannelCount == 2)
+			if (Channels == 2)
 			{
 				outputMatrix[1] = rvGain;
 			}
 			FAudio.FAudioVoice_SetOutputMatrix(
 				handle,
 				SoundEffect.Device().ReverbVoice,
-				dspSettings.SrcChannelCount,
+				Channels,
 				1,
 				dspSettings.pMatrixCoefficients,
 				0
@@ -618,20 +680,19 @@ namespace Microsoft.Xna.Framework.Audio
 
 		private void UpdatePitch()
 		{
-			float doppler;
-			float dopplerScale = SoundEffect.Device().DopplerScale;
-			if (!is3D || dopplerScale == 0.0f)
+			float ratio;
+			if (!is3D || dspSettings.DopplerFactor == 0.0f)
 			{
-				doppler = 1.0f;
+				ratio = (float) Math.Pow(2.0, INTERNAL_pitch);
 			}
 			else
 			{
-				doppler = dspSettings.DopplerFactor * dopplerScale;
+				ratio = dspSettings.DopplerFactor;
 			}
 
 			FAudio.FAudioSourceVoice_SetFrequencyRatio(
 				handle,
-				(float) Math.Pow(2.0, INTERNAL_pitch) * doppler,
+				ratio,
 				0
 			);
 		}
@@ -647,7 +708,7 @@ namespace Microsoft.Xna.Framework.Audio
 			 * -flibit
 			 */
 			float* outputMatrix = (float*) dspSettings.pMatrixCoefficients;
-			if (dspSettings.SrcChannelCount == 1)
+			if (Channels == 1)
 			{
 				if (dspSettings.DstChannelCount == 1)
 				{
