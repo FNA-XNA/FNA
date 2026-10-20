@@ -60,6 +60,12 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		#endregion
 
+		#region Internal Variables
+
+		internal bool isActiveRenderTarget = false;
+
+		#endregion
+
 		#region Internal FNA3D Variables
 
 		internal IntPtr texture;
