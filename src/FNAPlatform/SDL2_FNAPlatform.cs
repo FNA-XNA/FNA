@@ -310,7 +310,7 @@ namespace Microsoft.Xna.Framework
 				INTERNAL_AddInstance(evt[0].cdevice.which);
 			}
 
-			if (	OSVersion.Equals("Windows") &&
+			if ((OSVersion.Equals("macOS") || OSVersion.Equals("Windows")) &&
 				SDL.SDL_GetHint("FNA_WIN32_IGNORE_WM_PAINT") != "1"	)
 			{
 				/* Windows has terrible event pumping and doesn't give us
