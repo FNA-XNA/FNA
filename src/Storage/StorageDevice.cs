@@ -358,7 +358,11 @@ namespace Microsoft.Xna.Framework.Storage
 
 		public void DeleteContainer(string titleName)
 		{
-			throw new NotImplementedException();
+			DirectoryInfo directoryInfo = new DirectoryInfo(StorageContainer.GetDirectory(storageRoot, titleName, devicePlayer));
+			if (directoryInfo.Exists)
+			{
+				directoryInfo.Delete(true);
+			}
 		}
 
 		#endregion
