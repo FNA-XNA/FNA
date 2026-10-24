@@ -1,0 +1,37 @@
+﻿<Project>
+  <PropertyGroup>
+    <MSBuildProjectExtensionsPath>obj\FNA\</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+	
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net40;net8.0</TargetFrameworks>
+    <PlatformTarget>x86</PlatformTarget>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="tests\**\*.cs" />
+    <Compile Include="Assert.cs" />
+    <Compile Include="Rpc.cs" />
+    <Compile Include="TestAttributes.cs" />
+    <Compile Include="TestMain.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../FNA.NetFramework.csproj" />
+    <ProjectReference Include="Test.XNA.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <OutputItemType>Content</OutputItemType>
+      <IsAssembly>true</IsAssembly>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Test.XNA.exe</TargetPath>
+    </ProjectReference>
+  </ItemGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+</Project>
