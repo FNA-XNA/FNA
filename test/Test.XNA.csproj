@@ -1,0 +1,33 @@
+﻿<Project>
+  <PropertyGroup>
+    <MSBuildProjectExtensionsPath>obj\XNA\</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net40</TargetFramework>
+    <PlatformTarget>x86</PlatformTarget>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="tests\**\*.cs" />
+    <Compile Include="Assert.cs" />
+    <Compile Include="MainXNA.cs" />
+    <Compile Include="Rpc.cs" />
+    <Compile Include="TestAttributes.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="C:\Windows\Microsoft.NET\assembly\GAC_32\Microsoft.Xna.Framework\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.dll" />
+    <Reference Include="C:\Windows\Microsoft.NET\assembly\GAC_32\Microsoft.Xna.Framework.Game\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Game.dll" />
+    <Reference Include="C:\Windows\Microsoft.NET\assembly\GAC_32\Microsoft.Xna.Framework.Graphics\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Graphics.dll" />
+    <Reference Include="C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Microsoft.Xna.Framework.Storage\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Storage.dll" />
+  </ItemGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+</Project>
