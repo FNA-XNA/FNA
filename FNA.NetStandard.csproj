@@ -4,6 +4,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<EnableDefaultItems>false</EnableDefaultItems>
+		<PackageId>$(MSBuildProjectName)</PackageId>
 		<AssemblyName>FNA</AssemblyName>
 		<RootNamespace>Microsoft.Xna.Framework</RootNamespace>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
