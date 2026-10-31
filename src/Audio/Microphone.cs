@@ -56,9 +56,10 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (	value.TotalMilliseconds < 100 ||
-					value.TotalMilliseconds > 1000 ||
-					value.TotalMilliseconds % 10 != 0	)
+				long ticks = value.Ticks;
+				if (	ticks < 100 * TimeSpan.TicksPerMillisecond ||
+					ticks > 1000 * TimeSpan.TicksPerMillisecond ||
+					ticks % (10 * TimeSpan.TicksPerMillisecond) != 0	)
 				{
 					throw new ArgumentOutOfRangeException("value", "Microphone buffer duration must be between 100ms and 1sec and  10ms aligned.");
 				}
@@ -180,7 +181,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public int GetSampleSizeInBytes(TimeSpan duration)
 		{
-			if (duration.TotalMilliseconds < 0.0 || duration.TotalMilliseconds > int.MaxValue)
+			if (unchecked((ulong) duration.Ticks) > int.MaxValue * TimeSpan.TicksPerMillisecond)
 			{
 				throw new ArgumentOutOfRangeException("duration");
 			}

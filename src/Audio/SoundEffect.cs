@@ -427,7 +427,7 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) {
-			if (duration.TotalMilliseconds < 0.0 || duration.TotalMilliseconds > int.MaxValue)
+			if (unchecked((ulong) duration.Ticks) > int.MaxValue * TimeSpan.TicksPerMillisecond)
 			{
 				throw new ArgumentOutOfRangeException("duration");
 			}
