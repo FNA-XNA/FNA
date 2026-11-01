@@ -3,7 +3,7 @@
 	public static class GameServiceContainerTest
 	{
 		[TestException]
-		public static void Test()
+		public static void TestException()
 		{
 			GameServiceContainer gameServiceContainer = new GameServiceContainer();
 			gameServiceContainer.AddService(typeof(int), 0);
