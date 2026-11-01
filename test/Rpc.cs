@@ -128,24 +128,7 @@ namespace Test
 						.Invoke(new object[] { entries, new StreamingContext(StreamingContextStates.CrossProcess) });
 #pragma warning restore SYSLIB0050
 				case TypeCode.DBNull:
-					Type type;
-					string typeString = reader.ReadString();
-					if (typeString.StartsWith("Microsoft.Xna.Framework."))
-					{
-						type = typeof(Vector4).Assembly.GetType(typeString);
-					}
-					else
-					{
-						type = typeof(object).Assembly.GetType(typeString);
-					}
-					reader.Read(tmpBuffer, 0, Marshal.SizeOf(type));
-					unsafe
-					{
-						fixed (void* p = tmpBuffer)
-						{
-							return Marshal.PtrToStructure((IntPtr) p, type);
-						}
-					}
+					return Enum.ToObject(GetType(reader.ReadString()), reader.ReadInt32());
 				case TypeCode.Boolean:
 					return reader.ReadBoolean();
 				case TypeCode.Char:
@@ -170,6 +153,16 @@ namespace Test
 					return reader.ReadSingle();
 				case TypeCode.Double:
 					return reader.ReadDouble();
+				case TypeCode.DateTime:
+					Type type = GetType(reader.ReadString());
+					reader.Read(tmpBuffer, 0, Marshal.SizeOf(type));
+					unsafe
+					{
+						fixed (void* p = tmpBuffer)
+						{
+							return Marshal.PtrToStructure((IntPtr) p, type);
+						}
+					}
 				case TypeCode.String:
 					return reader.ReadString();
 				default:
@@ -186,11 +179,19 @@ namespace Test
 			}
 			Type type = obj.GetType();
 			TypeCode typeCode = Type.GetTypeCode(type);
-			if (typeCode == TypeCode.Object && obj is ValueType)
+			if (type.IsEnum)
 			{
-				typeCode = TypeCode.DBNull;
+				writer.Write((byte) TypeCode.DBNull);
+				writer.Write(type.FullName);
 			}
-			writer.Write((byte) typeCode);
+			else
+			{
+				if (typeCode == TypeCode.Object && type.IsValueType)
+				{
+					typeCode = TypeCode.DateTime;
+				}
+				writer.Write((byte) typeCode);
+			}
 			switch (typeCode)
 			{
 				case TypeCode.Object:
@@ -204,22 +205,6 @@ namespace Test
 						writer.Write(entry.Name);
 						WriteObject(writer, entry.Value);
 					}
-					break;
-				case TypeCode.DBNull:
-					int size = Marshal.SizeOf(type);
-					if (size > tmpBuffer.Length)
-					{
-						throw new NotSupportedException("struct size too large");
-					}
-					unsafe
-					{
-						fixed (void* p = tmpBuffer)
-						{
-							Marshal.StructureToPtr(obj, (IntPtr) p, false);
-						}
-					}
-					writer.Write(type.FullName);
-					writer.Write(tmpBuffer, 0, size);
 					break;
 				case TypeCode.Boolean:
 					writer.Write((bool) obj);
@@ -257,12 +242,42 @@ namespace Test
 				case TypeCode.Double:
 					writer.Write((double) obj);
 					break;
+				case TypeCode.DateTime:
+					int size = Marshal.SizeOf(type);
+					if (size > tmpBuffer.Length)
+					{
+						throw new NotSupportedException("struct size too large");
+					}
+					unsafe
+					{
+						fixed (void* p = tmpBuffer)
+						{
+							Marshal.StructureToPtr(obj, (IntPtr) p, false);
+						}
+					}
+					writer.Write(type.FullName);
+					writer.Write(tmpBuffer, 0, size);
+					break;
 				case TypeCode.String:
 					writer.Write((string) obj);
 					break;
 				default:
 					throw new NotSupportedException("TypeCode");
 			}
+		}
+
+		static Type GetType(string type)
+		{
+			Type result;
+			if (type.StartsWith("Microsoft.Xna.Framework."))
+			{
+				result = typeof(Vector4).Assembly.GetType(type);
+			}
+			else
+			{
+				result = typeof(object).Assembly.GetType(type);
+			}
+			return result;
 		}
 	}
 }
