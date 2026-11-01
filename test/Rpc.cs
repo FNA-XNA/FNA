@@ -116,17 +116,6 @@ namespace Test
 				case TypeCode.Empty:
 					return null;
 				case TypeCode.Object:
-					string typeString = reader.ReadString();
-					Type type = typeof(Vector4).Assembly.GetType(typeString);
-					reader.Read(tmpBuffer, 0, Marshal.SizeOf(type));
-					unsafe
-					{
-						fixed (void* p = tmpBuffer)
-						{
-							return Marshal.PtrToStructure((IntPtr) p, type);
-						}
-					}
-				case TypeCode.DBNull:
 #pragma warning disable SYSLIB0050
 					SerializationInfo entries = new SerializationInfo(typeof(ISerializable), formatter);
 					int count = reader.ReadByte();
@@ -136,8 +125,27 @@ namespace Test
 					}
 					return Type.GetType(entries.GetString("ClassName"))
 						.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(SerializationInfo), typeof(StreamingContext) }, null)
-						.Invoke(new object[] { entries, new StreamingContext(StreamingContextStates.CrossProcess)});
+						.Invoke(new object[] { entries, new StreamingContext(StreamingContextStates.CrossProcess) });
 #pragma warning restore SYSLIB0050
+				case TypeCode.DBNull:
+					Type type;
+					string typeString = reader.ReadString();
+					if (typeString.StartsWith("Microsoft.Xna.Framework."))
+					{
+						type = typeof(Vector4).Assembly.GetType(typeString);
+					}
+					else
+					{
+						type = typeof(object).Assembly.GetType(typeString);
+					}
+					reader.Read(tmpBuffer, 0, Marshal.SizeOf(type));
+					unsafe
+					{
+						fixed (void* p = tmpBuffer)
+						{
+							return Marshal.PtrToStructure((IntPtr) p, type);
+						}
+					}
 				case TypeCode.Boolean:
 					return reader.ReadBoolean();
 				case TypeCode.Char:
@@ -177,19 +185,27 @@ namespace Test
 				return;
 			}
 			Type type = obj.GetType();
-			TypeCode typeCode;
-			if (obj is ISerializable)
+			TypeCode typeCode = Type.GetTypeCode(type);
+			if (typeCode == TypeCode.Object && obj is ValueType)
 			{
 				typeCode = TypeCode.DBNull;
-			}
-			else
-			{
-				typeCode = Type.GetTypeCode(type);
 			}
 			writer.Write((byte) typeCode);
 			switch (typeCode)
 			{
 				case TypeCode.Object:
+#pragma warning disable SYSLIB0050
+					SerializationInfo entries = new SerializationInfo(typeof(ISerializable), formatter);
+					((ISerializable) obj).GetObjectData(entries, new StreamingContext(StreamingContextStates.CrossProcess));
+#pragma warning restore SYSLIB0050
+					writer.Write((byte) entries.MemberCount);
+					foreach (SerializationEntry entry in entries)
+					{
+						writer.Write(entry.Name);
+						WriteObject(writer, entry.Value);
+					}
+					break;
+				case TypeCode.DBNull:
 					int size = Marshal.SizeOf(type);
 					if (size > tmpBuffer.Length)
 					{
@@ -204,18 +220,6 @@ namespace Test
 					}
 					writer.Write(type.FullName);
 					writer.Write(tmpBuffer, 0, size);
-					break;
-				case TypeCode.DBNull:
-#pragma warning disable SYSLIB0050
-					SerializationInfo entries = new SerializationInfo(typeof(ISerializable), formatter);
-					((ISerializable) obj).GetObjectData(entries, new StreamingContext(StreamingContextStates.CrossProcess));
-#pragma warning restore SYSLIB0050
-					writer.Write((byte) entries.MemberCount);
-					foreach (SerializationEntry entry in entries)
-					{
-						writer.Write(entry.Name);
-						WriteObject(writer, entry.Value);
-					}
 					break;
 				case TypeCode.Boolean:
 					writer.Write((bool) obj);
