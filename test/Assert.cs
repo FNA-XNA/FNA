@@ -53,3 +53,12 @@ static class Assert
 #endif
 	}
 }
+
+static class Helper
+{
+	internal static unsafe float BitIncrement(float value)
+	{
+		uint i = *(uint*) &value + 1;
+		return *(float*) &i;
+	}
+}

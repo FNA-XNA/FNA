@@ -12,6 +12,57 @@ namespace Microsoft.Xna.Framework.Audio
 			//Assert.Throw(() => { new SoundEffect(null, 0, 0, 0, (AudioChannels) (-1), 0, 0).Dispose(); });
 		}
 
+		[Test]
+		public static void Default()
+		{
+			Assert.Result(SoundEffect.DistanceScale);
+			Assert.Result(SoundEffect.DopplerScale);
+			Assert.Result(SoundEffect.MasterVolume);
+			Assert.Result(SoundEffect.SpeedOfSound);
+		}
+
+		[TestException]
+		public static void DistanceScale()
+		{
+			float DistanceScale = SoundEffect.DistanceScale;
+			Assert.Throw(() => { SoundEffect.DistanceScale = float.NaN; });
+			Assert.Throw(() => { SoundEffect.DistanceScale = 0f; });
+			Assert.Throw(() => { SoundEffect.DistanceScale = -float.Epsilon; });
+			SoundEffect.DistanceScale = DistanceScale;
+		}
+
+		[TestException]
+		public static void DopplerScale()
+		{
+			float DopplerScale = SoundEffect.DopplerScale;
+			Assert.Throw(() => { SoundEffect.DopplerScale = float.NaN; });
+			Assert.Throw(() => { SoundEffect.DopplerScale = 0f; });
+			Assert.Throw(() => { SoundEffect.DopplerScale = -float.Epsilon; });
+			SoundEffect.DopplerScale = DopplerScale;
+		}
+
+		[TestException]
+		public static void MasterVolume()
+		{
+			float MasterVolume = SoundEffect.MasterVolume;
+			Assert.Throw(() => { SoundEffect.MasterVolume = float.NaN; });
+			Assert.Throw(() => { SoundEffect.MasterVolume = 0f; });
+			Assert.Throw(() => { SoundEffect.MasterVolume = 1f; });
+			Assert.Throw(() => { SoundEffect.MasterVolume = -float.Epsilon; });
+			Assert.Throw(() => { SoundEffect.MasterVolume = Helper.BitIncrement(1f); });
+			SoundEffect.MasterVolume = MasterVolume;
+		}
+
+		[TestException]
+		public static void SpeedOfSound()
+		{
+			float SpeedOfSound = SoundEffect.SpeedOfSound;
+			Assert.Throw(() => { SoundEffect.SpeedOfSound = float.NaN; });
+			Assert.Throw(() => { SoundEffect.SpeedOfSound = 0f; });
+			Assert.Throw(() => { SoundEffect.SpeedOfSound = float.Epsilon; });
+			SoundEffect.SpeedOfSound = SpeedOfSound;
+		}
+
 		[TestException]
 		public static void FromStream()
 		{

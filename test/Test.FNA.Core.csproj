@@ -9,7 +9,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>Test.FNA</AssemblyName>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <PlatformTarget>x86</PlatformTarget>
     <EnableDefaultItems>False</EnableDefaultItems>
