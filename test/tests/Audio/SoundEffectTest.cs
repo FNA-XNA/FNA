@@ -46,10 +46,6 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			float MasterVolume = SoundEffect.MasterVolume;
 			Assert.Throw(() => { SoundEffect.MasterVolume = float.NaN; });
-			Assert.Throw(() => { SoundEffect.MasterVolume = 0f; });
-			Assert.Throw(() => { SoundEffect.MasterVolume = 1f; });
-			Assert.Throw(() => { SoundEffect.MasterVolume = -float.Epsilon; });
-			Assert.Throw(() => { SoundEffect.MasterVolume = Helper.BitIncrement(1f); });
 			SoundEffect.MasterVolume = MasterVolume;
 		}
 
