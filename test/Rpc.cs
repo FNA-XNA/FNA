@@ -14,7 +14,6 @@ namespace Test
 		public string methodName;
 		public Type[] paramType;
 		public object[] args;
-		public bool TestException;
 
 		internal Request(BinaryReader reader)
 		{
@@ -30,10 +29,9 @@ namespace Test
 			{
 				args[i] = RpcFormatter.ReadObject(reader);
 			}
-			TestException = reader.ReadBoolean();
 		}
 
-		internal static byte[] ToBytes(MethodInfo methodInfo, object[] args, bool TestException)
+		internal static byte[] ToBytes(MethodInfo methodInfo, object[] args)
 		{
 			MemoryStream memoryStream = new MemoryStream();
 			using (BinaryWriter writer = new BinaryWriter(memoryStream))
@@ -58,7 +56,6 @@ namespace Test
 						RpcFormatter.WriteObject(writer, args[i]);
 					}
 				}
-				writer.Write(TestException);
 				return memoryStream.ToArray();
 			}
 		}
@@ -83,7 +80,7 @@ namespace Test
 			}
 		}
 
-		internal byte[] ToBytes(List<object> results, List<Exception> exceptions)
+		internal static byte[] ToBytes(List<object> results, string exception, List<Exception> exceptions)
 		{
 			MemoryStream memoryStream = new MemoryStream();
 			using (BinaryWriter writer = new BinaryWriter(memoryStream))
@@ -94,17 +91,10 @@ namespace Test
 					RpcFormatter.WriteObject(writer, result);
 				}
 				writer.Write(exception);
-				if (exceptions == null)
+				writer.Write((byte) exceptions.Count);
+				for (int i = 0; i < exceptions.Count; i++)
 				{
-					writer.Write((byte) 0);
-				}
-				else
-				{
-					writer.Write((byte) exceptions.Count);
-					for (int i = 0; i < exceptions.Count; i++)
-					{
-						RpcFormatter.WriteObject(writer, exceptions[i]);
-					}
+					RpcFormatter.WriteObject(writer, exceptions[i]);
 				}
 				return memoryStream.ToArray();
 			}

@@ -74,7 +74,7 @@ namespace Test
 						{
 							Assert.results.Clear();
 							Assert.codeResult.Clear();
-							BeginCallMethod(pipeOut, method, null, false);
+							BeginCallMethod(pipeOut, method, null);
 							method.Invoke(null, null);
 							Respose respose = new Respose(reader);
 							if (respose.exception.Length != 0)
@@ -89,7 +89,7 @@ namespace Test
 							Assert.results.Clear();
 							Assert.codeResult.Clear();
 							object[] args = (object[]) attribute.GetType().GetField("args").GetValue(attribute);
-							BeginCallMethod(pipeOut, method, args, false);
+							BeginCallMethod(pipeOut, method, args);
 							method.Invoke(null, args);
 							Respose respose = new Respose(reader);
 							if (respose.exception.Length != 0)
@@ -103,9 +103,8 @@ namespace Test
 						{
 							Assert.exceptions.Clear();
 							Assert.codeException.Clear();
-							BeginCallMethod(pipeOut, method, null, true);
+							BeginCallMethod(pipeOut, method, null);
 							method.Invoke(null, null);
-							List<Exception> exceptions2 = Assert.exceptions;
 							Respose respose = new Respose(reader);
 							if (respose.exception.Length != 0)
 							{
@@ -113,6 +112,7 @@ namespace Test
 								return;
 							}
 							Exception[] exceptions1 = respose.exceptions;
+							List<Exception> exceptions2 = Assert.exceptions;
 							for (int i = 0; i < exceptions1.Length; i++)
 							{
 								Exception exception1 = exceptions1[i];
@@ -133,9 +133,9 @@ namespace Test
 			}
 		}
 
-		static void BeginCallMethod(AnonymousPipeServerStream pipeOut, MethodInfo methodInfo, object[] args, bool TestException)
+		static void BeginCallMethod(AnonymousPipeServerStream pipeOut, MethodInfo methodInfo, object[] args)
 		{
-			byte[] bytes = Request.ToBytes(methodInfo, args, TestException);
+			byte[] bytes = Request.ToBytes(methodInfo, args);
 			pipeOut.Write(bytes, 0, bytes.Length);
 		}
 

@@ -16,41 +16,31 @@ namespace Test
 			AnonymousPipeClientStream pipeOut = new AnonymousPipeClientStream(PipeDirection.Out, args[2]);
 			try
 			{
-				Loop(pipeIn, pipeOut);
+				Assembly assembly = Assembly.GetExecutingAssembly();
+				BinaryReader reader = new BinaryReader(pipeIn, Encoding.ASCII);
+				while (true)
+				{
+					Request request = new Request(reader);
+					Assert.exceptions.Clear();
+					Assert.results.Clear();
+					string exception = "";
+					MethodInfo methodInfo = assembly.GetType(request.classFullName).GetMethod(request.methodName, request.paramType);
+					try
+					{
+						methodInfo.Invoke(null, request.args);
+					}
+					catch (Exception ex)
+					{
+						exception = ex.ToString();
+					}
+					byte[] bytes = Respose.ToBytes(Assert.results, exception, Assert.exceptions);
+					pipeOut.Write(bytes, 0, bytes.Length);
+				}
 			}
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
 				Process.GetProcessById(pid).Kill();
-			}
-		}
-
-		static void Loop(AnonymousPipeClientStream pipeIn, AnonymousPipeClientStream pipeOut)
-		{
-			Assembly assembly = Assembly.GetExecutingAssembly();
-			BinaryReader reader = new BinaryReader(pipeIn, Encoding.ASCII);
-			while (true)
-			{
-				Request request = new Request(reader);
-				Assert.exceptions.Clear();
-				Assert.results.Clear();
-				Respose respose = new Respose();
-				respose.exception = "";
-				MethodInfo methodInfo = assembly.GetType(request.classFullName).GetMethod(request.methodName, request.paramType);
-				try
-				{
-					methodInfo.Invoke(null, request.args);
-				}
-				catch (Exception ex)
-				{
-					respose.exception = ex.ToString();
-				}
-				if (request.TestException)
-				{
-					respose.results = null;
-				}
-				byte[] bytes = respose.ToBytes(Assert.results, Assert.exceptions);
-				pipeOut.Write(bytes, 0, bytes.Length);
 			}
 		}
 	}
