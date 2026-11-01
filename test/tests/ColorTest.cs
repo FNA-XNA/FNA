@@ -16,14 +16,10 @@ namespace Microsoft.Xna.Framework
 		public static void ColorCtor(float r, float g, float b, float a)
 		{
 			Assert.Result(new Color(r, g, b, a));
-			Assert.Result(new Color(new Vector4(r, g, b, a)));
-		}
-
-		[Argument(1.1f, -1.1f, 0.49f, 0.47f)]
-		public static void PackFromVector4(float r, float g, float b, float a)
-		{
-			Color color = new Color();
-			((IPackedVector) color).PackFromVector4(new Vector4(r, g, b, a));
+			Vector4 vector4 = new Vector4(r, g, b, a);
+			Assert.Result(new Color(vector4));
+			IPackedVector color = new Color();
+			color.PackFromVector4(vector4);
 			Assert.Result(color);
 		}
 
