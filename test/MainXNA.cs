@@ -21,8 +21,8 @@ namespace Test
 				while (true)
 				{
 					Request request = new Request(reader);
-					Assert.exceptions.Clear();
-					Assert.results.Clear();
+					Global.exceptions.Clear();
+					Global.results.Clear();
 					string exception = "";
 					MethodInfo methodInfo = assembly.GetType(request.classFullName).GetMethod(request.methodName, request.paramType);
 					try
@@ -33,7 +33,7 @@ namespace Test
 					{
 						exception = ex.ToString();
 					}
-					byte[] bytes = Respose.ToBytes(Assert.results, exception, Assert.exceptions);
+					byte[] bytes = Respose.ToBytes(Global.results, exception, Global.exceptions);
 					pipeOut.Write(bytes, 0, bytes.Length);
 				}
 			}

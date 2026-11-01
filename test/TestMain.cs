@@ -72,8 +72,8 @@ namespace Test
 						string attributeName = attribute.GetType().Name;
 						if (attributeName == "TestAttribute")
 						{
-							Assert.results.Clear();
-							Assert.codeResult.Clear();
+							Global.results.Clear();
+							Global.codeResult.Clear();
 							BeginCallMethod(pipeOut, method, null);
 							method.Invoke(null, null);
 							Respose respose = new Respose(reader);
@@ -82,12 +82,12 @@ namespace Test
 								Console.Error.WriteLine(respose.exception);
 								return;
 							}
-							Check(method, null, respose.results, Assert.results);
+							Check(method, null, respose.results, Global.results);
 						}
 						else if (attributeName == "ArgumentAttribute")
 						{
-							Assert.results.Clear();
-							Assert.codeResult.Clear();
+							Global.results.Clear();
+							Global.codeResult.Clear();
 							object[] args = (object[]) attribute.GetType().GetField("args").GetValue(attribute);
 							BeginCallMethod(pipeOut, method, args);
 							method.Invoke(null, args);
@@ -97,12 +97,12 @@ namespace Test
 								Console.Error.WriteLine(respose.exception);
 								return;
 							}
-							Check(method, args, respose.results, Assert.results);
+							Check(method, args, respose.results, Global.results);
 						}
 						else if (attributeName == "TestExceptionAttribute")
 						{
-							Assert.exceptions.Clear();
-							Assert.codeException.Clear();
+							Global.exceptions.Clear();
+							Global.codeException.Clear();
 							BeginCallMethod(pipeOut, method, null);
 							method.Invoke(null, null);
 							Respose respose = new Respose(reader);
@@ -112,7 +112,7 @@ namespace Test
 								return;
 							}
 							Exception[] exceptions1 = respose.exceptions;
-							List<Exception> exceptions2 = Assert.exceptions;
+							List<Exception> exceptions2 = Global.exceptions;
 							for (int i = 0; i < exceptions1.Length; i++)
 							{
 								Exception exception1 = exceptions1[i];
@@ -120,7 +120,7 @@ namespace Test
 								if (exception1 != exception2 && (exception1 == null || exception2 == null || exception1.GetType() != exception2.GetType()))
 								{
 									Fail("Throw exception is not the same");
-									Message(ConsoleColor.Cyan, Code(method, Assert.codeException[i]));
+									Message(ConsoleColor.Cyan, Code(method, Global.codeException[i]));
 									Message(ConsoleColor.Yellow, "exceptionXNA:");
 									Message(ConsoleColor.Green, exception1 == null ? "null" : exception1.ToString());
 									Message(ConsoleColor.Yellow, "exceptionFNA:");
@@ -150,7 +150,7 @@ namespace Test
 					if (result1.GetType() != result2.GetType())
 					{
 						Fail("Result type is not the same");
-						Message(ConsoleColor.Cyan, Code(methodInfo, Assert.codeResult[i]));
+						Message(ConsoleColor.Cyan, Code(methodInfo, Global.codeResult[i]));
 						continue;
 					}
 					ValueType value1 = result1 as ValueType;
@@ -158,7 +158,7 @@ namespace Test
 					if (!ValueTypeEquals(value1, value2))
 					{
 						Fail("Result is not the same" + (param == null ? "" : ", argument=[" + string.Join(",", param) + "]") + ", resultXNA=" + result1.ToString() + ", resultFNA=" + result2.ToString());
-						Message(ConsoleColor.Cyan, Code(methodInfo, Assert.codeResult[i]));
+						Message(ConsoleColor.Cyan, Code(methodInfo, Global.codeResult[i]));
 					}
 				}
 			}
@@ -177,7 +177,7 @@ namespace Test
 			Console.ResetColor();
 		}
 
-		static string Code(MethodInfo methodInfo, Assert.Code code)
+		static string Code(MethodInfo methodInfo, Global.Code code)
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.Append("   at ");
