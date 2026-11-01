@@ -6,29 +6,21 @@ namespace Microsoft.Xna.Framework
 	{
 		[Argument(1.1f, -1.1f, 1.1f)]
 		[Argument(0.49f, 0.47f, 0.49f)]
-		public static void Color1(float r, float g, float b)
+		public static void ColorCtor(float r, float g, float b)
 		{
 			Assert.Result(new Color(r, g, b));
-		}
-		[Argument(1.1f, -1.1f, 1.1f)]
-		[Argument(0.49f, 0.47f, 0.49f)]
-		public static void Color2(float r, float g, float b)
-		{
 			Assert.Result(new Color(new Vector3(r, g, b)));
 		}
 
 		[Argument(1.1f, -1.1f, 0.49f, 0.47f)]
-		public static void Color1(float r, float g, float b, float a)
+		public static void ColorCtor(float r, float g, float b, float a)
 		{
 			Assert.Result(new Color(r, g, b, a));
-		}
-		[Argument(1.1f, -1.1f, 0.49f, 0.47f)]
-		public static void Color2(float r, float g, float b, float a)
-		{
 			Assert.Result(new Color(new Vector4(r, g, b, a)));
 		}
+
 		[Argument(1.1f, -1.1f, 0.49f, 0.47f)]
-		public static void Color3(float r, float g, float b, float a)
+		public static void PackFromVector4(float r, float g, float b, float a)
 		{
 			Color color = new Color();
 			((IPackedVector) color).PackFromVector4(new Vector4(r, g, b, a));
