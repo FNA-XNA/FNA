@@ -2,6 +2,15 @@
 {
 	public class Vector2Test
 	{
+		[Test]
+		public static void Default()
+		{
+			Assert.Result(Vector2.One);
+			Assert.Result(Vector2.UnitX);
+			Assert.Result(Vector2.UnitY);
+			Assert.Result(Vector2.Zero);
+		}
+
 		[Argument(1f, 2f)]
 		[Argument(float.NaN, 1f)]
 		[Argument(1f, float.NaN)]

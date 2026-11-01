@@ -103,7 +103,7 @@ namespace Test
 
 	static class RpcFormatter
 	{
-		private static readonly byte[] tmpBuffer = new byte[16];
+		private static readonly byte[] tmpBuffer = new byte[64];
 #pragma warning disable SYSLIB0050
 		private static readonly FormatterConverter formatter = new FormatterConverter();
 #pragma warning restore SYSLIB0050

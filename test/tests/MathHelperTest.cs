@@ -2,6 +2,18 @@ namespace Microsoft.Xna.Framework
 {
 	public static class MathHelperTest
 	{
+		[Test]
+		public static void Default()
+		{
+			Assert.Result(MathHelper.E);
+			Assert.Result(MathHelper.Log2E);
+			Assert.Result(MathHelper.Log10E);
+			Assert.Result(MathHelper.Pi);
+			Assert.Result(MathHelper.PiOver2);
+			Assert.Result(MathHelper.PiOver4);
+			Assert.Result(MathHelper.TwoPi);
+		}
+
 		[Argument(2f, 1f, 3f)]
 		[Argument(2f, 3f, 1f)]
 		[Argument(2f, float.NaN, float.NaN)]

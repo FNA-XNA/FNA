@@ -2,6 +2,17 @@
 {
 	public static class Vector4Test
 	{
+		[Test]
+		public static void Default()
+		{
+			Assert.Result(Vector4.One);
+			Assert.Result(Vector4.UnitX);
+			Assert.Result(Vector4.UnitY);
+			Assert.Result(Vector4.UnitZ);
+			Assert.Result(Vector4.UnitW);
+			Assert.Result(Vector4.Zero);
+		}
+
 		[Argument(1f, 2f)]
 		[Argument(float.NaN, 1f)]
 		[Argument(1f, float.NaN)]

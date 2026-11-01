@@ -2,6 +2,22 @@
 {
 	public class Vector3Test
 	{
+		[Test]
+		public static void Default()
+		{
+			Assert.Result(Vector3.Backward);
+			Assert.Result(Vector3.Down);
+			Assert.Result(Vector3.Forward);
+			Assert.Result(Vector3.Left);
+			Assert.Result(Vector3.One);
+			Assert.Result(Vector3.Right);
+			Assert.Result(Vector3.UnitX);
+			Assert.Result(Vector3.UnitY);
+			Assert.Result(Vector3.UnitZ);
+			Assert.Result(Vector3.Up);
+			Assert.Result(Vector3.Zero);
+		}
+
 		[Argument(1f, 2f)]
 		[Argument(float.NaN, 1f)]
 		[Argument(1f, float.NaN)]
