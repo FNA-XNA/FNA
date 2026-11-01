@@ -72,7 +72,7 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 			set
 			{
-				if (!(value >= -FAudio.FAUDIO_MAX_VOLUME_LEVEL && value <= FAudio.FAUDIO_MAX_VOLUME_LEVEL)) // XNA: !(value >= 0f && value <= 1f)
+				if (!(Math.Abs(value) <= FAudio.FAUDIO_MAX_VOLUME_LEVEL)) // XNA: !(value >= 0f && value <= 1f)
 				{
 					throw new ArgumentOutOfRangeException("value");
 				}
