@@ -6,45 +6,45 @@ namespace Microsoft.Xna.Framework
 	{
 		[Argument(1.1f, -1.1f, 1.1f)]
 		[Argument(0.49f, 0.47f, 0.49f)]
-		public static Color Color1(float r, float g, float b)
+		public static void Color1(float r, float g, float b)
 		{
-			return new Color(r, g, b);
+			Assert.Result(new Color(r, g, b));
 		}
 		[Argument(1.1f, -1.1f, 1.1f)]
 		[Argument(0.49f, 0.47f, 0.49f)]
-		public static Color Color2(float r, float g, float b)
+		public static void Color2(float r, float g, float b)
 		{
-			return new Color(new Vector3(r, g, b));
+			Assert.Result(new Color(new Vector3(r, g, b)));
 		}
 
 		[Argument(1.1f, -1.1f, 0.49f, 0.47f)]
-		public static Color Color1(float r, float g, float b, float a)
+		public static void Color1(float r, float g, float b, float a)
 		{
-			return new Color(r, g, b, a);
+			Assert.Result(new Color(r, g, b, a));
 		}
 		[Argument(1.1f, -1.1f, 0.49f, 0.47f)]
-		public static Color Color2(float r, float g, float b, float a)
+		public static void Color2(float r, float g, float b, float a)
 		{
-			return new Color(new Vector4(r, g, b, a));
+			Assert.Result(new Color(new Vector4(r, g, b, a)));
 		}
 		[Argument(1.1f, -1.1f, 0.49f, 0.47f)]
-		public static Color Color3(float r, float g, float b, float a)
+		public static void Color3(float r, float g, float b, float a)
 		{
 			Color color = new Color();
 			((IPackedVector) color).PackFromVector4(new Vector4(r, g, b, a));
-			return color;
+			Assert.Result(color);
 		}
 
 		[Argument(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue)]
-		public static Color FromNonPremultiplied(int r, int g, int b, int a)
+		public static void FromNonPremultiplied(int r, int g, int b, int a)
 		{
-			return Color.FromNonPremultiplied(r, g, b, a);
+			Assert.Result(Color.FromNonPremultiplied(r, g, b, a));
 		}
 
 		[Argument(255, 0.4f)]
-		public static Color Multiply(int value, float scale)
+		public static void Multiply(int value, float scale)
 		{
-			return Color.Multiply(new Color(value, value, value), scale);
+			Assert.Result(Color.Multiply(new Color(value, value, value), scale));
 		}
 	}
 }

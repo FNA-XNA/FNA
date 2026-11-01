@@ -64,12 +64,16 @@ namespace Test
 	}
 	struct Respose
 	{
-		public object result;
+		public object[] results;
 		public string exception;
 		public Exception[] exceptions;
 		internal Respose(BinaryReader reader)
 		{
-			result = RpcFormatter.ReadObject(reader);
+			results = new object[reader.ReadByte()];
+			for (int i = 0; i < results.Length; i++)
+			{
+				results[i] = RpcFormatter.ReadObject(reader);
+			}
 			exception = reader.ReadString();
 			exceptions = new Exception[reader.ReadByte()];
 			for (int i = 0; i < exceptions.Length; i++)
@@ -78,12 +82,16 @@ namespace Test
 			}
 		}
 
-		internal byte[] ToBytes(List<Exception> exceptions)
+		internal byte[] ToBytes(List<object> results, List<Exception> exceptions)
 		{
 			MemoryStream memoryStream = new MemoryStream();
 			using (BinaryWriter writer = new BinaryWriter(memoryStream))
 			{
-				RpcFormatter.WriteObject(writer, result);
+				writer.Write((byte) results.Count);
+				foreach (object result in results)
+				{
+					RpcFormatter.WriteObject(writer, result);
+				}
 				writer.Write(exception);
 				if (exceptions == null)
 				{

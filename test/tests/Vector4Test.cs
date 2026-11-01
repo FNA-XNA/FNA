@@ -5,17 +5,17 @@
 		[Argument(1f, 2f)]
 		[Argument(float.NaN, 1f)]
 		[Argument(1f, float.NaN)]
-		public static Vector4 Max(float value1, float value2)
+		public static void Max(float value1, float value2)
 		{
-			return Vector4.Max(new Vector4(value1), new Vector4(value2));
+			Assert.Result(Vector4.Max(new Vector4(value1), new Vector4(value2)));
 		}
 
 		[Argument(1f, 2f)]
 		[Argument(float.NaN, 1f)]
 		[Argument(1f, float.NaN)]
-		public static Vector4 Min(float value1, float value2)
+		public static void Min(float value1, float value2)
 		{
-			return Vector4.Min(new Vector4(value1), new Vector4(value2));
+			Assert.Result(Vector4.Min(new Vector4(value1), new Vector4(value2)));
 		}
 
 		[TestException]

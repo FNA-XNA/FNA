@@ -9,7 +9,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>Test.FNA</AssemblyName>
-    <TargetFrameworks>net40</TargetFrameworks>
+    <TargetFrameworks>net45</TargetFrameworks>
     <PlatformTarget>x86</PlatformTarget>
     <EnableDefaultItems>False</EnableDefaultItems>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>

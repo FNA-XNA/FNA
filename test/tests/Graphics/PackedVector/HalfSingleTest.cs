@@ -4,9 +4,9 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 	{
 		[Argument(float.MaxValue)]
 		[Argument(float.NaN)]
-		public static ushort F32toF16(float value)
+		public static void F32toF16(float value)
 		{
-			return new HalfSingle(value).PackedValue;
+			Assert.Result(new HalfSingle(value).PackedValue);
 		}
 	}
 }

@@ -32,16 +32,14 @@ namespace Test
 			while (true)
 			{
 				Request request = new Request(reader);
-				if (request.TestException)
-				{
-					Assert.Exceptions.Clear();
-				}
+				Assert.exceptions.Clear();
+				Assert.results.Clear();
 				Respose respose = new Respose();
 				respose.exception = "";
 				MethodInfo methodInfo = assembly.GetType(request.classFullName).GetMethod(request.methodName, request.paramType);
 				try
 				{
-					respose.result = methodInfo.Invoke(null, request.args);
+					methodInfo.Invoke(null, request.args);
 				}
 				catch (Exception ex)
 				{
@@ -49,9 +47,9 @@ namespace Test
 				}
 				if (request.TestException)
 				{
-					respose.result = null;
+					respose.results = null;
 				}
-				byte[] bytes = respose.ToBytes(Assert.Exceptions);
+				byte[] bytes = respose.ToBytes(Assert.results, Assert.exceptions);
 				pipeOut.Write(bytes, 0, bytes.Length);
 			}
 		}
