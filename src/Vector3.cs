@@ -755,9 +755,9 @@ namespace Microsoft.Xna.Framework
 		public static Vector3 Max(Vector3 value1, Vector3 value2)
 		{
 			return new Vector3(
-				MathHelper.Max(value1.X, value2.X),
-				MathHelper.Max(value1.Y, value2.Y),
-				MathHelper.Max(value1.Z, value2.Z)
+				value1.X > value2.X ? value1.X : value2.X,
+				value1.Y > value2.Y ? value1.Y : value2.Y,
+				value1.Z > value2.Z ? value1.Z : value2.Z
 			);
 		}
 
@@ -769,9 +769,9 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">The <see cref="Vector3"/> with maximal values from the two vectors as an output parameter.</param>
 		public static void Max(ref Vector3 value1, ref Vector3 value2, out Vector3 result)
 		{
-			result.X = MathHelper.Max(value1.X, value2.X);
-			result.Y = MathHelper.Max(value1.Y, value2.Y);
-			result.Z = MathHelper.Max(value1.Z, value2.Z);
+			result.X = value1.X > value2.X ? value1.X : value2.X;
+			result.Y = value1.Y > value2.Y ? value1.Y : value2.Y;
+			result.Z = value1.Z > value2.Z ? value1.Z : value2.Z;
 		}
 
 		/// <summary>
@@ -783,9 +783,9 @@ namespace Microsoft.Xna.Framework
 		public static Vector3 Min(Vector3 value1, Vector3 value2)
 		{
 			return new Vector3(
-				MathHelper.Min(value1.X, value2.X),
-				MathHelper.Min(value1.Y, value2.Y),
-				MathHelper.Min(value1.Z, value2.Z)
+				value1.X < value2.X ? value1.X : value2.X,
+				value1.Y < value2.Y ? value1.Y : value2.Y,
+				value1.Z < value2.Z ? value1.Z : value2.Z
 			);
 		}
 
@@ -797,9 +797,9 @@ namespace Microsoft.Xna.Framework
 		/// <param name="result">The <see cref="Vector3"/> with minimal values from the two vectors as an output parameter.</param>
 		public static void Min(ref Vector3 value1, ref Vector3 value2, out Vector3 result)
 		{
-			result.X = MathHelper.Min(value1.X, value2.X);
-			result.Y = MathHelper.Min(value1.Y, value2.Y);
-			result.Z = MathHelper.Min(value1.Z, value2.Z);
+			result.X = value1.X < value2.X ? value1.X : value2.X;
+			result.Y = value1.Y < value2.Y ? value1.Y : value2.Y;
+			result.Z = value1.Z < value2.Z ? value1.Z : value2.Z;
 		}
 
 		/// <summary>
