@@ -135,18 +135,7 @@ namespace Test
 
 		static void BeginCallMethod(AnonymousPipeServerStream pipeOut, MethodInfo methodInfo, object[] args, bool TestException)
 		{
-			Request request;
-			request.classFullName = methodInfo.DeclaringType.FullName;
-			request.methodName = methodInfo.Name;
-			ParameterInfo[] parameterInfos = methodInfo.GetParameters();
-			request.paramType = new Type[parameterInfos.Length];
-			for (int i = 0; i < parameterInfos.Length; i++)
-			{
-				request.paramType[i] = parameterInfos[i].ParameterType;
-			}
-			request.args = args;
-			request.TestException = TestException;
-			byte[] bytes = request.ToBytes();
+			byte[] bytes = Request.ToBytes(methodInfo, args, TestException);
 			pipeOut.Write(bytes, 0, bytes.Length);
 		}
 

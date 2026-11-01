@@ -33,17 +33,18 @@ namespace Test
 			TestException = reader.ReadBoolean();
 		}
 
-		internal byte[] ToBytes()
+		internal static byte[] ToBytes(MethodInfo methodInfo, object[] args, bool TestException)
 		{
 			MemoryStream memoryStream = new MemoryStream();
 			using (BinaryWriter writer = new BinaryWriter(memoryStream))
 			{
-				writer.Write(classFullName);
-				writer.Write(methodName);
-				writer.Write((byte) paramType.Length);
-				for (int i = 0; i < paramType.Length; i++)
+				writer.Write(methodInfo.DeclaringType.FullName);
+				writer.Write(methodInfo.Name);
+				ParameterInfo[] parameterInfos = methodInfo.GetParameters();
+				writer.Write((byte) parameterInfos.Length);
+				for (int i = 0; i < parameterInfos.Length; i++)
 				{
-					writer.Write(paramType[i].FullName);
+					writer.Write(parameterInfos[i].ParameterType.FullName);
 				}
 				if (args == null)
 				{
