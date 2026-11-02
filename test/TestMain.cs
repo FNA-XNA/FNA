@@ -155,11 +155,27 @@ namespace Test
 					}
 					ValueType value1 = result1 as ValueType;
 					ValueType value2 = result2 as ValueType;
-					if (!ValueTypeEquals(value1, value2))
+					if (value1 != null && value2 != null)
 					{
-						Fail("Result is not the same" + (param == null ? "" : ", argument=[" + string.Join(",", param) + "]") + ", resultXNA=" + result1.ToString() + ", resultFNA=" + result2.ToString());
-						Message(ConsoleColor.Cyan, Code(methodInfo, Global.codeResult[i]));
+						if (!ValueTypeEquals(value1, value2))
+						{
+							Fail("Result is not the same" + (param == null ? "" : ", argument=[" + string.Join(",", param) + "]") + ", resultXNA=" + result1.ToString() + ", resultFNA=" + result2.ToString());
+							Message(ConsoleColor.Cyan, Code(methodInfo, Global.codeResult[i]));
+						}
+						continue;
 					}
+					string s1 = result1 as string;
+					string s2 = result2 as string;
+					if (s1 != null && s2 != null)
+					{
+						if (s1 != s2)
+						{
+							Fail("Result is not the same" + (param == null ? "" : ", argument=[" + string.Join(",", param) + "]") + ", resultXNA=" + result1.ToString() + ", resultFNA=" + result2.ToString());
+							Message(ConsoleColor.Cyan, Code(methodInfo, Global.codeResult[i]));
+						}
+						continue;
+					}
+					throw new NotImplementedException(result1.GetType().ToString());
 				}
 			}
 		}
