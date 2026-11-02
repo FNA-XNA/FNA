@@ -73,6 +73,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			Assert.Throw(() => { Texture2D.FromStream(gd, new SeekStream(true), 1, 0, false).Dispose(); });
 		}
 
+		[Test]
+		public static void Default()
+		{
+			GraphicsDevice gd = GameTest.gdm.GraphicsDevice;
+			Texture2D texture = new Texture2D(gd, 4, 4);
+			Assert.Result(texture.Name);
+			Assert.Result(texture.Tag);
+			Assert.Result(texture.Format);
+			texture.Dispose();
+		}
+
 		[TestException]
 		public static void GetData()
 		{

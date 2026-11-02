@@ -18,6 +18,16 @@
 			Assert.Throw(() => { new TextureCube(gd, 1, true, SurfaceFormat.Dxt1).Dispose(); });
 		}
 
+		[Test]
+		public static void Default()
+		{
+			GraphicsDevice gd = GameTest.gdm.GraphicsDevice;
+			TextureCube texture = new TextureCube(gd, 1, false, SurfaceFormat.Color);
+			Assert.Result(texture.Name);
+			Assert.Result(texture.Tag);
+			texture.Dispose();
+		}
+
 		[TestException]
 		public static void GetData()
 		{
