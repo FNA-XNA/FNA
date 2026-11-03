@@ -119,32 +119,32 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 			const float min = -max;
 
 			ulong word4 = (
-				(ulong) MathHelper.Clamp(
-					(float) Math.Round(x * max),
+				(ulong) MathHelper.Round(MathHelper.Clamp(
+					x * max,
 					min,
 					max
-				) & 0xFFFF
+				)) & 0xFFFF
 			);
 			ulong word3 = (
-				(ulong) MathHelper.Clamp(
-					(float) Math.Round(y * max),
+				(ulong) MathHelper.Round(MathHelper.Clamp(
+					y * max,
 					min,
 					max
-				) & 0xFFFF
+				)) & 0xFFFF
 			) << 0x10;
 			ulong word2 = (
-				(ulong) MathHelper.Clamp(
-					(float) Math.Round(z * max),
+				(ulong) MathHelper.Round(MathHelper.Clamp(
+					z * max,
 					min,
 					max
-				) & 0xFFFF
+				)) & 0xFFFF
 			) << 0x20;
 			ulong word1 = (
-				(ulong) MathHelper.Clamp(
-					(float) Math.Round(w * max),
+				(ulong) MathHelper.Round(MathHelper.Clamp(
+					w * max,
 					min,
 					max
-				) & 0xFFFF
+				)) & 0xFFFF
 			) << 0x30;
 
 			return (word4 | word3 | word2 | word1);
