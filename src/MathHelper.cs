@@ -429,6 +429,7 @@ namespace Microsoft.Xna.Framework
 #endif
 		}
 #else
+		// Don't change double parameter to float, otherwise JIT32 will generate additional x86 instruction when inlining
 		internal static int Round(double x)
 		{
 			return (int) Math.Round(x);
