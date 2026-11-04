@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net45</TargetFramework>
+    <LangVersion>5</LangVersion>
     <PlatformTarget>x86</PlatformTarget>
     <EnableDefaultItems>false</EnableDefaultItems>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>

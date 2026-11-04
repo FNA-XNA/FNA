@@ -116,6 +116,7 @@ namespace Microsoft.Xna.Framework.Audio
 		) {
 			if (string.IsNullOrEmpty(settingsFile))
 			{
+				GC.SuppressFinalize(this);
 				throw new ArgumentNullException("settingsFile", "This method does not accept null for this parameter.");
 			}
 
@@ -181,12 +182,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 			if (ret == 0x8ac70007) // FACTENGINE_E_INVALIDDATA
 			{
-				FAudio.FACTAudioEngine_Release(handle);
+				Dispose(false);
 				throw new ArgumentException("XACT could not load the data provided. Make sure you are using the correct version of the XACT tool.");
 			}
 			else if (ret != 0)
 			{
-				FAudio.FACTAudioEngine_Release(handle);
+				Dispose(false);
 				throw new InvalidOperationException(
 					"Engine initialization failed!"
 				);

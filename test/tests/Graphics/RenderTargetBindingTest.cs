@@ -7,7 +7,7 @@
 		{
 			Assert.Throw(() => { new RenderTargetBinding(null); });
 			Assert.Throw(() => { new RenderTargetBinding(null, 0); });
-			Assert.Throw(() => { _ = (RenderTargetBinding) null; });
+			Assert.Throw(() => { var _ = (RenderTargetBinding) null; });
 		}
 
 		[Test]

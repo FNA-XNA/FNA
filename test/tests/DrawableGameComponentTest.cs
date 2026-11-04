@@ -16,7 +16,7 @@
 		public static void TestException()
 		{
 			DrawableGameComponent gameComponent = new DrawableGameComponent(null);
-			Assert.Throw(() => { _ = gameComponent.GraphicsDevice; });
+			Assert.Throw(() => { var _ = gameComponent.GraphicsDevice; });
 		}
 	}
 }
