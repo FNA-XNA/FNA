@@ -37,30 +37,38 @@
 		[Test]
 		public static void MultiplyDivide()
 		{
+			const float f = 23f;
 			Vector3 v1 = new Vector3(3f, 7f, 13f);
 			Vector3 v2 = new Vector3(2f, 5f, 11f);
 			Assert.Result(v1 * v2);
+			Assert.Result(v1 * f);
+			Assert.Result(f * v2);
 			Assert.Result(v1 / v2);
+			Assert.Result(v1 / f);
 			Assert.Result(Vector3.Multiply(v1, v2));
+			Assert.Result(Vector3.Multiply(v1, f));
 			Assert.Result(Vector3.Divide(v1, v2));
+			Assert.Result(Vector3.Divide(v1, f));
 			Vector3 result;
 			Vector3.Multiply(ref v1, ref v2, out result);
 			Assert.Result(result);
+			Vector3.Multiply(ref v1, f, out result);
+			Assert.Result(result);
 			Vector3.Divide(ref v1, ref v2, out result);
+			Assert.Result(result);
+			Vector3.Divide(ref v1, f, out result);
 			Assert.Result(result);
 		}
 
 		[Test]
-		public static void Divide()
+		public static void Negate()
 		{
-			const float dividend = 1.4399751E-37f;
-			const float divisor = 784f;
-			Vector3 vector1 = new Vector3(dividend);
-			Assert.Result((vector1 / divisor).X);
-			Assert.Result(Vector3.Divide(vector1, divisor).X);
-			Vector3 vector2;
-			Vector3.Divide(ref vector1, divisor, out vector2);
-			Assert.Result(vector2.X);
+			Vector3 vector = new Vector3(1f, 2f, 3f);
+			Assert.Result(-vector);
+			Assert.Result(Vector3.Negate(vector));
+			Vector3 result;
+			Vector3.Negate(ref vector, out result);
+			Assert.Result(result);
 		}
 
 		[Argument(1f, 2f)]
