@@ -14,6 +14,38 @@
 		}
 
 		[Test]
+		public static void AddSubtract()
+		{
+			Vector4 v1 = new Vector4(2f, 10f, 23f, 35f);
+			Vector4 v2 = new Vector4(1f, 5f, 16f, 33f);
+			Assert.Result(v1 + v2);
+			Assert.Result(v1 - v2);
+			Assert.Result(Vector4.Add(v1, v2));
+			Assert.Result(Vector4.Subtract(v1, v2));
+			Vector4 result;
+			Vector4.Add(ref v1, ref v2, out result);
+			Assert.Result(result);
+			Vector4.Subtract(ref v1, ref v2, out result);
+			Assert.Result(result);
+		}
+
+		[Test]
+		public static void MultiplyDivide()
+		{
+			Vector4 v1 = new Vector4(3f, 7f, 13f, 19f);
+			Vector4 v2 = new Vector4(2f, 5f, 11f, 17f);
+			Assert.Result(v1 * v2);
+			Assert.Result(v1 / v2);
+			Assert.Result(Vector4.Multiply(v1, v2));
+			Assert.Result(Vector4.Divide(v1, v2));
+			Vector4 result;
+			Vector4.Multiply(ref v1, ref v2, out result);
+			Assert.Result(result);
+			Vector4.Divide(ref v1, ref v2, out result);
+			Assert.Result(result);
+		}
+
+		[Test]
 		public static void Divide()
 		{
 			const float dividend = 1.4399751E-37f;
