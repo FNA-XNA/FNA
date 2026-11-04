@@ -6,14 +6,14 @@ namespace Microsoft.Xna.Framework
 	{
 		[Argument(1.1f, -1.1f, 1.1f)]
 		[Argument(0.49f, 0.47f, 0.49f)]
-		public static void ColorCtor(float r, float g, float b)
+		public static void Ctor(float r, float g, float b)
 		{
 			Assert.Result(new Color(r, g, b));
 			Assert.Result(new Color(new Vector3(r, g, b)));
 		}
 
 		[Argument(1.1f, -1.1f, 0.49f, 0.47f)]
-		public static void ColorCtor(float r, float g, float b, float a)
+		public static void Ctor(float r, float g, float b, float a)
 		{
 			Assert.Result(new Color(r, g, b, a));
 			Vector4 vector4 = new Vector4(r, g, b, a);

@@ -45,7 +45,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		}
 
 		[TestException]
-		public static void Texture2Dctor()
+		public static void Ctor()
 		{
 			GraphicsDevice gd = GameTest.gdm.GraphicsDevice;
 			Assert.Throw(() => { new Texture2D(null, 1, 1).Dispose(); });
