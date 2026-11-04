@@ -317,11 +317,12 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of the vector addition.</returns>
 		public static Vector4 Add(Vector4 value1, Vector4 value2)
 		{
-			value1.W += value2.W;
-			value1.X += value2.X;
-			value1.Y += value2.Y;
-			value1.Z += value2.Z;
-			return value1;
+			Vector4 result;
+			result.W = value1.W + value2.W;
+			result.X = value1.X + value2.X;
+			result.Y = value1.Y + value2.Y;
+			result.Z = value1.Z + value2.Z;
+			return result;
 		}
 
 		/// <summary>
@@ -535,11 +536,12 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of dividing the vectors.</returns>
 		public static Vector4 Divide(Vector4 value1, Vector4 value2)
 		{
-			value1.W /= value2.W;
-			value1.X /= value2.X;
-			value1.Y /= value2.Y;
-			value1.Z /= value2.Z;
-			return value1;
+			Vector4 result;
+			result.W = value1.W / value2.W;
+			result.X = value1.X / value2.X;
+			result.Y = value1.Y / value2.Y;
+			result.Z = value1.Z / value2.Z;
+			return result;
 		}
 
 		/// <summary>
@@ -550,11 +552,12 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of dividing a vector by a scalar.</returns>
 		public static Vector4 Divide(Vector4 value1, float divider)
 		{
-			value1.W /= divider;
-			value1.X /= divider;
-			value1.Y /= divider;
-			value1.Z /= divider;
-			return value1;
+			Vector4 result;
+			result.W = value1.W / divider;
+			result.X = value1.X / divider;
+			result.Y = value1.Y / divider;
+			result.Z = value1.Z / divider;
+			return result;
 		}
 
 		/// <summary>
@@ -771,11 +774,12 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of the vector multiplication.</returns>
 		public static Vector4 Multiply(Vector4 value1, Vector4 value2)
 		{
-			value1.W *= value2.W;
-			value1.X *= value2.X;
-			value1.Y *= value2.Y;
-			value1.Z *= value2.Z;
-			return value1;
+			Vector4 result;
+			result.W = value1.W * value2.W;
+			result.X = value1.X * value2.X;
+			result.Y = value1.Y * value2.Y;
+			result.Z = value1.Z * value2.Z;
+			return result;
 		}
 
 		/// <summary>
@@ -786,11 +790,12 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of the vector multiplication with a scalar.</returns>
 		public static Vector4 Multiply(Vector4 value1, float scaleFactor)
 		{
-			value1.W *= scaleFactor;
-			value1.X *= scaleFactor;
-			value1.Y *= scaleFactor;
-			value1.Z *= scaleFactor;
-			return value1;
+			Vector4 result;
+			result.W = value1.W * scaleFactor;
+			result.X = value1.X * scaleFactor;
+			result.Y = value1.Y * scaleFactor;
+			result.Z = value1.Z * scaleFactor;
+			return result;
 		}
 
 		/// <summary>
@@ -828,8 +833,12 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of the vector inversion.</returns>
 		public static Vector4 Negate(Vector4 value)
 		{
-			value = new Vector4(-value.X, -value.Y, -value.Z, -value.W);
-			return value;
+			Vector4 result;
+			result.X = -value.X;
+			result.Y = -value.Y;
+			result.Z = -value.Z;
+			result.W = -value.W;
+			return result;
 		}
 
 		/// <summary>
@@ -929,11 +938,12 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of the vector subtraction.</returns>
 		public static Vector4 Subtract(Vector4 value1, Vector4 value2)
 		{
-			value1.W -= value2.W;
-			value1.X -= value2.X;
-			value1.Y -= value2.Y;
-			value1.Z -= value2.Z;
-			return value1;
+			Vector4 result;
+			result.W = value1.W - value2.W;
+			result.X = value1.X - value2.X;
+			result.Y = value1.Y - value2.Y;
+			result.Z = value1.Z - value2.Z;
+			return result;
 		}
 
 		/// <summary>
@@ -1415,65 +1425,72 @@ namespace Microsoft.Xna.Framework
 
 		public static Vector4 operator +(Vector4 value1, Vector4 value2)
 		{
-			value1.W += value2.W;
-			value1.X += value2.X;
-			value1.Y += value2.Y;
-			value1.Z += value2.Z;
-			return value1;
+			Vector4 result;
+			result.W = value1.W + value2.W;
+			result.X = value1.X + value2.X;
+			result.Y = value1.Y + value2.Y;
+			result.Z = value1.Z + value2.Z;
+			return result;
 		}
 
 		public static Vector4 operator -(Vector4 value1, Vector4 value2)
 		{
-			value1.W -= value2.W;
-			value1.X -= value2.X;
-			value1.Y -= value2.Y;
-			value1.Z -= value2.Z;
-			return value1;
+			Vector4 result;
+			result.W = value1.W - value2.W;
+			result.X = value1.X - value2.X;
+			result.Y = value1.Y - value2.Y;
+			result.Z = value1.Z - value2.Z;
+			return result;
 		}
 
 		public static Vector4 operator *(Vector4 value1, Vector4 value2)
 		{
-			value1.W *= value2.W;
-			value1.X *= value2.X;
-			value1.Y *= value2.Y;
-			value1.Z *= value2.Z;
-			return value1;
+			Vector4 result;
+			result.W = value1.W * value2.W;
+			result.X = value1.X * value2.X;
+			result.Y = value1.Y * value2.Y;
+			result.Z = value1.Z * value2.Z;
+			return result;
 		}
 
 		public static Vector4 operator *(Vector4 value1, float scaleFactor)
 		{
-			value1.W *= scaleFactor;
-			value1.X *= scaleFactor;
-			value1.Y *= scaleFactor;
-			value1.Z *= scaleFactor;
-			return value1;
+			Vector4 result;
+			result.W = value1.W * scaleFactor;
+			result.X = value1.X * scaleFactor;
+			result.Y = value1.Y * scaleFactor;
+			result.Z = value1.Z * scaleFactor;
+			return result;
 		}
 
 		public static Vector4 operator *(float scaleFactor, Vector4 value1)
 		{
-			value1.W *= scaleFactor;
-			value1.X *= scaleFactor;
-			value1.Y *= scaleFactor;
-			value1.Z *= scaleFactor;
-			return value1;
+			Vector4 result;
+			result.W = value1.W * scaleFactor;
+			result.X = value1.X * scaleFactor;
+			result.Y = value1.Y * scaleFactor;
+			result.Z = value1.Z * scaleFactor;
+			return result;
 		}
 
 		public static Vector4 operator /(Vector4 value1, Vector4 value2)
 		{
-			value1.W /= value2.W;
-			value1.X /= value2.X;
-			value1.Y /= value2.Y;
-			value1.Z /= value2.Z;
-			return value1;
+			Vector4 result;
+			result.W = value1.W / value2.W;
+			result.X = value1.X / value2.X;
+			result.Y = value1.Y / value2.Y;
+			result.Z = value1.Z / value2.Z;
+			return result;
 		}
 
 		public static Vector4 operator /(Vector4 value1, float divider)
 		{
-			value1.W /= divider;
-			value1.X /= divider;
-			value1.Y /= divider;
-			value1.Z /= divider;
-			return value1;
+			Vector4 result;
+			result.W = value1.W / divider;
+			result.X = value1.X / divider;
+			result.Y = value1.Y / divider;
+			result.Z = value1.Z / divider;
+			return result;
 		}
 
 		#endregion

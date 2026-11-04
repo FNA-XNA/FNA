@@ -241,9 +241,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of the vector addition.</returns>
 		public static Vector2 Add(Vector2 value1, Vector2 value2)
 		{
-			value1.X += value2.X;
-			value1.Y += value2.Y;
-			return value1;
+			Vector2 result;
+			result.X = value1.X + value2.X;
+			result.Y = value1.Y + value2.Y;
+			return result;
 		}
 
 		/// <summary>
@@ -437,9 +438,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of dividing the vectors.</returns>
 		public static Vector2 Divide(Vector2 value1, Vector2 value2)
 		{
-			value1.X /= value2.X;
-			value1.Y /= value2.Y;
-			return value1;
+			Vector2 result;
+			result.X = value1.X / value2.X;
+			result.Y = value1.Y / value2.Y;
+			return result;
 		}
 
 		/// <summary>
@@ -462,9 +464,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of dividing a vector by a scalar.</returns>
 		public static Vector2 Divide(Vector2 value1, float divider)
 		{
-			value1.X /= divider;
-			value1.Y /= divider;
-			return value1;
+			Vector2 result;
+			result.X = value1.X / divider;
+			result.Y = value1.Y / divider;
+			return result;
 		}
 
 		/// <summary>
@@ -635,9 +638,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of the vector multiplication.</returns>
 		public static Vector2 Multiply(Vector2 value1, Vector2 value2)
 		{
-			value1.X *= value2.X;
-			value1.Y *= value2.Y;
-			return value1;
+			Vector2 result;
+			result.X = value1.X * value2.X;
+			result.Y = value1.Y * value2.Y;
+			return result;
 		}
 
 		/// <summary>
@@ -648,9 +652,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of the vector multiplication with a scalar.</returns>
 		public static Vector2 Multiply(Vector2 value1, float scaleFactor)
 		{
-			value1.X *= scaleFactor;
-			value1.Y *= scaleFactor;
-			return value1;
+			Vector2 result;
+			result.X = value1.X * scaleFactor;
+			result.Y = value1.Y * scaleFactor;
+			return result;
 		}
 
 		/// <summary>
@@ -685,9 +690,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of the vector inversion.</returns>
 		public static Vector2 Negate(Vector2 value)
 		{
-			value.X = -value.X;
-			value.Y = -value.Y;
-			return value;
+			Vector2 result;
+			result.X = -value.X;
+			result.Y = -value.Y;
+			return result;
 		}
 
 		/// <summary>
@@ -795,9 +801,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of the vector subtraction.</returns>
 		public static Vector2 Subtract(Vector2 value1, Vector2 value2)
 		{
-			value1.X -= value2.X;
-			value1.Y -= value2.Y;
-			return value1;
+			Vector2 result;
+			result.X = value1.X - value2.X;
+			result.Y = value1.Y - value2.Y;
+			return result;
 		}
 
 		/// <summary>
@@ -1144,9 +1151,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Result of the inversion.</returns>
 		public static Vector2 operator -(Vector2 value)
 		{
-			value.X = -value.X;
-			value.Y = -value.Y;
-			return value;
+			Vector2 result;
+			result.X = -value.X;
+			result.Y = -value.Y;
+			return result;
 		}
 
 		/// <summary>
@@ -1180,9 +1188,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Sum of the vectors.</returns>
 		public static Vector2 operator +(Vector2 value1, Vector2 value2)
 		{
-			value1.X += value2.X;
-			value1.Y += value2.Y;
-			return value1;
+			Vector2 result;
+			result.X = value1.X + value2.X;
+			result.Y = value1.Y + value2.Y;
+			return result;
 		}
 
 		/// <summary>
@@ -1193,9 +1202,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Result of the vector subtraction.</returns>
 		public static Vector2 operator -(Vector2 value1, Vector2 value2)
 		{
-			value1.X -= value2.X;
-			value1.Y -= value2.Y;
-			return value1;
+			Vector2 result;
+			result.X = value1.X - value2.X;
+			result.Y = value1.Y - value2.Y;
+			return result;
 		}
 
 		/// <summary>
@@ -1206,9 +1216,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Result of the vector multiplication.</returns>
 		public static Vector2 operator *(Vector2 value1, Vector2 value2)
 		{
-			value1.X *= value2.X;
-			value1.Y *= value2.Y;
-			return value1;
+			Vector2 result;
+			result.X = value1.X * value2.X;
+			result.Y = value1.Y * value2.Y;
+			return result;
 		}
 
 		/// <summary>
@@ -1219,9 +1230,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Result of the vector multiplication with a scalar.</returns>
 		public static Vector2 operator *(Vector2 value, float scaleFactor)
 		{
-			value.X *= scaleFactor;
-			value.Y *= scaleFactor;
-			return value;
+			Vector2 result;
+			result.X = value.X * scaleFactor;
+			result.Y = value.Y * scaleFactor;
+			return result;
 		}
 
 		/// <summary>
@@ -1232,9 +1244,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Result of the vector multiplication with a scalar.</returns>
 		public static Vector2 operator *(float scaleFactor, Vector2 value)
 		{
-			value.X *= scaleFactor;
-			value.Y *= scaleFactor;
-			return value;
+			Vector2 result;
+			result.X = value.X * scaleFactor;
+			result.Y = value.Y * scaleFactor;
+			return result;
 		}
 
 		/// <summary>
@@ -1245,9 +1258,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of dividing the vectors.</returns>
 		public static Vector2 operator /(Vector2 value1, Vector2 value2)
 		{
-			value1.X /= value2.X;
-			value1.Y /= value2.Y;
-			return value1;
+			Vector2 result;
+			result.X = value1.X / value2.X;
+			result.Y = value1.Y / value2.Y;
+			return result;
 		}
 
 		/// <summary>
@@ -1258,9 +1272,10 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The result of dividing a vector by a scalar.</returns>
 		public static Vector2 operator /(Vector2 value1, float divider)
 		{
-			value1.X /= divider;
-			value1.Y /= divider;
-			return value1;
+			Vector2 result;
+			result.X = value1.X / divider;
+			result.Y = value1.Y / divider;
+			return result;
 		}
 
 		#endregion
