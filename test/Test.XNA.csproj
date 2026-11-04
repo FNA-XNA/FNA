@@ -20,6 +20,7 @@
   <ItemGroup>
     <Reference Include="C:\Windows\Microsoft.NET\assembly\GAC_32\Microsoft.Xna.Framework\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.dll" />
     <Reference Include="C:\Windows\Microsoft.NET\assembly\GAC_32\Microsoft.Xna.Framework.Game\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Game.dll" />
+    <Reference Include="C:\Windows\Microsoft.NET\assembly\GAC_32\Microsoft.Xna.Framework.Xact\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Xact.dll" />
     <Reference Include="C:\Windows\Microsoft.NET\assembly\GAC_32\Microsoft.Xna.Framework.Graphics\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Graphics.dll" />
     <Reference Include="C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Microsoft.Xna.Framework.Storage\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Storage.dll" />
   </ItemGroup>
