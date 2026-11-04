@@ -18,6 +18,19 @@
 			Assert.Result(Vector3.Zero);
 		}
 
+		[Test]
+		public static void Divide()
+		{
+			const float dividend = 1.4399751E-37f;
+			const float divisor = 784f;
+			Vector3 vector1 = new Vector3(dividend);
+			Assert.Result((vector1 / divisor).X);
+			Assert.Result(Vector3.Divide(vector1, divisor).X);
+			Vector3 vector2;
+			Vector3.Divide(ref vector1, divisor, out vector2);
+			Assert.Result(vector2.X);
+		}
+
 		[Argument(1f, 2f)]
 		[Argument(float.NaN, 1f)]
 		[Argument(1f, float.NaN)]
