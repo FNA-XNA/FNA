@@ -894,11 +894,13 @@ namespace Microsoft.Xna.Framework
 		/// <returns>Cubic interpolation of the specified vectors.</returns>
 		public static Vector4 SmoothStep(Vector4 value1, Vector4 value2, float amount)
 		{
+			amount = MathHelper.Clamp(amount, 0f, 1f);
+			amount = amount * amount * (3f - 2f * amount);
 			return new Vector4(
-				MathHelper.SmoothStep(value1.X, value2.X, amount),
-				MathHelper.SmoothStep(value1.Y, value2.Y, amount),
-				MathHelper.SmoothStep(value1.Z, value2.Z, amount),
-				MathHelper.SmoothStep(value1.W, value2.W, amount)
+				MathHelper.Lerp(value1.X, value2.X, amount),
+				MathHelper.Lerp(value1.Y, value2.Y, amount),
+				MathHelper.Lerp(value1.Z, value2.Z, amount),
+				MathHelper.Lerp(value1.W, value2.W, amount)
 			);
 		}
 
@@ -915,10 +917,12 @@ namespace Microsoft.Xna.Framework
 			float amount,
 			out Vector4 result
 		) {
-			result.X = MathHelper.SmoothStep(value1.X, value2.X, amount);
-			result.Y = MathHelper.SmoothStep(value1.Y, value2.Y, amount);
-			result.Z = MathHelper.SmoothStep(value1.Z, value2.Z, amount);
-			result.W = MathHelper.SmoothStep(value1.W, value2.W, amount);
+			amount = MathHelper.Clamp(amount, 0f, 1f);
+			amount = amount * amount * (3f - 2f * amount);
+			result.X = MathHelper.Lerp(value1.X, value2.X, amount);
+			result.Y = MathHelper.Lerp(value1.Y, value2.Y, amount);
+			result.Z = MathHelper.Lerp(value1.Z, value2.Z, amount);
+			result.W = MathHelper.Lerp(value1.W, value2.W, amount);
 		}
 
 		/// <summary>
