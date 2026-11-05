@@ -134,10 +134,13 @@ namespace Microsoft.Xna.Framework.Audio
 		[TestException]
 		public static void GetSampleSizeInBytes()
 		{
-			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(-1), 44100, AudioChannels.Mono); });
-			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(int.MaxValue * TimeSpan.TicksPerMillisecond + 1), 44100, AudioChannels.Mono); });
-			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(int.MaxValue * TimeSpan.TicksPerMillisecond), 44100, AudioChannels.Mono); });
-			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(1), 0, AudioChannels.Mono); });
+			long ticks = 0x80000000 * TimeSpan.TicksPerMillisecond / 2 * 1000 / 44100;
+			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(-1), -1, 0); });
+			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(0), -1, 0); });
+			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(ticks), 44100, AudioChannels.Mono); });
+			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(ticks + 1), 44100, AudioChannels.Mono); });
+			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(1), 44100, AudioChannels.Mono); });
+			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(1), 0, 0); });
 			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(1), 44100, 0); });
 			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(1), 44100, (AudioChannels) 3); });
 		}

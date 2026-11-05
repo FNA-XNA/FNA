@@ -5,9 +5,10 @@ namespace Microsoft.Xna.Framework.Audio
 	public static class MicrophoneTest
 	{
 		[Test]
-		public static void Test()
+		public static void Default()
 		{
 			Microphone microphone = Microphone.Default;
+			Assert.Result(microphone.BufferDuration);
 			Assert.Result(microphone.IsHeadset);
 			Assert.Result(microphone.SampleRate);
 		}

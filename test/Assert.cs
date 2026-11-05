@@ -22,6 +22,11 @@ namespace Test
 
 static class Assert
 {
+#if XNA
+	internal const string TMP = "XNA_TMP";
+#else
+	internal const string TMP = "FNA_TMP";
+#endif
 	internal static void Result(object result, [CallerFilePath] string path = null, [CallerLineNumber] int line = 0)
 	{
 		Test.Global.results.Add(result);
