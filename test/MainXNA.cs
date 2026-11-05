@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Pipes;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 
 namespace Test
 {
@@ -11,6 +13,7 @@ namespace Test
 	{
 		static void Main(string[] args)
 		{
+			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 			int pid = int.Parse(args[0]);
 			AnonymousPipeClientStream pipeIn = new AnonymousPipeClientStream(PipeDirection.In, args[1]);
 			AnonymousPipeClientStream pipeOut = new AnonymousPipeClientStream(PipeDirection.Out, args[2]);

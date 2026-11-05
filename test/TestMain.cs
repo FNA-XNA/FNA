@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Pipes;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading;
 
 namespace Test
 {
@@ -26,6 +28,7 @@ namespace Test
 
 		static int Main()
 		{
+			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 			AnonymousPipeServerStream pipeIn = new AnonymousPipeServerStream(PipeDirection.In, HandleInheritability.Inheritable);
 			AnonymousPipeServerStream pipeOut = new AnonymousPipeServerStream(PipeDirection.Out, HandleInheritability.Inheritable);
 			using (Process process = new Process
