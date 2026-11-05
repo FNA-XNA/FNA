@@ -117,7 +117,7 @@ namespace Test
 							{
 								Exception exception1 = exceptions1[i];
 								Exception exception2 = exceptions2[i];
-								if (exception1 != exception2 && (exception1 == null || exception2 == null || exception1.GetType() != exception2.GetType()))
+								if (exception1 != exception2 && (exception1 == null || exception2 == null || exception1.GetType() != exception2.GetType() || exception1.Message != exception2.Message))
 								{
 									Fail("Throw exception is not the same");
 									Message(ConsoleColor.Cyan, Code(method, Global.codeException[i]));
