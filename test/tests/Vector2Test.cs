@@ -14,7 +14,7 @@
 		[Test]
 		public static void AddSubtract()
 		{
-			Vector2 v1 = new Vector2(2f, 10f);
+			Vector2 v1 = new Vector2(2f, 12f);
 			Vector2 v2 = new Vector2(1f, 5f);
 			Assert.Result(v1 + v2);
 			Assert.Result(v1 - v2);

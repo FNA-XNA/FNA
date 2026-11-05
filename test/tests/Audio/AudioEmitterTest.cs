@@ -5,8 +5,9 @@
 		[TestException]
 		public static void DopplerScale()
 		{
+			Assert.Throw(() => { new AudioEmitter().DopplerScale = 0f; });
 			Assert.Throw(() => { new AudioEmitter().DopplerScale = -float.Epsilon; });
-			Assert.Throw(() => { new AudioEmitter().DopplerScale = 0; });
+			Assert.Throw(() => { new AudioEmitter().DopplerScale = float.Epsilon; });
 		}
 
 		[Test]
