@@ -27,7 +27,7 @@
 		[Test]
 		public static void MultiplyDivide()
 		{
-			const float f = 23f;
+			const float f = 137f;
 			Matrix v1 = new Matrix(3f, 7f, 13f, 19f, 29f, 37f, 43f, 53f, 61f, 71f, 79f, 89f, 101f, 107f, 113f, 131f);
 			Matrix v2 = new Matrix(2f, 5f, 11f, 17f, 23f, 31f, 41f, 47f, 59f, 67f, 73f, 83f, 97f, 103f, 109f, 127f);
 			Assert.Result(v1 * v2);

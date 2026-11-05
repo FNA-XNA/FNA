@@ -37,7 +37,7 @@
 		[Test]
 		public static void MultiplyDivide()
 		{
-			const float f = 23f;
+			const float f = 137f;
 			Vector3 v1 = new Vector3(3f, 7f, 13f);
 			Vector3 v2 = new Vector3(2f, 5f, 11f);
 			Assert.Result(v1 * v2);

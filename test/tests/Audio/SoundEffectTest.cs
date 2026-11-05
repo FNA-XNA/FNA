@@ -134,7 +134,7 @@ namespace Microsoft.Xna.Framework.Audio
 		[TestException]
 		public static void GetSampleSizeInBytes()
 		{
-			long ticks = 0x80000000 * TimeSpan.TicksPerMillisecond / 2 * 1000 / 44100;
+			const long ticks = 0x80000000 * TimeSpan.TicksPerMillisecond / 2 * 1000 / 44100;
 			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(-1), -1, 0); });
 			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(0), -1, 0); });
 			Assert.Throw(() => { SoundEffect.GetSampleSizeInBytes(new TimeSpan(ticks), 44100, AudioChannels.Mono); });

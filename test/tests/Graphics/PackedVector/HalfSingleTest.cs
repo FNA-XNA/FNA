@@ -6,7 +6,7 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		[Argument(float.NaN)]
 		public static void F32toF16(float value)
 		{
-			Assert.Result(new HalfSingle(value).PackedValue);
+			Assert.Result(new HalfSingle(value));
 		}
 	}
 }

@@ -32,7 +32,7 @@
 		[Test]
 		public static void MultiplyDivide()
 		{
-			const float f = 23f;
+			const float f = 137f;
 			Vector4 v1 = new Vector4(3f, 7f, 13f, 19f);
 			Vector4 v2 = new Vector4(2f, 5f, 11f, 17f);
 			Assert.Result(v1 * v2);

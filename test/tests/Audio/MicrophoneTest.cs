@@ -26,7 +26,7 @@ namespace Microsoft.Xna.Framework.Audio
 			microphone.BufferDuration = bufferDuration;
 		}
 
-			[TestException]
+		[TestException]
 		public static void GetSampleDuration()
 		{
 			Microphone microphone = Microphone.Default;
