@@ -9,11 +9,13 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			Assert.Throw(() => { new AudioEngine(null).Dispose(); });
 			Assert.Throw(() => { new AudioEngine("").Dispose(); });
-			File.WriteAllBytes("tmp", new byte[] { (byte) 'F', (byte) 'S', (byte) 'G' });
+			File.WriteAllBytes("tmp", new byte[] { (byte) 'X', (byte) 'G', (byte) 'S' });
 			Assert.Throw(() => { new AudioEngine("tmp").Dispose(); });
-			File.WriteAllBytes("tmp", new byte[] { (byte) 'F', (byte) 'S', (byte) 'G', (byte) 'Y' });
+			File.WriteAllBytes("tmp", new byte[] { (byte) 'X', (byte) 'G', (byte) 'S', (byte) 'G' });
 			Assert.Throw(() => { new AudioEngine("tmp").Dispose(); });
-			File.WriteAllBytes("tmp", new byte[] { (byte) 'F', (byte) 'S', (byte) 'G', (byte) 'X' });
+			File.WriteAllBytes("tmp", new byte[] { (byte) 'X', (byte) 'G', (byte) 'S', (byte) 'F' });
+			Assert.Throw(() => { new AudioEngine("tmp").Dispose(); });
+			File.WriteAllBytes("tmp", new byte[] { (byte) 'X', (byte) 'G', (byte) 'S', (byte) 'F', 0 });
 			Assert.Throw(() => { new AudioEngine("tmp").Dispose(); });
 		}
 	}
