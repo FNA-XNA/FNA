@@ -2,6 +2,7 @@
 {
 	public static class BasicEffectTest
 	{
+		[Test]
 		public static void Default()
 		{
 			GraphicsDevice gd = GameTest.gdm.GraphicsDevice;
