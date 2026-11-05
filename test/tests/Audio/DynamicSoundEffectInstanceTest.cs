@@ -5,9 +5,9 @@
 		[TestException]
 		public static void DynamicSoundEffectInstanceCtor()
 		{
-			Assert.Throw(() => { new DynamicSoundEffectInstance(1999, AudioChannels.Mono).Dispose(); });
-			Assert.Throw(() => { new DynamicSoundEffectInstance(8000, 0).Dispose(); });
-			Assert.Throw(() => { new DynamicSoundEffectInstance(8000, (AudioChannels) 3).Dispose(); });
+			Assert.Throw(() => { new DynamicSoundEffectInstance(1999, 0).Dispose(); });
+			Assert.Throw(() => { new DynamicSoundEffectInstance(44100, 0).Dispose(); });
+			Assert.Throw(() => { new DynamicSoundEffectInstance(44100, (AudioChannels) 3).Dispose(); });
 		}
 	}
 }

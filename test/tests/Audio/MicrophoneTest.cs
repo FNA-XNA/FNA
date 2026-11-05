@@ -14,6 +14,19 @@ namespace Microsoft.Xna.Framework.Audio
 		}
 
 		[TestException]
+		public static void BufferDuration()
+		{
+			Microphone microphone = Microphone.Default;
+			TimeSpan bufferDuration = microphone.BufferDuration;
+			Assert.Throw(() => { microphone.BufferDuration = new TimeSpan(90 * TimeSpan.TicksPerMillisecond); });
+			Assert.Throw(() => { microphone.BufferDuration = new TimeSpan(100 * TimeSpan.TicksPerMillisecond); });
+			Assert.Throw(() => { microphone.BufferDuration = new TimeSpan(487 * TimeSpan.TicksPerMillisecond); });
+			Assert.Throw(() => { microphone.BufferDuration = new TimeSpan(1000 * TimeSpan.TicksPerMillisecond); });
+			Assert.Throw(() => { microphone.BufferDuration = new TimeSpan(1010 * TimeSpan.TicksPerMillisecond); });
+			microphone.BufferDuration = bufferDuration;
+		}
+
+			[TestException]
 		public static void GetSampleDuration()
 		{
 			Microphone microphone = Microphone.Default;
@@ -24,16 +37,17 @@ namespace Microsoft.Xna.Framework.Audio
 		[TestException]
 		public static void GetSampleSizeInBytes()
 		{
+			const long ticks = 0x80000000 * TimeSpan.TicksPerMillisecond / 2 * 1000 / 44100;
 			Microphone microphone = Microphone.Default;
 			Assert.Throw(() => { microphone.GetSampleSizeInBytes(new TimeSpan(-1)); });
 			Assert.Throw(() => { microphone.GetSampleSizeInBytes(new TimeSpan(0)); });
-			long ticks = 0x80000000 * TimeSpan.TicksPerMillisecond / 2 * 1000 / 44100;
+			Assert.Throw(() => { microphone.GetSampleSizeInBytes(new TimeSpan(1)); });
 			Assert.Throw(() => { microphone.GetSampleSizeInBytes(new TimeSpan(ticks)); });
 			Assert.Throw(() => { microphone.GetSampleSizeInBytes(new TimeSpan(ticks + 1)); });
 		}
 
 		[TestException]
-		public static void TestException()
+		public static void GetData()
 		{
 			Microphone microphone = Microphone.Default;
 			Assert.Throw(() => { microphone.GetData(null); });
