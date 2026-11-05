@@ -57,9 +57,12 @@ namespace Microsoft.Xna.Framework.Audio
 			Assert.Throw(() => { microphone.GetData(null, -1, 0); });
 			Assert.Throw(() => { microphone.GetData(new byte[0], -1, 0); });
 			Assert.Throw(() => { microphone.GetData(new byte[3], -1, 0); });
+
 			Assert.Throw(() => { microphone.GetData(new byte[4], -1, 0); });
 			Assert.Throw(() => { microphone.GetData(new byte[4], 3, 0); });
 			Assert.Throw(() => { microphone.GetData(new byte[4], 4, 0); });
+
+			Assert.Throw(() => { microphone.GetData(new byte[4], 0, 0); });
 			Assert.Throw(() => { microphone.GetData(new byte[4], 0, 3); });
 			Assert.Throw(() => { microphone.GetData(new byte[4], 0, 5); });
 		}
