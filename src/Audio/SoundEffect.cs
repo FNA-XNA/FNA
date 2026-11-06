@@ -439,6 +439,10 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentOutOfRangeException("channels");
 			}
+			if (duration.Ticks > 0x80000000 * TimeSpan.TicksPerSecond / (2 * (int) channels * sampleRate))
+			{
+				throw new ArgumentOutOfRangeException("duration");
+			}
 			return INTERNAL_GetSampleSizeInBytes(duration, sampleRate, 2 * (int) channels); // 16-bit PCM!
 		}
 

@@ -141,7 +141,7 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
 			}
-			if (unchecked((ulong) duration.Ticks) > int.MaxValue * TimeSpan.TicksPerMillisecond)
+			if (unchecked((ulong) duration.Ticks) > 0x80000000ul * TimeSpan.TicksPerSecond / (format.nBlockAlign * format.nSamplesPerSec))
 			{
 				throw new ArgumentOutOfRangeException("duration");
 			}

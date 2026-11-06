@@ -181,7 +181,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public int GetSampleSizeInBytes(TimeSpan duration)
 		{
-			if (unchecked((ulong) duration.Ticks) > int.MaxValue * TimeSpan.TicksPerMillisecond)
+			if (unchecked((ulong) duration.Ticks) > 0x80000000 * TimeSpan.TicksPerSecond / 2 / 44100)
 			{
 				throw new ArgumentOutOfRangeException("duration");
 			}
