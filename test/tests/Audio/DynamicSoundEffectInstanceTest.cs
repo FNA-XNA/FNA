@@ -11,6 +11,7 @@ namespace Microsoft.Xna.Framework.Audio
 			Assert.Result(dynamicSoundEffectInstance.IsLooped);
 			dynamicSoundEffectInstance.Dispose();
 		}
+
 		[TestException]
 		public static void TestException()
 		{

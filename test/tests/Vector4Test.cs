@@ -6,10 +6,10 @@
 		public static void Default()
 		{
 			Assert.Result(Vector4.One);
+			Assert.Result(Vector4.UnitW);
 			Assert.Result(Vector4.UnitX);
 			Assert.Result(Vector4.UnitY);
 			Assert.Result(Vector4.UnitZ);
-			Assert.Result(Vector4.UnitW);
 			Assert.Result(Vector4.Zero);
 		}
 
