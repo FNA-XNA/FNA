@@ -15,5 +15,17 @@
 			Assert.Throw(() => { frustum.GetCorners(null); });
 			Assert.Throw(() => { frustum.GetCorners(new Vector3[7]); });
 		}
+
+		[Argument(1f)]
+		[Argument(-1f)]
+		public static void ContainsSphere(float z)
+		{
+			BoundingFrustum frustum = new BoundingFrustum(Matrix.CreateOrthographicOffCenter(-1, 1, -1, 1, 0, -2));
+			BoundingSphere sphere = new BoundingSphere(new Vector3(0f, 0f, z), 1f);
+			Assert.Result(frustum.Contains(sphere));
+			ContainmentType result;
+			frustum.Contains(ref sphere, out result);
+			Assert.Result(result);
+		}
 	}
 }

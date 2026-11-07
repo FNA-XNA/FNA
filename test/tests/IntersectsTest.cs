@@ -98,5 +98,27 @@
 			frustum.Intersects(ref sphere, out result);
 			Assert.Result(result);
 		}
+
+		[Argument(float.NaN)]
+		[Argument(0f)]
+		[Argument(-float.Epsilon)]
+		[Argument(float.Epsilon)]
+		public static void FrustumPlane(float x)
+		{
+			Plane plane; PlaneIntersectionType result;
+			BoundingFrustum frustum = new BoundingFrustum(Matrix.Identity);
+
+			plane = new Plane(new Vector3(0f, 0f, 1f), x);
+			Assert.Result(frustum.Intersects(plane));
+			Assert.Result(plane.Intersects(frustum));
+			frustum.Intersects(ref plane, out result);
+			Assert.Result(result);
+
+			plane = new Plane(new Vector3(0f, 0f, -1f), x);
+			Assert.Result(frustum.Intersects(plane));
+			Assert.Result(plane.Intersects(frustum));
+			frustum.Intersects(ref plane, out result);
+			Assert.Result(result);
+		}
 	}
 }
