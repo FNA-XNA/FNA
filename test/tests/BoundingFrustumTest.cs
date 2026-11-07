@@ -7,5 +7,13 @@
 		{
 			Assert.Result(BoundingFrustum.CornerCount);
 		}
+
+		[TestException]
+		public static void GetCorners()
+		{
+			BoundingFrustum frustum = new BoundingFrustum(Matrix.Identity);
+			Assert.Throw(() => { frustum.GetCorners(null); });
+			Assert.Throw(() => { frustum.GetCorners(new Vector3[7]); });
+		}
 	}
 }

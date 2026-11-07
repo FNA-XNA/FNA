@@ -2,6 +2,12 @@
 {
 	public static class PlaneTest
 	{
+		[TestException]
+		public static void BoundingFrustum()
+		{
+			Assert.Throw(() => { new Plane().Intersects(null); });
+		}
+
 		[Argument(float.NaN)]
 		[Argument(0.99999988f)]
 		[Argument(0.99999994f)]
