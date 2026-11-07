@@ -51,6 +51,17 @@
 		}
 
 		[Test]
+		public static void Negate()
+		{
+			Matrix matrix = new Matrix(2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f, 13f, 14f, 15f, 16f, 17f);
+			Assert.Result(-matrix);
+			Assert.Result(Matrix.Negate(matrix));
+			Matrix result;
+			Matrix.Negate(ref matrix, out result);
+			Assert.Result(result);
+		}
+
+		[Test]
 		public static void Divide()
 		{
 			const float dividend = 1.4399751E-37f;
@@ -66,6 +77,21 @@
 			Matrix matrix2;
 			Matrix.Divide(ref matrix1, divisor, out matrix2);
 			Assert.Result(matrix2.M11);
+		}
+
+		[Test]
+		public static void CreateRotation()
+		{
+			Assert.Result(Matrix.CreateRotationX(603851f));
+			Assert.Result(Matrix.CreateRotationY(603851f));
+			Assert.Result(Matrix.CreateRotationZ(603851f));
+			Matrix result;
+			Matrix.CreateRotationX(603851f, out result);
+			Assert.Result(result);
+			Matrix.CreateRotationY(603851f, out result);
+			Assert.Result(result);
+			Matrix.CreateRotationZ(603851f, out result);
+			Assert.Result(result);
 		}
 	}
 }

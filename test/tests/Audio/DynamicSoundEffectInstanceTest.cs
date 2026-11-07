@@ -9,6 +9,9 @@ namespace Microsoft.Xna.Framework.Audio
 		{
 			DynamicSoundEffectInstance dynamicSoundEffectInstance = new DynamicSoundEffectInstance(44100, AudioChannels.Mono);
 			Assert.Result(dynamicSoundEffectInstance.IsLooped);
+			Assert.Result(dynamicSoundEffectInstance.Pan);
+			Assert.Result(dynamicSoundEffectInstance.Pitch);
+			Assert.Result(dynamicSoundEffectInstance.Volume);
 			dynamicSoundEffectInstance.Dispose();
 		}
 

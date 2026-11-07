@@ -18,7 +18,7 @@
 		}
 
 		[Test]
-		public static void Contains()
+		public static void ContainsPoint()
 		{
 			Vector3 vector3;
 			ContainmentType containmentType;

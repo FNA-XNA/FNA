@@ -206,10 +206,10 @@ namespace Test
 
 		static string Code(MethodInfo methodInfo, Global.Code code)
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new StringBuilder(20);
 			sb.Append("   at ");
 			sb.Append(methodInfo.DeclaringType.FullName);
-			sb.Append(".");
+			sb.Append('.');
 			sb.Append(methodInfo.Name);
 			sb.Append('(');
 			foreach (ParameterInfo parameterInfo in methodInfo.GetParameters())
