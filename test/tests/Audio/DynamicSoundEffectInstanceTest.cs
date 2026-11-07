@@ -24,13 +24,24 @@ namespace Microsoft.Xna.Framework.Audio
 			Assert.Throw(()=> { var _ = dynamicSoundEffectInstance.IsLooped; });
 			Assert.Throw(() => { dynamicSoundEffectInstance.IsLooped = true; });
 			Assert.Throw(() => { var _ = dynamicSoundEffectInstance.PendingBufferCount; });
+			Assert.Throw(() => { dynamicSoundEffectInstance.Pan = -2f; });
+			Assert.Throw(() => { dynamicSoundEffectInstance.Pitch = -2f; });
+			Assert.Throw(() => { var _ = dynamicSoundEffectInstance.State; });
+			Assert.Throw(() => { dynamicSoundEffectInstance.Volume = -2f; });
 			Assert.Throw(() => { dynamicSoundEffectInstance.GetSampleDuration(0); });
+			Assert.Throw(() => { dynamicSoundEffectInstance.GetSampleDuration(0); });
+			Assert.Throw(() => { dynamicSoundEffectInstance.Apply3D((AudioListener) null, null); });
+			Assert.Throw(() => { dynamicSoundEffectInstance.Pause(); });
+			Assert.Throw(() => { dynamicSoundEffectInstance.Play(); });
+			Assert.Throw(() => { dynamicSoundEffectInstance.Resume(); });
+			Assert.Throw(() => { dynamicSoundEffectInstance.Stop(); });
 		}
 
 		[TestException]
 		public static void DynamicSoundEffectInstanceCtor()
 		{
 			Assert.Throw(() => { new DynamicSoundEffectInstance(999, 0).Dispose(); });
+			Assert.Throw(() => { new DynamicSoundEffectInstance(200001, 0).Dispose(); });
 			Assert.Throw(() => { new DynamicSoundEffectInstance(44100, 0).Dispose(); });
 			Assert.Throw(() => { new DynamicSoundEffectInstance(44100, (AudioChannels) 3).Dispose(); });
 		}
