@@ -16,8 +16,23 @@
 			Assert.Throw(() => { frustum.GetCorners(new Vector3[7]); });
 		}
 
+		[Argument(-1e-4f)]
+		[Argument(-1e-6f)]
+		[Argument(1e-6f)]
+		[Argument(1e-4f)]
+		public static void ContainsPoint(float z)
+		{
+			BoundingFrustum frustum = new BoundingFrustum(Matrix.Identity);
+			Vector3 point = new Vector3(0f, 0f, z);
+			Assert.Result(frustum.Contains(point));
+			ContainmentType result;
+			frustum.Contains(ref point, out result);
+			Assert.Result(result);
+		}
+
 		[Argument(1f)]
 		[Argument(-1f)]
+		[Argument(3f)]
 		public static void ContainsSphere(float z)
 		{
 			BoundingFrustum frustum = new BoundingFrustum(Matrix.CreateOrthographicOffCenter(-1, 1, -1, 1, 0, -2));
