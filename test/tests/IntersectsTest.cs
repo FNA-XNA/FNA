@@ -2,6 +2,12 @@
 {
 	public static class IntersectsTest
 	{
+		[TestException]
+		public static void BoundingFrustum()
+		{
+			Assert.Throw(() => { new Plane().Intersects(null); });
+		}
+
 		[Argument(float.NaN)]
 		[Argument(0f)]
 		[Argument(-float.Epsilon)]
@@ -47,6 +53,31 @@
 			sphere.Intersects(ref plane, out result);
 			Assert.Result(result);
 			plane.Intersects(ref sphere, out result);
+			Assert.Result(result);
+		}
+
+		[Argument(float.NaN)]
+		[Argument(0f)]
+		[Argument(-float.Epsilon)]
+		[Argument(float.Epsilon)]
+		public static void BoxPlane(float x)
+		{
+			BoundingBox box; PlaneIntersectionType result;
+			Plane plane = new Plane(new Vector3(1f, 1f, 1f), x);
+			box = new BoundingBox(new Vector3(), new Vector3(1f, 1f, 1f));
+			Assert.Result(box.Intersects(plane));
+			Assert.Result(plane.Intersects(box));
+			box.Intersects(ref plane, out result);
+			Assert.Result(result);
+			plane.Intersects(ref box, out result);
+			Assert.Result(result);
+
+			box = new BoundingBox(new Vector3(-1f, -1f, -1f), new Vector3());
+			Assert.Result(box.Intersects(plane));
+			Assert.Result(plane.Intersects(box));
+			box.Intersects(ref plane, out result);
+			Assert.Result(result);
+			plane.Intersects(ref box, out result);
 			Assert.Result(result);
 		}
 	}
