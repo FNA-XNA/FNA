@@ -23,6 +23,7 @@ namespace Microsoft.Xna.Framework.Audio
 		public static void WaveBankCtor()
 		{
 			AudioEngine audioEngine = new AudioEngine("Content/Audio Engine.xgs");
+
 			Assert.Throw(() => { new WaveBank(null, null).Dispose(); });
 			Assert.Throw(() => { new WaveBank(audioEngine, null).Dispose(); });
 			Assert.Throw(() => { new WaveBank(audioEngine, "").Dispose(); });
@@ -34,6 +35,19 @@ namespace Microsoft.Xna.Framework.Audio
 			Assert.Throw(() => { new WaveBank(audioEngine, Assert.TMP).Dispose(); });
 			File.WriteAllBytes(Assert.TMP, new byte[] { (byte) 'W', (byte) 'B', (byte) 'N', (byte) 'D', 0 });
 			Assert.Throw(() => { new WaveBank(audioEngine, Assert.TMP).Dispose(); });
+
+			Assert.Throw(() => { new WaveBank(null, null, 0, 0).Dispose(); });
+			Assert.Throw(() => { new WaveBank(audioEngine, null, 0, 0).Dispose(); });
+			Assert.Throw(() => { new WaveBank(audioEngine, "", 0, 0).Dispose(); });
+			File.WriteAllBytes(Assert.TMP + 1, new byte[] { (byte) 'W', (byte) 'B', (byte) 'N' });
+			Assert.Throw(() => { new WaveBank(audioEngine, Assert.TMP + 1, 0, 0).Dispose(); });
+			File.WriteAllBytes(Assert.TMP + 2, new byte[] { (byte) 'W', (byte) 'B', (byte) 'N', (byte) 'E' });
+			Assert.Throw(() => { new WaveBank(audioEngine, Assert.TMP + 2, 0, 0).Dispose(); });
+			File.WriteAllBytes(Assert.TMP + 3, new byte[] { (byte) 'W', (byte) 'B', (byte) 'N', (byte) 'D' });
+			Assert.Throw(() => { new WaveBank(audioEngine, Assert.TMP + 3, 0, 0).Dispose(); });
+			File.WriteAllBytes(Assert.TMP + 4, new byte[] { (byte) 'W', (byte) 'B', (byte) 'N', (byte) 'D', 0 });
+			Assert.Throw(() => { new WaveBank(audioEngine, Assert.TMP + 4, 0, 0).Dispose(); });
+
 			audioEngine.Dispose();
 		}
 
