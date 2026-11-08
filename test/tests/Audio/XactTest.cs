@@ -5,7 +5,7 @@ namespace Microsoft.Xna.Framework.Audio
 	public static class XactTest
 	{
 		[TestException]
-		public static void Ctor()
+		public static void AudioEngineCtor()
 		{
 			Assert.Throw(() => { new AudioEngine(null).Dispose(); });
 			Assert.Throw(() => { new AudioEngine("").Dispose(); });
@@ -17,6 +17,42 @@ namespace Microsoft.Xna.Framework.Audio
 			Assert.Throw(() => { new AudioEngine(Assert.TMP).Dispose(); });
 			File.WriteAllBytes(Assert.TMP, new byte[] { (byte) 'X', (byte) 'G', (byte) 'S', (byte) 'F', 0 });
 			Assert.Throw(() => { new AudioEngine(Assert.TMP).Dispose(); });
+		}
+
+		[TestException]
+		public static void WaveBankCtor()
+		{
+			AudioEngine audioEngine = new AudioEngine("Content/Audio Engine.xgs");
+			Assert.Throw(() => { new WaveBank(null, null).Dispose(); });
+			Assert.Throw(() => { new WaveBank(audioEngine, null).Dispose(); });
+			Assert.Throw(() => { new WaveBank(audioEngine, "").Dispose(); });
+			File.WriteAllBytes(Assert.TMP, new byte[] { (byte) 'W', (byte) 'B', (byte) 'N' });
+			Assert.Throw(() => { new WaveBank(audioEngine, Assert.TMP).Dispose(); });
+			File.WriteAllBytes(Assert.TMP, new byte[] { (byte) 'W', (byte) 'B', (byte) 'N', (byte) 'E' });
+			Assert.Throw(() => { new WaveBank(audioEngine, Assert.TMP).Dispose(); });
+			File.WriteAllBytes(Assert.TMP, new byte[] { (byte) 'W', (byte) 'B', (byte) 'N', (byte) 'D' });
+			Assert.Throw(() => { new WaveBank(audioEngine, Assert.TMP).Dispose(); });
+			File.WriteAllBytes(Assert.TMP, new byte[] { (byte) 'W', (byte) 'B', (byte) 'N', (byte) 'D', 0 });
+			Assert.Throw(() => { new WaveBank(audioEngine, Assert.TMP).Dispose(); });
+			audioEngine.Dispose();
+		}
+
+		[TestException]
+		public static void SoundBankCtor()
+		{
+			AudioEngine audioEngine = new AudioEngine("Content/Audio Engine.xgs");
+			Assert.Throw(() => { new SoundBank(null, null).Dispose(); });
+			Assert.Throw(() => { new SoundBank(audioEngine, null).Dispose(); });
+			Assert.Throw(() => { new SoundBank(audioEngine, "").Dispose(); });
+			File.WriteAllBytes(Assert.TMP, new byte[] { (byte) 'S', (byte) 'D', (byte) 'B' });
+			Assert.Throw(() => { new SoundBank(audioEngine, Assert.TMP).Dispose(); });
+			File.WriteAllBytes(Assert.TMP, new byte[] { (byte) 'S', (byte) 'D', (byte) 'B', (byte) 'L' });
+			Assert.Throw(() => { new SoundBank(audioEngine, Assert.TMP).Dispose(); });
+			File.WriteAllBytes(Assert.TMP, new byte[] { (byte) 'S', (byte) 'D', (byte) 'B', (byte) 'K' });
+			Assert.Throw(() => { new SoundBank(audioEngine, Assert.TMP).Dispose(); });
+			File.WriteAllBytes(Assert.TMP, new byte[] { (byte) 'S', (byte) 'D', (byte) 'B', (byte) 'K', 0 });
+			Assert.Throw(() => { new SoundBank(audioEngine, Assert.TMP).Dispose(); });
+			audioEngine.Dispose();
 		}
 
 		[TestException]
