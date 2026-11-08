@@ -128,7 +128,7 @@ namespace Test
 								ArgumentException argumentException2 = exception2 as ArgumentException;
 								if (
 									exception1 == null || exception2 == null || exception1.GetType() != exception2.GetType() ||
-									argumentException1 == null || string.IsNullOrEmpty(argumentException1.ParamName) || argumentException1.ParamName != argumentException2.ParamName
+									argumentException1 != null && argumentException1.ParamName != null && argumentException1.ParamName != argumentException2.ParamName
 								) {
 									Fail("Throw exception type is not the same");
 									Message(ConsoleColor.Cyan, Code(method, Global.codeException[i]));

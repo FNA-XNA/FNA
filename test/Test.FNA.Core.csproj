@@ -28,6 +28,12 @@
     <ProjectReference Include="../FNA.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Content\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
   <Target Name="BuildXNA" AfterTargets="CopyFilesToOutputDirectory">
     <MSBuild Projects="Test.XNA.csproj" RemoveProperties="TargetFramework" Properties="OutputPath=$(OutputPath)" />
   </Target>
