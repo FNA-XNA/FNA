@@ -74,17 +74,24 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				GraphicsDevice.Textures.RemoveDisposedTexture(this);
 				GraphicsDevice.VertexTextures.RemoveDisposedTexture(this);
-
-				IntPtr toDispose = Interlocked.Exchange(ref texture, IntPtr.Zero);
-				if (toDispose != IntPtr.Zero)
-				{
-					FNA3D.FNA3D_AddDisposeTexture(
-						GraphicsDevice.GLDevice,
-						toDispose
-					);
-				}
 			}
 			base.Dispose(disposing);
+		}
+
+		#endregion
+
+		#region Internal Methods
+
+		internal override void DisposeNative()
+		{
+			IntPtr toDispose = Interlocked.Exchange(ref texture, IntPtr.Zero);
+			if (toDispose != IntPtr.Zero)
+			{
+				FNA3D.FNA3D_AddDisposeTexture(
+					GraphicsDevice.GLDevice,
+					toDispose
+				);
+			}
 		}
 
 		#endregion
