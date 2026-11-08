@@ -62,5 +62,13 @@ namespace Microsoft.Xna.Framework.Content
 			contentManager.Dispose();
 			Assert.Throw(() => { contentManager.ReadAsset(null, null); });
 		}
+
+		[TestException]
+		public static void RootDirectory()
+		{
+			ContentManager contentManager = new ContentManager(new GameServiceContainer());
+			Assert.Throw(() => { contentManager.RootDirectory = null; });
+			contentManager.Dispose();
+		}
 	}
 }
