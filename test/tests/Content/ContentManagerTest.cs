@@ -12,6 +12,10 @@ namespace Microsoft.Xna.Framework.Content
 			{
 				return base.OpenStream(assetName);
 			}
+			internal void ReadAsset(string assetName, Action<IDisposable> recordDisposableObject)
+			{
+				base.ReadAsset<int>(assetName, recordDisposableObject);
+			}
 		}
 
 		[TestException]
@@ -31,6 +35,16 @@ namespace Microsoft.Xna.Framework.Content
 		}
 
 		[TestException]
+		public static void Load()
+		{
+			MyContentManager contentManager = new MyContentManager(new GameServiceContainer());
+			Assert.Throw(() => { contentManager.Load<int>(null); });
+			Assert.Throw(() => { contentManager.Load<int>(""); });
+			contentManager.Dispose();
+			Assert.Throw(() => { contentManager.Load<int>(null); });
+		}
+
+		[TestException]
 		public static void OpenStream()
 		{
 			MyContentManager contentManager = new MyContentManager(new GameServiceContainer());
@@ -40,13 +54,13 @@ namespace Microsoft.Xna.Framework.Content
 		}
 
 		[TestException]
-		public static void Load()
+		public static void ReadAsset()
 		{
 			MyContentManager contentManager = new MyContentManager(new GameServiceContainer());
-			Assert.Throw(() => { contentManager.Load<int>(null); });
-			Assert.Throw(() => { contentManager.Load<int>(""); });
+			Assert.Throw(() => { contentManager.ReadAsset(null, null); });
+			Assert.Throw(() => { contentManager.ReadAsset("", null); });
 			contentManager.Dispose();
-			Assert.Throw(() => { contentManager.Load<int>(null); });
+			Assert.Throw(() => { contentManager.ReadAsset(null, null); });
 		}
 	}
 }
