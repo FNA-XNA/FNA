@@ -123,7 +123,7 @@ namespace Test
 					{
 						entries.AddValue(reader.ReadString(), ReadObject(reader));
 					}
-					return Type.GetType(entries.GetString("ClassName"))
+					return GetType(entries.GetString("ClassName"))
 						.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(SerializationInfo), typeof(StreamingContext) }, null)
 						.Invoke(new object[] { entries, new StreamingContext(StreamingContextStates.CrossProcess) });
 #pragma warning restore SYSLIB0050
