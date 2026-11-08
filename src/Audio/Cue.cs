@@ -250,6 +250,10 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentNullException("name", "This method does not accept null for this parameter.");
 			}
+			if (IsDisposed)
+			{
+				throw new ArgumentException();
+			}
 
 			ushort variable = FAudio.FACTCue_GetVariableIndex(
 				handle,

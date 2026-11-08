@@ -29,9 +29,23 @@ namespace Microsoft.Xna.Framework.Audio
 
 			Assert.Throw(() => { cue.Stop((AudioStopOptions) 2); });
 
+			Assert.Throw(() => { soundBank.GetCue(null); });
+			Assert.Throw(() => { soundBank.GetCue(""); });
+			Assert.Throw(() => { soundBank.GetCue("a"); });
+			Assert.Throw(() => { soundBank.PlayCue(null); });
+			Assert.Throw(() => { soundBank.PlayCue(""); });
+			Assert.Throw(() => { soundBank.PlayCue("a"); });
+
+			Assert.Throw(() => { audioEngine.GetCategory(null); });
+			Assert.Throw(() => { audioEngine.GetCategory(""); });
+			Assert.Throw(() => { audioEngine.GetCategory("a"); });
+
 			Assert.Throw(() => { cue.GetVariable(null); });
 			Assert.Throw(() => { cue.GetVariable(""); });
 			Assert.Throw(() => { cue.GetVariable("a"); });
+			Assert.Throw(() => { cue.SetVariable(null, 0f); });
+			Assert.Throw(() => { cue.SetVariable("", 0f); });
+			Assert.Throw(() => { cue.SetVariable("a", 0f); });
 
 			Assert.Throw(() => { audioEngine.GetGlobalVariable(null); });
 			Assert.Throw(() => { audioEngine.GetGlobalVariable(""); });
@@ -39,9 +53,6 @@ namespace Microsoft.Xna.Framework.Audio
 			Assert.Throw(() => { audioEngine.SetGlobalVariable(null, 0f); });
 			Assert.Throw(() => { audioEngine.SetGlobalVariable("", 0f); });
 			Assert.Throw(() => { audioEngine.SetGlobalVariable("a", 0f); });
-			Assert.Throw(() => { audioEngine.GetCategory(null); });
-			Assert.Throw(() => { audioEngine.GetCategory(""); });
-			Assert.Throw(() => { audioEngine.GetCategory("a"); });
 
 			cue.Dispose();
 			soundBank.Dispose();
@@ -51,11 +62,26 @@ namespace Microsoft.Xna.Framework.Audio
 			Assert.Throw(() => { cue.Play(); });
 			Assert.Throw(() => { cue.Pause(); });
 			Assert.Throw(() => { cue.Resume(); });
+			Assert.Throw(() => { cue.Stop((AudioStopOptions) (-1)); });
 			Assert.Throw(() => { cue.Stop((AudioStopOptions) 2); });
+
+			Assert.Throw(() => { soundBank.GetCue(null); });
+			Assert.Throw(() => { soundBank.GetCue(""); });
+			Assert.Throw(() => { soundBank.GetCue("New Cue"); });
+			Assert.Throw(() => { soundBank.PlayCue(null); });
+			Assert.Throw(() => { soundBank.PlayCue(""); });
+			Assert.Throw(() => { soundBank.PlayCue("New Cue"); });
+
+			Assert.Throw(() => { audioEngine.GetCategory(null); });
+			Assert.Throw(() => { audioEngine.GetCategory(""); });
+			Assert.Throw(() => { audioEngine.GetCategory("Music"); });
 
 			Assert.Throw(() => { cue.GetVariable(null); });
 			Assert.Throw(() => { cue.GetVariable(""); });
 			Assert.Throw(() => { cue.GetVariable("Distance"); });
+			Assert.Throw(() => { cue.SetVariable(null, 0f); });
+			Assert.Throw(() => { cue.SetVariable("", 0f); });
+			Assert.Throw(() => { cue.SetVariable("Distance", 0f); });
 
 			Assert.Throw(() => { audioEngine.GetGlobalVariable(null); });
 			Assert.Throw(() => { audioEngine.GetGlobalVariable(""); });
@@ -63,9 +89,6 @@ namespace Microsoft.Xna.Framework.Audio
 			Assert.Throw(() => { audioEngine.SetGlobalVariable(null, 0f); });
 			Assert.Throw(() => { audioEngine.SetGlobalVariable("", 0f); });
 			Assert.Throw(() => { audioEngine.SetGlobalVariable("SpeedOfSound", 0f); });
-			Assert.Throw(() => { audioEngine.GetCategory(null); });
-			Assert.Throw(() => { audioEngine.GetCategory(""); });
-			Assert.Throw(() => { audioEngine.GetCategory("Music"); });
 		}
 	}
 }
