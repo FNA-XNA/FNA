@@ -4,7 +4,7 @@ namespace Microsoft.Xna.Framework.Graphics
 {
 	public static class VertexBufferTest
 	{
-		struct NullVertexType : IVertexType
+		internal struct NullVertexType : IVertexType
 		{
 			VertexDeclaration IVertexType.VertexDeclaration
 			{
