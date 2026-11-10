@@ -141,15 +141,16 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ObjectDisposedException(GetType().Name, "This object has already been disposed.");
 			}
-			if (unchecked((ulong) duration.Ticks) > 0x80000000ul * TimeSpan.TicksPerSecond / (format.nBlockAlign * format.nSamplesPerSec))
+			if (unchecked((ulong) duration.Ticks) > int.MaxValue * TimeSpan.TicksPerSecond / FAudio.FAUDIO_MIN_SAMPLE_RATE / 2)
 			{
 				throw new ArgumentOutOfRangeException("duration");
 			}
-			return SoundEffect.INTERNAL_GetSampleSizeInBytes(
-				duration,
-				(int) format.nSamplesPerSec,
-				format.nBlockAlign
-			);
+			double samples = format.nSamplesPerSec * format.nBlockAlign * duration.TotalSeconds;
+			if (samples > int.MaxValue + 1u)
+			{
+				throw new ArgumentOutOfRangeException("duration");
+			}
+			return MathHelper.DoubleToInt32(samples);
 		}
 
 		public override void Play()

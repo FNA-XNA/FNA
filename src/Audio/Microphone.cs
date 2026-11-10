@@ -181,15 +181,12 @@ namespace Microsoft.Xna.Framework.Audio
 
 		public int GetSampleSizeInBytes(TimeSpan duration)
 		{
-			if (unchecked((ulong) duration.Ticks) > 0x80000000 * TimeSpan.TicksPerSecond / 2 / 44100)
+			const int BlockAlign = 2; // 16-bit PCM!
+			if (unchecked((ulong) duration.Ticks) > (int.MaxValue + 1U) * TimeSpan.TicksPerSecond / BlockAlign / SAMPLERATE)
 			{
 				throw new ArgumentOutOfRangeException("duration");
 			}
-			return SoundEffect.INTERNAL_GetSampleSizeInBytes(
-				duration,
-				SampleRate,
-				2 // 16-bit PCM!
-			);
+			return MathHelper.DoubleToInt32(SAMPLERATE * BlockAlign * duration.TotalSeconds);
 		}
 
 		public void Start()
