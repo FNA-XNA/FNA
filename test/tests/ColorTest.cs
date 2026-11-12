@@ -29,6 +29,12 @@ namespace Microsoft.Xna.Framework
 			Assert.Result(Color.FromNonPremultiplied(r, g, b, a));
 		}
 
+		[Test]
+		public static void Lerp()
+		{
+			Assert.Result(Color.Lerp(new Color(), new Color(5, 10, 15, 20), 0.4f));
+		}
+
 		[Argument(255, 0.4f)]
 		public static void Multiply(int value, float scale)
 		{
