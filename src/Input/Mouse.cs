@@ -79,11 +79,12 @@ namespace Microsoft.Xna.Framework.Input
 				out x1,
 				out x2
 			);
-
-			// Scale the mouse coordinates for the faux-backbuffer
-			x = (int) ((double) x * INTERNAL_BackBufferWidth / INTERNAL_WindowWidth);
-			y = (int) ((double) y * INTERNAL_BackBufferHeight / INTERNAL_WindowHeight);
-
+			if (!FNAPlatform.GetRelativeMouseMode(WindowHandle))
+			{
+				// Scale the mouse coordinates for the faux-backbuffer
+				x = (int) ((double) x * INTERNAL_BackBufferWidth / INTERNAL_WindowWidth);
+				y = (int) ((double) y * INTERNAL_BackBufferHeight / INTERNAL_WindowHeight);
+			}
 			return new MouseState(
 				x,
 				y,
