@@ -1383,6 +1383,9 @@ namespace Microsoft.Xna.Framework
 
 		#region Mouse Methods
 
+		private static float relativeX = 0f;
+		private static float relativeY = 0f;
+
 		public static void GetMouseState(
 			IntPtr window,
 			out int x,
@@ -1398,6 +1401,13 @@ namespace Microsoft.Xna.Framework
 			if (GetRelativeMouseMode(window))
 			{
 				flags = SDL.SDL_GetRelativeMouseState(out fx, out fy);
+				// Add fractional x/y values from previous query, truncate, then preserve truncated fraction for next query
+				float newX = fx + relativeX;
+				fx = (int) newX;
+				relativeX = newX - fx;
+				float newY = fy + relativeY;
+				fy = (int) newY;
+				relativeY = newY - fy;
 			}
 			else if (SupportsGlobalMouse)
 			{
@@ -1450,6 +1460,7 @@ namespace Microsoft.Xna.Framework
 			SDL.SDL_SetWindowRelativeMouseMode(WrapWindow(window), enable);
 			if (enable)
 			{
+				relativeX = relativeY = 0f;
 			    // Flush this value, it's going to be jittery
 			    float filler;
 			    SDL.SDL_GetRelativeMouseState(out filler, out filler);
