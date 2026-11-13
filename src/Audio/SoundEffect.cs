@@ -427,7 +427,7 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) {
-			if (duration.TotalMilliseconds < 0.0 || duration.TotalMilliseconds > int.MaxValue)
+			if (unchecked((ulong) duration.Ticks) > int.MaxValue * TimeSpan.TicksPerMillisecond)
 			{
 				throw new ArgumentOutOfRangeException("duration");
 			}
@@ -439,7 +439,12 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				throw new ArgumentOutOfRangeException("channels");
 			}
-			return INTERNAL_GetSampleSizeInBytes(duration, sampleRate, 2 * (int) channels); // 16-bit PCM!
+			double samples = sampleRate * 2 * (int) channels * duration.TotalSeconds; // 16-bit PCM!
+			if (samples > int.MaxValue + 1u)
+			{
+				throw new ArgumentOutOfRangeException("duration");
+			}
+			return MathHelper.DoubleToInt32(samples);
 		}
 
 		public static SoundEffect FromStream(Stream stream)
@@ -605,18 +610,6 @@ namespace Microsoft.Xna.Framework.Audio
 				(sampleRate / 1000.0f)
 			);
 			return new TimeSpan(0, 0, 0, 0, ms);
-		}
-
-		internal static int INTERNAL_GetSampleSizeInBytes(
-			TimeSpan duration,
-			int sampleRate,
-			int blockAlign
-		) {
-			return (int) (
-				duration.TotalSeconds *
-				sampleRate *
-				blockAlign
-			);
 		}
 
 		#endregion

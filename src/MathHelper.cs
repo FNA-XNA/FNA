@@ -373,6 +373,15 @@ namespace Microsoft.Xna.Framework
 			return value;
 		}
 
+		internal static int DoubleToInt32(double x)
+		{
+#if NET9_0_OR_GREATER
+			return double.ConvertToIntegerNative<int>(x);
+#else
+			return (int) x;
+#endif
+		}
+
 		internal static bool WithinEpsilon(float floatA, float floatB)
 		{
 			return Math.Abs(floatA - floatB) < FloatEpsilon;
