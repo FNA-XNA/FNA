@@ -2658,6 +2658,11 @@ namespace Microsoft.Xna.Framework
 			return Multiply(matrix, scaleFactor);
 		}
 
+		public static Matrix operator *(float scaleFactor, Matrix matrix)
+		{
+			return Multiply(matrix, scaleFactor);
+		}
+
 		/// <summary>
 		/// Subtracts the values of one <see cref="Matrix"/> from another <see cref="Matrix"/>.
 		/// </summary>

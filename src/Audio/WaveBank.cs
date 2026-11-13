@@ -74,10 +74,12 @@ namespace Microsoft.Xna.Framework.Audio
 		) {
 			if (audioEngine == null)
 			{
+				GC.SuppressFinalize(this);
 				throw new ArgumentNullException("audioEngine", "You must pass in a valid audio engine.");
 			}
 			if (string.IsNullOrEmpty(nonStreamingWaveBankFilename))
 			{
+				GC.SuppressFinalize(this);
 				throw new ArgumentNullException("nonStreamingWaveBankFilename", "This method does not accept null for this parameter.");
 			}
 
@@ -114,10 +116,12 @@ namespace Microsoft.Xna.Framework.Audio
 		) {
 			if (audioEngine == null)
 			{
+				GC.SuppressFinalize(this);
 				throw new ArgumentNullException("audioEngine", "You must pass in a valid audio engine.");
 			}
 			if (string.IsNullOrEmpty(streamingWaveBankFilename))
 			{
+				GC.SuppressFinalize(this);
 				throw new ArgumentNullException("streamingWaveBankFilename", "This method does not accept null for this parameter.");
 			}
 

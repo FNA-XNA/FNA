@@ -51,7 +51,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		public VertexDeclaration(
 			params VertexElement[] elements
-		) : this(GetVertexStride(elements), elements) {
+		) : this(elements == null ? 0 : GetVertexStride(elements), elements) {
 		}
 
 		public VertexDeclaration(
@@ -60,6 +60,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		) {
 			if ((elements == null) || (elements.Length == 0))
 			{
+				GC.SuppressFinalize(this);
 				throw new ArgumentNullException("elements", "Elements cannot be empty");
 			}
 

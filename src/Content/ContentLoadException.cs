@@ -9,6 +9,7 @@
 
 #region Using Statements
 using System;
+using System.Runtime.Serialization;
 #endregion
 
 namespace Microsoft.Xna.Framework.Content
@@ -30,6 +31,14 @@ namespace Microsoft.Xna.Framework.Content
 		{
 		}
 
+		#endregion
+
+		#region Protected Constructors
+#pragma warning disable SYSLIB0051
+		protected ContentLoadException(SerializationInfo info, StreamingContext context) : base(info, context)
+		{
+		}
+#pragma warning restore SYSLIB0051
 		#endregion
 	}
 }
