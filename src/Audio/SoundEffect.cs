@@ -170,17 +170,11 @@ namespace Microsoft.Xna.Framework.Audio
 			int sampleRate,
 			AudioChannels channels
 		) : this(
-			string.Empty,
 			buffer,
 			0,
 			buffer.Length,
-			null,
-			1,
-			(ushort) channels,
-			(uint) sampleRate,
-			(uint) (sampleRate * ((ushort) channels * 2)),
-			(ushort) ((ushort) channels * 2),
-			16,
+			sampleRate,
+			channels,
 			0,
 			0
 		) {
@@ -194,31 +188,35 @@ namespace Microsoft.Xna.Framework.Audio
 			AudioChannels channels,
 			int loopStart,
 			int loopLength
-		) : this(
-			string.Empty,
-			buffer,
-			offset,
-			count,
-			null,
-			1,
-			(ushort) channels,
-			(uint) sampleRate,
-			(uint) (sampleRate * ((ushort) channels * 2)),
-			(ushort) ((ushort) channels * 2),
-			16,
-			loopStart,
-			loopLength
-		) {
+		)
+		{
+			IntPtr data = FNAPlatform.Malloc(count);
+			Marshal.Copy(buffer, offset, data, count);
+			Init(
+				string.Empty,
+				data,
+				count,
+				null,
+				1,
+				(ushort) channels,
+				(uint) sampleRate,
+				(uint) (sampleRate * ((ushort) channels * 2)),
+				(ushort) ((ushort) channels * 2),
+				16,
+				loopStart,
+				loopLength
+			);
 		}
 
 		#endregion
 
 		#region Internal Constructor
 
-		internal unsafe SoundEffect(
+		internal SoundEffect() { }
+
+		internal unsafe SoundEffect Init(
 			string name,
-			byte[] buffer,
-			int offset,
+			IntPtr buffer,
 			int count,
 			byte[] extraData,
 			ushort wFormatTag,
@@ -275,13 +273,7 @@ namespace Microsoft.Xna.Framework.Audio
 
 			/* Buffer data */
 			handle.AudioBytes = (uint) count;
-			handle.pAudioData = FNAPlatform.Malloc(count);
-			Marshal.Copy(
-				buffer,
-				offset,
-				handle.pAudioData,
-				count
-			);
+			handle.pAudioData = buffer;
 
 			/* Play regions */
 			handle.PlayBegin = 0;
@@ -312,6 +304,8 @@ namespace Microsoft.Xna.Framework.Audio
 			handle.LoopBegin = 0;
 			handle.LoopLength = 0;
 			handle.LoopCount = 0;
+
+			return this;
 		}
 
 		#endregion
@@ -463,15 +457,41 @@ namespace Microsoft.Xna.Framework.Audio
 			int samplerLoopStart = 0;
 			int samplerLoopEnd = 0;
 
+			data = new byte[4];
+			stream.Read(data, 0, data.Length);
+			string signature = System.Text.Encoding.ASCII.GetString(data);
+			if (signature == "OggS")
+			{
+				FileStream fs = stream as FileStream;
+				if (fs == null)
+				{
+					throw new NotSupportedException("ogg only support load from FileStream");
+				}
+				fs.Close();
+				int error;
+				IntPtr vorbis = FAudio.stb_vorbis_open_filename(fs.Name, out error, IntPtr.Zero);
+				if (vorbis == IntPtr.Zero)
+				{
+					throw new ArgumentException("Vorbis load failed:" + error);
+				}
+				FAudio.stb_vorbis_info info = FAudio.stb_vorbis_get_info(vorbis);
+				nChannels = (ushort) info.channels;
+				nSamplesPerSec = info.sample_rate;
+				nBlockAlign = (ushort) (4 * nChannels);
+				int num_floats = nChannels * (int) FAudio.stb_vorbis_stream_length_in_samples(vorbis);
+				IntPtr f32Buffer = FNAPlatform.Malloc(4 * num_floats);
+				FAudio.stb_vorbis_get_samples_float_interleaved(vorbis, nChannels, f32Buffer, num_floats);
+				FAudio.stb_vorbis_close(vorbis);
+
+				return new SoundEffect().Init(null, f32Buffer, 4 * num_floats, null, 3, nChannels, nSamplesPerSec, nSamplesPerSec * nBlockAlign, nBlockAlign, 32, 0, 0);
+			}
+			// RIFF Signature
+			if (signature != "RIFF")
+			{
+				throw new NotSupportedException("Specified stream is not a wave file.");
+			}
 			using (BinaryReader reader = new BinaryReader(stream))
 			{
-				// RIFF Signature
-				string signature = new string(reader.ReadChars(4));
-				if (signature != "RIFF")
-				{
-					throw new NotSupportedException("Specified stream is not a wave file.");
-				}
-
 				reader.ReadUInt32(); // Riff Chunk Size
 
 				string wformat = new string(reader.ReadChars(4));
@@ -573,11 +593,11 @@ namespace Microsoft.Xna.Framework.Audio
 				}
 				// End scan
 			}
-
-			return new SoundEffect(
+			IntPtr buffer = FNAPlatform.Malloc(data.Length);
+			Marshal.Copy(data, 0, buffer, data.Length);
+			return new SoundEffect().Init(
 				string.Empty,
-				data,
-				0,
+				buffer,
 				data.Length,
 				null,
 				wFormatTag,

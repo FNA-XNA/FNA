@@ -8,7 +8,9 @@
 #endregion
 
 #region Using Statements
+using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 using Microsoft.Xna.Framework.Audio;
 #endregion
@@ -84,10 +86,11 @@ namespace Microsoft.Xna.Framework.Content
 			// Sound duration in milliseconds, unused
 			input.ReadUInt32();
 
-			return new SoundEffect(
+			IntPtr buffer = FNAPlatform.Malloc(data.Length);
+			Marshal.Copy(data, 0, buffer, data.Length);
+			return new SoundEffect().Init(
 				input.AssetName,
-				data,
-				0,
+				buffer,
 				data.Length,
 				extra,
 				wFormatTag,
