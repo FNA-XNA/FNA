@@ -1401,6 +1401,7 @@ namespace Microsoft.Xna.Framework
 			if (GetRelativeMouseMode(window))
 			{
 				flags = SDL.SDL_GetRelativeMouseState(out fx, out fy);
+				// Add fractional x/y values from previous query, truncate, then preserve truncated fraction for next query
 				float newX = fx + relativeX;
 				fx = (int) newX;
 				relativeX = newX - fx;
