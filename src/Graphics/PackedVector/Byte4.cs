@@ -185,10 +185,10 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		static uint Pack(float x, float y, float z, float w)
 		{
 			return (uint) (
-				((uint) Math.Round(MathHelper.Clamp(x, 0, 255))) |
-				((uint) Math.Round(MathHelper.Clamp(y, 0, 255)) << 8) |
-				((uint) Math.Round(MathHelper.Clamp(z, 0, 255)) << 16) |
-				((uint) Math.Round(MathHelper.Clamp(w, 0, 255)) << 24)
+				((uint) MathHelper.Round(MathHelper.Clamp(x, 0, 255))) |
+				((uint) MathHelper.Round(MathHelper.Clamp(y, 0, 255)) << 8) |
+				((uint) MathHelper.Round(MathHelper.Clamp(z, 0, 255)) << 16) |
+				((uint) MathHelper.Round(MathHelper.Clamp(w, 0, 255)) << 24)
 			);
 		}
 

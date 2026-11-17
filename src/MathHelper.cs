@@ -13,6 +13,11 @@
 
 #region Using Statements
 using System;
+#if NET5_0_OR_GREATER
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.Arm;
+using System.Runtime.Intrinsics.X86;
+#endif
 #endregion
 
 namespace Microsoft.Xna.Framework
@@ -403,6 +408,33 @@ namespace Microsoft.Xna.Framework
 			}
 			return result >> 1;
 		}
+
+#if NETCOREAPP2_0_OR_GREATER
+		internal static int Round(float x)
+		{
+#if NET5_0_OR_GREATER
+			if (AdvSimd.IsSupported)
+			{
+				return AdvSimd.ConvertToInt32RoundToEvenScalar(Vector64.CreateScalarUnsafe(x)).ToScalar();
+			}
+#endif
+#if NET9_0_OR_GREATER
+			if (Avx512F.IsSupported)
+			{
+				return Avx512F.ConvertToInt32(Vector128.CreateScalarUnsafe(x), FloatRoundingMode.ToEven);
+			}
+			return float.ConvertToIntegerNative<int>(MathF.Round(x));
+#else
+			return (int) MathF.Round(x);
+#endif
+		}
+#else
+		// Don't change double parameter to float, otherwise JIT32 will generate additional x86 instruction when inlining
+		internal static int Round(double x)
+		{
+			return (int) Math.Round(x);
+		}
+#endif
 
 		#endregion
 	}

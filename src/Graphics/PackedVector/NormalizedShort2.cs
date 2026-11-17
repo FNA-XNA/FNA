@@ -122,18 +122,18 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 			const float min = -max;
 
 			uint word2 = (uint) (
-				(int) MathHelper.Clamp(
-					(float) Math.Round(x * max),
+				(int) MathHelper.Round(MathHelper.Clamp(
+					x * max,
 					min,
 					max
-				) & 0xFFFF
+				)) & 0xFFFF
 			);
 			uint word1 = (uint) ((
-				(int) MathHelper.Clamp(
-					(float) Math.Round(y * max),
+				(int) MathHelper.Round(MathHelper.Clamp(
+					y * max,
 					min,
 					max
-				) & 0xFFFF
+				)) & 0xFFFF
 			) << 0x10);
 
 			return (word2 | word1);

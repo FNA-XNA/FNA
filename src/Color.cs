@@ -1564,10 +1564,10 @@ namespace Microsoft.Xna.Framework
 		public Color(Vector4 color)
 		{
 			packedValue = (
-				(uint) Math.Round(MathHelper.Clamp(color.X, 0f, 1f) * byte.MaxValue) |
-				(uint) Math.Round(MathHelper.Clamp(color.Y, 0f, 1f) * byte.MaxValue) << 8 |
-				(uint) Math.Round(MathHelper.Clamp(color.Z, 0f, 1f) * byte.MaxValue) << 16 |
-				(uint) Math.Round(MathHelper.Clamp(color.W, 0f, 1f) * byte.MaxValue) << 24
+				(uint) MathHelper.Round(MathHelper.Clamp(color.X, 0f, 1f) * byte.MaxValue) |
+				(uint) MathHelper.Round(MathHelper.Clamp(color.Y, 0f, 1f) * byte.MaxValue) << 8 |
+				(uint) MathHelper.Round(MathHelper.Clamp(color.Z, 0f, 1f) * byte.MaxValue) << 16 |
+				(uint) MathHelper.Round(MathHelper.Clamp(color.W, 0f, 1f) * byte.MaxValue) << 24
 			);
 		}
 
@@ -1578,9 +1578,9 @@ namespace Microsoft.Xna.Framework
 		public Color(Vector3 color)
 		{
 			packedValue = (
-				(uint) Math.Round(MathHelper.Clamp(color.X, 0f, 1f) * byte.MaxValue) |
-				(uint) Math.Round(MathHelper.Clamp(color.Y, 0f, 1f) * byte.MaxValue) << 8 |
-				(uint) Math.Round(MathHelper.Clamp(color.Z, 0f, 1f) * byte.MaxValue) << 16 |
+				(uint) MathHelper.Round(MathHelper.Clamp(color.X, 0f, 1f) * byte.MaxValue) |
+				(uint) MathHelper.Round(MathHelper.Clamp(color.Y, 0f, 1f) * byte.MaxValue) << 8 |
+				(uint) MathHelper.Round(MathHelper.Clamp(color.Z, 0f, 1f) * byte.MaxValue) << 16 |
 				0xFF000000u
 			);
 		}
@@ -1594,9 +1594,9 @@ namespace Microsoft.Xna.Framework
 		public Color(float r, float g, float b)
 		{
 			packedValue = (
-				(uint) Math.Round(MathHelper.Clamp(r, 0f, 1f) * byte.MaxValue) |
-				(uint) Math.Round(MathHelper.Clamp(g, 0f, 1f) * byte.MaxValue) << 8 |
-				(uint) Math.Round(MathHelper.Clamp(b, 0f, 1f) * byte.MaxValue) << 16 |
+				(uint) MathHelper.Round(MathHelper.Clamp(r, 0f, 1f) * byte.MaxValue) |
+				(uint) MathHelper.Round(MathHelper.Clamp(g, 0f, 1f) * byte.MaxValue) << 8 |
+				(uint) MathHelper.Round(MathHelper.Clamp(b, 0f, 1f) * byte.MaxValue) << 16 |
 				0xFF000000u
 			);
 		}
@@ -1644,10 +1644,10 @@ namespace Microsoft.Xna.Framework
 		public Color(float r, float g, float b, float alpha)
 		{
 			packedValue = (
-				(uint) Math.Round(MathHelper.Clamp(r, 0f, 1f) * byte.MaxValue) |
-				(uint) Math.Round(MathHelper.Clamp(g, 0f, 1f) * byte.MaxValue) << 8 |
-				(uint) Math.Round(MathHelper.Clamp(b, 0f, 1f) * byte.MaxValue) << 16 |
-				(uint) Math.Round(MathHelper.Clamp(alpha, 0f, 1f) * byte.MaxValue) << 24
+				(uint) MathHelper.Round(MathHelper.Clamp(r, 0f, 1f) * byte.MaxValue) |
+				(uint) MathHelper.Round(MathHelper.Clamp(g, 0f, 1f) * byte.MaxValue) << 8 |
+				(uint) MathHelper.Round(MathHelper.Clamp(b, 0f, 1f) * byte.MaxValue) << 16 |
+				(uint) MathHelper.Round(MathHelper.Clamp(alpha, 0f, 1f) * byte.MaxValue) << 24
 			);
 		}
 
@@ -1863,10 +1863,10 @@ namespace Microsoft.Xna.Framework
 		void IPackedVector.PackFromVector4(Vector4 vector)
 		{
 			packedValue = (
-				(uint) Math.Round(MathHelper.Clamp(vector.X, 0f, 1f) * byte.MaxValue) |
-				(uint) Math.Round(MathHelper.Clamp(vector.Y, 0f, 1f) * byte.MaxValue) << 8 |
-				(uint) Math.Round(MathHelper.Clamp(vector.Z, 0f, 1f) * byte.MaxValue) << 16 |
-				(uint) Math.Round(MathHelper.Clamp(vector.W, 0f, 1f) * byte.MaxValue) << 24
+				(uint) MathHelper.Round(MathHelper.Clamp(vector.X, 0f, 1f) * byte.MaxValue) |
+				(uint) MathHelper.Round(MathHelper.Clamp(vector.Y, 0f, 1f) * byte.MaxValue) << 8 |
+				(uint) MathHelper.Round(MathHelper.Clamp(vector.Z, 0f, 1f) * byte.MaxValue) << 16 |
+				(uint) MathHelper.Round(MathHelper.Clamp(vector.W, 0f, 1f) * byte.MaxValue) << 24
 			);
 		}
 
