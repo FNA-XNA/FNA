@@ -150,18 +150,19 @@ namespace Microsoft.Xna.Framework
 		/// <returns>The clamped value.</returns>
 		public static float Clamp(float value, float min, float max)
 		{
-			if (value > max) // First we check to see if we're greater than the max.
+			float v = value;
+			if (v > max) // First we check to see if we're greater than the max.
 			{
-				value = max;
+				v = max;
 			}
 
-			if (value < min) // Then we check to see if we're less than the min.
+			if (v < min) // Then we check to see if we're less than the min.
 			{
-				value = min;
+				v = min;
 			}
 
 			// There's no check to see if min > max.
-			return value;
+			return v;
 		}
 
 		/// <summary>
