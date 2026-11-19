@@ -1184,7 +1184,7 @@ namespace Microsoft.Xna.Framework
 			float farPlaneDistance,
 			out Matrix result
 		) {
-			if ((fieldOfView <= 0f) || (fieldOfView >= 3.141593f))
+			if ((fieldOfView <= 0f) || (fieldOfView >= MathHelper.Pi))
 			{
 				throw new ArgumentException("fieldOfView <= 0 or >= PI");
 			}
