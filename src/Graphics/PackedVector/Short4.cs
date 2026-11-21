@@ -81,9 +81,9 @@ namespace Microsoft.Xna.Framework.Graphics.PackedVector
 		public Vector4 ToVector4()
 		{
 			return new Vector4(
-				(short) (packedValue & 0xFFFF),
-				(short) ((packedValue >> 16) & 0xFFFF),
-				(short) ((packedValue >> 32) & 0xFFFF),
+				(short) packedValue,
+				(short) (packedValue >> 16),
+				(short) (packedValue >> 32),
 				(short) (packedValue >> 48)
 			);
 		}
