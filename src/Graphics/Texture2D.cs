@@ -182,6 +182,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentNullException("data", "This method does not accept null for this parameter.");
 			}
+			if (isActiveRenderTarget)
+			{
+				throw new InvalidOperationException("The render target must not be set on the device when it is used as a texture.");
+			}
 			if (unchecked((uint) level >= (uint) LevelCount))
 			{
 				throw new InvalidOperationException("An unexpected error has occurred.");
@@ -313,6 +317,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			if (data == null || data.Length == 0)
 			{
 				throw new ArgumentNullException("data", "This method does not accept null for this parameter.");
+			}
+			if (isActiveRenderTarget)
+			{
+				throw new InvalidOperationException("The render target must not be set on the device when it is used as a texture.");
 			}
 			if (unchecked((uint) level >= (uint) LevelCount))
 			{
