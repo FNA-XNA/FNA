@@ -33,7 +33,6 @@ namespace Microsoft.Xna.Framework
 		public abstract DisplayOrientation CurrentOrientation
 		{
 			get;
-			internal set;
 		}
 
 		public abstract IntPtr Handle

@@ -926,7 +926,6 @@ namespace Microsoft.Xna.Framework
 
 			// Update the graphics device and window
 			graphicsDevice.PresentationParameters.DisplayOrientation = orientation;
-			window.CurrentOrientation = orientation;
 
 			graphicsDevice.Reset(
 				graphicsDevice.PresentationParameters,
