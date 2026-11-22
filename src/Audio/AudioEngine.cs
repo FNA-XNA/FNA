@@ -347,11 +347,12 @@ namespace Microsoft.Xna.Framework.Audio
 			{
 				if (!IsDisposed)
 				{
+					IsDisposed = true;
+
 					FAudio.FACTAudioEngine_ShutDown(handle);
 					FAudio.FACTAudioEngine_Release(handle);
 					rendererDetails = null;
 
-					IsDisposed = true;
 					if (disposing && Disposing != null)
 					{
 						Disposing(this, EventArgs.Empty);
