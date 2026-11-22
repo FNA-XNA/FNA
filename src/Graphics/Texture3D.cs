@@ -152,6 +152,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			)) {
 				throw new ArgumentException("The rectangle is too large or too small for this resource.", "box");
 			}
+			int width = right - left;
+			int height = top - bottom;
+			int depth = back - front;
+			if (elementSizeInBytes * elementCount != width * height * depth * formatSize)
+			{
+				throw new ArgumentException("The size of the data passed in is too large or too small for this resource.");
+			}
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_SetTextureData3D(
 				GraphicsDevice.GLDevice,
@@ -159,9 +166,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				left,
 				top,
 				front,
-				right - left,
-				bottom - top,
-				back - front,
+				width,
+				height,
+				depth,
 				level,
 				handle.AddrOfPinnedObject() + startIndex * elementSizeInBytes,
 				elementCount * elementSizeInBytes
@@ -296,6 +303,13 @@ namespace Microsoft.Xna.Framework.Graphics
 			)) {
 				throw new ArgumentException("The rectangle is too large or too small for this resource.", "box");
 			}
+			int width = right - left;
+			int height = top - bottom;
+			int depth = back - front;
+			if (elementSizeInBytes * elementCount != width * height * depth * formatSize)
+			{
+				throw new ArgumentException("The size of the data passed in is too large or too small for this resource.");
+			}
 
 			GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 			FNA3D.FNA3D_GetTextureData3D(
@@ -304,9 +318,9 @@ namespace Microsoft.Xna.Framework.Graphics
 				left,
 				top,
 				front,
-				right - left,
-				bottom - top,
-				back - front,
+				width,
+				height,
+				depth,
 				level,
 				handle.AddrOfPinnedObject() + (startIndex * elementSizeInBytes),
 				elementCount * elementSizeInBytes
