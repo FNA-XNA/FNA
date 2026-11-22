@@ -104,6 +104,11 @@ namespace Microsoft.Xna.Framework.Graphics
 			}
 		}
 
+		internal void ClearDisposedTextures()
+		{
+			Array.Clear(textures, 0, textures.Length);
+		}
+
 		#endregion
 	}
 }
