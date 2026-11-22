@@ -25,17 +25,17 @@ namespace Microsoft.Xna.Framework.Input.Touch
 			get
 			{
 				if (touches == null)
+				{
 					return 0;
-				return touches.Count;
+				}
+				return touches.Length;
 			}
 		}
 
 		public bool IsConnected
 		{
-			get
-			{
-				return TouchPanel.TouchDeviceExists;
-			}
+			get;
+			private set;
 		}
 
 		public bool IsReadOnly
@@ -50,14 +50,15 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		{
 			get
 			{
-				if (touches == null)
-					throw new ArgumentOutOfRangeException();
+				if (index < 0 || index >= Count)
+				{
+					throw new ArgumentOutOfRangeException("index");
+				}
 				return touches[index];
 			}
 			set
 			{
-				// This will cause a runtime exception
-				touches[index] = value;
+				throw new NotSupportedException();
 			}
 		}
 
@@ -65,7 +66,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		#region Private Variables
 
-		private readonly List<TouchLocation> touches;
+		private readonly TouchLocation[] touches;
 
 		#endregion
 
@@ -73,7 +74,27 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public TouchCollection(TouchLocation[] touches)
 		{
-			this.touches = new List<TouchLocation>(touches);
+			if (touches == null)
+			{
+				throw new ArgumentNullException("touches");
+			}
+			if (touches.Length > TouchPanel.MAX_TOUCHES)
+			{
+				throw new ArgumentOutOfRangeException("touches");
+			}
+			IsConnected = true;
+			this.touches = new TouchLocation[touches.Length];
+			touches.CopyTo(this.touches, 0);
+		}
+
+		#endregion
+
+		#region Internal Constructor
+
+		internal TouchCollection(TouchLocation[] touches, bool isConnected)
+		{
+			this.touches = touches;
+			IsConnected = isConnected;
 		}
 
 		#endregion
@@ -87,25 +108,37 @@ namespace Microsoft.Xna.Framework.Input.Touch
 
 		public void Add(TouchLocation item)
 		{
-			touches.Add(item);
+			throw new NotSupportedException();
 		}
 
 		public void Clear()
 		{
-			touches.Clear();
+			throw new NotSupportedException();
 		}
 
 		public bool Contains(TouchLocation item)
 		{
 			if (touches == null)
+			{
 				return false;
-			return touches.Contains(item);
+			}
+			return Array.IndexOf(touches, item) != -1;
 		}
 
 		public void CopyTo(TouchLocation[] array, int arrayIndex)
 		{
+			if (array == null)
+			{
+				throw new ArgumentNullException("array");
+			}
+			if (arrayIndex < 0 || array.Length - arrayIndex < Count)
+			{
+				throw new ArgumentOutOfRangeException("arrayIndex");
+			}
 			if (touches == null)
+			{
 				return;
+			}
 			touches.CopyTo(array, arrayIndex);
 		}
 
@@ -122,11 +155,7 @@ namespace Microsoft.Xna.Framework.Input.Touch
 					}
 				}
 			}
-			touchLocation = new TouchLocation(
-				-1,
-				TouchLocationState.Invalid,
-				Vector2.Zero
-			);
+			touchLocation = new TouchLocation();
 			return false;
 		}
 
@@ -138,23 +167,25 @@ namespace Microsoft.Xna.Framework.Input.Touch
 		public int IndexOf(TouchLocation item)
 		{
 			if (touches == null)
+			{
 				return -1;
-			return touches.IndexOf(item);
+			}
+			return Array.IndexOf(touches, item);
 		}
 
 		public void Insert(int index, TouchLocation item)
 		{
-			touches.Insert(index, item);
+			throw new NotSupportedException();
 		}
 
 		public bool Remove(TouchLocation item)
 		{
-			return touches.Remove(item);
+			throw new NotSupportedException();
 		}
 
 		public void RemoveAt(int index)
 		{
-			touches.RemoveAt(index);
+			throw new NotSupportedException();
 		}
 
 		#endregion
