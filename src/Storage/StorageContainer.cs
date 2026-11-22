@@ -96,20 +96,7 @@ namespace Microsoft.Xna.Framework.Storage
 			StorageDevice = device;
 			DisplayName = name;
 
-			/* There are two types of subfolders within a StorageContainer.
-			 * The first is a PlayerX folder, X being a specified PlayerIndex.
-			 * The second is AllPlayers, when PlayerIndex is NOT specified.
-			 * Basically, you should NEVER expect to have ANY file in the root
-			 * game save folder.
-			 * -flibit
-			 */
-			storagePath = Path.Combine(
-				rootPath,		// Title folder (EXE name)...
-				name,			// Container folder...
-				playerIndex == StorageDevice.AllPlayers ?  // Player folder...
-					"AllPlayers":
-					("Player" + ((int) playerIndex + 1).ToString())
-			);
+			storagePath = GetDirectory(rootPath, name, playerIndex);
 
 			// Create the folders, if needed.
 			if (!Directory.Exists(storagePath))
@@ -416,6 +403,28 @@ namespace Microsoft.Xna.Framework.Storage
 			string filePath = Path.Combine(storagePath, file);
 
 			return File.Open(filePath, fileMode, fileAccess, fileShare);
+		}
+
+		#endregion
+
+		#region Internal Static Methods
+
+		internal static string GetDirectory(string rootPath, string titleName, PlayerIndex playerIndex)
+		{
+			/* There are two types of subfolders within a StorageContainer.
+			 * The first is a PlayerX folder, X being a specified PlayerIndex.
+			 * The second is AllPlayers, when PlayerIndex is NOT specified.
+			 * Basically, you should NEVER expect to have ANY file in the root
+			 * game save folder.
+			 * -flibit
+			 */
+			return Path.Combine(
+				rootPath,		// Title folder (EXE name)...
+				titleName,		// Container folder...
+				playerIndex == StorageDevice.AllPlayers ?  // Player folder...
+				"AllPlayers" :
+				"Player" + ((int) playerIndex + 1).ToString()
+			);
 		}
 
 		#endregion
