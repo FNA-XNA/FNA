@@ -146,6 +146,7 @@ namespace Microsoft.Xna.Framework.Storage
 
 		private class NotAsyncLie : IAsyncResult
 		{
+			internal bool calledEnd = false;
 			public object AsyncState
 			{
 				get;
@@ -241,9 +242,19 @@ namespace Microsoft.Xna.Framework.Storage
 		/// <param name="result">Result of BeginOpenContainer.</param>
 		public StorageContainer EndOpenContainer(IAsyncResult result)
 		{
+			OpenContainerLie openContainerLie = result as OpenContainerLie;
+			if (openContainerLie == null)
+			{
+				throw new ArgumentNullException("result");
+			}
+			if (openContainerLie.calledEnd)
+			{
+				throw new InvalidOperationException("An \"End\" function can only be called once for each call to \"Begin.\"");
+			}
+			openContainerLie.calledEnd = true;
 			return new StorageContainer(
 				this,
-				(result as OpenContainerLie).DisplayName,
+				openContainerLie.DisplayName,
 				storageRoot,
 				devicePlayer
 			);
@@ -334,6 +345,10 @@ namespace Microsoft.Xna.Framework.Storage
 			{
 				throw new ArgumentOutOfRangeException("player");
 			}
+			if (sizeInBytes < 0)
+			{
+				throw new ArgumentOutOfRangeException("sizeInBytes");
+			}
 			IAsyncResult result = new ShowSelectorLie(state, player);
 			if (callback != null)
 			{
@@ -349,7 +364,17 @@ namespace Microsoft.Xna.Framework.Storage
 		/// <param name="result">The result of BeginShowSelector.</param>
 		public static StorageDevice EndShowSelector(IAsyncResult result)
 		{
-			return new StorageDevice((result as ShowSelectorLie).PlayerIndex);
+			ShowSelectorLie showSelectorLie = result as ShowSelectorLie;
+			if (showSelectorLie == null)
+			{
+				throw new ArgumentNullException("result");
+			}
+			if (showSelectorLie.calledEnd)
+			{
+				throw new InvalidOperationException("An \"End\" function can only be called once for each call to \"Begin.\"");
+			}
+			showSelectorLie.calledEnd = true;
+			return new StorageDevice(showSelectorLie.PlayerIndex);
 		}
 
 		#endregion
