@@ -1172,6 +1172,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				newWidth = PresentationParameters.BackBufferWidth;
 				newHeight = PresentationParameters.BackBufferHeight;
 				clearTarget = PresentationParameters.RenderTargetUsage;
+				Viewport = new Viewport(0, 0, newWidth, newHeight);
+				ScissorRectangle = new Rectangle(0, 0, newWidth, newHeight);
 
 				// Resolve previous targets, if needed
 				for (int i = 0; i < renderTargetCount; i += 1)
@@ -1221,6 +1223,8 @@ namespace Microsoft.Xna.Framework.Graphics
 				newWidth = target.Width;
 				newHeight = target.Height;
 				clearTarget = target.RenderTargetUsage;
+				Viewport = new Viewport(0, 0, newWidth, newHeight);
+				ScissorRectangle = new Rectangle(0, 0, newWidth, newHeight);
 
 				// Resolve previous targets, if needed
 				for (int i = 0; i < renderTargetCount; i += 1)
@@ -1248,9 +1252,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				renderTargetCount = renderTargets.Length;
 			}
 
-			// Apply new GL state, clear target if requested
-			Viewport = new Viewport(0, 0, newWidth, newHeight);
-			ScissorRectangle = new Rectangle(0, 0, newWidth, newHeight);
+			// Clear target if requested
 			if (clearTarget == RenderTargetUsage.DiscardContents)
 			{
 				Clear(
