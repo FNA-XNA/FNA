@@ -193,9 +193,17 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				throw new ArgumentException("The type you are using for T in this method is an invalid size for this resource.");
 			}
-			int x, y, w, h;
+			int x, y;
+			int w = Math.Max(Width >> level, 1);
+			int h = Math.Max(Height >> level, 1);
 			if (rect.HasValue)
 			{
+				if (
+					rect.Value.X < 0 || rect.Value.Width <= 0 || rect.Value.Right > w ||
+					rect.Value.Y < 0 || rect.Value.Height <= 0 || rect.Value.Bottom > h
+				) {
+					throw new ArgumentException("The rectangle is too large or too small for this resource.", "rect");
+				}
 				x = rect.Value.X;
 				y = rect.Value.Y;
 				w = rect.Value.Width;
@@ -205,8 +213,6 @@ namespace Microsoft.Xna.Framework.Graphics
 			{
 				x = 0;
 				y = 0;
-				w = Math.Max(Width >> level, 1);
-				h = Math.Max(Height >> level, 1);
 			}
 			int requiredBytes = (w * h * formatSize) / GetBlockSizeSquaredEXT(Format);
 			int availableBytes = elementCount * elementSizeInBytes;
